@@ -160,7 +160,6 @@ var toReturn = {
 			max: -1
 		},
 		fragments: {
-			locked: 1,
 			owned: 0,
 			max: -1
 		}
@@ -1731,12 +1730,11 @@ var toReturn = {
 			message: "You found your first map fragment! You can create a map with 3 fragments.",
 			cost: {
 				special: function () {
-					return (game.resources.fragments.owned >= 1 || game.resources.fragments.locked != 1) ? true : false;
+					return (game.resources.fragments.owned >= 1 || game.global.mapsOwnedArray.length >= 1) ? true : false;
 				}
 			},
 			fire: function () {
 				document.getElementById("mapsBtn").style.visibility = "visible";
-				game.resources.fragments.locked = 0;
 				fadeIn("fragments", 10);
 			}
 		
