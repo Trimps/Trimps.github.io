@@ -1,0 +1,521 @@
+/*Top Row*/
+
+.progress-bar {
+    -webkit-transition: width .1s ease;
+    transition: width .1s ease;
+}
+
+#wrapper {
+    padding: 15px;
+    height: 100%;
+    background: url(bg2.png) center repeat-x;
+    background-size: auto 100%;
+}
+
+#topRow {
+    /*height: 285px;*/
+    
+    height: 18vw;
+    margin-bottom: 10px;
+}
+
+#bottomRow {
+    height: calc(99% - 20vw);
+}
+
+.playerGather {
+    font-size: 1.1vw;
+    text-align: center;
+    width: 100%;
+	height: 100%;
+    border: 2px solid white;
+    background: rgba(121, 121, 123, 0.5);
+    margin-bottom: 3%;
+    color: white;
+}
+.resourceRow{
+	height: 48%;
+}
+#resourceColumn {
+    padding-right: .3%;
+	height: 100%;
+}
+.maxH{
+	height: 100%;
+}
+#miscColumn {
+    padding-left: .3%;
+    padding-right: .3%;
+	height: 100%;
+}
+
+#trimpsColumn {
+    padding-left: .3%;
+    padding-right: .3%;
+    height: 100%;
+}
+
+.resourceRow >:first-child {
+    padding-right: 1%;
+}
+
+.resourceRow >:nth-child(2) {
+    padding-left: 1%;
+}
+
+.resProgress {
+    height: 10%;
+}
+
+.playerGatherSm {
+    height: 23%;
+}
+
+.playerGatherSm > .title {
+	font-size: 1.2vw;
+}
+
+#trimps {
+    height: 100%;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 1.4em;
+}
+
+#logBtnGroup {
+    height: 10%;
+}
+
+.workBtn {
+    border: 1px solid white;
+    background: rgba(0, 0, 0, 1);
+    font-size: 1.12em;
+    text-align: center;
+    padding: 3px;
+}
+
+.lowPad {}
+
+#science {
+    padding-top: 3.5%;
+}
+
+.collectRow {
+    margin-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.collectRow >:first-child {
+    padding-right: 2px;
+}
+
+.collectRow >:nth-child(2) {
+    padding-left: 2px;
+}
+
+.psText {
+    font-size: 1.2em;
+    display: block;
+    text-align: center;
+}
+
+.collectRow {}
+
+#trapArea {
+    border: 1px solid white;
+    display: inline-block;
+    padding: 2%;
+    margin-bottom: 2%;
+    margin-top: 2%;
+    width: 85%;
+}
+
+#trappingBar {}
+
+#trappingProgress {
+    margin-top: 3%;
+}
+
+#empHide,
+#unempHide {
+    font-size: 1.2em;
+}
+
+#logContainer {
+    border: 2px solid white;
+    padding-top: 5px;
+    height: 100%;
+    width: 100%;
+    background: rgba(121, 121, 123, 0.5);
+    color: white;
+}
+
+#logColumn {
+    padding-left: .3%;
+	height: 100%;
+}
+
+.noticesMessage {
+    color: red;
+}
+
+#buyCol {
+	height: 100%;
+}
+
+.alert {
+    background-color: yellow;
+    color: black;
+}
+
+#foremenCount,
+#buildSpeed {
+    font-size: 1.12em;
+    margin-top: 5px;
+}
+
+#queueContainer {
+    background: rgba(121, 121, 123, 0.5);
+    border: 2px solid white;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    height: 105px;
+}
+
+.queueItem {
+    display: inline-block;
+    font-size: 1.1em;
+    color: white;
+    border: 1px solid white;
+    cursor: pointer;
+    text-align: center;
+    padding: 2px;
+}
+
+#buildingsQueue >:nth-child(2) {
+    border: 2px solid yellow;
+    margin-left: 5px;
+}
+
+#queueRow {
+    color: white;
+    font-size: 1.2em;
+    text-align: center;
+    height: 40px;
+}
+
+#buildingsCollectBtn {
+    width: 95%;
+}
+
+#buildingsQueue {
+    overflow-y: auto;
+    height: 30px;
+}
+
+#noQueue {
+    font-size: 1.4em;
+    color: white;
+    padding-left: 5px;
+}
+
+#fireBtn {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid white;
+}
+
+.nav-tabs>li {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.nav > li > a:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.nav > li > a:focus {
+    background: none;
+}
+
+.nav-tabs>li>a {
+    color: white;
+    font-size: 1.1em;
+    padding: 4px;
+}
+
+#buyHere {
+    width: 100%;
+    overflow-y: auto;
+    padding: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.titleDiv {
+    font-size: 1.5em;
+    padding: 5px 0 5px 0;
+    text-align: center;
+    width: calc(100% - 10px);
+}
+
+.titleSpan {}
+
+#buyContainer {
+	border: 2px solid white;
+	overflow-y: auto;
+	margin: 0 0 5px 0;
+	background: rgba(121,121,123,0.5);
+	color: white;
+	height: calc(99vh - 20vw - 145px);
+}
+
+#buyHere {
+    padding: 5px;
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+
+.thing {
+    display: inline-block;
+	width: 19.4%;
+	margin-left: 0.25%;
+	margin-right: 0.25%;
+    padding: 10px;
+    text-align: center;
+    background-color: #5B6073;
+    color: white;
+    font-size: .85vw;
+    border: 1px solid white;
+}
+
+#battleContainer {
+    border: 2px solid white;
+    background: rgba(121, 121, 123, 0.5);
+    color: white;
+    padding: 10px;
+    height: 100%;
+    width: 100%;
+}
+
+#battleHeadContainer {
+    height: 145px;
+}
+
+#battleHead {
+    text-align: center;
+}
+
+#goodGuyBar,
+#badGuyBar {
+    -webkit-transition: width .6s ease;
+    transition: width .6s ease;
+}
+
+#gridRow {
+    height: calc(99% - 140px);
+}
+
+#settingsRow {
+    position: fixed;
+    bottom: 0;
+    background-color: grey;
+    width: 100%;
+    left: 0;
+}
+
+.settingsBtn {
+    font-size: 1.3vw;
+}
+
+#numTabs > ul > li > a {
+    padding: 3px;
+}
+
+#mapsHere {
+    height: calc(100% - 110px);
+    overflow-y: auto;
+}
+
+#grid,
+#mapGrid {
+    width: 100%;
+    height: 100%;
+    color: black;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 1vw;
+    text-align: center;
+}
+
+#settingsTable {
+    width: 100%;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.inline {
+    display: inline-block;
+}
+
+.progress {
+    margin-bottom: 0;
+}
+
+#rightCol {
+    height: 100%;
+}
+
+.ownedArea {
+    font-size: 1.3em;
+}
+
+#leftMenu {
+    height: 100%;
+    padding: 10px;
+    padding-top: 0;
+}
+
+.buyTitle {
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.message {
+    display: block;
+    margin-top: 5px;
+    font-size: 1.3em;
+}
+
+#buildings {
+    text-align: center;
+}
+
+.battleCell {
+    border: 1px solid black;
+    width: 10%;
+    height: 10%;
+}
+
+.collecting {}
+
+#log {
+    margin-top: 5px;
+    height: calc(100% - 42px);
+    width: 100%;
+    overflow-y: scroll;
+    padding-left: 5px;
+    padding-top: 2px;
+    padding-right: 5px;
+    font-size: 1.1em;
+}
+
+#settings {}
+
+#tooltipDiv {
+    width: 25%;
+    position: absolute;
+    background: lightgrey;
+    display: none;
+    padding: 10px;
+    border: 2px solid blue;
+    font-size: 1.2em;
+	z-index: 9999;
+}
+
+.maxCenter: {
+    width: 100%;
+    text-align: center;
+}
+
+#tipTitle {
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.fightBtn{
+	width: 100%;
+	font-size: 1.1vw;
+}
+
+.battleStatsTitle {
+    font-size: 1.2em;
+}
+
+.errorMessage {
+    color: red;
+}
+
+.battleSideBtnContainer{
+	margin-top: 15px;
+}
+
+#battleTimer {
+    text-align: center;
+    font-size: 1.5em;
+}
+
+#battleSideTitle {
+    font-size: 1.6em;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.3);
+	padding-top: 5%;
+	padding-bottom: 5%;
+	
+}
+
+.niceScroll::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    background-color: #F5F5F5;
+}
+
+.niceScroll::-webkit-scrollbar {
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+.niceScroll::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: #555;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.logFlt {
+    border-radius: 0;
+}
+
+#preMapsTitle {
+    width: 100%;
+    text-align: center;
+    font-size: 1.3em;
+}
+
+#selectedMapContainer {
+    font-size: 1.2em;
+    text-align: center;
+}
+
+#selectedMapName {
+    text-decoration: underline;
+}
+
+.green {
+    color: green;
+}
+
+.red {
+    color: red;
+}
