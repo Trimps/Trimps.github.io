@@ -143,6 +143,7 @@ var toReturn = {
 			max: -1
 		},
 		fragments: {
+			locked: 1,
 			owned: 0,
 			max: -1
 		}
@@ -1718,6 +1719,7 @@ var toReturn = {
 			},
 			fire: function () {
 				document.getElementById("mapsBtn").style.visibility = "visible";
+				game.resources.fragments.locked = 0;
 				fadeIn("fragments", 10);
 			}
 		
