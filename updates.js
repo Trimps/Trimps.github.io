@@ -148,6 +148,12 @@ function tooltip(what, isItIn, event) {
 			}
 		}
 	}
+	if (isItIn == "equipment"){
+		if (game.global.buyAmt > 1) {
+			costText = canAffordBuilding(what, false, true, true);
+			what += " X" + game.global.buyAmt;
+		}
+	}
 	if (isItIn == "maps"){
 		tooltipText = "This is a map. Click it to see its properties or to run it. Maps can be run as many times as you want.";
 		costText = "";
@@ -646,6 +652,14 @@ function checkButtons(what) {
 			var thisBuilding = game.buildings[itemBuild];
 			if (thisBuilding.locked == 1) continue;
 			updateButtonColor(itemBuild, canAffordBuilding(itemBuild))
+		}
+		return;
+	}
+	if (what == "equipment"){
+		for (var itemEquip in game.equipment){
+			var thisEquipment = game.equipment[itemEquip];
+			if (thisEquipment.locked == 1) continue;
+			updateButtonColor(itemEquip, canAffordBuilding(itemEquip, null, null, true))
 		}
 		return;
 	}

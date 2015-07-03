@@ -355,14 +355,16 @@ function resolvePow(cost, whatObj, addOwned) {
     return (Math.floor(cost[0] * Math.pow(cost[1], (whatObj[compare] + addOwned))));
 }
 
-function canAffordBuilding(what, take, buildCostString){
+//Now with equipment!
+function canAffordBuilding(what, take, buildCostString, isEquipment){
 	var costString = "";
-	var toBuy = game.buildings[what];
+	if (!isEquipment) var toBuy = game.buildings[what];
+	else var toBuy = game.equipment[what];
 	if (typeof toBuy === 'undefined') console.log(what);
 	for (var costItem in toBuy.cost) {
 		var color = "green";
 		var price = 0;
-		price = getBuildingItemPrice(toBuy, costItem)
+		price = getBuildingItemPrice(toBuy, costItem, isEquipment)
 		if (price > game.resources[costItem].owned) {
 			if (buildCostString) color = "red";
 			else return false;
@@ -370,21 +372,25 @@ function canAffordBuilding(what, take, buildCostString){
 		if (buildCostString) costString += '<span class="' + color + '">' + costItem + ':&nbsp;' + prettify(price) + '</span>, ';
 		if (take) game.resources[costItem].owned -= price;
 	}
-	if (buildCostString) return costString;
+	if (buildCostString) {
+		costString = costString.slice(0, -2);
+		return costString;
+	}
 	return true;
 }
 
-function getBuildingItemPrice(toBuy, costItem){
+function getBuildingItemPrice(toBuy, costItem, isEquipment){
 	var price = 0;
+	var compare = (isEquipment) ? "level" : "purchased";
 	var thisCost = toBuy.cost[costItem];
 		if (typeof thisCost[1] !== 'undefined'){
-			if (thisCost.lastCheckCount != game.global.buyAmt || thisCost.lastCheckOwned != toBuy.purchased){
+			if (thisCost.lastCheckCount != game.global.buyAmt || thisCost.lastCheckOwned != toBuy[compare]){
 				for (var x = 0; x < game.global.buyAmt; x++){
 						price += resolvePow(thisCost, toBuy, x);
 				}
 				thisCost.lastCheckCount = game.global.buyAmt;
 				thisCost.lastCheckAmount = price;
-				thisCost.lastCheckOwned = toBuy.purchased;
+				thisCost.lastCheckOwned = toBuy[compare];
 			}
 			else price = thisCost.lastCheckAmount;
 		}
@@ -1222,15 +1228,16 @@ function updateGoodBar() {
 }
 
 function buyEquipment(what) {
-    var canAfford = affordOneTier(what, "resources");
-    if (!canAfford) return;
-    if (canAfford) affordOneTier(what, "resources", true);
-    var obj = game.equipment[what];
-    if (typeof obj.attack !== 'undefined') game.global.attack += obj.attack;
-    if (typeof obj.health !== 'undefined') game.global.health += obj.health;
-    obj.level++;
-    document.getElementById(what + "Owned").innerHTML = obj.level;
-    tooltip(what, "equipment", "update");
+	var toBuy = game.equipment[what];
+	if (typeof toBuy === 'undefined') return;
+	var canAfford = canAffordBuilding(what, null, null, true);
+	if (canAfford){
+		canAffordBuilding(what, true, null, true);
+		toBuy.level += game.global.buyAmt;
+		if (typeof obj.attack !== 'undefined') game.global.attack += (obj.attack * game.global.buyAmt);
+		if (typeof obj.health !== 'undefined') game.global.health += (obj.health * game.global.buyAmt);
+	}
+	tooltip(what, "equipment", "update");	
 }
 
 function affordOneTier(what, whereFrom, take) {
