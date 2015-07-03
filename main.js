@@ -971,12 +971,12 @@ function mapsSwitch(updateOnly) {
         var currentMapObj = getCurrentMapObject();
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "none";
-        document.getElementById("mapGrid").style.display = "block";
+        document.getElementById("mapGrid").style.display = "table";
         document.getElementById("mapsBtn").innerHTML = "World";
         document.getElementById("worldNumber").innerHTML = "Lv: " + currentMapObj.level;
         document.getElementById("worldName").innerHTML = currentMapObj.name;
     } else {
-        document.getElementById("grid").style.display = "block";
+        document.getElementById("grid").style.display = "table";
         document.getElementById("preMaps").style.display = "none";
         document.getElementById("mapGrid").style.display = "none";
         document.getElementById("mapsBtn").innerHTML = "Maps";
