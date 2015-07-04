@@ -1234,8 +1234,8 @@ function buyEquipment(what) {
 	if (canAfford){
 		canAffordBuilding(what, true, null, true);
 		toBuy.level += game.global.buyAmt;
-		if (typeof obj.attack !== 'undefined') game.global.attack += (obj.attack * game.global.buyAmt);
-		if (typeof obj.health !== 'undefined') game.global.health += (obj.health * game.global.buyAmt);
+		if (typeof toBuy.attack !== 'undefined') game.global.attack += (toBuy.attack * game.global.buyAmt);
+		if (typeof toBuy.health !== 'undefined') game.global.health += (toBuy.health * game.global.buyAmt);
 	}
 	tooltip(what, "equipment", "update");	
 }
