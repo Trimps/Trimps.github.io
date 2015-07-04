@@ -177,81 +177,32 @@ function unlockTooltip(){
 }
 
 function prettify(number) {
+	var numberTmp = number;
 	number = Math.round(number * 1000000) / 1000000;
-	var base = 0;
-	while (number >= 1000){
-		number /= 1000;
-		base++;
+	
+	if(number === 0)
+	{
+		return prettifySub(0);
 	}
-	if (base === 0) return prettifySub(number);
+	var base = Math.floor(Math.log(number)/Math.log(1000));
+	
+	if (base <= 0) return prettifySub(number);
+	number /= Math.pow(1000, base);
+	
+	var suffices = [
+		'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
+		'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V'
+	];
 	var suffix;
-	switch (base) {
-		case 1: 
-			suffix = "K";
-			break;
-		case 2: 
-			suffix = "M";
-			break;
-		case 3:
-			suffix = "B";
-			break;
-		case 4:
-			suffix = "T";
-			break;
-		case 5: 
-			suffix = "Qa";
-			break;
-		case 6:
-			suffix = "Qi";
-			break;
-		case 7:
-			suffix = "Sx";
-			break;
-		case 8:
-			suffix = "Sp";
-			break;
-		case 9:
-			suffix = "Oc";
-			break;
-		case 10:
-			suffix = "No";
-			break;
-		case 11:
-			suffix = "Dc";
-			break;
-		case 12:
-			suffix = "Ud";
-			break;
-		case 13:
-			suffix = "Dd";
-			break;
-		case 14:
-			suffix = "Td";
-			break;
-		case 15:
-			suffix = "Qad";
-			break;
-		case 16: 
-			suffix = "Qid";
-			break;
-		case 17:
-			suffix = "Sxd";
-			break;
-		case 18:
-			suffix = "Spd";
-			break;
-		case 19:
-			suffix = "Od";
-			break;
-		case 20:
-			suffix = "Nd";
-			break;
-		case 21:
-			suffix = "V";
-			break; 
-		
+	if (base <= suffices.length && base > 0)
+	{
+		suffix = suffices[base-1];
 	}
-	if (base > 21) suffix = "++";
+	else
+	{
+		return parseFloat(numberTmp).toExponential(3);
+	}
+
 	return prettifySub(number) + suffix;
 }
 
