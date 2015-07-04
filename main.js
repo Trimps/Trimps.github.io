@@ -878,12 +878,14 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
     if (maps) size = game.global.mapGridArray.length;
     for (var i = 0; i < 10; i++) {
         if (maps && counter >= size) return;
-        var row = grid.insertRow(0);
-        row.id = "row" + i;
+        var row = document.createElement("ul");
+        row.setAttribute("id", "row" + i);
+		grid.appendChild(row);
         for (var x = 0; x < cols; x++) {
             if (maps && counter >= size) return;
-            var cell = row.insertCell(x);
-            cell.id = idText + counter;
+			var cell = document.createElement("li");
+			cell.setAttribute("id", idText + counter);
+			row.appendChild(cell);
             cell.className = "battleCell";
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
             counter++;
