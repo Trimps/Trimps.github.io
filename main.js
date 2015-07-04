@@ -23,7 +23,7 @@
 "use strict";
 
 function toggleSave(updateOnly) {
-    var elem = document.getElementById("toggleBtn");
+    var elem = gameElements.getElementById("toggleBtn");
     if (updateOnly) game.global.autoSave = (game.global.autoSave) ? false : true;
     if (game.global.autoSave) {
         game.global.autoSave = false;
@@ -87,7 +87,7 @@ function save(exportThis) {
 function load(saveString, autoLoad) {
     var savegame;
     if (saveString) {
-        savegame = JSON.parse(LZString.decompressFromBase64(document.getElementById("importBox").value));
+        savegame = JSON.parse(LZString.decompressFromBase64(gameElements.getElementById("importBox").value));
         tooltip('hide');
     } else if (localStorage.getItem("trimpSave1") !== null) {
         savegame = JSON.parse(LZString.decompressFromBase64(localStorage.getItem("trimpSave1")));
@@ -97,7 +97,7 @@ function load(saveString, autoLoad) {
     if (game.global.killSavesBelow > savegame.global.version) {
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This game is still in early alpha, and a lot is still changing! Thank you for helping test!", "Notices");
         message("Since you already had a save, and since the game is still alpha, I unlocked a little cheat button for you. It will make you twice as efficient, allowing you to get through the beginning a little faster.", "Notices");
-        document.getElementById("cheatTd").style.display = "block";
+        gameElements.getElementById("cheatTd").style.display = "block";
         return;
     } else savegame.global.version = game.global.version;
     if (typeof savegame.global !== 'undefined') {
@@ -148,27 +148,27 @@ function load(saveString, autoLoad) {
         }
     }
 
-    if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
+    if (game.buildings.Gym.locked === 0) gameElements.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
-        document.getElementById("battleContainer").style.visibility = "visible";
+        gameElements.getElementById("battleContainer").style.visibility = "visible";
 		fadeIn("EquipmentFilter", 10);
 		fadeIn("equipmentTitleDiv", 10);
         drawGrid();
-        document.getElementById('metal').style.visibility = "visible";
+        gameElements.getElementById('metal').style.visibility = "visible";
         for (var x = 0; x <= game.global.lastClearedCell; x++) {
-            document.getElementById("cell" + x).style.backgroundColor = "green";
+            gameElements.getElementById("cell" + x).style.backgroundColor = "green";
         }
-        if (game.global.battleClock > 0) document.getElementById("battleTimer").style.visibility = "visible";
+        if (game.global.battleClock > 0) gameElements.getElementById("battleTimer").style.visibility = "visible";
     }
     if (game.global.mapGridArray.length > 0) {
         drawGrid(true);
         for (var y = 0; y <= game.global.lastClearedMapCell; y++) {
-            document.getElementById("mapCell" + y).style.backgroundColor = "green";
+            gameElements.getElementById("mapCell" + y).style.backgroundColor = "green";
         }
     } else if (game.global.mapGridArray.length === 0 && game.global.mapsActive) game.global.mapsActive = false;
     if (game.resources.trimps.owned > 0 || game.buildings.Trap.owned > 0) game.buildings.Trap.first();
     if (game.global.autoBattle) {
-        document.getElementById("pauseFight").style.visibility = "visible";
+        gameElements.getElementById("pauseFight").style.visibility = "visible";
         pauseFight(true);
     }
     for (var itemC in game.global.mapsOwnedArray) {
@@ -184,13 +184,13 @@ function load(saveString, autoLoad) {
 			filterTabs(tabBool, true);
 		}
 	}
-	document.getElementById("worldNumber").innerHTML = game.global.world;
+	gameElements.getElementById("worldNumber").innerHTML = game.global.world;
     mapsSwitch(true);
     checkTriggers(true);
     setGather(game.global.playerGathering);
     numTab(1);
     if (game.global.autoCraftModifier > 0)
-        document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 2) + " Foremen";
+        gameElements.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 2) + " Foremen";
     if (game.global.fighting) startFight();
     toggleSave(true);
 }
@@ -233,7 +233,7 @@ function addResCheckMax(what, number) {
 
 function fireMode(noChange) {
     if (!noChange) game.global.firing = !game.global.firing;
-    var elem = document.getElementById("fireBtn");
+    var elem = gameElements.getElementById("fireBtn");
     if (game.global.firing) {
         elem.style.background = "rgba(255,0,0,0.5)";
         elem.innerHTML = "Firing";
@@ -251,12 +251,12 @@ function setGather(what) {
     var colorOff = "rgba(0,0,0,1)";
     if (typeof toGather === 'undefined' && what != "buildings") return;
     if (game.global.playerGathering !== "") {
-        document.getElementById(game.global.playerGathering + "CollectBtn").innerHTML = setGatherTextAs(game.global.playerGathering, false);
-        document.getElementById(game.global.playerGathering + "CollectBtn").style.background = colorOff;
+        gameElements.getElementById(game.global.playerGathering + "CollectBtn").innerHTML = setGatherTextAs(game.global.playerGathering, false);
+        gameElements.getElementById(game.global.playerGathering + "CollectBtn").style.background = colorOff;
     }
     game.global.playerGathering = what;
-    document.getElementById(what + "CollectBtn").innerHTML = setGatherTextAs(what, true);
-    document.getElementById(what + "CollectBtn").style.background = colorOn;
+    gameElements.getElementById(what + "CollectBtn").innerHTML = setGatherTextAs(what, true);
+    gameElements.getElementById(what + "CollectBtn").style.background = colorOn;
 }
 
 function setGatherTextAs(what, on) {
@@ -429,7 +429,7 @@ function cancelQueueItem(what) {
     if (index === 0) {
         game.global.crafting = "";
         game.global.timeLeftOnCraft = 0;
-        document.getElementById("buildingsBar").style.width = "0%";
+        gameElements.getElementById("buildingsBar").style.width = "0%";
     }
 }
 
@@ -457,8 +457,8 @@ function startQueue(what) {
 }
 
 function craftBuildings(makeUp) {
-    var buildingsBar = document.getElementById("buildingsBar");
-    var speedElem = document.getElementById("buildSpeed");
+    var buildingsBar = gameElements.getElementById("buildingsBar");
+    var speedElem = gameElements.getElementById("buildSpeed");
     if (game.global.crafting === "" && game.global.buildingsQueue.length > 0) {
         setNewCraftItem();
     }
@@ -482,7 +482,7 @@ function craftBuildings(makeUp) {
     game.global.buildingsQueue.splice(0, 1);
     if (game.global.buildingsQueue.length <= 0) {
         game.global.crafting = "";
-        document.getElementById("noQueue").style.display = "block";
+        gameElements.getElementById("noQueue").style.display = "block";
         return;
     }
     var nextCraft = game.global.buildingsQueue[0].split('.')[0];
@@ -495,8 +495,8 @@ function buildBuilding(what) {
     var toIncrease;
     building.owned++;
     if (building.owned == 1 && typeof building.first !== 'undefined') building.first();
-    if (document.getElementById(what + "Owned") === null) return;
-    document.getElementById(what + "Owned").innerHTML = building.owned;
+    if (gameElements.getElementById(what + "Owned") === null) return;
+    gameElements.getElementById(what + "Owned").innerHTML = building.owned;
     if (typeof building.increase === 'undefined') return;
     var buildingSplit = building.increase.what.split('.');
     if (buildingSplit[0] == "global") toIncrease = game.global;
@@ -512,7 +512,7 @@ function setNewCraftItem() {
     var queueItem = game.global.buildingsQueue[0].split('.')[0];
     game.global.crafting = queueItem;
     game.global.timeLeftOnCraft = game.buildings[queueItem].craftTime;
-    document.getElementById("buildingsBar").style.width = "0%";
+    gameElements.getElementById("buildingsBar").style.width = "0%";
 }
 
 function calculatePercentageBuildingCost(what, resourceToCheck, costModifier){
@@ -533,8 +533,8 @@ function trapThings() {
         if (trimps.owned < trimps.max && trap.owned >= 1)
             game.global.timeLeftOnTrap = trimps.speed;
         else {
-            document.getElementById("trappingBar").style.width = "0%";
-            document.getElementById("TrapOwned").innerHTML = trap.owned;
+            gameElements.getElementById("trappingBar").style.width = "0%";
+            gameElements.getElementById("TrapOwned").innerHTML = trap.owned;
             return;
         }
     }
@@ -543,9 +543,9 @@ function trapThings() {
         trap.owned--;
         trimps.owned++;
         game.global.timeLeftOnTrap = -1;
-        document.getElementById("TrapOwned").innerHTML = trap.owned;
+        gameElements.getElementById("TrapOwned").innerHTML = trap.owned;
     }
-    document.getElementById("trappingBar").style.width = (100 - ((game.global.timeLeftOnTrap / trimps.speed) * 100)) + "%";
+    gameElements.getElementById("trappingBar").style.width = (100 - ((game.global.timeLeftOnTrap / trimps.speed) * 100)) + "%";
 }
 
 function buyJob(what) {
@@ -626,13 +626,13 @@ function buyUpgrade(what) {
     upgrade.done++;
     var dif = upgrade.allowed - upgrade.done;
     if (dif > 1) {
-        document.getElementById(what + "Owned").innerHTML = upgrade.done + "( +" + dif + ")";
+        gameElements.getElementById(what + "Owned").innerHTML = upgrade.done + "( +" + dif + ")";
         return;
     } else if (dif == 1) {
-        document.getElementById(what + "Owned").innerHTML = upgrade.done;
+        gameElements.getElementById(what + "Owned").innerHTML = upgrade.done;
         return;
     }
-    document.getElementById("upgradesHere").removeChild(document.getElementById(what));
+    gameElements.getElementById("upgradesHere").removeChild(gameElements.getElementById(what));
     tooltip("hide");
 }
 
@@ -669,7 +669,7 @@ function prestigeEquipment(what) {
     }
     equipment.level = 0;
     equipment.prestige++;
-    if (document.getElementById(what + "Numeral") !== null) document.getElementById(what + "Numeral").innerHTML = romanNumeral(equipment.prestige);
+    if (gameElements.getElementById(what + "Numeral") !== null) gameElements.getElementById(what + "Numeral").innerHTML = romanNumeral(equipment.prestige);
 }
 
 function createMap() {
@@ -866,7 +866,7 @@ function findHomeForSpecial(special, item, array, max){
 }
 
 function drawGrid(maps) { //maps t or f. This function overwrites the current grid, be carefulz
-    var grid = (maps) ? document.getElementById("mapGrid") : document.getElementById("grid");
+    var grid = (maps) ? gameElements.getElementById("mapGrid") : gameElements.getElementById("grid");
     grid.innerHTML = "";
     var cols = (maps) ? (game.global.mapGridArray.length / 10) : 10;
     var counter = 0;
@@ -896,10 +896,10 @@ function pauseFight(setup) {
     if (setup) game.global.pauseFight = (game.global.pauseFight) ? false : true;
     if (game.global.pauseFight) {
         game.global.pauseFight = false;
-        document.getElementById("pauseFight").innerHTML = "Pause";
+        gameElements.getElementById("pauseFight").innerHTML = "Pause";
     } else {
         game.global.pauseFight = true;
-        document.getElementById("pauseFight").innerHTML = "AutoBattle";
+        gameElements.getElementById("pauseFight").innerHTML = "AutoBattle";
     }
 }
 
@@ -908,16 +908,16 @@ function recycleMap() {
     var map = getMapIndex(game.global.lookingAtMap);
     if (map === null) return;
     game.global.mapsOwnedArray.splice(map, 1);
-    document.getElementById("mapsHere").removeChild(document.getElementById(game.global.lookingAtMap));
+    gameElements.getElementById("mapsHere").removeChild(gameElements.getElementById(game.global.lookingAtMap));
     game.global.lookingAtMap = "";
     game.global.currentMapId = "";
     game.global.mapsOwned--;
     game.global.lastClearedMapCell = -1;
     game.resources.fragments.owned++;
-    document.getElementById("selectedMapName").innerHTML = "Select a Map!";
-    document.getElementById("selectedMapStats").innerHTML = "";
-    document.getElementById("selectMapBtn").style.visibility = "hidden";
-    document.getElementById("recycleMapBtn").style.visibility = "hidden";
+    gameElements.getElementById("selectedMapName").innerHTML = "Select a Map!";
+    gameElements.getElementById("selectedMapStats").innerHTML = "";
+    gameElements.getElementById("selectMapBtn").style.visibility = "hidden";
+    gameElements.getElementById("recycleMapBtn").style.visibility = "hidden";
 
 }
 
@@ -952,36 +952,36 @@ function mapsSwitch(updateOnly) {
         } else game.global.preMapsActive = true;
     }
     if (game.global.preMapsActive) {
-        document.getElementById("grid").style.display = "none";
-        document.getElementById("preMaps").style.display = "block";
-        document.getElementById("mapGrid").style.display = "none";
-        document.getElementById("mapsBtn").innerHTML = "World";
+        gameElements.getElementById("grid").style.display = "none";
+        gameElements.getElementById("preMaps").style.display = "block";
+        gameElements.getElementById("mapGrid").style.display = "none";
+        gameElements.getElementById("mapsBtn").innerHTML = "World";
         if (game.global.currentMapId === "") {
-            document.getElementById("selectMapBtn").style.visibility = "hidden";
-            document.getElementById("recycleMapBtn").style.visibility = "hidden";
-            document.getElementById("selectedMapName").innerHTML = "Select a Map!";
-            document.getElementById("selectedMapStats").innerHTML = "";
+            gameElements.getElementById("selectMapBtn").style.visibility = "hidden";
+            gameElements.getElementById("recycleMapBtn").style.visibility = "hidden";
+            gameElements.getElementById("selectedMapName").innerHTML = "Select a Map!";
+            gameElements.getElementById("selectedMapStats").innerHTML = "";
         } else {
             selectMap(game.global.currentMapId, true);
-            document.getElementById("selectMapBtn").innerHTML = "Continue";
-            document.getElementById("selectMapBtn").style.visibility = "visible";
-            document.getElementById("recycleMapBtn").style.visibility = "visible";
+            gameElements.getElementById("selectMapBtn").innerHTML = "Continue";
+            gameElements.getElementById("selectMapBtn").style.visibility = "visible";
+            gameElements.getElementById("recycleMapBtn").style.visibility = "visible";
         }
     } else if (game.global.mapsActive) {
         var currentMapObj = getCurrentMapObject();
-        document.getElementById("grid").style.display = "none";
-        document.getElementById("preMaps").style.display = "none";
-        document.getElementById("mapGrid").style.display = "table";
-        document.getElementById("mapsBtn").innerHTML = "World";
-        document.getElementById("worldNumber").innerHTML = "Lv: " + currentMapObj.level;
-        document.getElementById("worldName").innerHTML = currentMapObj.name;
+        gameElements.getElementById("grid").style.display = "none";
+        gameElements.getElementById("preMaps").style.display = "none";
+        gameElements.getElementById("mapGrid").style.display = "table";
+        gameElements.getElementById("mapsBtn").innerHTML = "World";
+        gameElements.getElementById("worldNumber").innerHTML = "Lv: " + currentMapObj.level;
+        gameElements.getElementById("worldName").innerHTML = currentMapObj.name;
     } else {
-        document.getElementById("grid").style.display = "table";
-        document.getElementById("preMaps").style.display = "none";
-        document.getElementById("mapGrid").style.display = "none";
-        document.getElementById("mapsBtn").innerHTML = "Maps";
-        document.getElementById("worldNumber").innerHTML = game.global.world;
-        document.getElementById("worldName").innerHTML = "World";
+        gameElements.getElementById("grid").style.display = "table";
+        gameElements.getElementById("preMaps").style.display = "none";
+        gameElements.getElementById("mapGrid").style.display = "none";
+        gameElements.getElementById("mapsBtn").innerHTML = "Maps";
+        gameElements.getElementById("worldNumber").innerHTML = game.global.world;
+        gameElements.getElementById("worldName").innerHTML = "World";
     }
 }
 
@@ -992,14 +992,14 @@ function selectMap(mapId, force) {
     }
     var map = getMapIndex(mapId);
     map = game.global.mapsOwnedArray[map];
-    document.getElementById("selectedMapName").innerHTML = map.name;
-    document.getElementById("selectedMapStats").innerHTML = "Size: " + Math.floor(map.size) + ". Difficulty: " + Math.floor(map.difficulty * 100) + "%. Loot Bonus: " + Math.floor(map.loot * 100) + "%.<br/>There are " + addSpecials(true, true, map) + " items to be earned from level " + map.level + "+ maps.";
-    if (typeof game.global.mapsOwnedArray[getMapIndex(game.global.lookingAtMap)] !== 'undefined') document.getElementById(game.global.lookingAtMap).style.border = "1px solid white";
-    document.getElementById(mapId).style.border = "1px solid red";
+    gameElements.getElementById("selectedMapName").innerHTML = map.name;
+    gameElements.getElementById("selectedMapStats").innerHTML = "Size: " + Math.floor(map.size) + ". Difficulty: " + Math.floor(map.difficulty * 100) + "%. Loot Bonus: " + Math.floor(map.loot * 100) + "%.<br/>There are " + addSpecials(true, true, map) + " items to be earned from level " + map.level + "+ maps.";
+    if (typeof game.global.mapsOwnedArray[getMapIndex(game.global.lookingAtMap)] !== 'undefined') gameElements.getElementById(game.global.lookingAtMap).style.border = "1px solid white";
+    gameElements.getElementById(mapId).style.border = "1px solid red";
     game.global.lookingAtMap = mapId;
-    document.getElementById("selectMapBtn").innerHTML = "Run Map";
-    document.getElementById("selectMapBtn").style.visibility = "visible";
-    document.getElementById("recycleMapBtn").style.visibility = "visible";
+    gameElements.getElementById("selectMapBtn").innerHTML = "Run Map";
+    gameElements.getElementById("selectMapBtn").style.visibility = "visible";
+    gameElements.getElementById("recycleMapBtn").style.visibility = "visible";
 }
 
 function runMap() {
@@ -1063,18 +1063,18 @@ function battle(force) {
 
 function startFight() {
     game.global.battleCounter = 0;
-    document.getElementById("badGuyCol").style.visibility = "visible";
+    gameElements.getElementById("badGuyCol").style.visibility = "visible";
     var cellNum;
     var cell;
     var cellElem;
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
         cell = game.global.mapGridArray[cellNum];
-        cellElem = document.getElementById("mapCell" + cellNum);
+        cellElem = gameElements.getElementById("mapCell" + cellNum);
     } else {
         cellNum = game.global.lastClearedCell + 1;
         cell = game.global.gridArray[cellNum];
-        cellElem = document.getElementById("cell" + cellNum);
+        cellElem = gameElements.getElementById("cell" + cellNum);
     }
     cellElem.style.backgroundColor = "yellow";
     if (cell.maxHealth == -1) {
@@ -1086,10 +1086,10 @@ function startFight() {
             cell.health *= difficulty;
         }
         cell.maxHealth = cell.health;
-        document.getElementById("badGuyBar").style.width = "100%";
-        document.getElementById("badGuyName").innerHTML = cell.name;
-        document.getElementById("badGuyBar").style.backgroundColor = "blue";
-        document.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true);
+        gameElements.getElementById("badGuyBar").style.width = "100%";
+        gameElements.getElementById("badGuyName").innerHTML = cell.name;
+        gameElements.getElementById("badGuyBar").style.backgroundColor = "blue";
+        gameElements.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true);
     }
     if (game.global.soldierHealth === 0) {
         var trimpsFighting = game.resources.trimps.maxSoldiers;
@@ -1097,18 +1097,18 @@ function startFight() {
         game.global.soldierHealth = game.global.soldierHealthMax;
         game.global.soldierCurrentAttack = (game.global.attack * trimpsFighting);
         game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100)) + game.global.block) * trimpsFighting);
-        document.getElementById("trimpsFighting").innerHTML = prettify(trimpsFighting, 0);
-        document.getElementById("goodGuyBar").style.width = "100%";
-        document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
-        document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true);
+        gameElements.getElementById("trimpsFighting").innerHTML = prettify(trimpsFighting, 0);
+        gameElements.getElementById("goodGuyBar").style.width = "100%";
+        gameElements.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
+        gameElements.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true);
     }
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
-    document.getElementById("goodGuyHealth").innerHTML = prettify(game.global.soldierHealth, 0);
-    document.getElementById("goodGuyHealthMax").innerHTML = prettify(game.global.soldierHealthMax, 0);
-    document.getElementById("goodGuyBar").style.backgroundColor = "blue";
-    document.getElementById("badGuyHealth").innerHTML = prettify(cell.health, 0);
-    document.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth, 0);
+    gameElements.getElementById("goodGuyHealth").innerHTML = prettify(game.global.soldierHealth, 0);
+    gameElements.getElementById("goodGuyHealthMax").innerHTML = prettify(game.global.soldierHealthMax, 0);
+    gameElements.getElementById("goodGuyBar").style.backgroundColor = "blue";
+    gameElements.getElementById("badGuyHealth").innerHTML = prettify(cell.health, 0);
+    gameElements.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth, 0);
 
 }
 
@@ -1125,10 +1125,10 @@ function calculateDamage(number, buildString) { //number = base attack
 function nextWorld() {
     game.global.world++;
     //ga('send', 'event', 'Next World', 'World: ' + game.global.world);
-    document.getElementById("worldNumber").innerHTML = game.global.world;
+    gameElements.getElementById("worldNumber").innerHTML = game.global.world;
     game.global.lastClearedCell = -1;
     game.global.gridArray = [];
-    document.getElementById("grid").innerHTML = "";
+    gameElements.getElementById("grid").innerHTML = "";
     buildGrid();
     drawGrid();
 }
@@ -1147,11 +1147,11 @@ function fight(makeUp) {
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
         cell = game.global.mapGridArray[cellNum];
-        cellElem = document.getElementById("mapCell" + cellNum);
+        cellElem = gameElements.getElementById("mapCell" + cellNum);
     } else {
         cellNum = game.global.lastClearedCell + 1;
         cell = game.global.gridArray[cellNum];
-        cellElem = document.getElementById("cell" + cellNum);
+        cellElem = gameElements.getElementById("cell" + cellNum);
     }
     if (cell.health <= 0) {
         message("You killed a " + cell.name + "!", "Combat");
@@ -1160,7 +1160,7 @@ function fight(makeUp) {
         if (game.global.mapsActive) game.global.lastClearedMapCell = cellNum;
         else game.global.lastClearedCell = cellNum;
         game.global.fighting = false;
-        document.getElementById("badGuyCol").style.visibility = "hidden";
+        gameElements.getElementById("badGuyCol").style.visibility = "hidden";
         var unlock;
         if (game.global.mapsActive) unlock = game.mapUnlocks[cell.special];
         else unlock = game.worldUnlocks[cell.special];
@@ -1204,11 +1204,11 @@ function fight(makeUp) {
     }
     game.global.lastFightUpdate = new Date();
     if (makeUp) return;
-    document.getElementById("badGuyHealth").innerHTML = prettify(cell.health, 0);
+    gameElements.getElementById("badGuyHealth").innerHTML = prettify(cell.health, 0);
     updateGoodBar();
     var percent = ((cell.health / cell.maxHealth) * 100);
-    document.getElementById("badGuyBar").style.width = percent + "%";
-    document.getElementById("badGuyBar").style.backgroundColor = getBarColor(percent);
+    gameElements.getElementById("badGuyBar").style.width = percent + "%";
+    gameElements.getElementById("badGuyBar").style.backgroundColor = getBarColor(percent);
     /*	if (game.jobs.Medic.owned >= 1) setTimeout(heal, 500); */
 }
 
@@ -1221,10 +1221,10 @@ function fight(makeUp) {
 } */
 
 function updateGoodBar() {
-    document.getElementById("goodGuyHealth").innerHTML = prettify(game.global.soldierHealth, 0);
+    gameElements.getElementById("goodGuyHealth").innerHTML = prettify(game.global.soldierHealth, 0);
     var percent = ((game.global.soldierHealth / game.global.soldierHealthMax) * 100);
-    document.getElementById("goodGuyBar").style.width = percent + "%";
-    document.getElementById("goodGuyBar").style.backgroundColor = getBarColor(percent);
+    gameElements.getElementById("goodGuyBar").style.width = percent + "%";
+    gameElements.getElementById("goodGuyBar").style.backgroundColor = getBarColor(percent);
 }
 
 function buyEquipment(what) {
@@ -1257,7 +1257,7 @@ function affordOneTier(what, whereFrom, take) {
 
 function fadeIn(elem, speed) {
     var opacity = 0;
-    elem = document.getElementById(elem);
+    elem = gameElements.getElementById(elem);
     elem.style.opacity = 0;
     if (elem.style.display == "none") elem.style.display = "block";
     if (elem.style.visibility == "hidden") elem.style.visibility = "visible";
@@ -1275,7 +1275,7 @@ function fadeIn(elem, speed) {
 function cheatALittle() {
     if (game.global.playerModifier <= 2) {
         game.global.playerModifier = 2;
-        document.getElementById("cheatTd").style.display = "none";
+        gameElements.getElementById("cheatTd").style.display = "none";
         message("Your player modifier has been boosted to 200%!", "Notices");
         return;
     }
@@ -1319,4 +1319,4 @@ setTimeout(gameTimeout(), (1000 / game.settings.speed));
 
 
 load();
-document.getElementById("versionNumber").innerHTML = game.global.version;
+gameElements.getElementById("versionNumber").innerHTML = game.global.version;
