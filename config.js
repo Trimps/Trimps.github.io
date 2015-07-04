@@ -568,28 +568,6 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-fire'></span>You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot");
 			},
 		},
-		wood: {
-			world: -1,
-			level: [0, 5],
-			icon: "fire",
-			repeat: 6,
-			filter: true,
-			fire: function (level) {
-				var amt = rewardResource("metal", 1, level, true);
-				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " logs of wood! Convenient!", "Loot");
-			},
-		},
-		metal: {
-			world: -1,
-			level: [0, 5],
-			icon: "fire",
-			repeat: 6,
-			filter: true,
-			fire: function (level) {
-				var amt = rewardResource("metal", 1, level, true);
-				message("<span class='glyphicon glyphicon-fire'></span>You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot");
-			},
-		},
 		food: {
 			world: -1,
 			level: [0, 4],
