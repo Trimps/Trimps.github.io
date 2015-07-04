@@ -200,95 +200,99 @@
                         <div class="progress-bar buyProgress  progress-bar-striped active" id="buildingsBar" role="progressbar"></div>
                     </div>
                 </div>
-                <div id="buyContainer">
-                    <div id="buyTabs">
-					<div class="btn-group btn-group-justified" id="tabBtnGroup" role="group">
-                        <div class="btn-group" role="group">
-                            <button id="BuildingsFilter" onclick="filterTabs('Buildings')" type="button" class="btn btn-success logFlt"><span id="buildingsAlert" class="alert badge"></span><span id="BuildingsText">Buildings</span></button>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button id="JobsFilter" onclick="filterTabs('Jobs')" type="button" class="btn btn-success logFlt"><span id="jobsAlert" class="alert badge"></span><span id="JobsText">Jobs</span></button>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button id="UpgradesFilter" onclick="filterTabs('Upgrades')" type="button" class="btn btn-success logFlt"><span id="upgradesAlert" class="alert badge"></span><span id="UpgradesText">Upgrades</span></button>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button id="EquipmentFilter" type="button" onclick="filterTabs('Equipment')" class="btn btn-success logFlt"><span id="equipmentAlert" class="alert badge"></span><span id="EquipmentText">Equipment</span></button>
-                        </div>
-                    </div>
-                    </div>
+				<div id="outerBuyContainer">	
+					<div id="buyTabs">
+						<div class="btn-group btn-group-justified" id="tabBtnGroup" role="group">
+							<div class="btn-group" role="group">
+								<button id="BuildingsFilter" onclick="filterTabs('Buildings')" type="button" class="btn btn-success logFlt"><span id="buildingsAlert" class="alert badge"></span><span id="BuildingsText">Buildings</span></button>
+							</div>
+							<div class="btn-group" role="group">
+								<button id="JobsFilter" onclick="filterTabs('Jobs')" type="button" class="btn btn-success logFlt"><span id="jobsAlert" class="alert badge"></span><span id="JobsText">Jobs</span></button>
+							</div>
+							<div class="btn-group" role="group">
+								<button id="UpgradesFilter" onclick="filterTabs('Upgrades')" type="button" class="btn btn-success logFlt"><span id="upgradesAlert" class="alert badge"></span><span id="UpgradesText">Upgrades</span></button>
+							</div>
+							<div class="btn-group" role="group">
+								<button id="EquipmentFilter" type="button" onclick="filterTabs('Equipment')" class="btn btn-success logFlt"><span id="equipmentAlert" class="alert badge"></span><span id="EquipmentText">Equipment</span></button>
+							</div>
+						</div>
+					</div>
+					<div id="numTabs">
+						<ul class="nav nav-tabs nav-justified">
+							<li role="presentation" id="tab1" onclick="numTab(1)">
+								<a id="tab1Text" href="#">+1</a>
+							</li>
+							<li role="presentation" id="tab2" onclick="numTab(2)">
+								<a id="tab2Text" href="#">+10</a>
+							</li>
+							<li role="presentation" id="tab3" onclick="numTab(3)">
+								<a id="tab3Text" href="#">+25</a>
+							</li>
+							<li role="presentation" id="tab4" onclick="numTab(4)">
+								<a id="tab4Text" href="#">+100</a>
+							</li>
+						</ul>
+					</div>
+					<div id="buyContainer" class="niceScroll">
 
-                    <div id="buyHere" class="niceScroll">
-						<div id="numTabs">
-							<ul class="nav nav-tabs nav-justified">
-								<li role="presentation" id="tab1" onclick="numTab(1)">
-									<a id="tab1Text" href="#">1</a>
-								</li>
-								<li role="presentation" id="tab2" onclick="numTab(2)">
-									<a id="tab2Text" href="#">10</a>
-								</li>
-								<li role="presentation" id="tab3" onclick="numTab(3)">
-									<a id="tab3Text" href="#">25</a>
-								</li>
-								<li role="presentation" id="tab4" onclick="numTab(4)">
-									<a id="tab4Text" href="#">100</a>
-								</li>
-							</ul>
-						</div>
-						<div id="BuildingsContainer">
-							<div id="buildingsTitleDiv" class="titleDiv">
-								<div class="row">
-									<div class="col-xs-4">
-										<span id="buildingsTitleSpan" class="titleSpan">Buildings</span>
+
+						<div id="buyHere" class="niceScroll">
+
+							<div id="BuildingsContainer">
+								<div id="buildingsTitleDiv" class="titleDiv">
+									<div class="row">
+										<div class="col-xs-4">
+											<span id="buildingsTitleSpan" class="titleSpan">Buildings</span>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div class="buyBox" id="buildingsHere">
-							</div>
-						</div>
-						<div id="JobsContainer">
-							<div id="jobsTitleDiv" class="titleDiv" style="display: none">
-								<div class="row">
-									<div class="col-xs-4">
-										<span id="jobsTitleSpan" class="titleSpan">Jobs</span>
-									</div>
-									<div class="col-xs-4">
-										<span id="jobsTitleUnemployed" class="titleSpan"></span>
-									</div>
-									<div class="col-xs-4">
-										<div id="fireBtn" class="pointer noselect" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
-									</div>
-								</div>
-								<div class="row">
+								<div class="buyBox" id="buildingsHere">
 								</div>
 							</div>
-							<div class="buyBox" id="jobsHere">
-							</div>
-						</div>
-						<div id="UpgradesContainer">
-							<div id="upgradesTitleDiv" style="display: none" class="titleDiv">
-								<div class="row">
-									<div class="col-xs-4">
-										<span id="upgradesTitleSpan" class="titleSpan">Upgrades (research first)</span>
+							<div id="JobsContainer">
+								<div id="jobsTitleDiv" class="titleDiv" style="display: none">
+									<div class="row">
+										<div class="col-xs-4">
+											<span id="jobsTitleSpan" class="titleSpan">Jobs</span>
+										</div>
+										<div class="col-xs-4">
+											<span id="jobsTitleUnemployed" class="titleSpan"></span>
+										</div>
+										<div class="col-xs-4">
+											<div id="fireBtn" class="pointer noselect" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
+										</div>
+									</div>
+									<div class="row">
 									</div>
 								</div>
-							</div>
-							<div class="buyBox" id="upgradesHere">
-							</div>
-						</div>
-						<div id="EquipmentContainer">
-							<div id="equipmentTitleDiv" style="display: none" class="titleDiv">
-								<div class="row">
-									<div class="col-xs-4">
-										<span id="equipmentTitleSpan" class="titleSpan">Equipment</span>
-									</div>
+								<div class="buyBox" id="jobsHere">
 								</div>
 							</div>
-						
-							<div class="buyBox" id="equipmentHere"></div>
+							<div id="UpgradesContainer">
+								<div id="upgradesTitleDiv" style="display: none" class="titleDiv">
+									<div class="row">
+										<div class="col-xs-4">
+											<span id="upgradesTitleSpan" class="titleSpan">Upgrades (research first)</span>
+										</div>
+									</div>
+								</div>
+								<div class="buyBox" id="upgradesHere">
+								</div>
+							</div>
+							<div id="EquipmentContainer">
+								<div id="equipmentTitleDiv" style="display: none" class="titleDiv">
+									<div class="row">
+										<div class="col-xs-4">
+											<span id="equipmentTitleSpan" class="titleSpan">Equipment</span>
+										</div>
+									</div>
+								</div>
+							
+								<div class="buyBox" id="equipmentHere"></div>
+							</div>
 						</div>
-                    </div>
-                </div>
+					</div>
+				</div>
             </div>
             <div class="col-xs-7" id="rightCol">
                 <div id="battleContainer" style="visibility: hidden">

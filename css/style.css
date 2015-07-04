@@ -7,7 +7,7 @@
 
 #wrapper {
     padding: 15px;
-    height: 100%;
+    height: 100vh;
     background-size: auto 100%;
 }
 
@@ -169,7 +169,6 @@
     background-color: yellow;
     color: black;
 	font-size: .85vw;
-	padding: .2vw;
 }
 
 #foremenCount,
@@ -265,12 +264,15 @@
 .titleSpan {}
 
 #buyContainer {
-	border: 2px solid white;
 	overflow-y: auto;
+	height: calc(99vh - 20vw - 215px);
+}
+
+#outerBuyContainer{
+	border: 2px solid white;
 	margin: 0 0 5px 0;
 	background: rgba(121,121,123,0.5);
 	color: white;
-	height: calc(99vh - 20vw - 145px);
 }
 
 #buyHere {
@@ -331,6 +333,9 @@
     font-size: 1.3vw;
 }
 
+#numTabs{
+	margin-top: 5px;
+}
 #numTabs > ul > li > a {
     padding: 3px;
 }
