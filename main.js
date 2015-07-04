@@ -1308,7 +1308,7 @@ function costUpdatesTimeout() {
     checkButtons("equipment");
     checkButtons("upgrades");
     checkTriggers();
-	setTimeout(costUpdatesTimeout, 500);
+	setTimeout(costUpdatesTimeout, 250);
 }
 
 costUpdatesTimeout();
