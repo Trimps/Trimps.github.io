@@ -42,17 +42,24 @@ var gameElements = {
 	observerOptions:{subtree:false, childList:true},
 	getElementById:function(id)
 	{
+		if(!id)
+		{
+			return null;
+		}
 		if(this.nodes[id])
 		{
 			return this.nodes[id];
 		}
-		
+		console.log('searching for element' +id);
 		var elem = document.getElementById(id);
 		
 		if(elem === null)
 		{
-				return null;
+			console.log('Element '+id+' not found');
+			return null;
 		}
+		
+		console.log('returning element');
 		this.observer.observe(elem.parentNode, this.observerOptions);
 		
 		this.nodes[id] = elem;
