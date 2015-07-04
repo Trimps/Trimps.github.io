@@ -1145,8 +1145,9 @@ function nextWorld() {
 
 function fight(makeUp) {
     if (game.global.soldierHealth <= 0) {
-        var s = (game.resources.trimps.maxSoldiers > 1) ? "s" : "";
-        message(game.resources.trimps.maxSoldiers + " Trimp" + s + " just bit the dust.", "Combat");
+        var s = (game.resources.trimps.maxSoldiers > 1) ? "s " : " ";
+		var randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
+        message(game.resources.trimps.maxSoldiers + " Trimp" + s + "just " + randomText + ".", "Combat");
         game.global.fighting = false;
         game.resources.trimps.soldiers = 0;
         return;

@@ -122,6 +122,8 @@ var toReturn = {
 		}
 	},
 	
+	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
+	
 	settings: {
 		speed: 10,
 		speedTemp: 0,
