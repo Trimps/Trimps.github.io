@@ -342,6 +342,12 @@ var toReturn = {
 			attack: 0.5,
 			health: 3,
 			fast: false
+		},
+		Frimp: {
+			location: "Forest",
+			attack: 0.75,
+			health: 1.2,
+			fast: true
 		}
 	},
 	
@@ -353,16 +359,22 @@ var toReturn = {
 			"Dark", "Light", "Magnificent", "Evil", "Holy", "Hallowed", "Desecrated", "Silent", "Eternal", "Underground", "Temperate", "Chilly", 
 			"Muddy", "Dank", "Steamy", "Humid", "Dry", "Putrid", "Foul", "Dangerous", "Marred", "Blighted", "Crystal", "Frozen", "Simple", "Timeless"],
 			
-			suffix: ["Creek.Sea", "Coast.Sea", "Mill", "Swamp", "Forest", "Mountain.Mountain", "Pass", "Way", "Plains", "Beach.Sea", "Hill.Mountain", "Gorge", "Valley", "Road", "Turn", 
-			"Lift", "Peak.Mountain", "Canyon", "Plateau.Mountain", "Crag", "Crater", "Flats", "Oaks",  "Pit", "Volcano.Mountain", "Glacier",  "Cavern", "Cave",  "Nest", "Fork", "Tundra", 
-			"Sea.Sea", "Ocean.Sea", "Lake.Sea", "Jungle", "Desert", "Island.Sea", "Ruins", "Temple", "Bog", "Path", "Clearing"]
+			suffix: ["Creek.Sea", "Coast.Sea", "Swamp", "Forest.Forest", "Mountain.Mountain", "Pass", "Way", "Plains", "Beach.Sea", "Hill.Mountain", "Gorge", "Valley", "Road", "Turn", 
+			"Lift", "Peak.Mountain", "Canyon", "Plateau.Mountain", "Crag", "Crater", "Flats", "Oaks.Forest",  "Pit", "Volcano.Mountain", "Glacier",  "Cavern", "Cave",  "Nest", "Fork", "Tundra", 
+			"Sea.Sea", "Ocean.Sea", "Lake.Sea", "Jungle.Forest", "Desert", "Island.Sea", "Ruins", "Temple", "Bog", "Path", "Clearing"]
 		},
 		locations: {
 			Sea: {
-				
+				resourceType: "food",
 			},
 			Mountain: {
-			
+				resourceType: "metal",
+			},
+			Forest: {
+				resourceType: "wood",
+			}
+			All: {
+				resourceType: "metal",
 			}
 		
 		},
@@ -550,11 +562,56 @@ var toReturn = {
 			level: [0, 5],
 			icon: "fire",
 			repeat: 6,
+			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("metal", 1, level, true);
 				message("<span class='glyphicon glyphicon-fire'></span>You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot");
 			},
 		},
+		wood: {
+			world: -1,
+			level: [0, 5],
+			icon: "fire",
+			repeat: 6,
+			filter: true,
+			fire: function (level) {
+				var amt = rewardResource("metal", 1, level, true);
+				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " logs of wood! Convenient!", "Loot");
+			},
+		},
+		metal: {
+			world: -1,
+			level: [0, 5],
+			icon: "fire",
+			repeat: 6,
+			filter: true,
+			fire: function (level) {
+				var amt = rewardResource("metal", 1, level, true);
+				message("<span class='glyphicon glyphicon-fire'></span>You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot");
+			},
+		},
+		food: {
+			world: -1,
+			level: [0, 4],
+			icon: "apple",
+			repeat: 9,
+			filter: true,
+			fire: function (level) {
+				var amt = rewardResource("food", 1, level, true);
+				message("<span class='glyphicon glyphicon-apple'></span>That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot");
+			}
+		},
+		wood: {
+			world: -1,
+			level: [0, 2],
+			icon: "tree-deciduous",
+			repeat: 8,
+			filter: true,
+			fire: function (level) {
+				var amt = rewardResource("wood", 1, level, true);
+				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
+			}
+		},		
 	},
 
 	//if you put a function in here as fire, you won't have anything unlocked, the name is just for funsies

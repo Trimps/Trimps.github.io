@@ -1,0 +1,12 @@
+#wrapper{
+	height: 99%;
+}
+#mainTable{
+	height: 100%;
+}
+
+#mainTable > tbody > tr > td {
+	padding: 3px;
+	border: 1px solid black;
+	font-size: 1.1em;
+}
