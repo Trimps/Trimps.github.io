@@ -396,7 +396,7 @@ function numTab (what) {
 		num = document.getElementById("customNumberBox").value;
 		if (num > 0) {
 			document.getElementById("tab5Text").innerHTML = "+" + prettify(num);
-			game.global.buyAmt = num;
+			game.global.buyAmt = parseInt(num);
 		}
 		else {
 			message("Please use a number greater than 0!", "Notices");
