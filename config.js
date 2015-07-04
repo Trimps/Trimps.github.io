@@ -372,10 +372,10 @@ var toReturn = {
 			},
 			Forest: {
 				resourceType: "wood",
-			}
+			},
 			All: {
 				resourceType: "metal",
-			}
+			},
 		
 		},
 		sizeBase: 50,
