@@ -20,13 +20,13 @@
 
 function tooltip(what, isItIn, event) {
 	if (game.global.lockTooltip) return;
-	var elem = document.getElementById("tooltipDiv");
+	var elem = gameElements.getElementById("tooltipDiv");
 	if (what == "hide"){
 		elem.style.display = "none";
 		return;
 	}
-	if (document.getElementById(what + "Alert") !== null)	document.getElementById(what + "Alert").innerHTML = "";
-	if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
+	if (gameElements.getElementById(what + "Alert") !== null)	gameElements.getElementById(what + "Alert").innerHTML = "";
+	if (gameElements.getElementById(isItIn + "Alert") !== null)	gameElements.getElementById(isItIn + "Alert").innerHTML = "";
 	if (event != "update"){
 		var cordx = 0;
 		var cordy = 0;
@@ -166,9 +166,9 @@ function tooltip(what, isItIn, event) {
 		else
 		tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
 	}
-	document.getElementById("tipTitle").innerHTML = what;
-	document.getElementById("tipText").innerHTML = tooltipText;
-	document.getElementById("tipCost").innerHTML = costText;	
+	gameElements.getElementById("tipTitle").innerHTML = what;
+	gameElements.getElementById("tipText").innerHTML = tooltipText;
+	gameElements.getElementById("tipCost").innerHTML = costText;	
 	elem.style.display = "block";
 }
 
@@ -177,81 +177,38 @@ function unlockTooltip(){
 }
 
 function prettify(number) {
+	var numberTmp = number;
 	number = Math.round(number * 1000000) / 1000000;
-	var base = 0;
-	while (number >= 1000){
-		number /= 1000;
-		base++;
+	
+	// this is the mathematical way of changing base
+	// and so it's a little more efficient than looping
+	if(number === 0)
+	{
+		return prettifySub(0);
 	}
-	if (base === 0) return prettifySub(number);
+	var base = Math.floor(Math.log(number)/Math.log(1000));
+	
+	if (base <= 0) return prettifySub(number);
+	number /= Math.pow(1000, base);
+	
+	var suffices = [
+		'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
+		'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V'
+	];
 	var suffix;
-	switch (base) {
-		case 1: 
-			suffix = "K";
-			break;
-		case 2: 
-			suffix = "M";
-			break;
-		case 3:
-			suffix = "B";
-			break;
-		case 4:
-			suffix = "T";
-			break;
-		case 5: 
-			suffix = "Qa";
-			break;
-		case 6:
-			suffix = "Qi";
-			break;
-		case 7:
-			suffix = "Sx";
-			break;
-		case 8:
-			suffix = "Sp";
-			break;
-		case 9:
-			suffix = "Oc";
-			break;
-		case 10:
-			suffix = "No";
-			break;
-		case 11:
-			suffix = "Dc";
-			break;
-		case 12:
-			suffix = "Ud";
-			break;
-		case 13:
-			suffix = "Dd";
-			break;
-		case 14:
-			suffix = "Td";
-			break;
-		case 15:
-			suffix = "Qad";
-			break;
-		case 16: 
-			suffix = "Qid";
-			break;
-		case 17:
-			suffix = "Sxd";
-			break;
-		case 18:
-			suffix = "Spd";
-			break;
-		case 19:
-			suffix = "Od";
-			break;
-		case 20:
-			suffix = "Nd";
-			break;
-		case 21:
-			suffix = "V";
-			break; 
-		
+	if (base <= suffices.length && base > 0)
+	{
+		suffix = suffices[base-1];
 	}
-	if (base > 21) suffix = "++";
+	else
+	{
+		
+		// I strongly recommend using scientific notation instead of ++
+		// if the base is 22, 23, or 24 you'll end up with the same indicator
+		// being shown which will confuse late game players.
+		return parseFloat(numberTmp).toExponential(3);
+	}
+
 	return prettifySub(number) + suffix;
 }
 
@@ -306,37 +263,37 @@ function prettifySub(number){
 }
 
 function resetGame() {
-	document.getElementById("wood").style.visibility = "hidden";
-	document.getElementById("metal").style.visibility = "hidden";
-	document.getElementById("trimps").style.visibility = "hidden";
-	document.getElementById("gems").style.visibility = "hidden";
-	document.getElementById("buyCol").style.visibility = "hidden";
-	document.getElementById("unempHide").style.visibility = "hidden";
-	document.getElementById("empHide").style.visibility = "hidden";
-	document.getElementById("upgradesTitleSpan").innerHTML = "Upgrades (research first)";
-	document.getElementById("science").style.visibility = "hidden";
-	document.getElementById("battleContainer").style.visibility = "hidden";
-	document.getElementById("pauseFight").style.visibility = "hidden";
-	document.getElementById("blockDiv").style.visibility = "hidden";
-	document.getElementById("badGuyCol").style.visibility = "hidden";
-	document.getElementById("jobsHere").innerHTML = "";
-	document.getElementById("foremenCount").innerHTML = "";
-	document.getElementById("JobsFilter").style.visibility = "hidden";
-	document.getElementById("UpgradesFilter").style.visibility = "hidden";
-	document.getElementById("EquipmentFilter").style.visibility = "hidden";
-	document.getElementById("upgradesHere").innerHTML = "";
-	document.getElementById("mapsBtn").style.visibility = "hidden";
-	document.getElementById("grid").style.display = "block";
-	document.getElementById("preMaps").style.display = "none";
-	document.getElementById("mapGrid").style.display = "none";
-	document.getElementById("buildingsHere").innerHTML = "";
-	document.getElementById("grid").innerHTML = "";
-	document.getElementById("equipmentHere").innerHTML = "";
-	document.getElementById("buildingsQueue").innerHTML = "<span id='noQueue'>Nothing in queue...</span>";
-	document.getElementById("log").innerHTML = "";
-	document.getElementById("worldNumber").innerHTML = "1";
-	document.getElementById("mapsHere").innerHTML = "";
-	document.getElementById("sciencePs").innerHTML = "+0/sec";
+	gameElements.getElementById("wood").style.visibility = "hidden";
+	gameElements.getElementById("metal").style.visibility = "hidden";
+	gameElements.getElementById("trimps").style.visibility = "hidden";
+	gameElements.getElementById("gems").style.visibility = "hidden";
+	gameElements.getElementById("buyCol").style.visibility = "hidden";
+	gameElements.getElementById("unempHide").style.visibility = "hidden";
+	gameElements.getElementById("empHide").style.visibility = "hidden";
+	gameElements.getElementById("upgradesTitleSpan").innerHTML = "Upgrades (research first)";
+	gameElements.getElementById("science").style.visibility = "hidden";
+	gameElements.getElementById("battleContainer").style.visibility = "hidden";
+	gameElements.getElementById("pauseFight").style.visibility = "hidden";
+	gameElements.getElementById("blockDiv").style.visibility = "hidden";
+	gameElements.getElementById("badGuyCol").style.visibility = "hidden";
+	gameElements.getElementById("jobsHere").innerHTML = "";
+	gameElements.getElementById("foremenCount").innerHTML = "";
+	gameElements.getElementById("JobsFilter").style.visibility = "hidden";
+	gameElements.getElementById("UpgradesFilter").style.visibility = "hidden";
+	gameElements.getElementById("EquipmentFilter").style.visibility = "hidden";
+	gameElements.getElementById("upgradesHere").innerHTML = "";
+	gameElements.getElementById("mapsBtn").style.visibility = "hidden";
+	gameElements.getElementById("grid").style.display = "block";
+	gameElements.getElementById("preMaps").style.display = "none";
+	gameElements.getElementById("mapGrid").style.display = "none";
+	gameElements.getElementById("buildingsHere").innerHTML = "";
+	gameElements.getElementById("grid").innerHTML = "";
+	gameElements.getElementById("equipmentHere").innerHTML = "";
+	gameElements.getElementById("buildingsQueue").innerHTML = "<span id='noQueue'>Nothing in queue...</span>";
+	gameElements.getElementById("log").innerHTML = "";
+	gameElements.getElementById("worldNumber").innerHTML = "1";
+	gameElements.getElementById("mapsHere").innerHTML = "";
+	gameElements.getElementById("sciencePs").innerHTML = "+0/sec";
 	game = null;
 	game = newGame();
 	
@@ -348,15 +305,15 @@ function resetGame() {
 }
 
 function message(messageString, type) {
-	var log = document.getElementById("log");
+	var log = gameElements.getElementById("log");
 	var displayType = (game.global.messages[type]) ? "block" : "none";
 	if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span>" + messageString;
 	if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span>" + messageString;
 	var addId = "";
 	if (messageString == "Game Saved!") {
 		addId = " id='saveGame'";
-		if (document.getElementById('saveGame') !== null){
-			log.removeChild(document.getElementById('saveGame'));
+		if (gameElements.getElementById('saveGame') !== null){
+			log.removeChild(gameElements.getElementById('saveGame'));
 		}
 	}
 	if (type == "Notices") messageString = "<span class='glyphicon glyphicon-off'></span>" + messageString;
@@ -382,7 +339,7 @@ function trimMessages(what){
 }
 
 function filterMessage(what, updateOnly){ //send true for updateOnly
-	var log = document.getElementById("log");
+	var log = gameElements.getElementById("log");
 	var displayed = game.global.messages[what];
 	if (!updateOnly){
 		displayed = (displayed) ? false : true;
@@ -390,7 +347,7 @@ function filterMessage(what, updateOnly){ //send true for updateOnly
 	}
 	var toChange = document.getElementsByClassName(what + "Message");
 	var btnText = (displayed) ? what : what + " off";
-	var btnElem = document.getElementById(what + "Filter");
+	var btnElem = gameElements.getElementById(what + "Filter");
 	btnElem.innerHTML = btnText;
 	btnElem.className = "";
 	btnElem.className = getTabClass(displayed);
@@ -410,11 +367,11 @@ function filterTabs (what, updateOnly) {
 		game.global.buyTabs[what] = displayed;
 	}
 	var btnText = (displayed) ? what : what + " off";
-	var btnElem = document.getElementById(what + "Filter");
-	document.getElementById(what + "Text").innerHTML = btnText;
+	var btnElem = gameElements.getElementById(what + "Filter");
+	gameElements.getElementById(what + "Text").innerHTML = btnText;
 	btnElem.className = "";
 	btnElem.className = getTabClass(displayed);
-	document.getElementById(what + "Container").style.display = (displayed) ? "block" : "none";
+	gameElements.getElementById(what + "Container").style.display = (displayed) ? "block" : "none";
 }
 
 
@@ -428,7 +385,7 @@ function numTab (what) {
 	else
 	game.global.numTab = what;
 	for (var x = 1; x <= 4; x++){
-		document.getElementById("tab" + x).style.background = (what == x) ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.25)";
+		gameElements.getElementById("tab" + x).style.background = (what == x) ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.25)";
 		var num;
 		switch (x){
 			case 1:
@@ -450,7 +407,7 @@ function numTab (what) {
 
 }
 /* function shrink(what) { //fired by player when clicking shrink on main menu item
-	var toShrink = document.getElementById(what + "Here");
+	var toShrink = gameElements.getElementById(what + "Here");
 	var alreadyShown = game.global.menu[what];
 	toShrink.style.display = (alreadyShown) ? "none" : "block";
 	game.global.menu[what] = (alreadyShown) ? false : true;
@@ -465,7 +422,7 @@ function updateSideSize() { //resizes main menu items
 	var percent = Math.floor(72 / count);
 	for (menuItem in game.global.menu) {
 		if (game.global.menu[menuItem]) {
-			document.getElementById(menuItem + "Here").style.height = percent + "%";
+			gameElements.getElementById(menuItem + "Here").style.height = percent + "%";
 		}
 	}
 } */
@@ -473,15 +430,15 @@ function updateSideSize() { //resizes main menu items
 //
 //Buildings Specific
 function removeQueueItem(what) { 
-	var elem = document.getElementById("buildingsQueue");
-	elem.removeChild(document.getElementById(what  + "QueueItem"));
-	if (game.global.buildingsQueue.length === 0) document.getElementById("noQueue").style.display = "block";
+	var elem = gameElements.getElementById("buildingsQueue");
+	elem.removeChild(gameElements.getElementById(what  + "QueueItem"));
+	if (game.global.buildingsQueue.length === 0) gameElements.getElementById("noQueue").style.display = "block";
 
 }
 
 function addQueueItem(what) {
-	var elem = document.getElementById("buildingsQueue");
-	document.getElementById("noQueue").style.display = "none";
+	var elem = gameElements.getElementById("buildingsQueue");
+	gameElements.getElementById("noQueue").style.display = "none";
 	name = what.split('.')[0];
 	elem.innerHTML += '<div class="queueItem" id="' + what + 'QueueItem" onmouseover="tooltip(\'Queue\',null,event)" onmouseout="tooltip(\'hide\')" onClick="cancelQueueItem(\'' + what + '\')"><span class="queueItemName">' + name + '</span></div>';
 }
@@ -493,10 +450,10 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 	//Resources (food, wood, metal, trimps, science). All but science have max and a bar. Per second will be handled in separate function, and called from job loop.
 	for (var item in game.resources){
 		toUpdate = game.resources[item];
-		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned), true);
+		gameElements.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned), true);
 		if (toUpdate.max == -1) continue;
-		document.getElementById(item + "Max").innerHTML = prettify(toUpdate.max);
-		var bar = document.getElementById(item + "Bar");
+		gameElements.getElementById(item + "Max").innerHTML = prettify(toUpdate.max);
+		var bar = gameElements.getElementById(item + "Bar");
 		var percentToMax = ((toUpdate.owned / toUpdate.max) * 100);
 		bar.style.backgroundColor = getBarColor(100 - percentToMax);
 		bar.style.width = percentToMax + "%";
@@ -506,15 +463,15 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 	for (var itemA in game.buildings){
 		toUpdate = game.buildings[itemA];
 		if (toUpdate.locked == 1) continue;
-		var elem = document.getElementById(itemA + "Owned");
+		var elem = gameElements.getElementById(itemA + "Owned");
 		if (elem === null){
 			unlockBuilding(itemA);
-			elem = document.getElementById(itemA + "Owned");
+			elem = gameElements.getElementById(itemA + "Owned");
 		}
 		elem.innerHTML = toUpdate.owned;
 		if (itemA == "Trap") {
-		document.getElementById("trimpTrapText").innerHTML = toUpdate.owned;
-		document.getElementById("trimpTrapText2").innerHTML = toUpdate.owned;
+		gameElements.getElementById("trimpTrapText").innerHTML = toUpdate.owned;
+		gameElements.getElementById("trimpTrapText2").innerHTML = toUpdate.owned;
 		}
 	}
 	//Jobs, check PS here and stuff. Trimps per second is handled by breed() function
@@ -526,8 +483,8 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			updatePs(toUpdate);
 			continue;
 		}
-		if (document.getElementById(itemB) === null) unlockJob(itemB);
-		document.getElementById(itemB + "Owned").innerHTML = toUpdate.owned;
+		if (gameElements.getElementById(itemB) === null) unlockJob(itemB);
+		gameElements.getElementById(itemB + "Owned").innerHTML = toUpdate.owned;
 		var perSec = (toUpdate.owned * toUpdate.modifier);
 		updatePs(toUpdate);
 	}
@@ -535,14 +492,14 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 	for (var itemC in game.upgrades){
 		toUpdate = game.upgrades[itemC];
 		if (toUpdate.locked == 1) continue;
-		if (document.getElementById(itemC) === null) unlockUpgrade(itemC, true);
+		if (gameElements.getElementById(itemC) === null) unlockUpgrade(itemC, true);
 	}
 	//Equipment
 	for (var itemD in game.equipment){
 		toUpdate = game.equipment[itemD];
 		if (toUpdate.locked == 1) continue;
-		if (document.getElementById(itemD) === null) unlockEquipment(itemD);
-		document.getElementById(itemD + "Owned").innerHTML = toUpdate.level;
+		if (gameElements.getElementById(itemD) === null) unlockEquipment(itemD);
+		gameElements.getElementById(itemD + "Owned").innerHTML = toUpdate.level;
 	}
 }
 
@@ -552,13 +509,13 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 		var elem;
 		if (trimps) {
 			psText = jobObj.toFixed(3);
-			elem = document.getElementById("trimpsPs");
+			elem = gameElements.getElementById("trimpsPs");
 		}
 		else{
 			var increase = jobObj.increase;
 			psText = (jobObj.owned * jobObj.modifier);
 			if (game.global.playerGathering == increase) psText += game.global.playerModifier;
-			elem = document.getElementById(increase + "Ps");
+			elem = gameElements.getElementById(increase + "Ps");
 			if (game.resources[increase].owned >= game.resources[increase].max && game.resources[increase].max != -1) psText = 0;
 			psText = psText.toFixed(1);
 		}
@@ -574,38 +531,38 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 
 function updateSideTrimps(){
 	var trimps = game.resources.trimps;
-	document.getElementById("trimpsEmployed").innerHTML = prettify(trimps.employed);
+	gameElements.getElementById("trimpsEmployed").innerHTML = prettify(trimps.employed);
 	var breedCount = (trimps.owned - trimps.employed > 2) ? prettify(Math.floor(trimps.owned - trimps.employed)) : 0;
-	document.getElementById("trimpsUnemployed").innerHTML = breedCount;
-	document.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.max / 2));
+	gameElements.getElementById("trimpsUnemployed").innerHTML = breedCount;
+	gameElements.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.max / 2));
 	var free = (Math.ceil(trimps.max / 2) - trimps.employed);
 	free = (free > Math.floor(trimps.owned))  ? Math.floor(trimps.owned - trimps.employed) : free;
-	document.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " free";
+	gameElements.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " free";
 }
 
 function unlockBuilding(what) {
 	var locked = game.buildings[what].locked;
 	game.buildings[what].locked = 0;
 	if (game.global.spreadSheetMode) return;
-	document.getElementById("buildingsHere").innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
+	gameElements.getElementById("buildingsHere").innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 	if (locked == 1){
-		document.getElementById("buildingsAlert").innerHTML = "!";
-		document.getElementById(what + "Alert").innerHTML = "!";
+		gameElements.getElementById("buildingsAlert").innerHTML = "!";
+		gameElements.getElementById(what + "Alert").innerHTML = "!";
 	}
 }
 
 function unlockJob(what) {
-	document.getElementById("jobsHere").innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
+	gameElements.getElementById("jobsHere").innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 	if (game.jobs[what].locked == 1){
-		document.getElementById("jobsAlert").innerHTML = "!";
-		document.getElementById(what + "Alert").innerHTML = "!";
+		gameElements.getElementById("jobsAlert").innerHTML = "!";
+		gameElements.getElementById(what + "Alert").innerHTML = "!";
 	}
 	game.jobs[what].locked = 0;
 }
 
 function unlockMap(what) { //what here is the array index
 	var item = game.global.mapsOwnedArray[what];
-	var elem = document.getElementById("mapsHere");
+	var elem = gameElements.getElementById("mapsHere");
 	elem.innerHTML = '<div class="thing noselect pointer mapThing" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
 	//onmouseover="tooltip(\'' + item.id + '\',\'maps\',event)" onmouseout="tooltip(\'hide\')"
 }
@@ -622,12 +579,12 @@ function unlockUpgrade(what, displayOnly) {
 	if (!displayOnly) {
 		upgrade.allowed++;
 	}
-	if (document.getElementById(what + "Owned") === null)
-	document.getElementById("upgradesHere").innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
-	if (dif > 1) document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
+	if (gameElements.getElementById(what + "Owned") === null)
+	gameElements.getElementById("upgradesHere").innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
+	if (dif > 1) gameElements.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
 	if (!displayOnly){
-		document.getElementById("upgradesAlert").innerHTML = "!";
-		document.getElementById(what + "Alert").innerHTML = "!";
+		gameElements.getElementById("upgradesAlert").innerHTML = "!";
+		gameElements.getElementById(what + "Alert").innerHTML = "!";
 	}
 }
 
@@ -686,12 +643,12 @@ function checkButtons(what) {
 function updateButtonColor(what, canAfford, isJob) {
 	var color = (canAfford) ? "black" : "grey";
 	if (isJob && game.global.firing === true) color = (game.jobs[what].owned >= 1) ? "red" : "grey";
-	document.getElementById(what).style.backgroundColor = color;
+	gameElements.getElementById(what).style.backgroundColor = color;
 }
 
 function unlockEquipment(what) {
 	var equipment = game.equipment[what];
-	var elem = document.getElementById("equipmentHere");
+	var elem = gameElements.getElementById("equipmentHere");
 	equipment.locked = 0;
 	var numeral = "";
 	if (equipment.prestige > 1){
