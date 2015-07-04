@@ -344,15 +344,7 @@
     overflow-y: auto;
 }
 
-#grid,
-#mapGrid {
-    width: 100%;
-    height: 100%;
-    color: black;
-    background: rgba(255, 255, 255, 0.25);
-    font-size: 1vw;
-    text-align: center;
-}
+
 
 #settingsTable {
     width: 100%;
@@ -398,12 +390,29 @@
 #buildings {
     text-align: center;
 }
+
+#grid,
+#mapGrid {
+    width: 100%;
+    height: 100%;
+    color: black;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 1vw;
+    text-align: center;
+	list-style: none;
+	padding-left: 0;
+}
+
 .battleRow{
 	list-style: none;
+	padding-left: 0;
 }
+
 .battleCell {
     border: 1px solid black;
 	display: inline-block;
+
+
 }
 
 .collecting {}

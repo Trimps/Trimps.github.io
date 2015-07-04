@@ -872,6 +872,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
     var grid = (maps) ? document.getElementById("mapGrid") : document.getElementById("grid");
     grid.innerHTML = "";
     var cols = (maps) ? (game.global.mapGridArray.length / 10) : 10;
+	var width = (100 / cols);
     var counter = 0;
     var idText = (maps) ? "mapCell" : "cell";
     var size = 0;
@@ -879,16 +880,19 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
     for (var i = 0; i < 10; i++) {
         if (maps && counter >= size) return;
         var row = document.createElement("ul");
+		grid.insertBefore(row, grid.childNodes[0])
         row.setAttribute("id", "row" + i);
 		row.className = "battleRow";
-		grid.appendChild(row);
         for (var x = 0; x < cols; x++) {
             if (maps && counter >= size) return;
 			var cell = document.createElement("li");
 			cell.setAttribute("id", idText + counter);
 			row.appendChild(cell);
             cell.className = "battleCell";
+			cell.style.width = width + "%";
+			cell.style.height = width + "%";
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
+			if (cell.innerHTML == "") cell.innerHTML = "&nbsp;";
             counter++;
         }
     }
@@ -977,12 +981,12 @@ function mapsSwitch(updateOnly) {
         var currentMapObj = getCurrentMapObject();
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "none";
-        document.getElementById("mapGrid").style.display = "table";
+        document.getElementById("mapGrid").style.display = "block";
         document.getElementById("mapsBtn").innerHTML = "World";
         document.getElementById("worldNumber").innerHTML = "Lv: " + currentMapObj.level;
         document.getElementById("worldName").innerHTML = currentMapObj.name;
     } else {
-        document.getElementById("grid").style.display = "table";
+        document.getElementById("grid").style.display = "block";
         document.getElementById("preMaps").style.display = "none";
         document.getElementById("mapGrid").style.display = "none";
         document.getElementById("mapsBtn").innerHTML = "Maps";
