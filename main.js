@@ -1165,7 +1165,8 @@ function fight(makeUp) {
         cellElem = document.getElementById("cell" + cellNum);
     }
     if (cell.health <= 0) {
-        message("You killed a " + cell.name + "!", "Combat");
+		var randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
+        message("You " + randomText + " a " + cell.name + "!", "Combat");
         //if (cell.level % 2 === 0) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
         cellElem.style.backgroundColor = "green";
         if (game.global.mapsActive) game.global.lastClearedMapCell = cellNum;
