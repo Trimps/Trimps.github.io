@@ -880,6 +880,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
         if (maps && counter >= size) return;
         var row = document.createElement("ul");
         row.setAttribute("id", "row" + i);
+		row.className = "battleRow";
 		grid.appendChild(row);
         for (var x = 0; x < cols; x++) {
             if (maps && counter >= size) return;
