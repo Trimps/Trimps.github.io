@@ -176,6 +176,11 @@ function unlockTooltip(){
 	game.global.lockTooltip = false;
 }
 
+function swapNotation(updateOnly){
+	if (!updateOnly) game.global.standardNotation = !game.global.standardNotation;
+	document.getElementById("notationBtn").innerHTML = (game.global.standardNotation) ? "Standard Notation" : "Scientific Notation";
+}
+
 function prettify(number) {
 	var numberTmp = number;
 	number = Math.round(number * 1000000) / 1000000;
@@ -194,13 +199,13 @@ function prettify(number) {
 		'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V'
 	];
 	var suffix;
-	if (base <= suffices.length && base > 0)
+	if ((base <= suffices.length && base > 0) && game.global.standardNotation)
 	{
 		suffix = suffices[base-1];
 	}
 	else
 	{
-		return parseFloat(numberTmp).toExponential(3);
+		return parseFloat(numberTmp).toExponential(2);
 	}
 
 	return prettifySub(number) + suffix;

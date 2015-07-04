@@ -66,6 +66,7 @@ var toReturn = {
 		numTab: 1,
 		spreadsheetMode: false,
 		lockTooltip: false,
+		standardNotation: true,
 		menu: {
 			buildings: true,
 			jobs: false,

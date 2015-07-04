@@ -184,6 +184,7 @@ function load(saveString, autoLoad) {
 			filterTabs(tabBool, true);
 		}
 	}
+	swapNotation(true);
 	document.getElementById("worldNumber").innerHTML = game.global.world;
     mapsSwitch(true);
     checkTriggers(true);
