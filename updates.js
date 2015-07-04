@@ -187,24 +187,26 @@ function prettify(number) {
 		return prettifySub(0);
 	}
 	var base = Math.floor(Math.log(number)/Math.log(1000));
+	
+	if (base <= 0) return prettifySub(number);
 	number /= Math.pow(1000, base);
-	if (base === 0) return prettifySub(number);
 	
 	var suffices = [
 		'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
 		'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V'
 	];
 	var suffix;
-	if (base >= suffices.length)
+	if (base <= suffices.length && base > 0)
 	{
 		suffix = suffices[base-1];
 	}
 	else
 	{
+		
 		// I strongly recommend using scientific notation instead of ++
 		// if the base is 22, 23, or 24 you'll end up with the same indicator
 		// being shown which will confuse late game players.
-		return numberTmp.toExponential(3);
+		return parseFloat(numberTmp).toExponential(3);
 	}
 
 	return prettifySub(number) + suffix;

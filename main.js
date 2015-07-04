@@ -77,6 +77,7 @@ function save(exportThis) {
 			message("Game Saved!", "Notices");
 		}
 		else {
+			console.log(saveString, localStorage.getItem('trimpSave1'));
 			message("For some reason, your game is not saving. Make sure you export and back up your save!", "Notices");
 		}
 	}
