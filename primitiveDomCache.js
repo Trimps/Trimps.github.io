@@ -21,6 +21,25 @@
 
 var gameElements = {
 	nodes : {},
+	observer:new MutationObserver(
+		function(mutations)
+		{
+			mutations.forEach(
+				function(mutation)
+				{
+					for(var i in mutation.removedNodes)
+					{
+						var node = mutation.removedNodes[i];
+						if(node.id && gameElements.nodes[node.id])
+						{
+							delete(gameElements.nodes[node.id]);
+						}
+					}
+				}
+			);
+		}
+	),
+	observerOptions:{subtree:false, childList:true},
 	getElementById:function(id)
 	{
 		if(this.nodes[id])
@@ -29,12 +48,18 @@ var gameElements = {
 		}
 		
 		var elem = document.getElementById(id);
+		
 		if(elem === null)
 		{
 				return null;
-		}	
+		}
+		this.observer.observe(elem.parentNode, this.observerOptions);
 		
 		this.nodes[id] = elem;
 		return elem;
+	},
+	removeElement:function(id)
+	{
+		
 	}
 };
