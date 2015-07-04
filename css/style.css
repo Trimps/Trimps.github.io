@@ -367,7 +367,7 @@
 }
 
 #rightCol {
-    height: 100%;
+	height: calc(99% - 20vw);
 }
 
 .ownedArea {

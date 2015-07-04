@@ -19,6 +19,7 @@
 		<http://www.gnu.org/licenses/>. */
 
 function tooltip(what, isItIn, event) {
+	console.log(event);
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
 	if (what == "hide"){
@@ -37,9 +38,11 @@ function tooltip(what, isItIn, event) {
 		} else if (e.clientX || e.clientY) {
 			cordx = e.clientX + 25;
 			cordy = e.clientY;
+			
 		}
-		elem.style.left = cordx;
-		elem.style.top = (cordy - 200);
+		console.log(cordx);
+		elem.style.left = cordx + "px";
+		elem.style.top = (cordy - 200) + "px";
 	}
 	var tooltipText;
 	var costText = "";
