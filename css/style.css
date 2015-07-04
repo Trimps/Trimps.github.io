@@ -372,7 +372,7 @@
 }
 
 #rightCol {
-	height: calc(99% - 20vw);
+	height: calc(99vh - 20vw - 27px);
 }
 
 .ownedArea {
