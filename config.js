@@ -161,11 +161,11 @@ var toReturn = {
 		},
 		gems: {
 			owned: 0,
-			max: -1
+			max: -1,
 		},
 		fragments: {
 			owned: 0,
-			max: -1
+			max: -1,
 		}
 	},
 	
@@ -737,7 +737,7 @@ var toReturn = {
 				unlockUpgrade("Potency");
 			}
 		}, 
-		//19 is for Boots
+		//19 is for Armor
 		Miner: {
 			message: "You found an ancient book about mining. With some research you should be able to teach the Trimps to mine!",
 			world: 1,
@@ -776,6 +776,16 @@ var toReturn = {
 			title: "Speedscience",
 			fire: function () {
 				unlockUpgrade("Speedscience");
+			}
+		},
+		Cartographer: {
+			message: "You found a book detailing the intricacies of cartography!",
+			world: 11,
+			level: 39,
+			icon: "book",
+			title: "Cartographer",
+			fire: function () {
+				unlockUpgrade("Cartographers");
 			}
 		},
 		//49 is for weapon
@@ -849,6 +859,16 @@ var toReturn = {
 			title: "Blockmaster",
 			fire: function () {
 				unlockUpgrade("Blockmaster");
+			}
+		},
+		Egg: {
+			message: "This egg looks crazy. Seriously, guys, come look at this crazy egg!",
+			world: 16,
+			level: 55,
+			icon: "record",
+			title: "Egg",
+			fire: function () {
+				unlockUpgrade("Egg");
 			}
 		},
 		
@@ -1067,6 +1087,20 @@ var toReturn = {
 				by: 50
 			}
 		},
+		Tribute: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 120,
+			tooltip: "Pay a tribute of food to your Dragimp, increasing his appetite and his speed. He will gather gems 5% faster.",
+			cost: {
+				food: [10000, 1.1]
+			},
+			increase: {
+				what: "Dragimp.modifier.mult",
+				by: 1.05,
+			}
+		},
 	},
 
 	jobs: {
@@ -1096,8 +1130,6 @@ var toReturn = {
 			tooltip: "Send your misbehaving Trimps to the mines for some therapeutic work. Each Miner can find and smelt $modifier$ bars of metal per second",
 			cost: {
 				food: [20, 1.005],
-				wood: [20, 1.005],
-				metal: [15, 1.005]
 			},
 			increase: "metal",
 			modifier: 0.1
@@ -1121,9 +1153,23 @@ var toReturn = {
 			},
 			increase: "custom",
 			modifier: 20
+		},
+		Cartographer: {
+			locked: 1,
+			owned: 0,
+			tooltip: "Each cartographer will create 1 map fragment every 10 seconds.",
+			cost: {
+				food: [15000, 1.1]
+			},
+			increase: "fragments",
+			modifier: .1
+		},
+		Dragimp: {
+			locked: 1,
+			owned: 0,
+			increase: "gems",
+			modifier: .5,
 		}
-		
-
 	},
 	
 	upgrades: {
@@ -1259,6 +1305,22 @@ var toReturn = {
 			fire: function () {
 				unlockJob("Scientist");
 			}			
+		},
+		Cartographers: {
+			locked: 1,
+			tooltip: "This book will allow you to hire trimps who can create map fragments for you!",
+			done: 0,
+			allowed: 0,
+			cost: {
+				resources: {
+					science: 100000,
+					fragments: 5,
+				}
+			},
+			fire: function () {
+				unlockJob("Cartographer");
+				fadeIn("fragmentsPs", 10);
+			}
 		},
 		Speedlumber: {
 			locked: 1,
@@ -1426,6 +1488,23 @@ var toReturn = {
 			fire: function () {
 				prestigeGame();
 			}
+		},
+		Egg: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "Your top scientists are pretty sure this is a Dragimp egg. They know Dragimps love shiny things, maybe it'll come out for some gems.",
+			done: 0,
+			cost: {
+				resources: {
+					gems: 10000,
+				}
+			},
+			fire: function () {
+				game.jobs.Dragimp.owned = 1;
+				fadeIn("gemsPs", 10);
+				unlockBuilding("Tribute");
+			}
+		
 		},
 		
 		

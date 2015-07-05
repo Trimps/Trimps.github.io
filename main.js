@@ -191,6 +191,8 @@ function load(saveString, autoLoad) {
     checkTriggers(true);
     setGather(game.global.playerGathering);
     numTab(1);
+	if (game.jobs.Cartographer.locked == 0) fadeIn("fragmentsPs", 10);
+	if (game.buildings.Tribute.locked == 0) fadeIn("gemsPs", 10);
     if (game.global.autoCraftModifier > 0)
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 2) + " Foremen";
     if (game.global.fighting) startFight();
@@ -502,9 +504,10 @@ function buildBuilding(what) {
     if (typeof building.increase === 'undefined') return;
     var buildingSplit = building.increase.what.split('.');
     if (buildingSplit[0] == "global") toIncrease = game.global;
+	else if (buildingSplit[0] == "Dragimp") toIncrease = game.jobs.Dragimp;
     else
         toIncrease = game.resources[buildingSplit[0]];
-    if (buildingSplit[2] == "mult") Math.floor(toIncrease[buildingSplit[1]] *= building.increase.by);
+    if (buildingSplit[2] == "mult") toIncrease[buildingSplit[1]] = (toIncrease[buildingSplit[1]] * building.increase.by).toFixed(5);
     else
         toIncrease[buildingSplit[1]] += building.increase.by;
     numTab();
