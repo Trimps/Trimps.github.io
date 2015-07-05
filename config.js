@@ -593,10 +593,11 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
 			}
 		},
-		portal: {
+		Portal: {
 			world: -1,
 			level: "last",
 			icon: "repeat",
+			filter: true,
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("Portal");
