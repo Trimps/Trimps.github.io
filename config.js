@@ -593,7 +593,7 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
 			}
 		},
-		Portal: {
+/* 		Portal: {
 			world: -1,
 			level: "last",
 			icon: "repeat",
@@ -602,7 +602,7 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade("Portal");
 			}
-		}
+		} */
 	},
 
 	//if you put a function in here as fire, you won't have anything unlocked, the name is just for funsies

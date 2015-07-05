@@ -878,7 +878,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 	var rows = 10;
 	if (maps){
 		cols = Math.floor(Math.sqrt(game.global.mapGridArray.length));
-		rows = (game.global.mapGridArray.length % cols == 0) ? cols : cols + 2;
+		rows = (game.global.mapGridArray.length % cols == 0) ? cols + 1 : cols + 2;
 	}
 	var width = (100 / cols);
     var counter = 0;
