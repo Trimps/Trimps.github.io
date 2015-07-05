@@ -116,7 +116,7 @@ var toReturn = {
 			amt = (amt * .25) + ((amt * .72) * (level / 100));
 			}
 			else
-			amt = (amt * .4) + ((amt * .5) * (level / 100));
+			amt = (amt * .4) + ((amt * .4) * (level / 100));
 			
 			return Math.floor(amt);
 		}
@@ -854,8 +854,8 @@ var toReturn = {
 		},
 		Blockmaster: {
 			message: "You found a book discussing tactics for better blocking!",
-			world: -33,
-			level: [5, 35],
+			world: 4,
+			level: [29],
 			icon: "book",
 			title: "Blockmaster",
 			fire: function () {
@@ -1212,7 +1212,7 @@ var toReturn = {
 		},
 		Coordination: {
 			locked: 1,
-			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require 10% more Trimps (rounded up), but attack and health will be doubled.",
+			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require 25% more Trimps (rounded up), but attack and health will be doubled.",
 			done: 0,
 			allowed: 0,
 			cost: {
@@ -1224,7 +1224,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.resources.trimps.maxSoldiers = Math.ceil(1.1 * game.resources.trimps.maxSoldiers);
+				game.resources.trimps.maxSoldiers = Math.ceil(1.25 * game.resources.trimps.maxSoldiers);
 			}
 		},
 		Blockmaster: {
@@ -1402,16 +1402,16 @@ var toReturn = {
 		Potency: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your trimps how to be 5% more efficient at making baby Trimps!",
+			tooltip: "This book will teach your trimps how to be 10% more efficient at making baby Trimps!",
 			done: 0,
 			cost: {
 				resources: {
-					science: [10000, 1.1],
-					wood: [30000, 1.1],
+					science: [1000, 1.1],
+					wood: [4000, 1.1],
 				}
 			},
 			fire: function () {
-				game.resources.trimps.potency *= 1.05;
+				game.resources.trimps.potency *= 1.1;
 			}
 		},
 		UberHotel: {
@@ -1516,7 +1516,7 @@ var toReturn = {
 		TrainTacular: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trainers how to be 50% more productive at their jobs!",
+			tooltip: "This book will teach your Trainers to increase block by an additional 5%!",
 			done: 0,
 			cost: {
 				resources: {
@@ -1527,7 +1527,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Trainer.modifier = Math.ceil(game.jobs.Trainer.modifier * 1.5);
+				game.jobs.Trainer.modifier = Math.ceil(game.jobs.Trainer.modifier += 5);
 			}
 		},
 		Supershield: {
