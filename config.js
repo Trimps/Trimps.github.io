@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 0.09,
+		version: 0.10,
 		killSavesBelow: 0.05,
 		playerGathering: "",
 		playerModifier: 1,
@@ -560,7 +560,7 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-certificate'></span>You found " + prettify(amt) + " gems! Terrific!", "Loot");
 			}
 		},
-		metal: {
+		Metal: {
 			world: -1,
 			level: [0, 5],
 			icon: "fire",
@@ -571,7 +571,7 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-fire'></span>You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot");
 			},
 		},
-		food: {
+		Food: {
 			world: -1,
 			level: [0, 4],
 			icon: "apple",
@@ -582,7 +582,7 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-apple'></span>That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot");
 			}
 		},
-		wood: {
+		Wood: {
 			world: -1,
 			level: [0, 2],
 			icon: "tree-deciduous",

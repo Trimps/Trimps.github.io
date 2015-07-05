@@ -340,7 +340,7 @@
 }
 
 #mapsHere {
-    height: calc(100% - 110px);
+    height: calc(99vh - 20vw - 400px);
     overflow-y: auto;
 }
 
@@ -516,18 +516,29 @@
 }
 
 #preMapsTitle {
-    width: 100%;
     text-align: center;
     font-size: 1.3em;
 }
 
-#selectedMapContainer {
-    font-size: 1.2em;
-    text-align: center;
+#mapChamberTitleRow{
+	margin-bottom: 10px;
 }
 
+#selectedMapContainer {
+    font-size: 1.4em;
+    text-align: center;
+	height: 90px;
+}
+.mapStatsValue {
+	text-align: left;
+}
+
+.mapStatsTitle {
+	text-align: right;
+}
 #selectedMapName {
     text-decoration: underline;
+	padding-top: 10px;
 }
 
 .green {

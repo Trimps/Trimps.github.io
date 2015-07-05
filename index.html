@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps Dev 0.09</title>
+	<title>Trimps Dev 0.10</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
@@ -374,31 +374,52 @@
                         <div class="col-xs-10" id="gridContainer">
                             <div id="grid"></div>
                             <div id="preMaps" style="display: none">
-                                <div id="preMapsTitle">
+							<div class="row" id="mapChamberTitleRow">
+								<div id="preMapsTitle" class="col-xs-6">
                                     Map Chamber
                                 </div>
-                                <div id="selectedMapContainer">
-                                    <div id="selectedMapName">
+
+									<span id='createMapBtn' onclick='buyMap()' class='btn btn-sm btn-info col-xs-4'>Create a Map (3 Fragments)</span>
+
+								
+							</div>
+                                
+                                <div id="selectedMapContainer" class="row">
+                                    <div id="selectedMapCol" class="col-xs-2">
+										<div id="selectedMapName"></div><br/>
+									
                                     </div>
-                                    <div id="selectedMapStats">
-                                    </div>
-                                    <div id="selectMapBtn" class="btn btn-info btn-sm" style="visibility: hidden" onclick="runMap()">
+									<div id="mapStatsCol1" class="col-xs-3 mapStatsCol">
+										<div class="mapStatsTitle"
+										<div class="mapStatsTitle">Size</div>
+										<div class="mapStatsTitle">Difficulty</div>
+										<div class="mapStatsTitle">Loot</div>
+									</div>
+									<div id="mapStatsCol2" class="col-xs-2 mapStatsCol">
+										<div class="mapStatsValue" id="mapStatsSize"></div>
+										<div class="mapStatsValue" id="mapStatsDifficulty"></div>
+										<div class="mapStatsValue" id="mapStatsLoot"></div>
+									</div>
+									<div id="mapStatsCol3" class="col-xs-3 mapStatsCol">
+										<div class="mapStatsTitle">Items</div>
+										<div class="mapStatsTitle">Resource</div>
+										<div id="selectMapBtn" class="btn btn-info btn-sm" style="visibility: hidden" onclick="runMap()">
                                         Run Map
                                     </div>
                                     <div id="recycleMapBtn" class="btn btn-danger btn-sm" style="visibility: hidden" onclick="recycleMap()">
                                         Recycle Map
                                     </div>
+									</div>
+									<div id="mapStatsCol4" class="col-xs-2 mapStatsCol">
+										<div class="mapStatsValue" id="mapStatsItems"></div>
+										<div class="mapStatsValue" id="mapStatsResource"></div>
+									</div>
                                 </div>
+
                                 <div id="mapHeaderDiv">
-                                    <div class="row">
-                                        <div class="col-xs-4" style="font-size: 1.2vw">
-                                            Maps Available
-                                        </div>
-										<div class="col-xs-8">
-											<span id='createMapBtn' onclick='buyMap()' class='btn btn-sm btn-info'>Create a Map (3 Fragments)</span>
-										</div>
-                                    </div>
+                                    <div class="row"></div>
                                 </div>
+								
                                 <div id="mapsHere" class="niceScroll">
                                 </div>
                             </div>

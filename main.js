@@ -933,10 +933,7 @@ function recycleMap() {
     game.global.mapsOwned--;
     game.global.lastClearedMapCell = -1;
     game.resources.fragments.owned++;
-    document.getElementById("selectedMapName").innerHTML = "Select a Map!";
-    document.getElementById("selectedMapStats").innerHTML = "";
-    document.getElementById("selectMapBtn").style.visibility = "hidden";
-    document.getElementById("recycleMapBtn").style.visibility = "hidden";
+    mapsSwitch(true);
 
 }
 
@@ -979,7 +976,11 @@ function mapsSwitch(updateOnly) {
             document.getElementById("selectMapBtn").style.visibility = "hidden";
             document.getElementById("recycleMapBtn").style.visibility = "hidden";
             document.getElementById("selectedMapName").innerHTML = "Select a Map!";
-            document.getElementById("selectedMapStats").innerHTML = "";
+            document.getElementById("mapStatsSize").innerHTML = "";
+			document.getElementById("mapStatsDifficulty").innerHTML = "";
+			document.getElementById("mapStatsLoot").innerHTML = "";
+			document.getElementById("mapStatsItems").innerHTML = "";
+			document.getElementById("mapStatsResource").innerHTML = "";
         } else {
             selectMap(game.global.currentMapId, true);
             document.getElementById("selectMapBtn").innerHTML = "Continue";
@@ -1012,7 +1013,12 @@ function selectMap(mapId, force) {
     var map = getMapIndex(mapId);
     map = game.global.mapsOwnedArray[map];
     document.getElementById("selectedMapName").innerHTML = map.name;
-    document.getElementById("selectedMapStats").innerHTML = "Size: " + Math.floor(map.size) + ". Difficulty: " + Math.floor(map.difficulty * 100) + "%. Loot Bonus: " + Math.floor(map.loot * 100) + "%.<br/>There are " + addSpecials(true, true, map) + " items to be earned from level " + map.level + "+ maps.";
+	document.getElementById("mapStatsSize").innerHTML = Math.floor(map.size);
+	document.getElementById("mapStatsDifficulty").innerHTML = Math.floor(map.difficulty * 100) + "%";
+	document.getElementById("mapStatsLoot").innerHTML = Math.floor(map.loot * 100) + "%";
+	document.getElementById("mapStatsItems").innerHTML = addSpecials(true, true, map);
+	document.getElementById("mapStatsResource").innerHTML = game.mapConfig.locations[map.location].resourceType;
+	
     if (typeof game.global.mapsOwnedArray[getMapIndex(game.global.lookingAtMap)] !== 'undefined') document.getElementById(game.global.lookingAtMap).style.border = "1px solid white";
     document.getElementById(mapId).style.border = "1px solid red";
     game.global.lookingAtMap = mapId;
