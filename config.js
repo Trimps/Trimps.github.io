@@ -116,7 +116,7 @@ var toReturn = {
 			amt = (amt * .25) + ((amt * .72) * (level / 100));
 			}
 			else
-			amt = (amt * .5) + ((amt * .5) * (level / 100));
+			amt = (amt * .4) + ((amt * .5) * (level / 100));
 			
 			return Math.floor(amt);
 		}
@@ -1029,9 +1029,9 @@ var toReturn = {
 			craftTime: 20,
 			tooltip: "A better house for your Trimps! Each house supports up to $incby$ more Trimps.",
 			cost: {
-				food: [2750, 1.22],
-				wood: [4500, 1.22],
-				metal: [500, 1.22]
+				food: [1000, 1.22],
+				wood: [2000, 1.22],
+				metal: [250, 1.22]
 			},
 			increase: {
 				what: "trimps.max",
