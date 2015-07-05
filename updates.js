@@ -213,7 +213,9 @@ function prettify(number) {
 	}
 	else
 	{
-		return parseFloat(numberTmp).toExponential(2);
+		var exponent = parseFloat(numberTmp).toExponential(2)
+		exponent = exponent.replace('+','<sup>') + '</sup>';
+		return exponent;
 	}
 
 	return prettifySub(number) + suffix;
