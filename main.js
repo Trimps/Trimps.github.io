@@ -807,7 +807,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         if ((special.world == -3) && ((world % 2) != 1)) continue;
         if ((special.world == -5) && ((world % 5) !== 0)) continue;
         if ((special.world == -33) && ((world % 3) !== 0)) continue;
-		if ((item == "portal" && map.location != "Hell")) continue;
+		console.log(item);
 		if ((maps) && (special.filter) && (game.mapConfig.locations[map.location].resourceType != item)) continue;
         if ((typeof special.startAt !== 'undefined') && (special.startAt > world)) continue;
         if (typeof special.canRunOnce === 'undefined' && (special.level == "last") && canLast && (special.last <= (world - 5))) {
@@ -883,15 +883,15 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
     if (maps) size = game.global.mapGridArray.length;
     for (var i = 0; i < 10; i++) {
         if (maps && counter >= size) return;
-        var row = document.createElement("ul");
+/*         var row = document.createElement("div");
 		grid.insertBefore(row, grid.childNodes[0])
         row.setAttribute("id", "row" + i);
-		row.className = "battleRow";
+		row.className = "battleRow"; */
         for (var x = 0; x < cols; x++) {
             if (maps && counter >= size) return;
-			var cell = document.createElement("li");
+			var cell = document.createElement("div");
 			cell.setAttribute("id", idText + counter);
-			row.appendChild(cell);
+			grid.insertBefore(cell, grid.childNodes[0]);
             cell.className = "battleCell";
 			cell.style.width = width + "%";
 			cell.style.height = width + "%";

@@ -411,8 +411,7 @@
 .battleCell {
     border: 1px solid black;
 	display: inline-block;
-
-
+	height: 7%;
 }
 
 .collecting {}
