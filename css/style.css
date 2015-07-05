@@ -398,7 +398,7 @@
     color: black;
     background: rgba(255, 255, 255, 0.25);
     font-size: 1vw;
-    text-align: center;
+    text-align: left;
 	list-style: none;
 	padding-left: 0;
 }
@@ -406,14 +406,14 @@
 .battleRow{
 	list-style: none;
 	padding-left: 0;
+	margin-bottom: 0;
 }
 
 .battleCell {
     border: 1px solid black;
 	display: inline-block;
-	padding-top: 1.5vw;
-	padding-bottom: 1.5vw;
-	width: 3.5vw;
+	height: 10%;
+	text-align: center;
 }
 
 .collecting {}

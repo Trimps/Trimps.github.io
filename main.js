@@ -807,7 +807,6 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         if ((special.world == -3) && ((world % 2) != 1)) continue;
         if ((special.world == -5) && ((world % 5) !== 0)) continue;
         if ((special.world == -33) && ((world % 3) !== 0)) continue;
-		console.log(item);
 		if ((maps) && (special.filter) && (game.mapConfig.locations[map.location].resourceType != item)) continue;
         if ((typeof special.startAt !== 'undefined') && (special.startAt > world)) continue;
         if (typeof special.canRunOnce === 'undefined' && (special.level == "last") && canLast && (special.last <= (world - 5))) {
@@ -875,23 +874,31 @@ function findHomeForSpecial(special, item, array, max){
 function drawGrid(maps) { //maps t or f. This function overwrites the current grid, be carefulz
     var grid = (maps) ? document.getElementById("mapGrid") : document.getElementById("grid");
     grid.innerHTML = "";
-    var cols = (maps) ? (game.global.mapGridArray.length / 10) : 10;
+    var cols = 10;
+	var rows = 10;
+	if (maps){
+		cols = Math.floor(Math.sqrt(game.global.mapGridArray.length));
+		rows = (game.global.mapGridArray.length % cols == 0) ? cols : cols + 2;
+	}
 	var width = (100 / cols);
     var counter = 0;
     var idText = (maps) ? "mapCell" : "cell";
     var size = 0;
     if (maps) size = game.global.mapGridArray.length;
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < rows; i++) {
         if (maps && counter >= size) return;
-/*         var row = document.createElement("div");
+        var row = document.createElement("ul");
 		grid.insertBefore(row, grid.childNodes[0])
         row.setAttribute("id", "row" + i);
-		row.className = "battleRow"; */
+		row.className = "battleRow";
         for (var x = 0; x < cols; x++) {
             if (maps && counter >= size) return;
-			var cell = document.createElement("div");
+			var cell = document.createElement("li");
 			cell.setAttribute("id", idText + counter);
-			grid.insertBefore(cell, grid.childNodes[0]);
+			row.appendChild(cell);
+			cell.style.width = (100 / cols) + "%";
+			cell.style.paddingTop = (cols / 4) + "vh";
+			cell.style.paddingBottom = (cols / 4) + "vh";
             cell.className = "battleCell";
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
 			if (cell.innerHTML == "") cell.innerHTML = "&nbsp;";
