@@ -592,7 +592,16 @@ var toReturn = {
 				var amt = rewardResource("wood", 1, level, true);
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
 			}
-		},		
+		},
+		portal: {
+			world: -1,
+			level: "last",
+			icon: "repeat",
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("Portal");
+			}
+		}
 	},
 
 	//if you put a function in here as fire, you won't have anything unlocked, the name is just for funsies
@@ -719,7 +728,7 @@ var toReturn = {
 				unlockUpgrade("TrainTacular");
 			}
 		},
-/* 		Potency: {
+ 		Potency: {
 			message: "Also known as the Trimpma Sutra, this book will help your Trimps make more Trimps",
 			world: -5,
 			level: 29,
@@ -727,7 +736,7 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade("Potency");
 			}
-		}, */
+		}, 
 		//19 is for Boots
 		Miner: {
 			message: "You found an ancient book about mining. With some research you should be able to teach the Trimps to mine!",
@@ -1161,10 +1170,10 @@ var toReturn = {
 			allowed: 0,
 			cost: {
 				resources: {
-					science: [250, 1.2],
-					food: [600, 1.2],
-					wood: [600, 1.2],
-					metal: [300, 1.2]
+					science: [250, 1.1],
+					food: [600, 1.1],
+					wood: [600, 1.1],
+					metal: [300, 1.1]
 				}
 			},
 			fire: function () {
@@ -1178,9 +1187,9 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [750, 1.3],
-					food: [2000, 1.3],
-					metal: [1000, 1.3]
+					science: [750, 1.1],
+					food: [2000, 1.1],
+					metal: [1000, 1.1]
 				}
 			},
 			fire: function () {
@@ -1195,9 +1204,9 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [750, 1.3],
-					food: [2000, 1.3],
-					metal: [1000, 1.3]
+					science: [750, 1.1],
+					food: [2000, 1.1],
+					metal: [1000, 1.1]
 				}
 			},
 			fire: function () {
@@ -1254,52 +1263,52 @@ var toReturn = {
 		Speedlumber: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to cut wood 50% faster!",
+			tooltip: "This book will teach your Trimps how to cut wood 10% faster!",
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.2],
-					wood: [1000, 1.2]
+					science: [200, 1.1],
+					wood: [1000, 1.1]
 				}
 			},
 			fire: function () {
-				game.jobs.Lumberjack.modifier = (game.jobs.Lumberjack.modifier * 1.5).toFixed(2);
+				game.jobs.Lumberjack.modifier = (game.jobs.Lumberjack.modifier * 1.1).toFixed(2);
 			}			
 		},
 		Speedfarming: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to farm twice as fast!",
+			tooltip: "This book will teach your Trimps how to farm 10% faster!",
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.8],
-					food: [1000, 1.8]
+					science: [200, 1.1],
+					food: [1000, 1.1]
 				}
 			},
 			fire: function () {
-				game.jobs.Farmer.modifier = (game.jobs.Farmer.modifier * 1.5).toFixed(2);
+				game.jobs.Farmer.modifier = (game.jobs.Farmer.modifier * 1.1).toFixed(2);
 			}			
 		},
 		Speedminer: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to mine twice as fast!",
+			tooltip: "This book will teach your Trimps how to mine 10% faster!",
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.8],
-					metal: [500, 1.8]
+					science: [200, 1.1],
+					metal: [500, 1.1]
 				}
 			},
 			fire: function () {
-				game.jobs.Miner.modifier = (game.jobs.Miner.modifier * 2);
+				game.jobs.Miner.modifier = (game.jobs.Miner.modifier * 1.1).toFixed(2);
 			}			
 		},
 		Speedscience: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to science things twice as fast!",
+			tooltip: "This book will teach your Trimps how to science things 10% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -1307,7 +1316,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Scientist.modifier = (game.jobs.Scientist.modifier * 2);
+				game.jobs.Scientist.modifier = (game.jobs.Scientist.modifier * 1.1).toFixed(2);
 			}			
 		},
 		Efficiency: {
@@ -1317,10 +1326,10 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [300, 1.2],
-					food: [1000, 1.2],
-					wood: [1250, 1.2],
-					metal: [400, 1.2]
+					science: [2000, 1.1],
+					food: [1000, 1.1],
+					wood: [1250, 1.1],
+					metal: [400, 1.1]
 				}
 			},
 			fire: function () {
@@ -1334,8 +1343,8 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [1000, 1.5],
-					wood: [30000, 1.5],
+					science: [10000, 1.1],
+					wood: [30000, 1.1],
 				}
 			},
 			fire: function () {
@@ -1349,9 +1358,9 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [3000, 1.3],
-					food: [200000, 1.3],
-					metal: [100000, 1.3]
+					science: [3000, 1.1],
+					food: [200000, 1.1],
+					metal: [100000, 1.1]
 				}
 			},
 			fire: function () {
@@ -1366,9 +1375,9 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [30000, 1.3],
-					food: [2000000, 1.3],
-					metal: [1000000, 1.3]
+					science: [30000, 1.1],
+					food: [2000000, 1.1],
+					metal: [1000000, 1.1]
 				}
 			},
 			fire: function () {
@@ -1402,6 +1411,20 @@ var toReturn = {
 				});
 				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to the Dimension of Anger! Should be fun!", "Notices");
+			}
+		},
+		Portal: {
+			locked: 1,
+			allowed: 0, 
+			tooltip: "Enter the portal, and try again with extra knowledge. This will reset your game but give you a bonus.",
+			done: 0,
+			cost: {
+				resources: {
+					
+				}
+			},
+			fire: function () {
+				prestigeGame();
 			}
 		},
 		
