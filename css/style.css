@@ -397,7 +397,7 @@
     height: 100%;
     color: black;
     background: rgba(255, 255, 255, 0.25);
-    font-size: 20px;
+    font-size: 1vw;
     text-align: center;
 	list-style: none;
 	padding-left: 0;
@@ -411,9 +411,9 @@
 .battleCell {
     border: 1px solid black;
 	display: inline-block;
-	padding-top: 20px;
-	padding-bottom: 20px;
-	width: 70px;
+	padding-top: 1.5vw;
+	padding-bottom: 1.5vw;
+	width: 3.5vw;
 }
 
 .collecting {}

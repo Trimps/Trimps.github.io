@@ -985,7 +985,7 @@ function mapsSwitch(updateOnly) {
         document.getElementById("preMaps").style.display = "none";
         document.getElementById("mapGrid").style.display = "block";
         document.getElementById("mapsBtn").innerHTML = "World";
-        document.getElementById("worldNumber").innerHTML = "Lv: " + currentMapObj.level;
+        document.getElementById("worldNumber").innerHTML = "</br>Lv: " + currentMapObj.level;
         document.getElementById("worldName").innerHTML = currentMapObj.name;
     } else {
         document.getElementById("grid").style.display = "block";
