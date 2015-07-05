@@ -176,7 +176,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				wood: [3, 1.3]
+				wood: [50, 1.3]
 			},
 			health: 1,
 			prestige: 1
@@ -1110,40 +1110,40 @@ var toReturn = {
 			owned: 0,
 			tooltip: "Train one of your Trimps in the ancient art of farming. Each Farmer earns $modifier$ food per second",
 			cost: {
-				food: [5, 1.005]
+				food: [5, 1.0]
 			},
 			increase: "food",
-			modifier: 0.25
+			modifier: 0.5
 		},
 		Lumberjack: {
 			locked: 1,
 			owned: 0,
 			tooltip: "Show a Trimp how to cut one of those weird trees down. Each Lumberjack hauls back $modifier$ logs per second.",
 			cost: {
-				food: [5, 1.005]
+				food: [5, 1.0]
 			},
 			increase: "wood",
-			modifier: 0.25
+			modifier: 0.5
 		},
 		Miner: {
 			locked: 1,
 			owned: 0,
 			tooltip: "Send your misbehaving Trimps to the mines for some therapeutic work. Each Miner can find and smelt $modifier$ bars of metal per second",
 			cost: {
-				food: [20, 1.005],
+				food: [20, 1.0],
 			},
 			increase: "metal",
-			modifier: 0.1
+			modifier: 0.25
 		},
 		Scientist: {
 			locked: 1,
 			owned: 0,
 			tooltip: "It takes some patience, but you can teach these Trimps to do some research for you. Each Scientist records $modifier$ units of pure science each second.",
 			cost: {
-				food: [100, 1.005]
+				food: [100, 1.0]
 			},
 			increase: "science",
-			modifier: 0.25
+			modifier: 0.5
 		},
 		Trainer: {
 			locked: 1,
@@ -1268,9 +1268,9 @@ var toReturn = {
 			allowed: 0,
 			cost: {
 				resources: {
-					science: 30,
-					wood: 30,
-					metal: 30
+					science: 60,
+					wood: 300,
+					metal: 300
 				}
 			},
 			fire: function () {
@@ -1299,8 +1299,8 @@ var toReturn = {
 			allowed: 0,
 			cost: {
 				resources: {
-					science: 45,
-					food: 100
+					science: 100,
+					food: 500
 				}
 			},
 			fire: function () {
@@ -1326,7 +1326,7 @@ var toReturn = {
 		Speedlumber: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to cut wood 10% faster!",
+			tooltip: "This book will teach your Trimps how to cut wood 15% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -1335,13 +1335,13 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Lumberjack.modifier = (game.jobs.Lumberjack.modifier * 1.1).toFixed(2);
+				game.jobs.Lumberjack.modifier = (game.jobs.Lumberjack.modifier * 1.15).toFixed(2);
 			}			
 		},
 		Speedfarming: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to farm 10% faster!",
+			tooltip: "This book will teach your Trimps how to farm 15% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -1350,13 +1350,13 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Farmer.modifier = (game.jobs.Farmer.modifier * 1.1).toFixed(2);
+				game.jobs.Farmer.modifier = (game.jobs.Farmer.modifier * 1.15).toFixed(2);
 			}			
 		},
 		Speedminer: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to mine 10% faster!",
+			tooltip: "This book will teach your Trimps how to mine 15% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -1365,13 +1365,13 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Miner.modifier = (game.jobs.Miner.modifier * 1.1).toFixed(2);
+				game.jobs.Miner.modifier = (game.jobs.Miner.modifier * 1.15).toFixed(2);
 			}			
 		},
 		Speedscience: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to science things 10% faster!",
+			tooltip: "This book will teach your Trimps how to science things 15% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -1379,7 +1379,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Scientist.modifier = (game.jobs.Scientist.modifier * 1.1).toFixed(2);
+				game.jobs.Scientist.modifier = (game.jobs.Scientist.modifier * 1.15).toFixed(2);
 			}			
 		},
 		Efficiency: {
