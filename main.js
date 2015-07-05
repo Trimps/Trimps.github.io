@@ -191,7 +191,7 @@ function load(saveString, autoLoad) {
     checkTriggers(true);
     setGather(game.global.playerGathering);
     numTab(1);
-	if (game.jobs.Cartographer.locked == 0) fadeIn("fragmentsPs", 10);
+	if (game.jobs.Explorer.locked == 0) fadeIn("fragmentsPs", 10);
 	if (game.buildings.Tribute.locked == 0) fadeIn("gemsPs", 10);
     if (game.global.autoCraftModifier > 0)
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 2) + " Foremen";

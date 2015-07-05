@@ -778,14 +778,14 @@ var toReturn = {
 				unlockUpgrade("Speedscience");
 			}
 		},
-		Cartographer: {
-			message: "You found a book detailing the intricacies of cartography!",
+		Explorer: {
+			message: "You found a book detailing the intricacies of solo exploration!",
 			world: 11,
 			level: 39,
 			icon: "book",
-			title: "Cartographer",
+			title: "Explorer",
 			fire: function () {
-				unlockUpgrade("Cartographers");
+				unlockUpgrade("Explorers");
 			}
 		},
 		//49 is for weapon
@@ -1154,10 +1154,10 @@ var toReturn = {
 			increase: "custom",
 			modifier: 20
 		},
-		Cartographer: {
+		Explorer: {
 			locked: 1,
 			owned: 0,
-			tooltip: "Each cartographer will create 1 map fragment every 10 seconds.",
+			tooltip: "Each explorer will find an average of $modifier$ fragments each second.",
 			cost: {
 				food: [15000, 1.1]
 			},
@@ -1306,7 +1306,7 @@ var toReturn = {
 				unlockJob("Scientist");
 			}			
 		},
-		Cartographers: {
+		Explorers: {
 			locked: 1,
 			tooltip: "This book will allow you to hire trimps who can create map fragments for you!",
 			done: 0,
@@ -1318,7 +1318,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				unlockJob("Cartographer");
+				unlockJob("Explorer");
 				fadeIn("fragmentsPs", 10);
 			}
 		},
