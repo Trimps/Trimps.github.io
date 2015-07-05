@@ -97,11 +97,11 @@ var toReturn = {
 				amt = (amt * .25) + ((amt * .75) * (level / 100));			
 			}
 			else if (world == 2){
-				amt *= .7;
+				amt *= .5;
 				amt = (amt * .32) + ((amt * .68) * (level / 100));
 			}
 			else
-			amt = (amt * .4) + ((amt * .7) * (level / 100));
+			amt = (amt * .375) + ((amt * .7) * (level / 100));
 			
 			return Math.floor(amt);
 		},
@@ -113,7 +113,7 @@ var toReturn = {
 			amt -= 110;
 			if (world == 1 || world == 2 && level < 10){
 				amt *= .6;
-			amt = (amt * .25) + ((amt * .75) * (level / 100));
+			amt = (amt * .25) + ((amt * .72) * (level / 100));
 			}
 			else
 			amt = (amt * .5) + ((amt * .5) * (level / 100));
@@ -827,8 +827,8 @@ var toReturn = {
 			icon: "user",
 			title: "Foreman",
 			fire: function () {
-				game.global.autoCraftModifier += 0.5;
-				document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 2) + " Foremen";
+				game.global.autoCraftModifier += 0.25;
+				document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
 			}
 			
 		},
@@ -901,7 +901,7 @@ var toReturn = {
 			icon: "apple",
 			repeat: 9,
 			fire: function (level) {
-				var amt = rewardResource("food", 1, level);
+				var amt = rewardResource("food", .5, level);
 				message("<span class='glyphicon glyphicon-apple'></span>That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot");
 			}
 		},
@@ -911,7 +911,7 @@ var toReturn = {
 			icon: "tree-deciduous",
 			repeat: 8,
 			fire: function (level) {
-				var amt = rewardResource("wood", 1, level);
+				var amt = rewardResource("wood", .5, level);
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
 			}
 		},
@@ -1375,7 +1375,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [750, 1.8]
+					science: [400, 1.1]
 				}
 			},
 			fire: function () {
@@ -1385,13 +1385,13 @@ var toReturn = {
 		Efficiency: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach you how to be twice as productive in everything you do! Hurray!",
+			tooltip: "This book will teach you how to be twice as productive in everything you do! Hurray! <b>Note that this applies only to your productivity, not workers.</b>",
 			done: 0,
 			cost: {
 				resources: {
-					science: [2000, 1.1],
-					food: [1000, 1.1],
-					wood: [1250, 1.1],
+					science: [400, 1.1],
+					food: [400, 1.1],
+					wood: [400, 1.1],
 					metal: [400, 1.1]
 				}
 			},

@@ -194,7 +194,7 @@ function load(saveString, autoLoad) {
 	if (game.jobs.Explorer.locked == 0) fadeIn("fragmentsPs", 10);
 	if (game.buildings.Tribute.locked == 0) fadeIn("gemsPs", 10);
     if (game.global.autoCraftModifier > 0)
-        document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 2) + " Foremen";
+        document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
     toggleSave(true);
 }
