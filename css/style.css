@@ -397,7 +397,7 @@
     height: 100%;
     color: black;
     background: rgba(255, 255, 255, 0.25);
-    font-size: 1vw;
+    font-size: 20px;
     text-align: center;
 	list-style: none;
 	padding-left: 0;
@@ -413,7 +413,7 @@
 	display: inline-block;
 	padding-top: 20px;
 	padding-bottom: 20px;
-	width: 60px;
+	width: 70px;
 }
 
 .collecting {}
