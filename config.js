@@ -556,7 +556,7 @@ var toReturn = {
 			icon: "certificate",
 			repeat: 6,
 			fire: function (level) {
-				var amt = rewardResource("gems", 0.008, level, true);
+				var amt = rewardResource("gems", .25, level, true);
 				message("<span class='glyphicon glyphicon-certificate'></span>You found " + prettify(amt) + " gems! Terrific!", "Loot");
 			}
 		},
