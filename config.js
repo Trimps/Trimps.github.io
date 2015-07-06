@@ -368,16 +368,16 @@ var toReturn = {
 		},
 		locations: {
 			Sea: {
-				resourceType: "food",
+				resourceType: "Food",
 			},
 			Mountain: {
-				resourceType: "metal",
+				resourceType: "Metal",
 			},
 			Forest: {
-				resourceType: "wood",
+				resourceType: "Wood",
 			},
 			All: {
-				resourceType: "metal",
+				resourceType: "Metal",
 			},
 		
 		},

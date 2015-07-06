@@ -897,8 +897,9 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			cell.setAttribute("id", idText + counter);
 			row.appendChild(cell);
 			cell.style.width = (100 / cols) + "%";
-			cell.style.paddingTop = (cols / 14) + "vh";
-			cell.style.paddingBottom = (cols / 14) + "vh";
+			cell.style.paddingTop = ((100 / cols) / 18)+ "vh";
+			cell.style.paddingBottom = ((100 / cols) / 18) + "vh";
+			cell.style.fontSize = ((100 / cols) / 5.5) + "vh";
             cell.className = "battleCell";
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
 			if (cell.innerHTML == "") cell.innerHTML = "&nbsp;";

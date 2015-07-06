@@ -9,6 +9,7 @@
     padding: 15px;
     height: 100vh;
     background-size: auto 100%;
+
 }
 
 #topRow {
@@ -16,10 +17,6 @@
     
     height: 18vw;
     margin-bottom: 10px;
-}
-
-#bottomRow {
-    height: calc(99% - 20vw);
 }
 
 .playerGather {
@@ -32,9 +29,11 @@
     margin-bottom: 3%;
     color: white;
 }
+
 .resourceRow{
 	height: 48%;
 }
+
 #resourceColumn {
     padding-right: .3%;
 	height: 100%;
@@ -42,6 +41,7 @@
 .maxH{
 	height: 100%;
 }
+
 #miscColumn {
     padding-left: .3%;
     padding-right: .3%;
@@ -303,7 +303,7 @@
 }
 
 #battleHeadContainer {
-    height: 145px;
+    height: 90px;
 }
 
 #battleHead {
@@ -340,12 +340,10 @@
 }
 
 #mapsHere {
-    height: calc(99vh - 20vw - 400px);
+	height: calc(100vh - 27.5vw - 150px);
     overflow-y: auto;
 	width: 100%;
 }
-
-
 
 #settingsTable {
     width: 100%;
@@ -398,7 +396,6 @@
     height: 100%;
     color: black;
     background: rgba(255, 255, 255, 0.25);
-    font-size: 1vw;
     text-align: left;
 	list-style: none;
 	padding-left: 0;
@@ -413,7 +410,6 @@
 .battleCell {
     border: 1px solid black;
 	display: inline-block;
-	height: 10%;
 	text-align: center;
 }
 
@@ -460,6 +456,8 @@
 	font-size: 1.1vw;
 }
 
+
+
 .battleStatsTitle {
     font-size: 1.2em;
 }
@@ -469,7 +467,7 @@
 }
 
 .battleSideBtnContainer{
-	margin-top: 15px;
+	margin-top: 5px;
 }
 
 #battleTimer {
@@ -478,7 +476,7 @@
 }
 
 #battleSideTitle {
-    font-size: 1.6em;
+    font-size: 1.1vw;
     text-align: center;
     background-color: rgba(0, 0, 0, 0.3);
 	padding-top: 5%;
@@ -522,13 +520,13 @@
 }
 
 #mapChamberTitleRow{
-	margin-bottom: 10px;
+	height: 30px;
 }
 
 #selectedMapContainer {
-    font-size: 1.4em;
+    font-size: 1.1vw;
     text-align: center;
-	height: 90px;
+	height: 6vw;
 }
 .mapStatsValue {
 	text-align: left;
