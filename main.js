@@ -691,7 +691,7 @@ function createMap() {
         clears: 0,
         level: world,
         difficulty: getRandomMapValue("difficulty"),
-        size: getRandomMapValue("size"),
+        size: Math.floor(getRandomMapValue("size")),
         loot: getRandomMapValue("loot")
     });
     message("You just made " + mapName[0] + "!", "Notices");
@@ -873,12 +873,14 @@ function findHomeForSpecial(special, item, array, max){
 
 function drawGrid(maps) { //maps t or f. This function overwrites the current grid, be carefulz
     var grid = (maps) ? document.getElementById("mapGrid") : document.getElementById("grid");
+	var map = getCurrentMapObject();
     grid.innerHTML = "";
     var cols = 10;
 	var rows = 10;
 	if (maps){
-		cols = Math.floor(Math.sqrt(game.global.mapGridArray.length));
-		rows = (game.global.mapGridArray.length % cols == 0) ? cols + 1 : cols + 2;
+		cols = Math.floor(Math.sqrt(map.size));
+		if (map.size % cols == 0) rows = cols;
+		else	rows = ((map.size - (cols * cols)) > cols) ? cols + 2 : cols + 1;
 	}
 	var width = (100 / cols);
     var counter = 0;
@@ -1014,7 +1016,7 @@ function selectMap(mapId, force) {
     var map = getMapIndex(mapId);
     map = game.global.mapsOwnedArray[map];
     document.getElementById("selectedMapName").innerHTML = map.name;
-	document.getElementById("mapStatsSize").innerHTML = Math.floor(map.size);
+	document.getElementById("mapStatsSize").innerHTML = (Math.floor(map.size));
 	document.getElementById("mapStatsDifficulty").innerHTML = Math.floor(map.difficulty * 100) + "%";
 	document.getElementById("mapStatsLoot").innerHTML = Math.floor(map.loot * 100) + "%";
 	document.getElementById("mapStatsItems").innerHTML = addSpecials(true, true, map);

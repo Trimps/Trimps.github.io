@@ -103,6 +103,8 @@ var toReturn = {
 			else
 			amt = (amt * .375) + ((amt * .7) * (level / 100));
 			
+			if (world > 6 && game.global.mapsActive) amt *= 1.1;
+			
 			return Math.floor(amt);
 		},
 		getEnemyHealth: function (level, name) {
@@ -117,6 +119,8 @@ var toReturn = {
 			}
 			else
 			amt = (amt * .4) + ((amt * .4) * (level / 100));
+			
+			if (world > 6 && game.global.mapsActive) amt *= 1.1;
 			
 			return Math.floor(amt);
 		}
