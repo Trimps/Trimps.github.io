@@ -342,6 +342,7 @@
 #mapsHere {
     height: calc(99vh - 20vw - 400px);
     overflow-y: auto;
+	width: 100%;
 }
 
 
