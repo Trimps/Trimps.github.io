@@ -125,13 +125,23 @@ var toReturn = {
 			else
 			amt = (amt * .4) + ((amt * .4) * (level / 110));
 			
-			if (world > 6 && game.global.mapsActive) amt *= 1.1;
+			if (world > 5 && game.global.mapsActive) amt *= 1.1;
 			
 			return Math.floor(amt);
 		}
 	},
 	
-
+	worldText: {
+		w1: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However the world is large, and there are many more fields to explore. Chop chop.",
+		w4: "Do you see that thing at the end of this field? It's huge! It's terrifying! You've never seen anything like it before, but you know that it is a Blimp. How did you know that? Stop knowing things and go kill it.",
+		w6: "Slow and steady wins the race. Unless you're racing someone who is actually trying.",
+		w8: "You can't shake the feeling that you've been here before. Deja Vu?",
+		w9: "Looks like another Blimp up ahead. Hard to tell from far away, but it looks like it has more heads than the last one.",
+		w10: "You're unstoppable as long as nothing stops you. Unfortunately, it seems like something really wants to stop you.",
+		w11: "Did you see that green light flash by? Weird. Oh well.",
+		
+		
+	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
 	badGuyDeathTexts: ["slayed", "killed", "destroyed"],

@@ -44,6 +44,7 @@ function autoSave() {
 }
 
 function save(exportThis) {
+	//This has gotten really sloppy and really needs to be rethought, and I feel like the save string should be considerably shorter. Some day.
     var saveString = JSON.stringify(game);
     var saveGame = JSON.parse(saveString);
     saveGame.worldUnlocks = null;
@@ -70,6 +71,13 @@ function save(exportThis) {
         saveGame.triggers[itemD].message = null;
         saveGame.triggers[itemD].cost = null;
     }
+	for (var itemE in saveGame.mapUnlocks){
+		var unlock = saveGame.mapUnlocks[itemE];
+		unlock.level = null;
+		unlock.message = null;
+		unlock.icon = null;
+		unlock.world = null;
+	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
 	try{
@@ -127,7 +135,11 @@ function load(saveString, autoLoad) {
         if (a == "mapConfig") continue;
         var topSave = savegame[a];
         if (typeof topSave === 'undefined' || topSave === null) continue;
-        var topGame = game[a];
+		if (a == "equipment"){
+			loadEquipment(topSave);
+			continue;
+		}
+		var topGame = game[a];
         for (var b in topGame) { //each item in main category (resource names, job names, etc)
             var midSave = topSave[b];
             if (typeof midSave === 'undefined' || midSave === null) continue;
@@ -135,11 +147,6 @@ function load(saveString, autoLoad) {
             if (typeof midSave !== 'object') midGame = midSave;
             else
                 for (var c in midGame) { //purchased, cost, etc
-                    if (a == "equipment" && c == "cost") {
-                        if (typeof midGame[c].metal !== 'undefined') midGame[c].metal[0] *= (topSave[b].prestige > 1) ? ((topSave[b].prestige - 1) * game.global.prestige.cost) : 1;
-                        if (typeof midGame[c].wood !== 'undefined') {midGame[c].wood[0] *= (topSave[b].prestige > 1) ? ((topSave[b].prestige - 1) * game.global.prestige.cost) : 1; console.log(topSave[b] + game.global.prestige.cost)}
-                        continue;
-                    }
                     if (c == "cost") continue;
                     if (c == "tooltip") continue;
                     var botSave = midSave[c];
@@ -199,6 +206,32 @@ function load(saveString, autoLoad) {
     if (game.global.fighting) startFight();
     toggleSave(true);
 }
+
+function loadEquipment(oldEquipment){
+	//Now with 100% less save breaking on balance tweaks! Flexibility ftw.
+	var newEquipment = game.equipment;
+	for (var item in oldEquipment){
+		//Name changes would go here, I suppose
+		if (typeof newEquipment[item] === 'undefined') continue;
+		var oldEquip = oldEquipment[item];
+		var newEquip = newEquipment[item];
+		newEquip.locked = oldEquip.locked;
+		newEquip.modifier = oldEquip.modifier;
+		newEquip.level = oldEquip.level;
+		newEquip.prestige = newEquip.prestige;
+		if (typeof newEquip.cost.metal !== 'undefined') newEquip.cost.metal[0] *= (newEquip.prestige > 1) ? ((newEquip.prestige - 1) * game.global.prestige.cost) : 1;
+        if (typeof newEquip.cost.wood !== 'undefined') newEquip.cost.wood[0] *= (newEquip.prestige > 1) ? ((newEquip.prestige - 1) * game.global.prestige.cost) : 1;
+		var stat = (typeof newEquip.attack !== 'undefined') ? "attack" : "health";
+		var newNumber = (newEquip.prestige > 1) ? newEquip[stat] * ((game.global.prestige[stat] - 1) * oldEquip.prestige) : newEquip[stat];
+		if (newNumber != oldEquip[stat]){
+			var dif = newNumber - oldEquip[stat];
+			game.global.health += dif * newEquip.level;
+		}
+		newEquip[stat] = newNumber;
+		newEquip.prestige = oldEquip.prestige;
+	}
+}
+
 
 function getCurrentMapObject() {
     return game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
