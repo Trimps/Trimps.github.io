@@ -187,6 +187,7 @@ function unlockTooltip(){
 function swapNotation(updateOnly){
 	if (!updateOnly) game.global.standardNotation = !game.global.standardNotation;
 	document.getElementById("notationBtn").innerHTML = (game.global.standardNotation) ? "Standard Notation" : "Scientific Notation";
+	if (game.global.fighting) updateAllBattleNumbers();
 }
 
 function prettify(number) {
@@ -561,8 +562,8 @@ function updateSideTrimps(){
 	document.getElementById("trimpsUnemployed").innerHTML = breedCount;
 	document.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.max / 2));
 	var free = (Math.ceil(trimps.max / 2) - trimps.employed);
-	free = (free > Math.floor(trimps.owned))  ? Math.floor(trimps.owned - trimps.employed) : free;
-	document.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " free";
+	var s = (free > 1) ? "s" : "";
+	document.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " workspace" + s;
 }
 
 function unlockBuilding(what) {

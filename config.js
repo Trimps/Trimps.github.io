@@ -59,9 +59,14 @@ var toReturn = {
 		lookingAtMap: "",
 		mapsOwned: 0,
 		totalMapsEarned: 0,
+		freshFight: false,
 		tab: "All",
-		prestigeValueMod: 12,
-		prestigeCostMod: 30,
+		prestige: {
+			attack: 6,
+			health: 12,
+			cost: 45
+		},
+		
 		buyAmt: 1,
 		numTab: 1,
 		spreadsheetMode: false,
@@ -118,13 +123,15 @@ var toReturn = {
 			amt = (amt * .25) + ((amt * .72) * (level / 100));
 			}
 			else
-			amt = (amt * .4) + ((amt * .4) * (level / 100));
+			amt = (amt * .4) + ((amt * .4) * (level / 110));
 			
 			if (world > 6 && game.global.mapsActive) amt *= 1.1;
 			
 			return Math.floor(amt);
 		}
 	},
+	
+
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
 	badGuyDeathTexts: ["slayed", "killed", "destroyed"],
@@ -180,9 +187,9 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				wood: [50, 1.3]
+				wood: [40, 1.3]
 			},
-			health: 1,
+			health: 2,
 			prestige: 1
 		},
 		Dagger: {
@@ -505,9 +512,9 @@ var toReturn = {
 			}
 		},
 		Mansion: {
-			world: 6,
+			world: 8,
 			message: "You found plans for a Mansion! Your Trimps will be pretty stoked",
-			level: "last",
+			level: [10, 20],
 			icon: "home",
 			canRunOnce: true,
 			fire: function () {
@@ -1049,9 +1056,9 @@ var toReturn = {
 			craftTime: 60,
 			tooltip: "A pretty sick mansion for your Trimps to live in. Each Mansion supports $incby$ more Trimps.",
 			cost: {
-				gems: [10, 1.2],
-				wood: [12000, 1.2],
-				metal: [2000, 1.2],
+				gems: [100, 1.2],
+				wood: [4500, 1.2],
+				metal: [1000, 1.2],
 			},
 			increase: {
 				what: "trimps.max",
@@ -1221,10 +1228,10 @@ var toReturn = {
 			allowed: 0,
 			cost: {
 				resources: {
-					science: [250, 1.1],
-					food: [600, 1.1],
-					wood: [600, 1.1],
-					metal: [300, 1.1]
+					science: [250, 1.17],
+					food: [600, 1.17],
+					wood: [600, 1.17],
+					metal: [300, 1.17]
 				}
 			},
 			fire: function () {
@@ -1238,9 +1245,9 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [750, 1.1],
-					food: [2000, 1.1],
-					metal: [1000, 1.1]
+					science: [750, 1.17],
+					food: [2000, 1.17],
+					metal: [1000, 1.17]
 				}
 			},
 			fire: function () {
@@ -1334,8 +1341,8 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.1],
-					wood: [1000, 1.1]
+					science: [200, 1.17],
+					wood: [1000, 1.17]
 				}
 			},
 			fire: function () {
@@ -1349,8 +1356,8 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.1],
-					food: [1000, 1.1]
+					science: [200, 1.17],
+					food: [1000, 1.17]
 				}
 			},
 			fire: function () {
@@ -1364,8 +1371,8 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.1],
-					metal: [500, 1.1]
+					science: [200, 1.17],
+					metal: [500, 1.17]
 				}
 			},
 			fire: function () {
@@ -1379,7 +1386,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [400, 1.1]
+					science: [400, 1.17]
 				}
 			},
 			fire: function () {
@@ -1393,10 +1400,10 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [400, 1.1],
-					food: [400, 1.1],
-					wood: [400, 1.1],
-					metal: [400, 1.1]
+					science: [400, 1.2],
+					food: [400, 1.2],
+					wood: [400, 1.2],
+					metal: [400, 1.2]
 				}
 			},
 			fire: function () {
@@ -1410,8 +1417,8 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [1000, 1.1],
-					wood: [4000, 1.1],
+					science: [1000, 1.4],
+					wood: [4000, 1.4],
 				}
 			},
 			fire: function () {
@@ -1542,7 +1549,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1200, 1.7],
-					gems: [20, 3]
+					gems: [100, 3]
 				}
 			},
 			fire: function () {
@@ -1557,7 +1564,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1250, 1.7],
-					gems: [25, 3]
+					gems: [110, 3]
 				}
 			},
 			fire: function () {
@@ -1572,7 +1579,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1300, 1.7],
-					gems: [30, 3]
+					gems: [125, 3]
 				}
 			},
 			fire: function () {
@@ -1587,7 +1594,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1400, 1.7],
-					gems: [40, 3]
+					gems: [200, 3]
 				}
 			},
 			fire: function () {
@@ -1602,7 +1609,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1450, 1.7],
-					gems: [45, 3]
+					gems: [400, 3]
 				}
 			},
 			fire: function () {
@@ -1617,7 +1624,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1550, 1.7],
-					gems: [55, 3]
+					gems: [500, 3]
 				}
 			},
 			fire: function () {
@@ -1632,7 +1639,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1600, 1.7],
-					gems: [60, 3]
+					gems: [750, 3]
 				}
 			},
 			fire: function () {
@@ -1647,7 +1654,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1700, 1.7],
-					gems: [70, 3]
+					gems: [1000, 3]
 				}
 			},
 			fire: function () {
@@ -1662,7 +1669,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1750, 1.7],
-					gems: [80, 3]
+					gems: [1300, 3]
 				}
 			},
 			fire: function () {
@@ -1677,7 +1684,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1850, 1.7],
-					gems: [85, 3]
+					gems: [1500, 3]
 				}
 			},
 			fire: function () {
@@ -1692,7 +1699,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1900, 1.7],
-					gems: [90, 3]
+					gems: [1750, 3]
 				}
 			},
 			fire: function () {
@@ -1795,7 +1802,7 @@ var toReturn = {
 		},
 		upgrades: {
 			done: 0,
-			message: "Time to figure this planet out",
+			message: "This planet feels so familiar, yet so foreign. Maybe it's time to start sciencing things.",
 			cost: {
 				resources: {
 					trimps: 2,
@@ -1825,7 +1832,7 @@ var toReturn = {
 		},
 		Hut: {
 			done: 0,
-			message: "Doesn't seem like all of these little guys will fit in your ship",
+			message: "Doesn't seem like all of these little guys will fit in your ship. Luckily, you remember how to make small huts for shelter.",
 			cost: {
 				resources: {
 					trimps: 8
