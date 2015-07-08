@@ -192,6 +192,7 @@ function load(saveString, autoLoad) {
 			filterTabs(tabBool, true);
 		}
 	}
+	repeatClicked(true);
 	game.global.lockTooltip = false;
 	swapNotation(true);
 	document.getElementById("worldNumber").innerHTML = game.global.world;
@@ -218,17 +219,20 @@ function loadEquipment(oldEquipment){
 		newEquip.locked = oldEquip.locked;
 		newEquip.modifier = oldEquip.modifier;
 		newEquip.level = oldEquip.level;
-		newEquip.prestige = newEquip.prestige;
-		if (typeof newEquip.cost.metal !== 'undefined') newEquip.cost.metal[0] *= (newEquip.prestige > 1) ? ((newEquip.prestige - 1) * game.global.prestige.cost) : 1;
-        if (typeof newEquip.cost.wood !== 'undefined') newEquip.cost.wood[0] *= (newEquip.prestige > 1) ? ((newEquip.prestige - 1) * game.global.prestige.cost) : 1;
-		var stat = (typeof newEquip.attack !== 'undefined') ? "attack" : "health";
-		var newNumber = (newEquip.prestige > 1) ? newEquip[stat] * ((game.global.prestige[stat] - 1) * oldEquip.prestige) : newEquip[stat];
-		if (newNumber != oldEquip[stat]){
-			var dif = newNumber - oldEquip[stat];
-			game.global.health += dif * newEquip.level;
-		}
-		newEquip[stat] = newNumber;
 		newEquip.prestige = oldEquip.prestige;
+		if (newEquip.prestige > 1)
+		prestigeEquipment(item, newEquip.prestige);
+		var stat = (typeof newEquipment.health !== 'undefined') ? "health" : "attack";
+		if (typeof oldEquip[stat + "Calculated"] === 'undefined') oldEquip[stat + "Calculated"] = oldEquip[stat];
+		if (newEquip[stat + "Calculated"] != oldEquip[stat + "Calculated"]){
+			var dif = newEquip[stat + "Calculated"] - oldEquip[stat + "Calculated"];
+			console.log("Equipment: " + item + ". Updated from:");
+			console.log(oldEquip);
+			console.log("Updated to: ");
+			console.log(newEquip);
+			console.log("dif is " + dif);
+			game.global[stat] += dif * newEquip.level;
+		}
 	}
 }
 
@@ -557,12 +561,8 @@ function setNewCraftItem() {
 function calculatePercentageBuildingCost(what, resourceToCheck, costModifier){
 	var struct = game.buildings[what];
 	var res = game.resources[resourceToCheck];
-	var resSim = res.max;
 	var dif = struct.purchased - struct.owned;
-	for (var x = 0; x < dif; x++){
-		resSim = Math.floor(resSim * struct.increase.by);
-	}
-	return Math.floor(resSim * costModifier);
+	return Math.floor(costModifier * res.max * Math.pow(1.5, dif));
 }
 
 function trapThings() {
@@ -691,23 +691,18 @@ function breed() {
     trimps.owned += breeding / game.settings.speed;
 }
 
-function prestigeEquipment(what) {
+function prestigeEquipment(what, fromLoad) {
     var equipment = game.equipment[what];
-    if (typeof equipment.cost.wood !== 'undefined') {
-        equipment.cost.wood[0] *= game.global.prestige.cost;
-    } else
-        equipment.cost.metal[0] *= game.global.prestige.cost;
-    if (typeof equipment.health !== 'undefined') {
-        game.global.health -= (equipment.health * equipment.level);
-        equipment.health *= game.global.prestige.health;
-
-    } else {
-        game.global.attack -= (equipment.attack * equipment.level);
-        equipment.attack *= game.global.prestige.attack;
-
-    }
-    equipment.level = 0;
-    equipment.prestige++;
+	if (!fromLoad) equipment.prestige++;
+	var resource = (what == "Shield") ? "wood" : "metal";
+	var cost = equipment.cost[resource];
+    cost[0] = Math.round(cost[0] * Math.pow(1.075, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
+	var stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";
+	if (!fromLoad) game.global[stat] -= (equipment[stat] * equipment.level);
+    equipment[stat + "Calculated"] = Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige[stat]) + 1));
+	//No need to touch level if it's newNum
+	if (fromLoad) return;
+	equipment.level = 0;
     if (document.getElementById(what + "Numeral") !== null) document.getElementById(what + "Numeral").innerHTML = romanNumeral(equipment.prestige);
 }
 
@@ -843,6 +838,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         if ((special.world == -5) && ((world % 5) !== 0)) continue;
         if ((special.world == -33) && ((world % 3) !== 0)) continue;
 		if ((maps) && (special.filter) && (game.mapConfig.locations[map.location].resourceType != item)) continue;
+		if ((maps) && (special.filterUpgrades) && (game.mapConfig.locations[map.location].upgrade != item)) continue;
         if ((typeof special.startAt !== 'undefined') && (special.startAt > world)) continue;
         if (typeof special.canRunOnce === 'undefined' && (special.level == "last") && canLast && (special.last <= (world - 5))) {
 			if (countOnly){
@@ -951,21 +947,28 @@ function fightManual() {
     battle(true);
 }
 
-function pauseFight(setup) {
-    if (setup) game.global.pauseFight = (game.global.pauseFight) ? false : true;
-    if (game.global.pauseFight) {
-        game.global.pauseFight = false;
-        document.getElementById("pauseFight").innerHTML = "Pause";
-    } else {
-        game.global.pauseFight = true;
-        document.getElementById("pauseFight").innerHTML = "AutoBattle";
-    }
+function pauseFight(updateOnly) {
+    if (!updateOnly) game.global.pauseFight = !game.global.pauseFight;
+	var color = (!game.global.pauseFight) ? "btn-success" : "btn-danger";
+	var elem = document.getElementById("pauseFight");
+	elem.className = "";
+	elem.className = "btn fightBtn " + color;
+	elem.innerHTML = (!game.global.pauseFight) ? "AutoFighting" : "No AutoFight";
 }
 
 function recycleMap() {
     if (game.global.lookingAtMap === "") return;
     var map = getMapIndex(game.global.lookingAtMap);
     if (map === null) return;
+	var mapObj = getCurrentMapObject();
+	if (mapObj.noRecycle && mapObj.id == game.global.mapsOwnedArray[map].id) {
+		game.global.currentMapId = "";
+		game.global.lastClearedMapCell = -1;
+		game.global.mapGridArray = [];
+		mapsSwitch(true);
+		return;
+	}
+	console.log("recycling");
     game.global.mapsOwnedArray.splice(map, 1);
     document.getElementById("mapsHere").removeChild(document.getElementById(game.global.lookingAtMap));
     game.global.lookingAtMap = "";
@@ -998,6 +1001,7 @@ function mapsClicked() {
     if (game.global.fighting && !game.global.preMapsActive) {
 		message("Waiting to travel until your soldiers are finished.", "Notices");
 		document.getElementById("mapsBtn").innerHTML = "Abandon Soldiers";
+		document.getElementById("mapsBtn").style.fontSize = ".9vw";
 		}
     if (game.global.preMapsActive) {
         mapsSwitch();
@@ -1016,14 +1020,21 @@ function mapsSwitch(updateOnly) {
             game.global.preMapsActive = false;
         } else game.global.preMapsActive = true;
     }
+	var currentMapObj;
+	if (game.global.currentMapId != "") currentMapObj = getCurrentMapObject();
+	var mapsBtn = document.getElementById("mapsBtn");
+	var recycleBtn = document.getElementById("recycleMapBtn");
+	recycleBtn.innerHTML = "Recycle Map";
+	document.getElementById("mapsBtn").style.fontSize = "1.1vw";
     if (game.global.preMapsActive) {
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "block";
         document.getElementById("mapGrid").style.display = "none";
-        document.getElementById("mapsBtn").innerHTML = "World";
+        mapsBtn.innerHTML = "World";
+		document.getElementById("repeatBtn").style.visibility = "hidden";
         if (game.global.currentMapId === "") {
             document.getElementById("selectMapBtn").style.visibility = "hidden";
-            document.getElementById("recycleMapBtn").style.visibility = "hidden";
+            recycleBtn.style.visibility = "hidden";
             document.getElementById("selectedMapName").innerHTML = "Select a Map!";
             document.getElementById("mapStatsSize").innerHTML = "";
 			document.getElementById("mapStatsDifficulty").innerHTML = "";
@@ -1034,10 +1045,11 @@ function mapsSwitch(updateOnly) {
             selectMap(game.global.currentMapId, true);
             document.getElementById("selectMapBtn").innerHTML = "Continue";
             document.getElementById("selectMapBtn").style.visibility = "visible";
-            document.getElementById("recycleMapBtn").style.visibility = "visible";
+            recycleBtn.style.visibility = "visible";
+			if (currentMapObj.noRecycle) recycleBtn.innerHTML = "Abandon Map";
         }
     } else if (game.global.mapsActive) {
-        var currentMapObj = getCurrentMapObject();
+		fadeIn("repeatBtn", 10);
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "none";
         document.getElementById("mapGrid").style.display = "block";
@@ -1051,7 +1063,17 @@ function mapsSwitch(updateOnly) {
         document.getElementById("mapsBtn").innerHTML = "Maps";
         document.getElementById("worldNumber").innerHTML = game.global.world;
         document.getElementById("worldName").innerHTML = "World";
+		document.getElementById("repeatBtn").style.visibility = "hidden";
     }
+}
+
+function repeatClicked(updateOnly){
+	if (!updateOnly) game.global.repeatMap = !game.global.repeatMap;
+	var color = (game.global.repeatMap) ? "btn-success" : "btn-danger";
+	var elem = document.getElementById("repeatBtn");
+	elem.className = "";
+	elem.className = "btn fightBtn " + color;
+	elem.innerHTML = (game.global.repeatMap) ? "Repeating" : "No Repeat";
 }
 
 function selectMap(mapId, force) {
@@ -1073,7 +1095,7 @@ function selectMap(mapId, force) {
     game.global.lookingAtMap = mapId;
     document.getElementById("selectMapBtn").innerHTML = "Run Map";
     document.getElementById("selectMapBtn").style.visibility = "visible";
-    document.getElementById("recycleMapBtn").style.visibility = "visible";
+	document.getElementById("recycleMapBtn").style.visibility = (map.noRecycle) ? "hidden" : "visible";
 }
 
 function runMap() {
@@ -1276,15 +1298,23 @@ function fight(makeUp) {
             unlockEquipment(cell.special);
         }
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
-            game.global.preMapsActive = true;
-            game.global.mapsActive = false;
-            game.global.lastClearedMapCell = -1;
-            game.global.currentMapId = "";
-            game.global.mapGridArray = [];
-            game.global.fighting = false;
-            mapsSwitch(true);
-            return;
-        }
+			if (game.global.repeatMap){
+				game.global.lastClearedMapCell = -1;
+				buildMapGrid(game.global.currentMapId);
+				drawGrid(true);
+				return;
+			}
+			else{
+				game.global.preMapsActive = true;
+				game.global.mapsActive = false;
+				game.global.lastClearedMapCell = -1;
+				game.global.currentMapId = "";
+				game.global.mapGridArray = [];
+				game.global.fighting = false;
+				mapsSwitch(true);
+				return;
+			}
+		}
         if (cellNum == 99) nextWorld();
         battle(true);
         return;
@@ -1308,7 +1338,7 @@ function fight(makeUp) {
 			}
         if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
     }
-    if (cell.health <= 0) game.global.battleCounter = 700;
+    if (cell.health <= 0) game.global.battleCounter = 800;
     if (makeUp) return;
     document.getElementById("badGuyHealth").innerHTML = prettify(cell.health, 0);
     updateGoodBar();
@@ -1340,8 +1370,8 @@ function buyEquipment(what) {
 	if (canAfford){
 		canAffordBuilding(what, true, null, true);
 		toBuy.level += game.global.buyAmt;
-		if (typeof toBuy.attack !== 'undefined') game.global.attack += (toBuy.attack * game.global.buyAmt);
-		if (typeof toBuy.health !== 'undefined') game.global.health += (toBuy.health * game.global.buyAmt);
+		if (typeof toBuy.attack !== 'undefined') game.global.attack += (toBuy.attackCalculated * game.global.buyAmt);
+		if (typeof toBuy.health !== 'undefined') game.global.health += (toBuy.healthCalculated * game.global.buyAmt);
 	}
 	tooltip(what, "equipment", "update");	
 }

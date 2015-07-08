@@ -79,6 +79,10 @@ function tooltip(what, isItIn, event) {
 		}
 		costText = costText.slice(0, -2);
 	}
+	if (what == "Repeat Map"){
+		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast.";
+		costText = "";
+	}
 	if (what == "Reset"){
 		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone.";
 		costText="<div class='maxCenter'><div class='btn btn-info' onclick='resetGame()'>Reset</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
@@ -122,7 +126,7 @@ function tooltip(what, isItIn, event) {
 	}
 	if (what == "Fire Trimps"){
 		if (!game.global.firing)
-		tooltipText = "Activate firing mode, turning the job buttons red, and forcing them to fire trimps rather than hire them. You will not receive a refund on resources, be careful where you put your Trimps!";
+		tooltipText = "Activate firing mode, turning the job buttons red, and forcing them to fire trimps rather than hire them. The newly unemployed Trimps will start breeding instead of working, but you will not receive a refund on resources.";
 		else
 		tooltipText = "Disable firing mode";
 		costText = "";
@@ -589,7 +593,9 @@ function unlockJob(what) {
 function unlockMap(what) { //what here is the array index
 	var item = game.global.mapsOwnedArray[what];
 	var elem = document.getElementById("mapsHere");
-	elem.innerHTML = '<div class="thing noselect pointer mapThing" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
+	var btnClass = "thing noselect pointer mapThing"
+	if (item.noRecycle) btnClass += " noRecycle";
+	elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
 	//onmouseover="tooltip(\'' + item.id + '\',\'maps\',event)" onmouseout="tooltip(\'hide\')"
 }
 
@@ -601,13 +607,14 @@ function unlockUpgrade(what, displayOnly) {
 	var upgrade = game.upgrades[what];
 	upgrade.locked = 0;
 	var done = upgrade.done;
-	var dif = upgrade.allowed - upgrade.done;
+	var dif = upgrade.allowed - done;
 	if (!displayOnly) {
 		upgrade.allowed++;
 	}
+	else if (dif >= 1) dif -= 1;
 	if (document.getElementById(what + "Owned") === null)
 	document.getElementById("upgradesHere").innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
-	if (dif > 1) document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
+	if (dif >= 1) document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
 	if (!displayOnly){
 		document.getElementById("upgradesAlert").innerHTML = "!";
 		document.getElementById(what + "Alert").innerHTML = "!";
