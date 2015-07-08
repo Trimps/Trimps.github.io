@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 0.11,
+		version: 0.12,
 		killSavesBelow: 0.05,
 		playerGathering: "",
 		playerModifier: 1,
@@ -61,12 +61,12 @@ var toReturn = {
 		totalMapsEarned: 0,
 		freshFight: false,
 		tab: "All",
+		repeatMap: false,
 		prestige: {
-			attack: 6,
-			health: 12,
-			cost: 45
+			attack: 10,
+			health: 14,
+			cost: 60
 		},
-		
 		buyAmt: 1,
 		numTab: 1,
 		spreadsheetMode: false,
@@ -131,6 +131,24 @@ var toReturn = {
 		}
 	},
 	
+	portal: {
+		Territory: {
+			level: 0,
+			modifier: 1,
+			description: "Earn $modifier$ extra max population each time you earn a territory bonus from battle",
+		},
+		Pheromones: {
+			level: 0,
+			modifier: .1,
+			description: "Just spray these all over yourself before you enter the portal, your scientists assure you that your Trimps will permanantly breed 10% faster and that you'll smell magnificent. You disagree on the smell.",
+		},
+		Bait: {
+			level: 0,
+			modifier: 1,
+			description: "
+		}
+	}
+	
 	worldText: {
 		w1: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However the world is large, and there are many more fields to explore. Chop chop.",
 		w4: "Do you see that thing at the end of this field? It's huge! It's terrifying! You've never seen anything like it before, but you know that it is a Blimp. How did you know that? Stop knowing things and go kill it.",
@@ -139,8 +157,12 @@ var toReturn = {
 		w9: "Looks like another Blimp up ahead. Hard to tell from far away, but it looks like it has more heads than the last one.",
 		w10: "You're unstoppable as long as nothing stops you. Unfortunately, it seems like something really wants to stop you.",
 		w11: "Did you see that green light flash by? Weird. Oh well.",
-		
-		
+		w14: "Another day, another Blimp at the end of the field",
+		w15: "Seriously? Another Blimp so soon?",
+		w16: "You climb a large cliff and look out over the new field. Red dirt, scorched ground, and devastation. Is that a Dragimp flying around out there?!",
+		w17: "There seems to be a strange force urging you to keep going. The atmosphere is becoming... angrier. You want to stop and turn around, but you can't. You don't know why, but you can't.",
+		w18: "You look behind and see your kingdom. You have gems, a colony, and territory. You wonder if enough Trimps have already fallen in battle. After contemplation, one word falls out of your mouth as you begin to move forward. 'Nah'",
+		w19: "You can sense that you're close to your goal.",		
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
@@ -193,127 +215,138 @@ var toReturn = {
 	equipment: {
 		Shield: {
 			locked: 1,
-			tooltip: "A big, wooden shield. Adds $health$ health to each soldier per level.",
+			tooltip: "A big, wooden shield. Adds $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
 				wood: [40, 1.3]
 			},
 			health: 2,
+			healthCalculated: 2,
 			prestige: 1
 		},
 		Dagger: {
 			locked: 1,
-			tooltip: "Better than nothing. Adds $attack$ attack to each soldier per level",
+			tooltip: "Better than nothing. Adds $attackCalculated$ attack to each soldier per level",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [40, 1.3]
 			},
 			attack: 2,
+			attackCalculated: 2,
 			prestige: 1
 		},
 		Boots: {
 			locked: 1,
-			tooltip: "At least their feet will be safe. Adds $health$ health to each soldier per level",
+			tooltip: "At least their feet will be safe. Adds $healthCalculated$ health to each soldier per level",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [55, 1.3]
 			},
 			health: 4,
+			healthCalculated: 4,
 			prestige: 1
 		},
 		//2
 		Mace: {
 			locked: 1,
-			tooltip: "It's kind of heavy for your Trimps, but they'll manage. Adds $attack$ attack to each soldier per level",
+			tooltip: "It's kind of heavy for your Trimps, but they'll manage. Adds $attackCalculated$ attack to each soldier per level",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [80, 1.3]
 			},
 			attack: 3,
+			attackCalculated: 3,
 			prestige: 1
 		},
 		Helmet: {
 			locked: 1,
-			tooltip: "Provides a decent amount of protection to the Trimps' heads, adding $health$ health to each soldier per level.",
+			tooltip: "Provides a decent amount of protection to the Trimps' heads, adding $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [100, 1.3]
 			},
 			health: 8,
+			healthCalculated: 8,
 			prestige: 1
 		},
 		//3
 		Polearm: {
 			locked: 1,
-			tooltip: "This thing is big and pointy. It adds $attack$ attack to each soldier per level",
+			tooltip: "This thing is big and pointy. It adds $attackCalculated$ attack to each soldier per level",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [140, 1.3]
 			},
 			attack: 4,
+			attackCalculated: 4,
 			prestige: 1
 		},
 		Pants: {
 			locked: 1,
-			tooltip: "Pants designed specificially for the little Trimps! Adds $health$ health to each soldier per level.",
+			tooltip: "Pants designed specificially for the little Trimps! Adds $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [160, 1.3]
 			},
 			health: 14,
+			healthCalculated: 14,
 			prestige: 1
 		},
 		//4
 		Battleaxe: {
 			locked: 1,
-			tooltip: "This weapon is pretty intimidating, but your Trimps think they can handle it. Adds $attack$ attack to each soldier per level",
+			tooltip: "This weapon is pretty intimidating, but your Trimps think they can handle it. Adds $attackCalculated$ attack to each soldier per level",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [230, 1.3]
 			},
-			attack: 6,
+			attack: 7,
+			attackCalculated: 7,
 			prestige: 1
 		},
 		Shoulderguards: {
 			locked: 1,
-			tooltip: "These shoulderguards will help keep your Trimps' necks and shoulders safe, and they look cool too. Adds $health$ health to each soldier per level",
+			tooltip: "These shoulderguards will help keep your Trimps' necks and shoulders safe, and they look cool too. Adds $healthCalculated$ health to each soldier per level",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [275, 1.3]
 			},
 			health: 23,
+			healthCalculated: 23,
 			prestige: 1
 		},
 		//5
 		Greatsword: {
 			locked: 1,
-			tooltip: "This sword looks sweet. Seriously, if you could see it you'd think it looked sweet. Trust me. Adds $attack$ attack to each soldier per level",
+			tooltip: "This sword looks sweet. Seriously, if you could see it you'd think it looked sweet. Trust me. Adds $attackCalculated$ attack to each soldier per level",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [375, 1.3]
 			},
 			attack: 9,
+			attackCalculated: 9,
 			prestige: 1
 		},
 		Breastplate: {
 			locked: 1,
-			tooltip: "Some real, heavy duty armor. Everyone looks badass in heavy duty armor. Adds $health$ health to each soldier per level",
+			tooltip: "Some real, heavy duty armor. Everyone looks badass in heavy duty armor. Adds $healthCalculated$ health to each soldier per level",
 			modifier: 1,
 			level: 0,
 			cost: {
 				metal: [415, 1.3]
 			},
 			health: 35,
+			healthCalculated: 35,
 			prestige: 1
 		}
 	},
@@ -397,6 +430,10 @@ var toReturn = {
 			Forest: {
 				resourceType: "Wood",
 			},
+			Hell: {
+				resourceType: "Metal",
+				upgrade: "Portal",
+			},
 			All: {
 				resourceType: "Metal",
 			},
@@ -411,6 +448,17 @@ var toReturn = {
 	},
 	
 	mapUnlocks: {
+	 	Portal: {
+			world: 21,
+			message: "Don't ever let anyone tell you that you didn't just kill that really bad guy. Because you did. As he melts away into nothingness, you notice a shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'",
+			level: "last",
+			icon: "repeat",
+			filterUpgrade: true,
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("Portal");
+			}
+		},
 		Supershield: {
 			world: -1,
 			message: "You found a book that will teach you how to upgrade your Shield!",
@@ -614,16 +662,7 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
 			}
 		},
-/* 		Portal: {
-			world: -1,
-			level: "last",
-			icon: "repeat",
-			filter: true,
-			canRunOnce: true,
-			fire: function () {
-				unlockUpgrade("Portal");
-			}
-		} */
+
 	},
 
 	//if you put a function in here as fire, you won't have anything unlocked, the name is just for funsies
@@ -854,8 +893,8 @@ var toReturn = {
 			
 		},
 		Anger: {
-			message: "All you see before you is Ocean. There is no where left to travel. You look down and see a red gem that seems to stare back. You pick it up and feel adrenaline surge through your body. Probably best to bring this back to the lab for some research.",
-			world: 50,
+			message: "You look down and see a green gem that seems to stare back. You pick it up and feel adrenaline surge through your body. This is where you are supposed to be. Probably best to bring this back to the lab for some research.",
+			world: 20,
 			level: 99,
 			icon: "eye-open",
 			title: "The End Of The Road",
@@ -968,7 +1007,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 10,
-			tooltip: "Has room for $incby$ more lovely Trimps",
+			tooltip: "Has room for $incby$ more lovely Trimps, and enough workspace for half of them.",
 			cost: {
 				food: [125, 1.24],
 				wood: [75, 1.24],
@@ -1472,12 +1511,12 @@ var toReturn = {
 		Anger: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Don't forget to write this, story is good",
+			tooltip: "Your scientists are pissed. Not because of anything you did, but this gem seems to be making them mad. It'll take some research, but you think you can create a map to the place the gem originated from.",
 			done: 0,
 			cost: {
 				resources: {
-					science: [7000000000000000, 1],
-					fragments: [15, 1],
+					science: 700000,
+					fragments: 15
 				}
 			},
 			fire: function () {
@@ -1488,10 +1527,11 @@ var toReturn = {
 					name: "Dimension of Anger",
 					location: "Hell",
 					clears: 0,
-					level: 51,
-					difficulty: 250,
+					level: 21,
+					difficulty: 2.5,
 					size: 100,
-					loot: 300,
+					loot: 3,
+					noRecycle: true,
 				});
 				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to the Dimension of Anger! Should be fun!", "Notices");
@@ -1500,7 +1540,7 @@ var toReturn = {
 		Portal: {
 			locked: 1,
 			allowed: 0, 
-			tooltip: "Enter the portal, and try again with extra knowledge. This will reset your game but give you a bonus.",
+			tooltip: "The portal device you found shines green in the lab. Such a familiar shade...",
 			done: 0,
 			cost: {
 				resources: {
@@ -1526,7 +1566,6 @@ var toReturn = {
 				fadeIn("gemsPs", 10);
 				unlockBuilding("Tribute");
 			}
-		
 		},
 		
 		
