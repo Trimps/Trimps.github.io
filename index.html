@@ -483,25 +483,7 @@
         <hr/>
         <div id="tipCost"></div>
     </div>
-	<script>
-		window.onload = function () {
-			var win = document.getElementById("saveFrame").contentWindow;
-			win.postMessage('getDatSave', '*');
-			win.attachEvent("onmessage", receiveMessage);
-			
-			function receiveMessage(event){
-				if (event.origin !== "https://fa4aa996da77d7bf8eba9886e62ab1540fe14486.googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/localStoragePostTest.html"){
-					console.log(event.origin);
-					return;
-				}
-				console.log(event.data);
 
-			}
-		}
-		
-	</script>
-	<iframe style="display:none" id="saveFrame" src="https://fa4aa996da77d7bf8eba9886e62ab1540fe14486.googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/localStoragePostTest.html">
-	</iframe>
 	<script type="text/javascript" src="lz-string.js"></script>
     <script type="text/javascript" src="config.js"></script>
     <script type="text/javascript" src="updates.js"></script>
