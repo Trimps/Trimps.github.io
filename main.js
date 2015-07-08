@@ -95,6 +95,7 @@ function save(exportThis) {
 
 function load(saveString, autoLoad) {
     var savegame;
+	
     if (saveString) {
         savegame = JSON.parse(LZString.decompressFromBase64(document.getElementById("importBox").value));
         tooltip('hide');

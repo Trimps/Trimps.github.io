@@ -485,7 +485,7 @@
     </div>
 	<script>
 		window.onload = function () {
-			var win = document.getElementById.contentWindow;
+			var win = document.getElementById("saveFrame").contentWindow;
 			win.postMessage('getDatSave', '*');
 			win.addEventListener("message", receiveMessage, false);
 			
