@@ -143,7 +143,7 @@ var toReturn = {
 			description: "Just spray these all over yourself before you enter the portal, your scientists assure you that your Trimps will permanantly breed 10% faster and that you'll smell magnificent. You disagree on the smell.",
 		},
 
-	}
+	},
 	
 	worldText: {
 		w1: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However the world is large, and there are many more fields to explore. Chop chop.",
