@@ -94,7 +94,10 @@
     padding: 3px;
 }
 
-.lowPad {}
+.lowPad {
+	padding-left: 5px;
+	padding-right: 5px;
+}
 
 #science {
     padding-top: 3.5%;
@@ -555,6 +558,8 @@
 .red {
     color: red;
 }
+
+
 
 .noRecycle{
 	background-color: red;

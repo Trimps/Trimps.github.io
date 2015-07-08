@@ -55,10 +55,10 @@
                                 <div class="progress-bar" id="foodBar" role="progressbar"></div>
                             </div>
                             <div class="row collectRow">
-                                <div class="col-xs-6 lowPad">
+                                <div class="col-xs-6">
                                     <div id="foodCollectBtn" class="workBtn pointer noselect" onclick="setGather('food')">Gather</div>
                                 </div>
-                                <div class="col-xs-6 lowPad">
+                                <div class="col-xs-6">
                                     <span class="psText" id="foodPs">+0/sec</span>
                                 </div>
                             </div>
@@ -76,10 +76,10 @@
                             </div>
 
                             <div class="row collectRow">
-                                <div class="col-xs-6 lowPad">
+                                <div class="col-xs-6">
                                     <div id="woodCollectBtn" class="workBtn pointer noselect" onclick="setGather('wood')">Chop</div>
                                 </div>
-                                <div class="col-xs-6 lowPad">
+                                <div class="col-xs-6">
                                     <span class="psText" id="woodPs">+0/sec</span>
                                 </div>
                             </div>
@@ -97,10 +97,10 @@
                                 <div class="progress-bar" id="metalBar" role="progressbar"></div>
                             </div>
                             <div class="row collectRow">
-                                <div class="col-xs-6 lowPad">
+                                <div class="col-xs-6">
                                     <div id="metalCollectBtn" class="workBtn pointer noselect" onclick="setGather('metal')">Mine</div>
                                 </div>
-                                <div class="col-xs-6 lowPad">
+                                <div class="col-xs-6">
                                     <span class="psText" id="metalPs">+0/sec</span>
                                 </div>
                             </div>
@@ -113,10 +113,10 @@
                             <span class="ownedArea"><span id="scienceOwned">0</span></span>
                             <br/>
                             <div class="row collectRow">
-                                <div class="col-xs-6 lowPad">
+                                <div class="col-xs-6">
                                     <div id="scienceCollectBtn" class="workBtn pointer noselect" onclick="setGather('science')">Research</div>
                                 </div>
-                                <div class="col-xs-6 lowPad">
+                                <div class="col-xs-6">
                                     <span class="psText" id="sciencePs">+0/sec</span>
                                 </div>
                             </div>
@@ -316,15 +316,15 @@
                             <div class="col-xs-6" id="goodGuyCol">
                                 <span class="battleStatsTitle" id="goodGuyName">Trimps(<span id="trimpsFighting">1</span>)</span>
                                 <br/>
-                                <div class="row" id="goodGuyStatsRow">
-                                    <div class="col-xs-4">
+                                <div class="row guyRow" id="goodGuyStatsRow">
+                                    <div class="col-xs-4" style="padding-right: 5px">
                                         <span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span> HP
                                         <br/>
                                     </div>
-                                    <div class="col-xs-3" id="blockDiv" style="visibility: hidden">
+                                    <div class="col-xs-3 lowPad" id="blockDiv" style="visibility: hidden">
                                         <span id="goodGuyBlock">0</span> BLK
                                     </div>
-                                    <div class="col-xs-5">
+                                    <div class="col-xs-5 lowPad">
                                         <span id="goodGuyAttack"></span> DMG
                                     </div>
                                 </div>
@@ -335,7 +335,7 @@
                             <div class="col-xs-6" id="badGuyCol" style="visibility: hidden">
                                 <span class="battleStatsTitle" id="badGuyName"></span>
                                 <br/>
-                                <div class="row" id="badGuyStatsRow">
+                                <div class="row guyRow" id="badGuyRow">
                                     <div class="col-xs-6">
                                         <span id="badGuyHealth">0</span>/<span id="badGuyHealthMax">0</span> HP
                                         <br/>
