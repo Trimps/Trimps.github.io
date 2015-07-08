@@ -487,9 +487,8 @@
 		window.onload = function () {
 			var win = document.getElementById("saveFrame").contentWindow;
 			win.postMessage('getDatSave', '*');
-			win.addEventListener("message", receiveMessage, false);
 			
-			function receiveMessage(event){
+			win.onmessage = function(event){
 				if (event.origin !== "https://fa4aa996da77d7bf8eba9886e62ab1540fe14486.googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/localStoragePostTest.html"){
 					console.log(event.origin);
 					return;
