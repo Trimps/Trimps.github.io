@@ -483,8 +483,25 @@
         <hr/>
         <div id="tipCost"></div>
     </div>
-	
-      <script>
+	<script>
+		 function displayMessage(e) {
+			var message;
+			if (e.origin.replace('https:', 'http:') !== "https://fa4aa996da77d7bf8eba9886e62ab1540fe14486.googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/") {
+				return;
+			}
+			else{
+				message = e.data;
+			}
+			console.log(message);
+			if (window.addEventListener) {
+				window.addEventListener("message", displayMessage, false);
+			}
+			else {
+				window.attachEvent("onmessage", displayMessage);
+			}
+		}
+	</script>
+<!--       <script>
 		var win = document.getElementsByTagName('iframe')[0].contentWindow;
 		win.onmessage = function(e) {
 			if (e.origin.replace('https:', 'http:') !== "https://fa4aa996da77d7bf8eba9886e62ab1540fe14486.googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/") {
@@ -492,7 +509,7 @@
 			}
 			console.log(JSON.parse(e.data));
 		};
-	</script>
+	</script> -->
 	<iframe style="display:none" id="saveFrame" src="https://fa4aa996da77d7bf8eba9886e62ab1540fe14486.googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/localStoragePostTest.html"></iframe>
 	<script type="text/javascript" src="lz-string.js"></script>
     <script type="text/javascript" src="config.js"></script>
