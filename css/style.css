@@ -455,9 +455,7 @@
 	font-size: 1.1vw;
 }
 
-#pauseFight{
-	font-size: 1vw;
-}
+
 
 .battleStatsTitle {
     font-size: 1.2em;
@@ -474,10 +472,6 @@
 #battleTimer {
     text-align: center;
     font-size: 1.5em;
-}
-
-#battleBtnsColumn{
-	padding-right: 1px;
 }
 
 #battleSideTitle {
@@ -533,9 +527,6 @@
     text-align: center;
 	height: 6vw;
 }
-.selectMapBtn{
-	font-size: 1.1vw;
-}
 .mapStatsValue {
 	text-align: left;
 }
@@ -554,8 +545,4 @@
 
 .red {
     color: red;
-}
-
-.noRecycle{
-	background-color: red;
 }

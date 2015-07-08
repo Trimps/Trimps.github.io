@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps Dev 0.12</title>
+	<title>Trimps Dev 0.11</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
@@ -351,28 +351,23 @@
                         </div>
                     </div>
                     <div class="row" id="gridRow">
-                        <div class="col-xs-2" id="battleBtnsColumn">
+                        <div class="col-xs-2">
                             <div id="battleSideTitle">
                                     <span id="worldName">World</span> <span id="worldNumber">1</span>
                             </div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-primary fightBtn" id="fightBtn" onmouseover="tooltip('Fight',null,event)" onmouseout="tooltip('hide')" onclick="fightManual()">
+								<span class="btn btn-info fightBtn" id="fightBtn" onmouseover="tooltip('Fight',null,event)" onmouseout="tooltip('hide')" onclick="fightManual()">
 									Fight
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-danger fightBtn" id="pauseFight" onmouseover="tooltip('AutoFight',null,event)" onmouseout="tooltip('hide')" onclick="pauseFight()" style="visibility: hidden">
-									No AutoFight
+								<span class="btn btn-success fightBtn" id="pauseFight" onmouseover="tooltip('AutoFight',null,event)" onmouseout="tooltip('hide')" onclick="pauseFight()" style="visibility: hidden">
+									AutoFight
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-warning fightBtn" id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" onclick="mapsClicked()" style="visibility: hidden">
+								<span class="btn btn-danger fightBtn" id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" onclick="mapsClicked()" style="visibility: hidden">
 									Maps
-								</span>
-							</div>
-							<div class="battleSideBtnContainer">
-								<span class="btn btn-danger fightBtn" id="repeatBtn" onmouseover="tooltip('Repeat Map', null, event)" onmouseout="tooltip('hide')" onclick = "repeatClicked()" style="visibility: hidden">
-									No Repeat
 								</span>
 							</div>
                         </div>
@@ -394,28 +389,7 @@
 										<div id="selectedMapName"></div><br/>
 									
                                     </div>
-
-									<div id="mapStatsCol3" class="col-xs-6">
-									<div class="row">
-										<div class="col-xs-7 mapStatsCol">
-											<div class="mapStatsTitle">Items</div>
-											<div class="mapStatsTitle">Resource</div>
-										</div>
-										<div id="mapStatsCol4" class="col-xs-5 mapStatsCol">
-											<div class="mapStatsValue" id="mapStatsItems"></div>
-											<div class="mapStatsValue" id="mapStatsResource"></div>
-										</div>
-									</div>
-									<div id="selectMapBtns">
-										<div id="selectMapBtn" class="btn btn-info btn-sm selectMapBtn" style="visibility: hidden" onclick="runMap()">
-											Run Map
-										</div>
-										<div id="recycleMapBtn" class="btn btn-danger btn-sm selectMapBtn" style="visibility: hidden" onclick="recycleMap()">
-											Recycle Map
-										</div>
-									</div>
-									</div>
-									<div id="mapStatsCol1" class="col-xs-2 mapStatsCol">
+									<div id="mapStatsCol1" class="col-xs-3 mapStatsCol">
 										<div class="mapStatsTitle"
 										<div class="mapStatsTitle">Size</div>
 										<div class="mapStatsTitle">Difficulty</div>
@@ -426,7 +400,26 @@
 										<div class="mapStatsValue" id="mapStatsDifficulty"></div>
 										<div class="mapStatsValue" id="mapStatsLoot"></div>
 									</div>
-
+									<div id="mapStatsCol3" class="col-xs-5">
+									<div class="row">
+										<div class="col-xs-7 mapStatsCol">
+											<div class="mapStatsTitle">Items</div>
+											<div class="mapStatsTitle">Resource</div>
+										</div>
+										<div id="mapStatsCol4" class="col-xs-2 mapStatsCol">
+											<div class="mapStatsValue" id="mapStatsItems"></div>
+											<div class="mapStatsValue" id="mapStatsResource"></div>
+										</div>
+									</div>
+									<div class="selectMapBtns">
+										<div id="selectMapBtn" class="btn btn-info btn-sm" style="visibility: hidden" onclick="runMap()">
+											Run Map
+										</div>
+										<div id="recycleMapBtn" class="btn btn-danger btn-sm" style="visibility: hidden" onclick="recycleMap()">
+											Recycle Map
+										</div>
+									</div>
+									</div>
 									
                                 </div>								
                                 <div id="mapsHere" class="niceScroll">
