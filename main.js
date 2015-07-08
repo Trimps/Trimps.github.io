@@ -218,17 +218,14 @@ function loadEquipment(oldEquipment){
 		newEquip.locked = oldEquip.locked;
 		newEquip.modifier = oldEquip.modifier;
 		newEquip.level = oldEquip.level;
-		newEquip.prestige = newEquip.prestige;
-		if (typeof newEquip.cost.metal !== 'undefined') newEquip.cost.metal[0] *= (newEquip.prestige > 1) ? ((newEquip.prestige - 1) * game.global.prestige.cost) : 1;
-        if (typeof newEquip.cost.wood !== 'undefined') newEquip.cost.wood[0] *= (newEquip.prestige > 1) ? ((newEquip.prestige - 1) * game.global.prestige.cost) : 1;
-		var stat = (typeof newEquip.attack !== 'undefined') ? "attack" : "health";
-		var newNumber = (newEquip.prestige > 1) ? newEquip[stat] * ((game.global.prestige[stat] - 1) * oldEquip.prestige) : newEquip[stat];
-		if (newNumber != oldEquip[stat]){
-			var dif = newNumber - oldEquip[stat];
-			game.global.health += dif * newEquip.level;
-		}
-		newEquip[stat] = newNumber;
 		newEquip.prestige = oldEquip.prestige;
+		if (newEquip.prestige > 1)
+		prestigeEquipment(item, newEquip.prestige);
+		var stat = (typeof newEquipment.health !== 'undefined') ? "health" : "attack";
+		if (newEquip[stat + "Calculated"] != oldEquip[stat + "Calculated"]){
+			var dif = newEquip[stat + "Calculated"] - oldEquip[stat + "Calculated"];
+			game.global[stat] += dif * newEquip.level;
+		}
 	}
 }
 
@@ -557,12 +554,8 @@ function setNewCraftItem() {
 function calculatePercentageBuildingCost(what, resourceToCheck, costModifier){
 	var struct = game.buildings[what];
 	var res = game.resources[resourceToCheck];
-	var resSim = res.max;
 	var dif = struct.purchased - struct.owned;
-	for (var x = 0; x < dif; x++){
-		resSim = Math.floor(resSim * struct.increase.by);
-	}
-	return Math.floor(resSim * costModifier);
+	return Math.floor(costModifier * res.max * Math.pow(1.5, dif));
 }
 
 function trapThings() {
@@ -691,23 +684,18 @@ function breed() {
     trimps.owned += breeding / game.settings.speed;
 }
 
-function prestigeEquipment(what) {
+function prestigeEquipment(what, fromLoad) {
     var equipment = game.equipment[what];
-    if (typeof equipment.cost.wood !== 'undefined') {
-        equipment.cost.wood[0] *= game.global.prestige.cost;
-    } else
-        equipment.cost.metal[0] *= game.global.prestige.cost;
-    if (typeof equipment.health !== 'undefined') {
-        game.global.health -= (equipment.health * equipment.level);
-        equipment.health *= game.global.prestige.health;
-
-    } else {
-        game.global.attack -= (equipment.attack * equipment.level);
-        equipment.attack *= game.global.prestige.attack;
-
-    }
-    equipment.level = 0;
-    equipment.prestige++;
+	if (!fromLoad) equipment.prestige++;
+	var resource = (what == "Shield") ? "wood" : "metal";
+	var cost = equipment.cost[resource];
+    cost[0] = Math.round(cost[0] * Math.pow(1.1, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
+	var stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";
+	if (!fromLoad) game.global[stat] -= (equipment[stat] * equipment.level);
+    equipment[stat + "Calculated"] = Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige[stat]) + 1));
+	//No need to touch level if it's newNum
+	if (fromLoad) return;
+	equipment.level = 0;
     if (document.getElementById(what + "Numeral") !== null) document.getElementById(what + "Numeral").innerHTML = romanNumeral(equipment.prestige);
 }
 
@@ -1340,8 +1328,8 @@ function buyEquipment(what) {
 	if (canAfford){
 		canAffordBuilding(what, true, null, true);
 		toBuy.level += game.global.buyAmt;
-		if (typeof toBuy.attack !== 'undefined') game.global.attack += (toBuy.attack * game.global.buyAmt);
-		if (typeof toBuy.health !== 'undefined') game.global.health += (toBuy.health * game.global.buyAmt);
+		if (typeof toBuy.attack !== 'undefined') game.global.attack += (toBuy.attackCalculated * game.global.buyAmt);
+		if (typeof toBuy.health !== 'undefined') game.global.health += (toBuy.healthCalculated * game.global.buyAmt);
 	}
 	tooltip(what, "equipment", "update");	
 }
