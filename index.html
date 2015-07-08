@@ -485,7 +485,8 @@
     </div>
 	
       <script>
-		window.onmessage = function(e) {
+		var win = document.getElementsByTagName('iframe')[0].contentWindow;
+		win.onmessage = function(e) {
 			if (e.origin.replace('https:', 'http:') !== "https://fa4aa996da77d7bf8eba9886e62ab1540fe14486.googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/") {
 				return;
 			}
