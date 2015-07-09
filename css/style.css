@@ -559,6 +559,11 @@
     color: red;
 }
 
+#portalWrapper{
+	background-color: green;
+	width: 100vw;
+	height: 100vh;
+}
 
 
 .noRecycle{

@@ -197,7 +197,7 @@ function swapNotation(updateOnly){
 function prettify(number) {
 	var numberTmp = number;
 	number = Math.round(number * 1000000) / 1000000;
-	
+	if (number < 10000) return Math.floor(number);
 	if(number === 0)
 	{
 		return prettifySub(0);

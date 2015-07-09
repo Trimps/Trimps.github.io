@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 0.12,
+		version: 0.13,
 		killSavesBelow: 0.05,
 		playerGathering: "",
 		playerModifier: 1,
@@ -62,16 +62,12 @@ var toReturn = {
 		freshFight: false,
 		tab: "All",
 		repeatMap: false,
-		prestige: {
-			attack: 10,
-			health: 14,
-			cost: 60
-		},
 		buyAmt: 1,
 		numTab: 1,
 		spreadsheetMode: false,
 		lockTooltip: false,
 		standardNotation: true,
+		portalActive: false,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -90,6 +86,11 @@ var toReturn = {
 			Upgrades: true,
 			Equipment: true,
 		},
+		prestige: {
+			attack: 10,
+			health: 14,
+			cost: 60
+		},
 		getEnemyAttack: function (level, name) {
 			var world = getCurrentMapObject();
 			var amt = 0;
@@ -98,8 +99,8 @@ var toReturn = {
 			amt += 50 * Math.sqrt(world * Math.pow(3.27, world));
 			amt -= 10;
 			if (world == 1){
-				amt *= .4;
-				amt = (amt * .25) + ((amt * .75) * (level / 100));			
+				amt *= .35;
+				amt = (amt * .20) + ((amt * .75) * (level / 100));			
 			}
 			else if (world == 2){
 				amt *= .5;
@@ -132,21 +133,47 @@ var toReturn = {
 	},
 	
 	portal: {
-		Territory: {
+	//Names and tooltips not final
+		Trumps: {
+			locked: 0,
 			level: 0,
 			modifier: 1,
-			description: "Earn $modifier$ extra max population each time you earn a territory bonus from battle",
+			tooltip: "Aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
 		},
 		Pheromones: {
 			level: 0,
 			modifier: .1,
-			description: "Just spray these all over yourself before you enter the portal, your scientists assure you that your Trimps will permanantly breed 10% faster and that you'll smell magnificent. You disagree on the smell.",
+			tooltip: "Bringing some pheromones back with you will ensure that your Trimps will permanantly breed 10% faster and that you'll smell magnificent. You disagree on the smell.",
 		},
 		Bait: {
 			level: 0,
 			modifier: 1,
-			description: "",
-		}
+			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimps.",
+		},
+		Power: {
+			modifier: .05,
+			tooltip: "Trimps learn through example. Spending some time benching dead Elephimps should inspire any future Trimps to become stronger too. Adds 5% attack permanently to your Trimps.",
+		},
+		Toughness: {
+			modifier: .05,
+			tooltip: "Pay your Trimps to knock you around a little bit. By learning to not be such a wuss, your future Trimps should be less wussy as well. Adds 5% health permanently to your Trimps.",
+		},
+		Cheapskate: {
+			modifier: .05,
+			tooltip: "Discuss negotiation tactics with your leading scientists. Permanently reduces the cost of all jobs by 5%",
+		},
+		Resourcefulness: {
+			modifier: .05,
+			tooltip: "Talk to your scientists about more efficient building designs. Each level reduces the cost of all buildings by 5%",
+		},
+		Motivation: {
+			modifier: .05,
+			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that gatherers produce by 5%",
+		},
+		Looting: {
+			modifier: .05,
+			tooltip: "Walk back through the empty fields, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%",
+		},
 	},
 	
 	worldText: {
@@ -160,7 +187,7 @@ var toReturn = {
 		w14: "Another day, another Blimp at the end of the field",
 		w15: "Seriously? Another Blimp so soon?",
 		w16: "You climb a large cliff and look out over the new field. Red dirt, scorched ground, and devastation. Is that a Dragimp flying around out there?!",
-		w17: "There seems to be a strange force urging you to keep going. The atmosphere is becoming... angrier. You want to stop and turn around, but you can't. You don't know why, but you can't.",
+		w17: "There seems to be a strange force urging you to keep going. The atmosphere is becoming... angrier. Part of you wants to turn around and go back, but most of you wants to keep going.",
 		w18: "You look behind and see your kingdom. You have gems, a colony, and territory. You wonder if enough Trimps have already fallen in battle. After contemplation, one word falls out of your mouth as you begin to move forward. 'Nah'",
 		w19: "You can sense that you're close to your goal.",		
 	},
@@ -209,7 +236,11 @@ var toReturn = {
 		fragments: {
 			owned: 0,
 			max: -1,
-		}
+		},
+/* 		helium: {
+			owned: 0,
+			max: -1,
+		} */
 	},
 	
 	equipment: {
@@ -219,10 +250,10 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				wood: [40, 1.3]
+				wood: [40, 1.2]
 			},
-			health: 2,
-			healthCalculated: 2,
+			health: 4,
+			healthCalculated: 4,
 			prestige: 1
 		},
 		Dagger: {
@@ -231,7 +262,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [40, 1.3]
+				metal: [40, 1.2]
 			},
 			attack: 2,
 			attackCalculated: 2,
@@ -243,10 +274,10 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [55, 1.3]
+				metal: [55, 1.2]
 			},
-			health: 4,
-			healthCalculated: 4,
+			health: 6,
+			healthCalculated: 6,
 			prestige: 1
 		},
 		//2
@@ -256,7 +287,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [80, 1.3]
+				metal: [80, 1.2]
 			},
 			attack: 3,
 			attackCalculated: 3,
@@ -268,10 +299,10 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [100, 1.3]
+				metal: [100, 1.2]
 			},
-			health: 8,
-			healthCalculated: 8,
+			health: 10,
+			healthCalculated: 10,
 			prestige: 1
 		},
 		//3
@@ -281,7 +312,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [140, 1.3]
+				metal: [140, 1.2]
 			},
 			attack: 4,
 			attackCalculated: 4,
@@ -293,7 +324,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [160, 1.3]
+				metal: [160, 1.2]
 			},
 			health: 14,
 			healthCalculated: 14,
@@ -306,7 +337,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [230, 1.3]
+				metal: [230, 1.2]
 			},
 			attack: 7,
 			attackCalculated: 7,
@@ -318,7 +349,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [275, 1.3]
+				metal: [275, 1.2]
 			},
 			health: 23,
 			healthCalculated: 23,
@@ -331,7 +362,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [375, 1.3]
+				metal: [375, 1.2]
 			},
 			attack: 9,
 			attackCalculated: 9,
@@ -343,7 +374,7 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [415, 1.3]
+				metal: [415, 1.2]
 			},
 			health: 35,
 			healthCalculated: 35,
@@ -405,6 +436,28 @@ var toReturn = {
 			attack: 0.75,
 			health: 1.2,
 			fast: true
+		},
+		Blimp: {
+			location: "None",
+			attack: 1.3,
+			health: 10,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("food", 2, level);
+				rewardResource("wood", 2, level);
+				rewardResource("metal", 2, level);
+				message("<span class='glyphicon glyphicon-piggy-bank'></span>That Blimp dropped " + prettify(amt) + "Food, Wood and Metal! That should be useful.", "Loot");
+			}
+		},
+		Dragimp: {
+			world: 16,
+			attack: 1.1,
+			health: 1.2,
+			fast: true,
+			loot: function (level) {
+				var amt = rewardResource("gems", .15, level, true);
+				message("<span class='glyphicon glyphicon-certificate'></span>That Dragimp dropped " + prettify(amt) + " gems!", "Loot");
+			}
 		}
 	},
 	
@@ -441,8 +494,8 @@ var toReturn = {
 		},
 		sizeBase: 50,
 		sizeRange: 25,
-		difficultyBase: 1.4,
-		difficultyRange: 0.5,
+		difficultyBase: 1.2,
+		difficultyRange: 0.45,
 		lootBase: 1.3,
 		lootRange: 0.3
 	},
@@ -570,7 +623,7 @@ var toReturn = {
 			}
 		},
 		Mansion: {
-			world: 8,
+			world: 7,
 			message: "You found plans for a Mansion! Your Trimps will be pretty stoked",
 			level: [10, 20],
 			icon: "home",
@@ -890,7 +943,16 @@ var toReturn = {
 				game.global.autoCraftModifier += 0.25;
 				document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
 			}
-			
+		},
+		Producer: {
+			message: "You found a crazy rare book about how to get the absolute most out of your trimps.",
+			world: 6,
+			level: 19,
+			icon: "book",
+			title: "Producer",
+			fire: function () {
+				unlockUpgrade('Producer');
+			}
 		},
 		Anger: {
 			message: "You look down and see a green gem that seems to stare back. You pick it up and feel adrenaline surge through your body. This is where you are supposed to be. Probably best to bring this back to the lab for some research.",
@@ -1193,7 +1255,7 @@ var toReturn = {
 				food: [20, 1.0],
 			},
 			increase: "metal",
-			modifier: 0.25
+			modifier: 0.5
 		},
 		Scientist: {
 			locked: 1,
@@ -1330,7 +1392,7 @@ var toReturn = {
 				resources: {
 					science: 60,
 					wood: 300,
-					metal: 300
+					metal: 100
 				}
 			},
 			fire: function () {
@@ -1360,7 +1422,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: 100,
-					food: 500
+					food: 350
 				}
 			},
 			fire: function () {
@@ -1386,52 +1448,52 @@ var toReturn = {
 		Speedlumber: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to cut wood 15% faster!",
+			tooltip: "This book will teach your Trimps how to cut wood 25% faster!",
 			done: 0,
 			cost: {
 				resources: {
 					science: [200, 1.17],
-					wood: [1000, 1.17]
+					wood: [750, 1.17]
 				}
 			},
 			fire: function () {
-				game.jobs.Lumberjack.modifier = (game.jobs.Lumberjack.modifier * 1.15).toFixed(2);
+				game.jobs.Lumberjack.modifier = (game.jobs.Lumberjack.modifier * 1.25).toFixed(2);
 			}			
 		},
 		Speedfarming: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to farm 15% faster!",
+			tooltip: "This book will teach your Trimps how to farm 25% faster!",
 			done: 0,
 			cost: {
 				resources: {
 					science: [200, 1.17],
-					food: [1000, 1.17]
+					food: [750, 1.17]
 				}
 			},
 			fire: function () {
-				game.jobs.Farmer.modifier = (game.jobs.Farmer.modifier * 1.15).toFixed(2);
+				game.jobs.Farmer.modifier = (game.jobs.Farmer.modifier * 1.25).toFixed(2);
 			}			
 		},
 		Speedminer: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to mine 15% faster!",
+			tooltip: "This book will teach your Trimps how to mine 25% faster!",
 			done: 0,
 			cost: {
 				resources: {
 					science: [200, 1.17],
-					metal: [500, 1.17]
+					metal: [750, 1.17]
 				}
 			},
 			fire: function () {
-				game.jobs.Miner.modifier = (game.jobs.Miner.modifier * 1.15).toFixed(2);
+				game.jobs.Miner.modifier = (game.jobs.Miner.modifier * 1.25).toFixed(2);
 			}			
 		},
 		Speedscience: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to science things 15% faster!",
+			tooltip: "This book will teach your Trimps how to science things 25% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -1439,7 +1501,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Scientist.modifier = (game.jobs.Scientist.modifier * 1.15).toFixed(2);
+				game.jobs.Scientist.modifier = (game.jobs.Scientist.modifier * 1.25).toFixed(2);
 			}			
 		},
 		Efficiency: {
@@ -1567,6 +1629,25 @@ var toReturn = {
 				unlockBuilding("Tribute");
 			}
 		},
+		Producer: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book explains some low-stress methods for getting your Trimps to work harder. Low-stress for you, of course. Doubles the rate at which Farmers, Lumberjacks and Miners gather resources.",
+			done: 0,
+			cost: {
+				resources: {
+					science: [1500, 1.2],
+					food: [5000, 1.2],
+					wood: [5000, 1.2],
+					metal: [5000, 1.2]
+				}
+			},
+			fire: function () {
+				game.jobs.Farmer.modifier *= 2;
+				game.jobs.Miner.modifier *= 2;
+				game.jobs.Lumberjack.modifier *= 2;
+			}
+		},
 		
 		
 		
@@ -1598,7 +1679,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1200, 1.7],
-					gems: [100, 3]
+					gems: [40, 3]
 				}
 			},
 			fire: function () {
@@ -1613,7 +1694,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1250, 1.7],
-					gems: [110, 3]
+					gems: [60, 3]
 				}
 			},
 			fire: function () {
@@ -1628,7 +1709,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1300, 1.7],
-					gems: [125, 3]
+					gems: [70, 3]
 				}
 			},
 			fire: function () {
@@ -1643,7 +1724,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1400, 1.7],
-					gems: [200, 3]
+					gems: [100, 3]
 				}
 			},
 			fire: function () {
@@ -1658,7 +1739,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1450, 1.7],
-					gems: [400, 3]
+					gems: [150, 3]
 				}
 			},
 			fire: function () {
@@ -1673,7 +1754,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1550, 1.7],
-					gems: [500, 3]
+					gems: [225, 3]
 				}
 			},
 			fire: function () {
@@ -1688,7 +1769,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1600, 1.7],
-					gems: [750, 3]
+					gems: [275, 3]
 				}
 			},
 			fire: function () {
@@ -1703,7 +1784,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1700, 1.7],
-					gems: [1000, 3]
+					gems: [400, 3]
 				}
 			},
 			fire: function () {
@@ -1718,7 +1799,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1750, 1.7],
-					gems: [1300, 3]
+					gems: [525, 3]
 				}
 			},
 			fire: function () {
@@ -1733,7 +1814,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1850, 1.7],
-					gems: [1500, 3]
+					gems: [650, 3]
 				}
 			},
 			fire: function () {
@@ -1748,7 +1829,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1900, 1.7],
-					gems: [1750, 3]
+					gems: [800, 3]
 				}
 			},
 			fire: function () {

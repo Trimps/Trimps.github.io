@@ -209,6 +209,11 @@ function load(saveString, autoLoad) {
     toggleSave(true);
 }
 
+function prestigeGame(){
+	document.getElementById("wrapper").style.display = "none";
+	fadeIn("portalWrapper", 10);
+}
+
 function loadEquipment(oldEquipment){
 	//Now with 100% less save breaking on balance tweaks! Flexibility ftw.
 	var newEquipment = game.equipment;
@@ -258,7 +263,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
         level = scaleLootLevel(level);
     }
     if (what == "gems") level = (level - 500) * 1.15;
-	level *= 1.75;
+	level *= 1.35;
     var amt = Math.round(baseAmt * level);
     //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
     //var otherAmt = Math.round(baseAmt * level);
@@ -780,19 +785,27 @@ function buildGrid() {
             attack: -1,
             special: "",
             text: "",
-            name: getRandomBadGuy()
+            name: getRandomBadGuy(null, i + 1)
         });
     }
     game.global.gridArray = array;
     addSpecials();
 }
 
-function getRandomBadGuy(mapSuffix) {
+function getRandomBadGuy(mapSuffix, level) {
+	var selected;
+	if (level == 100) selected = "Blimp";
+	else {
     var badGuysArray = [];
     for (var item in game.badGuys) {
-        if (game.badGuys[item].location == "All" || game.badGuys[item].location == mapSuffix) badGuysArray.push(item);
-    }
-    return badGuysArray[Math.floor(Math.random() * badGuysArray.length)];
+		var badGuy = game.badGuys[item];
+		if ((badGuy.location == "All" || badGuy.location == mapSuffix) && (typeof badGuy.world === 'undefined' || game.global.world >= game.badGuys[item].world)){
+		badGuysArray.push(item);
+		}
+	}
+    selected = badGuysArray[Math.floor(Math.random() * badGuysArray.length)];
+	}
+	return selected;
 }
 
 function addSpecialToLast(special, array, item) {
@@ -831,7 +844,6 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
             canLast = false;
             continue;
         }
-		
         if (typeof special.canRunOnce !== 'undefined' && !special.canRunOnce) continue;
         if ((special.world != world && special.world > 0)) continue;
         if ((special.world == -2) && ((world % 2) !== 0)) continue;
@@ -885,7 +897,6 @@ function findHomeForSpecial(special, item, array, max){
 			if (hax === 0 || level <= 0) {
 				break;
 			}
-
 		}
 		if (hax !== 0 && level < max) {
 			 if (typeof special.title !== 'undefined') 
@@ -913,7 +924,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 	if (maps){
 		map = getCurrentMapObject();
 		cols = Math.floor(Math.sqrt(map.size));
-		if (map.size % cols == 0) rows = cols;
+		if (map.size % cols == 0) rows = map.size / cols;
 		else	rows = ((map.size - (cols * cols)) > cols) ? cols + 2 : cols + 1;
 	}
 	var width = (100 / cols);
@@ -1298,6 +1309,7 @@ function fight(makeUp) {
         } else if (cell.special !== "") {
             unlockEquipment(cell.special);
         }
+		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
 			if (game.global.repeatMap){
 				game.global.lastClearedMapCell = -1;
