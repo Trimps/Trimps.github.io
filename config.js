@@ -1107,7 +1107,6 @@ var toReturn = {
 			icon: "gift",
 			repeat: 45,
 			fire: function () {
-				game.resources.trimps.max += 5;
 				var amt = 5 + (game.portal.Trumps.modifier * game.portal.Trumps.level);
 				game.resources.trimps.max += amt;
 				message("<span class='glyphicon glyphicon-gift'></span>You have cleared enough land to support " + amt + " more Trimps!", "Loot");
@@ -1549,7 +1548,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [200, 1.17],
-					wood: [750, 1.17]
+					wood: [500, 1.17]
 				}
 			},
 			fire: function () {
@@ -1564,7 +1563,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [200, 1.17],
-					food: [750, 1.17]
+					food: [500, 1.17]
 				}
 			},
 			fire: function () {
@@ -1579,7 +1578,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [200, 1.17],
-					metal: [750, 1.17]
+					metal: [500, 1.17]
 				}
 			},
 			fire: function () {
