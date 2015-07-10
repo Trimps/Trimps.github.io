@@ -204,11 +204,13 @@ function swapNotation(updateOnly){
 function prettify(number) {
 	var numberTmp = number;
 	number = Math.round(number * 1000000) / 1000000;
+	if (number >= 1000 && number < 10000) return Math.floor(number);
 	if(number === 0)
 	{
 		return prettifySub(0);
 	}
-	var base = Math.floor(Math.log(number)/Math.log(10000));
+	var base = Math.floor(Math.log(number)/Math.log(1000));
+	
 	if (base <= 0) return prettifySub(number);
 	number /= Math.pow(1000, base);
 	
@@ -274,10 +276,10 @@ function romanNumeral(number){
 	return numeral;
 }
 
-function prettifySub(number, debug){
+function prettifySub(number){
 	number = number.toString();
-/* 	var hasDecimal = number.split('.');
-	if (typeof hasDecimal[1] === 'undefined' || hasDecimal[0].length >= 4) return number.substring(0, 4); */
+	var hasDecimal = number.split('.');
+	if (typeof hasDecimal[1] === 'undefined' || hasDecimal[0].length >= 3) return number.substring(0, 3);
 	return number.substring(0, 4);	
 }
 
