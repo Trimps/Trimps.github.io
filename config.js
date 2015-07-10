@@ -68,6 +68,7 @@ var toReturn = {
 		lockTooltip: false,
 		standardNotation: true,
 		portalActive: false,
+		mapsUnlocked: false,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -1089,6 +1090,17 @@ var toReturn = {
 				unlockUpgrade("Egg");
 			}
 		},
+		FirstMap: {
+			world: 6,
+			level: [1, 5],
+			icon: "th-large",
+			fire: function () {
+				game.global.mapsUnlocked = true;
+				unlockMapStuff();
+				createMap();
+				message("You found your first map! Travel to your map chamber to check it out.", "Story");
+			}
+		},
 		//Multiples
 		Map: {
 			world: -1,
@@ -2095,32 +2107,6 @@ var toReturn = {
 				document.getElementById("unempHide").style.visibility = "visible";
 			}
 		},
-		firstMap: {
-			done: 0,
-			message: "You just found your first map! Travel to your map chamber to check it out!",
-			cost: {
-				special: function () {
-					return (game.global.mapsOwned > 0) ? true : false;
-				}
-			},
-			fire: function () {
-				fadeIn("gems", 10);
-			}
-		},
-		firstFragment: {
-			done: 0,
-			message: "You found your first map fragment! You can create a map with 3 fragments.",
-			cost: {
-				special: function () {
-					return (game.resources.fragments.owned >= 1 || game.global.mapsOwnedArray.length >= 1) ? true : false;
-				}
-			},
-			fire: function () {
-				document.getElementById("mapsBtn").style.visibility = "visible";
-				fadeIn("fragments", 10);
-			}
-		
-		}
 	}
 };
 return toReturn;

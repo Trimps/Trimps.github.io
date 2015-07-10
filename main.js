@@ -155,6 +155,12 @@ function load(saveString, autoLoad) {
                 for (var c in midGame) { //purchased, cost, etc
                     if (c == "cost") continue;
                     if (c == "tooltip") continue;
+					if (a == "resources" && c == "owned"){
+						if (typeof midSave[c] !== 'number') {
+							midSave[c] = 0;
+							console.log("detected bug in resource, repaired " + b + " owned");
+						}
+					}
                     var botSave = midSave[c];
                     if (typeof botSave === 'undefined' || botSave === null) continue;
                     midGame[c] = botSave;
@@ -198,6 +204,7 @@ function load(saveString, autoLoad) {
 			filterTabs(tabBool, true);
 		}
 	}
+	if (game.global.mapsUnlocked) unlockMapStuff();
 	repeatClicked(true);
 	game.global.lockTooltip = false;
 	swapNotation(true);
@@ -245,6 +252,12 @@ function buyPortalUpgrade(what){
 		tooltip(what, "portal", "update");
 		document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.owned);
 	}
+}
+
+function unlockMapStuff(){
+	fadeIn("fragments", 10);
+	fadeIn("gems", 10);
+	fadeIn("mapsBtn", 10);
 }
 
 function getPortalUpgradePrice(what){
@@ -547,8 +560,13 @@ function cancelQueueItem(what) {
 function refundQueueItem(what) {
     var struct = game.buildings[what];
     for (var costItem in struct.cost) {
-        game.resources[costItem].owned += (typeof struct.cost[costItem] === 'function') ? struct.cost[costItem]() : struct.cost[costItem];
-		var test = (typeof struct.cost[costItem] === 'function') ? struct.cost[costItem]() : struct.cost[costItem];
+		var thisCostItem = struct.cost[costItem];
+		var refund = 0;
+		if (typeof thisCostItem[1] !== 'undefined') refund = resolvePow(thisCostItem, struct);
+		else if (typeof struct.cost[costItem] === 'function') refund = struct.cost[costItem]();
+		else refund = thisCostItem;
+        game.resources[costItem].owned += refund;
+		if (game.resources[costItem].max > 0 && game.resources[costItem].owned > game.resources[costItem].max) game.resources[costItem].owned = game.resources[costItem].max;
     }
 }
 
@@ -1021,8 +1039,8 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			cell.setAttribute("id", idText + counter);
 			row.appendChild(cell);
 			cell.style.width = (100 / cols) + "%";
-			cell.style.paddingTop = ((100 / cols) / 18)+ "vh";
-			cell.style.paddingBottom = ((100 / cols) / 18) + "vh";
+			cell.style.paddingTop = ((100 / cols) / 19)+ "vh";
+			cell.style.paddingBottom = ((100 / cols) / 119) + "vh";
 			cell.style.fontSize = ((100 / cols) / 5.5) + "vh";
             cell.className = "battleCell";
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
@@ -1150,7 +1168,7 @@ function mapsSwitch(updateOnly) {
         document.getElementById("mapGrid").style.display = "none";
         document.getElementById("mapsBtn").innerHTML = "Maps";
         document.getElementById("worldNumber").innerHTML = game.global.world;
-        document.getElementById("worldName").innerHTML = "Field";
+        document.getElementById("worldName").innerHTML = "Zone";
 		document.getElementById("repeatBtn").style.visibility = "hidden";
     }
 }
