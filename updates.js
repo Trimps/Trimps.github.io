@@ -530,6 +530,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 	//Upgrades, owned will only exist if 'allowed' exists on object
 	for (var itemC in game.upgrades){
 		toUpdate = game.upgrades[itemC];
+		if (toUpdate.allowed - toUpdate.done >= 1) toUpdate.locked = 0;
 		if (toUpdate.locked == 1) continue;
 		if (document.getElementById(itemC) === null) unlockUpgrade(itemC, true);
 	}

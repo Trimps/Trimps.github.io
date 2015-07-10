@@ -733,8 +733,8 @@ function buyUpgrade(what) {
     if (!canAfford) return;
     canAfford = canAffordTwoLevel(upgrade, true);
     upgrade.fire();
-    upgrade.locked = 1;
-    upgrade.done++;
+	upgrade.done++;
+	if ((upgrade.allowed - upgrade.done) <= 0) upgrade.locked = 1;
     var dif = upgrade.allowed - upgrade.done;
     if (dif > 1) {
         document.getElementById(what + "Owned").innerHTML = upgrade.done + "( +" + dif + ")";
