@@ -564,7 +564,7 @@ var toReturn = {
 			icon: "repeat",
 			filterUpgrade: true,
 			canRunOnce: true,
-			fire: function () {
+			fire: function (level) {
 				game.global.portalActive = true;
 				fadeIn("helium", 10);
 				amt = rewardResource("helium", 1, level);
