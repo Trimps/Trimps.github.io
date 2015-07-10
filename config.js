@@ -1246,9 +1246,9 @@ var toReturn = {
 			craftTime: 20,
 			tooltip: "A better house for your Trimps! Each house supports up to $incby$ more Trimps.",
 			cost: {
-				food: [1000, 1.22],
-				wood: [2000, 1.22],
-				metal: [250, 1.22]
+				food: [750, 1.22],
+				wood: [1500, 1.22],
+				metal: [150, 1.22]
 			},
 			increase: {
 				what: "trimps.max",
@@ -1644,8 +1644,8 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.resources.trimps.max += ((game.buildings.House.owned) * game.buildings.House.increase.by);
-				game.buildings.House.increase.by *= 2;
+				game.resources.trimps.max += ((game.buildings.Hotel.owned) * game.buildings.Hotel.increase.by);
+				game.buildings.Hotel.increase.by *= 2;
 			}
 		},
 		UberResort: {
@@ -2076,7 +2076,7 @@ var toReturn = {
 			message: "It's starting to get pretty crowded up in here. Maybe you should start building some better housing.",
 			cost: {
 				resources: {
-					trimps: 75
+					trimps: 65
 				}
 			},
 			fire: function () {
