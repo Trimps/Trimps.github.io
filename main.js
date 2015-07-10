@@ -1321,7 +1321,7 @@ function nextWorld() {
     document.getElementById("grid").innerHTML = "";
     buildGrid();
     drawGrid();
-	if (game.global.worldText["w" + game.global.world]) message(game.global.worldText["w" + game.global.world], "Story");
+	if (game.worldText["w" + game.global.world]) message(game.worldText["w" + game.global.world], "Story");
 }
 
 function fight(makeUp) {
