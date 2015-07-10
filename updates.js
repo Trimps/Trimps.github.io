@@ -204,13 +204,11 @@ function swapNotation(updateOnly){
 function prettify(number) {
 	var numberTmp = number;
 	number = Math.round(number * 1000000) / 1000000;
-	if (number < 10000) return Math.floor(number);
 	if(number === 0)
 	{
 		return prettifySub(0);
 	}
-	var base = Math.floor(Math.log(number)/Math.log(1000));
-	
+	var base = Math.floor(Math.log(number)/Math.log(10000));
 	if (base <= 0) return prettifySub(number);
 	number /= Math.pow(1000, base);
 	
@@ -276,10 +274,10 @@ function romanNumeral(number){
 	return numeral;
 }
 
-function prettifySub(number){
+function prettifySub(number, debug){
 	number = number.toString();
-	var hasDecimal = number.split('.');
-	if (typeof hasDecimal[1] === 'undefined' || hasDecimal[0].length >= 3) return number.substring(0, 3);
+/* 	var hasDecimal = number.split('.');
+	if (typeof hasDecimal[1] === 'undefined' || hasDecimal[0].length >= 4) return number.substring(0, 4); */
 	return number.substring(0, 4);	
 }
 
@@ -554,13 +552,17 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			var increase = jobObj.increase;
 			psText = (jobObj.owned * jobObj.modifier);
 			//portal Motivation
-			psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
+			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
 			if (game.global.playerGathering == increase) psText += game.global.playerModifier;
 			elem = document.getElementById(increase + "Ps");
 			if (game.resources[increase].owned >= game.resources[increase].max && game.resources[increase].max != -1) psText = 0;
 			psText = psText.toFixed(1);
+			
 		}
 		psText = prettify(psText);
+					
+
+		
 /*		var color = (psText < 0) ? "red" : "green";
 		if (psText == 0) color = "black"; */
 		var color = "white";
