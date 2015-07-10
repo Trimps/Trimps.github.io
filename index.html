@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps Dev 0.13</title>
+	<title>Trimps Dev 0.14</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
@@ -352,7 +352,7 @@
                     <div class="row" id="gridRow">
                         <div class="col-xs-2" id="battleBtnsColumn">
                             <div id="battleSideTitle">
-                                    <span id="worldName">World</span> <span id="worldNumber">1</span>
+                                    <span id="worldName">Field</span> <span id="worldNumber">1</span>
                             </div>
 							<div class="battleSideBtnContainer">
 								<span class="btn btn-primary fightBtn" id="fightBtn" onmouseover="tooltip('Fight',null,event)" onmouseout="tooltip('hide')" onclick="fightManual()">
@@ -467,15 +467,22 @@
                             <div class="btn btn-info">What's New</div>
                         </a>
                     </td>
-                    <td id="cheatTd" style="display: none">
-                        <div class="btn btn-warning" onclick="cheatALittle()">Cheat</div>
-                    </td>
                 </tr>
             </table>
         </div>
     </div>
-<div id="portalWrapper" style="display: none">&nbsp;</div>
-    <div id="tooltipDiv" style="display: none">
+<div id="portalWrapper" style="display: none">
+	<div id="portalTitle"></div>
+	<div id="portalStory"></div>
+	<div id="portalUpgradesHere"></div>
+	<div id="portalBtnContainer">
+		<div class="btn btn-primary btn-lg" id="activatePortalBtn" onclick="tooltip('Portal', null, 'update')">Activate Portal</div>
+		<div class="btn btn-danger btn-lg" id="cancelPortalBtn" onclick="cancelPortal()">Cancel</div>
+	</div>
+</div>
+    
+	
+	<div id="tooltipDiv" style="display: none">
         <div id="tipTitle"></div>
         <hr/>
         <div id="tipText"></div>

@@ -385,7 +385,7 @@
 .message {
     display: block;
     margin-top: 5px;
-    font-size: 1.3em;
+	font-size: .9vw;
 }
 
 #buildings {
@@ -425,7 +425,6 @@
     padding-left: 5px;
     padding-top: 2px;
     padding-right: 5px;
-    font-size: 1.1em;
 }
 
 #settings {
@@ -563,6 +562,24 @@
 	background-color: green;
 	width: 100vw;
 	height: 100vh;
+	padding: 20px;
+	text-align: center;
+}
+
+#portalStory{
+	max-width: 1200px;
+	display: inline-block;
+	font-size: 2vw;
+}
+
+.portalThing{
+	font-size: 1.2vw;
+}
+
+#portalTitle{
+	width: 100%;
+	font-size: 4vw;
+	text-align: center;
 }
 
 

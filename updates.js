@@ -79,6 +79,13 @@ function tooltip(what, isItIn, event) {
 		}
 		costText = costText.slice(0, -2);
 	}
+	if (what == "Portal"){
+		tooltipText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page.";
+		costText="<div class='maxCenter'><div class='btn btn-info' onclick='unlockTooltip(); tooltip('hide'); prestigeGame();'>Activate</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
+		game.global.lockTooltip = true;
+		elem.style.left = "32.5%";
+		elem.style.top = "25%";
+	}
 	if (what == "Repeat Map"){
 		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast.";
 		costText = "";
@@ -276,11 +283,12 @@ function prettifySub(number){
 	return number.substring(0, 4);	
 }
 
-function resetGame() {
+function resetGame(keepPortal) {
 	document.getElementById("wood").style.visibility = "hidden";
 	document.getElementById("metal").style.visibility = "hidden";
 	document.getElementById("trimps").style.visibility = "hidden";
 	document.getElementById("gems").style.visibility = "hidden";
+	document.getElementById("fragments").style.visibility = "hidden";
 	document.getElementById("buyCol").style.visibility = "hidden";
 	document.getElementById("unempHide").style.visibility = "hidden";
 	document.getElementById("empHide").style.visibility = "hidden";
@@ -308,12 +316,13 @@ function resetGame() {
 	document.getElementById("worldNumber").innerHTML = "1";
 	document.getElementById("mapsHere").innerHTML = "";
 	document.getElementById("sciencePs").innerHTML = "+0/sec";
+	var autoSave = game.global.autoSave;
+	var portal;
+	if (keepPortal) portal = game.portal;
 	game = null;
 	game = newGame();
-	
-	//Take care of the filtersssssssssss
-	
-	
+	game.global.autoSave = autoSave;
+	if (keepPortal) game.portal = portal;
 	
 	numTab(1);
 }
@@ -544,6 +553,8 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 		else{
 			var increase = jobObj.increase;
 			psText = (jobObj.owned * jobObj.modifier);
+			//portal Motivation
+			psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
 			if (game.global.playerGathering == increase) psText += game.global.playerModifier;
 			elem = document.getElementById(increase + "Ps");
 			if (game.resources[increase].owned >= game.resources[increase].max && game.resources[increase].max != -1) psText = 0;
@@ -687,7 +698,7 @@ function unlockEquipment(what) {
 	if (equipment.prestige > 1){
 		numeral = romanNumeral(equipment.prestige);
 	}
-	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id=' + what + 'Numeral>' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
+	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
 }
 
 function getBarColor(percent) {

@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 0.13,
+		version: 0.14,
 		killSavesBelow: 0.05,
 		playerGathering: "",
 		playerModifier: 1,
@@ -89,7 +89,8 @@ var toReturn = {
 		prestige: {
 			attack: 10,
 			health: 14,
-			cost: 60
+			cost: 60,
+			block: 10,
 		},
 		getEnemyAttack: function (level, name) {
 			var world = getCurrentMapObject();
@@ -135,61 +136,73 @@ var toReturn = {
 	portal: {
 	//Names and tooltips not final
 		Trumps: {
+		//fiveTrimpMax mapUnlock
 			locked: 0,
 			level: 0,
 			modifier: 1,
 			tooltip: "Aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
 		},
+		//breed main
 		Pheromones: {
 			level: 0,
 			modifier: .1,
 			tooltip: "Bringing some pheromones back with you will ensure that your Trimps will permanantly breed 10% faster and that you'll smell magnificent. You disagree on the smell.",
 		},
+		//trapThings main
 		Bait: {
 			level: 0,
 			modifier: 1,
 			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimps.",
 		},
+		//startFight main
 		Power: {
+			level: 0,
 			modifier: .05,
 			tooltip: "Trimps learn through example. Spending some time benching dead Elephimps should inspire any future Trimps to become stronger too. Adds 5% attack permanently to your Trimps.",
 		},
+		//startFight main
 		Toughness: {
 			modifier: .05,
-			tooltip: "Pay your Trimps to knock you around a little bit. By learning to not be such a wuss, your future Trimps should be less wussy as well. Adds 5% health permanently to your Trimps.",
+			tooltip: "Pay your Trimps to knock you around a little bit. By learning to not be such a wuss, your Trimps will be less wussy as well. Adds 5% health permanently to your Trimps.",
+			level: 0,
 		},
-		Cheapskate: {
+		//These are gonna be harder than I thought. There's a lot of checks to prices.
+/* 		Cheapskate: {
 			modifier: .05,
 			tooltip: "Discuss negotiation tactics with your leading scientists. Permanently reduces the cost of all jobs by 5%",
 		},
 		Resourcefulness: {
 			modifier: .05,
 			tooltip: "Talk to your scientists about more efficient building designs. Each level reduces the cost of all buildings by 5%",
-		},
+		}, */
+		//updatePs updates
+		//gather main
 		Motivation: {
-			modifier: .05,
-			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that gatherers produce by 5%",
+			modifier: 0.05,
+			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 5%",
+			level: 0,
 		},
 		Looting: {
 			modifier: .05,
 			tooltip: "Walk back through the empty fields, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%",
+			level: 0,
 		},
 	},
 	
 	worldText: {
-		w1: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However the world is large, and there are many more fields to explore. Chop chop.",
-		w4: "Do you see that thing at the end of this field? It's huge! It's terrifying! You've never seen anything like it before, but you know that it is a Blimp. How did you know that? Stop knowing things and go kill it.",
-		w6: "Slow and steady wins the race. Unless you're racing someone who is actually trying.",
-		w8: "You can't shake the feeling that you've been here before. Deja Vu?",
-		w9: "Looks like another Blimp up ahead. Hard to tell from far away, but it looks like it has more heads than the last one.",
-		w10: "You're unstoppable as long as nothing stops you. Unfortunately, it seems like something really wants to stop you.",
-		w11: "Did you see that green light flash by? Weird. Oh well.",
-		w14: "Another day, another Blimp at the end of the field",
-		w15: "Seriously? Another Blimp so soon?",
-		w16: "You climb a large cliff and look out over the new field. Red dirt, scorched ground, and devastation. Is that a Dragimp flying around out there?!",
-		w17: "There seems to be a strange force urging you to keep going. The atmosphere is becoming... angrier. Part of you wants to turn around and go back, but most of you wants to keep going.",
-		w18: "You look behind and see your kingdom. You have gems, a colony, and territory. You wonder if enough Trimps have already fallen in battle. After contemplation, one word falls out of your mouth as you begin to move forward. 'Nah'",
-		w19: "You can sense that you're close to your goal.",		
+		w2: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However the world is large, and there are many more fields to explore. Chop chop.",
+		w5: "Do you see that thing at the end of this field? It's huge! It's terrifying! You've never seen anything like it before, but you know that it is a Blimp. How did you know that? Stop knowing things and go kill it.",
+		w7: "Slow and steady wins the race. Unless you're racing someone who is actually trying.",
+		w9: "You can't shake the feeling that you've been here before. Deja Vu?",
+		w10: "Looks like another Blimp up ahead. Hard to tell from far away, but it looks like it has more heads than the last one.",
+		w11: "You're unstoppable as long as nothing stops you. Unfortunately, it seems like something really wants to stop you.",
+		w12: "Did you see that green light flash by? Weird. Oh well.",
+		w15: "Another day, another Blimp at the end of the field",
+		w16: "Seriously? Another Blimp so soon?",
+		w17: "You climb a large cliff and look out over the new field. Red dirt, scorched ground, and devastation. Is that a Dragimp flying around out there?!",
+		w18: "There seems to be a strange force urging you to keep going. The atmosphere is becoming... angrier. Part of you wants to turn around and go back, but most of you wants to keep going.",
+		w19: "You look behind and see your kingdom. You have gems, a colony, and territory. You wonder if enough Trimps have already fallen in battle. After contemplation, one word falls out of your mouth as you begin to move forward. 'Nah'",
+		w20: "You can sense that you're close to your goal.",		
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
@@ -247,6 +260,7 @@ var toReturn = {
 		Shield: {
 			locked: 1,
 			tooltip: "A big, wooden shield. Adds $healthCalculated$ health to each soldier per level.",
+			blocktip: "A big, wooden shield. Adds $blockCalculated$ block to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -254,6 +268,9 @@ var toReturn = {
 			},
 			health: 4,
 			healthCalculated: 4,
+			blockNow: false,
+			block: 20,
+			blockCalculated: 20,
 			prestige: 1
 		},
 		Dagger: {
@@ -438,7 +455,9 @@ var toReturn = {
 			fast: true
 		},
 		Blimp: {
-			location: "None",
+			location: "World",
+			last: true,
+			world: 5,
 			attack: 1.3,
 			health: 10,
 			fast: false,
@@ -450,13 +469,26 @@ var toReturn = {
 			}
 		},
 		Dragimp: {
-			world: 16,
-			attack: 1.1,
-			health: 1.2,
-			fast: true,
+			location: "World",
+			world: 11,
+			attack: 1,
+			health: 2,
+			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", .15, level, true);
 				message("<span class='glyphicon glyphicon-certificate'></span>That Dragimp dropped " + prettify(amt) + " gems!", "Loot");
+			}
+		},
+		Mitschimp: {
+			location: "Block",
+			last: true,
+			world: 10,
+			attack: 1.2,
+			health: 8,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("wood", 2, level, true);
+				message("<span class='glyphicon glyphicon-tree-deciduous'></span>Mitschimp dropped " + prettify(amt) + " wood!", "Loot");
 			}
 		}
 	},
@@ -487,6 +519,10 @@ var toReturn = {
 				resourceType: "Metal",
 				upgrade: "Portal",
 			},
+			Block: {
+				resourceType: "Wood",
+				upgrade: "Shieldblock",
+			},
 			All: {
 				resourceType: "Metal",
 			},
@@ -509,7 +545,18 @@ var toReturn = {
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
-				unlockUpgrade("Portal");
+				game.global.portalActive = true;
+			}
+		},
+		Shieldblock: {
+			world: 10,
+			message: "That thing dropped a book. Doesn't look like an ordinary book. Looks... blockier...",
+			level: "last",
+			icon: "book",
+			filterUpgrade: true,
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("Shieldblock");
 			}
 		},
 		Supershield: {
@@ -620,6 +667,30 @@ var toReturn = {
 			last: 5,
 			fire: function () {
 				unlockUpgrade("Bestplate");
+			}
+		},
+		TheBlock: {
+			world: 10,
+			message: "Holy cowimp! A unique map!",
+			level: [10, 20],
+			icon: "th-large",
+			canRunOnce: true,
+			fire: function () {
+				game.global.mapsOwned++;
+				game.global.totalMapsEarned++;
+				game.global.mapsOwnedArray.push({
+					id: "map" + game.global.totalMapsEarned,
+					name: "The Block",
+					location: "Block",
+					clears: 0,
+					level: 10,
+					difficulty: 1.5,
+					size: 100,
+					loot: 2,
+					noRecycle: true,
+				});
+				unlockMap(game.global.mapsOwnedArray.length - 1);
+				message("You just made a map to The Block!", "Notices");
 			}
 		},
 		Mansion: {
@@ -894,7 +965,7 @@ var toReturn = {
 		},
 		Explorer: {
 			message: "You found a book detailing the intricacies of solo exploration!",
-			world: 11,
+			world: 15,
 			level: 39,
 			icon: "book",
 			title: "Explorer",
@@ -977,7 +1048,7 @@ var toReturn = {
 		Blockmaster: {
 			message: "You found a book discussing tactics for better blocking!",
 			world: 4,
-			level: [29],
+			level: 29,
 			icon: "book",
 			title: "Blockmaster",
 			fire: function () {
@@ -986,7 +1057,7 @@ var toReturn = {
 		},
 		Egg: {
 			message: "This egg looks crazy. Seriously, guys, come look at this crazy egg!",
-			world: 16,
+			world: 11,
 			level: 55,
 			icon: "record",
 			title: "Egg",
@@ -994,8 +1065,6 @@ var toReturn = {
 				unlockUpgrade("Egg");
 			}
 		},
-		
-		
 		//Multiples
 		Map: {
 			world: -1,
@@ -1007,6 +1076,7 @@ var toReturn = {
 				game.resources.fragments.owned++;
 			}
 		},
+		//portal Trumps
 		fiveTrimpMax: {
 			world: -1,
 			level: [10, 20],
@@ -1014,7 +1084,9 @@ var toReturn = {
 			repeat: 45,
 			fire: function () {
 				game.resources.trimps.max += 5;
-				message("<span class='glyphicon glyphicon-gift'></span>You have cleared enough land to support 5 more Trimps!", "Loot");
+				var amt = 5 + (game.portal.Trumps.modifier * game.portal.Trumps.level);
+				game.resources.trimps.max += amt;
+				message("<span class='glyphicon glyphicon-gift'></span>You have cleared enough land to support " + amt + " more Trimps!", "Loot");
 			}
 		},
 		fruit: {
@@ -1137,7 +1209,7 @@ var toReturn = {
 			craftTime: 20,
 			tooltip: "A building where your Trimps can work out. Each Gym increases the amount of damage each trimp can block by $incby$.",
 			cost: {
-				wood: [400, 1.2]
+				wood: [400, 1.185]
 			},
 			increase: {
 			what: "global.block",
@@ -1646,6 +1718,23 @@ var toReturn = {
 				game.jobs.Farmer.modifier *= 2;
 				game.jobs.Miner.modifier *= 2;
 				game.jobs.Lumberjack.modifier *= 2;
+			}
+		},
+		Shieldblock: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book explains methods of using a shield to actually block damage. The current shield will need to be completely destroyed and rebuilt, but it will give health instead of block. <b>This is permanent</b>",
+			done: 0,
+			cost: {
+				resources: {
+					science: 3000,
+					wood: 10000,
+				}
+			},
+			fire: function () {
+				prestigeEquipment("Shield", false, true);
+				game.equipment.Shield.blockNow = true;
+				game.equipment.Shield.tooltip = game.equipment.Shield.blocktip;
 			}
 		},
 		

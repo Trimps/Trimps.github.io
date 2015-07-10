@@ -51,8 +51,10 @@ function save(exportThis) {
     saveGame.badGuys = null;
     saveGame.mapConfig = null;
 	saveGame.global.prestige = null;
+	saveGame.portal = null;
     for (var item in saveGame.equipment) {
         saveGame.equipment[item].tooltip = null;
+		saveGame.equipment[item].blocktip = null;
         saveGame.equipment[item].cost = null;
     }
     for (var itemA in saveGame.buildings) {
@@ -96,6 +98,8 @@ function save(exportThis) {
 function load(saveString, autoLoad) {
     var savegame;
 	
+	
+	
     if (saveString) {
         savegame = JSON.parse(LZString.decompressFromBase64(document.getElementById("importBox").value));
         tooltip('hide');
@@ -103,7 +107,9 @@ function load(saveString, autoLoad) {
         savegame = JSON.parse(LZString.decompressFromBase64(localStorage.getItem("trimpSave1")));
     }
     if (typeof savegame === 'undefined' || savegame === null || typeof savegame.global === 'undefined') return;
-    resetGame();
+	
+	resetGame();
+	
     if (game.global.killSavesBelow > savegame.global.version) {
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This game is still in early alpha, and a lot is still changing! Thank you for helping test!", "Notices");
         message("Since you already had a save, and since the game is still alpha, I unlocked a little cheat button for you. It will make you twice as efficient, allowing you to get through the beginning a little faster.", "Notices");
@@ -137,7 +143,7 @@ function load(saveString, autoLoad) {
         var topSave = savegame[a];
         if (typeof topSave === 'undefined' || topSave === null) continue;
 		if (a == "equipment"){
-			loadEquipment(topSave);
+			loadEquipment(topSave); 
 			continue;
 		}
 		var topGame = game[a];
@@ -209,9 +215,29 @@ function load(saveString, autoLoad) {
     toggleSave(true);
 }
 
-function prestigeGame(){
+function portalClicked() {
 	document.getElementById("wrapper").style.display = "none";
 	fadeIn("portalWrapper", 10);
+	document.getElementById("portalTitle").innerHTML = "Time Portal";
+	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But you still don't know how you got here. Maybe there will be answers through this portal...";
+	var elem = document.getElementById("portalUpgradesHere");
+	for (var what in game.portal){
+		var portUpgrade = game.portal[what];
+		elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
+	}
+}
+
+function buyPortalUpgrade(what){
+
+}
+
+function prestigeGame(){
+	
+}
+
+function cancelPortal(){
+	document.getElementById("portalWrapper").style.display = "none";
+	fadeIn("wrapper", 10);
 }
 
 function loadEquipment(oldEquipment){
@@ -222,16 +248,25 @@ function loadEquipment(oldEquipment){
 		if (typeof newEquipment[item] === 'undefined') continue;
 		var oldEquip = oldEquipment[item];
 		var newEquip = newEquipment[item];
+		
 		newEquip.locked = oldEquip.locked;
 		newEquip.modifier = oldEquip.modifier;
 		newEquip.level = oldEquip.level;
 		newEquip.prestige = oldEquip.prestige;
-		if (newEquip.prestige > 1)
-		prestigeEquipment(item, newEquip.prestige);
-		var stat = (typeof newEquipment.health !== 'undefined') ? "health" : "attack";
+		var stat;
+		if (oldEquip.blockNow){
+			stat = "block"; 
+			newEquip.blockNow = true;
+			newEquip.tooltip = newEquip.blocktip;
+		}
+		else stat = (typeof newEquip.health !== 'undefined') ? "health" : "attack";
+
+		if (newEquip.prestige > 1) prestigeEquipment(item, newEquip.prestige);
+		
 		if (typeof oldEquip[stat + "Calculated"] === 'undefined') oldEquip[stat + "Calculated"] = oldEquip[stat];
 		if (newEquip[stat + "Calculated"] != oldEquip[stat + "Calculated"]){
 			var dif = newEquip[stat + "Calculated"] - oldEquip[stat + "Calculated"];
+			//Leaving the debug stuff for this just in case. This function could be nasty if stuff goes wrong.
 			console.log("Equipment: " + item + ". Updated from:");
 			console.log(oldEquip);
 			console.log("Updated to: ");
@@ -262,7 +297,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
     } else {
         level = scaleLootLevel(level);
     }
-    if (what == "gems") level = (level - 500) * 1.15;
+    if (what == "gems") level = (level - 400) * 1.15;
 	level *= 1.35;
     var amt = Math.round(baseAmt * level);
     //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
@@ -335,6 +370,8 @@ function gather() {
         var increase = game.jobs[job].increase;
         if (increase == "custom") continue;
         amount = perSec / game.settings.speed;
+		//Motivation
+		if (game.portal.Motivation.level > 0) amount += (amount * game.portal.Motivation.level * game.portal.Motivation.modifier);
         if ((game.resources[increase].max != -1) && ((game.resources[increase].owned + amount) > game.resources[increase].max)) game.resources[increase].owned = game.resources[increase].max;
         else game.resources[increase].owned += amount;
         if (what == increase) {
@@ -587,6 +624,9 @@ function trapThings() {
     if (game.global.timeLeftOnTrap <= 0 && trimps.owned < trimps.max && trap.owned >= 1) {
         trap.owned--;
         trimps.owned++;
+		//portal Bait
+		if (game.portal.Bait.level > 0) trimps.owned += (game.portal.Bait.level * game.portal.Bait.modifier);
+		if (trimps.owned > trimps.max) trimps.owned = trimps.max;
         game.global.timeLeftOnTrap = -1;
         document.getElementById("TrapOwned").innerHTML = trap.owned;
     }
@@ -693,17 +733,22 @@ function breed() {
         return;
     }
     breeding = breeding * trimps.potency;
+	//Pheromones
+	breeding += (breeding * game.portal.Pheromones.level * game.portal.Pheromones.modifier);
     updatePs(breeding, true);
     trimps.owned += breeding / game.settings.speed;
 }
 
-function prestigeEquipment(what, fromLoad) {
+function prestigeEquipment(what, fromLoad, noInc) {
     var equipment = game.equipment[what];
-	if (!fromLoad) equipment.prestige++;
+	if (!fromLoad && !noInc) equipment.prestige++;
 	var resource = (what == "Shield") ? "wood" : "metal";
 	var cost = equipment.cost[resource];
     cost[0] = Math.round(cost[0] * Math.pow(1.075, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
-	var stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";
+	var stat;
+	if (equipment.blockNow) stat = "block";
+	else stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";
+	if (what == "Shield") console.log(equipment);
 	if (!fromLoad) game.global[stat] -= (equipment[stat] * equipment.level);
     equipment[stat + "Calculated"] = Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige[stat]) + 1));
 	//No need to touch level if it's newNum
@@ -761,7 +806,7 @@ function buildMapGrid(mapId) {
             attack: -1,
             special: "",
             text: "",
-            name: getRandomBadGuy(map.location)
+            name: getRandomBadGuy(map.location, i + 1, map.size, map.level)
         });
     }
     game.global.mapGridArray = array;
@@ -785,26 +830,32 @@ function buildGrid() {
             attack: -1,
             special: "",
             text: "",
-            name: getRandomBadGuy(null, i + 1)
+            name: getRandomBadGuy(null, i + 1, 100, world)
         });
     }
     game.global.gridArray = array;
     addSpecials();
 }
 
-function getRandomBadGuy(mapSuffix, level) {
+function getRandomBadGuy(mapSuffix, level, totalCells, world) {
 	var selected;
-	if (level == 100) selected = "Blimp";
-	else {
+	var force = false;
     var badGuysArray = [];
     for (var item in game.badGuys) {
 		var badGuy = game.badGuys[item];
-		if ((badGuy.location == "All" || badGuy.location == mapSuffix) && (typeof badGuy.world === 'undefined' || game.global.world >= game.badGuys[item].world)){
+		if (level == 100 && item == "Blimp") console.log(badGuy);
+		if (level == totalCells && badGuy.last && (badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && world >= badGuy.world) {
+			if (item == "Blimp" && (world != 5 && world  != 10 && world < 15)) continue;
+			selected = item;
+			force = true;
+			break;
+		}
+		if (!badGuy.last && (badGuy.location == "All" || badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && (typeof badGuy.world === 'undefined' || game.global.world >= game.badGuys[item].world)){
 		badGuysArray.push(item);
 		}
 	}
-    selected = badGuysArray[Math.floor(Math.random() * badGuysArray.length)];
-	}
+    if (!force) selected = badGuysArray[Math.floor(Math.random() * badGuysArray.length)];
+
 	return selected;
 }
 
@@ -844,6 +895,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
             canLast = false;
             continue;
         }
+		
         if (typeof special.canRunOnce !== 'undefined' && !special.canRunOnce) continue;
         if ((special.world != world && special.world > 0)) continue;
         if ((special.world == -2) && ((world % 2) !== 0)) continue;
@@ -881,6 +933,7 @@ function findHomeForSpecial(special, item, array, max){
 		if (level >= max) break;
 		//Resolve resource conflicts. Try +5, reverse, -5, then bail out.
 		var hax = 5;
+
 		while (array[level].special !== "") {
 			if (hax >= 5) {
 				hax++;
@@ -1074,7 +1127,7 @@ function mapsSwitch(updateOnly) {
         document.getElementById("mapGrid").style.display = "none";
         document.getElementById("mapsBtn").innerHTML = "Maps";
         document.getElementById("worldNumber").innerHTML = game.global.world;
-        document.getElementById("worldName").innerHTML = "World";
+        document.getElementById("worldName").innerHTML = "Field";
 		document.getElementById("repeatBtn").style.visibility = "hidden";
     }
 }
@@ -1201,8 +1254,12 @@ function startFight() {
     if (game.global.soldierHealth === 0) {
         var trimpsFighting = game.resources.trimps.maxSoldiers;
         game.global.soldierHealthMax = (game.global.health * trimpsFighting);
+		//Toughness
+		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
         game.global.soldierHealth = game.global.soldierHealthMax;
         game.global.soldierCurrentAttack = (game.global.attack * trimpsFighting);
+		//Power
+		if (game.portal.Power.level > 0) game.global.soldierCurrentAttack += (game.global.soldierCurrentAttack * game.portal.Power.level * game.portal.Power.modifier);
         game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100)) + game.global.block) * trimpsFighting);
 		document.getElementById("goodGuyBar").style.width = "100%";
 		/*         document.getElementById("trimpsFighting").innerHTML = prettify(trimpsFighting);
@@ -1264,6 +1321,7 @@ function nextWorld() {
     document.getElementById("grid").innerHTML = "";
     buildGrid();
     drawGrid();
+	if (game.global.worldText["w" + game.global.world]) message(game.global.worldText["w" + game.global.world], "Story");
 }
 
 function fight(makeUp) {
@@ -1383,8 +1441,10 @@ function buyEquipment(what) {
 	if (canAfford){
 		canAffordBuilding(what, true, null, true);
 		toBuy.level += game.global.buyAmt;
-		if (typeof toBuy.attack !== 'undefined') game.global.attack += (toBuy.attackCalculated * game.global.buyAmt);
-		if (typeof toBuy.health !== 'undefined') game.global.health += (toBuy.healthCalculated * game.global.buyAmt);
+		var stat;
+		if (toBuy.blockNow) stat = "block";
+		else stat = (typeof toBuy.health !== 'undefined') ? "health" : "attack";
+		game.global[stat] += (toBuy[stat + "Calculated"] * game.global.buyAmt);
 	}
 	tooltip(what, "equipment", "update");	
 }
@@ -1421,15 +1481,6 @@ function fadeIn(elem, speed) {
 
 }
 
-function cheatALittle() {
-    if (game.global.playerModifier <= 2) {
-        game.global.playerModifier = 2;
-        document.getElementById("cheatTd").style.display = "none";
-        message("Your player modifier has been boosted to 200%!", "Notices");
-        return;
-    }
-    message("You already cheated, save some for the other kids.", "Notices");
-}
 setTimeout(autoSave, 60000);
 
 function gameLoop(makeUp) {
