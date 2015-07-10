@@ -236,7 +236,7 @@ function portalClicked() {
 }
 
 function checkOfflineProgress(){
-	console.log((new Date.getTime() - game.global.lastOnline));
+	
 }
 
 function activateClicked(){
