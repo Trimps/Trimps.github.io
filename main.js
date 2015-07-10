@@ -51,7 +51,6 @@ function save(exportThis) {
     saveGame.badGuys = null;
     saveGame.mapConfig = null;
 	saveGame.global.prestige = null;
-	saveGame.portal = null;
     for (var item in saveGame.equipment) {
         saveGame.equipment[item].tooltip = null;
 		saveGame.equipment[item].blocktip = null;
@@ -220,6 +219,7 @@ function portalClicked() {
 	document.getElementById("wrapper").style.display = "none";
 	fadeIn("portalWrapper", 10);
 	document.getElementById("portalTitle").innerHTML = "Time Portal";
+	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.owned);
 	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
 	var elem = document.getElementById("portalUpgradesHere");
 	if (!elem.innerHTML) {
@@ -242,6 +242,8 @@ function buyPortalUpgrade(what){
 		toBuy.level++;
 		document.getElementById(what + "Owned").innerHTML = toBuy.level;
 		game.resources.helium.owned -= price;
+		tooltip(what, "portal", "update");
+		document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.owned);
 	}
 }
 
@@ -287,11 +289,11 @@ function loadEquipment(oldEquipment){
 		if (newEquip[stat + "Calculated"] != oldEquip[stat + "Calculated"]){
 			var dif = newEquip[stat + "Calculated"] - oldEquip[stat + "Calculated"];
 			//Leaving the debug stuff for this just in case. This function could be nasty if stuff goes wrong.
-			console.log("Equipment: " + item + ". Updated from:");
+/* 			console.log("Equipment: " + item + ". Updated from:");
 			console.log(oldEquip);
 			console.log("Updated to: ");
 			console.log(newEquip);
-			console.log("dif is " + dif);
+			console.log("dif is " + dif); */
 			game.global[stat] += dif * newEquip.level;
 		}
 	}
@@ -772,7 +774,6 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	var stat;
 	if (equipment.blockNow) stat = "block";
 	else stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";
-	if (what == "Shield") console.log(equipment);
 	if (!fromLoad) game.global[stat] -= (equipment[stat] * equipment.level);
     equipment[stat + "Calculated"] = Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige[stat]) + 1));
 	//No need to touch level if it's newNum
@@ -867,7 +868,6 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world) {
     var badGuysArray = [];
     for (var item in game.badGuys) {
 		var badGuy = game.badGuys[item];
-		if (level == 100 && item == "Blimp") console.log(badGuy);
 		if (level == totalCells && badGuy.last && (badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && world >= badGuy.world) {
 			if (item == "Blimp" && (world != 5 && world  != 10 && world < 15)) continue;
 			selected = item;
@@ -1057,7 +1057,6 @@ function recycleMap() {
 		mapsSwitch(true);
 		return;
 	}
-	console.log("recycling");
     game.global.mapsOwnedArray.splice(map, 1);
     document.getElementById("mapsHere").removeChild(document.getElementById(game.global.lookingAtMap));
     game.global.lookingAtMap = "";

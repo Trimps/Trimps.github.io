@@ -165,7 +165,7 @@ function tooltip(what, isItIn, event) {
 		}
 	}
 	if (isItIn == "portal"){
-		costText = getPortalUpgradePrice(what) + " Helium Canisters";
+		costText = prettify(getPortalUpgradePrice(what)) + " Helium Canisters";
 	}
 	if (isItIn == "equipment"){
 		if (game.global.buyAmt > 1) {

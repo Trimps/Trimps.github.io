@@ -476,7 +476,7 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-piggy-bank'></span>That Blimp dropped " + prettify(amt) + "Food, Wood and Metal! That should be useful.", "Loot");
 				if (game.portalActive){
 					amt = rewardResource("helium", 1, level);
-					message("<span class='glyphicon glyphicon-oil'></span>You were able to extract " + prettify(amt) + "Helium canisters from that Blimp!", "Story"); 
+					message("<span class='glyphicon glyphicon-oil'></span>You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
 				}
 			}
 		},
@@ -564,11 +564,11 @@ var toReturn = {
 			icon: "repeat",
 			filterUpgrade: true,
 			canRunOnce: true,
-			fire: function (level) {
+			fire: function () {
 				game.global.portalActive = true;
 				fadeIn("helium", 10);
-				amt = rewardResource("helium", 1, level);
-				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract " + prettify(amt) + "Helium canisters from that Blimp!", "Loot"); 
+				game.resources.helium.owned += 20;
+				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract 20 Helium canisters from that Blimp!", "Loot"); 
 				fadeIn("portalBtn", 10);
 			}
 		},

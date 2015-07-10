@@ -1,5 +1,7 @@
 /*Top Row*/
-
+body {
+	background-color: black;
+}
 .progress-bar {
     -webkit-transition: width .1s ease;
     transition: width .1s ease;
