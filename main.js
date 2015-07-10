@@ -207,6 +207,7 @@ function load(saveString, autoLoad) {
     checkTriggers(true);
     setGather(game.global.playerGathering);
     numTab(1);
+	if (game.global.portalActive) {fadeIn("portalBtn", 10); fadeIn("helium", 10);}
 	if (game.jobs.Explorer.locked == 0) fadeIn("fragmentsPs", 10);
 	if (game.buildings.Tribute.locked == 0) fadeIn("gemsPs", 10);
     if (game.global.autoCraftModifier > 0)
@@ -219,20 +220,39 @@ function portalClicked() {
 	document.getElementById("wrapper").style.display = "none";
 	fadeIn("portalWrapper", 10);
 	document.getElementById("portalTitle").innerHTML = "Time Portal";
-	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But you still don't know how you got here. Maybe there will be answers through this portal...";
+	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
 	var elem = document.getElementById("portalUpgradesHere");
-	for (var what in game.portal){
-		var portUpgrade = game.portal[what];
-		elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
+	if (!elem.innerHTML) {
+		for (var what in game.portal){
+			var portUpgrade = game.portal[what];
+			elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span></span></div>';
+		}
 	}
 }
 
-function buyPortalUpgrade(what){
 
+function activateClicked(){
+	document.getElementById("portalStory").innerHTML = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page. Who knows where or when it will send you.<br/><div class='btn btn-info activatePortalBtn' onclick='activatePortal()'>Let's do it.</div>";
+}
+
+function buyPortalUpgrade(what){
+	var toBuy = game.portal[what];
+	var price = getPortalUpgradePrice(what);
+	if (game.resources.helium.owned >= price){
+		toBuy.level++;
+		document.getElementById(what + "Owned").innerHTML = toBuy.level;
+		game.resources.helium.owned -= price;
+	}
+}
+
+function getPortalUpgradePrice(what){
+	var toCheck = game.portal[what];
+	return Math.ceil((toCheck.level / 2) + toCheck.priceBase * Math.pow(1.05, toCheck.level));
 }
 
 function prestigeGame(){
-	
+	resetGame(true);
+	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 }
 
 function cancelPortal(){
@@ -297,13 +317,17 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
     } else {
         level = scaleLootLevel(level);
     }
-    if (what == "gems") level = (level - 400) * 1.15;
+	var amt;
+	if (what == "helium") level = Math.round((level - 1900) / 100);
+    if (what == "gems") level = level - 400;
 	level *= 1.35;
+	if (level < 0) level = 0;
     var amt = Math.round(baseAmt * level);
     //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
     //var otherAmt = Math.round(baseAmt * level);
     //if (otherAmt > amt) amt = otherAmt;
     if (checkMapLootScale) amt = Math.round(amt * map.loot);
+	if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
     addResCheckMax(what, amt);
     return amt;
 }

@@ -94,6 +94,12 @@
     padding: 3px;
 }
 
+.portalBtn{
+	font-size: .6vw;
+}
+
+
+
 .lowPad {
 	padding-left: 5px;
 	padding-right: 5px;
@@ -566,10 +572,15 @@
 	text-align: center;
 }
 
+.activatePortalBtn{
+	font-size: 1.3vw;
+	margin: 15px;
+}
+
 #portalStory{
 	max-width: 1200px;
 	display: inline-block;
-	font-size: 2vw;
+	font-size: 1.5vw;
 }
 
 .portalThing{

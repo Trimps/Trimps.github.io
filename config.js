@@ -132,7 +132,7 @@ var toReturn = {
 			return Math.floor(amt);
 		}
 	},
-	
+	//portal
 	portal: {
 	//Names and tooltips not final
 		Trumps: {
@@ -140,29 +140,34 @@ var toReturn = {
 			locked: 0,
 			level: 0,
 			modifier: 1,
+			priceBase: 1,
 			tooltip: "Aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
 		},
 		//breed main
 		Pheromones: {
 			level: 0,
 			modifier: .1,
+			priceBase: 3,
 			tooltip: "Bringing some pheromones back with you will ensure that your Trimps will permanantly breed 10% faster and that you'll smell magnificent. You disagree on the smell.",
 		},
 		//trapThings main
 		Bait: {
 			level: 0,
 			modifier: 1,
+			priceBase: 2,
 			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
 		},
 		//startFight main
 		Power: {
 			level: 0,
 			modifier: .05,
+			priceBase: 1,
 			tooltip: "Trimps learn through example. Spending some time benching dead Elephimps should inspire any future Trimps to become stronger too. Adds 5% attack permanently to your Trimps.",
 		},
 		//startFight main
 		Toughness: {
 			modifier: .05,
+			priceBase: 1,
 			tooltip: "Pay your Trimps to knock you around a little bit. By learning to not be such a wuss, your Trimps will be less wussy as well. Adds 5% health permanently to your Trimps.",
 			level: 0,
 		},
@@ -179,11 +184,14 @@ var toReturn = {
 		//gather main
 		Motivation: {
 			modifier: 0.05,
-			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 5%",
+			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 10%",
+			priceBase: 2,
 			level: 0,
 		},
+		//rewardResources main
 		Looting: {
 			modifier: .05,
+			priceBase: 1,
 			tooltip: "Walk back through the empty fields, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%",
 			level: 0,
 		},
@@ -250,10 +258,10 @@ var toReturn = {
 			owned: 0,
 			max: -1,
 		},
-/* 		helium: {
+ 		helium: {
 			owned: 0,
 			max: -1,
-		} */
+		} 
 	},
 	
 	equipment: {
@@ -466,7 +474,19 @@ var toReturn = {
 				rewardResource("wood", 2, level);
 				rewardResource("metal", 2, level);
 				message("<span class='glyphicon glyphicon-piggy-bank'></span>That Blimp dropped " + prettify(amt) + "Food, Wood and Metal! That should be useful.", "Loot");
+				if (game.portalActive){
+					amt = rewardResource("helium", 1, level);
+					message("<span class='glyphicon glyphicon-oil'></span>You were able to extract " + prettify(amt) + "Helium canisters from that Blimp!", "Story"); 
+				}
 			}
+		},
+		Megablimp: {
+			location: "Hell",
+			last: true,
+			world: 21,
+			attack: 1.1,
+			health: 15,
+			fast: false,
 		},
 		Dragimp: {
 			location: "World",
@@ -539,13 +559,17 @@ var toReturn = {
 	mapUnlocks: {
 	 	Portal: {
 			world: 21,
-			message: "Don't ever let anyone tell you that you didn't just kill that really bad guy. Because you did. As he melts away into nothingness, you notice a shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'",
+			message: "Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'",
 			level: "last",
 			icon: "repeat",
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
 				game.global.portalActive = true;
+				fadeIn("helium", 10);
+				amt = rewardResource("helium", 1, level);
+				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract " + prettify(amt) + "Helium canisters from that Blimp!", "Loot"); 
+				fadeIn("portalBtn", 10);
 			}
 		},
 		Shieldblock: {
@@ -1671,20 +1695,6 @@ var toReturn = {
 				message("You just made a map to the Dimension of Anger! Should be fun!", "Notices");
 			}
 		},
-		Portal: {
-			locked: 1,
-			allowed: 0, 
-			tooltip: "The portal device you found shines green in the lab. Such a familiar shade...",
-			done: 0,
-			cost: {
-				resources: {
-					
-				}
-			},
-			fire: function () {
-				prestigeGame();
-			}
-		},
 		Egg: {
 			locked: 1,
 			allowed: 0,
@@ -1737,6 +1747,7 @@ var toReturn = {
 				game.equipment.Shield.tooltip = game.equipment.Shield.blocktip;
 			}
 		},
+		
 		
 		
 		

@@ -138,6 +138,13 @@
                     <br/>
 					<span class="psText" id="gemsPs" style="display: none">+0/sec</span>
                 </div>
+				<div id="helium" class="playerGather playerGatherSm" >
+					<span class="title">Helium</span>
+					<br/>
+					<span class="ownedArea"><span id="heliumOwned">0</span></span>
+					<br/>
+					
+				</div>
             </div>
             <div class="col-xs-2" id="trimpsColumn">
                 <div id="trimps" class="playerGather" style="visibility: hidden;">
@@ -352,7 +359,7 @@
                     <div class="row" id="gridRow">
                         <div class="col-xs-2" id="battleBtnsColumn">
                             <div id="battleSideTitle">
-                                    <span id="worldName">Field</span> <span id="worldNumber">1</span>
+                                    <span id="worldName">Zone</span> <span id="worldNumber">1</span>
                             </div>
 							<div class="battleSideBtnContainer">
 								<span class="btn btn-primary fightBtn" id="fightBtn" onmouseover="tooltip('Fight',null,event)" onmouseout="tooltip('hide')" onclick="fightManual()">
@@ -370,10 +377,16 @@
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
+								<span class="btn btn-info fightBtn" id="portalBtn" onmouseover="tooltip('Portal', null, event)" onmouseout="tooltip('hide')" onclick="portalClicked()" style="display: none">
+									Portal
+								</span>
+							</div>
+							<div class="battleSideBtnContainer">
 								<span class="btn btn-danger fightBtn" id="repeatBtn" onmouseover="tooltip('Repeat Map', null, event)" onmouseout="tooltip('hide')" onclick = "repeatClicked()" style="visibility: hidden">
 									No Repeat
 								</span>
 							</div>
+							
                         </div>
                         <div class="col-xs-10" id="gridContainer">
                             <div id="grid"></div>
@@ -476,7 +489,7 @@
 	<div id="portalStory"></div>
 	<div id="portalUpgradesHere"></div>
 	<div id="portalBtnContainer">
-		<div class="btn btn-primary btn-lg" id="activatePortalBtn" onclick="tooltip('Portal', null, 'update')">Activate Portal</div>
+		<div class="btn btn-primary btn-lg" id="activatePortalBtn" onclick="activateClicked()">Activate Portal</div>
 		<div class="btn btn-danger btn-lg" id="cancelPortalBtn" onclick="cancelPortal()">Cancel</div>
 	</div>
 </div>
