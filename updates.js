@@ -81,7 +81,7 @@ function tooltip(what, isItIn, event) {
 	}
 	if (what == "Portal"){
 		tooltipText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page.";
-		costText="<div class='maxCenter'><div class='btn btn-info' onclick='unlockTooltip(); tooltip('hide'); prestigeGame();'>Activate</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\"); prestigeGame();'>Activate</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\");'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";

@@ -152,7 +152,7 @@ var toReturn = {
 		Bait: {
 			level: 0,
 			modifier: 1,
-			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimps.",
+			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
 		},
 		//startFight main
 		Power: {
