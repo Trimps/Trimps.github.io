@@ -69,6 +69,7 @@ var toReturn = {
 		standardNotation: true,
 		portalActive: false,
 		mapsUnlocked: false,
+		lastOnline: 0,
 		menu: {
 			buildings: true,
 			jobs: false,

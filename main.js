@@ -156,10 +156,7 @@ function load(saveString, autoLoad) {
                     if (c == "cost") continue;
                     if (c == "tooltip") continue;
 					if (a == "resources" && c == "owned"){
-						if (typeof midSave[c] !== 'number') {
-							midSave[c] = 0;
-							console.log("detected bug in resource, repaired " + b + " owned");
-						}
+						//check bad entries here.
 					}
                     var botSave = midSave[c];
                     if (typeof botSave === 'undefined' || botSave === null) continue;
@@ -220,6 +217,7 @@ function load(saveString, autoLoad) {
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
     toggleSave(true);
+	checkOfflineProgress();
 }
 
 function portalClicked() {
@@ -237,6 +235,9 @@ function portalClicked() {
 	}
 }
 
+function checkOfflineProgress(){
+	console.log((new Date.getTime() - game.global.lastOnline));
+}
 
 function activateClicked(){
 	document.getElementById("portalStory").innerHTML = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page. Who knows where or when it will send you.<br/><div class='btn btn-info activatePortalBtn' onclick='activatePortal()'>Let's do it.</div>";
@@ -1554,6 +1555,7 @@ function gameTimeout() {
     gameLoop();
     updateLabels();
     setTimeout(gameTimeout, (tick - dif));
+	game.global.lastOnline = new Date().getTime();
 }
 
 setTimeout(gameTimeout(), (1000 / game.settings.speed));
