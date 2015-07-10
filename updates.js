@@ -80,11 +80,8 @@ function tooltip(what, isItIn, event) {
 		costText = costText.slice(0, -2);
 	}
 	if (what == "Portal"){
-		tooltipText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page.";
-		costText="<div class='maxCenter'><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\"); prestigeGame();'>Activate</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\");'>Cancel</div></div>";
-		game.global.lockTooltip = true;
-		elem.style.left = "32.5%";
-		elem.style.top = "25%";
+		tooltipText = "The portal device you found shines green in the lab. Such a familiar shade...";
+		costText = "";
 	}
 	if (what == "Repeat Map"){
 		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast.";
@@ -166,6 +163,9 @@ function tooltip(what, isItIn, event) {
 				what += " X" + game.global.buyAmt;
 			}
 		}
+	}
+	if (isItIn == "portal"){
+		costText = getPortalUpgradePrice(what) + " Helium Canisters";
 	}
 	if (isItIn == "equipment"){
 		if (game.global.buyAmt > 1) {
