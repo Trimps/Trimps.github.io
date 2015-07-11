@@ -401,7 +401,7 @@ function filterTabs (what) {
 
 function enableDisableTab(what, enable){
 	document.getElementById(what + "Tab").style.background = (enable) ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.25)";
-	document.getElementById(what + "A").style.borderBottom = (enable) ? "0" : "1px solid #ddd;";
+	document.getElementById(what + "A").style.borderBottom = (enable) ? "0" : "1px solid #ddd";
 	
 	
 
