@@ -1041,7 +1041,7 @@ var toReturn = {
 				document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
 			}
 		},
-		Producer: {
+/* 		Producer: {
 			message: "You found a crazy rare book about how to get the absolute most out of your trimps.",
 			world: 6,
 			level: 19,
@@ -1050,7 +1050,7 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade('Producer');
 			}
-		},
+		}, */
 		Anger: {
 			message: "You look down and see a green gem that seems to stare back. You pick it up and feel adrenaline surge through your body. This is where you are supposed to be. Probably best to bring this back to the lab for some research.",
 			world: 20,
@@ -1724,7 +1724,7 @@ var toReturn = {
 				unlockBuilding("Tribute");
 			}
 		},
-		Producer: {
+/* 		Producer: {
 			locked: 1,
 			allowed: 0,
 			tooltip: "This book explains some low-stress methods for getting your Trimps to work harder. Low-stress for you, of course. Doubles the rate at which Farmers, Lumberjacks and Miners gather resources.",
@@ -1742,7 +1742,7 @@ var toReturn = {
 				game.jobs.Miner.modifier *= 2;
 				game.jobs.Lumberjack.modifier *= 2;
 			}
-		},
+		}, */
 		Shieldblock: {
 			locked: 1,
 			allowed: 0,
