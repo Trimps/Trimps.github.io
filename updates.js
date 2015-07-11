@@ -306,6 +306,9 @@ function resetGame(keepPortal) {
 	document.getElementById("blockDiv").style.visibility = "hidden";
 	document.getElementById("badGuyCol").style.visibility = "hidden";
 	document.getElementById("jobsHere").innerHTML = "";
+	document.getElementById("jobsTab").style.visibility = "hidden";
+	document.getElementById("upgradesTab").style.visibility = "hidden";
+	document.getElementById("equipmentTab").style.visibility = "hidden";
 	document.getElementById("foremenCount").innerHTML = "";
 	document.getElementById("upgradesHere").innerHTML = "";
 	document.getElementById("mapsBtn").style.visibility = "hidden";
