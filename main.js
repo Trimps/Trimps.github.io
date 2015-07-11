@@ -355,6 +355,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
     var map;
     if (checkMapLootScale) {
         map = getCurrentMapObject();
+		console.log(level);
         level = scaleLootLevel(level, map.level);
     } else {
         level = scaleLootLevel(level);

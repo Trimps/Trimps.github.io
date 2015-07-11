@@ -347,7 +347,9 @@ function message(messageString, type) {
 			log.removeChild(document.getElementById('saveGame'));
 		}
 	}
-	if (type == "Notices") messageString = "<span class='glyphicon glyphicon-off'></span>" + messageString;
+	if (type == "Notices"){
+		messageString = "<span class='glyphicon glyphicon-off'></span>" + messageString;
+	}
 	log.innerHTML += "<span" + addId + " class='" + type + "Message message' style='display: " + displayType + "'>" + messageString + "</span>";
 	log.scrollTop = log.scrollHeight;
 	trimMessages(type);

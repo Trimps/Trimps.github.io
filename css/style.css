@@ -15,7 +15,6 @@ body {
 
 #topRow {
     /*height: 285px;*/
-    
     height: 18vw;
     margin-bottom: 10px;
 }
@@ -167,9 +166,7 @@ body {
 	height: 100%;
 }
 
-.noticesMessage {
-    color: red;
-}
+
 
 #buyCol {
 	height: 100%;
@@ -600,7 +597,15 @@ body {
 	text-align: center;
 }
 
-
+.NoticesMessage {
+    color: red;
+}
+.StoryMessage {
+	color: #00FFFF;
+}
+#saveGame{
+	color: #7CFC00;
+}
 .noRecycle{
 	background-color: red;
 }

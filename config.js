@@ -492,7 +492,7 @@ var toReturn = {
 			health: 2,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("gems", .05, level, true);
+				var amt = rewardResource("gems", .05, level, false);
 				message("<span class='glyphicon glyphicon-certificate'></span>That Dragimp dropped " + prettify(amt) + " gems!", "Loot");
 			}
 		},
@@ -1017,7 +1017,7 @@ var toReturn = {
 			}
 		},
 		Speedminer: {
-			message: "You found a book called Speedminer! Hopefully the name will be more creative at some point.",
+			message: "You found a book called Speedminer!",
 			world: -1,
 			level: 59,
 			icon: "book",
