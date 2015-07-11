@@ -113,7 +113,7 @@ function load(saveString, autoLoad) {
 	resetGame();
 	
     if (game.global.killSavesBelow > savegame.global.version) {
-        message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This game is still in early alpha, and a lot is still changing! Thank you for helping test!", "Notices");
+        message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This should be the last reset!", "Notices");
         return;
     } else savegame.global.version = game.global.version;
     if (typeof savegame.global !== 'undefined') {
