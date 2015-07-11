@@ -992,7 +992,7 @@ var toReturn = {
 			icon: "book",
 			title: "Explorer",
 			fire: function () {
-				if (game.upgrades.Explorer.allowed === 0) unlockUpgrade("Explorers");
+				if (game.upgrades.Explorers.allowed === 0) unlockUpgrade("Explorers");
 			}
 		},
 		//49 is for weapon
