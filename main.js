@@ -51,6 +51,9 @@ function save(exportThis) {
     saveGame.badGuys = null;
     saveGame.mapConfig = null;
 	saveGame.global.prestige = null;
+	saveGame.worldText = null;
+	saveGame.trimpDeathTexts = null;
+	saveGame.badGuyDeathTexts = null;
     for (var item in saveGame.equipment) {
         saveGame.equipment[item].tooltip = null;
 		saveGame.equipment[item].blocktip = null;
