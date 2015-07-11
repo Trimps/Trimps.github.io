@@ -274,8 +274,8 @@ var toReturn = {
 			health: 4,
 			healthCalculated: 4,
 			blockNow: false,
-			block: 20,
-			blockCalculated: 20,
+			block: 2,
+			blockCalculated: 2,
 			prestige: 1
 		},
 		Dagger: {
@@ -470,7 +470,7 @@ var toReturn = {
 				var amt = rewardResource("food", 2, level);
 				rewardResource("wood", 2, level);
 				rewardResource("metal", 2, level);
-				message("<span class='glyphicon glyphicon-piggy-bank'></span>That Blimp dropped " + prettify(amt) + "Food, Wood and Metal! That should be useful.", "Loot");
+				message("<span class='glyphicon glyphicon-piggy-bank'></span>That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot");
 				if (game.portalActive){
 					amt = rewardResource("helium", 1, level);
 					message("<span class='glyphicon glyphicon-oil'></span>You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
@@ -1320,9 +1320,9 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 120,
-			tooltip: "Pay a tribute of food to your Dragimp, increasing his appetite and his speed. He will gather gems 5% faster.",
+			tooltip: "Pay a tribute of food to your Dragimp, increasing his appetite and his speed. He will gather gems 5% faster (compounding).",
 			cost: {
-				food: [10000, 1.1]
+				food: [10000, 1.05]
 			},
 			increase: {
 				what: "Dragimp.modifier.mult",
