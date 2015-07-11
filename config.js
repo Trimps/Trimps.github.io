@@ -71,6 +71,7 @@ var toReturn = {
 		mapsUnlocked: false,
 		lastOnline: 0,
 		buyTab: "all",
+		nextQueueId: 0,
 		menu: {
 			buildings: true,
 			jobs: false,

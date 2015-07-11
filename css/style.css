@@ -202,7 +202,7 @@ body {
     padding: 2px;
 }
 
-#buildingsQueue >:nth-child(2) {
+#queueItemsHere >:nth-child(1) {
     border: 2px solid yellow;
     margin-left: 5px;
 }

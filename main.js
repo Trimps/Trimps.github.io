@@ -565,54 +565,34 @@ function buyBuilding(what) {
     var canAfford = canAffordBuilding(what);
 	if (canAfford){
 		canAffordBuilding(what, true);
-		for (var x = 0; x < game.global.buyAmt; x++){
-			game.buildings[what].purchased++;
-			startQueue(what);
-			if (game.buildings[what].percent) break;
-		}
-		tooltip(what, "buildings", "update");	
+		var purchaseAmt = (game.buildings[what].percent) ? 1 : game.global.buyAmt; 
+		game.buildings[what].purchased += purchaseAmt;
+		startQueue(what, purchaseAmt);
 	}
+	tooltip(what, "buildings", "update");	
 }
 
-function cancelQueueItem(what) {
-    var queue = game.global.buildingsQueue;
-    var index = queue.indexOf(what);
-    removeQueueItem(what);
-    what = what.split('.')[0];
-    game.buildings[what].purchased--;
-    refundQueueItem(what);
-    queue.splice(index, 1);
-    if (index === 0) {
-        game.global.crafting = "";
-        game.global.timeLeftOnCraft = 0;
-        document.getElementById("buildingsBar").style.width = "0%";
-    }
-}
+
 
 function refundQueueItem(what) {
-    var struct = game.buildings[what];
+	var name = what.split('.');
+    var struct = game.buildings[name[0]];
     for (var costItem in struct.cost) {
 		var thisCostItem = struct.cost[costItem];
 		var refund = 0;
-		if (typeof thisCostItem[1] !== 'undefined') refund = resolvePow(thisCostItem, struct);
-		else if (typeof struct.cost[costItem] === 'function') refund = struct.cost[costItem]();
-		else refund = thisCostItem;
+		for (var x = 0; x < name[1]; x++){
+			struct.purchased--;
+			if (typeof thisCostItem[1] !== 'undefined') refund += resolvePow(thisCostItem, struct);
+			else if (typeof struct.cost[costItem] === 'function') refund += struct.cost[costItem]();
+			else refund += thisCostItem;
+			
+		}
         game.resources[costItem].owned += refund;
 		if (game.resources[costItem].max > 0 && game.resources[costItem].owned > game.resources[costItem].max) game.resources[costItem].owned = game.resources[costItem].max;
     }
 }
 
-function startQueue(what) {
-    var alreadyIn = false;
-    var count = 0;
-    for (var queueItem in game.global.buildingsQueue) {
-        if (game.global.buildingsQueue[queueItem].split('.')[0] == what) {
-            count++;
-            alreadyIn = true;
-            break;
-        }
-    }
-    if (!alreadyIn) count = 0;
+function startQueue(what, count) {
     game.global.buildingsQueue.push(what + "." + (count));
     addQueueItem(what + "." + count);
 }
@@ -639,16 +619,15 @@ function craftBuildings(makeUp) {
         buildingsBar.style.width = "0%";
     }
     buildBuilding(game.global.crafting);
-    removeQueueItem(game.global.buildingsQueue[0]);
-    game.global.buildingsQueue.splice(0, 1);
-    if (game.global.buildingsQueue.length <= 0) {
-        game.global.crafting = "";
-        document.getElementById("noQueue").style.display = "block";
-        return;
-    }
-    var nextCraft = game.global.buildingsQueue[0].split('.')[0];
-    game.global.crafting = nextCraft;
-    game.global.timeLeftOnCraft = game.buildings[nextCraft].craftTime;
+    removeQueueItem("first");
+	if (game.global.buildingsQueue.length === 0){
+		checkEndOfQueue()
+	}
+	else{
+		var nextCraft = game.global.buildingsQueue[0].split('.')[0];
+		game.global.crafting = nextCraft;
+		game.global.timeLeftOnCraft = game.buildings[nextCraft].craftTime;
+	}
 }
 
 function buildBuilding(what) {

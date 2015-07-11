@@ -318,7 +318,7 @@ function resetGame(keepPortal) {
 	document.getElementById("buildingsHere").innerHTML = "";
 	document.getElementById("grid").innerHTML = "";
 	document.getElementById("equipmentHere").innerHTML = "";
-	document.getElementById("buildingsQueue").innerHTML = "<span id='noQueue'>Nothing in queue...</span>";
+	document.getElementById("queueItemsHere").innerHTML = "";
 	document.getElementById("log").innerHTML = "";
 	document.getElementById("worldNumber").innerHTML = "1";
 	document.getElementById("mapsHere").innerHTML = "";
@@ -495,18 +495,61 @@ function updateSideSize() { //resizes main menu items
 
 //
 //Buildings Specific
-function removeQueueItem(what) { 
-	var elem = document.getElementById("buildingsQueue");
-	elem.removeChild(document.getElementById(what  + "QueueItem"));
-	if (game.global.buildingsQueue.length === 0) document.getElementById("noQueue").style.display = "block";
+function removeQueueItem(what) {
+	var queue = document.getElementById("queueItemsHere");
+	if (what == "first"){
+		var elem = queue.firstChild;
+		var name = game.global.buildingsQueue[0].split('.');
+		if (name[1] > 1){
+			name[1] = (parseInt(name[1]) - 1);
+			var newQueue = name[0] + "." + name[1];
+			name = name[0] + " X" + name[1];
+			game.global.buildingsQueue[0] = newQueue;
+			elem.innerHTML = '<span class="queueItemName">' + name + '</span>';
+		}
+		else{
+			queue.removeChild(elem);
+			game.global.buildingsQueue.splice(0, 1);
+		}
+		checkEndOfQueue();
+		return;
+	}
+	var index = getQueueElemIndex(what, queue);
+	var elem = document.getElementById(what);
+	queue.removeChild(elem);
+	refundQueueItem(game.global.buildingsQueue[index]);
+	game.global.buildingsQueue.splice(index, 1);
+	if (index === 0) {
+		game.global.crafting = "";
+		game.global.timeLeftOnCraft = 0;
+		document.getElementById("buildingsBar").style.width = "0%";
+	}
+	checkEndOfQueue();
+}
 
+function getQueueElemIndex(id, queue){
+	var childs = queue.getElementsByTagName('*');
+	for (var i = 0, len = childs.length; i < len; i++){
+	  if (childs[i].id == id) return (i / 2);
+	}
+}
+
+function checkEndOfQueue(){
+	if (game.global.buildingsQueue.length === 0){
+		document.getElementById("noQueue").style.display = "block";
+		game.global.nextQueueId = 0;
+		game.global.crafting = "";
+	}
 }
 
 function addQueueItem(what) {
-	var elem = document.getElementById("buildingsQueue");
+	var elem = document.getElementById("queueItemsHere");
 	document.getElementById("noQueue").style.display = "none";
-	name = what.split('.')[0];
-	elem.innerHTML += '<div class="queueItem" id="' + what + 'QueueItem" onmouseover="tooltip(\'Queue\',null,event)" onmouseout="tooltip(\'hide\')" onClick="cancelQueueItem(\'' + what + '\')"><span class="queueItemName">' + name + '</span></div>';
+	var name = what.split('.');
+	if (name[1] > 1) name = name[0] + " X" + prettify(name[1]);
+	else name = name[0];
+	elem.innerHTML += '<div class="queueItem" id="queueItem' + game.global.nextQueueId + '" onmouseover="tooltip(\'Queue\',null,event)" onmouseout="tooltip(\'hide\')" onClick="removeQueueItem(\'queueItem' + game.global.nextQueueId + '\')"><span class="queueItemName">' + name + '</span></div>';
+	game.global.nextQueueId++;
 }
 
 //
