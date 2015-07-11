@@ -1099,7 +1099,7 @@ function recycleMap() {
     if (game.global.lookingAtMap === "") return;
     var map = getMapIndex(game.global.lookingAtMap);
     if (map === null) return;
-	var mapObj = getCurrentMapObject();
+	var mapObj = game.global.mapGridArray[map];
 	if (mapObj.noRecycle && mapObj.id == game.global.mapsOwnedArray[map].id) {
 		game.global.currentMapId = "";
 		game.global.lastClearedMapCell = -1;
