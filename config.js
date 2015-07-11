@@ -1078,7 +1078,7 @@ var toReturn = {
 		},
 		Egg: {
 			message: "This egg looks crazy. Seriously, guys, come look at this crazy egg!",
-			world: 11,
+			world: 17,
 			level: 55,
 			icon: "record",
 			title: "Egg",
@@ -1106,6 +1106,7 @@ var toReturn = {
 			icon: "th",
 			fire: function() {
 				game.resources.fragments.owned++;
+				message("<span class='glyphicon glyphicon-th></span>You found a Map Fragment! Good for you.", "Loot");
 			}
 		},
 		//portal Trumps
