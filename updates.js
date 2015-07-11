@@ -307,9 +307,6 @@ function resetGame(keepPortal) {
 	document.getElementById("badGuyCol").style.visibility = "hidden";
 	document.getElementById("jobsHere").innerHTML = "";
 	document.getElementById("foremenCount").innerHTML = "";
-	document.getElementById("JobsFilter").style.visibility = "hidden";
-	document.getElementById("UpgradesFilter").style.visibility = "hidden";
-	document.getElementById("EquipmentFilter").style.visibility = "hidden";
 	document.getElementById("upgradesHere").innerHTML = "";
 	document.getElementById("mapsBtn").style.visibility = "hidden";
 	document.getElementById("grid").style.display = "block";
@@ -391,18 +388,24 @@ function filterMessage(what, updateOnly){ //send true for updateOnly
 }
 //
 //Menu Stuff
-function filterTabs (what, updateOnly) {
-	var displayed = game.global.buyTabs[what];
-	if (!updateOnly){
-		displayed = (displayed) ? false : true;
-		game.global.buyTabs[what] = displayed;
+function filterTabs (what) {
+	enableDisableTab(game.global.buyTab, false);
+	game.global.buyTab = what;
+	enableDisableTab(what, true);
+	var tabs = ["buildings", "jobs", "upgrades", "equipment"];
+	for (var tab in tabs){
+		tab = tabs[tab];
+		document.getElementById(tab + "Container").style.display = (what == "all" || tab == what) ? "block" : "none";
 	}
-	var btnText = (displayed) ? what : what + " off";
-	var btnElem = document.getElementById(what + "Filter");
-	document.getElementById(what + "Text").innerHTML = btnText;
-	btnElem.className = "";
-	btnElem.className = getTabClass(displayed);
-	document.getElementById(what + "Container").style.display = (displayed) ? "block" : "none";
+}
+
+function enableDisableTab(what, enable){
+	document.getElementById(what + "Tab").style.background = (enable) ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.25)";
+	document.getElementById(what + "A").style.borderBottom = (enable) ? "0" : "1px solid #ddd;";
+	
+	
+
+
 }
 
 

@@ -70,6 +70,7 @@ var toReturn = {
 		portalActive: false,
 		mapsUnlocked: false,
 		lastOnline: 0,
+		buyTab: "all",
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -81,12 +82,6 @@ var toReturn = {
 			Unlocks: true,
 			Combat: true,
 			Notices: true
-		},
-		buyTabs: {
-			Buildings: true,
-			Jobs: true,
-			Upgrades: true,
-			Equipment: true,
 		},
 		prestige: {
 			attack: 10,
@@ -1417,7 +1412,7 @@ var toReturn = {
 			},
 			fire: function () {
 				fadeIn("equipmentTitleDiv", 10);
-				fadeIn("EquipmentFilter", 10);
+				fadeIn("equipmentTab", 10);
 				fadeIn("battleContainer", 10);
 				buildGrid();
 				drawGrid();
@@ -2024,7 +2019,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				fadeIn("JobsFilter", 10);
+				fadeIn("jobsTab", 10);
 				document.getElementById("trimpTitle").innerHTML = "Trimps";
 				document.getElementById("empHide").style.visibility = "visible";
 				unlockJob("Farmer");
@@ -2053,7 +2048,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				fadeIn("UpgradesFilter", 10);
+				fadeIn("upgradesTab", 10);
 				fadeIn("science", 10);
 				document.getElementById("upgradesTitleDiv").style.display = "block";
 				game.global.menu.upgrades = true;

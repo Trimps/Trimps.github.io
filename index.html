@@ -220,21 +220,15 @@
                 </div>
 				<div id="outerBuyContainer">	
 					<div id="buyTabs">
-						<div class="btn-group btn-group-justified" id="tabBtnGroup" role="group">
-							<div class="btn-group" role="group">
-								<button id="BuildingsFilter" onclick="filterTabs('Buildings')" type="button" class="btn btn-success logFlt"><span id="buildingsAlert" class="alert badge"></span><span id="BuildingsText">Buildings</span></button>
-							</div>
-							<div class="btn-group" role="group">
-								<button id="JobsFilter" onclick="filterTabs('Jobs')" type="button" class="btn btn-success logFlt"><span id="jobsAlert" class="alert badge"></span><span id="JobsText">Jobs</span></button>
-							</div>
-							<div class="btn-group" role="group">
-								<button id="UpgradesFilter" onclick="filterTabs('Upgrades')" type="button" class="btn btn-success logFlt"><span id="upgradesAlert" class="alert badge"></span><span id="UpgradesText">Upgrades</span></button>
-							</div>
-							<div class="btn-group" role="group">
-								<button id="EquipmentFilter" type="button" onclick="filterTabs('Equipment')" class="btn btn-success logFlt"><span id="equipmentAlert" class="alert badge"></span><span id="EquipmentText">Equipment</span></button>
-							</div>
-						</div>
-					</div>
+				<ul id="buyTabsUl" class="nav nav-tabs nav-justified">
+					<li role="presentation" id="allTab" onclick="filterTabs('all')" class="buyTab"><a id="allA" href="#">All</a></li>
+					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="buyTab"><a id="buildingsA"href="#"><span id="buildingsAlert" class="alert badge"></span>Structures</a></li>
+					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="buyTab"><a id="jobsA" href="#"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
+					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="buyTab"><a id="upgradesA" href="#"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
+					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="buyTab"><a id="equipmentA" href="#"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>				
+				</ul>
+				</div>
+
 					<div id="numTabs">
 						<ul class="nav nav-tabs nav-justified">
 							<li role="presentation" id="tab1" onclick="numTab(1)">
@@ -259,7 +253,7 @@
 
 						<div id="buyHere" class="niceScroll">
 
-							<div id="BuildingsContainer">
+							<div id="buildingsContainer">
 								<div id="buildingsTitleDiv" class="titleDiv">
 									<div class="row">
 										<div class="col-xs-4">
@@ -270,7 +264,7 @@
 								<div class="buyBox" id="buildingsHere">
 								</div>
 							</div>
-							<div id="JobsContainer">
+							<div id="jobsContainer">
 								<div id="jobsTitleDiv" class="titleDiv" style="display: none">
 									<div class="row">
 										<div class="col-xs-4">
@@ -289,7 +283,7 @@
 								<div class="buyBox" id="jobsHere">
 								</div>
 							</div>
-							<div id="UpgradesContainer">
+							<div id="upgradesContainer">
 								<div id="upgradesTitleDiv" style="display: none" class="titleDiv">
 									<div class="row">
 										<div class="col-xs-4">
@@ -300,7 +294,7 @@
 								<div class="buyBox" id="upgradesHere">
 								</div>
 							</div>
-							<div id="EquipmentContainer">
+							<div id="equipmentContainer">
 								<div id="equipmentTitleDiv" style="display: none" class="titleDiv">
 									<div class="row">
 										<div class="col-xs-4">

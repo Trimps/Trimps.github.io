@@ -295,7 +295,7 @@ body {
 	width: 24.2%;
 	margin-left: 0.25%;
 	margin-right: 0.25%;
-    padding: 10px;
+    padding: .2vh;
     text-align: center;
     background-color: #5B6073;
     color: white;
@@ -347,6 +347,11 @@ body {
 }
 #numTabs > ul > li > a {
     padding: 3px;
+}
+
+#buyTabsUl > li > a {
+	border: 1px solid #ddd;
+	border-radius: 8px 8px 0 0;
 }
 
 #mapsHere {

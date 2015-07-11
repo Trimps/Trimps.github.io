@@ -172,7 +172,7 @@ function load(saveString, autoLoad) {
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
-		fadeIn("EquipmentFilter", 10);
+		fadeIn("equipmentTab", 10);
 		fadeIn("equipmentTitleDiv", 10);
         drawGrid();
         document.getElementById('metal').style.visibility = "visible";
@@ -200,11 +200,7 @@ function load(saveString, autoLoad) {
 			filterMessage(messageBool, true);
 		}
 	}
-	for (var tabBool in game.global.buyTabs){
-		if (!game.global.buyTabs[tabBool]){
-			filterTabs(tabBool, true);
-		}
-	}
+	filterTabs(game.global.buyTab);
 	if (game.global.mapsUnlocked) unlockMapStuff();
 	repeatClicked(true);
 	game.global.lockTooltip = false;
@@ -1071,8 +1067,8 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			row.appendChild(cell);
 			cell.style.width = (100 / cols) + "%";
 			cell.style.paddingTop = ((100 / cols) / 19)+ "vh";
-			cell.style.paddingBottom = ((100 / cols) / 119) + "vh";
-			cell.style.fontSize = ((100 / cols) / 5.5) + "vh";
+			cell.style.paddingBottom = ((100 / cols) / 19) + "vh";
+			cell.style.fontSize = ((cols / 14) + 1) + "vh";
             cell.className = "battleCell";
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
 			if (cell.innerHTML == "") cell.innerHTML = "&nbsp;";
