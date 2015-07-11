@@ -200,7 +200,8 @@ function load(saveString, autoLoad) {
 			filterMessage(messageBool, true);
 		}
 	}
-	filterTabs(game.global.buyTab);
+	game.global.buyTab = "all";
+	filterTabs("all");
 	if (game.global.mapsUnlocked) unlockMapStuff();
 	repeatClicked(true);
 	game.global.lockTooltip = false;
@@ -292,7 +293,8 @@ function getPortalUpgradePrice(what){
 	return Math.ceil((toCheck.level / 2) + toCheck.priceBase * Math.pow(1.05, toCheck.level));
 }
 
-function prestigeGame(){
+function activatePortal(){
+	cancelPortal();
 	resetGame(true);
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 }
@@ -355,7 +357,6 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
     var map;
     if (checkMapLootScale) {
         map = getCurrentMapObject();
-		console.log(level);
         level = scaleLootLevel(level, map.level);
     } else {
         level = scaleLootLevel(level);
@@ -365,7 +366,8 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
     if (what == "gems") level = level - 400;
 	level *= 1.35;
 	if (level < 0) level = 0;
-    var amt = Math.round(baseAmt * level);
+    var amt = Math.round(baseAmt * Math.pow(1.004, level));
+	amt += Math.round(baseAmt * level);
     //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
     //var otherAmt = Math.round(baseAmt * level);
     //if (otherAmt > amt) amt = otherAmt;
@@ -395,16 +397,18 @@ function fireMode(noChange) {
 
 }
 
-function setGather(what) {
+function setGather(what, updateOnly) {
     var toGather = game.resources[what];
     var colorOn = "rgba(255,255,255,0.25)";
     var colorOff = "rgba(0,0,0,1)";
     if (typeof toGather === 'undefined' && what != "buildings") return;
-    if (game.global.playerGathering !== "") {
-        document.getElementById(game.global.playerGathering + "CollectBtn").innerHTML = setGatherTextAs(game.global.playerGathering, false);
-        document.getElementById(game.global.playerGathering + "CollectBtn").style.background = colorOff;
+	var toUpdate = (updateOnly) ? what : game.global.playerGathering;
+    if (toUpdate !== "") {
+        document.getElementById(toUpdate + "CollectBtn").innerHTML = setGatherTextAs(toUpdate, false);
+        document.getElementById(toUpdate + "CollectBtn").style.background = colorOff;
     }
-    game.global.playerGathering = what;
+    if (updateOnly) return;
+	game.global.playerGathering = what;
     document.getElementById(what + "CollectBtn").innerHTML = setGatherTextAs(what, true);
     document.getElementById(what + "CollectBtn").style.background = colorOn;
 }
@@ -1088,7 +1092,7 @@ function pauseFight(updateOnly) {
 	var elem = document.getElementById("pauseFight");
 	elem.className = "";
 	elem.className = "btn fightBtn " + color;
-	elem.innerHTML = (!game.global.pauseFight) ? "AutoFighting" : "No AutoFight";
+	elem.innerHTML = (!game.global.pauseFight) ? "AutoFight On" : "AutoFight Off";
 }
 
 function recycleMap() {
@@ -1207,7 +1211,7 @@ function repeatClicked(updateOnly){
 	var elem = document.getElementById("repeatBtn");
 	elem.className = "";
 	elem.className = "btn fightBtn " + color;
-	elem.innerHTML = (game.global.repeatMap) ? "Repeating" : "No Repeat";
+	elem.innerHTML = (game.global.repeatMap) ? "Repeat On" : "Repeat Off";
 }
 
 function selectMap(mapId, force) {

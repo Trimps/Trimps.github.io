@@ -324,12 +324,23 @@ function resetGame(keepPortal) {
 	document.getElementById("mapsHere").innerHTML = "";
 	document.getElementById("sciencePs").innerHTML = "+0/sec";
 	document.getElementById("repeatBtn").style.visibility = "hidden";
+	document.getElementById("helium").style.visibility = "hidden";
+	document.getElementById("jobsTitleDiv").style.display = "none";
+	document.getElementById("upgradesTitleDiv").style.display = "none";
+	document.getElementById("equipmentTitleDiv").style.display = "none";
+	filterTabs("all");
+	var gatherBtns = ["buildings", "food", "wood", "metal", "science", "trimps"];
+	for (var gatherBtn in gatherBtns){
+		setGather(gatherBtns[gatherBtn], true);
+	}
+	var messages = game.global.messages;
 	var autoSave = game.global.autoSave;
 	var portal;
 	if (keepPortal) portal = game.portal;
 	game = null;
 	game = newGame();
 	game.global.autoSave = autoSave;
+	game.global.messages = messages;
 	if (keepPortal) game.portal = portal;
 	
 	numTab(1);

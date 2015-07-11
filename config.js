@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 0.9,
+		version: 0.91,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -556,16 +556,16 @@ var toReturn = {
 	mapUnlocks: {
 	 	Portal: {
 			world: 21,
-			message: "Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'",
 			level: "last",
 			icon: "repeat",
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
+				message("Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'", "Story");
 				game.global.portalActive = true;
 				fadeIn("helium", 10);
 				game.resources.helium.owned += 20;
-				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract 20 Helium canisters from that Blimp!", "Loot"); 
+				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract 20 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
 				fadeIn("portalBtn", 10);
 			}
 		},
@@ -1048,12 +1048,12 @@ var toReturn = {
 			}
 		}, */
 		Anger: {
-			message: "You look down and see a green gem that seems to stare back. You pick it up and feel adrenaline surge through your body. This is where you are supposed to be. Probably best to bring this back to the lab for some research.",
 			world: 20,
 			level: 99,
 			icon: "eye-open",
 			title: "The End Of The Road",
 			fire: function () {
+				message(	"You look down and see a green gem that seems to stare back. You pick it up and feel adrenaline surge through your body. Probably best to bring this back to the lab for some research.", "Story");
 				unlockUpgrade("Anger");
 			}
 		},
@@ -1683,7 +1683,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: 700000,
+					science: 100000,
 					fragments: 15
 				}
 			},
