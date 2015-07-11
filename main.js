@@ -59,6 +59,9 @@ function save(exportThis) {
     for (var itemA in saveGame.buildings) {
         saveGame.buildings[itemA].tooltip = null;
         saveGame.buildings[itemA].cost = null;
+		saveGame.buildings.Barn.increase = null;
+		saveGame.buildings.Forge.increase = null;
+		saveGame.buildings.Shed.increase = null;
     }
     for (var itemB in saveGame.upgrades) {
         saveGame.upgrades[itemB].tooltip = null;
@@ -218,6 +221,7 @@ function load(saveString, autoLoad) {
     if (game.global.fighting) startFight();
     toggleSave(true);
 	checkOfflineProgress();
+	updateLabels();
 }
 
 function portalClicked() {
@@ -236,7 +240,32 @@ function portalClicked() {
 }
 
 function checkOfflineProgress(){
-	
+	if (!game.global.lastOnline) return;
+	var rightNow = new Date().getTime();
+	var dif = rightNow - game.global.lastOnline;
+	dif = Math.floor(dif / 1000);
+	if (dif < 60) return;
+	var textString = "While you were away, your Trimps were able to produce ";
+	var compatible = ["Farmer", "Lumberjack", "Miner"];
+	for (var x = 0; x < compatible.length; x++){
+		var job = game.jobs[compatible[x]];
+		var resName = job.increase;
+		var resource = game.resources[resName];
+		var amt = job.owned * job.modifier;
+		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		var perSec = amt;
+		amt *= dif;
+/* 		console.log("right now: " + rightNow + ", lastOnline: " + game.global.lastOnline + ", dif: " + dif + ", perSec: " + perSec); 
+		console.log(job); */
+		var allowed = (resource.max - resource.owned);
+		if (amt > allowed) amt = allowed;
+		resource.owned += amt;
+		textString += prettify(amt) + " " + resName + ", ";
+		if (x == (compatible.length - 2)) textString += "and ";
+	}
+	textString = textString.slice(0, -2);
+	textString += ".";
+	tooltip("Trustworthy Trimps", null, "update", textString);
 }
 
 function activateClicked(){
@@ -650,7 +679,7 @@ function calculatePercentageBuildingCost(what, resourceToCheck, costModifier){
 	var struct = game.buildings[what];
 	var res = game.resources[resourceToCheck];
 	var dif = struct.purchased - struct.owned;
-	return Math.floor(costModifier * res.max * Math.pow(1.5, dif));
+	return Math.floor(costModifier * res.max * Math.pow(struct.increase.by, dif));
 }
 
 function trapThings() {
@@ -1523,6 +1552,9 @@ function fadeIn(elem, speed) {
 
 }
 
+load();
+
+
 setTimeout(autoSave, 60000);
 
 function gameLoop(makeUp) {
@@ -1544,9 +1576,11 @@ function costUpdatesTimeout() {
 costUpdatesTimeout();
 
 function gameTimeout() {
+	var now = new Date().getTime();
+	game.global.lastOnline = now;
     var tick = 1000 / game.settings.speed;
     game.global.time += tick;
-    var dif = (new Date().getTime() - game.global.start) - game.global.time;
+    var dif = (now - game.global.start) - game.global.time;
     while (dif >= tick) {
         gameLoop(true);
         dif -= tick;
@@ -1555,11 +1589,11 @@ function gameTimeout() {
     gameLoop();
     updateLabels();
     setTimeout(gameTimeout, (tick - dif));
-	game.global.lastOnline = new Date().getTime();
+	
 }
 
 setTimeout(gameTimeout(), (1000 / game.settings.speed));
 
 
-load();
+
 document.getElementById("versionNumber").innerHTML = game.global.version;

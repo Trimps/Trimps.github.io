@@ -18,7 +18,7 @@
 		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 
-function tooltip(what, isItIn, event) {
+function tooltip(what, isItIn, event, textString) {
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
 	if (what == "hide"){
@@ -78,6 +78,13 @@ function tooltip(what, isItIn, event) {
 			costText += cost + ": " + prettify(price) + ", ";
 		}
 		costText = costText.slice(0, -2);
+	}
+	if (what == "Trustworthy Trimps"){
+		tooltipText = textString;
+		game.global.lockTooltip = true;
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Sweet, thanks.</div></div>";
+		elem.style.left = "32.5%";
+		elem.style.top = "25%";
 	}
 	if (what == "Portal"){
 		tooltipText = "The portal device you found shines green in the lab. Such a familiar shade...";
@@ -692,6 +699,7 @@ function checkButtons(what) {
 function updateButtonColor(what, canAfford, isJob) {
 	var color = (canAfford) ? "black" : "grey";
 	if (isJob && game.global.firing === true) color = (game.jobs[what].owned >= 1) ? "red" : "grey";
+	if (document.getElementById(what) === null) console.log(what);
 	document.getElementById(what).style.backgroundColor = color;
 }
 

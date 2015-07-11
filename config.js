@@ -19,8 +19,8 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 0.14,
-		killSavesBelow: 0.05,
+		version: 0.9,
+		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
 		buildingsQueue: [],
@@ -497,7 +497,7 @@ var toReturn = {
 			health: 2,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("gems", .15, level, true);
+				var amt = rewardResource("gems", .05, level, true);
 				message("<span class='glyphicon glyphicon-certificate'></span>That Dragimp dropped " + prettify(amt) + " gems!", "Loot");
 			}
 		},
@@ -775,7 +775,7 @@ var toReturn = {
 			icon: "certificate",
 			repeat: 6,
 			fire: function (level) {
-				var amt = rewardResource("gems", .25, level, true);
+				var amt = rewardResource("gems", .1, level, true);
 				message("<span class='glyphicon glyphicon-certificate'></span>You found " + prettify(amt) + " gems! Terrific!", "Loot");
 			}
 		},
@@ -786,7 +786,7 @@ var toReturn = {
 			repeat: 6,
 			filter: true,
 			fire: function (level) {
-				var amt = rewardResource("metal", 1, level, true);
+				var amt = rewardResource("metal", .5, level, true);
 				message("<span class='glyphicon glyphicon-fire'></span>You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot");
 			},
 		},
@@ -797,7 +797,7 @@ var toReturn = {
 			repeat: 9,
 			filter: true,
 			fire: function (level) {
-				var amt = rewardResource("food", 1, level, true);
+				var amt = rewardResource("food", .5, level, true);
 				message("<span class='glyphicon glyphicon-apple'></span>That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot");
 			}
 		},
@@ -808,7 +808,7 @@ var toReturn = {
 			repeat: 8,
 			filter: true,
 			fire: function (level) {
-				var amt = rewardResource("wood", 1, level, true);
+				var amt = rewardResource("wood", .5, level, true);
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
 			}
 		},
@@ -1192,7 +1192,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 10,
-			tooltip: "Increases your maximum food by 50%",
+			tooltip: "Increases your maximum food by 100%",
 			percent: true,
 			cost: {
 				food: function () {
@@ -1201,7 +1201,7 @@ var toReturn = {
 			},
 			increase: {
 				what: "food.max.mult",
-				by: 1.5
+				by: 2
 			}
 		},
 		Shed: {
@@ -1210,7 +1210,7 @@ var toReturn = {
 			purchased: 0,
 			craftTime: 10,
 			percent: true,
-			tooltip: "Increases your maximum wood by 50%",
+			tooltip: "Increases your maximum wood by 100%",
 			cost: {
 				wood: function () {
 					return calculatePercentageBuildingCost("Shed", "wood", .25);
@@ -1218,7 +1218,7 @@ var toReturn = {
 			},
 			increase: {
 				what: "wood.max.mult",
-				by: 1.5
+				by: 2
 			}
 		},
 		Forge: {
@@ -1227,7 +1227,7 @@ var toReturn = {
 			purchased: 0,
 			craftTime: 10,
 			percent: true,
-			tooltip: "Increases your maximum metal by 50%",
+			tooltip: "Increases your maximum metal by 100%",
 			cost: {
 				metal: function () {
 					return calculatePercentageBuildingCost("Forge", "metal", .25);
@@ -1235,7 +1235,7 @@ var toReturn = {
 			},
 			increase: {
 				what: "metal.max.mult",
-				by: 1.5
+				by: 2
 			}
 		},
 		Gym: {
@@ -1276,8 +1276,9 @@ var toReturn = {
 			tooltip: "A pretty sick mansion for your Trimps to live in. Each Mansion supports $incby$ more Trimps.",
 			cost: {
 				gems: [100, 1.2],
-				wood: [4500, 1.2],
-				metal: [1000, 1.2],
+				wood: [2000, 1.2],
+				metal: [500, 1.2],
+				food: [3000, 1.2],
 			},
 			increase: {
 				what: "trimps.max",
@@ -1447,10 +1448,10 @@ var toReturn = {
 			allowed: 0,
 			cost: {
 				resources: {
-					science: [250, 1.17],
-					food: [600, 1.17],
-					wood: [600, 1.17],
-					metal: [300, 1.17]
+					science: [250, 1.3],
+					food: [600, 1.3],
+					wood: [600, 1.3],
+					metal: [300, 1.3]
 				}
 			},
 			fire: function () {
@@ -1560,8 +1561,8 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.17],
-					wood: [500, 1.17]
+					science: [200, 1.4],
+					wood: [500, 1.4]
 				}
 			},
 			fire: function () {
@@ -1575,8 +1576,8 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.17],
-					food: [500, 1.17]
+					science: [200, 1.4],
+					food: [500, 1.4]
 				}
 			},
 			fire: function () {
@@ -1590,8 +1591,8 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.17],
-					metal: [500, 1.17]
+					science: [200, 1.4],
+					metal: [500, 1.4]
 				}
 			},
 			fire: function () {
@@ -1605,7 +1606,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [400, 1.17]
+					science: [400, 1.4]
 				}
 			},
 			fire: function () {
@@ -1619,7 +1620,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [400, 1.2],
+					science: [400, 1.25],
 					food: [400, 1.2],
 					wood: [400, 1.2],
 					metal: [400, 1.2]
@@ -1651,7 +1652,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [3000, 1.1],
+					science: [3000, 1.15],
 					food: [200000, 1.1],
 					metal: [100000, 1.1]
 				}
@@ -1668,7 +1669,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [30000, 1.1],
+					science: [30000, 1.15],
 					food: [2000000, 1.1],
 					metal: [1000000, 1.1]
 				}
