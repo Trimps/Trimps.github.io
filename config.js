@@ -487,7 +487,7 @@ var toReturn = {
 		},
 		Dragimp: {
 			location: "World",
-			world: 11,
+			world: 17,
 			attack: 1,
 			health: 2,
 			fast: false,
