@@ -114,8 +114,6 @@ function load(saveString, autoLoad) {
 	
     if (game.global.killSavesBelow > savegame.global.version) {
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This game is still in early alpha, and a lot is still changing! Thank you for helping test!", "Notices");
-        message("Since you already had a save, and since the game is still alpha, I unlocked a little cheat button for you. It will make you twice as efficient, allowing you to get through the beginning a little faster.", "Notices");
-        document.getElementById("cheatTd").style.display = "block";
         return;
     } else savegame.global.version = game.global.version;
     if (typeof savegame.global !== 'undefined') {
