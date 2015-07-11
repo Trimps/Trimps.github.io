@@ -799,7 +799,10 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	if (!fromLoad && !noInc) equipment.prestige++;
 	var resource = (what == "Shield") ? "wood" : "metal";
 	var cost = equipment.cost[resource];
-    cost[0] = Math.round(cost[0] * Math.pow(1.075, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
+    cost[0] = Math.round(equipment.oc * Math.pow(1.075, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
+	cost.lastCheckAmount = null;
+	cost.lastCheckCount = null;
+	cost.lastCheckOwned = null;
 	var stat;
 	if (equipment.blockNow) stat = "block";
 	else stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";

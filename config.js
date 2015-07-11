@@ -272,6 +272,7 @@ var toReturn = {
 			cost: {
 				wood: [40, 1.2]
 			},
+			oc: 40,
 			health: 4,
 			healthCalculated: 4,
 			blockNow: false,
@@ -287,6 +288,7 @@ var toReturn = {
 			cost: {
 				metal: [40, 1.2]
 			},
+			oc: 40,
 			attack: 2,
 			attackCalculated: 2,
 			prestige: 1
@@ -299,6 +301,7 @@ var toReturn = {
 			cost: {
 				metal: [55, 1.2]
 			},
+			oc: 55,
 			health: 6,
 			healthCalculated: 6,
 			prestige: 1
@@ -312,6 +315,7 @@ var toReturn = {
 			cost: {
 				metal: [80, 1.2]
 			},
+			oc: 80,
 			attack: 3,
 			attackCalculated: 3,
 			prestige: 1
@@ -324,6 +328,7 @@ var toReturn = {
 			cost: {
 				metal: [100, 1.2]
 			},
+			oc: 100,
 			health: 10,
 			healthCalculated: 10,
 			prestige: 1
@@ -337,6 +342,7 @@ var toReturn = {
 			cost: {
 				metal: [140, 1.2]
 			},
+			oc: 140,
 			attack: 4,
 			attackCalculated: 4,
 			prestige: 1
@@ -349,6 +355,7 @@ var toReturn = {
 			cost: {
 				metal: [160, 1.2]
 			},
+			oc: 160,
 			health: 14,
 			healthCalculated: 14,
 			prestige: 1
@@ -362,6 +369,7 @@ var toReturn = {
 			cost: {
 				metal: [230, 1.2]
 			},
+			oc: 230,
 			attack: 7,
 			attackCalculated: 7,
 			prestige: 1
@@ -374,6 +382,7 @@ var toReturn = {
 			cost: {
 				metal: [275, 1.2]
 			},
+			oc: 275,
 			health: 23,
 			healthCalculated: 23,
 			prestige: 1
@@ -387,6 +396,7 @@ var toReturn = {
 			cost: {
 				metal: [375, 1.2]
 			},
+			oc: 375,
 			attack: 9,
 			attackCalculated: 9,
 			prestige: 1
@@ -399,6 +409,7 @@ var toReturn = {
 			cost: {
 				metal: [415, 1.2]
 			},
+			oc: 415,
 			health: 35,
 			healthCalculated: 35,
 			prestige: 1
@@ -1753,9 +1764,16 @@ var toReturn = {
 				}
 			},
 			fire: function () {
+			var equipment = game.equipment.Shield;
+				equipment.oc = 120;
 				prestigeEquipment("Shield", false, true);
-				game.equipment.Shield.blockNow = true;
-				game.equipment.Shield.tooltip = game.equipment.Shield.blocktip;
+				
+				equipment.blockNow = true;
+				equipment.tooltip = game.equipment.Shield.blocktip;
+				
+			    equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
+
+				
 			}
 		},
 		
