@@ -323,6 +323,7 @@ function resetGame(keepPortal) {
 	document.getElementById("worldNumber").innerHTML = "1";
 	document.getElementById("mapsHere").innerHTML = "";
 	document.getElementById("sciencePs").innerHTML = "+0/sec";
+	document.getElementById("repeatBtn").style.visibility = "hidden";
 	var autoSave = game.global.autoSave;
 	var portal;
 	if (keepPortal) portal = game.portal;

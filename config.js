@@ -739,7 +739,7 @@ var toReturn = {
 				unlockBuilding("Hotel");
 			}
 		},
-		UberHotel: {
+/* 		UberHotel: {
 			world: 30,
 			message: "You found a book that will teach you how to improve your hotels!",
 			level: "last",
@@ -748,7 +748,7 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade("UberHotel");
 			}
-		},
+		}, */
 		Resort: {
 			world: 20,
 			message: "You found plans for a huge resort!",
@@ -759,7 +759,7 @@ var toReturn = {
 				unlockBuilding("Resort");
 			}
 		},
-		UberResort: {
+/* 		UberResort: {
 			world: 40,
 			message: "You found a book that will teach you how to improve your resorts!",
 			level: "last",
@@ -768,7 +768,7 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade("UberResort");
 			}
-		},
+		}, */
 		gems: {
 			world: -1,
 			level: [0, 15],
@@ -781,7 +781,7 @@ var toReturn = {
 		},
 		Metal: {
 			world: -1,
-			level: [0, 5],
+			level: [0, 3],
 			icon: "fire",
 			repeat: 6,
 			filter: true,
@@ -792,7 +792,7 @@ var toReturn = {
 		},
 		Food: {
 			world: -1,
-			level: [0, 4],
+			level: [0, 3],
 			icon: "apple",
 			repeat: 9,
 			filter: true,
@@ -803,7 +803,7 @@ var toReturn = {
 		},
 		Wood: {
 			world: -1,
-			level: [0, 2],
+			level: [0, 3],
 			icon: "tree-deciduous",
 			repeat: 8,
 			filter: true,
@@ -1645,7 +1645,7 @@ var toReturn = {
 				game.resources.trimps.potency *= 1.1;
 			}
 		},
-		UberHotel: {
+/* 		UberHotel: {
 			locked: 1,
 			allowed: 0,
 			tooltip: "This book will increase the space gained from each Hotel by 2x",
@@ -1678,7 +1678,7 @@ var toReturn = {
 				game.resources.trimps.max += ((game.buildings.Resort.owned * 2) * game.buildings.Resort.increase.by);
 				game.buildings.Resort.increase.by *= 2;
 			}
-		},
+		}, */
 		Anger: {
 			locked: 1,
 			allowed: 0,
