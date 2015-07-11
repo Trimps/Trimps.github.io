@@ -992,7 +992,7 @@ var toReturn = {
 			icon: "book",
 			title: "Explorer",
 			fire: function () {
-				unlockUpgrade("Explorers");
+				if (game.upgrades.Explorer.allowed === 0) unlockUpgrade("Explorers");
 			}
 		},
 		//49 is for weapon
@@ -1084,7 +1084,7 @@ var toReturn = {
 			icon: "record",
 			title: "Egg",
 			fire: function () {
-				unlockUpgrade("Egg");
+				if (game.upgrades.Egg.allowed === 0) unlockUpgrade("Egg");
 			}
 		},
 		FirstMap: {
