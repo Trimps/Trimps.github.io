@@ -691,10 +691,11 @@ var toReturn = {
 			}
 		},
 		TheBlock: {
-			world: 10,
+			world: -1,
 			message: "Holy cowimp! A unique map!",
 			level: [10, 20],
 			icon: "th-large",
+			startAt: 10,
 			canRunOnce: true,
 			fire: function () {
 				game.global.mapsOwned++;
@@ -725,7 +726,7 @@ var toReturn = {
 			}
 		},
 		Hotel: {
-			world: 10,
+			world: 15,
 			message: "You found plans for a hotel! (A decent hotel, too)",
 			level: "last",
 			icon: "home",
@@ -745,7 +746,7 @@ var toReturn = {
 			}
 		}, */
 		Resort: {
-			world: 20,
+			world: 25,
 			message: "You found plans for a huge resort!",
 			level: "last",
 			icon: "home",
@@ -1288,10 +1289,10 @@ var toReturn = {
 			craftTime: 120,
 			tooltip: "A fancy hotel for many Trimps to live in. Complete with room service and a mini bar. Supports $incby$ Trimps.",
 			cost: {
-				gems: [20, 1.18],
-				wood: [120000, 1.18],
-				metal: [50000, 1.18],
-				food: [100000, 1.18],
+				gems: [2000, 1.18],
+				wood: [12000, 1.18],
+				metal: [5000, 1.18],
+				food: [10000, 1.18],
 			},
 			increase: {
 				what: "trimps.max",
@@ -1305,14 +1306,14 @@ var toReturn = {
 			craftTime: 240,
 			tooltip: "A huge resort for your Trimps to live in. Sucks for the ones still stuck in huts. Supports $incby$ Trimps.",
 			cost: {
-				gems: [200, 1.16],
-				wood: [1200000, 1.16],
-				metal: [500000, 1.16],
-				food: [1000000, 1.16],
+				gems: [20000, 1.16],
+				wood: [120000, 1.16],
+				metal: [50000, 1.16],
+				food: [100000, 1.16],
 			},
 			increase: {
 				what: "trimps.max",
-				by: 50
+				by: 40
 			}
 		},
 		Tribute: {

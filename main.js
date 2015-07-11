@@ -966,7 +966,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         }
 		
         if (typeof special.canRunOnce !== 'undefined' && !special.canRunOnce) continue;
-        if (((!maps && special.world != world) || (maps && special.world < world)) && special.world > 0) continue;
+        if (special.world != world && special.world > 0) continue;
         if ((special.world == -2) && ((world % 2) !== 0)) continue;
         if ((special.world == -3) && ((world % 2) != 1)) continue;
         if ((special.world == -5) && ((world % 5) !== 0)) continue;
