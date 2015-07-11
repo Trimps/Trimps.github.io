@@ -1440,7 +1440,7 @@ var toReturn = {
 		},
 		Coordination: {
 			locked: 1,
-			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require 25% more Trimps (rounded up), but attack and health will be doubled.",
+			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require 25% more Trimps (rounded up), but attack and health will be increased by the same amount.",
 			done: 0,
 			allowed: 0,
 			cost: {
