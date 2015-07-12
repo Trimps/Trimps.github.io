@@ -1432,7 +1432,6 @@ function calculateDamage(number, buildString) { //number = base attack
 
 function nextWorld() {
     game.global.world++;
-    ga('send', 'event', 'Next World', 'World: ' + game.global.world);
     document.getElementById("worldNumber").innerHTML = game.global.world;
     game.global.lastClearedCell = -1;
     game.global.gridArray = [];
@@ -1466,7 +1465,20 @@ function fight(makeUp) {
     if (cell.health <= 0) {
 		var randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
         message("You " + randomText + " a " + cell.name + "!", "Combat");
-        if (cell.level % 2 === 0) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
+        try{
+			if (typeof ga !== 'undefined' && cell.level % 2 == 0 && !game.global.mapsActive) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
+			}
+		catch(err){
+			console.debug(err);
+		}
+		try{
+			if (typeof kongregate !== 'undefined') kongregate.stats.submit("BadGuys", 1);
+			if (typeof kongregate !== 'undefined' && !game.global.mapsActive) kongregate.stats.submit("HighestLevel", ((game.global.world * 100) + cell.level));
+		}
+		catch(err){
+			console.debug(err);
+		}
+
         cellElem.style.backgroundColor = "green";
         if (game.global.mapsActive) game.global.lastClearedMapCell = cellNum;
         else game.global.lastClearedCell = cellNum;

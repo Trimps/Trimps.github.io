@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0076)http://cdn1.kongregate.com/examples/javascript_api/kongregate_shell.html?v=2 -->
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <title>Kongregate Game Shell</title>
+    
+    <!-- Load the Kongregate Javascript API -->
+    <script type="text/javascript" src='https://cdn1.kongregate.com/javascripts/kongregate_api.js'></script>
+    
+    <!-- Give the shell no border/scroll bars and match the Kongregate background color.
+         If your game needs scrollbars, you might need to modify these styles -->
+    <style type="text/css">
+      html{border: none; overflow: hidden; background-color: #333; height: 100%;}
+      body{border: none; background-color: #333;margin:0; padding:0;}
+    </style>
+	<style type="text/css">
+	body {
+	   margin: 0;
+	   overflow: hidden;
+	}
+	#mainFrame {
+		position:absolute;
+		left: 0px;
+		width: 100%;
+		top: 0px;
+		height: 100%;
+	}
+</style>
+  </head>
+
+  <body>
+    <script type="text/javascript">
+      // Called when the API is finished loading
+      function onLoadCompleted(){
+        // Get a global reference to the kongregate API. This way, pages included in the
+        // iframe can access it by using "parent.kongregate"
+        var kongregate = kongregateAPI.getAPI();
+        
+        // Embed the game into the "contentdiv" div, which is defined below. You can also
+        // manually create your own iframe, this function is just for convenience. 
+        // This example also passes along the kongregate user_id and game_auth_token so 
+        // that the page can use them for authentication.
+        var params = "kongregate_user_id=" + kongregate.services.getUserId() + 
+                   "&kongregate_game_auth_token=" + kongregate.services.getGameAuthToken() +
+                   "&random=" + (Math.random() * 1000000000);
+      }
+      
+      // Begin the process of loading the Kongregate API:
+      kongregateAPI.loadAPI(onLoadCompleted);
+    </script>
+    
+    <!-- The div that the game will be placed into. Make sure to set the width and height properly -->
+    <div id="contentdiv" style="top:0px; left:0px; borders:none;">
+      <iframe id="mainFrame" src="indexKong.html"></iframe>
+    </div>
+  
+<div id="ansible_container" style="position: absolute; height: 1px; width: 1px; top: -1000px; left: -1000px;"><object type="application/x-shockwave-flash" data="http://undefined/" width="1" height="1" id="ansible" style="visibility: visible;"><param name="allowScriptaccess" value="always"><param name="flashvars" value="bridgeName=ansible&amp;json_encode=true"></object></div></body></html>
