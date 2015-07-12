@@ -745,7 +745,7 @@ var toReturn = {
 			world: -1,
 			startAt: 15,
 			message: "You found plans for a hotel! (A decent hotel, too)",
-			level: "last",
+			level: [10, 20],
 			icon: "home",
 			canRunOnce: true,
 			fire: function () {
@@ -766,7 +766,7 @@ var toReturn = {
 			world: -1,
 			startAt: 25,
 			message: "You found plans for a huge resort!",
-			level: "last",
+			[10, 20],
 			icon: "home",
 			canRunOnce: true,
 			fire: function () {

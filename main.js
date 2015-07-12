@@ -1122,6 +1122,7 @@ function mapsClicked() {
 		var bar = document.getElementById("goodGuyBar");
 		bar.style.backgroundColor = "red";
 		bar.style.width = "0%";
+		mapsSwitch();
         return;
     }
     if (game.global.fighting && !game.global.preMapsActive) {
@@ -1139,6 +1140,7 @@ function mapsClicked() {
 
 function mapsSwitch(updateOnly) {
     if (!updateOnly) {
+		game.global.fighting = false;
         game.global.switchToMaps = false;
         game.global.switchToWorld = false;
         if (game.global.mapsActive || game.global.preMapsActive) {
