@@ -862,6 +862,7 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	var stat;
 	if (equipment.blockNow) stat = "block";
 	else stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";
+	if (!fromLoad) game.global[stat] -= (equipment[stat + "Calculated"] * equipment.level);
     equipment[stat + "Calculated"] = Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige[stat]) + 1));
 	//No need to touch level if it's newNum
 	if (fromLoad) return;
