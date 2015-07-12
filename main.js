@@ -1172,6 +1172,7 @@ function buyMap() {
 function mapsClicked() {
     if (game.global.switchToMaps || game.global.switchToWorld) {
         game.global.soldierHealth = 0;
+		game.resources.trimps.soldiers = 0;
 		var bar = document.getElementById("goodGuyBar");
 		bar.style.backgroundColor = "red";
 		bar.style.width = "0%";
