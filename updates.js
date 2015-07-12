@@ -582,8 +582,8 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		}
 		elem.innerHTML = toUpdate.owned;
 		if (itemA == "Trap") {
-		document.getElementById("trimpTrapText").innerHTML = toUpdate.owned;
-		document.getElementById("trimpTrapText2").innerHTML = toUpdate.owned;
+		document.getElementById("trimpTrapText").innerHTML = prettify(toUpdate.owned);
+		document.getElementById("trimpTrapText2").innerHTML = prettify(toUpdate.owned);
 		}
 	}
 	//Jobs, check PS here and stuff. Trimps per second is handled by breed() function
