@@ -276,8 +276,8 @@ var toReturn = {
 			health: 4,
 			healthCalculated: 4,
 			blockNow: false,
-			block: 2,
-			blockCalculated: 2,
+			block: 1,
+			blockCalculated: 1,
 			prestige: 1
 		},
 		Dagger: {
@@ -709,6 +709,9 @@ var toReturn = {
 			icon: "th-large",
 			startAt: 10,
 			canRunOnce: true,
+			specialFilter: function () {
+				return (game.equipment.Shield.prestige >= 3) ? true : false;
+			},
 			fire: function () {
 				game.global.mapsOwned++;
 				game.global.totalMapsEarned++;
@@ -1121,6 +1124,7 @@ var toReturn = {
 			repeat: 10,
 			icon: "th",
 			fire: function() {
+				game.global.mapsUnlocked = true;
 				game.resources.fragments.owned++;
 				message("<span class='glyphicon glyphicon-th></span>You found a Map Fragment! Good for you.", "Loot");
 			}
@@ -1768,14 +1772,17 @@ var toReturn = {
 			},
 			fire: function () {
 			var equipment = game.equipment.Shield;
-				equipment.oc = 120;
+				equipment.oc = 100;
 				prestigeEquipment("Shield", false, true);
 				
 				equipment.blockNow = true;
 				equipment.tooltip = game.equipment.Shield.blocktip;
-				
-			    equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
 
+			    equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
+/* 				cost[0] = Math.round(equipment.oc * Math.pow(1.069, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
+				cost.lastCheckAmount = null;
+				cost.lastCheckCount = null;
+				cost.lastCheckOwned = null; */
 				
 			}
 		},

@@ -312,7 +312,7 @@ function loadEquipment(oldEquipment){
 		if (typeof newEquipment[item] === 'undefined') continue;
 		var oldEquip = oldEquipment[item];
 		var newEquip = newEquipment[item];
-		
+		newEquip.oc = oldEquip.oc;
 		newEquip.locked = oldEquip.locked;
 		newEquip.modifier = oldEquip.modifier;
 		newEquip.level = oldEquip.level;
@@ -799,7 +799,7 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	if (!fromLoad && !noInc) equipment.prestige++;
 	var resource = (what == "Shield") ? "wood" : "metal";
 	var cost = equipment.cost[resource];
-    cost[0] = Math.round(equipment.oc * Math.pow(1.075, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
+    cost[0] = Math.round(equipment.oc * Math.pow(1.069, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
 	cost.lastCheckAmount = null;
 	cost.lastCheckCount = null;
 	cost.lastCheckOwned = null;
@@ -942,6 +942,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
     var canLast = true;
     for (var item in unlocksObj) {
         var special = unlocksObj[item];
+		if ((maps) && (special.filterUpgrade) && (game.mapConfig.locations[map.location].upgrade != item)) continue;		
         if ((special.level == "last" && canLast && special.world <= world && special.canRunOnce)) {
             if (countOnly){
 				specialCount++;
@@ -952,14 +953,18 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
             continue;
         }
 		
+		
         if (typeof special.canRunOnce !== 'undefined' && !special.canRunOnce) continue;
+		
         if (special.world != world && special.world > 0) continue;
         if ((special.world == -2) && ((world % 2) !== 0)) continue;
         if ((special.world == -3) && ((world % 2) != 1)) continue;
         if ((special.world == -5) && ((world % 5) !== 0)) continue;
         if ((special.world == -33) && ((world % 3) !== 0)) continue;
-		if ((maps) && (special.filter) && (game.mapConfig.locations[map.location].upgrade != item && game.mapConfig.locations[map.location].resourceType != item)) continue;
-		if ((maps) && (special.filterUpgrades) && (game.mapConfig.locations[map.location].upgrade != item)) continue;
+		if ((maps) && (special.filter) && game.mapConfig.locations[map.location].resourceType != item) continue;
+		if (typeof special.specialFilter !== 'undefined'){
+			if (!special.specialFilter()) continue;
+		}
         if ((typeof special.startAt !== 'undefined') && (special.startAt > world)) continue;
         if (typeof special.canRunOnce === 'undefined' && (special.level == "last") && canLast && (special.last <= (world - 5))) {
 			if (countOnly){
