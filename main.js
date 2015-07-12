@@ -351,7 +351,9 @@ function cancelPortal(){
 	if (game.global.kongBonusMode){
 		game.resources.helium = 0;
 		game.global.kongBonusMode = false;
-		message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
+		resetGame();
+		document.getElementById("portalUpgradesHere").innerHTML = "";
+	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 	}
 	document.getElementById("portalWrapper").style.display = "none";
 	fadeIn("wrapper", 10);
