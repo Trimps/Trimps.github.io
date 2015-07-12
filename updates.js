@@ -39,7 +39,7 @@ function tooltip(what, isItIn, event, textString) {
 			cordy = e.clientY;
 			
 		}
-		elem.style.left = cordx + "px";
+		elem.style.left = (cordx - 5) + "px";
 		elem.style.top = (cordy - 200) + "px";
 	}
 	var tooltipText;
@@ -96,7 +96,7 @@ function tooltip(what, isItIn, event, textString) {
 	}
 	if (what == "Reset"){
 		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone.";
-		costText="<div class='maxCenter'><div class='btn btn-info' onclick='resetGame()'>Reset</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div class='btn btn-info' onclick='resetGame();unlockTooltip();tooltip(\"hide\")'>Reset</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -130,7 +130,7 @@ function tooltip(what, isItIn, event, textString) {
 	}
 	if (what == "Import"){
 		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea id='importBox' style='width: 100%' rows='10'></textarea>";
-		costText="<div class='maxCenter'><div class='btn btn-info' onclick='load(true)'>Import</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div class='btn btn-info' onclick='load(true); unlockTooltip(); tooltip(\"hide\")'>Import</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -172,7 +172,8 @@ function tooltip(what, isItIn, event, textString) {
 		}
 	}
 	if (isItIn == "portal"){
-		costText = prettify(getPortalUpgradePrice(what)) + " Helium Canisters";
+		var resAppend = (game.global.kongBonusMode) ? " Bonus Points" : " Helium Canisters";
+		costText = prettify(getPortalUpgradePrice(what)) + resAppend;
 	}
 	if (isItIn == "equipment"){
 		if (game.global.buyAmt > 1) {

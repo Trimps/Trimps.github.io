@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 0.91,
+		version: 0.92,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -72,6 +72,7 @@ var toReturn = {
 		lastOnline: 0,
 		buyTab: "all",
 		nextQueueId: 0,
+		kongBonusMode: false,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -132,21 +133,22 @@ var toReturn = {
 	},
 	//portal
 	portal: {
+	totalPortals: 0,
 	//Names and tooltips not final
 		Trumps: {
-		//fiveTrimpMax mapUnlock
+		//fiveTrimpMax worldUnlock
 			locked: 0,
 			level: 0,
 			modifier: 1,
-			priceBase: 1,
-			tooltip: "Aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
+			priceBase: 2,
+			tooltip: "Practicing aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
 		},
 		//breed main
 		Pheromones: {
 			level: 0,
 			modifier: .1,
-			priceBase: 3,
-			tooltip: "Bringing some pheromones back with you will ensure that your Trimps will permanantly breed 10% faster and that you'll smell magnificent. You disagree on the smell.",
+			priceBase: 2,
+			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanantly breed 10% faster.",
 		},
 		//trapThings main
 		Bait: {
@@ -155,12 +157,20 @@ var toReturn = {
 			priceBase: 2,
 			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
 		},
+		//updatePs updates
+		//gather main
+		Motivation: {
+			modifier: 0.05,
+			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 10%",
+			priceBase: 2,
+			level: 0,
+		},
 		//startFight main
 		Power: {
 			level: 0,
 			modifier: .05,
 			priceBase: 1,
-			tooltip: "Trimps learn through example. Spending some time benching dead Elephimps should inspire any future Trimps to become stronger too. Adds 5% attack permanently to your Trimps.",
+			tooltip: "Trimps learn through example. Spending some time bench pressing dead Elephimps should inspire any future Trimps to become stronger too. Adds 5% attack permanently to your Trimps.",
 		},
 		//startFight main
 		Toughness: {
@@ -178,14 +188,7 @@ var toReturn = {
 			modifier: .05,
 			tooltip: "Talk to your scientists about more efficient building designs. Each level reduces the cost of all buildings by 5%",
 		}, */
-		//updatePs updates
-		//gather main
-		Motivation: {
-			modifier: 0.05,
-			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 10%",
-			priceBase: 2,
-			level: 0,
-		},
+
 		//rewardResources main
 		Looting: {
 			modifier: .05,
@@ -483,7 +486,7 @@ var toReturn = {
 				rewardResource("wood", 2, level);
 				rewardResource("metal", 2, level);
 				message("<span class='glyphicon glyphicon-piggy-bank'></span>That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot");
-				if (game.portalActive){
+				if (game.global.portalActive){
 					amt = rewardResource("helium", 1, level);
 					message("<span class='glyphicon glyphicon-oil'></span>You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
 				}

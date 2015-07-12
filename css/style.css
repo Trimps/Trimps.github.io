@@ -1,6 +1,8 @@
 /*Top Row*/
 body {
 	background-color: black;
+	overflow-y: hidden;
+overflow-x: hidden;
 }
 .progress-bar {
     -webkit-transition: width .1s ease;
@@ -600,6 +602,14 @@ body {
 	width: 100%;
 	font-size: 4vw;
 	text-align: center;
+}
+
+#portalHelium{
+	font-size: 2.5vw;
+}
+
+.inPortalBtn{
+	font-size: 2vw !important;
 }
 
 .NoticesMessage {

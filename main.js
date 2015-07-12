@@ -85,6 +85,13 @@ function save(exportThis) {
 		unlock.icon = null;
 		unlock.world = null;
 	}
+	for (var itemP in saveGame.portal){
+		if (itemP == "totalPortals") continue;
+		var portal = saveGame.portal[itemP];
+		portal.modifier = null;
+		portal.priceBase = null;
+		portal.tooltip = null;
+	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
 	try{
@@ -113,6 +120,11 @@ function load(saveString, autoLoad) {
 	resetGame();
 		
     if (game.global.killSavesBelow > savegame.global.version) {
+		if (savegame.global.version == 0.07){
+			game.global.kongBonusMode = true;
+			activateKongBonus(savegame.global.world);
+			return;
+		}
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This should be the last reset!", "Notices");
         return;
     } else savegame.global.version = game.global.version;
@@ -217,6 +229,7 @@ function load(saveString, autoLoad) {
     toggleSave(true);
 	checkOfflineProgress();
 	updateLabels();
+	if (game.global.kongBonusMode) activateKongBonus();
 }
 
 function portalClicked() {
@@ -225,14 +238,45 @@ function portalClicked() {
 	document.getElementById("portalTitle").innerHTML = "Time Portal";
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.owned);
 	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
+	displayPortalUpgrades();
+}
+
+function displayPortalUpgrades(){
 	var elem = document.getElementById("portalUpgradesHere");
 	if (!elem.innerHTML) {
 		for (var what in game.portal){
+			if (what == "totalPortals") continue;
 			var portUpgrade = game.portal[what];
 			elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span></span></div>';
 		}
 	}
 }
+
+function activateKongBonus(oldWorld){
+	var helium = 0;
+	var addText = "";
+	if (oldWorld > 0){
+		helium = Math.floor(oldWorld / 2);
+		addText = "You earned " + helium + " bonus points for reaching World " + oldWorld + ".";
+	}
+	else {
+		helium = game.resources.helium.owned;
+		addText = "You still have " + helium + " bonus points to spend!"
+	}
+	document.getElementById("wrapper").style.display = "none";
+	var portalWrapper = document.getElementById("portalWrapper");
+	portalWrapper.style.backgroundColor = "black";
+	portalWrapper.style.color = "white";
+	document.getElementById("portalTitle").innerHTML = "Beta Bonus";
+	document.getElementById("portalStory").innerHTML = "Thank you so much for helping test the beta version of Trimps. All of the support and feedback was amazing. This version still needs some feedback and tweaks before it will be perfect, but saves will not be purposely reset again. Enjoy! " + addText;
+	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + helium + '</span> Bonus Points';
+	document.getElementById("cancelPortalBtn").innerHTML = "No Thanks";
+	document.getElementById("activatePortalBtn").innerHTML = "Finished";
+	fadeIn("portalWrapper", 10);
+	game.resources.helium.owned = helium;
+	displayPortalUpgrades();
+}
+
 
 function checkOfflineProgress(){
 	if (!game.global.lastOnline) return;
@@ -263,8 +307,14 @@ function checkOfflineProgress(){
 	tooltip("Trustworthy Trimps", null, "update", textString);
 }
 
-function activateClicked(){
-	document.getElementById("portalStory").innerHTML = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page. Who knows where or when it will send you.<br/><div class='btn btn-info activatePortalBtn' onclick='activatePortal()'>Let's do it.</div>";
+function activateClicked(){	
+	var newText = "";
+	if (game.global.kongBonusMode){
+		newText = "All set?";
+	}
+	else newText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page. Who knows where or when it will send you.";
+	newText += "<br/><div class='btn btn-info activatePortalBtn' onclick='activatePortal()'>Let's do it.</div>"
+	document.getElementById("portalStory").innerHTML = newText;
 }
 
 function buyPortalUpgrade(what){
@@ -293,10 +343,16 @@ function getPortalUpgradePrice(what){
 function activatePortal(){
 	cancelPortal();
 	resetGame(true);
+	game.portal.totalPortals++;
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 }
 
 function cancelPortal(){
+	if (game.global.kongBonusMode){
+		game.resources.helium = 0;
+		game.global.kongBonusMode = false;
+		message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
+	}
 	document.getElementById("portalWrapper").style.display = "none";
 	fadeIn("wrapper", 10);
 }
@@ -362,7 +418,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
     if (what == "gems") level = level - 400;
 	level *= 1.35;
 	if (level < 0) level = 0;
-    var amt = Math.round(baseAmt * Math.pow(1.004, level));
+    var amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
 	if (what == "gems") console.log(amt);
 	amt += Math.round(baseAmt * level);
     //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
@@ -803,7 +859,7 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	var stat;
 	if (equipment.blockNow) stat = "block";
 	else stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";
-	if (!fromLoad) game.global[stat] -= (equipment[stat] * equipment.level);
+	if (!fromLoad){ game.global[stat] -= (equipment[stat] * equipment.level); console.log(equipment[stat] * equipment.level);}
     equipment[stat + "Calculated"] = Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige[stat]) + 1));
 	//No need to touch level if it's newNum
 	if (fromLoad) return;
@@ -1572,6 +1628,8 @@ function gameTimeout() {
     var tick = 1000 / game.settings.speed;
     game.global.time += tick;
     var dif = (now - game.global.start) - game.global.time;
+	if (dif < 0) dif = 0;
+	if (dif > 1000000) dif = 1000000;
     while (dif >= tick) {
         gameLoop(true);
         dif -= tick;
