@@ -1082,7 +1082,6 @@ function recycleMap() {
     var map = getMapIndex(game.global.lookingAtMap);
     if (map === null) return;
 	var mapObj = game.global.mapsOwnedArray[map];
-	console.log(mapObj);
 	if (mapObj.noRecycle) {
 		game.global.currentMapId = "";
 		game.global.lastClearedMapCell = -1;
