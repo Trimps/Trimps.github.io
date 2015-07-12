@@ -427,7 +427,7 @@ function setGatherTextAs(what, on) {
     case "buildings":
         return (on) ? "Building" : "Build";
     case "trimps":
-        return (on) ? ("Trapping " + trimpTrapText) : ("Trap " + trimpTrapText);
+        return (on) ? ("Trapping " + trimpTrapText) : ("Check Traps " + trimpTrapText);
     }
 }
 
