@@ -268,7 +268,7 @@ function activateKongBonus(oldWorld){
 	portalWrapper.style.backgroundColor = "black";
 	portalWrapper.style.color = "white";
 	document.getElementById("portalTitle").innerHTML = "Beta Bonus";
-	document.getElementById("portalStory").innerHTML = "Thank you so much for helping test the beta version of Trimps. All of the support and feedback was amazing. This version still needs some feedback and tweaks before it will be perfect, but saves will not be purposely reset again. Enjoy! " + addText;
+	document.getElementById("portalStory").innerHTML = "Thank you so much for helping test the beta version of Trimps. All of the support and feedback was amazing! This version still needs some feedback and tweaks before it will be perfect, but saves will not be purposely reset again. Enjoy! " + addText;
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + helium + '</span> Bonus Points';
 	document.getElementById("cancelPortalBtn").innerHTML = "No Thanks";
 	document.getElementById("activatePortalBtn").innerHTML = "Finished";
