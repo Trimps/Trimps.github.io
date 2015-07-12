@@ -341,18 +341,18 @@ function getPortalUpgradePrice(what){
 }
 
 function activatePortal(){
-	cancelPortal();
+	cancelPortal(true);
 	resetGame(true);
 	game.portal.totalPortals++;
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 }
 
-function cancelPortal(){
+function cancelPortal(keep){
 	if (game.global.kongBonusMode){
 		game.resources.helium = 0;
 		game.global.kongBonusMode = false;
-		resetGame();
+		if (!keep) resetGame();
 		document.getElementById("portalUpgradesHere").innerHTML = "";
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 	}
