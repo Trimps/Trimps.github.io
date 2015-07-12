@@ -944,6 +944,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         var special = unlocksObj[item];
 		if ((maps) && (special.filterUpgrade) && (game.mapConfig.locations[map.location].upgrade != item)) continue;		
         if ((special.level == "last" && canLast && special.world <= world && special.canRunOnce)) {
+			if (special.startAt > world) continue;
             if (countOnly){
 				specialCount++;
 				continue;
