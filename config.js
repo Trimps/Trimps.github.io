@@ -135,25 +135,26 @@ var toReturn = {
 	portal: {
 	totalPortals: 0,
 	//Names and tooltips not final
+		Bait: {
+			level: 0,
+			modifier: 1,
+			priceBase: 4,
+			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
+		},
 		Trumps: {
 		//fiveTrimpMax worldUnlock
 			locked: 0,
 			level: 0,
 			modifier: 1,
-			priceBase: 2,
+			priceBase: 3,
 			tooltip: "Practicing aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
 		},
-		Bait: {
-			level: 0,
-			modifier: 1,
-			priceBase: 2,
-			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
-		},
+
 		//breed main
 		Pheromones: {
 			level: 0,
 			modifier: .1,
-			priceBase: 2,
+			priceBase: 3,
 			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanantly breed 10% faster.",
 		},
 		//trapThings main
@@ -162,7 +163,7 @@ var toReturn = {
 		//gather main
 		Motivation: {
 			modifier: 0.05,
-			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 10%",
+			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 5%",
 			priceBase: 2,
 			level: 0,
 		},

@@ -329,6 +329,7 @@ function resetGame(keepPortal) {
 	document.getElementById("jobsTitleDiv").style.display = "none";
 	document.getElementById("upgradesTitleDiv").style.display = "none";
 	document.getElementById("equipmentTitleDiv").style.display = "none";
+	document.getElementById("portalBtn").style.display = "none";
 	filterTabs("all");
 	var gatherBtns = ["buildings", "food", "wood", "metal", "science", "trimps"];
 	for (var gatherBtn in gatherBtns){
