@@ -276,8 +276,8 @@ var toReturn = {
 			health: 4,
 			healthCalculated: 4,
 			blockNow: false,
-			block: 1,
-			blockCalculated: 1,
+			block: 1.5,
+			blockCalculated: 1.5,
 			prestige: 1
 		},
 		Dagger: {
@@ -1772,7 +1772,6 @@ var toReturn = {
 			},
 			fire: function () {
 			var equipment = game.equipment.Shield;
-				equipment.oc = 100;
 				prestigeEquipment("Shield", false, true);
 				
 				equipment.blockNow = true;

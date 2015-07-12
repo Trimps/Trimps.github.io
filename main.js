@@ -102,9 +102,6 @@ function save(exportThis) {
 
 function load(saveString, autoLoad) {
     var savegame;
-	
-	
-	
     if (saveString) {
         savegame = JSON.parse(LZString.decompressFromBase64(document.getElementById("importBox").value));
         tooltip('hide');
@@ -114,7 +111,7 @@ function load(saveString, autoLoad) {
     if (typeof savegame === 'undefined' || savegame === null || typeof savegame.global === 'undefined') return;
 	
 	resetGame();
-	
+		
     if (game.global.killSavesBelow > savegame.global.version) {
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This should be the last reset!", "Notices");
         return;
@@ -312,7 +309,6 @@ function loadEquipment(oldEquipment){
 		if (typeof newEquipment[item] === 'undefined') continue;
 		var oldEquip = oldEquipment[item];
 		var newEquip = newEquipment[item];
-		newEquip.oc = oldEquip.oc;
 		newEquip.locked = oldEquip.locked;
 		newEquip.modifier = oldEquip.modifier;
 		newEquip.level = oldEquip.level;
@@ -367,6 +363,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
 	level *= 1.35;
 	if (level < 0) level = 0;
     var amt = Math.round(baseAmt * Math.pow(1.004, level));
+	if (what == "gems") console.log(amt);
 	amt += Math.round(baseAmt * level);
     //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
     //var otherAmt = Math.round(baseAmt * level);
