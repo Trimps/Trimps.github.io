@@ -1432,6 +1432,7 @@ function fight(makeUp) {
 			}
 			else{
 				game.global.preMapsActive = true;
+				game.global.lookingAtMap = "";
 				game.global.mapsActive = false;
 				game.global.lastClearedMapCell = -1;
 				game.global.currentMapId = "";
