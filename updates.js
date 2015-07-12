@@ -563,7 +563,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		toUpdate = game.resources[item];
 		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned), true);
 		if (toUpdate.max == -1) continue;
-		document.getElementById(item + "Max").innerHTML = prettify(toUpdate.max);
+		if (document.getElementById(item + "Max") !== null) document.getElementById(item + "Max").innerHTML = prettify(toUpdate.max);
 		var bar = document.getElementById(item + "Bar");
 		var percentToMax = ((toUpdate.owned / toUpdate.max) * 100);
 		bar.style.backgroundColor = getBarColor(100 - percentToMax);
