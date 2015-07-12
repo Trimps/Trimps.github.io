@@ -88,7 +88,7 @@ var toReturn = {
 		prestige: {
 			attack: 11,
 			health: 14,
-			cost: 60,
+			cost: 59,
 			block: 10,
 		},
 		getEnemyAttack: function (level, name) {
