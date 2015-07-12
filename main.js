@@ -1363,6 +1363,7 @@ function updateAllBattleNumbers () {
 	document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
 	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true);
 	document.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true);
+	document.getElementById("TrimpsFighting").innerHTML = game.resources.trimps.maxSoldiers;
 }
 
 function calculateDamage(number, buildString) { //number = base attack

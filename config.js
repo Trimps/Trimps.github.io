@@ -766,7 +766,7 @@ var toReturn = {
 			world: -1,
 			startAt: 25,
 			message: "You found plans for a huge resort!",
-			[10, 20],
+			level: [10, 20],
 			icon: "home",
 			canRunOnce: true,
 			fire: function () {
