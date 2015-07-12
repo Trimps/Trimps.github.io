@@ -1644,8 +1644,6 @@ function gameTimeout() {
     var tick = 1000 / game.settings.speed;
     game.global.time += tick;
     var dif = (now - game.global.start) - game.global.time;
-	if (dif < 0) dif = 0;
-	if (dif > 1000000) dif = 1000000;
     while (dif >= tick) {
         gameLoop(true);
         dif -= tick;
