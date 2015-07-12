@@ -143,6 +143,12 @@ var toReturn = {
 			priceBase: 2,
 			tooltip: "Practicing aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
 		},
+		Bait: {
+			level: 0,
+			modifier: 1,
+			priceBase: 2,
+			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
+		},
 		//breed main
 		Pheromones: {
 			level: 0,
@@ -151,12 +157,7 @@ var toReturn = {
 			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanantly breed 10% faster.",
 		},
 		//trapThings main
-		Bait: {
-			level: 0,
-			modifier: 1,
-			priceBase: 2,
-			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
-		},
+
 		//updatePs updates
 		//gather main
 		Motivation: {
@@ -579,8 +580,8 @@ var toReturn = {
 				message("Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'", "Story");
 				game.global.portalActive = true;
 				fadeIn("helium", 10);
-				game.resources.helium.owned += 20;
-				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract 20 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
+				game.resources.helium.owned += 30;
+				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract 30 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
 				fadeIn("portalBtn", 10);
 			}
 		},

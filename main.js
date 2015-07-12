@@ -337,7 +337,7 @@ function unlockMapStuff(){
 
 function getPortalUpgradePrice(what){
 	var toCheck = game.portal[what];
-	return Math.ceil((toCheck.level / 2) + toCheck.priceBase * Math.pow(1.05, toCheck.level));
+	return Math.ceil((toCheck.level / 2) + toCheck.priceBase * Math.pow(1.3, toCheck.level));
 }
 
 function activatePortal(){
