@@ -97,6 +97,10 @@ overflow-x: hidden;
     padding: 3px;
 }
 
+#scienceCollectBtn{
+	font-size: 1em;
+}
+
 .portalBtn{
 	font-size: .6vw;
 }
