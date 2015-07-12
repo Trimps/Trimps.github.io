@@ -344,6 +344,7 @@ function activatePortal(){
 	cancelPortal();
 	resetGame(true);
 	game.portal.totalPortals++;
+	document.getElementById("portalUpgradesHere").innerHTML = "";
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 }
 
