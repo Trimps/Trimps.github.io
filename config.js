@@ -728,7 +728,8 @@ var toReturn = {
 			}
 		},
 		Mansion: {
-			world: 7,
+			world: -1,
+			startAt: 8,
 			message: "You found plans for a Mansion! Your Trimps will be pretty stoked",
 			level: [10, 20],
 			icon: "home",
@@ -738,7 +739,8 @@ var toReturn = {
 			}
 		},
 		Hotel: {
-			world: 15,
+			world: -1,
+			startAt: 15,
 			message: "You found plans for a hotel! (A decent hotel, too)",
 			level: "last",
 			icon: "home",
@@ -758,7 +760,8 @@ var toReturn = {
 			}
 		}, */
 		Resort: {
-			world: 25,
+			world: -1,
+			startAt: 25,
 			message: "You found plans for a huge resort!",
 			level: "last",
 			icon: "home",
