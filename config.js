@@ -572,7 +572,7 @@ var toReturn = {
 	
 	mapUnlocks: {
 	 	Portal: {
-			world: 21,
+			world: 20,
 			level: "last",
 			icon: "repeat",
 			filterUpgrade: true,
@@ -1719,7 +1719,7 @@ var toReturn = {
 					name: "Dimension of Anger",
 					location: "Hell",
 					clears: 0,
-					level: 21,
+					level: 20,
 					difficulty: 2.5,
 					size: 100,
 					loot: 3,

@@ -202,6 +202,7 @@ function load(saveString, autoLoad) {
         pauseFight(true);
     }
     for (var itemC in game.global.mapsOwnedArray) {
+		if (game.global.mapsOwnedArray[itemC].name == "Dimension of Anger") game.global.mapsOwnedArray[itemC].level = 20;
         unlockMap(itemC);
     }
 	for (var messageBool in game.global.messages){
