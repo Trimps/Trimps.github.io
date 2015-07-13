@@ -422,7 +422,6 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
 	level *= 1.35;
 	if (level < 0) level = 0;
     var amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
-	if (what == "gems") console.log(amt);
 	amt += Math.round(baseAmt * level);
     //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
     //var otherAmt = Math.round(baseAmt * level);

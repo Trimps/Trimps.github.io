@@ -1124,6 +1124,7 @@ var toReturn = {
 		//Multiples
 		Map: {
 			world: -1,
+			message: "You found a Map Fragment! Good for you!",
 			startAt: 6,
 			level: [0, 20],
 			repeat: 10,
@@ -1131,7 +1132,6 @@ var toReturn = {
 			fire: function() {
 				game.global.mapsUnlocked = true;
 				game.resources.fragments.owned++;
-				message("<span class='glyphicon glyphicon-th></span>You found a Map Fragment! Good for you.", "Loot");
 			}
 		},
 		//portal Trumps
