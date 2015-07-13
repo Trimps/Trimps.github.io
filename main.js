@@ -854,7 +854,10 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	if (!fromLoad && !noInc) equipment.prestige++;
 	var resource = (what == "Shield") ? "wood" : "metal";
 	var cost = equipment.cost[resource];
-    cost[0] = Math.round(equipment.oc * Math.pow(1.069, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
+	var prestigeMod = 0;
+	if (equipment.prestige >= 4) prestigeMod = (((equipment.prestige - 3) * .85) + 2);
+	else prestigeMod = (equipment.prestige - 1);
+    cost[0] = Math.round(equipment.oc * Math.pow(1.069, ((prestigeMod) * game.global.prestige.cost) + 1));
 	cost.lastCheckAmount = null;
 	cost.lastCheckCount = null;
 	cost.lastCheckOwned = null;
