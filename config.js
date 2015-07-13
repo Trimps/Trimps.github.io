@@ -1767,7 +1767,7 @@ var toReturn = {
 		Shieldblock: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book explains methods of using a shield to actually block damage. The current shield will need to be completely destroyed and rebuilt, but it will give health instead of block. <b>This is permanent</b>",
+			tooltip: "This book explains methods of using a shield to actually block damage. The current shield will need to be completely destroyed and rebuilt, but it will give block instead of health. <b>This is permanent</b>",
 			done: 0,
 			cost: {
 				resources: {

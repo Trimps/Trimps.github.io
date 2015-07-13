@@ -633,11 +633,11 @@ function buyBuilding(what) {
 function refundQueueItem(what) {
 	var name = what.split('.');
     var struct = game.buildings[name[0]];
+	struct.purchased -= parseInt(name[1]);
     for (var costItem in struct.cost) {
 		var thisCostItem = struct.cost[costItem];
 		var refund = 0;
-		for (var x = 0; x < name[1]; x++){
-			struct.purchased--;
+		for (var x = 0; x < parseInt(name[1]); x++){
 			if (typeof thisCostItem[1] !== 'undefined') refund += resolvePow(thisCostItem, struct);
 			else if (typeof struct.cost[costItem] === 'function') refund += struct.cost[costItem]();
 			else refund += thisCostItem;
