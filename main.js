@@ -109,6 +109,7 @@ function save(exportThis) {
 
 function load(saveString, autoLoad) {
     var savegame;
+	var oldVersion = 0;
     if (saveString) {
         savegame = JSON.parse(LZString.decompressFromBase64(document.getElementById("importBox").value));
         tooltip('hide');
@@ -170,6 +171,9 @@ function load(saveString, autoLoad) {
                     if (c == "tooltip") continue;
 					if (a == "resources" && c == "owned"){
 						//check bad entries here.
+					}
+					if (a == "buildings" && c == "purchased"){
+						if (savegame.buildings[b].purchased < 0) savegame.buildings[b].purchased = 0;
 					}
                     var botSave = midSave[c];
                     if (typeof botSave === 'undefined' || botSave === null) continue;

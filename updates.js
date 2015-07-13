@@ -438,7 +438,7 @@ function numTab (what) {
 		
 		unlockTooltip();
 		tooltip('hide');
-		num = document.getElementById("customNumberBox").value;
+		num = Math.ceil(document.getElementById("customNumberBox").value);
 		if (num > 0) {
 			document.getElementById("tab5Text").innerHTML = "+" + prettify(num);
 			game.global.buyAmt = parseInt(num);
