@@ -1044,7 +1044,7 @@ var toReturn = {
 			world: -1,
 			level: 59,
 			icon: "book",
-			title: "Speedfarming",
+			title: "Speedminer",
 			fire: function() {
 				unlockUpgrade("Speedminer");
 			}
