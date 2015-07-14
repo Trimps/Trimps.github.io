@@ -122,14 +122,14 @@ function tooltip(what, isItIn, event, textString) {
 		elem.style.top = "25%";
 	}
 	if (what == "Export"){
-		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea style='width: 100%' rows='10'>" + save(true) + "</textarea>";
+		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea style='width: 100%' rows='5'>" + save(true) + "</textarea>";
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Got it</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
 	}
 	if (what == "Import"){
-		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea id='importBox' style='width: 100%' rows='10'></textarea>";
+		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea id='importBox' style='width: 100%' rows='5'></textarea>";
 		costText="<div class='maxCenter'><div class='btn btn-info' onclick='load(true); unlockTooltip(); tooltip(\"hide\")'>Import</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
