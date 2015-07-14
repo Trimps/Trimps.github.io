@@ -811,7 +811,7 @@ var toReturn = {
 		},
 		Metal: {
 			world: -1,
-			level: [0, 1],
+			level: [0, 2],
 			icon: "fire",
 			repeat: 2,
 			filter: true,
@@ -822,7 +822,7 @@ var toReturn = {
 		},
 		Food: {
 			world: -1,
-			level: [0, 1],
+			level: [0, 2],
 			icon: "apple",
 			repeat: 2,
 			filter: true,
@@ -833,7 +833,7 @@ var toReturn = {
 		},
 		Wood: {
 			world: -1,
-			level: [0, 1],
+			level: [0, 2],
 			icon: "tree-deciduous",
 			repeat: 2,
 			filter: true,
