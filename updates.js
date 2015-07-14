@@ -571,7 +571,10 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 	//Resources (food, wood, metal, trimps, science). All but science have max and a bar. Per second will be handled in separate function, and called from job loop.
 	for (var item in game.resources){
 		toUpdate = game.resources[item];
-		if (!(toUpdate.owned > 0)) toUpdate.owned = 0; 
+		if (!(toUpdate.owned > 0)){
+			toUpdate.owned = parseInt(toUpdate.owned);
+			if (!(toUpdate.owned > 0)) toUpdate.owned = 0;
+		}
 		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned), true);
 		if (toUpdate.max == -1 || document.getElementById(item + "Max") === null) continue;
 		document.getElementById(item + "Max").innerHTML = prettify(toUpdate.max);

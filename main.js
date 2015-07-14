@@ -680,7 +680,7 @@ function canAffordBuilding(what, take, buildCostString, isEquipment){
 	for (var costItem in toBuy.cost) {
 		var color = "green";
 		var price = 0;
-		price = getBuildingItemPrice(toBuy, costItem, isEquipment)
+		price = parseInt(getBuildingItemPrice(toBuy, costItem, isEquipment))
 		if (price > game.resources[costItem].owned) {
 			if (buildCostString) color = "red";
 			else return false;
@@ -747,7 +747,7 @@ function refundQueueItem(what) {
 			else refund += thisCostItem;
 			
 		}
-        game.resources[costItem].owned += refund;
+        game.resources[costItem].owned += parseInt(refund);
 		if (game.resources[costItem].max > 0 && game.resources[costItem].owned > game.resources[costItem].max) game.resources[costItem].owned = game.resources[costItem].max;
     }
 }
@@ -803,9 +803,9 @@ function buildBuilding(what) {
 	else if (buildingSplit[0] == "Dragimp") toIncrease = game.jobs.Dragimp;
     else
         toIncrease = game.resources[buildingSplit[0]];
-    if (buildingSplit[2] == "mult") toIncrease[buildingSplit[1]] = (toIncrease[buildingSplit[1]] * building.increase.by).toFixed(5);
+    if (buildingSplit[2] == "mult") toIncrease[buildingSplit[1]] = parseInt(toIncrease[buildingSplit[1]] * building.increase.by).toFixed(5);
     else
-        toIncrease[buildingSplit[1]] += building.increase.by;
+        toIncrease[buildingSplit[1]] += parseInt(building.increase.by);
     numTab();
 }
 
