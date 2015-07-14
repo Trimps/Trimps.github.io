@@ -330,6 +330,7 @@ function resetGame(keepPortal) {
 	document.getElementById("upgradesTitleDiv").style.display = "none";
 	document.getElementById("equipmentTitleDiv").style.display = "none";
 	document.getElementById("portalBtn").style.display = "none";
+	document.getElementById("respecPortalBtn").style.display = "none";
 	filterTabs("all");
 	var gatherBtns = ["buildings", "food", "wood", "metal", "science", "trimps"];
 	for (var gatherBtn in gatherBtns){
@@ -338,13 +339,21 @@ function resetGame(keepPortal) {
 	var messages = game.global.messages;
 	var autoSave = game.global.autoSave;
 	var portal;
-	if (keepPortal) portal = game.portal;
+	var helium;
+	if (keepPortal){
+		portal = game.portal;
+		helium = game.resources.helium.owned + game.global.heliumLeftover;
+		totalPortals = game.global.totalPortals;
+	}
 	game = null;
 	game = newGame();
 	game.global.autoSave = autoSave;
 	game.global.messages = messages;
-	if (keepPortal) game.portal = portal;
-	
+	if (keepPortal){
+		game.portal = portal;
+		game.global.heliumLeftover = helium;
+		game.global.totalPortals = totalPortals;
+	}
 	numTab(1);
 }
 

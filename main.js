@@ -84,9 +84,9 @@ function save(exportThis) {
 		unlock.message = null;
 		unlock.icon = null;
 		unlock.world = null;
+		unlock.repeat = null;
 	}
 	for (var itemP in saveGame.portal){
-		if (itemP == "totalPortals") continue;
 		var portal = saveGame.portal[itemP];
 		portal.modifier = null;
 		portal.priceBase = null;
@@ -117,10 +117,10 @@ function load(saveString, autoLoad) {
         savegame = JSON.parse(LZString.decompressFromBase64(localStorage.getItem("trimpSave1")));
     }
     if (typeof savegame === 'undefined' || savegame === null || typeof savegame.global === 'undefined') return;
-	
+	oldVersion = savegame.global.version;
 	resetGame();
 		
-    if (game.global.killSavesBelow > savegame.global.version) {
+    if (game.global.killSavesBelow > oldVersion) {
 		if (savegame.global.version == 0.07){
 			game.global.kongBonusMode = true;
 			activateKongBonus(savegame.global.world);
@@ -169,6 +169,7 @@ function load(saveString, autoLoad) {
                 for (var c in midGame) { //purchased, cost, etc
                     if (c == "cost") continue;
                     if (c == "tooltip") continue;
+					if (a == "mapUnlocks" && c == "repeat") continue;
 					if (a == "resources" && c == "owned"){
 						//check bad entries here.
 					}
@@ -181,7 +182,18 @@ function load(saveString, autoLoad) {
                 }
         }
     }
-
+	if (oldVersion === 1.0){
+		var hasPortal = false;
+		for (var portItem in game.portal){
+			var portUpgrade = game.portal[portItem];
+			if (portUpgrade.level > 0) hasPortal = true;
+			if (typeof portUpgrade.level === 'undefined') continue;
+			for (var c = 0; c < portUpgrade.level; c++){
+				portUpgrade.heliumSpent += Math.ceil((c / 2) + portUpgrade.priceBase * Math.pow(1.3, c));
+			}
+		}
+		if (hasPortal) game.global.totalPortals = 1;
+	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
@@ -234,26 +246,52 @@ function load(saveString, autoLoad) {
     toggleSave(true);
 	checkOfflineProgress();
 	updateLabels();
+	if (game.global.viewingUpgrades) viewPortalUpgrades();
+	if (game.global.respecActive) respecPerks();
 	if (game.global.kongBonusMode) activateKongBonus();
+	if (game.global.totalPortals >= 1) document.getElementById("pastUpgradesBtn").style.display = "inline-block";
 }
 
 function portalClicked() {
 	document.getElementById("wrapper").style.display = "none";
+	document.getElementById("portalWrapper").style.backgroundColor = "green";
+	document.getElementById("portalWrapper").style.color = "black";
 	fadeIn("portalWrapper", 10);
 	document.getElementById("portalTitle").innerHTML = "Time Portal";
-	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.owned);
 	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
+	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(game.resources.helium.owned + game.global.heliumLeftover) + '</span> Helium';
+	document.getElementById("activatePortalBtn").style.display = "inline-block";
+	displayPortalUpgrades();
+}
+
+function viewPortalUpgrades() {
+	game.global.viewingUpgrades = true;
+	document.getElementById("wrapper").style.display = "none";
+	document.getElementById("portalWrapper").style.backgroundColor = "black";
+	document.getElementById("portalWrapper").style.color = "white";
+	fadeIn("portalWrapper", 10);
+	document.getElementById("portalTitle").innerHTML = "View Perks";
+	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(parseInt(game.global.heliumLeftover)) + '</span> Left Over';
+	document.getElementById("portalStory").innerHTML = "These are all of your perks! You can reset them once per run.";
+	document.getElementById("cancelPortalBtn").innerHTML = "Cancel";
+	document.getElementById("activatePortalBtn").style.display = "none";
+	if (game.global.canRespecPerks) {
+		document.getElementById("respecPortalBtn").innerHTML = "Respec";
+		document.getElementById("respecPortalBtn").style.display = "inline-block";
+	}
 	displayPortalUpgrades();
 }
 
 function displayPortalUpgrades(){
 	var elem = document.getElementById("portalUpgradesHere");
-	if (!elem.innerHTML) {
-		for (var what in game.portal){
-			if (what == "totalPortals") continue;
-			var portUpgrade = game.portal[what];
-			elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span></span></div>';
-		}
+	elem.innerHTML = "";
+	game.resources.helium.totalSpentTemp = 0;
+	for (var what in game.portal){
+		var portUpgrade = game.portal[what];
+		if (typeof portUpgrade.level === 'undefined') continue;
+		portUpgrade.levelTemp = 0;
+		portUpgrade.heliumSpentTemp = 0;	
+		elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span></span></div>';
 	}
 }
 
@@ -277,6 +315,8 @@ function activateKongBonus(oldWorld){
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + helium + '</span> Bonus Points';
 	document.getElementById("cancelPortalBtn").innerHTML = "No Thanks";
 	document.getElementById("activatePortalBtn").innerHTML = "Finished";
+		document.getElementById("activatePortalBtn").style.display = "inline-block";
+
 	fadeIn("portalWrapper", 10);
 	game.resources.helium.owned = helium;
 	displayPortalUpgrades();
@@ -312,7 +352,38 @@ function checkOfflineProgress(){
 	tooltip("Trustworthy Trimps", null, "update", textString);
 }
 
+function respecPerks(){
+	if (!game.global.canRespecPerks) return;
+	game.global.respecActive = true;
+	displayPortalUpgrades();
+	game.resources.helium.respecMax = 0;
+	for (var item in game.portal){
+		var portUpgrade = game.portal[item];
+		if (typeof portUpgrade.level === 'undefined') continue;
+		portUpgrade.levelTemp -= portUpgrade.level;
+		portUpgrade.heliumSpentTemp -= portUpgrade.heliumSpent;
+		game.resources.helium.respecMax += portUpgrade.heliumSpent;
+		document.getElementById(item + "Owned").innerHTML = "0";
+	}
+
+	game.resources.helium.respecMax += game.global.heliumLeftover;
+	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax);
+	document.getElementById("respecPortalBtn").style.display = "none";
+	document.getElementById("activatePortalBtn").innerHTML = "Confirm";
+	document.getElementById("activatePortalBtn").style.display = "inline-block";
+	document.getElementById("portalStory").innerHTML = "You can only respec once per run. Clicking cancel will not consume this use.";
+	document.getElementById("portalTitle").innerHTML = "Respec Perks";
+}
+
 function activateClicked(){	
+	if (game.global.respecActive){
+		var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
+		commitPortalUpgrades();
+		game.global.heliumLeftover = refund;
+		game.global.canRespecPerks = false;
+		cancelPortal();
+		return;
+	}
 	var newText = "";
 	if (game.global.kongBonusMode){
 		newText = "All set?";
@@ -323,14 +394,18 @@ function activateClicked(){
 }
 
 function buyPortalUpgrade(what){
+	if (!game.global.kongBonusMode && !game.global.portalActive && !game.global.respecActive) return;
+	if (game.global.viewingUpgrades && !game.global.respecActive) return;
 	var toBuy = game.portal[what];
 	var price = getPortalUpgradePrice(what);
-	if (game.resources.helium.owned >= price){
-		toBuy.level++;
-		document.getElementById(what + "Owned").innerHTML = toBuy.level;
-		game.resources.helium.owned -= price;
+	var canSpend = (game.global.respecActive) ? game.resources.helium.respecMax :  (game.resources.helium.owned + game.global.heliumLeftover);
+	if (canSpend >= (game.resources.helium.totalSpentTemp + price)){
+		toBuy.levelTemp++;
+		game.resources.helium.totalSpentTemp += price;
+		toBuy.heliumSpentTemp += price;
+		document.getElementById(what + "Owned").innerHTML = toBuy.level + toBuy.levelTemp;
 		tooltip(what, "portal", "update");
-		document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.owned);
+		document.getElementById("portalHeliumOwned").innerHTML = prettify(canSpend - game.resources.helium.totalSpentTemp);
 	}
 }
 
@@ -342,25 +417,50 @@ function unlockMapStuff(){
 
 function getPortalUpgradePrice(what){
 	var toCheck = game.portal[what];
-	return Math.ceil((toCheck.level / 2) + toCheck.priceBase * Math.pow(1.3, toCheck.level));
+	var tempLevel = toCheck.level + toCheck.levelTemp;
+	return Math.ceil((tempLevel / 2) + toCheck.priceBase * Math.pow(1.3, tempLevel));
+}
+
+function commitPortalUpgrades(){
+document.getElementById("pastUpgradesBtn").style.display = "inline-block";
+	for (var item in game.portal){
+		var portUpgrade = game.portal[item];
+		if (typeof portUpgrade.level === 'undefined') continue;
+		portUpgrade.level += portUpgrade.levelTemp;
+		portUpgrade.levelTemp = 0;
+		portUpgrade.heliumSpent += portUpgrade.heliumSpentTemp;
+		portUpgrade.heliumSpentTemp = 0;
+	} 
+	
+	if (game.global.respecActive && !game.global.portalActive && !game.global.kongBonusMode){
+		game.global.heliumLeftover = game.resources.helium.maxRespec - game.resources.helium.totalSpentTemp;
+		game.resources.helium.totalSpentTemp = 0;
+		game.resources.helium.maxRespec = 0;
+		return;
+	}
+	if (!game.global.respecActive) game.resources.helium.owned -= (game.resources.helium.totalSpentTemp + game.global.heliumLeftover);
+	game.resources.helium.totalSpentTemp = 0;
+	
 }
 
 function activatePortal(){
+	commitPortalUpgrades();
 	cancelPortal(true);
 	resetGame(true);
-	game.portal.totalPortals++;
+	game.global.totalPortals++;
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 }
 
 function cancelPortal(keep){
 	if (game.global.kongBonusMode){
-		game.resources.helium = 0;
 		game.global.kongBonusMode = false;
-		if (!keep) resetGame();
-		document.getElementById("portalUpgradesHere").innerHTML = "";
-	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
+		if (!keep) resetGame();		
+		message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 	}
+	game.global.viewingUpgrades = false;
+	game.global.respecActive = false;
+	document.getElementById("portalUpgradesHere").innerHTML = "";
 	document.getElementById("portalWrapper").style.display = "none";
 	fadeIn("wrapper", 10);
 }

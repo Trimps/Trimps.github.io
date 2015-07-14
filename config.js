@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.0,
+		version: 1.01,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -73,6 +73,11 @@ var toReturn = {
 		buyTab: "all",
 		nextQueueId: 0,
 		kongBonusMode: false,
+		canRespecPerks: true,
+		respecActive: false,
+		heliumLeftover: 0,
+		viewingUpgrades: false,
+		totalPortals: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -133,12 +138,12 @@ var toReturn = {
 	},
 	//portal
 	portal: {
-	totalPortals: 0,
 	//Names and tooltips not final
 		Bait: {
 			level: 0,
 			modifier: 1,
 			priceBase: 4,
+			heliumSpent: 0,
 			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
 		},
 		Trumps: {
@@ -147,6 +152,7 @@ var toReturn = {
 			level: 0,
 			modifier: 1,
 			priceBase: 3,
+			heliumSpent: 0,
 			tooltip: "Practicing aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
 		},
 
@@ -155,6 +161,7 @@ var toReturn = {
 			level: 0,
 			modifier: .1,
 			priceBase: 3,
+			heliumSpent: 0,
 			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanantly breed 10% faster.",
 		},
 		//trapThings main
@@ -163,6 +170,7 @@ var toReturn = {
 		//gather main
 		Motivation: {
 			modifier: 0.05,
+			heliumSpent: 0,
 			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 5%",
 			priceBase: 2,
 			level: 0,
@@ -172,12 +180,14 @@ var toReturn = {
 			level: 0,
 			modifier: .05,
 			priceBase: 1,
+			heliumSpent: 0,
 			tooltip: "Trimps learn through example. Spending some time bench pressing dead Elephimps should inspire any future Trimps to become stronger too. Adds 5% attack permanently to your Trimps.",
 		},
 		//startFight main
 		Toughness: {
 			modifier: .05,
 			priceBase: 1,
+			heliumSpent: 0,
 			tooltip: "Pay your Trimps to knock you around a little bit. By learning to not be such a wuss, your Trimps will be less wussy as well. Adds 5% health permanently to your Trimps.",
 			level: 0,
 		},
@@ -195,6 +205,7 @@ var toReturn = {
 		Looting: {
 			modifier: .05,
 			priceBase: 1,
+			heliumSpent: 0,
 			tooltip: "Walk back through the empty zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%",
 			level: 0,
 		},
@@ -790,9 +801,9 @@ var toReturn = {
 		}, */
 		gems: {
 			world: -1,
-			level: [0, 15],
+			level: [0, 7],
 			icon: "certificate",
-			repeat: 6,
+			repeat: 8,
 			fire: function (level) {
 				var amt = rewardResource("gems", .1, level, true);
 				message("<span class='glyphicon glyphicon-certificate'></span>You found " + prettify(amt) + " gems! Terrific!", "Loot");
@@ -800,9 +811,9 @@ var toReturn = {
 		},
 		Metal: {
 			world: -1,
-			level: [0, 3],
+			level: [0, 1],
 			icon: "fire",
-			repeat: 6,
+			repeat: 2,
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("metal", .5, level, true);
@@ -811,9 +822,9 @@ var toReturn = {
 		},
 		Food: {
 			world: -1,
-			level: [0, 3],
+			level: [0, 1],
 			icon: "apple",
-			repeat: 9,
+			repeat: 2,
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("food", .5, level, true);
@@ -822,9 +833,9 @@ var toReturn = {
 		},
 		Wood: {
 			world: -1,
-			level: [0, 3],
+			level: [0, 1],
 			icon: "tree-deciduous",
-			repeat: 8,
+			repeat: 2,
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("wood", .5, level, true);
