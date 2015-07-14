@@ -91,7 +91,7 @@ var toReturn = {
 			Notices: true
 		},
 		prestige: {
-			attack: 11,
+			attack: 12,
 			health: 14,
 			cost: 59,
 			block: 10,
