@@ -681,7 +681,7 @@ function canAffordBuilding(what, take, buildCostString, isEquipment){
 		var color = "green";
 		var price = 0;
 		price = parseInt(getBuildingItemPrice(toBuy, costItem, isEquipment))
-		if (price > game.resources[costItem].owned) {
+		if (price > game.resources[costItem].owned || !(isFinite(price))) {
 			if (buildCostString) color = "red";
 			else return false;
 		}

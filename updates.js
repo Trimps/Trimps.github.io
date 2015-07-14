@@ -115,7 +115,7 @@ function tooltip(what, isItIn, event, textString) {
 		costText = "";
 	}
 	if (what == "Custom"){
-		tooltipText = "Type a number below to purchase a specific amount.<br/><br/><input type='number' id='customNumberBox' style='width: 50%'></input>"
+		tooltipText = "Type a number below to purchase a specific amount. (Max is 500)<br/><br/><input type='number' id='customNumberBox' style='width: 50%' + value='" + game.global.lastCustomAmt + "'></input>"
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='numTab(5)'>Apply</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
@@ -448,10 +448,12 @@ function numTab (what) {
 		
 		unlockTooltip();
 		tooltip('hide');
-		num = Math.ceil(document.getElementById("customNumberBox").value);
+		num = Math.ceil(parseInt(document.getElementById("customNumberBox").value));
+		if (num > 15000) num = 15000;
 		if (num > 0) {
 			document.getElementById("tab5Text").innerHTML = "+" + prettify(num);
-			game.global.buyAmt = parseInt(num);
+			game.global.buyAmt = num;
+			game.global.lastCustomAmt = num;
 		}
 		else {
 			message("Please use a number greater than 0!", "Notices");

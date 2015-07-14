@@ -78,6 +78,7 @@ var toReturn = {
 		heliumLeftover: 0,
 		viewingUpgrades: false,
 		totalPortals: 0,
+		lastCustomAmt: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
