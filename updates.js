@@ -115,7 +115,7 @@ function tooltip(what, isItIn, event, textString) {
 		costText = "";
 	}
 	if (what == "Custom"){
-		tooltipText = "Type a number below to purchase a specific amount. (Max is 500)<br/><br/><input type='number' id='customNumberBox' style='width: 50%' + value='" + game.global.lastCustomAmt + "'></input>"
+		tooltipText = "Type a number below to purchase a specific amount. (Max is 15000)<br/><br/><input type='number' id='customNumberBox' style='width: 50%' + value='" + game.global.lastCustomAmt + "'></input>"
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='numTab(5)'>Apply</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
