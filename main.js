@@ -382,6 +382,7 @@ function activateClicked(){
 		game.global.heliumLeftover = refund;
 		game.global.canRespecPerks = false;
 		cancelPortal();
+		game.resources.helium.respecMax = 0;
 		return;
 	}
 	var newText = "";
@@ -430,15 +431,14 @@ document.getElementById("pastUpgradesBtn").style.display = "inline-block";
 		portUpgrade.levelTemp = 0;
 		portUpgrade.heliumSpent += portUpgrade.heliumSpentTemp;
 		portUpgrade.heliumSpentTemp = 0;
+		
 	} 
-	
-	if (game.global.respecActive && !game.global.portalActive && !game.global.kongBonusMode){
+	if (game.global.respecActive){
 		game.global.heliumLeftover = game.resources.helium.maxRespec - game.resources.helium.totalSpentTemp;
 		game.resources.helium.totalSpentTemp = 0;
-		game.resources.helium.maxRespec = 0;
 		return;
 	}
-	if (!game.global.respecActive) game.resources.helium.owned -= (game.resources.helium.totalSpentTemp + game.global.heliumLeftover);
+	if (!game.global.respecActive) game.resources.helium.owned -= (game.resources.helium.totalSpentTemp);
 	game.resources.helium.totalSpentTemp = 0;
 	
 }

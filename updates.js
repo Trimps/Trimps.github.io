@@ -344,6 +344,8 @@ function resetGame(keepPortal) {
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
 		totalPortals = game.global.totalPortals;
+		console.log(game.global.heliumLeftover);
+		console.log(game.resources.helium.owned);
 	}
 	game = null;
 	game = newGame();
@@ -351,7 +353,10 @@ function resetGame(keepPortal) {
 	game.global.messages = messages;
 	if (keepPortal){
 		game.portal = portal;
+		
 		game.global.heliumLeftover = helium;
+		console.log(game.global.heliumLeftover);
+		console.log(game.resources.helium.owned);
 		game.global.totalPortals = totalPortals;
 	}
 	numTab(1);
