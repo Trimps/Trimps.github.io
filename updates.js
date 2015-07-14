@@ -21,7 +21,7 @@
 function tooltip(what, isItIn, event, textString) {
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
-	var focusElemId = null;
+	var ondisplay = null; // if non-null, called after the tooltip is displayed
 	if (what == "hide"){
 		elem.style.display = "none";
 		return;
@@ -129,7 +129,13 @@ function tooltip(what, isItIn, event, textString) {
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
-		focusElemId = "customNumberBox";
+		ondisplay = function() {
+			var box = document.getElementById("customNumberBox");
+			// Chrome chokes on setSelectionRange on a number box; fall back to select()
+			try { box.setSelectionRange(0, box.value.length); } 
+			catch (e) { box.select(); }
+			box.focus();
+		};
 	}
 	if (what == "Export"){
 		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea style='width: 100%' rows='5'>" + save(true) + "</textarea>";
@@ -216,8 +222,8 @@ function tooltip(what, isItIn, event, textString) {
 	document.getElementById("tipText").innerHTML = tooltipText;
 	document.getElementById("tipCost").innerHTML = costText;
 	elem.style.display = "block";
-	if (focusElemId != null)
-		document.getElementById(focusElemId).focus();
+	if (ondisplay != null)
+		ondisplay();
 }
 
 function unlockTooltip(){
