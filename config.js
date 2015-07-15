@@ -117,6 +117,8 @@ var toReturn = {
 			
 			if (world > 6 && game.global.mapsActive) amt *= 1.1;
 			
+			amt *= game.badGuys[name].attack;
+			
 			return Math.floor(amt);
 		},
 		getEnemyHealth: function (level, name) {
@@ -133,6 +135,8 @@ var toReturn = {
 			amt = (amt * .4) + ((amt * .4) * (level / 110));
 			
 			if (world > 5 && game.global.mapsActive) amt *= 1.1;
+			
+			amt *= game.badGuys[name].health;
 			
 			return Math.floor(amt);
 		}
@@ -436,8 +440,8 @@ var toReturn = {
 	badGuys: {
 		Squimp: {
 			location: "All",
-			attack: 1,
-			health: 1,
+			attack: .8,
+			health: .7,
 			fast: true
 		},
 		Elephimp: {
@@ -454,7 +458,7 @@ var toReturn = {
 		},
 		Penguimp: {
 			location: "All",
-			attack: 1.3,
+			attack: 1.1,
 			health: 0.7,
 			fast: false
 		},
@@ -479,7 +483,7 @@ var toReturn = {
 		Mountimp: {
 			location: "Mountain",
 			attack: 0.5,
-			health: 3,
+			health: 2,
 			fast: false
 		},
 		Frimp: {
@@ -488,12 +492,22 @@ var toReturn = {
 			health: 1.2,
 			fast: true
 		},
+		Grimp: {
+			location: "Forest",
+			attack: 1.1,
+			health: 1.5,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("wood", .5, level);
+				message("<span class='glyphicon glyphicon-tree-deciduous'></span>That Grimp dropped " + prettify(amt) + " wood!", "Loot");
+			}
+		},
 		Blimp: {
 			location: "World",
 			last: true,
 			world: 5,
-			attack: 1.3,
-			health: 10,
+			attack: 1.2,
+			health: 2,
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("food", 2, level);
@@ -509,16 +523,16 @@ var toReturn = {
 		Megablimp: {
 			location: "Hell",
 			last: true,
-			world: 21,
+			world: 20,
 			attack: 1.1,
-			health: 15,
+			health: 4,
 			fast: false,
 		},
 		Dragimp: {
 			location: "World",
 			world: 17,
 			attack: 1,
-			health: 2,
+			health: 1.5,
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", .05, level, false);
@@ -530,7 +544,7 @@ var toReturn = {
 			last: true,
 			world: 10,
 			attack: 1.2,
-			health: 8,
+			health: 2.5,
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("wood", 2, level, true);
@@ -547,9 +561,10 @@ var toReturn = {
 			"Dark", "Light", "Magnificent", "Evil", "Holy", "Hallowed", "Desecrated", "Silent", "Eternal", "Underground", "Temperate", "Chilly", 
 			"Muddy", "Dank", "Steamy", "Humid", "Dry", "Putrid", "Foul", "Dangerous", "Marred", "Blighted", "Crystal", "Frozen", "Simple", "Timeless"],
 			
-			suffix: ["Creek.Sea", "Coast.Sea", "Swamp", "Forest.Forest", "Mountain.Mountain", "Pass", "Way", "Plains", "Beach.Sea", "Hill.Mountain", "Gorge", "Valley", "Road", "Turn", 
-			"Lift", "Peak.Mountain", "Canyon", "Plateau.Mountain", "Crag", "Crater", "Flats", "Oaks.Forest",  "Pit", "Volcano.Mountain", "Glacier",  "Cavern", "Cave",  "Nest", "Fork", "Tundra", 
-			"Sea.Sea", "Ocean.Sea", "Lake.Sea", "Jungle.Forest", "Desert", "Island.Sea", "Ruins", "Temple", "Bog", "Path", "Clearing"]
+			suffix: ["Creek.Sea", "Coast.Sea", "Swamp.Sea", "Forest.Forest", "Mountain.Mountain", "Pass", "Way", "Plains", "Beach.Sea", "Hill.Mountain", "Gorge", "Valley", "Road", "Turn", 
+			"Lift", "Peak.Mountain", "Canyon", "Plateau.Mountain", "Crag", "Crater", "Flats", "Oaks.Forest",  "Pit", "Volcano.Mountain", "Glacier.Sea",  "Cavern.Sea", "Cave",  "Nest", "Fork", "Tundra", 
+			"Sea.Sea", "Ocean.Sea", "Lake.Sea", "Jungle.Forest", "Island.Sea", "Ruins", "Temple", "Bog.Sea", "Path", "Clearing", "Grove.Forest", "Jungle.Forest", "Thicket.Forest", "Woods.Forest",
+			"Oasis.Forest"]
 		},
 		locations: {
 			Sea: {
@@ -1829,7 +1844,7 @@ var toReturn = {
 		Supershield: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your shield. This will destroy your old shield and vastly increase the cost of further upgrades, but will vastly increase the amount of health given.",
+			tooltip: "Researching this will prestige your shield. This will destroy your old shield and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1837,6 +1852,7 @@ var toReturn = {
 					gems: [40, 3]
 				}
 			},
+			prestiges: "Shield",
 			fire: function () {
 				prestigeEquipment("Shield");
 			}
@@ -1844,7 +1860,7 @@ var toReturn = {
 		Dagadder: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your dagger. This will destroy your old dagger and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given.",
+			tooltip: "Researching this will prestige your dagger. This will destroy your old dagger and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1852,6 +1868,7 @@ var toReturn = {
 					gems: [60, 3]
 				}
 			},
+			prestiges: "Dagger",
 			fire: function () {
 				prestigeEquipment("Dagger");
 			}
@@ -1859,7 +1876,7 @@ var toReturn = {
 		Bootboost: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your boots. This will destroy your old boots and vastly increase the cost of further upgrades, but will vastly increase the amount of health given.",
+			tooltip: "Researching this will prestige your boots. This will destroy your old boots and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1867,6 +1884,7 @@ var toReturn = {
 					gems: [70, 3]
 				}
 			},
+			prestiges: "Boots",
 			fire: function () {
 				prestigeEquipment("Boots");
 			}
@@ -1874,7 +1892,7 @@ var toReturn = {
 		Megamace: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your mace. This will destroy your old mace and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given.",
+			tooltip: "Researching this will prestige your mace. This will destroy your old mace and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1882,6 +1900,7 @@ var toReturn = {
 					gems: [100, 3]
 				}
 			},
+			prestiges: "Mace",
 			fire: function () {
 				prestigeEquipment("Mace");
 			}
@@ -1889,7 +1908,7 @@ var toReturn = {
 		Hellishmet: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your helmet. This will destroy your old helmet and vastly increase the cost of further upgrades, but will vastly increase the amount of health given.",
+			tooltip: "Researching this will prestige your helmet. This will destroy your old helmet and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1897,6 +1916,7 @@ var toReturn = {
 					gems: [150, 3]
 				}
 			},
+			prestiges: "Helmet",
 			fire: function () {
 				prestigeEquipment("Helmet");
 			}
@@ -1904,7 +1924,7 @@ var toReturn = {
 		Polierarm: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your polearm. This will destroy your old polearm and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given.",
+			tooltip: "Researching this will prestige your polearm. This will destroy your old polearm and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1912,6 +1932,7 @@ var toReturn = {
 					gems: [225, 3]
 				}
 			},
+			prestiges: "Polearm",
 			fire: function () {
 				prestigeEquipment("Polearm");
 			}
@@ -1919,7 +1940,7 @@ var toReturn = {
 		Pantastic: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your pants. This will destroy your old pants and vastly increase the cost of further upgrades, but will vastly increase the amount of health given.",
+			tooltip: "Researching this will prestige your pants. This will destroy your old pants and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1927,6 +1948,7 @@ var toReturn = {
 					gems: [275, 3]
 				}
 			},
+			prestiges: "Pants",
 			fire: function () {
 				prestigeEquipment("Pants");
 			}
@@ -1934,7 +1956,7 @@ var toReturn = {
 		Axeidic: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your axe. This will destroy your old axe and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given.",
+			tooltip: "Researching this will prestige your axe. This will destroy your old axe and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1942,6 +1964,7 @@ var toReturn = {
 					gems: [400, 3]
 				}
 			},
+			prestiges: "Battleaxe",
 			fire: function () {
 				prestigeEquipment("Battleaxe");
 			}
@@ -1949,7 +1972,7 @@ var toReturn = {
 		Smoldershoulder: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your shoulderguards. This will destroy your old shoulderguards and vastly increase the cost of further upgrades, but will vastly increase the amount of health given.",
+			tooltip: "Researching this will prestige your shoulderguards. This will destroy your old shoulderguards and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1957,6 +1980,7 @@ var toReturn = {
 					gems: [525, 3]
 				}
 			},
+			prestiges: "Shoulderguards",
 			fire: function () {
 				prestigeEquipment("Shoulderguards");
 			}
@@ -1964,7 +1988,7 @@ var toReturn = {
 		Greatersword: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your greatsword. This will destroy your old greatsword and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given.",
+			tooltip: "Researching this will prestige your greatsword. This will destroy your old greatsword and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1972,6 +1996,7 @@ var toReturn = {
 					gems: [650, 3]
 				}
 			},
+			prestiges: "Greatsword",
 			fire: function () {
 				prestigeEquipment("Greatsword");
 			}
@@ -1979,7 +2004,7 @@ var toReturn = {
 		Bestplate: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your breastplate. This will destroy your old breastplate and vastly increase the cost of further upgrades, but will vastly increase the amount of health given.",
+			tooltip: "Researching this will prestige your breastplate. This will destroy your old breastplate and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -1987,6 +2012,7 @@ var toReturn = {
 					gems: [800, 3]
 				}
 			},
+			prestiges: "Breastplate",
 			fire: function () {
 				prestigeEquipment("Breastplate");
 			}

@@ -69,6 +69,7 @@ function save(exportThis) {
     for (var itemB in saveGame.upgrades) {
         saveGame.upgrades[itemB].tooltip = null;
         saveGame.upgrades[itemB].cost = null;
+		saveGame.upgrades[itemB].prestiges = null;
     }
     for (var itemC in saveGame.jobs) {
         saveGame.jobs[itemC].tooltip = null;
@@ -979,6 +980,27 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	equipment.level = 0;
     if (document.getElementById(what + "Numeral") !== null) document.getElementById(what + "Numeral").innerHTML = romanNumeral(equipment.prestige);
 }
+
+function getNextPrestigeCost(what){
+	var equipment = game.equipment[game.upgrades[what].prestiges];
+	var prestigeMod;
+	var nextPrestigeCount = equipment.prestige + 1;
+	if (nextPrestigeCount >= 4) prestigeMod = (((nextPrestigeCount - 3) * .85) + 2);
+	else prestigeMod = (nextPrestigeCount - 1);
+    return Math.round(equipment.oc * Math.pow(1.069, ((prestigeMod) * game.global.prestige.cost) + 1));
+}
+
+function getNextPrestigeValue(what){
+	var name = game.upgrades[what].prestiges;
+	var equipment = game.equipment[name];
+	var stat;
+	if (equipment.blockNow) stat = "block";
+	else stat = (typeof equipment.health !== 'undefined') ? "health" : "attack";
+	var toReturn = Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige) * game.global.prestige[stat]) + 1));
+	return prettify(toReturn) + " " + stat;
+}
+
+
 
 function createMap() {
     game.global.mapsOwned++;
