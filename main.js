@@ -194,6 +194,9 @@ function load(saveString, autoLoad) {
 		}
 		if (hasPortal) game.global.totalPortals = 1;
 	}
+	if (oldVersion === 1.01){
+		game.jobs.Dragimp.modifier = (.5 * Math.pow(1.05, game.buildings.Tribute.owned));
+	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
@@ -747,7 +750,7 @@ function refundQueueItem(what) {
 			else refund += thisCostItem;
 			
 		}
-        game.resources[costItem].owned += parseInt(refund);
+        game.resources[costItem].owned += parseFloat(refund);
 		if (game.resources[costItem].max > 0 && game.resources[costItem].owned > game.resources[costItem].max) game.resources[costItem].owned = game.resources[costItem].max;
     }
 }
@@ -803,9 +806,9 @@ function buildBuilding(what) {
 	else if (buildingSplit[0] == "Dragimp") toIncrease = game.jobs.Dragimp;
     else
         toIncrease = game.resources[buildingSplit[0]];
-    if (buildingSplit[2] == "mult") toIncrease[buildingSplit[1]] = parseInt(toIncrease[buildingSplit[1]] * building.increase.by).toFixed(5);
+    if (buildingSplit[2] == "mult") toIncrease[buildingSplit[1]] = parseFloat(toIncrease[buildingSplit[1]] * building.increase.by).toFixed(5);
     else
-        toIncrease[buildingSplit[1]] += parseInt(building.increase.by);
+        toIncrease[buildingSplit[1]] += parseFloat(building.increase.by);
     numTab();
 }
 

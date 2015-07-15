@@ -574,7 +574,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 	for (var item in game.resources){
 		toUpdate = game.resources[item];
 		if (!(toUpdate.owned > 0)){
-			toUpdate.owned = parseInt(toUpdate.owned);
+			toUpdate.owned = parseFloat(toUpdate.owned);
 			if (!(toUpdate.owned > 0)) toUpdate.owned = 0;
 		}
 		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned), true);
