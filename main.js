@@ -1812,6 +1812,11 @@ function gameTimeout() {
 
 setTimeout(gameTimeout(), (1000 / game.settings.speed));
 
-
+document.addEventListener('keydown', function(e) {
+	if (e.keyCode == 27) { // ESC
+		// cancel the current dialog box
+		cancelTooltip();
+	}
+}, true);
 
 document.getElementById("versionNumber").innerHTML = game.global.version;

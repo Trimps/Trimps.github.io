@@ -91,7 +91,7 @@ function tooltip(what, isItIn, event, textString) {
 	if (what == "Trustworthy Trimps"){
 		tooltipText = textString;
 		game.global.lockTooltip = true;
-		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Sweet, thanks.</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='cancelTooltip()'>Sweet, thanks.</div></div>";
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
 	}
@@ -105,7 +105,7 @@ function tooltip(what, isItIn, event, textString) {
 	}
 	if (what == "Reset"){
 		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone.";
-		costText="<div class='maxCenter'><div class='btn btn-info' onclick='resetGame();unlockTooltip();tooltip(\"hide\")'>Reset</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div class='btn btn-info' onclick='resetGame();unlockTooltip();tooltip(\"hide\")'>Reset</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -125,7 +125,7 @@ function tooltip(what, isItIn, event, textString) {
 	}
 	if (what == "Custom"){
 		tooltipText = "Type a number below to purchase a specific amount. (Max is 15000)<br/><br/><input type='number' id='customNumberBox' style='width: 50%' value='" + game.global.lastCustomAmt + "'></input>"
-		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='numTab(5)'>Apply</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='numTab(5)'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -139,14 +139,14 @@ function tooltip(what, isItIn, event, textString) {
 	}
 	if (what == "Export"){
 		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea style='width: 100%' rows='5'>" + save(true) + "</textarea>";
-		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Got it</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='cancelTooltip()'>Got it</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
 	}
 	if (what == "Import"){
 		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea id='importBox' style='width: 100%' rows='5'></textarea>";
-		costText="<div class='maxCenter'><div class='btn btn-info' onclick='load(true); unlockTooltip(); tooltip(\"hide\")'>Import</div><div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div class='btn btn-info' onclick='load(true); cancelTooltip()'>Import</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -224,6 +224,12 @@ function tooltip(what, isItIn, event, textString) {
 	elem.style.display = "block";
 	if (ondisplay != null)
 		ondisplay();
+}
+
+// Correct function to call to cancel the current tooltip
+function cancelTooltip(){
+	unlockTooltip();
+	tooltip("hide");
 }
 
 function unlockTooltip(){
