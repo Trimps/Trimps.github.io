@@ -1,7 +1,7 @@
 //I wrote all of this code by hand with no libraries so I could learn stuff (except LZString for save import/export, string compression is out of my league. Credits in that file). This is my first javascript project, so be nice.
 //Feel free to read through the code and use stuff if you want, I don't know how to properly comment code so I just wrote stuff where I felt like it
 //I will be continually cleaning up and making this code more readable as my javascript skills improve
-//Contact me via reddit, /u/brownprobe, or trimpsgame@gmail.com
+//Contact me via Kongregate as GreenSatellite, reddit on /r/Trimps, or Email at trimpsgame@gmail.com
 /* 		Trimps
 		Copyright (C) 2015 Zach Hood
 
@@ -198,6 +198,13 @@ function load(saveString, autoLoad) {
 	if (oldVersion === 1.01){
 		game.jobs.Dragimp.modifier = (.5 * Math.pow(1.05, game.buildings.Tribute.owned));
 	}
+	if (oldVersion === 1.02){
+		for (var checkResourceMax in game.resources){
+			var toCheckMax = game.resources[checkResourceMax];
+			if (toCheckMax.max == -1) continue;
+			toCheckMax.max = parseFloat(toCheckMax.max);
+		}
+	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
@@ -343,9 +350,8 @@ function checkOfflineProgress(){
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
 		var perSec = amt;
 		amt *= dif;
-/* 		console.log("right now: " + rightNow + ", lastOnline: " + game.global.lastOnline + ", dif: " + dif + ", perSec: " + perSec); 
-		console.log(job); */
-		var allowed = (resource.max - resource.owned);
+		var newMax = resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
+		var allowed = (newMax - resource.owned);
 		if (amt > allowed) amt = allowed;
 		resource.owned += amt;
 		textString += prettify(amt) + " " + resName + ", ";
@@ -543,8 +549,13 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
 
 function addResCheckMax(what, number) {
     var res = game.resources[what];
-    if (res.owned + number <= res.max || res.max == -1) res.owned += number;
-    else res.owned = res.max;
+	if (res.max == -1) {
+		res.owned += number;
+		return;
+	}
+	var newMax = res.max + (res.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
+    if (res.owned + number <= newMax) res.owned += number;
+    else res.owned = newMax;
 }
 
 function fireMode(noChange) {
@@ -596,8 +607,7 @@ function setGatherTextAs(what, on) {
 }
 
 function gather() {
-    var what = game.global.playerGathering;
-    var whatPs = 0;
+    var what = game.global.playerGathering;	
     var amount;
     for (var job in game.jobs) {
         if (game.jobs[job].owned < 1) continue;
@@ -607,12 +617,7 @@ function gather() {
         amount = perSec / game.settings.speed;
 		//Motivation
 		if (game.portal.Motivation.level > 0) amount += (amount * game.portal.Motivation.level * game.portal.Motivation.modifier);
-        if ((game.resources[increase].max != -1) && ((game.resources[increase].owned + amount) > game.resources[increase].max)) game.resources[increase].owned = game.resources[increase].max;
-        else game.resources[increase].owned += amount;
-        if (what == increase) {
-            whatPs = perSec;
-            perSec += game.global.playerModifier;
-        }
+        addResCheckMax(increase, amount);
     }
     if (what === "" || what == "buildings") return;
     if (what == "trimps") {
@@ -622,8 +627,7 @@ function gather() {
     var toGather = game.resources[what];
     if (typeof toGather === 'undefined') return;
     amount = (game.global.playerModifier) / game.settings.speed;
-    if ((toGather.max != -1) && ((toGather.owned + amount) > toGather.max)) toGather.owned = toGather.max;
-    else toGather.owned += amount;
+    addResCheckMax(what, amount);
 }
 
 function checkTriggers(force) {
@@ -751,8 +755,7 @@ function refundQueueItem(what) {
 			else refund += thisCostItem;
 			
 		}
-        game.resources[costItem].owned += parseFloat(refund);
-		if (game.resources[costItem].max > 0 && game.resources[costItem].owned > game.resources[costItem].max) game.resources[costItem].owned = game.resources[costItem].max;
+		addResCheckMax(costItem, parseFloat(refund));
     }
 }
 
@@ -807,7 +810,7 @@ function buildBuilding(what) {
 	else if (buildingSplit[0] == "Dragimp") toIncrease = game.jobs.Dragimp;
     else
         toIncrease = game.resources[buildingSplit[0]];
-    if (buildingSplit[2] == "mult") toIncrease[buildingSplit[1]] = parseFloat(toIncrease[buildingSplit[1]] * building.increase.by).toFixed(5);
+    if (buildingSplit[2] == "mult") toIncrease[buildingSplit[1]] = parseFloat(toIncrease[buildingSplit[1]]) * parseFloat(building.increase.by).toFixed(5);
     else
         toIncrease[buildingSplit[1]] += parseFloat(building.increase.by);
     numTab();
@@ -1183,7 +1186,7 @@ function findHomeForSpecial(special, item, array, max){
 		if (level >= max) break;
 		//Resolve resource conflicts. Try +5, reverse, -5, then bail out.
 		var hax = 5;
-
+		if (typeof array[level] === 'undefined') console.log(level + ", " + item);
 		while (array[level].special !== "") {
 			if (hax >= 5) {
 				hax++;

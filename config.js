@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.02,
+		version: 1.03,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -92,7 +92,7 @@ var toReturn = {
 			Notices: true
 		},
 		prestige: {
-			attack: 12,
+			attack: 14,
 			health: 14,
 			cost: 59,
 			block: 10,
@@ -143,7 +143,6 @@ var toReturn = {
 	},
 	//portal
 	portal: {
-	//Names and tooltips not final
 		Bait: {
 			level: 0,
 			modifier: 1,
@@ -151,6 +150,9 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
 		},
+		
+
+		
 		Trumps: {
 		//fiveTrimpMax worldUnlock
 			locked: 0,
@@ -164,22 +166,30 @@ var toReturn = {
 		//breed main
 		Pheromones: {
 			level: 0,
-			modifier: .1,
+			modifier: 0.1,
 			priceBase: 3,
 			heliumSpent: 0,
 			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanantly breed 10% faster.",
 		},
 		//trapThings main
-
+		Packrat: {
+			modifier: 0.05,
+			heliumSpent: 0,
+			tooltip: "Study the ancient, secret Trimp methods of hoarding. Each level increases the amount of stuff you can shove in each Barn, Shed, and Forge by 5%.",
+			priceBase: 3,
+			level: 0,
+		},
 		//updatePs updates
 		//gather main
 		Motivation: {
 			modifier: 0.05,
 			heliumSpent: 0,
-			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 5%",
+			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 5%.",
 			priceBase: 2,
 			level: 0,
 		},
+		
+
 		//startFight main
 		Power: {
 			level: 0,
@@ -211,7 +221,7 @@ var toReturn = {
 			modifier: .05,
 			priceBase: 1,
 			heliumSpent: 0,
-			tooltip: "Walk back through the empty zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%",
+			tooltip: "Walk back through the empty zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%.",
 			level: 0,
 		},
 	},
@@ -502,6 +512,16 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>That Grimp dropped " + prettify(amt) + " wood!", "Loot");
 			}
 		},
+		Seirimp: {
+			location: "Mountain",
+			attack: 1.15,
+			health: 1.4,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("metal", .7, level);
+				message("<span class='glyphicon glyphicon-fire'></span>That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot");
+			}
+		},
 		Blimp: {
 			location: "World",
 			last: true,
@@ -784,16 +804,17 @@ var toReturn = {
 				unlockBuilding("Hotel");
 			}
 		},
-/* 		UberHotel: {
-			world: 30,
+ 		UberHotel: {
+			world: -1,
+			startAt: 40,
 			message: "You found a book that will teach you how to improve your hotels!",
-			level: "last",
+			level: [5, 10],
 			icon: "book",
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("UberHotel");
 			}
-		}, */
+		}, 
 		Resort: {
 			world: -1,
 			startAt: 25,
@@ -803,6 +824,17 @@ var toReturn = {
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Resort");
+			}
+		},
+		Gateway: {
+			world: -1,
+			startAt: 30,
+			message: "You found a key to Dimension ZZZ!",
+			level: [10, 20],
+			icon: "cog",
+			canRunOnce: true,
+			fire: function () {
+				unlockBuilding("Gateway");
 			}
 		},
 /* 		UberResort: {
@@ -1367,6 +1399,22 @@ var toReturn = {
 				by: 40
 			}
 		},
+		Gateway: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 480,
+			tooltip: "A Gateway to another dimension, where your Trimps can sleep and work. Supports $incby$ Trimps.",
+			cost: {
+				fragments: [3000, 1.14],
+				gems: [20000, 1.14],
+				metal: [75000, 1.14]
+			},
+			increase: {
+				what: "trimps.max",
+				by: 100
+			}
+		},
 		Tribute: {
 			locked: 1,
 			owned: 0,
@@ -1693,23 +1741,23 @@ var toReturn = {
 				game.resources.trimps.potency *= 1.1;
 			}
 		},
-/* 		UberHotel: {
+	UberHotel: {
 			locked: 1,
 			allowed: 0,
 			tooltip: "This book will increase the space gained from each Hotel by 2x",
 			done: 0,
 			cost: {
 				resources: {
-					science: [3000, 1.15],
-					food: [200000, 1.1],
-					metal: [100000, 1.1]
+					science: [300000, 1.15],
+					food: [20000000, 1.1],
+					metal: [10000000, 1.1]
 				}
 			},
 			fire: function () {
 				game.resources.trimps.max += ((game.buildings.Hotel.owned) * game.buildings.Hotel.increase.by);
 				game.buildings.Hotel.increase.by *= 2;
 			}
-		},
+		},/* 	
 		UberResort: {
 			locked: 1,
 			allowed: 0,

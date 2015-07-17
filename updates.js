@@ -596,9 +596,12 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		}
 		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned), true);
 		if (toUpdate.max == -1 || document.getElementById(item + "Max") === null) continue;
-		document.getElementById(item + "Max").innerHTML = prettify(toUpdate.max);
+		var newMax = toUpdate.max;
+		if (item != "trimps")
+			newMax += (newMax * game.portal.Packrat.modifier * game.portal.Packrat.level);
+		document.getElementById(item + "Max").innerHTML = prettify(newMax);
 		var bar = document.getElementById(item + "Bar");
-		var percentToMax = ((toUpdate.owned / toUpdate.max) * 100);
+		var percentToMax = ((toUpdate.owned / newMax) * 100);
 		bar.style.backgroundColor = getBarColor(100 - percentToMax);
 		bar.style.width = percentToMax + "%";
 	}
@@ -663,7 +666,12 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
 			if (game.global.playerGathering == increase) psText += game.global.playerModifier;
 			elem = document.getElementById(increase + "Ps");
-			if (game.resources[increase].owned >= game.resources[increase].max && game.resources[increase].max != -1) psText = 0;
+			//Portal Packrat
+			increase = game.resources[increase];
+			if (increase.max != -1){
+				var newMax = increase.max + (increase.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
+				if (increase.owned >= newMax) psText = 0;
+			}
 			psText = psText.toFixed(1);
 			
 		}
