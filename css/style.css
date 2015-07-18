@@ -561,9 +561,19 @@ overflow-x: hidden;
 .mapStatsTitle {
 	text-align: right;
 }
+
+#mapsCreateRow {
+	text-align: center;
+	font-size: 1vw;
+}
 #selectedMapName {
     text-decoration: underline;
 	padding-top: 10px;
+}
+
+#mapLevelInput {
+	color: black;
+	width: 5vw;
 }
 
 .green {

@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.03,
+		version: 1.04,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -518,7 +518,7 @@ var toReturn = {
 			health: 1.4,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .7, level);
+				var amt = rewardResource("metal", .5, level);
 				message("<span class='glyphicon glyphicon-fire'></span>That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot");
 			}
 		},

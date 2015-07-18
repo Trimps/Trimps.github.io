@@ -1005,10 +1005,10 @@ function getNextPrestigeValue(what){
 
 
 
-function createMap() {
+function createMap(newLevel) {
     game.global.mapsOwned++;
     game.global.totalMapsEarned++;
-    var world = game.global.world;
+    var world = (newLevel > 5 && newLevel <= game.global.world) ? newLevel : game.global.world;
     var mapName = getRandomMapName();
 	mapName = mapName.split('.');
 	if (typeof mapName[1] === 'undefined') mapName[1] = "All";
@@ -1302,8 +1302,13 @@ function recycleMap() {
 
 function buyMap() {
 	if (game.resources.fragments.owned >= 3){
+		var newLevel = parseInt(document.getElementById("mapLevelInput").value);
+		if (newLevel > 5 && newLevel <= game.global.world){
 		game.resources.fragments.owned -= 3;
-		createMap();
+		
+		createMap(newLevel);
+		}
+		else message("You must create a map between level 6 and your highest zone, " + game.global.world + ".", "Notices");
 	}
 }
 
@@ -1330,6 +1335,14 @@ function mapsClicked() {
     else game.global.switchToMaps = true;
 }
 
+function incrementMapLevel(amt){
+	var elem = document.getElementById("mapLevelInput");
+	var newNum = parseInt(elem.value) + amt;
+	if (newNum > 5 && newNum <= game.global.world){
+		elem.value = newNum;
+	} 
+}
+
 function mapsSwitch(updateOnly) {
     if (!updateOnly) {
 		game.global.fighting = false;
@@ -1347,6 +1360,9 @@ function mapsSwitch(updateOnly) {
 	recycleBtn.innerHTML = "Recycle Map";
 	document.getElementById("mapsBtn").style.fontSize = "1.1vw";
     if (game.global.preMapsActive) {
+		document.getElementById("battleStatsRow").style.display = "none";
+		document.getElementById("mapsCreateRow").style.display = "block";
+		document.getElementById("mapLevelInput").value = game.global.world;
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "block";
         document.getElementById("mapGrid").style.display = "none";
@@ -1370,6 +1386,8 @@ function mapsSwitch(updateOnly) {
         }
     } else if (game.global.mapsActive) {
 		fadeIn("repeatBtn", 10);
+		document.getElementById("battleStatsRow").style.display = "block";
+		document.getElementById("mapsCreateRow").style.display = "none";
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "none";
         document.getElementById("mapGrid").style.display = "block";
@@ -1377,6 +1395,8 @@ function mapsSwitch(updateOnly) {
         document.getElementById("worldNumber").innerHTML = "</br>Lv: " + currentMapObj.level;
         document.getElementById("worldName").innerHTML = currentMapObj.name;
     } else {
+		document.getElementById("battleStatsRow").style.display = "block";
+		document.getElementById("mapsCreateRow").style.display = "none";
         document.getElementById("grid").style.display = "block";
         document.getElementById("preMaps").style.display = "none";
         document.getElementById("mapGrid").style.display = "none";

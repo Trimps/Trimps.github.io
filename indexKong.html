@@ -352,6 +352,9 @@ var kongregate = parent.kongregateAPI.getAPI();
                                 </div>
                             </div>
                         </div>
+						<div style="display: none" id="mapsCreateRow">
+							<span id='createMapBtn' onclick='buyMap()' class='btn btn-lg btn-info'>Create a Map (3 Fragments)</span> at level <span class="btn btn-default" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input type="number" id="mapLevelInput"></input><span class="btn btn-default" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
+						</div>
                     </div>
                     <div class="row" id="gridRow">
                         <div class="col-xs-2" id="battleBtnsColumn">
@@ -388,12 +391,12 @@ var kongregate = parent.kongregateAPI.getAPI();
                         <div class="col-xs-10" id="gridContainer">
                             <div id="grid"></div>
                             <div id="preMaps" style="display: none">
-							<div class="row" id="mapChamberTitleRow">
-								<div id="preMapsTitle" class="col-xs-6">
+							<div id="mapChamberTitleRow">
+								<div id="preMapsTitle">
                                     Map Chamber
                                 </div>
 
-									<span id='createMapBtn' onclick='buyMap()' class='btn btn-sm btn-info col-xs-4'>Create a Map (3 Fragments)</span>
+									
 
 								
 							</div>
@@ -506,9 +509,9 @@ var kongregate = parent.kongregateAPI.getAPI();
     </div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-    <script type="text/javascript" src="config.js?12"></script>
-    <script type="text/javascript" src="updates.js?12"></script>
-    <script type="text/javascript" src="main.js?12"></script>
+    <script type="text/javascript" src="config.js?13"></script>
+    <script type="text/javascript" src="updates.js?13"></script>
+    <script type="text/javascript" src="main.js?13"></script>
 	
 </body>
 
