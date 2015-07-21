@@ -222,7 +222,7 @@
 					<div id="buyTabs">
 				<ul id="buyTabsUl" class="nav nav-tabs nav-justified">
 					<li role="presentation" id="allTab" onclick="filterTabs('all')" class="buyTab"><a id="allA" href="#">All</a></li>
-					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="buyTab"><a id="buildingsA"href="#"><span id="buildingsAlert" class="alert badge"></span>Structures</a></li>
+					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="buyTab"><a id="buildingsA" href="#"><span id="buildingsAlert" class="alert badge"></span>Structures</a></li>
 					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="buyTab"><a id="jobsA" href="#"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
 					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="buyTab"><a id="upgradesA" href="#"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
 					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="buyTab"><a id="equipmentA" href="#"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>				
@@ -350,7 +350,7 @@
                             </div>
                         </div>
 						<div style="display: none" id="mapsCreateRow">
-							<span id='createMapBtn' onclick='buyMap()' class='btn btn-lg btn-info'>Create a Map (3 Fragments)</span> at level <span class="btn btn-default" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input type="number" id="mapLevelInput"></input><span class="btn btn-default" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
+							<span id='createMapBtn' onclick='buyMap()' class='btn btn-lg btn-info'>Create a Map (3 Fragments)</span> at level <span class="btn btn-default" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input type="number" id="mapLevelInput"><span class="btn btn-default" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
 						</div>
                     </div>
                     <div class="row" id="gridRow">
@@ -425,7 +425,6 @@
 									</div>
 									</div>
 									<div id="mapStatsCol1" class="col-xs-2 mapStatsCol">
-										<div class="mapStatsTitle"
 										<div class="mapStatsTitle">Size</div>
 										<div class="mapStatsTitle">Difficulty</div>
 										<div class="mapStatsTitle">Loot</div>
