@@ -47,51 +47,51 @@ function save(exportThis) {
 	//This has gotten really sloppy and really needs to be rethought, and I feel like the save string should be considerably shorter. Some day.
     var saveString = JSON.stringify(game);
     var saveGame = JSON.parse(saveString);
-    saveGame.worldUnlocks = null;
-    saveGame.badGuys = null;
-    saveGame.mapConfig = null;
-	saveGame.global.prestige = null;
-	saveGame.worldText = null;
-	saveGame.trimpDeathTexts = null;
-	saveGame.badGuyDeathTexts = null;
+    delete saveGame.worldUnlocks;
+    delete saveGame.badGuys;
+    delete saveGame.mapConfig;
+	delete saveGame.global.prestige;
+	delete saveGame.worldText;
+	delete saveGame.trimpDeathTexts;
+	delete saveGame.badGuyDeathTexts;
     for (var item in saveGame.equipment) {
-        saveGame.equipment[item].tooltip = null;
-		saveGame.equipment[item].blocktip = null;
-        saveGame.equipment[item].cost = null;
+		delete saveGame.equipment[item].tooltip;
+		delete saveGame.equipment[item].blocktip;
+        delete saveGame.equipment[item].cost;
     }
     for (var itemA in saveGame.buildings) {
-        saveGame.buildings[itemA].tooltip = null;
-        saveGame.buildings[itemA].cost = null;
-		saveGame.buildings.Barn.increase = null;
-		saveGame.buildings.Forge.increase = null;
-		saveGame.buildings.Shed.increase = null;
+        delete saveGame.buildings[itemA].tooltip;
+        delete saveGame.buildings[itemA].cost;
+		delete saveGame.buildings.Barn.increase;
+		delete saveGame.buildings.Forge.increase;
+		delete saveGame.buildings.Shed.increase;
     }
     for (var itemB in saveGame.upgrades) {
-        saveGame.upgrades[itemB].tooltip = null;
-        saveGame.upgrades[itemB].cost = null;
-		saveGame.upgrades[itemB].prestiges = null;
+        delete saveGame.upgrades[itemB].tooltip;
+        delete saveGame.upgrades[itemB].cost;
+		delete saveGame.upgrades[itemB].prestiges;
     }
     for (var itemC in saveGame.jobs) {
-        saveGame.jobs[itemC].tooltip = null;
-        saveGame.jobs[itemC].cost = null;
+        delete saveGame.jobs[itemC].tooltip;
+        delete saveGame.jobs[itemC].cost;
     }
     for (var itemD in saveGame.triggers) {
-        saveGame.triggers[itemD].message = null;
-        saveGame.triggers[itemD].cost = null;
+        delete saveGame.triggers[itemD].message;
+        delete saveGame.triggers[itemD].cost;
     }
 	for (var itemE in saveGame.mapUnlocks){
 		var unlock = saveGame.mapUnlocks[itemE];
-		unlock.level = null;
-		unlock.message = null;
-		unlock.icon = null;
-		unlock.world = null;
-		unlock.repeat = null;
+		delete unlock.level;
+		delete unlock.message;
+		delete unlock.icon;
+		delete unlock.world;
+		delete unlock.repeat;
 	}
 	for (var itemP in saveGame.portal){
 		var portal = saveGame.portal[itemP];
-		portal.modifier = null;
-		portal.priceBase = null;
-		portal.tooltip = null;
+		delete portal.modifier;
+		delete portal.priceBase;
+		delete portal.tooltip;
 	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;

@@ -367,6 +367,8 @@ function resetGame(keepPortal) {
 	document.getElementById("battleStatsRow").style.display = "block";
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
+	
+	
 	filterTabs("all");
 	var gatherBtns = ["buildings", "food", "wood", "metal", "science", "trimps"];
 	for (var gatherBtn in gatherBtns){
@@ -392,6 +394,8 @@ function resetGame(keepPortal) {
 		game.global.totalPortals = totalPortals;
 	}
 	numTab(1);
+	pauseFight(true);
+	repeatClicked(true);
 }
 
 function message(messageString, type) {

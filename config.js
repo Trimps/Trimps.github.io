@@ -474,7 +474,7 @@ var toReturn = {
 		},
 		Snimp: {
 			location: "All",
-			attack: 1.1,
+			attack: 1.05,
 			health: 0.8,
 			fast: true
 		},
@@ -501,6 +501,22 @@ var toReturn = {
 			attack: 0.75,
 			health: 1.2,
 			fast: true
+		},
+		Chickimp: {
+			location: "Sea",
+			attack: 0.8,
+			health: 1.1,
+			fast: true,
+			loot: function (level) {
+				var amt = rewardResource("food", .5, level);
+				message("<span class='glyphicon glyphicon-apple'></span>That Chickimp dropped " + prettify(amt) + " food!", "Loot");
+			}
+		},
+		Onoudidimp: {
+			location: "Mountain",
+			attack: 0.8,
+			health: 1.4,
+			fast: false
 		},
 		Grimp: {
 			location: "Forest",
