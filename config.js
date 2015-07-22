@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.04,
+		version: 1.05,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -79,6 +79,8 @@ var toReturn = {
 		viewingUpgrades: false,
 		totalPortals: 0,
 		lastCustomAmt: 0,
+		trapBuildAllowed: false,
+		trapBuildToggled: false,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -852,6 +854,17 @@ var toReturn = {
 			fire: function () {
 				unlockBuilding("Gateway");
 			}
+		},
+		Trapstorm: {
+			world: -1,
+			startAt: 10,
+			message: "A book that teaches your Foremen a new skill. Riveting.",
+			level: [5, 15],
+			icon: "book",
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("Trapstorm");
+			}	
 		},
 /* 		UberResort: {
 			world: 40,
@@ -1879,6 +1892,23 @@ var toReturn = {
 				cost.lastCheckCount = null;
 				cost.lastCheckOwned = null; */
 				
+			}
+		},
+		Trapstorm: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book details the fine art of teaching your foremen to actually do stuff instead of just sitting around. When asked, your foremen will start construction on a new Trap if the queue is empty.",
+			done: 0,
+			cost: {
+				resources: {
+					science: 10000,
+					wood: 100000,
+					food: 100000,
+				}
+			},
+			fire: function () {
+				game.global.trapBuildAllowed = true;
+				fadeIn("autoTrapBtn", 10);
 			}
 		},
 		

@@ -86,6 +86,7 @@ function save(exportThis) {
 		delete unlock.icon;
 		delete unlock.world;
 		delete unlock.repeat;
+		delete unlock.startAt;
 	}
 	for (var itemP in saveGame.portal){
 		var portal = saveGame.portal[itemP];
@@ -246,6 +247,7 @@ function load(saveString, autoLoad) {
 	document.getElementById("worldNumber").innerHTML = game.global.world;
     mapsSwitch(true);
     checkTriggers(true);
+	toggleAutoTrap(true);
     setGather(game.global.playerGathering);
     numTab(1);
 	if (game.global.portalActive) {fadeIn("portalBtn", 10); fadeIn("helium", 10);}
@@ -777,7 +779,7 @@ function craftBuildings(makeUp) {
     var modifier = (game.global.autoCraftModifier > 0) ? game.global.autoCraftModifier : 0;
     if (game.global.playerGathering == "buildings") modifier += game.global.playerModifier;
     if (!makeUp) {
-        speedElem.innerHTML = Math.floor(modifier * 100) + "%";
+        speedElem.innerHTML = prettify(Math.floor(modifier * 100)) + "%";
         game.global.timeLeftOnCraft -= ((1 / game.settings.speed) * modifier);
         buildingsBar.style.width = (100 - ((game.global.timeLeftOnCraft / game.buildings[game.global.crafting].craftTime) * 100)) + "%";
         buildingsBar.innerHTML = (game.global.timeLeftOnCraft / modifier).toFixed(1) + " Seconds";
@@ -795,6 +797,27 @@ function craftBuildings(makeUp) {
 		game.global.crafting = nextCraft;
 		game.global.timeLeftOnCraft = game.buildings[nextCraft].craftTime;
 	}
+}
+
+function toggleAutoTrap(updateOnly) {
+	var elem = document.getElementById("autoTrapBtn");
+	elem.className = "";
+	elem.className = "workBtn pointer noselect";
+	if (!game.global.trapBuildAllowed){
+		elem.style.display = "none";
+		elem.innerHTML = "Traps Off";
+		elem.className += " dangerColor";
+		return;
+	}
+	else if (elem.style.display == "none") fadeIn("autoTrapBtn", 10);
+	if (!updateOnly) game.global.trapBuildToggled = !game.global.trapBuildToggled;
+	if (game.global.trapBuildToggled){
+		elem.className += " successColor";
+		elem.innerHTML = "Traps On";
+		return;
+	}
+	elem.className += " dangerColor";
+	elem.innerHTML = "Traps Off";
 }
 
 function buildBuilding(what) {
@@ -1770,6 +1793,15 @@ function fadeIn(elem, speed) {
 
 }
 
+function autoTrap() {
+	if (game.resources.food.owned >= 10 && game.resources.wood.owned >= 10){
+		game.resources.food.owned -= 10;
+		game.resources.wood.owned -= 10;
+		game.buildings.Trap.purchased++;
+		startQueue("Trap", 1);
+	}
+}
+
 load();
 
 
@@ -1778,6 +1810,7 @@ setTimeout(autoSave, 60000);
 function gameLoop(makeUp) {
     gather(makeUp);
     craftBuildings();
+	if (game.global.trapBuildToggled && game.global.trapBuildAllowed && game.global.buildingsQueue.length == 0) autoTrap();
     breed(makeUp);
     battleCoordinator(makeUp);
 }

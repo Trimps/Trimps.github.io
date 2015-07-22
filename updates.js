@@ -396,6 +396,7 @@ function resetGame(keepPortal) {
 	numTab(1);
 	pauseFight(true);
 	repeatClicked(true);
+	toggleAutoTrap(true);
 }
 
 function message(messageString, type) {

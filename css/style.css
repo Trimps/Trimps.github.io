@@ -638,3 +638,9 @@ overflow-x: hidden;
 .noRecycle{
 	background-color: red;
 }
+.successColor{
+	background-color: #5cb85c;
+}
+.dangerColor{
+	background-color: #d9534f;
+}

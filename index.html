@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 1.04</title>
+	<title>Trimps 1.05</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
@@ -201,13 +201,16 @@
 			<div id="buyCol" class="col-xs-5" style="visibility: hidden;">
 				<div id="queueContainer">
 					<div class="row" id="queueRow">
-						<div class="col-xs-4">
+						<div class="col-xs-3">
 							<span id="foremenCount"></span>
 						</div>
-						<div class="col-xs-4">
+						<div class="col-xs-3">
 							<span id="buildSpeed"></span>
 						</div>
-						<div class="col-xs-4">
+						<div class="col-xs-3">
+							<div id="autoTrapBtn" style="display: none" onclick="toggleAutoTrap()" class="workBtn pointer noselect dangerColor">Traps Off</div>
+						</div>
+						<div class="col-xs-3">
 							<div id="buildingsCollectBtn" onclick="setGather('buildings')" class="workBtn pointer noselect">Build</div>
 						</div>
 					</div>
@@ -501,9 +504,9 @@
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?14"></script>
-	<script type="text/javascript" src="updates.js?14"></script>
-	<script type="text/javascript" src="main.js?14"></script>
+	<script type="text/javascript" src="config.js?15"></script>
+	<script type="text/javascript" src="updates.js?15"></script>
+	<script type="text/javascript" src="main.js?15"></script>
 	
 </body>
 
