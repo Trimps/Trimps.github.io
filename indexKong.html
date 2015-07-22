@@ -42,105 +42,105 @@ var kongregate = parent.kongregateAPI.getAPI();
 		<http://www.gnu.org/licenses/>. -->
 <body>
 
-    <div id="wrapper" style="background: url(css/bg2.png) center repeat-x;">
-        <div id="warnings"></div>
-        <div class="row" id="topRow">
-            <div class="col-xs-4" id="resourceColumn">
-                <div class="row resourceRow">
-                    <div class="col-xs-6 maxH">
-                        <div id="food" class="playerGather">
-                            <span class="title">Food</span>
-                            <br/>
-                            <span class="ownedArea"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
-                            <br/>
-                            <div class="progress resProgress">
-                                <div class="progress-bar" id="foodBar" role="progressbar"></div>
-                            </div>
-                            <div class="row collectRow">
-                                <div class="col-xs-6">
-                                    <div id="foodCollectBtn" class="workBtn pointer noselect" onclick="setGather('food')">Gather</div>
-                                </div>
-                                <div class="col-xs-6">
-                                    <span class="psText" id="foodPs">+0/sec</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+	<div id="wrapper" style="background: url(css/bg2.png) center repeat-x;">
+		<div id="warnings"></div>
+		<div class="row" id="topRow">
+			<div class="col-xs-4" id="resourceColumn">
+				<div class="row resourceRow">
+					<div class="col-xs-6 maxH">
+						<div id="food" class="playerGather">
+							<span class="title">Food</span>
+							<br/>
+							<span class="ownedArea"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
+							<br/>
+							<div class="progress resProgress">
+								<div class="progress-bar" id="foodBar" role="progressbar"></div>
+							</div>
+							<div class="row collectRow">
+								<div class="col-xs-6">
+									<div id="foodCollectBtn" class="workBtn pointer noselect" onclick="setGather('food')">Gather</div>
+								</div>
+								<div class="col-xs-6">
+									<span class="psText" id="foodPs">+0/sec</span>
+								</div>
+							</div>
+						</div>
+					</div>
 
-                    <div class="col-xs-6 maxH">
-                        <div id="wood" class="playerGather" style="visibility: hidden;">
-                            <span class="title">Wood</span>
-                            <br/>
-                            <span class="ownedArea"><span id="woodOwned">0</span> / <span id="woodMax"></span></span>
-                            <br/>
-                            <div class="progress resProgress">
-                                <div class="progress-bar" id="woodBar" role="progressbar"></div>
-                            </div>
+					<div class="col-xs-6 maxH">
+						<div id="wood" class="playerGather" style="visibility: hidden;">
+							<span class="title">Wood</span>
+							<br/>
+							<span class="ownedArea"><span id="woodOwned">0</span> / <span id="woodMax"></span></span>
+							<br/>
+							<div class="progress resProgress">
+								<div class="progress-bar" id="woodBar" role="progressbar"></div>
+							</div>
 
-                            <div class="row collectRow">
-                                <div class="col-xs-6">
-                                    <div id="woodCollectBtn" class="workBtn pointer noselect" onclick="setGather('wood')">Chop</div>
-                                </div>
-                                <div class="col-xs-6">
-                                    <span class="psText" id="woodPs">+0/sec</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row resourceRow">
-                    <div class="col-xs-6 maxH">
-                        <div id="metal" class="playerGather" style="visibility: hidden;">
-                            <span class="title">Metal</span>
-                            <br/>
-                            <span class="ownedArea"><span id="metalOwned">0</span> / <span id="metalMax"></span></span>
-                            <br/>
-                            <div class="progress resProgress">
-                                <div class="progress-bar" id="metalBar" role="progressbar"></div>
-                            </div>
-                            <div class="row collectRow">
-                                <div class="col-xs-6">
-                                    <div id="metalCollectBtn" class="workBtn pointer noselect" onclick="setGather('metal')">Mine</div>
-                                </div>
-                                <div class="col-xs-6">
-                                    <span class="psText" id="metalPs">+0/sec</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-6 maxH">
-                        <div id="science" class="playerGather" style="visibility: hidden;">
-                            <span class="title">Science</span>
-                            <br/>
-                            <span class="ownedArea"><span id="scienceOwned">0</span></span>
-                            <br/>
-                            <div class="row collectRow">
-                                <div class="col-xs-6">
-                                    <div id="scienceCollectBtn" class="workBtn pointer noselect" onclick="setGather('science')">Research</div>
-                                </div>
-                                <div class="col-xs-6">
-                                    <span class="psText" id="sciencePs">+0/sec</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-1" id="miscColumn">
+							<div class="row collectRow">
+								<div class="col-xs-6">
+									<div id="woodCollectBtn" class="workBtn pointer noselect" onclick="setGather('wood')">Chop</div>
+								</div>
+								<div class="col-xs-6">
+									<span class="psText" id="woodPs">+0/sec</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row resourceRow">
+					<div class="col-xs-6 maxH">
+						<div id="metal" class="playerGather" style="visibility: hidden;">
+							<span class="title">Metal</span>
+							<br/>
+							<span class="ownedArea"><span id="metalOwned">0</span> / <span id="metalMax"></span></span>
+							<br/>
+							<div class="progress resProgress">
+								<div class="progress-bar" id="metalBar" role="progressbar"></div>
+							</div>
+							<div class="row collectRow">
+								<div class="col-xs-6">
+									<div id="metalCollectBtn" class="workBtn pointer noselect" onclick="setGather('metal')">Mine</div>
+								</div>
+								<div class="col-xs-6">
+									<span class="psText" id="metalPs">+0/sec</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6 maxH">
+						<div id="science" class="playerGather" style="visibility: hidden;">
+							<span class="title">Science</span>
+							<br/>
+							<span class="ownedArea"><span id="scienceOwned">0</span></span>
+							<br/>
+							<div class="row collectRow">
+								<div class="col-xs-6">
+									<div id="scienceCollectBtn" class="workBtn pointer noselect" onclick="setGather('science')">Research</div>
+								</div>
+								<div class="col-xs-6">
+									<span class="psText" id="sciencePs">+0/sec</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-1" id="miscColumn">
 				<div id="fragments" class="playerGather playerGatherSm" style="visibility: hidden;">
 					<span class="title">Fragments</span>
-                    <br/>
-                    <span class="ownedArea"><span id="fragmentsOwned">0</span></span>
-                    <br/>
+					<br/>
+					<span class="ownedArea"><span id="fragmentsOwned">0</span></span>
+					<br/>
 					<span class="psText" id="fragmentsPs" style="display: none">+0/sec</span>
 				</div>
-                <div id="gems" class="playerGather playerGatherSm" style="visibility: hidden;">
-                    <span class="title">Gems</span>
-                    <br/>
-                    <span class="ownedArea"><span id="gemsOwned">0</span></span>
-                    <br/>
+				<div id="gems" class="playerGather playerGatherSm" style="visibility: hidden;">
+					<span class="title">Gems</span>
+					<br/>
+					<span class="ownedArea"><span id="gemsOwned">0</span></span>
+					<br/>
 					<span class="psText" id="gemsPs" style="display: none">+0/sec</span>
-                </div>
+				</div>
 				<div id="helium" class="playerGather playerGatherSm" style="display: none">
 					<span class="title">Helium</span>
 					<br/>
@@ -148,84 +148,84 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<br/>
 					
 				</div>
-            </div>
-            <div class="col-xs-2" id="trimpsColumn">
-                <div id="trimps" class="playerGather" style="visibility: hidden;">
-                    <span id="trimpTitle" class="title">???</span>
-                    <br/>
-                    <span class="ownedArea"><span id="trimpsOwned">0</span> / <span id="trimpsMax">10</span></span>
-                    <br/>
-                    <div class="progress resProgress">
-                        <div class="progress-bar" id="trimpsBar" role="progressbar"></div>
-                    </div>
-                    <div id="unempHide" style="visibility: hidden">
-                        <span id="trimpsUnemployed">0</span> breeding
-                        <br/><span id="trimpsPs">+0/sec</span>
-                        <br/>
-                    </div>
-                    <div id="empHide" style="visibility: hidden">
-                        <span id="trimpsEmployed">0</span>/<span id="maxEmployed">0</span> employed
-                    </div>
-                    <div id="trapArea">
-                        <div id="trimpsCollectBtn" class="workBtn pointer noSelect" onclick="setGather('trimps')">Check&nbsp;Traps&nbsp;(<span id="trimpTrapText">1</span>)</div>
-                        <div id="trimpsCollecting" class="collecting" style="display: none">Trapping (<span id="trimpTrapText2">1</span>)</div>
-                        <div class="progress" id="trappingProgress">
-                            <div class="progress-bar" id="trappingBar" role="progressbar"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-5" id="logColumn">
-                <div id="logContainer">
-                    <div class="btn-group btn-group-justified" id="logBtnGroup" role="group">
-                        <div class="btn-group" role="group">
-                            <button id="StoryFilter" onclick="filterMessage('Story')" type="button" class="btn btn-success logFlt">Story</button>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button id="LootFilter" onclick="filterMessage('Loot')" type="button" class="btn btn-success logFlt">Loot</button>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button id="UnlocksFilter" onclick="filterMessage('Unlocks')" type="button" class="btn btn-success logFlt">Unlocks</button>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button id="CombatFilter" type="button" onclick="filterMessage('Combat')" class="btn btn-success logFlt">Combat</button>
-                        </div>
+			</div>
+			<div class="col-xs-2" id="trimpsColumn">
+				<div id="trimps" class="playerGather" style="visibility: hidden;">
+					<span id="trimpTitle" class="title">???</span>
+					<br/>
+					<span class="ownedArea"><span id="trimpsOwned">0</span> / <span id="trimpsMax">10</span></span>
+					<br/>
+					<div class="progress resProgress">
+						<div class="progress-bar" id="trimpsBar" role="progressbar"></div>
+					</div>
+					<div id="unempHide" style="visibility: hidden">
+						<span id="trimpsUnemployed">0</span> breeding
+						<br/><span id="trimpsPs">+0/sec</span>
+						<br/>
+					</div>
+					<div id="empHide" style="visibility: hidden">
+						<span id="trimpsEmployed">0</span>/<span id="maxEmployed">0</span> employed
+					</div>
+					<div id="trapArea">
+						<div id="trimpsCollectBtn" class="workBtn pointer noSelect" onclick="setGather('trimps')">Check&nbsp;Traps&nbsp;(<span id="trimpTrapText">1</span>)</div>
+						<div id="trimpsCollecting" class="collecting" style="display: none">Trapping (<span id="trimpTrapText2">1</span>)</div>
+						<div class="progress" id="trappingProgress">
+							<div class="progress-bar" id="trappingBar" role="progressbar"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-5" id="logColumn">
+				<div id="logContainer">
+					<div class="btn-group btn-group-justified" id="logBtnGroup" role="group">
+						<div class="btn-group" role="group">
+							<button id="StoryFilter" onclick="filterMessage('Story')" type="button" class="btn btn-success logFlt">Story</button>
+						</div>
+						<div class="btn-group" role="group">
+							<button id="LootFilter" onclick="filterMessage('Loot')" type="button" class="btn btn-success logFlt">Loot</button>
+						</div>
+						<div class="btn-group" role="group">
+							<button id="UnlocksFilter" onclick="filterMessage('Unlocks')" type="button" class="btn btn-success logFlt">Unlocks</button>
+						</div>
+						<div class="btn-group" role="group">
+							<button id="CombatFilter" type="button" onclick="filterMessage('Combat')" class="btn btn-success logFlt">Combat</button>
+						</div>
 <!-- 					<div class="btn-group" role="group">
 							<button id="NoticesFilter" type="button" onclick="filterMessage('Notices')" class="btn btn-success logFlt">Notices</button>
 						</div> -->
-                    </div>
-                    <div id="log" class="niceScroll">
-                        <span class="storyMessage message"><span class='glyphicon glyphicon-star'></span>A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row" id="bottomRow">
-            <div id="buyCol" class="col-xs-5" style="visibility: hidden;">
-                <div id="queueContainer">
-                    <div class="row" id="queueRow">
-                        <div class="col-xs-4">
-                            <span id="foremenCount"></span>
-                        </div>
-                        <div class="col-xs-4">
-                            <span id="buildSpeed"></span>
-                        </div>
-                        <div class="col-xs-4">
-                            <div id="buildingsCollectBtn" onclick="setGather('buildings')" class="workBtn pointer noselect">Build</div>
-                        </div>
-                    </div>
-                    <div class="queue niceScroll" id="buildingsQueue">
-                        <span id='noQueue'>Nothing in queue...</span><div id="queueItemsHere"></div>
-                    </div>
-                    <div class="progress structProg">
-                        <div class="progress-bar buyProgress  progress-bar-striped active" id="buildingsBar" role="progressbar"></div>
-                    </div>
-                </div>
+					</div>
+					<div id="log" class="niceScroll">
+						<span class="storyMessage message"><span class='glyphicon glyphicon-star'></span>A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" id="bottomRow">
+			<div id="buyCol" class="col-xs-5" style="visibility: hidden;">
+				<div id="queueContainer">
+					<div class="row" id="queueRow">
+						<div class="col-xs-4">
+							<span id="foremenCount"></span>
+						</div>
+						<div class="col-xs-4">
+							<span id="buildSpeed"></span>
+						</div>
+						<div class="col-xs-4">
+							<div id="buildingsCollectBtn" onclick="setGather('buildings')" class="workBtn pointer noselect">Build</div>
+						</div>
+					</div>
+					<div class="queue niceScroll" id="buildingsQueue">
+						<span id='noQueue'>Nothing in queue...</span><div id="queueItemsHere"></div>
+					</div>
+					<div class="progress structProg">
+						<div class="progress-bar buyProgress  progress-bar-striped active" id="buildingsBar" role="progressbar"></div>
+					</div>
+				</div>
 				<div id="outerBuyContainer">	
 					<div id="buyTabs">
 				<ul id="buyTabsUl" class="nav nav-tabs nav-justified">
 					<li role="presentation" id="allTab" onclick="filterTabs('all')" class="buyTab"><a id="allA" href="#">All</a></li>
-					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="buyTab"><a id="buildingsA"href="#"><span id="buildingsAlert" class="alert badge"></span>Structures</a></li>
+					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="buyTab"><a id="buildingsA" href="#"><span id="buildingsAlert" class="alert badge"></span>Structures</a></li>
 					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="buyTab"><a id="jobsA" href="#"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
 					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="buyTab"><a id="upgradesA" href="#"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
 					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="buyTab"><a id="equipmentA" href="#"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>				
@@ -311,56 +311,56 @@ var kongregate = parent.kongregateAPI.getAPI();
 						</div>
 					</div>
 				</div>
-            </div>
-            <div class="col-xs-7" id="rightCol">
-                <div id="battleContainer" style="visibility: hidden">
-                    <div id="battleHeadContainer">
-                        <div class="row" id="battleStatsRow">
-                            <div class="col-xs-6" id="goodGuyCol">
-                                <span class="battleStatsTitle" id="goodGuyName">Trimps(<span id="trimpsFighting">1</span>)</span>
-                                <br/>
-                                <div class="row guyRow" id="goodGuyStatsRow">
-                                    <div class="col-xs-4" style="padding-right: 5px">
-                                        <span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span> HP
-                                        <br/>
-                                    </div>
-                                    <div class="col-xs-3 lowPad" id="blockDiv" style="visibility: hidden">
-                                        <span id="goodGuyBlock">0</span> BLK
-                                    </div>
-                                    <div class="col-xs-5 lowPad">
-                                        <span id="goodGuyAttack"></span> DMG
-                                    </div>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar " id="goodGuyBar" role="progressbar"></div>
-                                </div>
-                            </div>
-                            <div class="col-xs-6" id="badGuyCol" style="visibility: hidden">
-                                <span class="battleStatsTitle" id="badGuyName"></span>
-                                <br/>
-                                <div class="row guyRow" id="badGuyRow">
-                                    <div class="col-xs-6">
-                                        <span id="badGuyHealth">0</span>/<span id="badGuyHealthMax">0</span> HP
-                                        <br/>
-                                    </div>
-                                    <div class="col-xs-6">
-                                        <span id="badGuyAttack"></span> DMG
-                                    </div>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar " id="badGuyBar" role="progressbar"></div>
-                                </div>
-                            </div>
-                        </div>
-						<div style="display: none" id="mapsCreateRow">
-							<span id='createMapBtn' onclick='buyMap()' class='btn btn-lg btn-info'>Create a Map (3 Fragments)</span> at level <span class="btn btn-default" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input type="number" id="mapLevelInput"></input><span class="btn btn-default" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
+			</div>
+			<div class="col-xs-7" id="rightCol">
+				<div id="battleContainer" style="visibility: hidden">
+					<div id="battleHeadContainer">
+						<div class="row" id="battleStatsRow">
+							<div class="col-xs-6" id="goodGuyCol">
+								<span class="battleStatsTitle" id="goodGuyName">Trimps(<span id="trimpsFighting">1</span>)</span>
+								<br/>
+								<div class="row guyRow" id="goodGuyStatsRow">
+									<div class="col-xs-4" style="padding-right: 5px">
+										<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span> HP
+										<br/>
+									</div>
+									<div class="col-xs-3 lowPad" id="blockDiv" style="visibility: hidden">
+										<span id="goodGuyBlock">0</span> BLK
+									</div>
+									<div class="col-xs-5 lowPad">
+										<span id="goodGuyAttack"></span> DMG
+									</div>
+								</div>
+								<div class="progress">
+									<div class="progress-bar " id="goodGuyBar" role="progressbar"></div>
+								</div>
+							</div>
+							<div class="col-xs-6" id="badGuyCol" style="visibility: hidden">
+								<span class="battleStatsTitle" id="badGuyName"></span>
+								<br/>
+								<div class="row guyRow" id="badGuyRow">
+									<div class="col-xs-6">
+										<span id="badGuyHealth">0</span>/<span id="badGuyHealthMax">0</span> HP
+										<br/>
+									</div>
+									<div class="col-xs-6">
+										<span id="badGuyAttack"></span> DMG
+									</div>
+								</div>
+								<div class="progress">
+									<div class="progress-bar " id="badGuyBar" role="progressbar"></div>
+								</div>
+							</div>
 						</div>
-                    </div>
-                    <div class="row" id="gridRow">
-                        <div class="col-xs-2" id="battleBtnsColumn">
-                            <div id="battleSideTitle">
-                                    <span id="worldName">Zone</span> <span id="worldNumber">1</span>
-                            </div>
+						<div style="display: none" id="mapsCreateRow">
+							<span id='createMapBtn' onclick='buyMap()' class='btn btn-lg btn-info'>Create a Map (3 Fragments)</span> at level <span class="btn btn-default" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input type="number" id="mapLevelInput"><span class="btn btn-default" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
+						</div>
+					</div>
+					<div class="row" id="gridRow">
+						<div class="col-xs-2" id="battleBtnsColumn">
+							<div id="battleSideTitle">
+									<span id="worldName">Zone</span> <span id="worldNumber">1</span>
+							</div>
 							<div class="battleSideBtnContainer">
 								<span class="btn btn-primary fightBtn" id="fightBtn" onmouseover="tooltip('Fight',null,event)" onmouseout="tooltip('hide')" onclick="fightManual()">
 									Fight
@@ -387,25 +387,20 @@ var kongregate = parent.kongregateAPI.getAPI();
 								</span>
 							</div>
 							
-                        </div>
-                        <div class="col-xs-10" id="gridContainer">
-                            <div id="grid"></div>
-                            <div id="preMaps" style="display: none">
+						</div>
+						<div class="col-xs-10" id="gridContainer">
+							<div id="grid"></div>
+							<div id="preMaps" style="display: none">
 							<div id="mapChamberTitleRow">
 								<div id="preMapsTitle">
-                                    Map Chamber
-                                </div>
-
-									
-
-								
+									Map Chamber
+								</div>
 							</div>
-                                
-                                <div id="selectedMapContainer" class="row">
-                                    <div id="selectedMapCol" class="col-xs-2">
+								
+								<div id="selectedMapContainer" class="row">
+									<div id="selectedMapCol" class="col-xs-2">
 										<div id="selectedMapName"></div><br/>
-									
-                                    </div>
+									</div>
 
 									<div id="mapStatsCol3" class="col-xs-6">
 									<div class="row">
@@ -428,7 +423,6 @@ var kongregate = parent.kongregateAPI.getAPI();
 									</div>
 									</div>
 									<div id="mapStatsCol1" class="col-xs-2 mapStatsCol">
-										<div class="mapStatsTitle"
 										<div class="mapStatsTitle">Size</div>
 										<div class="mapStatsTitle">Difficulty</div>
 										<div class="mapStatsTitle">Loot</div>
@@ -440,78 +434,79 @@ var kongregate = parent.kongregateAPI.getAPI();
 									</div>
 
 									
-                                </div>								
-                                <div id="mapsHere" class="niceScroll">
-                                </div>
-                            </div>
-                            <div id="mapGrid" style="display: none"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="settingsRow">
-            <table id="settingsTable">
-                <tr>
-                    <td>
-                        <div class="btn btn-info" onclick="save()">Save</div>
-                    </td>
-                    <td>
-                        <div class="btn btn-info" onclick="load()">Load</div>
-                    </td>
-                    <td>
-                        <div class="btn btn-info" onclick="tooltip('Reset', null, 'update')">Reset</div>
-                    </td>
-                    <td>
-                        <div class="btn btn-info" id="toggleBtn" onclick="toggleSave()">Auto-Saving</div>
-                    </td>
-                    <td>
-                        <div class="btn btn-info" onclick="tooltip('Export', null, 'update')">Export</div>
-                    </td>
-                    <td>
-                        <div class="btn btn-info" onclick="tooltip('Import', null, 'update')">Import</div>
-                    </td>
+								</div>
+								<div id="mapsHere" class="niceScroll">
+								</div>
+							</div>
+							<div id="mapGrid" style="display: none"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="settingsRow">
+			<table id="settingsTable">
+				<tr>
+					<td>
+						<div class="btn btn-success" onclick="tooltip('Donate', null, 'update')">Donate</div>
+					</td>
+					<td>
+						<div class="btn btn-info" onclick="save()">Save</div>
+					</td>
+					<td>
+						<div class="btn btn-info" onclick="tooltip('Reset', null, 'update')">Reset</div>
+					</td>
+					<td>
+						<div class="btn btn-info" id="toggleBtn" onclick="toggleSave()">Auto-Saving</div>
+					</td>
+					<td>
+						<div class="btn btn-info" onclick="tooltip('Export', null, 'update')">Export</div>
+					</td>
+					<td>
+						<div class="btn btn-info" onclick="tooltip('Import', null, 'update')">Import</div>
+					</td>
 					<td>
 						<div class="btn btn-info" id="notationBtn" onclick="swapNotation()">Standard Decimal</div>
 					</td>
 					<td>
 						<div class="btn btn-primary" style="display: none" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">View Perks</div>
 					</td>
-                    <td>
-                        V <span id="versionNumber"></span>
-                        <a href="updates.html" target="_blank">
-                            <div class="btn btn-info">What's New</div>
-                        </a>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-<div id="portalWrapper" style="display: none">
-	<div id="portalTitle"></div>
-	<div id="portalHelium"><span id="portalHeliumOwned">0</span> Helium Canisters</div>
-	<div id="portalStory"></div>
-	<div id="portalUpgradesHere"></div>
-	<div id="portalBtnContainer">
-		<div class="btn btn-primary inPortalBtn" id="activatePortalBtn" onclick="activateClicked()">Activate Portal</div>
-		<div class="btn btn-danger inPortalBtn" id="cancelPortalBtn" onclick="cancelPortal()">Cancel</div>
-		<div class="btn btn-warning inPortalBtn" style="display: none" id="respecPortalBtn" onclick="respecPerks()"></div>
+
+					<td>
+						V <span id="versionNumber"></span>
+						<a href="updates.html" target="_blank">
+							<div class="btn btn-info">What's New</div>
+						</a>
+					</td>
+				</tr>
+			</table>
+		</div>
 	</div>
-</div>
-    
-	
+
+	<div id="portalWrapper" style="display: none">
+		<div id="portalTitle"></div>
+		<div id="portalHelium"><span id="portalHeliumOwned">0</span> Helium Canisters</div>
+		<div id="portalStory"></div>
+		<div id="portalUpgradesHere"></div>
+		<div id="portalBtnContainer">
+			<div class="btn btn-primary inPortalBtn" id="activatePortalBtn" onclick="activateClicked()">Activate Portal</div>
+			<div class="btn btn-danger inPortalBtn" id="cancelPortalBtn" onclick="cancelPortal()">Cancel</div>
+			<div class="btn btn-warning inPortalBtn" style="display: none" id="respecPortalBtn" onclick="respecPerks()"></div>
+		</div>
+	</div>
+
 	<div id="tooltipDiv" style="display: none">
-        <div id="tipTitle"></div>
-        <hr/>
-        <div id="tipText"></div>
-        <hr/>
-        <div id="tipCost"></div>
-    </div>
+		<div id="tipTitle"></div>
+		<hr/>
+		<div id="tipText"></div>
+		<hr/>
+		<div id="tipCost"></div>
+	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-    <script type="text/javascript" src="config.js?13"></script>
-    <script type="text/javascript" src="updates.js?13"></script>
-    <script type="text/javascript" src="main.js?13"></script>
+	<script type="text/javascript" src="config.js?14"></script>
+	<script type="text/javascript" src="updates.js?14"></script>
+	<script type="text/javascript" src="main.js?14"></script>
 	
 </body>
 
