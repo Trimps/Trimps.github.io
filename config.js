@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.05,
+		version: 1.06,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -510,7 +510,7 @@ var toReturn = {
 			health: 1.1,
 			fast: true,
 			loot: function (level) {
-				var amt = rewardResource("food", .5, level);
+				var amt = rewardResource("food", .5, level, true);
 				message("<span class='glyphicon glyphicon-apple'></span>That Chickimp dropped " + prettify(amt) + " food!", "Loot");
 			}
 		},
@@ -526,7 +526,7 @@ var toReturn = {
 			health: 1.5,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("wood", .5, level);
+				var amt = rewardResource("wood", .5, level, true);
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>That Grimp dropped " + prettify(amt) + " wood!", "Loot");
 			}
 		},
@@ -536,7 +536,7 @@ var toReturn = {
 			health: 1.4,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .5, level);
+				var amt = rewardResource("metal", .5, level, true);
 				message("<span class='glyphicon glyphicon-fire'></span>That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot");
 			}
 		},
@@ -1212,14 +1212,13 @@ var toReturn = {
 		//Multiples
 		Map: {
 			world: -1,
-			message: "You found a Map Fragment! Good for you!",
 			startAt: 6,
 			level: [0, 20],
 			repeat: 10,
 			icon: "th",
 			fire: function() {
-				game.global.mapsUnlocked = true;
-				game.resources.fragments.owned++;
+				var amt = rewardResource("fragments");
+				message("<span class='glyphicon glyphicon-th'></span>You found " + prettify(amt) + " map fragments!", "Loot");
 			}
 		},
 		//portal Trumps

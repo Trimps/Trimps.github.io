@@ -527,19 +527,27 @@ function scaleLootLevel(level, mapLevel) {
 
 function rewardResource(what, baseAmt, level, checkMapLootScale) {
     var map;
+	var world;
     if (checkMapLootScale) {
         map = getCurrentMapObject();
         level = scaleLootLevel(level, map.level);
+		world = map.level;
     } else {
         level = scaleLootLevel(level);
+		world = game.global.world;
     }
 	var amt;
-	if (what == "helium") level = Math.round((level - 1900) / 100);
-    if (what == "gems") level = level - 400;
-	level *= 1.35;
-	if (level < 0) level = 0;
-    var amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
-	amt += Math.round(baseAmt * level);
+	if (what == "fragments"){
+		amt = Math.floor(Math.pow(1.15, world));
+	}
+	else{
+		if (what == "helium") level = Math.round((level - 1900) / 100);
+		if (what == "gems") level = level - 400;
+		level *= 1.35;
+		if (level < 0) level = 0;
+		var amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
+		amt += Math.round(baseAmt * level);
+	}
     //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
     //var otherAmt = Math.round(baseAmt * level);
     //if (otherAmt > amt) amt = otherAmt;
@@ -1026,7 +1034,71 @@ function getNextPrestigeValue(what){
 	return prettify(toReturn) + " " + stat;
 }
 
+function incrementMapLevel(amt){
+	var elem = document.getElementById("mapLevelInput");
+	var newNum = parseInt(elem.value) + amt;
+	if (newNum < 6 || isNaN(newNum)) elem.value = 6;
+	else if (newNum > game.global.world) elem.value = game.global.world;
+	else elem.value = newNum;
+	updateMapCost();
+}
 
+function adjustMap(what, value) {
+	var minMax = getMapMinMax(what, value);
+	if (what != "size") {
+		minMax[0] = Math.floor(minMax[0] * 100) + "%";
+		minMax[1] = Math.floor(minMax[1] * 100) + "%";
+	}
+	document.getElementById(what + "AdvMapsText").innerHTML = "Min " + minMax[0] + ", Max " + minMax[1];
+	updateMapCost();
+}
+
+function initializeInputText() {
+	adjustMap('loot', 0);
+	adjustMap('size', 0);
+	adjustMap('difficulty', 0);
+}
+
+function updateMapCost(getValue){
+	var baseCost = parseInt(document.getElementById("mapLevelInput").value);
+	if (baseCost > game.global.world || baseCost < 6 || isNaN(baseCost)) return;
+	baseCost += (parseInt(document.getElementById("sizeAdvMapsRange").value));
+	baseCost += (parseInt(document.getElementById("lootAdvMapsRange").value) * 2)
+	baseCost += Math.floor(parseInt(document.getElementById("difficultyAdvMapsRange").value) * 1.5);
+	baseCost = Math.floor((baseCost / 4) + (Math.pow(1.15, baseCost - 1)));
+	if (document.getElementById("biomeAdvMapsSelect").value != "Random") baseCost *= 4;
+	if (getValue) return baseCost;
+	document.getElementById("mapCostFragmentCost").innerHTML = prettify(baseCost);
+	
+}
+
+function getMapMinMax(what, value){
+	var base = game.mapConfig[what + "Base"];
+	var range = game.mapConfig[what + "Range"];
+	var minMax = [base - range, base + range];
+	if (what == "loot"){
+		minMax[0] += ((range / 5) * value);
+	}
+	else{
+		minMax[1] -= ((range / 5) * value);
+		if (what == "size") minMax[1] = Math.floor(minMax[1]);
+	}
+	return minMax;
+}
+
+function buyMap() {
+	var cost = updateMapCost(true);
+	if (game.resources.fragments.owned >= cost){
+		var newLevel = parseInt(document.getElementById("mapLevelInput").value);
+		if (newLevel > 5 && newLevel <= game.global.world){
+		game.resources.fragments.owned -= cost;
+		
+		createMap(newLevel);
+		}
+		else message("You must create a map between level 6 and your highest zone, " + game.global.world + ".", "Notices");
+	}
+	else message("You can't afford this map! You need " + prettify(cost) + " fragments.", "Notices");
+}
 
 function createMap(newLevel) {
     game.global.mapsOwned++;
@@ -1052,8 +1124,19 @@ function createMap(newLevel) {
 function getRandomMapValue(what) { //what can be size, difficulty, or loot for now
     var amt = game.mapConfig[what + "Base"];
     var range = game.mapConfig[what + "Range"];
-    var min = amt - range;
-    var x = ((Math.random() * ((amt + range) - min)) + min);
+	var advValue = document.getElementById(what + "AdvMapsRange").value;
+	var min;
+	var max;
+	if (advValue > 0){
+		var minMax = getMapMinMax(what, advValue);
+		min = minMax[0];
+		max = minMax[1];
+	}
+	else{
+		min = amt - range;
+		max = amt + range;
+    }
+	var x = (Math.random() * (max - min) + min);
     x = x.toFixed(3);
     return x;
 }
@@ -1062,8 +1145,21 @@ function getRandomMapName() {
     var namesObj = game.mapConfig.names;
     var roll = Math.floor(Math.random() * (namesObj.prefix.length - 1));
     var name = namesObj.prefix[roll];
-    roll = Math.floor(Math.random() * (namesObj.suffix.length - 1));
-    return name + " " + namesObj.suffix[roll];
+	var suffix;
+	var biome = document.getElementById("biomeAdvMapsSelect").value;
+	if (biome != "Random"){
+		var possibilities = [];
+		for (var item in namesObj.suffix){
+			if (namesObj.suffix[item].split('.')[1] == biome) possibilities.push(namesObj.suffix[item]);
+		}
+		roll = Math.floor(Math.random() * (possibilities.length - 1));
+		suffix = possibilities[roll];
+	}
+	else{
+		roll = Math.floor(Math.random() * (namesObj.suffix.length - 1));
+		suffix = namesObj.suffix[roll];
+	}
+    return name + " " + suffix;
 }
 
 function buildMapGrid(mapId) {
@@ -1323,17 +1419,7 @@ function recycleMap() {
 
 }
 
-function buyMap() {
-	if (game.resources.fragments.owned >= 3){
-		var newLevel = parseInt(document.getElementById("mapLevelInput").value);
-		if (newLevel > 5 && newLevel <= game.global.world){
-		game.resources.fragments.owned -= 3;
-		
-		createMap(newLevel);
-		}
-		else message("You must create a map between level 6 and your highest zone, " + game.global.world + ".", "Notices");
-	}
-}
+
 
 function mapsClicked() {
     if (game.global.switchToMaps || game.global.switchToWorld) {
@@ -1358,13 +1444,6 @@ function mapsClicked() {
     else game.global.switchToMaps = true;
 }
 
-function incrementMapLevel(amt){
-	var elem = document.getElementById("mapLevelInput");
-	var newNum = parseInt(elem.value) + amt;
-	if (newNum > 5 && newNum <= game.global.world){
-		elem.value = newNum;
-	} 
-}
 
 function mapsSwitch(updateOnly) {
     if (!updateOnly) {
@@ -1383,9 +1462,9 @@ function mapsSwitch(updateOnly) {
 	recycleBtn.innerHTML = "Recycle Map";
 	document.getElementById("mapsBtn").style.fontSize = "1.1vw";
     if (game.global.preMapsActive) {
-		document.getElementById("battleStatsRow").style.display = "none";
+		document.getElementById("battleHeadContainer").style.display = "none";
 		document.getElementById("mapsCreateRow").style.display = "block";
-		document.getElementById("mapLevelInput").value = game.global.world;
+		resetAdvMaps();
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "block";
         document.getElementById("mapGrid").style.display = "none";
@@ -1409,7 +1488,7 @@ function mapsSwitch(updateOnly) {
         }
     } else if (game.global.mapsActive) {
 		fadeIn("repeatBtn", 10);
-		document.getElementById("battleStatsRow").style.display = "block";
+		document.getElementById("battleHeadContainer").style.display = "block";
 		document.getElementById("mapsCreateRow").style.display = "none";
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "none";
@@ -1418,7 +1497,7 @@ function mapsSwitch(updateOnly) {
         document.getElementById("worldNumber").innerHTML = "</br>Lv: " + currentMapObj.level;
         document.getElementById("worldName").innerHTML = currentMapObj.name;
     } else {
-		document.getElementById("battleStatsRow").style.display = "block";
+		document.getElementById("battleHeadContainer").style.display = "block";
 		document.getElementById("mapsCreateRow").style.display = "none";
         document.getElementById("grid").style.display = "block";
         document.getElementById("preMaps").style.display = "none";
@@ -1428,6 +1507,17 @@ function mapsSwitch(updateOnly) {
         document.getElementById("worldName").innerHTML = "Zone";
 		document.getElementById("repeatBtn").style.visibility = "hidden";
     }
+}
+
+function resetAdvMaps() {
+	document.getElementById("mapLevelInput").value = game.global.world;
+	var inputs = document.getElementsByClassName("mapInput");
+	for (var x = 0; x < inputs.length; x++){
+		inputs[x].value = 0;
+	}
+	document.getElementById("biomeAdvMapsSelect").value = "Random";
+	initializeInputText();
+	updateMapCost();
 }
 
 function repeatClicked(updateOnly){
@@ -1840,7 +1930,6 @@ function gameTimeout() {
     gameLoop();
     updateLabels();
     setTimeout(gameTimeout, (tick - dif));
-	
 }
 
 setTimeout(gameTimeout(), (1000 / game.settings.speed));

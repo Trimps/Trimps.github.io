@@ -364,7 +364,7 @@ function resetGame(keepPortal) {
 	document.getElementById("equipmentTitleDiv").style.display = "none";
 	document.getElementById("portalBtn").style.display = "none";
 	document.getElementById("respecPortalBtn").style.display = "none";
-	document.getElementById("battleStatsRow").style.display = "block";
+	document.getElementById("battleHeadContainer").style.display = "block";
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
 	
@@ -397,6 +397,7 @@ function resetGame(keepPortal) {
 	pauseFight(true);
 	repeatClicked(true);
 	toggleAutoTrap(true);
+	resetAdvMaps();
 }
 
 function message(messageString, type) {

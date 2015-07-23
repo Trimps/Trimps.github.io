@@ -32,6 +32,10 @@ overflow-x: hidden;
     color: white;
 }
 
+#jobsTitleUnemployed{
+	font-size: .9em;
+}
+
 .resourceRow{
 	height: 48%;
 }
@@ -95,6 +99,15 @@ overflow-x: hidden;
     font-size: 1.12em;
     text-align: center;
     padding: 3px;
+}
+
+.incrementBtn {
+    border: 1px solid white;
+    background: rgba(255, 255, 255, .75);
+	color: black;
+    font-size: 1vw;
+    text-align: center;
+    padding: 4px;
 }
 
 #scienceCollectBtn{
@@ -358,7 +371,7 @@ overflow-x: hidden;
 }
 
 #mapsHere {
-	height: calc(100vh - 27.5vw - 150px);
+	height: calc(100vh - 31.5vw - 90px);
     overflow-y: auto;
 	width: 100%;
 }
@@ -549,7 +562,7 @@ overflow-x: hidden;
 #selectedMapContainer {
     font-size: 1.1vw;
     text-align: center;
-	height: 6vw;
+	margin-bottom: 5px;
 }
 .selectMapBtn{
 	font-size: 1.1vw;
@@ -565,6 +578,19 @@ overflow-x: hidden;
 #mapsCreateRow {
 	text-align: center;
 	font-size: 1vw;
+	background-color: rgba(0, 0, 0, 0.5);
+	padding-top: 1vw;
+	margin-right: 1px;
+}
+#advMapsRow{
+	text-align: center;
+	font-size: .9vw;
+	background-color: rgba(0,0,0,0.5);
+	padding-bottom: 1vw;
+	margin-right: 1px;
+}
+#advMapsTitle{
+	font-size: 1.2vw;
 }
 #selectedMapName {
     text-decoration: underline;
@@ -573,7 +599,7 @@ overflow-x: hidden;
 
 #mapLevelInput {
 	color: black;
-	width: 5vw;
+	width: 3.3vw;
 }
 
 .green {
@@ -626,6 +652,10 @@ overflow-x: hidden;
 	font-size: 2vw !important;
 }
 
+#biomeAdvMapsSelect{
+	color: black;
+}
+
 .NoticesMessage {
     color: red;
 }
@@ -643,4 +673,18 @@ overflow-x: hidden;
 }
 .dangerColor{
 	background-color: #d9534f;
+}
+.infoColor{
+	background-color: #5bc0de;
+}
+.primaryColor{
+	background-color: #337ab7;
+}
+input[type=number] {
+    -moz-appearance:textfield;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }

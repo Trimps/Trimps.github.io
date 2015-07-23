@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 1.05</title>
+	<title>Trimps 1.06</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
@@ -273,7 +273,7 @@
 										<div class="col-xs-4">
 											<span id="jobsTitleSpan" class="titleSpan">Jobs</span>
 										</div>
-										<div class="col-xs-4">
+										<div class="col-xs-4 lowPad">
 											<span id="jobsTitleUnemployed" class="titleSpan"></span>
 										</div>
 										<div class="col-xs-4">
@@ -352,9 +352,7 @@
 								</div>
 							</div>
 						</div>
-						<div style="display: none" id="mapsCreateRow">
-							<span id='createMapBtn' onclick='buyMap()' class='btn btn-lg btn-info'>Create a Map (3 Fragments)</span> at level <span class="btn btn-default" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input type="number" id="mapLevelInput"><span class="btn btn-default" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
-						</div>
+						
 					</div>
 					<div class="row" id="gridRow">
 						<div class="col-xs-2" id="battleBtnsColumn">
@@ -391,18 +389,59 @@
 						<div class="col-xs-10" id="gridContainer">
 							<div id="grid"></div>
 							<div id="preMaps" style="display: none">
-							<div id="mapChamberTitleRow">
-								<div id="preMapsTitle">
-									Map Chamber
+							<div style="display: none" id="mapsCreateRow" class="row">
+							<div id="mapLevelContainer" class="col-xs-4">
+								Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
+							</div>
+							<div id="mapCostContainer" class="col-xs-4 lowPad">
+								<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
+							</div>
+							<div id="mapCreateBtn" onclick='buyMap()' class="workBtn primaryColor pointer noselect col-xs-4">
+								Create
+							</div>
+						</div>
+							<div id="advMapsRow" class="row">
+								<div id="advLootContainer" class="col-xs-3 advContainer lowPad">
+									<div class="advMapsTitle">
+										Loot
+									</div>
+									<input value="0" id="lootAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="adjustMap('loot', this.value)" onchange="adjustMap('loot', this.value)">
+									<div id="lootAdvMapsText"></div>
+								</div>
+								<div id="advSizeContainer" class="col-xs-3 advContainer lowPad">
+									<div class="advMapsTitle">
+										Size
+									</div>
+									<input value="0" id="sizeAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="adjustMap('size', this.value)" onchange="adjustMap('size', this.value)">
+									<div id="sizeAdvMapsText"></div>
+								</div>
+								<div id="advDifficultyContainer" class="col-xs-3 advContainer lowPad">
+									<div class="advMapsTitle">
+										Difficulty
+									</div>
+									<input value="0" id="difficultyAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="adjustMap('difficulty', this.value)" onchange="adjustMap('difficulty', this.value)">
+									<div id="difficultyAdvMapsText"></div>
+								</div>
+								<div id="advBiomeContainer" class="col-xs-3 advContainer lowPad">
+									<div class="advMapsTitle">
+										Biome
+									</div>
+									<select id="biomeAdvMapsSelect" onchange="updateMapCost()">
+										<option value="Random">Random</option>
+										<option value="Mountain">Mountain</option>
+										<option value="Forest">Forest</option>
+										<option value="Sea">Sea</option>
+									</select>
+									<div id="difficultyAdvMapsText"></div>
 								</div>
 							</div>
 								
 								<div id="selectedMapContainer" class="row">
-									<div id="selectedMapCol" class="col-xs-2">
+									<div id="selectedMapCol" class="col-xs-3 lowPad">
 										<div id="selectedMapName"></div><br/>
 									</div>
 
-									<div id="mapStatsCol3" class="col-xs-6">
+									<div id="mapStatsCol3" class="col-xs-5 lowPad">
 									<div class="row">
 										<div class="col-xs-7 mapStatsCol">
 											<div class="mapStatsTitle">Items</div>
@@ -414,12 +453,12 @@
 										</div>
 									</div>
 									<div id="selectMapBtns">
-										<div id="selectMapBtn" class="btn btn-info btn-sm selectMapBtn" style="visibility: hidden" onclick="runMap()">
+										<span id="selectMapBtn" class="workBtn pointer noselect infoColor selectMapBtn" style="visibility: hidden" onclick="runMap()">
 											Run Map
-										</div>
-										<div id="recycleMapBtn" class="btn btn-danger btn-sm selectMapBtn" style="visibility: hidden" onclick="recycleMap()">
+										</span>
+										<span id="recycleMapBtn" class="workBtn pointer noselect dangerColor selectMapBtn" style="visibility: hidden" onclick="recycleMap()">
 											Recycle Map
-										</div>
+										</span>
 									</div>
 									</div>
 									<div id="mapStatsCol1" class="col-xs-2 mapStatsCol">
@@ -504,9 +543,9 @@
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?16"></script>
-	<script type="text/javascript" src="updates.js?16"></script>
-	<script type="text/javascript" src="main.js?16"></script>
+	<script type="text/javascript" src="config.js?17"></script>
+	<script type="text/javascript" src="updates.js?17"></script>
+	<script type="text/javascript" src="main.js?17"></script>
 	
 </body>
 
