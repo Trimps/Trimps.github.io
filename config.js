@@ -215,11 +215,13 @@ var toReturn = {
 			tooltip: "Discuss negotiation tactics with your leading scientists. Permanently reduces the cost of all jobs by 5%",
 			level: 0,
 		},
-		//These are gonna be harder than I thought. There's a lot of checks to prices.
-		/*Resourcefulness: {
+		Resourcefulness: {
 			modifier: .05,
+			priceBase: 1,
+			heliumSpent: 0,
 			tooltip: "Talk to your scientists about more efficient building designs. Each level reduces the cost of all buildings by 5%",
-		}, */
+			level: 0,
+		},
 
 		//rewardResources main
 		Looting: {
