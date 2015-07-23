@@ -955,7 +955,7 @@ function checkJobItem(what, take, costItem, amtOnly) {
 }
 
 function buyUpgrade(what) {
-    if (what == "Coordination" && (Math.ceil(game.resources.trimps.max / 2) < (game.resources.trimps.maxSoldiers * 2))) {
+    if (what == "Coordination" && (Math.ceil(game.resources.trimps.max / 2) < (game.resources.trimps.maxSoldiers * 1.25))) {
         message("You should probably expand your territory a bit first.", "Notices");
         return;
     }
