@@ -932,13 +932,17 @@ function checkJobItem(what, take, costItem, amtOnly) {
     var job = game.jobs[what];
     var cost = job.cost[costItem];
     var price = 0;
-	if (cost.lastCheckCount != game.global.buyAmt || cost.lastCheckOwned != job.owned){
+	if (cost.lastCheckCount != game.global.buyAmt
+		|| cost.lastCheckOwned != job.owned
+		|| thisCost.lastCheckCheapskate != game.portal.Cheapskate.level
+	){
 		for (var x = 0; x < game.global.buyAmt; x++) {
 			price += Math.floor((cost[0] * (1 - (game.portal.Cheapskate.modifier * game.portal.Cheapskate.level))) * Math.pow(cost[1], (job.owned + x)));
 		}
 		cost.lastCheckCount = game.global.buyAmt;
 		cost.lastCheckAmount = price;
 		cost.lastCheckOwned = job.owned;
+		cost.lastCheckCheapskate = game.portal.Cheapskate.level;
 	}
 	else {
 		price = cost.lastCheckAmount;
