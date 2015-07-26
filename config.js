@@ -1525,7 +1525,7 @@ var toReturn = {
 			craftTime: 600,
 			tooltip: "Use your crazy, helium-cooled, easy-to-aim wormhole generator to create easy-to-travel links to other colonizable planets where your Trimps can sleep and work. Each supports $incby$ Trimps.",
 			cost: {
-				helium: [13, 1.05],
+				helium: [13, 1.075],
 				metal: [100000, 1.1]
 			},
 			increase:{
