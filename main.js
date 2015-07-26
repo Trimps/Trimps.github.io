@@ -1,4 +1,4 @@
-//I wrote all of this code by hand with no libraries so I could learn stuff (except LZString for save import/export, string compression is out of my league. Credits in that file). This is my first javascript project, so be nice.
+//I wrote all of this code by hand (now with some help by people on github, credits over there) with no libraries so I could learn stuff (except LZString for save import/export, string compression is out of my league. Credits in that file). This is my first javascript project, so be nice.
 //Feel free to read through the code and use stuff if you want, I don't know how to properly comment code so I just wrote stuff where I felt like it
 //I will be continually cleaning up and making this code more readable as my javascript skills improve
 //Contact me via Kongregate as GreenSatellite, reddit on /r/Trimps, or Email at trimpsgame@gmail.com
@@ -199,12 +199,16 @@ function load(saveString, autoLoad) {
 	if (oldVersion === 1.01){
 		game.jobs.Dragimp.modifier = (.5 * Math.pow(1.05, game.buildings.Tribute.owned));
 	}
-	if (oldVersion === 1.02){
+	if (oldVersion <= 1.02){
 		for (var checkResourceMax in game.resources){
 			var toCheckMax = game.resources[checkResourceMax];
 			if (toCheckMax.max == -1) continue;
 			toCheckMax.max = parseFloat(toCheckMax.max);
 		}
+	}
+	if (oldVersion <= 1.06){
+		game.resources.trimps.max += (game.buildings.Mansion.owned * 2);
+		game.buildings.Mansion.increase.by = 10;
 	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
@@ -410,6 +414,7 @@ function buyPortalUpgrade(what){
 	if (!game.global.kongBonusMode && !game.global.portalActive && !game.global.respecActive) return;
 	if (game.global.viewingUpgrades && !game.global.respecActive) return;
 	var toBuy = game.portal[what];
+	if (toBuy.max <= toBuy.level + toBuy.levelTemp) return;
 	var price = getPortalUpgradePrice(what);
 	var canSpend = (game.global.respecActive) ? game.resources.helium.respecMax :  (game.resources.helium.owned + game.global.heliumLeftover);
 	if (canSpend >= (game.resources.helium.totalSpentTemp + price)){
@@ -1117,7 +1122,7 @@ function createMap(newLevel) {
         size: Math.floor(getRandomMapValue("size")),
         loot: getRandomMapValue("loot")
     });
-    message("You just made " + mapName[0] + "!", "Notices");
+    message("You just made " + mapName[0] + "!", "Loot", "th-large");
     unlockMap(game.global.mapsOwnedArray.length - 1);
 }
 
@@ -1210,6 +1215,8 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world) {
     var badGuysArray = [];
     for (var item in game.badGuys) {
 		var badGuy = game.badGuys[item];
+		if (badGuy.locked) continue;
+		if (badGuy.location == "Maps" && !mapSuffix) continue;
 		if (level == totalCells && badGuy.last && (badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && world >= badGuy.world) {
 			if (item == "Blimp" && (world != 5 && world  != 10 && world < 15)) continue;
 			selected = item;
@@ -1570,7 +1577,8 @@ function battleCoordinator(makeUp) {
         return;
     }
     game.global.battleCounter += (1000 / game.settings.speed);
-    if (game.global.battleCounter >= 1000) {
+	var num = (game.portal.Agility.level) ? 1000 * Math.pow(1 - game.portal.Agility.modifier, game.portal.Agility.level) : 1000;
+	if (game.global.battleCounter >= num) {
         game.global.battleCounter = 0;
         fight(makeUp);
     }

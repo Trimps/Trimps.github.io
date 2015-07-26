@@ -400,11 +400,12 @@ function resetGame(keepPortal) {
 	resetAdvMaps();
 }
 
-function message(messageString, type) {
+function message(messageString, type, lootIcon) {
 	var log = document.getElementById("log");
 	var displayType = (game.global.messages[type]) ? "block" : "none";
 	if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span>" + messageString;
 	if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span>" + messageString;
+	if (type == "Loot" && lootIcon) messageString = "<span class='glyphicon glyphicon-" + lootIcon + "'></span>" + messageString;
 	var addId = "";
 	if (messageString == "Game Saved!") {
 		addId = " id='saveGame'";

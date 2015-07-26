@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.06,
+		version: 1.07,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -81,6 +81,7 @@ var toReturn = {
 		lastCustomAmt: 0,
 		trapBuildAllowed: false,
 		trapBuildToggled: false,
+		pp: [],
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -96,7 +97,7 @@ var toReturn = {
 		prestige: {
 			attack: 13,
 			health: 14,
-			cost: 59,
+			cost: 57,
 			block: 10,
 		},
 		getEnemyAttack: function (level, name) {
@@ -145,6 +146,14 @@ var toReturn = {
 	},
 	//portal
 	portal: {
+		Agility: {
+			level: 0, 
+			modifier: .05,
+			priceBase: 4,
+			heliumSpent: 0,
+			tooltip: "Study up on muscle training exercises to help condition Trimps to be more quick and agile. Each level decreases the time between attacks by 5% <b>of current speed (diminishes)</b>. Maximum of 20 levels.",
+			max: 20,
+		},
 		Bait: {
 			level: 0,
 			modifier: 1,
@@ -228,20 +237,30 @@ var toReturn = {
 		},
 	},
 	
+	
+	
 	worldText: {
 		w2: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However the world is large, and there are many more zones to explore. Chop chop.",
+		w3: "By your orders, your scientists have begun to try and figure out how large this planet is.",
 		w5: "Do you see that thing at the end of this zone? It's huge! It's terrifying! You've never seen anything like it before, but you know that it is a Blimp. How did you know that? Stop knowing things and go kill it.",
+		w6: "You step over the corpse of the Blimp as it rapidly deflates, and one of your Trimps chuckles at the sound produced. You all cross the sulfury river to the next zone, and can feel the pressence of an ancient knowledge. Better explore.",
 		w7: "Slow and steady wins the race. Unless you're racing someone who is actually trying.",
+		w8: "Your settlement is getting crowded, there's Trimps in the streets and you're taking heat. You feel a sudden strong desire to create a map, though you're not quite sure how that would help.",
 		w9: "You can't shake the feeling that you've been here before. Deja Vu?",
 		w10: "Looks like another Blimp up ahead. Hard to tell from far away, but it looks like it has more heads than the last one.",
 		w11: "You're unstoppable as long as nothing stops you. Unfortunately, it seems like something really wants to stop you.",
 		w12: "Did you see that green light flash by? Weird. Oh well.",
+		w13: "Your scientists have finally concluded their report on the analysis of the size of the world. According to the report, they're pretty sure it's infinitely large, but you're pretty sure they just got bored of checking.",
 		w15: "Another day, another Blimp at the end of the zone",
 		w16: "Seriously? Another Blimp so soon?",
 		w17: "You climb a large cliff and look out over the new zone. Red dirt, scorched ground, and devastation. Is that a Dragimp flying around out there?!",
 		w18: "There seems to be a strange force urging you to keep going. The atmosphere is becoming... angrier. Part of you wants to turn around and go back, but most of you wants to keep going.",
 		w19: "You look behind and see your kingdom. You have gems, a colony, and territory. You wonder if enough Trimps have already fallen in battle. After contemplation, one word falls out of your mouth as you begin to move forward. 'Nah'",
-		w20: "You can sense that you're close to your goal.",		
+		w20: "You can sense that you're close to your goal.",
+		w23: "You're a rebel. The universe pointed you into that portal, but you kept pushing forward. You feel... less like you've been here before.",
+		w25: "It seems like the further you press on, the less you know. You still feel an urge to use the portal, though the urge has begun to dwindle.",
+		
+		
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
@@ -450,6 +469,7 @@ var toReturn = {
 	},
 
 	badGuys: {
+		
 		Squimp: {
 			location: "All",
 			attack: .8,
@@ -588,7 +608,7 @@ var toReturn = {
 				var amt = rewardResource("wood", 2, level, true);
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>Mitschimp dropped " + prettify(amt) + " wood!", "Loot");
 			}
-		}
+		},
 	},
 	
 	mapConfig: {
@@ -621,6 +641,10 @@ var toReturn = {
 			Block: {
 				resourceType: "Wood",
 				upgrade: "Shieldblock",
+			},
+			Wall: {
+				resourceType: "Food",
+				upgrade: "Bounty",
 			},
 			All: {
 				resourceType: "Metal",
@@ -661,6 +685,18 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade("Shieldblock");
 			}
+		},
+		Bounty: {
+			world: 15,
+			message: "It's all shiny and stuff. You're pretty sure you've never seen a book this shiny.",
+			level: "last",
+			icon: "book",
+			filterUpgrade: true,
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("Bounty");
+			}
+		
 		},
 		Supershield: {
 			world: -1,
@@ -800,6 +836,32 @@ var toReturn = {
 				message("You just made a map to The Block!", "Notices");
 			}
 		},
+		TheWall: {
+			world: -1,
+			message: "Oh snap! Another unique map!",
+			level: [10, 20],
+			icon: "th-large",
+			startAt: 15,
+			canRunOnce: true,
+			fire: function () {
+				game.global.mapsOwned++;
+				game.global.totalMapsEarned++;
+				game.global.mapsOwnedArray.push({
+					id: "map" + game.global.totalMapsEarned,
+					name: "The Wall",
+					location: "Wall",
+					clears: 0,
+					level: 15,
+					difficulty: 1.5,
+					size: 100,
+					loot: 1.5,
+					noRecycle: true,
+				});
+				unlockMap(game.global.mapsOwnedArray.length - 1);
+				message("You just made a map to The Wall!", "Loot", "th-large");
+			}
+		},
+		
 		Mansion: {
 			world: -1,
 			startAt: 8,
@@ -813,7 +875,7 @@ var toReturn = {
 		},
 		Hotel: {
 			world: -1,
-			startAt: 15,
+			startAt: 14,
 			message: "You found plans for a hotel! (A decent hotel, too)",
 			level: [10, 20],
 			icon: "home",
@@ -855,6 +917,19 @@ var toReturn = {
 				unlockBuilding("Gateway");
 			}
 		},
+		
+		Wormhole: {
+			world: -1,
+			startAt: 35,
+			message: "You found a crystal powerful enough to create wormholes!",
+			level: [10, 20],
+			icon: "link",
+			canRunOnce: true,
+			fire: function () {
+				unlockBuilding("Wormhole");
+			}
+		},
+		
 		Trapstorm: {
 			world: -1,
 			startAt: 10,
@@ -880,9 +955,9 @@ var toReturn = {
 			world: -1,
 			level: [0, 7],
 			icon: "certificate",
-			repeat: 8,
+			repeat: 5,
 			fire: function (level) {
-				var amt = rewardResource("gems", .1, level, true);
+				var amt = rewardResource("gems", .15, level, true);
 				message("<span class='glyphicon glyphicon-certificate'></span>You found " + prettify(amt) + " gems! Terrific!", "Loot");
 			}
 		},
@@ -1367,8 +1442,8 @@ var toReturn = {
 			craftTime: 20,
 			tooltip: "A better house for your Trimps! Each house supports up to $incby$ more Trimps.",
 			cost: {
-				food: [750, 1.22],
-				wood: [1500, 1.22],
+				food: [1500, 1.22],
+				wood: [750, 1.22],
 				metal: [150, 1.22]
 			},
 			increase: {
@@ -1390,7 +1465,7 @@ var toReturn = {
 			},
 			increase: {
 				what: "trimps.max",
-				by: 8
+				by: 10
 			}
 		},
 		Hotel: {
@@ -1443,6 +1518,21 @@ var toReturn = {
 				by: 100
 			}
 		},
+		Wormhole: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 600,
+			tooltip: "Use your crazy, helium-cooled, easy-to-aim wormhole generator to create easy-to-travel links to other colonizable planets where your Trimps can sleep and work. Each supports $incby$ Trimps.",
+			cost: {
+				helium: [13, 1.1],
+				metal: [100000, 1.1]
+			},
+			increase:{
+				what: "trimps.max",
+				by: 500
+			}
+		},		
 		Tribute: {
 			locked: 1,
 			owned: 0,
@@ -1565,6 +1655,28 @@ var toReturn = {
 				document.getElementById("pauseFight").style.visibility = "visible";
 			}
 		},
+		Bounty: {
+			locked: 1,
+			tooltip: "This book will teach your Farmers, Lumberjacks, Miners, Scientists, and Explorers to all be twice as productive.",
+			done: 0,
+			allowed: 0,
+			cost: {
+				resources: {
+					science: [40000, 2],
+					food: [100000, 2],
+					wood: [100000, 2],
+					metal: [100000, 2]
+				}
+			},
+			fire: function () {
+				game.jobs.Farmer.modifier *= 2;
+				game.jobs.Lumberjack.modifier *= 2;
+				game.jobs.Miner.modifier *= 2;
+				game.jobs.Scientist.modifier *= 2;
+				game.jobs.Explorer.modifier *= 2;
+				
+			}
+		},
 		Coordination: {
 			locked: 1,
 			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require 25% more Trimps (rounded up), but attack and health will be increased by the same amount.",
@@ -1572,7 +1684,7 @@ var toReturn = {
 			allowed: 0,
 			cost: {
 				resources: {
-					science: [250, 1.3],
+					science: [250, 1.5],
 					food: [600, 1.3],
 					wood: [600, 1.3],
 					metal: [300, 1.3]
@@ -1589,7 +1701,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [750, 1.17],
+					science: [750, 1.5],
 					food: [2000, 1.17],
 					metal: [1000, 1.17]
 				}
@@ -1606,7 +1718,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [750, 1.1],
+					science: [750, 1.5],
 					food: [2000, 1.1],
 					metal: [1000, 1.1]
 				}
@@ -1669,7 +1781,7 @@ var toReturn = {
 			allowed: 0,
 			cost: {
 				resources: {
-					science: 100000,
+					science: 50000,
 					fragments: 5,
 				}
 			},
@@ -1685,7 +1797,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.4],
+					science: [200, 1.5],
 					wood: [500, 1.4]
 				}
 			},
@@ -1700,7 +1812,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.4],
+					science: [200, 1.5],
 					food: [500, 1.4]
 				}
 			},
@@ -1715,7 +1827,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.4],
+					science: [200, 1.5],
 					metal: [500, 1.4]
 				}
 			},
@@ -1730,7 +1842,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [400, 1.4]
+					science: [400, 1.6]
 				}
 			},
 			fire: function () {
@@ -1744,7 +1856,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [400, 1.25],
+					science: [400, 1.7],
 					food: [400, 1.2],
 					wood: [400, 1.2],
 					metal: [400, 1.2]
@@ -1761,7 +1873,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [1000, 1.4],
+					science: [1000, 3],
 					wood: [4000, 1.4],
 				}
 			},
@@ -1884,7 +1996,6 @@ var toReturn = {
 				
 				equipment.blockNow = true;
 				equipment.tooltip = game.equipment.Shield.blocktip;
-
 			    equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
 /* 				cost[0] = Math.round(equipment.oc * Math.pow(1.069, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
 				cost.lastCheckAmount = null;
