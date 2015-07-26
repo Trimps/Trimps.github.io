@@ -1684,7 +1684,7 @@ var toReturn = {
 			allowed: 0,
 			cost: {
 				resources: {
-					science: [250, 1.5],
+					science: [250, 1.3],
 					food: [600, 1.3],
 					wood: [600, 1.3],
 					metal: [300, 1.3]
@@ -1701,7 +1701,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [750, 1.5],
+					science: [750, 1.17],
 					food: [2000, 1.17],
 					metal: [1000, 1.17]
 				}
@@ -1718,7 +1718,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [750, 1.5],
+					science: [750, 1.1],
 					food: [2000, 1.1],
 					metal: [1000, 1.1]
 				}
@@ -1797,7 +1797,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.5],
+					science: [200, 1.4],
 					wood: [500, 1.4]
 				}
 			},
@@ -1812,7 +1812,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.5],
+					science: [200, 1.4],
 					food: [500, 1.4]
 				}
 			},
@@ -1827,7 +1827,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [200, 1.5],
+					science: [200, 1.4],
 					metal: [500, 1.4]
 				}
 			},
@@ -1842,7 +1842,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [400, 1.6]
+					science: [400, 1.4]
 				}
 			},
 			fire: function () {
@@ -1856,7 +1856,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [400, 1.7],
+					science: [400, 1.25],
 					food: [400, 1.2],
 					wood: [400, 1.2],
 					metal: [400, 1.2]
@@ -1873,7 +1873,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [1000, 3],
+					science: [1000, 1.4],
 					wood: [4000, 1.4],
 				}
 			},
