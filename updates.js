@@ -164,6 +164,12 @@ function tooltip(what, isItIn, event, textString) {
 		else
 		tooltipText = "Go back to to the World Map.";
 		costText = "";
+	}if (what == "Unable to Respec"){
+		tooltipText = "You must empty your building queue before resetting your perks."
+		game.global.lockTooltip = true;
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='cancelTooltip()'>Got it</div></div>";
+		elem.style.left = "32.5%";
+		elem.style.top = "25%";
 	}
 	if (isItIn == "jobs"){
 		if (game.global.firing){

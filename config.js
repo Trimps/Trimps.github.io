@@ -218,15 +218,20 @@ var toReturn = {
 			tooltip: "Pay your Trimps to knock you around a little bit. By learning to not be such a wuss, your Trimps will be less wussy as well. Adds 5% health permanently to your Trimps.",
 			level: 0,
 		},
-		//These are gonna be harder than I thought. There's a lot of checks to prices.
-/* 		Cheapskate: {
+		Cheapskate: {
 			modifier: .05,
+			priceBase: 1,
+			heliumSpent: 0,
 			tooltip: "Discuss negotiation tactics with your leading scientists. Permanently reduces the cost of all jobs by 5%",
+			level: 0,
 		},
 		Resourcefulness: {
 			modifier: .05,
+			priceBase: 1,
+			heliumSpent: 0,
 			tooltip: "Talk to your scientists about more efficient building designs. Each level reduces the cost of all buildings by 5%",
-		}, */
+			level: 0,
+		},
 
 		//rewardResources main
 		Looting: {

@@ -370,6 +370,12 @@ function checkOfflineProgress(){
 
 function respecPerks(){
 	if (!game.global.canRespecPerks) return;
+	if (game.global.buildingsQueue.length > 0
+	&& !(game.global.buildingsQueue.length == 1 && game.global.buildingsQueue[0] == "Trap.1")){
+		cancelPortal();
+		tooltip("Unable to Respec", null, "update");
+		return;
+	}
 	game.global.respecActive = true;
 	displayPortalUpgrades();
 	game.resources.helium.respecMax = 0;
@@ -686,12 +692,14 @@ function canAffordTwoLevel(whatObj, takeEm) {
 
 function resolvePow(cost, whatObj, addOwned) {
 	if (!addOwned) addOwned = 0;
-    var compare;
+    var compare,
+		mod = 1;
     if (typeof whatObj.done !== 'undefined') compare = 'done';
     if (typeof whatObj.level !== 'undefined') compare = 'level';
     if (typeof whatObj.owned !== 'undefined') compare = 'owned';
 	if (typeof whatObj.purchased !== 'undefined') compare = 'purchased';
-    return (Math.floor(cost[0] * Math.pow(cost[1], (whatObj[compare] + addOwned))));
+	if (typeof whatObj.craftTime !== 'undefined') mod = 1 - (game.portal.Resourcefulness.modifier * game.portal.Resourcefulness.level);
+    return (Math.floor((cost[0] * mod) * Math.pow(cost[1], (whatObj[compare] + addOwned))));
 }
 
 //Now with equipment!
@@ -723,13 +731,17 @@ function getBuildingItemPrice(toBuy, costItem, isEquipment){
 	var compare = (isEquipment) ? "level" : "purchased";
 	var thisCost = toBuy.cost[costItem];
 		if (typeof thisCost[1] !== 'undefined'){
-			if (thisCost.lastCheckCount != game.global.buyAmt || thisCost.lastCheckOwned != toBuy[compare]){
+			if (thisCost.lastCheckCount != game.global.buyAmt
+				|| thisCost.lastCheckOwned != toBuy[compare]
+				|| (!isEquipment && thisCost.lastCheckResourcefulness != game.portal.Resourcefulness.level)
+			){
 				for (var x = 0; x < game.global.buyAmt; x++){
 						price += resolvePow(thisCost, toBuy, x);
 				}
 				thisCost.lastCheckCount = game.global.buyAmt;
 				thisCost.lastCheckAmount = price;
 				thisCost.lastCheckOwned = toBuy[compare];
+				if (!isEquipment) thisCost.lastCheckResourcefulness = game.portal.Resourcefulness.level;
 			}
 			else price = thisCost.lastCheckAmount;
 		}
@@ -863,7 +875,7 @@ function calculatePercentageBuildingCost(what, resourceToCheck, costModifier){
 	var struct = game.buildings[what];
 	var res = game.resources[resourceToCheck];
 	var dif = struct.purchased - struct.owned;
-	return Math.floor(costModifier * res.max * Math.pow(struct.increase.by, dif));
+	return Math.floor(((costModifier * res.max) * (1 - (game.portal.Resourcefulness.modifier * game.portal.Resourcefulness.level))) * Math.pow(struct.increase.by, dif));
 }
 
 function trapThings() {
@@ -933,13 +945,17 @@ function checkJobItem(what, take, costItem, amtOnly) {
     var job = game.jobs[what];
     var cost = job.cost[costItem];
     var price = 0;
-	if (cost.lastCheckCount != game.global.buyAmt || cost.lastCheckOwned != job.owned){
+	if (cost.lastCheckCount != game.global.buyAmt
+		|| cost.lastCheckOwned != job.owned
+		|| thisCost.lastCheckCheapskate != game.portal.Cheapskate.level
+	){
 		for (var x = 0; x < game.global.buyAmt; x++) {
-			price += Math.floor(cost[0] * Math.pow(cost[1], (job.owned + x)));
+			price += Math.floor((cost[0] * (1 - (game.portal.Cheapskate.modifier * game.portal.Cheapskate.level))) * Math.pow(cost[1], (job.owned + x)));
 		}
 		cost.lastCheckCount = game.global.buyAmt;
 		cost.lastCheckAmount = price;
 		cost.lastCheckOwned = job.owned;
+		cost.lastCheckCheapskate = game.portal.Cheapskate.level;
 	}
 	else {
 		price = cost.lastCheckAmount;
