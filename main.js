@@ -94,6 +94,7 @@ function save(exportThis) {
 		delete portal.modifier;
 		delete portal.priceBase;
 		delete portal.tooltip;
+		delete portal.otherModifier;
 	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
