@@ -33,14 +33,14 @@ function tooltip(what, isItIn, event, textString) {
 		var cordy = 0;
 		var e = event || window.event;
 		if (e.pageX || e.pageY) {
-			cordx = e.pageX + 25;
+			cordx = e.pageX;
 			cordy = e.pageY;
 		} else if (e.clientX || e.clientY) {
-			cordx = e.clientX + 25;
+			cordx = e.clientX;
 			cordy = e.clientY;
 			
 		}
-		elem.style.left = (cordx - 5) + "px";
+		elem.style.left = (cordx + 20) + "px";
 		elem.style.top = (cordy - 200) + "px";
 	}
 	var tooltipText;
@@ -48,6 +48,7 @@ function tooltip(what, isItIn, event, textString) {
 	var toTip;
 	var price;
 	var canAfford;
+	var percentOfTotal = "";
 	if (isItIn !== null && isItIn != "maps"){
 		toTip = game[isItIn];
 		toTip = toTip[what];
@@ -62,7 +63,11 @@ function tooltip(what, isItIn, event, textString) {
 					var itemToCheck = game[cost];
 					if (typeof itemToCheck[item] !== 'undefined'){
 						canAfford = (itemToCheck[item].owned >= price) ? "green" : "red";
-						costText += '<span class="' + canAfford + '">' + item + ':&nbsp;' + prettify(price) + '</span>, ';
+						if (typeof itemToCheck[item].owned !== 'undefined'){
+							percentOfTotal = (itemToCheck[item].owned > 0) ? prettify(((price / itemToCheck[item].owned) * 100).toFixed(1)) : 0;
+							percentOfTotal = "(" + percentOfTotal + "%)";
+						}
+						costText += '<span class="' + canAfford + '">' + item + ':&nbsp;' + prettify(price) + '&nbsp;' + percentOfTotal + '</span>, ';
 					}
 					else
 					costText += item + ": " + prettify(price) + ", ";
@@ -73,7 +78,9 @@ function tooltip(what, isItIn, event, textString) {
 			if (typeof price[1] !== 'undefined') price = resolvePow(price, toTip);
 			if (typeof game.resources[cost] !== 'undefined'){
 				canAfford = (game.resources[cost].owned >= price) ? "green" : "red";
-				costText += '<span class="' + canAfford + '">' + cost + ':&nbsp;' + prettify(price) + '</span>, ';				
+				percentOfTotal = (game.resources[cost].owned > 0) ? prettify(((price / game.resources[cost].owned) * 100).toFixed(1)) : 0;
+				percentOfTotal = "(" + percentOfTotal + "%)";
+				costText += '<span class="' + canAfford + '">' + cost + ':&nbsp;' + prettify(price)  + '&nbsp;' + percentOfTotal + '</span>, ';				
 			}
 			else
 			costText += cost + ": " + prettify(price) + ", ";
@@ -138,6 +145,11 @@ function tooltip(what, isItIn, event, textString) {
 		};
 	}
 	if (what == "Export"){
+		if (textString){
+			tooltipText = textString + "<br/><br/><textarea style='width: 100%' rows='5'>" + save(true) + "</textarea>";
+			what = "Thanks!";
+		}
+		else
 		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea style='width: 100%' rows='5'>" + save(true) + "</textarea>";
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='cancelTooltip()'>Got it</div></div>";
 		game.global.lockTooltip = true;
@@ -192,9 +204,14 @@ function tooltip(what, isItIn, event, textString) {
 		costText = prettify(getPortalUpgradePrice(what)) + resAppend;
 	}
 	if (isItIn == "equipment"){
+		if (what == "Shield" && game.equipment.Shield.blockNow){
+			var blockPerShield = game.equipment.Shield.blockCalculated + (game.equipment.Shield.blockCalculated * game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100));
+			tooltipText += " (" + prettify(blockPerShield) + " after Trainers)";
+		}
 		if (game.global.buyAmt > 1) {
 			costText = canAffordBuilding(what, false, true, true);
 			what += " X" + game.global.buyAmt;
+
 		}
 	}
 	if (isItIn == "upgrades"){
@@ -336,7 +353,7 @@ function resetGame(keepPortal) {
 	document.getElementById("upgradesTitleSpan").innerHTML = "Upgrades (research first)";
 	document.getElementById("science").style.visibility = "hidden";
 	document.getElementById("battleContainer").style.visibility = "hidden";
-	document.getElementById("pauseFight").style.visibility = "hidden";
+	document.getElementById("pauseFight").style.display = "none";
 	document.getElementById("blockDiv").style.visibility = "hidden";
 	document.getElementById("badGuyCol").style.visibility = "hidden";
 	document.getElementById("jobsHere").innerHTML = "";
@@ -345,7 +362,7 @@ function resetGame(keepPortal) {
 	document.getElementById("equipmentTab").style.visibility = "hidden";
 	document.getElementById("foremenCount").innerHTML = "";
 	document.getElementById("upgradesHere").innerHTML = "";
-	document.getElementById("mapsBtn").style.visibility = "hidden";
+	document.getElementById("mapsBtn").style.display = "none";
 	document.getElementById("grid").style.display = "block";
 	document.getElementById("preMaps").style.display = "none";
 	document.getElementById("mapGrid").style.display = "none";
@@ -357,7 +374,7 @@ function resetGame(keepPortal) {
 	document.getElementById("worldNumber").innerHTML = "1";
 	document.getElementById("mapsHere").innerHTML = "";
 	document.getElementById("sciencePs").innerHTML = "+0/sec";
-	document.getElementById("repeatBtn").style.visibility = "hidden";
+	document.getElementById("repeatBtn").style.display = "none";
 	document.getElementById("helium").style.visibility = "hidden";
 	document.getElementById("jobsTitleDiv").style.display = "none";
 	document.getElementById("upgradesTitleDiv").style.display = "none";
@@ -367,8 +384,6 @@ function resetGame(keepPortal) {
 	document.getElementById("battleHeadContainer").style.display = "block";
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
-	
-	
 	filterTabs("all");
 	var gatherBtns = ["buildings", "food", "wood", "metal", "science", "trimps"];
 	for (var gatherBtn in gatherBtns){
@@ -378,10 +393,14 @@ function resetGame(keepPortal) {
 	var autoSave = game.global.autoSave;
 	var portal;
 	var helium;
+	var b;
+	var imps;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
 		totalPortals = game.global.totalPortals;
+		b = game.global.b;
+		imps = game.unlocks.imps;
 	}
 	game = null;
 	game = newGame();
@@ -389,9 +408,10 @@ function resetGame(keepPortal) {
 	game.global.messages = messages;
 	if (keepPortal){
 		game.portal = portal;
-		
+		game.global.b = b;
 		game.global.heliumLeftover = helium;
 		game.global.totalPortals = totalPortals;
+		game.unlocks.imps = imps;
 	}
 	numTab(1);
 	pauseFight(true);
@@ -403,9 +423,9 @@ function resetGame(keepPortal) {
 function message(messageString, type, lootIcon) {
 	var log = document.getElementById("log");
 	var displayType = (game.global.messages[type]) ? "block" : "none";
-	if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span>" + messageString;
-	if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span>" + messageString;
-	if (type == "Loot" && lootIcon) messageString = "<span class='glyphicon glyphicon-" + lootIcon + "'></span>" + messageString;
+	if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span> " + messageString;
+	if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span> " + messageString;
+	if (type == "Loot" && lootIcon) messageString = "<span class='glyphicon glyphicon-" + lootIcon + "'></span> " + messageString;
 	var addId = "";
 	if (messageString == "Game Saved!") {
 		addId = " id='saveGame'";

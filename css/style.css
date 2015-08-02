@@ -461,14 +461,14 @@ overflow-x: hidden;
 }
 
 #tooltipDiv {
-    width: 25%;
+    width: 30vw;
     position: absolute;
     background: lightgrey;
     display: none;
     padding: 10px;
     border: 2px solid blue;
-    font-size: 1.2em;
-	z-index: 9999;
+    font-size: 1.15em;
+	z-index: 99999999999999;
 }
 
 .maxCenter: {
@@ -679,7 +679,245 @@ overflow-x: hidden;
 }
 .primaryColor{
 	background-color: #337ab7;
+	color: white;
 }
+.greyColor{
+	background-color: grey;
+}
+.tealColor{
+	background-color: #318696 !important;
+	color: white;
+}
+#boneWrapper{
+	position: absolute;
+	color: black;
+	background: rgba(255, 255, 255, 0.98);
+	border: 2px solid black;
+	width: 90vw;
+	margin: 5vh 5vw 5vh 5vw;
+	z-index: 1000000;
+	text-align: center;
+	font-size: 1.3vw;
+	padding: .5vw 2vw;
+}
+
+#minusRes{
+	color: red;
+	border: 1px solid red;
+	font-size: .8em;
+}
+
+#boostPreviewContainer{
+	width: 100%;
+	text-align: left;
+	margin-bottom: 1vw;
+}
+
+
+.boostSpacer{
+
+	font-size: .8em;
+}
+
+.importsPreview{
+	text-align: left;
+	margin-bottom: .1vw;
+	width: 90%;
+	display: inline-block;
+}
+
+.bundleBtn{
+	font-size: .8em;
+}
+
+.kredImg{
+	width: 1.5vw;
+}
+
+#addBundleBtn{
+	margin-bottom: 1vw;
+	padding-top: 1vw;
+	padding-bottom: 1vw;
+	color: white;
+} 
+
+.titleCell{
+	text-decoration: underline;
+	font-weight: bold;
+}
+
+.importLocation{
+	text-align: center;
+	text-decoration: underline;
+	text-color: grey;
+	font-size: .8em;
+	font-weight: bold;
+}
+
+#bundleTitle{
+	font-size: 2vw;
+	margin-bottom: .5vw;
+}
+
+#importsPreview1{
+	margin-top: 1vw;
+	margin-bottom: 1vw;
+}
+
+#boneBtn{
+	font-size: .85vw;
+}
+
+.boneBtn{
+    border: 1px solid white;
+    text-align: center;
+    padding: .1vw;
+}
+
+#boneBuyRow{
+	height: 27vw;
+}
+
+#getBonesBtn{
+	color: white;
+}
+
+.boneBuyDesc{
+	font-size: .8em;
+	background-color: #d0d0d0;
+}
+
+#boneBuyTable{
+	
+}
+
+.miscDesc{
+	background-color: #d0d0d0;
+	margin-top: .5vw;
+	margin-bottom: 1.84vw;
+}
+
+#boneFlavorRow{
+	font-size: 1.2vw;
+	margin-top: .6vw;
+	margin-bottom: .6vw;
+}
+#boneTopRow{
+	font-size: 4vw;
+}
+#boneTitleContainer{
+	font-weight: bold;
+	font-size: 3vw;
+}
+#boneOwnedContainer{
+	font-size: 2vw;
+}
+#purchaseBonesTitle{
+	font-size: 3vw;
+}
+
+#importBuyDesc{
+	font-size: .9em;
+}
+
+.thingSmall{
+	display: inline-block;
+	font-size: 1.3em;
+	border: 1px solid black;
+	width: 25%;
+	color: white;
+	margin-top: .5vw;
+	margin-bottom: .5vw;
+}
+
+.importPreviewName{
+	font-weight: bold;
+}
+
+.importPreviewLoot{
+	width: 83%;
+	text-align: right;
+	padding-left: 1vw;
+
+}
+
+#importPurchaseBtn{
+	margin-top: 1vw;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  padding: .39vw;
+}
+
+.buyBoostBtn{
+	margin-bottom: .5vw;
+}
+
+.table{
+	margin-bottom: 0;
+}
+
+#boneBuyTableContainer{
+	text-align: center;
+}
+
+#boneBuyTable{
+	background-color: #337ab7;
+	color: white;
+	width: 45%;
+	margin-left: 27.5%;
+	text-align: left;
+	margin-top: 1vw;
+}
+
+
+#boneBuyTable > tbody > tr{
+	border-bottom: 1vw solid white;
+}
+
+
+#boneBuyTable > tbody > tr > td:first-child{
+	padding-left: 1vw;
+	width: 50%;
+	padding-right: 0;
+}
+
+.boneBuyColumn{
+	background-color: #e1e1e1;
+	height: 100%;
+	border: .5vw solid white;
+}
+
+
+#boneBuyTable > tbody > tr > td:nth-child(2){
+	text-align: center;
+}
+
+#boneBuyTable > tbody > tr > td:nth-child(3){
+	text-align: right;
+	padding-right: 1vw;
+}
+
+
+.importsTable > tbody > tr:hover{
+	background-color: grey;
+	cursor: pointer;
+}
+
+.importsTable > tbody > tr {
+	background-color: #d0d0d0;
+}
+
+#critSpan{
+	font-weight: bold;
+	color: yellow;
+}
+
 input[type=number] {
     -moz-appearance:textfield;
 }

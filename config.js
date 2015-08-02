@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.07,
+		version: 1.08,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -81,8 +81,11 @@ var toReturn = {
 		lastCustomAmt: 0,
 		trapBuildAllowed: false,
 		trapBuildToggled: false,
+		lastSkeletimp: 0,
 		pp: [],
+		highestLevelCleared: 0,
 		b: 0,
+		lastOfflineProgress: "",
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -147,12 +150,22 @@ var toReturn = {
 	},
 	//portal
 	portal: {
+		Relentlessness:{
+			level: 0,
+			locked: true,
+			modifier: .05,
+			otherModifier: .1,
+			priceBase: 75,
+			heliumSpent: 0,
+			tooltip: "You've seen too many Trimps fall, time for more aggressive training. Bringing back these memories will give your Trimps a 5% chance to critically strike their enemies for 200% damage, plus an additional 30% damage per level. Maximum of 10 levels.",
+			max: 10,
+		},
 		Agility: {
 			level: 0, 
 			modifier: .05,
 			priceBase: 4,
 			heliumSpent: 0,
-			tooltip: "Study up on muscle training exercises to help condition Trimps to be more quick and agile. Each level decreases the time between attacks by 5% <b>of current speed (diminishes)</b>. Maximum of 20 levels.",
+			tooltip: "Study up on muscle training exercises to help condition Trimps to be more quick and agile. Each level increases fight speed by 5% <b>of current speed (diminishes)</b>. Maximum of 20 levels.",
 			max: 20,
 		},
 		Bait: {
@@ -162,9 +175,6 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
 		},
-		
-
-		
 		Trumps: {
 		//fiveTrimpMax worldUnlock
 			locked: 0,
@@ -174,7 +184,6 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "Practicing aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
 		},
-
 		//breed main
 		Pheromones: {
 			level: 0,
@@ -252,20 +261,22 @@ var toReturn = {
 		w11: "You're unstoppable as long as nothing stops you. Unfortunately, it seems like something really wants to stop you.",
 		w12: "Did you see that green light flash by? Weird. Oh well.",
 		w13: "Your scientists have finally concluded their report on the analysis of the size of the world. According to the report, they're pretty sure it's infinitely large, but you're pretty sure they just got bored of checking.",
+		w14: "You were trying to help bring back some of the Equipment your Trimps left on the ground in that last zone, and you got a splinter. This planet is getting dangerous, stay alert.",		
 		w15: "Another day, another Blimp at the end of the zone",
 		w16: "Seriously? Another Blimp so soon?",
 		w17: "You climb a large cliff and look out over the new zone. Red dirt, scorched ground, and devastation. Is that a Dragimp flying around out there?!",
 		w18: "There seems to be a strange force urging you to keep going. The atmosphere is becoming... angrier. Part of you wants to turn around and go back, but most of you wants to keep going.",
 		w19: "You look behind and see your kingdom. You have gems, a colony, and territory. You wonder if enough Trimps have already fallen in battle. After contemplation, one word falls out of your mouth as you begin to move forward. 'Nah'",
 		w20: "You can sense that you're close to your goal.",
-		w23: "You're a rebel. The universe pointed you into that portal, but you kept pushing forward. You feel... less like you've been here before.",
-		w25: "It seems like the further you press on, the less you know. You still feel an urge to use the portal, though the urge has begun to dwindle.",
-		
-		
+		w22: "You're a rebel. The universe pointed you into that portal, but you kept pushing forward. You feel... less like you've been here before.",
+		w24: "Strange, the sky seems to be getting darker. You ask one of your Trimps for the time, but he doesn't know what a clock is.",
+		w27: "It seems like the further you press on, the less you know. You still feel an urge to use the portal, though the urge has begun to dwindle.",
+		w27: "Your Trimps came up with a pretty catchy battle song that got stuck in your head. None of them survived the next fight though, and you can't remember most of it. Life's tough.",
+		w35: "You climb over a large hill that was separating this zone from the last. The sky is pitch black and lightning crackles in the distance. This is a site of heavy corruption.",
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
-	badGuyDeathTexts: ["slayed", "killed", "destroyed"],
+	badGuyDeathTexts: ["slew", "killed", "destroyed"],
 	
 	settings: {
 		speed: 10,
@@ -610,6 +621,119 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>Mitschimp dropped " + prettify(amt) + " wood!", "Loot");
 			}
 		},
+		Goblimp: {
+			location: "Maps",
+			locked: 1,
+			world: 6,
+			attack: 1,
+			health: 1,
+			dropDesc: "Drops 3x Gems",
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("gems", 3, level, true);
+				message("That Goblimp dropped " + prettify(amt) + " gems! What a bro!", "Loot", "certificate");
+			}
+		},
+		Feyimp: {
+			location: "World",
+			locked: 1,
+			world: 6,
+			attack: 1,
+			health: 1,
+			dropDesc: "Drops 10x Gems",
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("gems", 10, level);
+				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "certificate");
+			}
+		},
+		Flutimp: {
+			location: "Maps",
+			locked: 1,
+			world: 6,
+			attack: 1,
+			health: 1,
+			fast: false,
+			dropDesc: "Drops Fragments",
+			loot: function (level) {
+				var amt = rewardResource("fragments", 1, level, true);
+				message("You stole " + prettify(amt) + " fragments from that Flutimp! It really didn't look like she needed them though, don't feel bad.", "Loot", "th");
+			}
+		},
+		Tauntimp: {
+			location: "World",
+			locked: 1,
+			world: 1,
+			attack: .5,
+			health: .5,
+			fast: true,
+			dropDesc: "Grants 1/3 Zone # in Max Trimps",
+			loot: function () {
+				var amt = Math.ceil(game.global.world / 3);
+				game.resources.trimps.max += amt;
+				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + amt + " Trimps to live inside!", "Loot", "gift");
+			}
+		},
+		Whipimp: {
+			location: "World",
+			locked: 1,
+			world: 1,
+			attack: 1,
+			health: 1,
+			fast: false,
+			dropDesc: "Grants 0.3% Trimp gather speed",
+			loot: function () {
+				game.jobs.Farmer.modifier *= 1.003;
+				game.jobs.Lumberjack.modifier *= 1.003;
+				game.jobs.Miner.modifier *= 1.003;
+				game.jobs.Scientist.modifier *= 1.003;
+				game.jobs.Dragimp.modifier *= 1.003;
+				game.jobs.Explorer.modifier *= 1.003;
+				message("Seeing the Whipimp fall has caused all of your Trimps to work 0.3% harder!", "Loot", "star");
+			}
+		},
+		Venimp: {
+			location: "World",
+			locked: 1,
+			world: 1,
+			attack: 1,
+			health: 1,
+			fast: false,
+			dropDesc: "Grants 0.3% Trimp breed speed",
+			loot: function () {
+				game.resources.trimps.potency *= 1.003;
+				message("This ground up Venimp increased your Trimps' breeding speed by 0.3%!", "Loot", "glass");
+			}
+		},
+		Skeletimp: {
+			location: "World",
+			locked: 1,
+			world: 1,
+			attack: .77,
+			health: 2,
+			fast: false,
+			loot: function () {
+/* 				if (typeof kongregate !== 'undefined') 
+				message("Your Trimps managed to pull 1 perfectly preserved bone from that Skeletimp!", "Loot", "italic");
+				game.global.b++; */
+				game.global.lastSkeletimp = new Date().getTime();
+			}
+		},
+		Megaskeletimp: {
+			location: "World",
+			locked: 1,
+			world: 1,
+			attack: .99,
+			health: 2.5,
+			fast: false,
+			loot: function () {
+/* 				if (typeof kongregate !== 'undefined') 
+				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic");
+				game.global.b += 2; */
+				game.global.lastSkeletimp  = new Date().getTime();
+			},
+		}
+		
 	},
 	
 	mapConfig: {
@@ -647,6 +771,10 @@ var toReturn = {
 				resourceType: "Food",
 				upgrade: "Bounty",
 			},
+			Doom: {
+				resourceType: "Metal",
+				upgrade: "Relentlessness"
+			},
 			All: {
 				resourceType: "Metal",
 			},
@@ -661,6 +789,21 @@ var toReturn = {
 	},
 	
 	mapUnlocks: {
+		Relentlessness: {
+			world: 33,
+			level: "last",
+			icon: "compressed",
+			filterUpgrade: true,
+			canRunOnce: true,
+			specialFilter: function () {
+				return game.portal.Relentlessness.locked;
+			},
+			fire: function () {
+				message("You've never been here before. Like, ever. This entire place felt cold and unfamiliar. Where are you? Why have so many Trimps had to fall to get here? You're suddenly angry, it's time to take a stand.", "Story");
+				message("You have permanantly unlocked a new Perk, Relentlessness, which will remain unlocked through portals.", "Notices");
+				game.portal.Relentlessness.locked = false;
+			}
+		},
 	 	Portal: {
 			world: 20,
 			level: "last",
@@ -941,6 +1084,17 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade("Trapstorm");
 			}	
+		},
+		Nursery: {
+			world: -1,
+			startAt: 23,
+			message: "You found blueprints for some sort of nursery that can harness more power from gems.",
+			level: [5, 20],
+			icon: "home",
+			canRunOnce: true,
+			fire: function () {
+				unlockBuilding("Nursery");
+			}
 		},
 /* 		UberResort: {
 			world: 40,
@@ -1224,16 +1378,6 @@ var toReturn = {
 				document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
 			}
 		},
-/* 		Producer: {
-			message: "You found a crazy rare book about how to get the absolute most out of your trimps.",
-			world: 6,
-			level: 19,
-			icon: "book",
-			title: "Producer",
-			fire: function () {
-				unlockUpgrade('Producer');
-			}
-		}, */
 		Anger: {
 			world: 20,
 			level: 99,
@@ -1274,6 +1418,16 @@ var toReturn = {
 				if (game.upgrades.Egg.allowed === 0) unlockUpgrade("Egg");
 			}
 		},
+		Doom: {
+			message: "There is something strange about this map. It doesn't seem to reflect any light at all, just pure darkness.",
+			world: 33,
+			level: [15, 50],
+			icon: "th-large",
+			title: "Too dark to see",
+			fire: function () {
+				createMap(33, "Trimple Of Doom", "Doom", 1.8, 100, 1.8, true); 
+			}
+		},
 		FirstMap: {
 			world: 6,
 			level: [1, 5],
@@ -1281,7 +1435,7 @@ var toReturn = {
 			fire: function () {
 				game.global.mapsUnlocked = true;
 				unlockMapStuff();
-				createMap();
+				createMap(6, "Tricky Paradise", "All", 1.20, 40, 1.11);
 				message("You found your first map! Travel to your map chamber to check it out.", "Story");
 			}
 		},
@@ -1460,9 +1614,10 @@ var toReturn = {
 			tooltip: "A pretty sick mansion for your Trimps to live in. Each Mansion supports $incby$ more Trimps.",
 			cost: {
 				gems: [100, 1.2],
+				food: [3000, 1.2],
 				wood: [2000, 1.2],
 				metal: [500, 1.2],
-				food: [3000, 1.2],
+				
 			},
 			increase: {
 				what: "trimps.max",
@@ -1477,9 +1632,10 @@ var toReturn = {
 			tooltip: "A fancy hotel for many Trimps to live in. Complete with room service and a mini bar. Supports $incby$ Trimps.",
 			cost: {
 				gems: [2000, 1.18],
+				food: [10000, 1.18],
 				wood: [12000, 1.18],
 				metal: [5000, 1.18],
-				food: [10000, 1.18],
+				
 			},
 			increase: {
 				what: "trimps.max",
@@ -1494,9 +1650,10 @@ var toReturn = {
 			tooltip: "A huge resort for your Trimps to live in. Sucks for the ones still stuck in huts. Supports $incby$ Trimps.",
 			cost: {
 				gems: [20000, 1.16],
+				food: [100000, 1.16],
 				wood: [120000, 1.16],
 				metal: [50000, 1.16],
-				food: [100000, 1.16],
+				
 			},
 			increase: {
 				what: "trimps.max",
@@ -1526,12 +1683,12 @@ var toReturn = {
 			craftTime: 600,
 			tooltip: "Use your crazy, helium-cooled, easy-to-aim wormhole generator to create easy-to-travel links to other colonizable planets where your Trimps can sleep and work. Each supports $incby$ Trimps.",
 			cost: {
-				helium: [13, 1.075],
+				helium: [10, 1.075],
 				metal: [100000, 1.1]
 			},
 			increase:{
 				what: "trimps.max",
-				by: 500
+				by: 1000
 			}
 		},		
 		Tribute: {
@@ -1548,6 +1705,22 @@ var toReturn = {
 				by: 1.05,
 			}
 		},
+		Nursery: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 120,
+			tooltip: "Construct a gem-powered nursery, where baby Trimps can grow up faster. Increases Trimps per second from breeding by 1% (compounding).",
+			cost: {
+				gems: [400000, 1.06],
+				wood: [1000000, 1.06],
+				metal: [500000, 1.06]
+			},
+			increase: {
+				what: "trimps.potency.mult",
+				by: 1.01,
+			}
+		}
 	},
 
 	jobs: {
@@ -1594,7 +1767,7 @@ var toReturn = {
 		Trainer: {
 			locked: 1,
 			owned: 0,
-			tooltip: "Each trainer will increase the amount your soldiers can block by $modifier$%",
+			tooltip: "Each trainer will increase the base amount your soldiers can block by $modifier$%",
 			cost: {
 				food: [750, 1.1]
 			},
@@ -1653,7 +1826,7 @@ var toReturn = {
 			},
 			fire: function () {
 				game.global.autoBattle = true;
-				document.getElementById("pauseFight").style.visibility = "visible";
+				fadeIn("pauseFight", 1);
 			}
 		},
 		Bounty: {
@@ -2013,8 +2186,9 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: 10000,
-					wood: 100000,
 					food: 100000,
+					wood: 100000,
+					
 				}
 			},
 			fire: function () {
@@ -2049,7 +2223,7 @@ var toReturn = {
 		Supershield: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your shield. This will destroy your old shield and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
+			tooltip: "Researching this will prestige your shield. This will destroy your old shield and vastly increase the cost of further upgrades, but will vastly increase the amount of stats given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2382,6 +2556,18 @@ var toReturn = {
 				document.getElementById("unempHide").style.visibility = "visible";
 			}
 		},
+	},
+	unlocks: {
+		imps: {
+			Goblimp: false,
+			Feyimp: false,
+			Flutimp: false,
+			Tauntimp: false,
+			Venimp: false,
+			Whipimp: false,
+		},
+		goldMaps: false,
+		quickTrimps: false,
 	}
 };
 return toReturn;

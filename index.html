@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 1.07</title>
+	<title>Trimps 1.08</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
@@ -38,7 +38,6 @@
 		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. -->
 <body>
-
 	<div id="wrapper" style="background: url(css/bg2.png) center repeat-x;">
 		<div id="warnings"></div>
 		<div class="row" id="topRow">
@@ -317,7 +316,7 @@
 					<div id="battleHeadContainer">
 						<div class="row" id="battleStatsRow">
 							<div class="col-xs-6" id="goodGuyCol">
-								<span class="battleStatsTitle" id="goodGuyName">Trimps(<span id="trimpsFighting">1</span>)</span>
+								<span class="battleStatsTitle" id="goodGuyName">Trimps(<span id="trimpsFighting">1</span>) <span id="critSpan"></span></span>
 								<br/>
 								<div class="row guyRow" id="goodGuyStatsRow">
 									<div class="col-xs-4" style="padding-right: 5px">
@@ -365,12 +364,12 @@
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-danger fightBtn" id="pauseFight" onmouseover="tooltip('AutoFight',null,event)" onmouseout="tooltip('hide')" onclick="pauseFight()" style="visibility: hidden">
+								<span class="btn btn-danger fightBtn" id="pauseFight" onmouseover="tooltip('AutoFight',null,event)" onmouseout="tooltip('hide')" onclick="pauseFight()" style="display: none">
 									AutoFight Off
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-warning fightBtn" id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" onclick="mapsClicked()" style="visibility: hidden">
+								<span class="btn btn-warning fightBtn" id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" onclick="mapsClicked()" style="display: none">
 									Maps
 								</span>
 							</div>
@@ -380,11 +379,10 @@
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-danger fightBtn" id="repeatBtn" onmouseover="tooltip('Repeat Map', null, event)" onmouseout="tooltip('hide')" onclick = "repeatClicked()" style="visibility: hidden">
+								<span class="btn btn-danger fightBtn" id="repeatBtn" onmouseover="tooltip('Repeat Map', null, event)" onmouseout="tooltip('hide')" onclick = "repeatClicked()" style="display: none">
 									Repeat Off
 								</span>
 							</div>
-							
 						</div>
 						<div class="col-xs-10" id="gridContainer">
 							<div id="grid"></div>
@@ -543,9 +541,9 @@
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?19"></script>
-	<script type="text/javascript" src="updates.js?19"></script>
-	<script type="text/javascript" src="main.js?19"></script>
+	<script type="text/javascript" src="config.js?20"></script>
+	<script type="text/javascript" src="updates.js?20"></script>
+	<script type="text/javascript" src="main.js?20"></script>
 	
 </body>
 
