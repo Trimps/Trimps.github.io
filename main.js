@@ -215,7 +215,7 @@ function load(saveString, autoLoad) {
 		game.global.highestLevelCleared = game.global.world;
 		game.resources.trimps.max += (game.buildings.Wormhole.owned * 500);
 		game.buildings.Wormhole.increase.by = "1000";
-		if (game.global.world > 33) game.worldUnlocks.Doom.fire();
+		if (game.global.world >= 33) game.worldUnlocks.Doom.fire();
 	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
@@ -391,6 +391,7 @@ function respecPerks(){
 	displayPortalUpgrades();
 	game.resources.helium.respecMax = 0;
 	for (var item in game.portal){
+		if (game.portal[item].locked) continue;
 		var portUpgrade = game.portal[item];
 		if (typeof portUpgrade.level === 'undefined') continue;
 		portUpgrade.levelTemp -= portUpgrade.level;
@@ -461,6 +462,7 @@ function getPortalUpgradePrice(what){
 function commitPortalUpgrades(){
 document.getElementById("pastUpgradesBtn").style.display = "inline-block";
 	for (var item in game.portal){
+		if (game.portal[item].locked) continue;
 		var portUpgrade = game.portal[item];
 		if (typeof portUpgrade.level === 'undefined') continue;
 		portUpgrade.level += portUpgrade.levelTemp;
@@ -1868,7 +1870,7 @@ function fight(makeUp) {
 	document.getElementById("critSpan").innerHTML = "";
 	if (game.portal.Relentlessness.level > 0){
 		if (Math.floor(Math.random() * (1 / (game.portal.Relentlessness.modifier * game.portal.Relentlessness.level))) == 1){
-			trimpAttack += (trimpAttack * game.portal.Relentlessness.otherModifier * game.portal.Relentlessness.level);
+			trimpAttack += (trimpAttack * ((game.portal.Relentlessness.otherModifier * game.portal.Relentlessness.level) + 2));
 			document.getElementById("critSpan").innerHTML = "Crit!";
 		}
 	}
