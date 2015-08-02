@@ -1017,15 +1017,16 @@ function breed() {
         updatePs(0, true);
         return;
     }
-    if (trimps.owned >= trimps.max) {
-        trimps.owned = trimps.max;
-        return;
-    }
+
     breeding = breeding * trimps.potency;
 	//Pheromones
 	breeding += (breeding * game.portal.Pheromones.level * game.portal.Pheromones.modifier);
 	if (game.unlocks.quickTrimps) breeding *= 2;
     updatePs(breeding, true);
+	if (trimps.owned >= trimps.max) {
+        trimps.owned = trimps.max;
+        return;
+    }
     trimps.owned += breeding / game.settings.speed;
 }
 
