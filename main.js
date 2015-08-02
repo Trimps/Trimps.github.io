@@ -1541,7 +1541,8 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("mapGrid").style.display = "none";
         mapsBtn.innerHTML = "World";
 		document.getElementById("repeatBtn").style.visibility = "hidden";
-        if (game.global.currentMapId === "") {
+        if (game.global.lookingAtMap) selectMap(game.global.lookingAtMap, true);
+		else if (game.global.currentMapId === "") {
             document.getElementById("selectMapBtn").style.visibility = "hidden";
             recycleBtn.style.visibility = "hidden";
             document.getElementById("selectedMapName").innerHTML = "Select a Map!";
@@ -1853,7 +1854,6 @@ function fight(makeUp) {
 			}
 			else{
 				game.global.preMapsActive = true;
-				game.global.lookingAtMap = "";
 				game.global.mapsActive = false;
 				game.global.lastClearedMapCell = -1;
 				game.global.currentMapId = "";
