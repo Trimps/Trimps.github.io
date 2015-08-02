@@ -428,7 +428,7 @@ function activateClicked(){
 }
 
 function buyPortalUpgrade(what){
-	if (!game.global.kongBonusMode && !game.global.portalActive && !game.global.respecActive) return;
+	if (!game.global.kongBonusMode && !game.global.portalActive && !game.global.respecActive && !game.global.viewingUpgrades) return;
 	if (game.global.viewingUpgrades) {
 		document.getElementById("respecPortalBtn").style.display = "none";
 		document.getElementById("activatePortalBtn").innerHTML = "Confirm";
