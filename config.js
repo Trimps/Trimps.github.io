@@ -157,7 +157,7 @@ var toReturn = {
 			otherModifier: .3,
 			priceBase: 75,
 			heliumSpent: 0,
-			tooltip: "You've seen too many Trimps fall, time for more aggressive training. Bringing back these memories will give your Trimps a 5% chance to critically strike their enemies for 200% damage, plus an additional 30% damage per level. Maximum of 10 levels.",
+			tooltip: "You've seen too many Trimps fall, time for more aggressive training. Bringing back these memories will give your Trimps a 5% chance per level to critically strike their enemies for 200% damage, plus an additional 30% damage per level. Maximum of 10 levels.",
 			max: 10,
 		},
 		Agility: {
