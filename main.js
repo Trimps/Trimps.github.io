@@ -1541,7 +1541,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("mapGrid").style.display = "none";
         mapsBtn.innerHTML = "World";
 		document.getElementById("repeatBtn").style.visibility = "hidden";
-        if (game.global.lookingAtMap) selectMap(game.global.lookingAtMap, true);
+        if (game.global.lookingAtMap && !game.global.currentMapId) selectMap(game.global.lookingAtMap, true);
 		else if (game.global.currentMapId === "") {
             document.getElementById("selectMapBtn").style.visibility = "hidden";
             recycleBtn.style.visibility = "hidden";
