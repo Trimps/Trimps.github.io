@@ -171,7 +171,7 @@ function tooltip(what, isItIn, event, textString) {
 		costText = "";
 	}
 	if (what == "Maps"){
-		if (!game.global.mapsActive)
+		if (!game.global.mapsActive && !game.global.preMapsActive)
 		tooltipText = "Leave your current world temporarily and enter the Map Chamber";
 		else
 		tooltipText = "Go back to to the World Map.";
@@ -384,6 +384,10 @@ function resetGame(keepPortal) {
 	document.getElementById("battleHeadContainer").style.display = "block";
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
+	for (var item in game.resources){
+		var elem = document.getElementById(item + "Ps");
+		if (elem != null) elem.innerHTML = "+0/sec";
+	}
 	filterTabs("all");
 	var gatherBtns = ["buildings", "food", "wood", "metal", "science", "trimps"];
 	for (var gatherBtn in gatherBtns){

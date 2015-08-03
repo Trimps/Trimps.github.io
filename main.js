@@ -353,6 +353,7 @@ function activateKongBonus(oldWorld){
 function checkOfflineProgress(){
 	if (!game.global.lastOnline) return;
 	var rightNow = new Date().getTime();
+	var textArray = [];
 /* 	if (game.global.lastOfflineProgress > rightNow){
 		var waitFor = (((game.global.lastOfflineProgress - rightNow) / 1000) / 60);
 		message("For some reason, your game has gone back in time. Please wait " + prettify(waitFor) + " minutes for your Trimps to re-enter your dimension.", "Notices");
@@ -362,7 +363,7 @@ function checkOfflineProgress(){
 	var dif = rightNow - game.global.lastOnline;
 	dif = Math.floor(dif / 1000);
 	if (dif < 60) return;
-	var textString = "While you were away, your Trimps were able to produce ";
+	var textString = "";
 	var compatible = ["Farmer", "Lumberjack", "Miner", "Dragimp", "Explorer"];
 	for (var x = 0; x < compatible.length; x++){
 		var job = game.jobs[compatible[x]];
@@ -377,9 +378,16 @@ function checkOfflineProgress(){
 			var allowed = (newMax - resource.owned);
 			if (amt > allowed) amt = allowed;
 		}
-		resource.owned += amt;
-		textString += prettify(amt) + " " + resName + ", ";
-		if (x == (compatible.length - 2)) textString += "and ";
+		if (amt > 0){
+			resource.owned += amt;
+			textString = prettify(amt) + " " + resName + ", ";
+			textArray.push(textString);
+		}
+	}	
+	var textString = "While you were away, your Trimps were able to produce ";
+	for (var x = 0; x < textArray.length; x++){
+		textString += textArray[x];
+		if (x == textArray.length -2) textString += "and ";
 	}
 	textString = textString.slice(0, -2);
 	textString += ".";
