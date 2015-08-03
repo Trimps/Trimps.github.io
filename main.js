@@ -1009,8 +1009,10 @@ function buyUpgrade(what) {
     var dif = upgrade.allowed - upgrade.done;
     if (dif > 1) {
         document.getElementById(what + "Owned").innerHTML = upgrade.done + "( +" + dif + ")";
+		tooltip(what, "upgrades", "update");
         return;
     } else if (dif == 1) {
+		tooltip(what, "upgrades", "update");
         document.getElementById(what + "Owned").innerHTML = upgrade.done;
         return;
     }
