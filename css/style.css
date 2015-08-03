@@ -37,7 +37,7 @@ overflow-x: hidden;
 }
 
 .resourceRow{
-	height: 48%;
+	height: 49.9%;
 }
 
 #resourceColumn {
@@ -73,7 +73,7 @@ overflow-x: hidden;
 }
 
 .playerGatherSm {
-    height: 31%;
+    height: 32.5%;
 }
 
 .playerGatherSm > .title {
