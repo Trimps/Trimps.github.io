@@ -507,6 +507,7 @@ function cancelPortal(keep){
 	}
 	game.global.viewingUpgrades = false;
 	game.global.respecActive = false;
+	document.getElementById("respecPortalBtn").style.display = "none";
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	document.getElementById("portalWrapper").style.display = "none";
 	fadeIn("wrapper", 10);
