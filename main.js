@@ -1872,7 +1872,7 @@ function fight(makeUp) {
 	document.getElementById("critSpan").innerHTML = "";
 	if (game.portal.Relentlessness.level > 0){
 		if (Math.floor(Math.random() * (1 / (game.portal.Relentlessness.modifier * game.portal.Relentlessness.level))) == 1){
-			trimpAttack += (trimpAttack * ((game.portal.Relentlessness.otherModifier * game.portal.Relentlessness.level) + 2));
+			trimpAttack += (trimpAttack * ((game.portal.Relentlessness.otherModifier * game.portal.Relentlessness.level) + 1));
 			document.getElementById("critSpan").innerHTML = "Crit!";
 		}
 	}
