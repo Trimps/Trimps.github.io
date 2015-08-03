@@ -694,6 +694,7 @@ function checkTriggers(force) {
 }
 
 function canAffordTwoLevel(whatObj, takeEm) {
+	if (whatObj.specialFilter && !whatObj.specialFilter()) return false;
     for (var costGroup in whatObj.cost) {
         if (costGroup == "special") {
             var toReturn = whatObj.cost.special();

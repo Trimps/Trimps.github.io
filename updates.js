@@ -222,6 +222,12 @@ function tooltip(what, isItIn, event, textString) {
 			prestigeCost += " and grant " + getNextPrestigeValue(what) + ".";
 			tooltipText = tooltipText.replace('@', prestigeCost);
 		}
+		if (typeof tooltipText.split('$')[1] !== 'undefined'){
+			var upgradeTextSplit = tooltipText.split('$');
+			var color = game.upgrades[what].specialFilter();
+			color = color ? "green" : "red";
+			tooltipText = upgradeTextSplit[0] + "<span style='color: " + color + "; font-weight: bold;'>" + upgradeTextSplit[1]  + "</span>";
+		}
 	}
 	if (isItIn == "maps"){
 		tooltipText = "This is a map. Click it to see its properties or to run it. Maps can be run as many times as you want.";

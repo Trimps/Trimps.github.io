@@ -957,11 +957,11 @@ var toReturn = {
 			message: "Holy cowimp! A unique map!",
 			level: [10, 20],
 			icon: "th-large",
-			startAt: 10,
+			startAt: 11,
 			canRunOnce: true,
-			specialFilter: function () {
+/* 		specialFilter: function () {
 				return (game.equipment.Shield.prestige >= 3) ? true : false;
-			},
+			}, */
 			fire: function () {
 				game.global.mapsOwned++;
 				game.global.totalMapsEarned++;
@@ -970,10 +970,10 @@ var toReturn = {
 					name: "The Block",
 					location: "Block",
 					clears: 0,
-					level: 10,
-					difficulty: 1.5,
+					level: 11,
+					difficulty: 1.1,
 					size: 100,
-					loot: 2,
+					loot: 1.7,
 					noRecycle: true,
 				});
 				unlockMap(game.global.mapsOwnedArray.length - 1);
@@ -2156,8 +2156,11 @@ var toReturn = {
 		Shieldblock: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book explains methods of using a shield to actually block damage. The current shield will need to be completely destroyed and rebuilt, but it will give block instead of health. <b>This is permanent</b>",
+			tooltip: "This book explains methods of using a shield to actually block damage. The current shield will need to be completely destroyed and rebuilt, but it will give block instead of health. <b>This is permanent</b>. $Your Shield Must be Prestige III or higher$",
 			done: 0,
+			specialFilter: function () {
+				return (game.equipment.Shield.prestige >= 3) ? true : false;
+			},
 			cost: {
 				resources: {
 					science: 3000,
@@ -2167,7 +2170,6 @@ var toReturn = {
 			fire: function () {
 			var equipment = game.equipment.Shield;
 				prestigeEquipment("Shield", false, true);
-				
 				equipment.blockNow = true;
 				equipment.tooltip = game.equipment.Shield.blocktip;
 			    equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
@@ -2175,7 +2177,6 @@ var toReturn = {
 				cost.lastCheckAmount = null;
 				cost.lastCheckCount = null;
 				cost.lastCheckOwned = null; */
-				
 			}
 		},
 		Trapstorm: {
