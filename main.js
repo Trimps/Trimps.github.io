@@ -354,11 +354,11 @@ function checkOfflineProgress(){
 	if (!game.global.lastOnline) return;
 	var rightNow = new Date().getTime();
 	var textArray = [];
-/* 	if (game.global.lastOfflineProgress > rightNow){
-		var waitFor = (((game.global.lastOfflineProgress - rightNow) / 1000) / 60);
-		message("For some reason, your game has gone back in time. Please wait " + prettify(waitFor) + " minutes for your Trimps to re-enter your dimension.", "Notices");
+	if (game.global.lastOfflineProgress > rightNow){
+		game.global.cheater = true;
+		if (typeof Kongregate !== 'undefined') message("It looks like you cheated by setting your clock forward and back again. While I won't penalize anyone for cheating in a single player game, your game will no longer submit high scores, and your Trimps don't respect you as much.", "Notices");
 		return;
-	} */
+	} 
 	game.global.lastOfflineProgress = rightNow;
 	var dif = rightNow - game.global.lastOnline;
 	dif = Math.floor(dif / 1000);
@@ -1831,8 +1831,8 @@ function fight(makeUp) {
 			console.debug(err);
 		}
 		try{
-			if (typeof kongregate !== 'undefined') kongregate.stats.submit("BadGuys", 1);
-			if (typeof kongregate !== 'undefined' && !game.global.mapsActive) kongregate.stats.submit("HighestLevel", ((game.global.world * 100) + cell.level));
+			if (typeof kongregate !== 'undefined' && !game.global.cheater) kongregate.stats.submit("BadGuys", 1);
+			if (typeof kongregate !== 'undefined' && !game.global.mapsActive && !game.global.cheater) kongregate.stats.submit("HighestLevel", ((game.global.world * 100) + cell.level));
 		}
 		catch(err){
 			console.debug(err);

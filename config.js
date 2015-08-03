@@ -86,6 +86,7 @@ var toReturn = {
 		highestLevelCleared: 0,
 		b: 0,
 		lastOfflineProgress: "",
+		cheater: false,
 		menu: {
 			buildings: true,
 			jobs: false,
