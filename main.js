@@ -120,7 +120,10 @@ function load(saveString, autoLoad) {
     } else if (localStorage.getItem("trimpSave1") !== null) {
         savegame = JSON.parse(LZString.decompressFromBase64(localStorage.getItem("trimpSave1")));
     }
-    if (typeof savegame === 'undefined' || savegame === null || typeof savegame.global === 'undefined') return;
+    if (typeof savegame === 'undefined' || savegame === null || typeof savegame.global === 'undefined') {
+		tooltip("Welcome", null, "update");
+		return;
+	}
 	oldVersion = savegame.global.version;
 	resetGame();
 		

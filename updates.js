@@ -93,7 +93,13 @@ function tooltip(what, isItIn, event, textString) {
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
 		costText += "<div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Done</div>"
-
+	}
+	if (what == "Welcome"){
+		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear. Please make sure you regularly back up your save file by using the 'Export' button in the bar below and saving that somewhere safe. I recommend using Chrome or Firefox. <br/><br/> Thank you for playing, and I hope you enjoy the game!";
+		game.global.lockTooltip = true;
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='cancelTooltip()'>Start</div></div>";
+		elem.style.left = "32.5%";
+		elem.style.top = "25%";
 	}
 	if (what == "Trustworthy Trimps"){
 		tooltipText = textString;
@@ -405,12 +411,14 @@ function resetGame(keepPortal) {
 	var helium;
 	var b;
 	var imps;
+	var highestLevel;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
 		totalPortals = game.global.totalPortals;
 		b = game.global.b;
 		imps = game.unlocks.imps;
+		highestLevel = game.global.highestLevel;
 	}
 	game = null;
 	game = newGame();
@@ -422,6 +430,7 @@ function resetGame(keepPortal) {
 		game.global.heliumLeftover = helium;
 		game.global.totalPortals = totalPortals;
 		game.unlocks.imps = imps;
+		game.global.highestLevel = highestLevel;
 	}
 	numTab(1);
 	pauseFight(true);
