@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.08,
+		version: 1.081,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -158,7 +158,7 @@ var toReturn = {
 			otherModifier: .3,
 			priceBase: 75,
 			heliumSpent: 0,
-			tooltip: "You've seen too many Trimps fall, time for more aggressive training. Bringing back these memories will give your Trimps a 5% chance per level to critically strike their enemies for 200% damage, plus an additional 30% damage per level. Maximum of 10 levels.",
+			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for 230% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. Maximum of 10 levels.",
 			max: 10,
 		},
 		Agility: {
@@ -195,9 +195,9 @@ var toReturn = {
 		},
 		//trapThings main
 		Packrat: {
-			modifier: 0.05,
+			modifier: 0.1,
 			heliumSpent: 0,
-			tooltip: "Study the ancient, secret Trimp methods of hoarding. Each level increases the amount of stuff you can shove in each Barn, Shed, and Forge by 5%.",
+			tooltip: "Study the ancient, secret Trimp methods of hoarding. Each level increases the amount of stuff you can shove in each Barn, Shed, and Forge by 10%.",
 			priceBase: 3,
 			level: 0,
 		},
@@ -210,8 +210,6 @@ var toReturn = {
 			priceBase: 2,
 			level: 0,
 		},
-		
-
 		//startFight main
 		Power: {
 			level: 0,
