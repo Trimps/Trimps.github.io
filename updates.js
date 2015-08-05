@@ -18,7 +18,7 @@
 		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 
-function tooltip(what, isItIn, event, textString) {
+function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
@@ -86,6 +86,21 @@ function tooltip(what, isItIn, event, textString) {
 			costText += cost + ": " + prettify(price) + ", ";
 		}
 		costText = costText.slice(0, -2);
+	}
+	if (what == "Confirm Purchase"){
+		console.log(numCheck);
+		var btnText = "Make Purchase";
+		if (game.global.b < numCheck){
+			tooltipText = "You can't afford this bonus. Would you like to visit the shop?";
+			attachFunction = "showPurchaseBones()";
+			btnText = "Visit Shop"
+		}
+		else
+		tooltipText = textString;
+		costText += '<div class="maxCenter"><div class="btn btn-info" onclick="' + attachFunction + '; cancelTooltip()">' + btnText + '</div><div class="btn btn-info" onclick="cancelTooltip()">Cancel</div></div>'
+		game.global.lockTooltip = true;
+		elem.style.left = "32.5%";
+		elem.style.top = "25%";
 	}
 	if (what == "Donate"){
 		tooltipText = "I've spent a lot of hours working on this game, and I would love more than anything to be able to continue adding and expanding. I really enjoy making games, like a lot. Your donation, no matter how small, will help me to be able to make more games, and I will be forever indebted to you! <br/><form style='text-align: center' action='https://www.paypal.com/cgi-bin/webscr' method='post' target='_blank'><input type='hidden' name='cmd' value='_s-xclick'><input type='hidden' name='hosted_button_id' value='MGFEJS3VVJG6U'><input type='image' src='https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif' border='0' name='submit' alt='PayPal - The safer, easier way to pay online!'><img alt='' border='0' src='https://www.paypalobjects.com/en_US/i/scr/pixel.gif' width='1' height='1'></form>";
@@ -749,6 +764,7 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 		var color = "white";
 		psText = (psText < 0) ? "-" + psText : "+" + psText;
 		psText += "/sec";
+		if (trimps && game.unlocks.quickTrimps) {psText += " (X2!)"; color = "orange"};
 		elem.innerHTML = psText;
 		elem.style.color = color;
 }
@@ -788,6 +804,7 @@ function unlockMap(what) { //what here is the array index
 	var item = game.global.mapsOwnedArray[what];
 	var elem = document.getElementById("mapsHere");
 	var btnClass = "thing noselect pointer mapThing"
+	if (game.unlocks.goldMaps && !item.noRecycle) btnClass += " goldMap";
 	if (item.noRecycle) btnClass += " noRecycle";
 	elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
 	//onmouseover="tooltip(\'' + item.id + '\',\'maps\',event)" onmouseout="tooltip(\'hide\')"

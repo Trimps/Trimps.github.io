@@ -883,7 +883,7 @@ overflow-x: hidden;
 
 #boneBuyTable > tbody > tr > td:first-child{
 	padding-left: 1vw;
-	width: 50%;
+	width: 30%;
 	padding-right: 0;
 }
 
@@ -916,6 +916,14 @@ overflow-x: hidden;
 #critSpan{
 	font-weight: bold;
 	color: yellow;
+}
+
+.goldMap{
+	background-color: #998100;
+}
+
+#getBundleBtn{
+	margin-top: 1vw;
 }
 
 input[type=number] {

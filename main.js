@@ -21,7 +21,7 @@
 		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 "use strict";
-if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") != null) document.getElementById("boneBtn").style.display = "none";
+//if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") != null) document.getElementById("boneBtn").style.display = "none";
 document.getElementById("versionNumber").innerHTML = game.global.version;
 function toggleSave(updateOnly) {
     var elem = document.getElementById("toggleBtn");
@@ -160,6 +160,10 @@ function load(saveString, autoLoad) {
         if (a == "badGuys") continue;
         if (a == "worldUnlocks") continue;
         if (a == "mapConfig") continue;
+		if (a == "unlocks") {
+			game.unlocks.quickTrimps = savegame.unlocks.quickTrimps;
+			game.unlocks.goldMaps = savegame.unlocks.goldMaps;
+		}
         var topSave = savegame[a];
         if (typeof topSave === 'undefined' || topSave === null) continue;
 		if (a == "equipment"){
@@ -281,6 +285,8 @@ function load(saveString, autoLoad) {
 }
 
 function portalClicked() {
+	game.global.viewingUpgrades = false;
+	game.global.respecActive = false;
 	document.getElementById("wrapper").style.display = "none";
 	document.getElementById("portalWrapper").style.backgroundColor = "green";
 	document.getElementById("portalWrapper").style.color = "black";
@@ -289,6 +295,8 @@ function portalClicked() {
 	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(game.resources.helium.owned + game.global.heliumLeftover) + '</span> Helium';
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
+	document.getElementById("activatePortalBtn").innerHTML = "Activate Portal";
+	document.getElementById("respecPortalBtn").style.display = "none";
 	displayPortalUpgrades();
 }
 
@@ -399,6 +407,7 @@ function checkOfflineProgress(){
 
 function respecPerks(){
 	if (!game.global.canRespecPerks) return;
+	if (!game.global.viewingUpgrades) return;
 	game.global.respecActive = true;
 	displayPortalUpgrades();
 	game.resources.helium.respecMax = 0;
@@ -2010,8 +2019,14 @@ function showBones() {
 	hidePurchaseBones();
 	boneTemp.bundle = [];
 	updateImportButton("First, select an Imp", false);
-	if (game.unlocks.goldMaps) document.getElementById("mapsMisc").style.display = "none";
-	if (game.unlocks.quickTrimps) document.getElementById("trimpsMisc").style.display = "none";
+	if (game.unlocks.goldMaps) {
+		document.getElementById("mapsPurchaseBtn").style.backgroundColor = "grey";
+		document.getElementById("goldMapsDesc").innerHTML = "This bonus is active!";
+	}
+	if (game.unlocks.quickTrimps) {
+		document.getElementById("trimpsPurchaseBtn").style.backgroundColor = "grey";
+		document.getElementById("quickTrimpsDesc").innerHTML = "This bonus is active!";
+	}
 	document.getElementById("heliumGainedMisc").innerHTML = prettify(boostHe(true));
 }
 
@@ -2215,8 +2230,14 @@ function purchaseMisc(what){
 	}
 	updateBones();
 	successPurchaseFlavor();
-	if (what != "helium") document.getElementById(what + "Misc").style.display = "none";
-	
+	if (game.unlocks.goldMaps) {
+		document.getElementById("mapsPurchaseBtn").style.backgroundColor = "grey";
+		document.getElementById("goldMapsDesc").innerHTML = "This bonus is active!";
+	}
+	if (game.unlocks.quickTrimps) {
+		document.getElementById("trimpsPurchaseBtn").style.backgroundColor = "grey";
+		document.getElementById("quickTrimpsDesc").innerHTML = "This bonus is active!";
+	}
 }
 
 function successPurchaseFlavor(){
@@ -2250,8 +2271,10 @@ function boostHe(checkOnly) {
 }
 
 function buyGoldenMaps() {
+	game.unlocks.goldMaps = true;
 	for (var item in game.global.mapsOwnedArray){
 		game.global.mapsOwnedArray[item].loot = parseFloat(game.global.mapsOwnedArray[item].loot) + 1;
+		if (!game.global.mapsOwnedArray[item].noRecycle) document.getElementById(game.global.mapsOwnedArray[item].id).style.backgroundColor = "#998100";
 	}
 }
 
@@ -2270,7 +2293,10 @@ function countUnpurchasedImports(){
 function showPurchaseBones() {
 	document.getElementById("boneWrapper0").style.display = "none";
 	document.getElementById("boneWrapper1").style.display = "block";
-	if (countUnpurchasedImports() < 4) document.getElementById("bundleRow").style.display = "none";
+	if (countUnpurchasedImports() < 4) {
+		document.getElementById("bundleRow").style.display = "none";
+		document.getElementById("getBundleBtn").style.display = "none";
+	}
 }
 
 function hidePurchaseBones() {
