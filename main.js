@@ -160,7 +160,7 @@ function load(saveString, autoLoad) {
         if (a == "badGuys") continue;
         if (a == "worldUnlocks") continue;
         if (a == "mapConfig") continue;
-		if (a == "unlocks") {
+		if (a == "unlocks" && savegame.unlocks) {
 			game.unlocks.quickTrimps = savegame.unlocks.quickTrimps;
 			game.unlocks.goldMaps = savegame.unlocks.goldMaps;
 		}
