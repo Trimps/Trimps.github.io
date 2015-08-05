@@ -394,7 +394,8 @@ function checkOfflineProgress(){
 			textString = prettify(amt) + " " + resName + ", ";
 			textArray.push(textString);
 		}
-	}	
+	}
+	if (textArray.length == 0) return;
 	var textString = "While you were away, your Trimps were able to produce ";
 	for (var x = 0; x < textArray.length; x++){
 		textString += textArray[x];
