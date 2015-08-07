@@ -626,7 +626,7 @@ overflow-x: hidden;
 #portalStory{
 	width: 50vw;
 	display: inline-block;
-	font-size: 1.5vw;
+	font-size: 1.2vw;
 }
 
 .portalThing{
@@ -640,12 +640,12 @@ overflow-x: hidden;
 
 #portalTitle{
 	width: 100%;
-	font-size: 4vw;
+	font-size: 3.5vw;
 	text-align: center;
 }
 
 #portalHelium{
-	font-size: 2.5vw;
+	font-size: 2vw;
 }
 
 .inPortalBtn{
@@ -924,6 +924,44 @@ overflow-x: hidden;
 
 #getBundleBtn{
 	margin-top: 1vw;
+}
+
+#challengesHere{
+	margin-bottom: 1vw;
+}
+
+#specificChallengeDescription{
+	height: 3vw;
+	margin: 1vw;
+	color: #318696;
+	background-color: #d0d0d0;
+}
+
+#challenges{
+	background-color: grey;
+	color: white;
+	margin: 1vw;
+}
+
+#challengeTitle{
+	text-align: center;
+	font-size: 1.1vw;
+}
+
+#challengeDescription{
+	font-size: 1vw;
+}
+
+#portalError{
+	background-color: black;
+	color: red;
+	font-size: 1.1vw;
+}
+
+.challengeThing{
+	background-color: #318696;
+	color: white;
+	font-size: 1.1vw;
 }
 
 input[type=number] {

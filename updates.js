@@ -209,13 +209,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 		if (game.global.buyAmt > 1) what += " X" + game.global.buyAmt;
 	}
 	if (isItIn == "buildings"){
+		costText = canAffordBuilding(what, false, true);
 		if (game.global.buyAmt > 1) {
 			if (game.buildings[what].percent){
 				tooltipText += " <b>You can only purchase 1 " + what + " at a time.</b>";
 				what += " X1";
 			}
 			else {
-				costText = canAffordBuilding(what, false, true);
+				
 				what += " X" + game.global.buyAmt;
 			}
 		}
@@ -225,12 +226,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 		costText = prettify(getPortalUpgradePrice(what)) + resAppend;
 	}
 	if (isItIn == "equipment"){
+		costText = canAffordBuilding(what, false, true, true);
 		if (what == "Shield" && game.equipment.Shield.blockNow){
 			var blockPerShield = game.equipment.Shield.blockCalculated + (game.equipment.Shield.blockCalculated * game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100));
 			tooltipText += " (" + prettify(blockPerShield) + " after Trainers)";
 		}
 		if (game.global.buyAmt > 1) {
-			costText = canAffordBuilding(what, false, true, true);
+			
 			what += " X" + game.global.buyAmt;
 
 		}
@@ -427,13 +429,15 @@ function resetGame(keepPortal) {
 	var b;
 	var imps;
 	var highestLevel;
+	var challenge = "";
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
 		totalPortals = game.global.totalPortals;
 		b = game.global.b;
 		imps = game.unlocks.imps;
-		highestLevel = game.global.highestLevel;
+		highestLevel = game.global.highestLevelCleared;
+		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 	}
 	game = null;
 	game = newGame();
@@ -446,6 +450,8 @@ function resetGame(keepPortal) {
 		game.global.totalPortals = totalPortals;
 		game.unlocks.imps = imps;
 		game.global.highestLevel = highestLevel;
+		game.global.challengeActive = challenge;
+		if (typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 	}
 	numTab(1);
 	pauseFight(true);
@@ -679,6 +685,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		var newMax = toUpdate.max;
 		if (item != "trimps")
 			newMax += (newMax * game.portal.Packrat.modifier * game.portal.Packrat.level);
+		else if (item == "trimps") newMax = toUpdate.realMax();
 		document.getElementById(item + "Max").innerHTML = prettify(newMax);
 		var bar = document.getElementById(item + "Bar");
 		var percentToMax = ((toUpdate.owned / newMax) * 100);
@@ -774,8 +781,8 @@ function updateSideTrimps(){
 	document.getElementById("trimpsEmployed").innerHTML = prettify(trimps.employed);
 	var breedCount = (trimps.owned - trimps.employed > 2) ? prettify(Math.floor(trimps.owned - trimps.employed)) : 0;
 	document.getElementById("trimpsUnemployed").innerHTML = breedCount;
-	document.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.max / 2));
-	var free = (Math.ceil(trimps.max / 2) - trimps.employed);
+	document.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.realMax() / 2));
+	var free = (Math.ceil(trimps.realMax() / 2) - trimps.employed);
 	var s = (free > 1) ? "s" : "";
 	document.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " workspace" + s;
 }

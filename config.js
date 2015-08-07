@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.081,
+		version: 1.09,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -85,6 +85,8 @@ var toReturn = {
 		pp: [],
 		highestLevelCleared: 0,
 		b: 0,
+		challengeActive: "",
+		selectedChallenge: "",
 		lastOfflineProgress: "",
 		cheater: false,
 		menu: {
@@ -161,12 +163,28 @@ var toReturn = {
 			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for 230% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. Maximum of 10 levels.",
 			max: 10,
 		},
+		Carpentry: {
+			level: 0,
+			locked: true,
+			modifier: .1,
+			priceBase: 25,
+			heliumSpent: 0,
+			tooltip: "You've built quite a few houses and you're getting pretty good at it. Bringing your expertise in construction back through the portal will allow you to house 10% more Trimps per level <b>than the current amount (compounds)</b>.",
+		},
+		Artisanistry: {
+			level: 0,
+			locked: true,
+			modifier: .05,
+			priceBase: 15,
+			heliumSpent: 0,
+			tooltip: "You're beginning to notice ways to make equally powerful equipment with considerably fewer resources. Bringing back these new ideas will allow you to spend 5% fewer resources <b>than the current cost (compounds)</b> per level on all equipment.",
+		},
 		Agility: {
 			level: 0, 
 			modifier: .05,
 			priceBase: 4,
 			heliumSpent: 0,
-			tooltip: "Study up on muscle training exercises to help condition Trimps to be more quick and agile. Each level increases fight speed by 5% <b>of current speed (diminishes)</b>. Maximum of 20 levels.",
+			tooltip: "Study up on muscle training exercises to help condition Trimps to be more quick and agile. Each level increases fight speed by 5% <b>of current speed (compounds)</b>. Maximum of 20 levels.",
 			max: 20,
 		},
 		Bait: {
@@ -226,16 +244,6 @@ var toReturn = {
 			tooltip: "Pay your Trimps to knock you around a little bit. By learning to not be such a wuss, your Trimps will be less wussy as well. Adds 5% health permanently to your Trimps.",
 			level: 0,
 		},
-		//These are gonna be harder than I thought. There's a lot of checks to prices.
-/* 		Cheapskate: {
-			modifier: .05,
-			tooltip: "Discuss negotiation tactics with your leading scientists. Permanently reduces the cost of all jobs by 5%",
-		},
-		Resourcefulness: {
-			modifier: .05,
-			tooltip: "Talk to your scientists about more efficient building designs. Each level reduces the cost of all buildings by 5%",
-		}, */
-
 		//rewardResources main
 		Looting: {
 			modifier: .05,
@@ -243,6 +251,40 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "Walk back through the empty zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%.",
 			level: 0,
+		},
+	},
+	
+	challenges: {
+		Metal: {
+			description: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies. If you complete The Dimension Of Anger without disabling the challenge, miners will re-unlock and you will unlock a new Perk.",
+			completed: false,
+			filter: function () {
+				return (game.global.totalPortals >= 1 && !this.completed);
+			},
+			abandon: function () {
+				game.worldUnlocks.Miner.fire();
+			},
+			fireAbandon: false,
+		},
+		Size: {
+			description: "Tweak the portal to bring you to an alternate reality, where Trimps are bigger and stronger, to force yourself to figure out a way to build larger housing. Your Trimps will gather 50% more Food, Wood, and Metal, but your housing will fit 50% fewer Trimps. If you complete The Dimension of Anger without disabling the challenge, your stats will return to normal and you will unlock a new Perk.",
+			completed: false,
+			filter: function () {
+				return (game.global.world >= 35 || game.global.highestLevelCleared >= 35 && !this.completed);
+			},
+			abandon: function () {
+				game.jobs.Farmer.modifier *= (2/3);
+				game.jobs.Lumberjack.modifier *= (2/3);
+				game.jobs.Miner.modifier *= (2/3);
+				game.resources.trimps.maxMod = 1;
+			},
+			start: function () {
+				game.jobs.Farmer.modifier *= 1.5;
+				game.jobs.Lumberjack.modifier *= 1.5;
+				game.jobs.Miner.modifier *= 1.5;
+				game.resources.trimps.maxMod = .5;
+			},
+			fireAbandon: true,
 		},
 	},
 	
@@ -300,6 +342,13 @@ var toReturn = {
 		trimps: {
 			owned: 0,
 			max: 10,
+			maxMod: 1,
+			realMax: function () {
+				var num = this.max;
+				num *= this.maxMod;
+				if (game.portal.Carpentry.level > 0) num = Math.floor(num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level)));	
+				return num;
+			},
 			working: 0,
 			speed: 5,
 			employed: 0,
@@ -816,6 +865,20 @@ var toReturn = {
 				game.resources.helium.owned += 30;
 				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract 30 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
 				fadeIn("portalBtn", 10);
+				if (game.global.challengeActive == "Metal"){
+					game.global.challengeActive = "";
+					game.challenges.Metal.abandon();
+					game.portal.Artisanistry.locked = false;
+					game.challenges.Metal.completed = true;
+					message("You have completed the <b>Metal Challenge!</b> You have unlocked a new perk, and Miners have returned to your game.", "Notices");
+				}
+				if (game.global.challengeActive == "Size"){
+					game.global.challengeActive = "";
+					game.challenges.Size.abandon();
+					game.challenges.Size.completed = true;
+					game.portal.Carpentry.locked = false;
+					message("You have completed the <b>Size Challenge!</b> You have unlocked a new perk, and your Trimps have been reduced down to their normal size.", "Notices");
+				}
 			}
 		},
 		Shieldblock: {
@@ -1060,7 +1123,6 @@ var toReturn = {
 				unlockBuilding("Gateway");
 			}
 		},
-		
 		Wormhole: {
 			world: -1,
 			startAt: 35,
@@ -1084,6 +1146,7 @@ var toReturn = {
 				unlockUpgrade("Trapstorm");
 			}	
 		},
+		
 		Nursery: {
 			world: -1,
 			startAt: 23,
@@ -1292,6 +1355,11 @@ var toReturn = {
 			icon: "book",
 			title: "Miner",
 			fire: function () {
+				if (game.global.challengeActive == "Metal"){
+					message("Your Trimps simply do not understand what this book is talking about. It's blowing their minds. What is a 'Miner'?!", "Notices");
+					game.challenges.Metal.fireAbandon = true;
+					return;
+				}
 				unlockUpgrade("Miners");
 			}
 		},

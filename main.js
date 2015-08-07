@@ -96,6 +96,10 @@ function save(exportThis) {
 		delete portal.tooltip;
 		delete portal.otherModifier;
 	}
+	for (var itemF in saveGame.challenges){
+		var challenge = saveGame.challenges[itemF];
+		delete challenge.description;
+	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
 	try{
@@ -136,7 +140,9 @@ function load(saveString, autoLoad) {
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This should be the last reset!", "Notices");
         return;
     } else savegame.global.version = game.global.version;
-    if (typeof savegame.global !== 'undefined') {
+    
+	
+	if (typeof savegame.global !== 'undefined') {
         for (var item in game.global) {
             if (item == "time" || item == "start" || item == "lastFightUpdate" || item == "prestige") continue;
             if (typeof savegame.global[item] !== 'undefined') game.global[item] = savegame.global[item];
@@ -147,14 +153,14 @@ function load(saveString, autoLoad) {
             }
         }
     }
-
     if (typeof savegame.global.messages.Notices === 'undefined') savegame.global.messages.Notices = true; //compatibility from 0.3 to 0.4, this line can be removed next time saves are wiped
 
-    if (typeof savegame.resources !== 'undefined') {
+/*     if (typeof savegame.resources !== 'undefined') {
         for (var itemB in game.resources) {
-            if (typeof savegame.resources[itemB] !== 'undefined') game.resources[itemB] = savegame.resources[itemB];
+            if (typeof savegame.resources[itemB] !== 'undefined' && ) game.resources[itemB] = savegame.resources[itemB];
         }
-    }
+    } */
+			
     for (var a in game) { //global, resources, jobs, buildings, upgrades, triggers, equipment, settings
         if (a == "global") continue;
         if (a == "badGuys") continue;
@@ -170,6 +176,7 @@ function load(saveString, autoLoad) {
 			loadEquipment(topSave); 
 			continue;
 		}
+
 		var topGame = game[a];
         for (var b in topGame) { //each item in main category (resource names, job names, etc)
             var midSave = topSave[b];
@@ -189,10 +196,12 @@ function load(saveString, autoLoad) {
 					}
                     var botSave = midSave[c];
                     if (typeof botSave === 'undefined' || botSave === null) continue;
+
                     midGame[c] = botSave;
                 }
         }
     }
+	
 	if (oldVersion === 1.0){
 		var hasPortal = false;
 		for (var portItem in game.portal){
@@ -297,8 +306,44 @@ function portalClicked() {
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
 	document.getElementById("activatePortalBtn").innerHTML = "Activate Portal";
 	document.getElementById("respecPortalBtn").style.display = "none";
+	displayChallenges();
 	displayPortalUpgrades();
 }
+
+function displayChallenges() {
+	var challengeCount = 0;
+	game.global.selectedChallenge = "";
+	var challengesHere = document.getElementById("challengesHere");
+	document.getElementById("specificChallengeDescription").innerHTML = "";
+	challengesHere.innerHTML = "";
+	for (var what in game.challenges){
+		var challenge = game.challenges[what];
+		if (!challenge.filter()) continue;
+		challengeCount++;
+		challengesHere.innerHTML += '<div class="noselect pointer challengeThing thing" id="' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + what + '</span></div>';
+	}
+	if (challengeCount > 0) document.getElementById("challenges").style.display = "block";
+}
+
+
+
+function selectChallenge(what) {
+	displayChallenges();
+	document.getElementById(what).style.border = "1px solid red";
+	document.getElementById("specificChallengeDescription").innerHTML = game.challenges[what].description;
+	game.global.selectedChallenge = what;
+	var addChallenge = document.getElementById("addChallenge");
+	if (addChallenge != null) addChallenge.innerHTML = "You have the <b>" + what + " Challenge</b> active.";
+}
+
+function abandonChallenge(){
+	var challenge = game.challenges[game.global.challengeActive];
+	game.global.challengeActive = "";
+	if (challenge.fireAbandon) challenge.abandon();
+	cancelPortal();
+	message("Your challenge has been abandoned.", "Notices");
+}
+
 
 function viewPortalUpgrades() {
 	game.global.viewingUpgrades = true;
@@ -317,6 +362,7 @@ function viewPortalUpgrades() {
 		document.getElementById("respecPortalBtn").style.display = "inline-block";
 	}
 	displayPortalUpgrades();
+	if (game.global.challengeActive) document.getElementById("cancelChallengeBtn").style.display = "inline-block";
 }
 
 function displayPortalUpgrades(){
@@ -432,7 +478,7 @@ function respecPerks(){
 function activateClicked(){	
 	if (game.global.viewingUpgrades){
 		var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
-		commitPortalUpgrades();
+		if (!commitPortalUpgrades()) return;
 		game.global.heliumLeftover = refund;
 		if (game.global.respecActive) game.global.canRespecPerks = false;
 		cancelPortal();
@@ -444,6 +490,8 @@ function activateClicked(){
 		newText = "All set?";
 	}
 	else newText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page. Who knows where or when it will send you.";
+	if (game.global.selectedChallenge) newText += " <span id='addChallenge'>You have the <b>" + game.global.selectedChallenge + " Challenge</b> active.</span>";
+	else newText += " <span id='addChallenge'></span>";
 	newText += "<br/><div class='btn btn-info activatePortalBtn' onclick='activatePortal()'>Let's do it.</div>"
 	document.getElementById("portalStory").innerHTML = newText;
 }
@@ -482,7 +530,8 @@ function getPortalUpgradePrice(what){
 }
 
 function commitPortalUpgrades(){
-document.getElementById("pastUpgradesBtn").style.display = "inline-block";
+	document.getElementById("pastUpgradesBtn").style.display = "inline-block";
+	if (!canCommitCarpentry()) return false;
 	for (var item in game.portal){
 		if (game.portal[item].locked) continue;
 		var portUpgrade = game.portal[item];
@@ -496,15 +545,34 @@ document.getElementById("pastUpgradesBtn").style.display = "inline-block";
 	if (game.global.respecActive || game.global.viewingUpgrades){
 		game.global.heliumLeftover = game.resources.helium.maxRespec - game.resources.helium.totalSpentTemp;
 		game.resources.helium.totalSpentTemp = 0;
-		return;
+		return true;
 	}
 	game.resources.helium.owned -= (game.resources.helium.totalSpentTemp);
 	game.resources.helium.totalSpentTemp = 0;
-	
+	return true;
+}
+
+function canCommitCarpentry(){
+	var newMax = game.resources.trimps.max * game.resources.trimps.maxMod;
+	newMax = Math.floor(newMax * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level + game.portal.Carpentry.levelTemp)))
+	var error = document.getElementById("portalError");
+	error.innerHTML = "";
+	var good = true;
+    if (newMax < (game.resources.trimps.maxSoldiers * 2.4)) {
+        error.innerHTML += "You do not have enough max Trimps with this Perk setup to sustain your Coordination. ";
+		error.style.display = "block";
+		good = false;
+    }
+	if (Math.ceil(newMax / 2) < game.resources.trimps.employed){
+		error.innerHTML += "You have too many workers assigned for this Perk setup.";
+		error.style.display = "block";
+		good = false;
+	}
+	return good;
 }
 
 function activatePortal(){
-	commitPortalUpgrades();
+	if (!commitPortalUpgrades()) return;
 	cancelPortal(true);
 	resetGame(true);
 	game.global.totalPortals++;
@@ -524,6 +592,8 @@ function cancelPortal(keep){
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	document.getElementById("portalWrapper").style.display = "none";
 	fadeIn("wrapper", 10);
+	document.getElementById("challenges").style.display = "none";
+	document.getElementById("cancelChallengeBtn").style.display = "none";
 }
 
 function loadEquipment(oldEquipment){
@@ -749,7 +819,7 @@ function canAffordBuilding(what, take, buildCostString, isEquipment){
 		var color = "green";
 		var price = 0;
 		price = parseFloat(getBuildingItemPrice(toBuy, costItem, isEquipment));
-		
+		if (isEquipment) price = Math.ceil(price * (Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level)));
 		if (price > game.resources[costItem].owned || !(isFinite(price))) {
 			if (buildCostString) color = "red";
 			else return false;
@@ -921,8 +991,9 @@ function calculatePercentageBuildingCost(what, resourceToCheck, costModifier, re
 function trapThings() {
     var trap = game.buildings.Trap;
     var trimps = game.resources.trimps;
+	var trimpsMax = trimps.realMax();
     if (game.global.timeLeftOnTrap == -1) {
-        if (trimps.owned < trimps.max && trap.owned >= 1)
+        if (trimps.owned < trimpsMax && trap.owned >= 1)
             game.global.timeLeftOnTrap = trimps.speed;
         else {
             document.getElementById("trappingBar").style.width = "0%";
@@ -931,12 +1002,12 @@ function trapThings() {
         }
     }
     game.global.timeLeftOnTrap -= ((1 / game.settings.speed) * game.global.playerModifier);
-    if (game.global.timeLeftOnTrap <= 0 && trimps.owned < trimps.max && trap.owned >= 1) {
+    if (game.global.timeLeftOnTrap <= 0 && trimps.owned < trimpsMax && trap.owned >= 1) {
         trap.owned--;
         trimps.owned++;
 		//portal Bait
 		if (game.portal.Bait.level > 0) trimps.owned += (game.portal.Bait.level * game.portal.Bait.modifier);
-		if (trimps.owned > trimps.max) trimps.owned = trimps.max;
+		if (trimps.owned > trimpsMax) trimps.owned = trimpsMax;
         game.global.timeLeftOnTrap = -1;
         document.getElementById("TrapOwned").innerHTML = trap.owned;
     }
@@ -972,7 +1043,7 @@ function getTooltipJobText(what) {
 
 function canAffordJob(what, take) {
     var trimps = game.resources.trimps;
-    if (Math.ceil(trimps.max / 2) < trimps.employed + game.global.buyAmt) return false;
+    if (Math.ceil(trimps.realMax() / 2) < trimps.employed + game.global.buyAmt) return false;
     if (trimps.owned - trimps.employed - game.global.buyAmt < 0) return false;
     var job = game.jobs[what];
     for (var costItem in job.cost) {
@@ -1011,7 +1082,7 @@ function checkJobItem(what, take, costItem, amtOnly) {
 }
 
 function buyUpgrade(what) {
-    if (what == "Coordination" && (game.resources.trimps.max < (game.resources.trimps.maxSoldiers * 3))) {
+    if (what == "Coordination" && (game.resources.trimps.realMax() < (game.resources.trimps.maxSoldiers * 3))) {
         message("You should probably expand your territory a bit first. You need enough room for " + prettify(game.resources.trimps.maxSoldiers * 3) + " max Trimps." , "Notices");
         return;
     }
@@ -1039,6 +1110,7 @@ function buyUpgrade(what) {
 function breed() {
     var trimps = game.resources.trimps;
     var breeding = trimps.owned - trimps.employed;
+	var trimpsMax = trimps.realMax();
     if (breeding < 2) {
         updatePs(0, true);
         return;
@@ -1049,8 +1121,8 @@ function breed() {
 	breeding += (breeding * game.portal.Pheromones.level * game.portal.Pheromones.modifier);
 	if (game.unlocks.quickTrimps) breeding *= 2;
     updatePs(breeding, true);
-	if (trimps.owned >= trimps.max) {
-        trimps.owned = trimps.max;
+	if (trimps.owned >= trimpsMax) {
+        trimps.owned = trimpsMax;
         return;
     }
     trimps.owned += breeding / game.settings.speed;
@@ -1346,12 +1418,13 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
     var canLast = true;
     for (var item in unlocksObj) {
         var special = unlocksObj[item];
+		if (special.startAt < 0) continue;
 		if ((maps) && (special.filterUpgrade) && (game.mapConfig.locations[map.location].upgrade != item)) continue;		
         if ((special.level == "last" && canLast && special.world <= world && special.canRunOnce)) {
 		if (typeof special.specialFilter !== 'undefined'){
 			if (!special.specialFilter()) continue;
 		}
-			if (special.startAt > world) continue;
+		if (special.startAt > world) continue;
             if (countOnly){
 				specialCount++;
 				continue;
@@ -1686,6 +1759,7 @@ function battle(force) {
     if (!game.global.autoBattle && !force) return;
     if (pause) return;
     var trimps = game.resources.trimps;
+	var trimpsMax = trimps.realMax();
     if (trimps.soldiers >= trimps.maxSoldiers) {
         startFight();
         return;
@@ -1696,8 +1770,8 @@ function battle(force) {
         trimps.soldiers = trimps.maxSoldiers;
         trimps.owned -= trimps.maxSoldiers;
     } else {
-        var max = Math.ceil((trimps.max - trimps.employed) * 0.05);
-        if ((trimps.owned) >= (trimps.max - max)) {
+        var max = Math.ceil((trimpsMax - trimps.employed) * 0.05);
+        if ((trimps.owned) >= (trimpsMax - max)) {
             trimps.soldiers = trimps.maxSoldiers;
             trimps.owned -= trimps.maxSoldiers;
         }
