@@ -449,7 +449,7 @@ function resetGame(keepPortal) {
 		game.global.heliumLeftover = helium;
 		game.global.totalPortals = totalPortals;
 		game.unlocks.imps = imps;
-		game.global.highestLevel = highestLevel;
+		game.global.highestLevelCleared = highestLevel;
 		game.global.challengeActive = challenge;
 		if (challenge != "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 	}
