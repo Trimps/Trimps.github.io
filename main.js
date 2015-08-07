@@ -330,7 +330,11 @@ function displayChallenges() {
 function selectChallenge(what) {
 	displayChallenges();
 	document.getElementById(what).style.border = "1px solid red";
-	document.getElementById("specificChallengeDescription").innerHTML = game.challenges[what].description;
+	var desc = game.challenges[what].description;
+	desc += "<b>";
+	desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
+	desc += "</b>";
+	document.getElementById("specificChallengeDescription").innerHTML = desc;
 	game.global.selectedChallenge = what;
 	var addChallenge = document.getElementById("addChallenge");
 	if (addChallenge != null) addChallenge.innerHTML = "You have the <b>" + what + " Challenge</b> active.";

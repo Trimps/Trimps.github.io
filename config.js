@@ -256,7 +256,7 @@ var toReturn = {
 	
 	challenges: {
 		Metal: {
-			description: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies. If you complete The Dimension Of Anger without disabling the challenge, miners will re-unlock and you will unlock a new Perk.",
+			description: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies. If you complete The Dimension Of Anger without disabling the challenge, miners will re-unlock.",
 			completed: false,
 			filter: function () {
 				return (game.global.totalPortals >= 1 && !this.completed);
@@ -265,9 +265,10 @@ var toReturn = {
 				game.worldUnlocks.Miner.fire();
 			},
 			fireAbandon: false,
+			unlocks: "Artisanistry",
 		},
 		Size: {
-			description: "Tweak the portal to bring you to an alternate reality, where Trimps are bigger and stronger, to force yourself to figure out a way to build larger housing. Your Trimps will gather 50% more Food, Wood, and Metal, but your housing will fit 50% fewer Trimps. If you complete The Dimension of Anger without disabling the challenge, your stats will return to normal and you will unlock a new Perk.",
+			description: "Tweak the portal to bring you to an alternate reality, where Trimps are bigger and stronger, to force yourself to figure out a way to build larger housing. Your Trimps will gather 50% more Food, Wood, and Metal, but your housing will fit 50% fewer Trimps. If you complete The Dimension of Anger without disabling the challenge, your stats will return to normal.",
 			completed: false,
 			filter: function () {
 				return (game.global.world >= 35 || game.global.highestLevelCleared >= 35 && !this.completed);
@@ -285,6 +286,7 @@ var toReturn = {
 				game.resources.trimps.maxMod = .5;
 			},
 			fireAbandon: true,
+			unlocks: "Carpentry",
 		},
 	},
 	
