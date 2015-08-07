@@ -346,8 +346,8 @@ var toReturn = {
 			realMax: function () {
 				var num = this.max;
 				num *= this.maxMod;
-				if (game.portal.Carpentry.level > 0) num = Math.floor(num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level)));	
-				return num;
+				if (game.portal.Carpentry.level > 0) num = num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level));	
+				return Math.floor(num);
 			},
 			working: 0,
 			speed: 5,
