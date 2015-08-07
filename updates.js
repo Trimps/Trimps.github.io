@@ -240,7 +240,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 	if (isItIn == "upgrades"){
 		if (typeof tooltipText.split('@')[1] !== 'undefined'){
 			var prestigeCost = "<b>You may not want to do this right away.</b> Your next " + game.upgrades[what].prestiges + " will cost ";
-			prestigeCost += prettify(getNextPrestigeCost(what));
+			prestigeCost += prettify(Math.ceil(getNextPrestigeCost(what) * (Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level))));
 			prestigeCost += (game.upgrades[what].prestiges == "Shield") ? " wood" : " metal";
 			prestigeCost += " and grant " + getNextPrestigeValue(what) + ".";
 			tooltipText = tooltipText.replace('@', prestigeCost);
