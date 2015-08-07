@@ -451,7 +451,7 @@ function resetGame(keepPortal) {
 		game.unlocks.imps = imps;
 		game.global.highestLevel = highestLevel;
 		game.global.challengeActive = challenge;
-		if (typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
+		if (challenge != "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 	}
 	numTab(1);
 	pauseFight(true);
@@ -771,7 +771,7 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 		var color = "white";
 		psText = (psText < 0) ? "-" + psText : "+" + psText;
 		psText += "/sec";
-		if (trimps && game.unlocks.quickTrimps) {psText += " (X2!)"; color = "orange"};
+		if (trimps && game.unlocks.quickTrimps) {psText += " (x2!)"; color = "orange"};
 		elem.innerHTML = psText;
 		elem.style.color = color;
 }

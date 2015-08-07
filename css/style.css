@@ -780,6 +780,11 @@ overflow-x: hidden;
 
 #getBonesBtn{
 	color: white;
+	border: 1px solid black;
+}
+
+#getBonesBtn:hover{
+	background-color: #326332;
 }
 
 .boneBuyDesc{
@@ -924,6 +929,15 @@ overflow-x: hidden;
 
 #getBundleBtn{
 	margin-top: 1vw;
+	border: 1px solid black;
+	font-size: 0.8em !important;
+	color: white !important;
+	background-color: #4692a8;
+	padding: 0.25vw;
+}
+
+#getBundleBtn:hover{
+	background-color: #2a5866;
 }
 
 #challengesHere{
