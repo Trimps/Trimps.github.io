@@ -682,6 +682,7 @@ var toReturn = {
 			loot: function (level) {
 				var amt = rewardResource("gems", 3, level, true);
 				message("That Goblimp dropped " + prettify(amt) + " gems! What a bro!", "Loot", "certificate");
+				game.unlocks.impCount.Goblimp++;
 			}
 		},
 		Feyimp: {
@@ -693,8 +694,9 @@ var toReturn = {
 			dropDesc: "Drops 10x Gems",
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("gems", 10, level);
+				var amt = rewardResource("gems", 8, level);
 				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "certificate");
+				game.unlocks.impCount.Feyimp++;
 			}
 		},
 		Flutimp: {
@@ -708,6 +710,7 @@ var toReturn = {
 			loot: function (level) {
 				var amt = rewardResource("fragments", 1, level, true);
 				message("You stole " + prettify(amt) + " fragments from that Flutimp! It really didn't look like she needed them though, don't feel bad.", "Loot", "th");
+				game.unlocks.impCount.Flutimp++;
 			}
 		},
 		Tauntimp: {
@@ -722,6 +725,7 @@ var toReturn = {
 				var amt = Math.ceil(game.global.world / 3);
 				game.resources.trimps.max += amt;
 				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + amt + " Trimps to live inside!", "Loot", "gift");
+				game.unlocks.impCount.Tauntimp++;
 			}
 		},
 		Whipimp: {
@@ -740,6 +744,7 @@ var toReturn = {
 				game.jobs.Dragimp.modifier *= 1.003;
 				game.jobs.Explorer.modifier *= 1.003;
 				message("Seeing the Whipimp fall has caused all of your Trimps to work 0.3% harder!", "Loot", "star");
+				game.unlocks.impCount.Whipimp++;
 			}
 		},
 		Venimp: {
@@ -753,6 +758,7 @@ var toReturn = {
 			loot: function () {
 				game.resources.trimps.potency *= 1.003;
 				message("This ground up Venimp increased your Trimps' breeding speed by 0.3%!", "Loot", "glass");
+				game.unlocks.impCount.Venimp++;
 			}
 		},
 		Skeletimp: {
@@ -2635,6 +2641,14 @@ var toReturn = {
 			Tauntimp: false,
 			Venimp: false,
 			Whipimp: false,
+		},
+		impCount: {
+			Goblimp: 0,
+			Feyimp: 0,
+			Flutimp: 0,
+			Tauntimp: 0,
+			Venimp: 0,
+			Whipimp: 0,
 		},
 		goldMaps: false,
 		quickTrimps: false,
