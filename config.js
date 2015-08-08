@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.09,
+		version: 1.091,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -763,9 +763,9 @@ var toReturn = {
 			health: 2,
 			fast: false,
 			loot: function () {
-/* 				if (typeof kongregate !== 'undefined') 
+				if (typeof kongregate !== 'undefined') 
 				message("Your Trimps managed to pull 1 perfectly preserved bone from that Skeletimp!", "Loot", "italic");
-				game.global.b++; */
+				game.global.b++;
 				game.global.lastSkeletimp = new Date().getTime();
 			}
 		},
@@ -777,9 +777,9 @@ var toReturn = {
 			health: 2.5,
 			fast: false,
 			loot: function () {
-/* 				if (typeof kongregate !== 'undefined') 
+				if (typeof kongregate !== 'undefined') 
 				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic");
-				game.global.b += 2; */
+				game.global.b += 2;
 				game.global.lastSkeletimp  = new Date().getTime();
 			},
 		}

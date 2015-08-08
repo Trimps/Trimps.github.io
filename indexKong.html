@@ -47,6 +47,231 @@ var kongregate = parent.kongregateAPI.getAPI();
 		If you are not using any addons that might interfere with javascript, try using the latest versions of Chrome or Firefox. 
 	</div>
 	</noscript>
+	<div id="boneWrapper" style="display: none">
+		<div id="boneWrapper0">
+			<div class="row">
+				<div class="col-xs-2">			
+				</div>
+				<div class="col-xs-8">
+					<div id="boneTitleContainer">
+						Bone Trader
+					</div>
+					<div id="boneOwnedContainer">
+						You have <span id="bonesOwned">0</span> bones
+					</div>
+					<div id="getBonesBtn" class="boneBtn successColor pointer noselect" style="width: 33vw; display: inline-block" onclick="showPurchaseBones()">
+						<span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span> Get some more bones</span>
+					</div>
+					<br/>
+					<div id="getBundleBtn" class="boneBtn pointer noselect" style="width: 33vw; display: inline-block; font-size: .9em;" onclick="showPurchaseBones(); startBundling()">
+						<span class="glyphicon glyphicon-star"></span> Click to Bundle 4 Exotic Imp-orts and get 100 free bones! <span class="glyphicon glyphicon-star"></span>
+					</div>
+					<div id="boneFlavorRow">
+						The Bone Trader trades bones for... bonuses
+					</div>
+				</div>
+				<div class="col-xs-2">
+					<div class="boneBtn dangerColor pointer noselect" onclick="hideBones()">
+						Close
+					</div>
+				</div>
+			</div>
+			<div id="boneBuyRow" class="row">
+				<div id="boneBoostsColumn" class="col-xs-4 boneBuyColumn">
+					<div class="boneBuyTitle">Boosts</div>
+					<div class="boostSpacer">
+					<div class="boneBuyDesc">Instantly earn the next 12 or 36 hours worth of resources! If you don't have enough storage, storage will be purchased (and the cost deducted) automatically.</div>
+					<div id="boostSelectContainer">
+						<div id="boost0" class="thingSmall pointer noselect" onclick="selectBoost(0)">
+							12 hours
+						</div>
+						<div id="boost1" class="thingSmall pointer noselect" onclick="selectBoost(1)">
+							36 hours
+						</div>
+					</div>
+					<div id="boostPreviewContainer">
+						<table id="boostPreview" class="table table-striped">
+							<tbody>
+							<tr>
+								<td>+ <span class="glyphicon glyphicon-apple" title="food"></span> <span id="foodBoostPreview">0</span></td>
+								<td><span class="glyphicon glyphicon-home" title="storage added"></span> <span id="BarnAdded">0</span> Barns Auto-purchased</td>
+							</tr>
+							<tr>
+								<td>+ <span class="glyphicon glyphicon-tree-deciduous" title="wood"></span> <span id="woodBoostPreview">0</span></td>
+								<td><span class="glyphicon glyphicon-home" title="storage added"></span> <span id="ShedAdded">0</span> Sheds Auto-purchased</td>
+							</tr>
+							<tr>
+								<td>+ <span class="glyphicon glyphicon-fire" title="metal"></span> <span id="metalBoostPreview">0</span></td>
+								<td><span class="glyphicon glyphicon-home" title="storage added"></span> <span id="ForgeAdded"></span> Forges Auto-purchased</td>
+							</tr>
+							<tr>
+								<td colspan="2">+ <span class="glyphicon glyphicon-certificate" title="gems"></span> <span id="gemsBoostPreview">0</span></td>
+							</tr>
+							<tr>
+								<td colspan="2">+ <Span class="glyphicon glyphicon-th" title="fragments"></span> <span id="fragmentsBoostPreview">0</span></td>
+							</tr>
+							</tbody>
+						</table>
+						<div id="minusRes" style="display: none">
+							One of your storage structures will be more expensive than the amount you can receive from this boost. Spend some resources first to get the most benefit!
+						</div>
+					</div>
+					</div>
+					<div id="purchaseContainerBoost">
+						<div class="boneBtn primaryColor pointer noselect buyBoostBtn" id="boostPurchaseBtn0" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase 12 hours of instant production for 20 bones. Is this what you wanted to do?', 'purchaseBoost(0)', 20)">
+							Buy 12 Hours (20 bones)
+						</div>
+						<div class="boneBtn primaryColor pointer noselect buyBoostBtn" id="boostPurchaseBtn1" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase 36 hours of instant production for 40 bones. Is this what you wanted to do?', 'purchaseBoost(1)', 40)">
+							Buy 36 Hours (40 bones)
+						</div>
+					</div>
+				</div>
+				<div id="boneImportsColumn" class="col-xs-4 boneBuyColumn">
+					<div class="boneBuyTitle">Exotic Imp-orts</div>
+					<div class="boostSpacerImports boostSpacer">
+					<div class="boneBuyDesc">Exotic Imp-orts will be unlocked permanently once purchased, and will stick around through portals. Each has a 3% chance to spawn per square and better loot than normal enemies. You can also bundle 4 together and get some extra bones.</div>
+					<div class="importsPreview">
+						<div class="importLocation">Spawns in World</div>
+						<table class="table importsTable" id="importsTableWorld0">						
+						</table>
+						<div class="importLocation table-hover">Spawns in Maps</div>
+						<table class="table importsTable" id="importsTableMaps0">					
+						</table>
+					</div>
+					</div>
+					<div id="purchaseContainerImports">
+						<div class="boneBtn primaryColor pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new bad guy will begin spawning in your next Zone or Map at about an average of 3 spawns per 100 squares. Is this what you wanted to do?', 'purchaseImport()', 50)">
+							
+						</div>
+					</div>
+				</div>
+				<div id="boneMiscColumn" class="col-xs-4 boneBuyColumn">
+					<div class="boneBuyTitle">Other Goodies</div>
+						<div class="boostSpacer">
+							<div class="boneBtn primaryColor pointer noselect" id="heliumPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Instant Portal for 100 bones. Your new helium will appear in the View Perks menu at the bottom of the screen. Is this what you wanted to do?', 'purchaseMisc(\'helium\')', 100)"> 
+								Buy Portal (100 bones)
+							</div>
+							<div class="miscDesc">
+								<b>+ <span id="heliumGainedMisc"></span> Helium </b><br/>
+								Automatically gain helium equal to the amount you would receive for reaching your highest zone, and enable your respec if it has already been used this run
+							</div>
+							<div id="mapsMisc">
+								<div class="boneBtn primaryColor pointer noselect" id="mapsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Golden Maps for 20 bones. All of your current and future maps will gain +100% loot added to their normal loot roll. Is this what you wanted to do?', 'purchaseMisc(\'maps\')', 20)">
+									Buy Golden Maps (20 bones)
+								</div>
+								<div class="miscDesc" id="goldMapsDesc">
+									All of your current and future maps will gain +100% loot <b>Until your next portal</b>
+								</div>
+							</div>
+							<div id="trimpsMisc">
+								<div class="boneBtn primaryColor pointer noselect" id="trimpsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Quick Trimps for 20 bones. All of your Trimps will create more Trimps twice as fast until the next time you use the Portal. Is this what you wanted to do?', 'purchaseMisc(\'trimps\')', 20)">
+									Buy Quick Trimps (20 bones)
+								</div>
+								<div class="miscDesc" id="quickTrimpsDesc">
+									All of your Trimps will breed 2x faster <br/><b>Until your next portal</b>
+								</div>
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="boneWrapper1" style="display: none">
+		<div class="row">
+			<div class="col-xs-2">		
+			</div>
+			<div class="col-xs-8">
+			<div id="purchaseBonesTitle">
+				Purchase Bones
+			</div>
+			<div id="purchaseBonesDesc">
+				Bones can be earned in game or purchased here.<br/>In game, you will earn bones from enemies that randomly spawn in the world
+				<div class="boneBuyDesc">
+					I love working on this game, but there's still so much to do, and any funds raised through bones will support the continued development of Trimps. Thank you so much for playing!
+				</div>
+			</div>
+			</div>
+			<div class="col-xs-2">
+					<div class="boneBtn successColor pointer noselect" onclick="hidePurchaseBones()">
+							Back to Trader
+					</div>
+					<div class="boneBtn dangerColor pointer noselect" onclick="hideBones()">
+							Close All
+					</div>
+			</div>
+		</div>
+		<div id="boneBuyTableContainer">
+			<table id="boneBuyTable" class="table">
+				<tbody>
+					<tr class="pointer noSelect" onclick="kredPurchase('20.bones')">
+						<td>
+							20 Bones
+						</td>
+						<td>
+							&nbsp;
+						</td>
+						<td>
+							10 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span>
+						</td>
+					</tr>
+					<tr class="pointer noSelect" onclick="kredPurchase('42.bones')">
+						<td>42 Bones</td>
+						<td>(Includes +2 bones!)</td>
+						<td>20 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
+					</tr>
+					<tr class="pointer noSelect" onclick="kredPurchase('110.bones')">
+						<td>110 Bones</td>
+						<td>(Includes +10 bones!)</td>
+						<td>50 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
+					</tr>
+					<tr class="pointer noSelect" onclick="kredPurchase('230.bones')">
+						<td>230 Bones</td>
+						<td>(Includes +30 bones!)</td>
+						<td>100 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
+					</tr>
+					<tr class="pointer noSelect" onclick="kredPurchase('480.bones')">
+						<td>480 Bones</td>
+						<td>(Includes +80 bones!)</td>
+						<td>200 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
+					</tr>
+					<tr id="bundleRow" class="pointer noSelect" onclick="startBundling()">
+						<td>4 Exotic Imp-orts of your choice<br/>AND 100 bones</td>
+						<td>(Includes +100 bones!)</td>
+						<td>100 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+		</div>
+		<div id="boneWrapper2" style="display: none">
+			<div class="row">
+				<div class="col-xs-3">
+				
+				</div>
+				<div class="col-xs-6" style="background-color: #e1e1e1">
+					<div id="bundleTitle">Select 4 Exotic Imports!</div>
+					<div class="boneBuyDesc">Click once to select an Imp, click again to deselect</div>
+					<div id="importsPreview1">
+						<div class="importLocation">Spawns in World</div>
+						<table class="table importsTable" id="importsTableWorld1">						
+						</table>
+						<div class="importLocation table-hover">Spawns in Maps</div>
+						<table class="table importsTable" id="importsTableMaps1">					
+						</table>
+					</div>
+					<div class="boneBtn pointer noSelect" id="addBundleBtn" onclick="purchaseBundleClicked()"></div>
+				</div>
+				<div class="col-xs-3">
+					<div class="boneBtn successColor pointer noselect" onclick="hidePurchaseBones()">
+							Back to Trader
+					</div>
+					<div class="boneBtn dangerColor pointer noselect" onclick="hideBones()">
+							Close All
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
 	<div id="wrapper" style="background: url(css/bg2.png) center repeat-x;">
 		<div id="warnings"></div>
 		<div class="row" id="topRow">
@@ -393,7 +618,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-default fightBtn" id="boneBtn" style="display: none" onclick="showBones()">
+								<span class="btn btn-default fightBtn" id="boneBtn" onclick="showBones()">
 									Bone Trader
 								</span>
 							</div>

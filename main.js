@@ -21,7 +21,7 @@
 		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 "use strict";
-//if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") != null) document.getElementById("boneBtn").style.display = "none";
+if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") != null) document.getElementById("boneBtn").style.display = "none";
 document.getElementById("versionNumber").innerHTML = game.global.version;
 function toggleSave(updateOnly) {
     var elem = document.getElementById("toggleBtn");
@@ -1354,7 +1354,7 @@ function buildGrid() {
 		}
 	}
 	canSkeletimp = false;
-	if ((new Date().getTime() - game.global.lastSkeletimp) >= 1800000) canSkeletimp = true;
+	if ((new Date().getTime() - game.global.lastSkeletimp) >= 2700000) canSkeletimp = true;
     for (var i = 0; i < 100; i++) {
         array.push({
             level: i + 1,
@@ -2213,6 +2213,12 @@ function purchaseBoost(num){
 	addBoost(num);
 	addBoost(num, true);
 	successPurchaseFlavor();
+	try{
+		if (typeof ga !== 'undefined') ga('send', 'event', 'MTX', 'Boost' + num);
+			}
+		catch(err){
+			console.debug(err);
+		}
 }
 
 function checkBundleForImp(what, justHighlight){
@@ -2318,6 +2324,12 @@ function purchaseMisc(what){
 		document.getElementById("trimpsPurchaseBtn").style.backgroundColor = "grey";
 		document.getElementById("quickTrimpsDesc").innerHTML = "This bonus is active!";
 	}
+	try{
+		if (typeof ga !== 'undefined') ga('send', 'event', 'MTX', what);
+			}
+		catch(err){
+			console.debug(err);
+		}
 }
 
 function successPurchaseFlavor(){
@@ -2348,6 +2360,12 @@ function boostHe(checkOnly) {
 	game.global.totalPortals++;
 	document.getElementById("pastUpgradesBtn").style.display = "inline-block";
 	document.getElementById("pastUpgradesBtn").style.border = "1px solid red";
+	try{
+		if (typeof ga !== 'undefined' && !checkOnly) ga('send', 'event', 'MTX', 'Helium');
+			}
+		catch(err){
+			console.debug(err);
+		}
 }
 
 function buyGoldenMaps() {
