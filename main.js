@@ -291,16 +291,19 @@ function load(saveString, autoLoad) {
 	if (game.global.respecActive) respecPerks();
 	if (game.global.kongBonusMode) activateKongBonus();
 	if (game.global.totalPortals >= 1) document.getElementById("pastUpgradesBtn").style.display = "inline-block";
+	if (game.global.challengeActive && typeof game.challenges[game.global.challengeActive].onLoad !== 'undefined') game.challenges[game.global.challengeActive].onLoad();
 }
 
 function portalClicked() {
 	game.global.viewingUpgrades = false;
 	game.global.respecActive = false;
 	document.getElementById("wrapper").style.display = "none";
-	document.getElementById("portalWrapper").style.backgroundColor = "green";
+	document.getElementById("portalWrapper").style.backgroundColor = (game.global.sLevel == 0) ? "green" : "#00b386";
 	document.getElementById("portalWrapper").style.color = "black";
 	fadeIn("portalWrapper", 10);
-	document.getElementById("portalTitle").innerHTML = "Time Portal";
+	var titleText = "Time Portal";
+	if (game.global.sLevel == 1) titleText += " Mk. II";
+	document.getElementById("portalTitle").innerHTML = titleText;	
 	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(game.resources.helium.owned + game.global.heliumLeftover) + '</span> Helium';
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
@@ -320,31 +323,47 @@ function displayChallenges() {
 		var challenge = game.challenges[what];
 		if (!challenge.filter()) continue;
 		challengeCount++;
-		challengesHere.innerHTML += '<div class="noselect pointer challengeThing thing" id="' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + what + '</span></div>';
+		challengesHere.innerHTML += '<div class="noselect pointer challengeThing thing" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + what + '</span></div>';
 	}
 	if (challengeCount > 0) document.getElementById("challenges").style.display = "block";
+	document.getElementById("flagMustRestart").style.display = "none";
 }
 
 
 
 function selectChallenge(what) {
 	displayChallenges();
-	document.getElementById(what).style.border = "1px solid red";
+	document.getElementById("challenge" + what).style.border = "1px solid red";
 	var desc = game.challenges[what].description;
 	desc += "<b>";
-	desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
+	if (game.portal[game.challenges[what].unlocks]) desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
+	else if (what == "Scientist" && game.global.sLevel > 0) desc += " You have already completed this challenge!";
 	desc += "</b>";
 	document.getElementById("specificChallengeDescription").innerHTML = desc;
 	game.global.selectedChallenge = what;
+	document.getElementById("flagMustRestart").style.display = (what == "Scientist") ? "block" : "none";
 	var addChallenge = document.getElementById("addChallenge");
 	if (addChallenge != null) addChallenge.innerHTML = "You have the <b>" + what + " Challenge</b> active.";
 }
 
-function abandonChallenge(){
-	var challenge = game.challenges[game.global.challengeActive];
+function confirmAbandonChallenge(){
+	var text = "Are you sure you want to abandon this challenge?";
+	if (game.global.challengeActive == 'Scientist') text += " <b>Abandoning this challenge will cause the portal to become unstable and start you from the beginning of this run. (You'll keep your permanent rewards like helium and perks)</b>"; 
+	tooltip('confirm', null, 'update', text, 'abandonChallenge()', 'Abandon Challenge');
+	if (game.global.challengeActive == "Scientist") document.getElementById("confirmTipCost").innerHTML += '<div class="btn btn-success" onclick="abandonChallenge(true); cancelTooltip()">Restart Challenge</div>';
+}
+
+function abandonChallenge(restart){
+	var challengeName = game.global.challengeActive;
+	var challenge = game.challenges[challengeName];
 	game.global.challengeActive = "";
 	if (challenge.fireAbandon) challenge.abandon();
 	cancelPortal();
+	if (challengeName == "Scientist"){
+		document.getElementById("scienceCollectBtn").style.display = "block";
+		if (restart) game.global.selectedChallenge = "Scientist";
+		resetGame(true);
+	}
 	message("Your challenge has been abandoned.", "Notices");
 }
 

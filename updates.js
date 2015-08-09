@@ -18,6 +18,7 @@
 		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 
+//in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
@@ -88,7 +89,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 		costText = costText.slice(0, -2);
 	}
 	if (what == "Confirm Purchase"){
-		console.log(numCheck);
 		var btnText = "Make Purchase";
 		if (game.global.b < numCheck){
 			tooltipText = "You can't afford this bonus. Would you like to visit the shop?";
@@ -255,6 +255,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 	if (isItIn == "maps"){
 		tooltipText = "This is a map. Click it to see its properties or to run it. Maps can be run as many times as you want.";
 		costText = "";
+	}
+	if (what == 'confirm'){
+		what = numCheck;
+		tooltipText = textString;
+		costText = '<div class="maxCenter" id="confirmTipCost"><div class="btn btn-info" onclick="' + attachFunction + '; cancelTooltip()">Confirm</div><div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div></div>';
+		game.global.lockTooltip = true;
+		elem.style.left = "32.5%";
+		elem.style.top = "25%";
 	}
 	var tipSplit = tooltipText.split('$');
 	if (typeof tipSplit[1] !== 'undefined'){
@@ -430,6 +438,7 @@ function resetGame(keepPortal) {
 	var imps;
 	var highestLevel;
 	var challenge = "";
+	var sLevel = 0;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -437,6 +446,7 @@ function resetGame(keepPortal) {
 		b = game.global.b;
 		imps = game.unlocks.imps;
 		highestLevel = game.global.highestLevelCleared;
+		sLevel = game.global.sLevel;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 	}
 	game = null;
@@ -451,6 +461,12 @@ function resetGame(keepPortal) {
 		game.unlocks.imps = imps;
 		game.global.highestLevelCleared = highestLevel;
 		game.global.challengeActive = challenge;
+		game.global.sLevel = sLevel;
+		if (sLevel == 1) {
+			game.resources.science.owned += 5000;
+			game.resources.wood.owned += 100;
+			game.resources.food.owned += 100;
+		}
 		if (challenge != "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 	}
 	numTab(1);

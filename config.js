@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.091,
+		version: 1.092,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -89,6 +89,7 @@ var toReturn = {
 		selectedChallenge: "",
 		lastOfflineProgress: "",
 		cheater: false,
+		sLevel: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -288,6 +289,25 @@ var toReturn = {
 			fireAbandon: true,
 			unlocks: "Carpentry",
 		},
+		Scientist: {
+			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with 11500 science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with 5000 science, 100 food, and 100 wood every time you use your portal.",
+			completed: false,
+			filter: function () {
+				return (game.global.world >= 40 || game.global.highestLevelCleared >= 40);
+			},
+			abandon: function () {
+				game.worldUnlocks.Scientist.fire();
+				document.getElementById("scienceCollectBtn").style.display = "block";
+			},
+			start: function () {
+				document.getElementById("scienceCollectBtn").style.display = "none";
+				game.resources.science.owned += 11500;
+			},
+			onLoad: function () {
+				document.getElementById("scienceCollectBtn").style.display = "none";
+			},
+			fireAbandon: false,
+		}
 	},
 	
 	
@@ -897,6 +917,12 @@ var toReturn = {
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
+				if (game.global.challengeActive == "Scientist"){
+					game.global.challengeActive = "";
+					game.challenges.Scientist.abandon();
+					game.global.sLevel = 1;
+					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive 5000 science every time you portal.", "Notices");
+				}
 				unlockUpgrade("Shieldblock");
 			}
 		},
@@ -1388,6 +1414,11 @@ var toReturn = {
 			icon: "book",
 			title: "Scientist",
 			fire: function () {
+				if (game.global.challengeActive == "Scientist"){
+					message("Your Trimps think they're too good at Science to read your dumb book. They're already working on Portal technology!", "Notices");
+					game.challenges.Scientist.fireAbandon = true;
+					return;
+				}
 				unlockUpgrade("Scientists");
 			}
 		},
@@ -2587,9 +2618,9 @@ var toReturn = {
 			once: function() {document.getElementById("upgradesTitleSpan").innerHTML = "Upgrades";},
 			message: "War... what is it good for? Exploration, or something.",
 			cost: {
-				resources: {
-					science: 1
-				}
+				special: function () {
+					return (game.triggers.upgrades.done > 0 && game.resources.science.owned > 0);
+				},
 			},
 			fire: function () {
 				unlockUpgrade('Battle');

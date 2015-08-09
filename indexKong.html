@@ -767,6 +767,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 			<div id="challengeTitle">Challenges</div>
 			<div id="challengeDescription">
 				You have an available challenge. You can choose to start a challenge by selecting it before activating the Portal. You can abandon the challenge at any time via the "View Perks" menu.
+				<br/><span id="flagMustRestart" style="display: none;"><b>If you abandon this challenge, the portal will become unstable and the world will restart (you'll keep permanent bonuses like helium)</b></span>
 				<div id="specificChallengeDescription">
 				
 				</div>
@@ -780,7 +781,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 			<div class="btn btn-danger inPortalBtn" id="cancelPortalBtn" onclick="cancelPortal()">Cancel</div>
 			<div class="btn btn-warning inPortalBtn" style="display: none" id="respecPortalBtn" onclick="respecPerks()"></div>
 			<br/><br/>
-			<div class="btn btn-warning inPortalBtn" style="display: none" id="cancelChallengeBtn" onclick="abandonChallenge()">Abandon Challenge</div>
+			<div class="btn btn-warning inPortalBtn" style="display: none" id="cancelChallengeBtn" onclick="confirmAbandonChallenge();">Abandon Challenge</div>
 		</div>
 	</div>
 
@@ -793,9 +794,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?23"></script>
-	<script type="text/javascript" src="updates.js?23"></script>
-	<script type="text/javascript" src="main.js?23"></script>
+	<script type="text/javascript" src="config.js?24"></script>
+	<script type="text/javascript" src="updates.js?24"></script>
+	<script type="text/javascript" src="main.js?24"></script>
 	
 </body>
 

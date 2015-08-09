@@ -978,6 +978,10 @@ overflow-x: hidden;
 	font-size: 1.1vw;
 }
 
+#flagMustRestart{
+	color: maroon;
+}
+
 input[type=number] {
     -moz-appearance:textfield;
 }
