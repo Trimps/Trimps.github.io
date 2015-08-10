@@ -272,7 +272,7 @@ var toReturn = {
 			description: "Tweak the portal to bring you to an alternate reality, where Trimps are bigger and stronger, to force yourself to figure out a way to build larger housing. Your Trimps will gather 50% more Food, Wood, and Metal, but your housing will fit 50% fewer Trimps. If you complete The Dimension of Anger without disabling the challenge, your stats will return to normal.",
 			completed: false,
 			filter: function () {
-				return (game.global.world >= 35 || game.global.highestLevelCleared >= 35);
+				return (game.global.world >= 35 || game.global.highestLevelCleared >= 34);
 			},
 			abandon: function () {
 				game.jobs.Farmer.modifier *= (2/3);
@@ -293,7 +293,7 @@ var toReturn = {
 			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with 11500 science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with 5000 science, 100 food, and 100 wood every time you use your portal.",
 			completed: false,
 			filter: function () {
-				return (game.global.world >= 40 || game.global.highestLevelCleared >= 40);
+				return (game.global.world >= 40 || game.global.highestLevelCleared >= 39);
 			},
 			abandon: function () {
 				game.worldUnlocks.Scientist.fire();
