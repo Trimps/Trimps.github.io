@@ -439,6 +439,7 @@ function resetGame(keepPortal) {
 	var highestLevel;
 	var challenge = "";
 	var sLevel = 0;
+	var lastSkele;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -447,6 +448,7 @@ function resetGame(keepPortal) {
 		imps = game.unlocks.imps;
 		highestLevel = game.global.highestLevelCleared;
 		sLevel = game.global.sLevel;
+		lastSkele = game.global.lastSkeletimp;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 	}
 	game = null;
@@ -462,6 +464,7 @@ function resetGame(keepPortal) {
 		game.global.highestLevelCleared = highestLevel;
 		game.global.challengeActive = challenge;
 		game.global.sLevel = sLevel;
+		game.global.lastSkeletimp = lastSkele;
 		if (sLevel == 1) {
 			game.resources.science.owned += 5000;
 			game.resources.wood.owned += 100;
