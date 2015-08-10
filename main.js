@@ -741,7 +741,7 @@ function setGather(what, updateOnly) {
 }
 
 function setGatherTextAs(what, on) {
-    var trimpTrapText = '(<span id="trimpTrapText">' + game.buildings.Trap.owned + '</span>)';
+    var trimpTrapText = '(<span id="trimpTrapText">' + prettify(game.buildings.Trap.owned) + '</span>)';
     switch (what) {
     case "food":
         return (on) ? "Gathering" : "Gather";
