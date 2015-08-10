@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.092,
+		version: 1.093,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -675,7 +675,7 @@ var toReturn = {
 			health: 1.5,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("gems", .05, level, false);
+				var amt = rewardResource("gems", .2, level, false);
 				message("<span class='glyphicon glyphicon-certificate'></span>That Dragimp dropped " + prettify(amt) + " gems!", "Loot");
 			}
 		},
@@ -714,7 +714,7 @@ var toReturn = {
 			dropDesc: "Drops 10x Gems",
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("gems", 8, level);
+				var amt = rewardResource("gems", 7.5, level);
 				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "certificate");
 				game.unlocks.impCount.Feyimp++;
 			}
@@ -1208,7 +1208,7 @@ var toReturn = {
 			icon: "certificate",
 			repeat: 5,
 			fire: function (level) {
-				var amt = rewardResource("gems", .15, level, true);
+				var amt = rewardResource("gems", .5, level, true);
 				message("<span class='glyphicon glyphicon-certificate'></span>You found " + prettify(amt) + " gems! Terrific!", "Loot");
 			}
 		},
@@ -2082,7 +2082,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Lumberjack.modifier = (game.jobs.Lumberjack.modifier * 1.25).toFixed(2);
+				game.jobs.Lumberjack.modifier *= 1.25;
 			}			
 		},
 		Speedfarming: {
@@ -2097,7 +2097,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Farmer.modifier = (game.jobs.Farmer.modifier * 1.25).toFixed(2);
+				game.jobs.Farmer.modifier *= 1.25;
 			}			
 		},
 		Speedminer: {
@@ -2112,7 +2112,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Miner.modifier = (game.jobs.Miner.modifier * 1.25).toFixed(2);
+				game.jobs.Miner.modifier *= 1.25;
 			}			
 		},
 		Speedscience: {
@@ -2126,7 +2126,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Scientist.modifier = (game.jobs.Scientist.modifier * 1.25).toFixed(2);
+				game.jobs.Scientist.modifier *= 1.25;
 			}			
 		},
 		Efficiency: {

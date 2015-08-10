@@ -199,14 +199,19 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 		costText = "";
 	}
 	if (isItIn == "jobs"){
+		var buyAmt = game.global.buyAmt;
 		if (game.global.firing){
 			tooltipText = "Fire a " + what + ". Refunds no resources, but frees up some workspace for your Trimps.";
 			costText = "";
 		}
 		else{
-			costText = getTooltipJobText(what);
+			var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+			if (workspaces < buyAmt && workspaces > 0) buyAmt = workspaces;
+			costText = getTooltipJobText(what, buyAmt);
 		}
-		if (game.global.buyAmt > 1) what += " X" + game.global.buyAmt;
+		
+		
+		if (game.global.buyAmt > 1) what += " X" + buyAmt;
 	}
 	if (isItIn == "buildings"){
 		costText = canAffordBuilding(what, false, true);
@@ -861,9 +866,11 @@ function unlockUpgrade(what, displayOnly) {
 function checkButtons(what) {
 	var where = game[what];
 	if (what == "jobs") {
+		var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
 		for (var item in game.jobs){
 			if (game.jobs[item].locked == 1) continue;
-			updateButtonColor(item,canAffordJob(item),true);
+			if (workspaces <= 0) updateButtonColor(item, false, true);
+			else updateButtonColor(item,canAffordJob(item, false, workspaces),true);
 		}
 		return;
 	}

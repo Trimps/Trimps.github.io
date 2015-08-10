@@ -741,7 +741,7 @@ function setGather(what, updateOnly) {
 }
 
 function setGatherTextAs(what, on) {
-    var trimpTrapText = '(<span id="trimpTrapText">1</span>)';
+    var trimpTrapText = '(<span id="trimpTrapText">' + game.buildings.Trap.owned + '</span>)';
     switch (what) {
     case "food":
         return (on) ? "Gathering" : "Gather";
@@ -1046,44 +1046,50 @@ function buyJob(what) {
 		if (game.resources.trimps.employed < 0) game.resources.trimps.employed = 0;
 		return;
 	}
-	if (!canAffordJob(what)) return;
-	canAffordJob(what, true);
-	game.jobs[what].owned += game.global.buyAmt;
-	game.resources.trimps.employed += game.global.buyAmt;
+	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	if (workspaces <= 0) return;
+	if (!canAffordJob(what, false, workspaces)) return;
+	var added = canAffordJob(what, true, workspaces);
+	game.jobs[what].owned += added;
+	game.resources.trimps.employed += added;
 	tooltip(what, "jobs", "update");
 }
 
-function getTooltipJobText(what) {
+function getTooltipJobText(what, toBuy) {
     var job = game.jobs[what];
-    var fullText = "";
+	if (!(toBuy > 0)) toBuy = game.global.buyAmt;
+	var fullText = "";
     for (var item in job.cost) {
-        var color = (checkJobItem(what, false, item)) ? "green" : "red";
-        fullText += '<span class="' + color + '">' + item + ':&nbsp;' + checkJobItem(what, false, item, true) + '</span>, ';
+        var color = (checkJobItem(what, false, item, false, toBuy)) ? "green" : "red";
+        fullText += '<span class="' + color + '">' + item + ':&nbsp;' + checkJobItem(what, false, item, true, toBuy) + '</span>, ';
     }
     fullText = fullText.slice(0, -2);
     return fullText;
 }
 
-function canAffordJob(what, take) {
+function canAffordJob(what, take, workspaces) {
     var trimps = game.resources.trimps;
-    if (Math.ceil(trimps.realMax() / 2) < trimps.employed + game.global.buyAmt) return false;
-    if (trimps.owned - trimps.employed - game.global.buyAmt < 0) return false;
+	var toBuy = game.global.buyAmt;
+    if (workspaces >= 0 && workspaces < toBuy) toBuy = workspaces;
+    if (trimps.owned - trimps.employed - toBuy < 0) return false;
     var job = game.jobs[what];
     for (var costItem in job.cost) {
-        if (!checkJobItem(what, take, costItem)) return false;
+        if (!checkJobItem(what, take, costItem, null, toBuy)) return false;
     }
+	if (take) return toBuy;
     return true;
 }
 
-function checkJobItem(what, take, costItem, amtOnly) {
+function checkJobItem(what, take, costItem, amtOnly, toBuy) {
     var job = game.jobs[what];
     var cost = job.cost[costItem];
     var price = 0;
-	if (cost.lastCheckCount != game.global.buyAmt || cost.lastCheckOwned != job.owned){
-		for (var x = 0; x < game.global.buyAmt; x++) {
+	if (!toBuy) toBuy = game.global.buyAmt;
+	if (cost.lastCheckCount != toBuy || cost.lastCheckOwned != job.owned){
+		for (var x = 0; x < toBuy; x++) {
 			price += Math.floor(cost[0] * Math.pow(cost[1], (job.owned + x)));
 		}
-		cost.lastCheckCount = game.global.buyAmt;
+		cost.lastCheckCount = toBuy;
 		cost.lastCheckAmount = price;
 		cost.lastCheckOwned = job.owned;
 	}
@@ -1992,18 +1998,22 @@ function fight(makeUp) {
     }
     var attackAndBlock = (calculateDamage(cell.attack) - game.global.soldierCurrentBlock);
 	var trimpAttack = calculateDamage(game.global.soldierCurrentAttack);
-	document.getElementById("critSpan").innerHTML = "";
+	var gotCrit = false;
+	var critSpan = document.getElementById("critSpan");
+	critSpan.innerHTML = "";
 	if (game.portal.Relentlessness.level > 0){
 		if (Math.floor(Math.random() * (1 / (game.portal.Relentlessness.modifier * game.portal.Relentlessness.level))) == 1){
 			trimpAttack += (trimpAttack * ((game.portal.Relentlessness.otherModifier * game.portal.Relentlessness.level) + 1));
-			document.getElementById("critSpan").innerHTML = "Crit!";
+			gotCrit = true;
 		}
 	}
     if (game.badGuys[cell.name].fast) {
         game.global.soldierHealth -= (attackAndBlock > 0) ? attackAndBlock : 0;
         if (game.global.soldierHealth > 0) cell.health -= trimpAttack;
-        else
+        else {
             game.global.soldierHealth = 0;
+			gotCrit = false;
+		}
         if (cell.health <= 0) {cell.health = 0; 
 		//fight(makeUp); return;
 		}
@@ -2017,6 +2027,7 @@ function fight(makeUp) {
 			}
         if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
     }
+	if (gotCrit) critSpan.innerHTML = "Crit!";
     if (cell.health <= 0) game.global.battleCounter = 800;
     if (makeUp) return;
     document.getElementById("badGuyHealth").innerHTML = prettify(cell.health, 0);
