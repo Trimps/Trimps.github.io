@@ -1014,12 +1014,13 @@ function trapThings() {
     var trap = game.buildings.Trap;
     var trimps = game.resources.trimps;
 	var trimpsMax = trimps.realMax();
+	var TrapOwned = document.getElementById("TrapOwned");
     if (game.global.timeLeftOnTrap == -1) {
         if (trimps.owned < trimpsMax && trap.owned >= 1)
             game.global.timeLeftOnTrap = trimps.speed;
         else {
             document.getElementById("trappingBar").style.width = "0%";
-            document.getElementById("TrapOwned").innerHTML = trap.owned;
+            if (trapOwned) trapOwned.innerHTML = trap.owned;
             return;
         }
     }
@@ -1031,7 +1032,7 @@ function trapThings() {
 		if (game.portal.Bait.level > 0) trimps.owned += (game.portal.Bait.level * game.portal.Bait.modifier);
 		if (trimps.owned > trimpsMax) trimps.owned = trimpsMax;
         game.global.timeLeftOnTrap = -1;
-        document.getElementById("TrapOwned").innerHTML = trap.owned;
+        if (trapOwned) trapOwned.innerHTML = trap.owned;
     }
     document.getElementById("trappingBar").style.width = (100 - ((game.global.timeLeftOnTrap / trimps.speed) * 100)) + "%";
 }
