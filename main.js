@@ -1825,6 +1825,7 @@ function startFight() {
         cellElem = document.getElementById("cell" + cellNum);
     }
     cellElem.style.backgroundColor = "yellow";
+	document.getElementById("badGuyName").innerHTML = cell.name;
     if (cell.maxHealth == -1) {
         cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
         cell.health = game.global.getEnemyHealth(cell.level, cell.name);
@@ -1835,7 +1836,6 @@ function startFight() {
         }
         cell.maxHealth = cell.health;
         document.getElementById("badGuyBar").style.width = "100%";
-        document.getElementById("badGuyName").innerHTML = cell.name;
         document.getElementById("badGuyBar").style.backgroundColor = "blue";
 /*         document.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true); */
     }
