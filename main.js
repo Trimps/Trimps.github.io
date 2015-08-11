@@ -1412,7 +1412,7 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
 		badGuysArray.push(item);
 		}
 	}
-	if (canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (Math.floor(Math.random() * 100) < 10) ? "Megaskeletimp" : "Skeletimp";} 
+	if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (Math.floor(Math.random() * 100) < 10) ? "Megaskeletimp" : "Skeletimp";} 
 	if (imports.length && !force && (Math.floor(Math.random() * 100) < (imports.length * 3))) return imports[Math.floor(Math.random() * imports.length)];
     if (!force) selected = badGuysArray[Math.floor(Math.random() * badGuysArray.length)];
 	return selected;
