@@ -1705,7 +1705,6 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("worldName").innerHTML = "Zone";
 		document.getElementById("repeatBtn").style.visibility = "hidden";
     }
-	updateAllBattleNumbers();
 }
 
 function resetAdvMaps() {
