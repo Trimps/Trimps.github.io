@@ -1020,7 +1020,7 @@ function trapThings() {
             game.global.timeLeftOnTrap = trimps.speed;
         else {
             document.getElementById("trappingBar").style.width = "0%";
-            if (TrapOwned) trapOwned.innerHTML = trap.owned;
+            if (TrapOwned) TrapOwned.innerHTML = trap.owned;
             return;
         }
     }
@@ -1032,7 +1032,7 @@ function trapThings() {
 		if (game.portal.Bait.level > 0) trimps.owned += (game.portal.Bait.level * game.portal.Bait.modifier);
 		if (trimps.owned > trimpsMax) trimps.owned = trimpsMax;
         game.global.timeLeftOnTrap = -1;
-        if (TrapOwned) trapOwned.innerHTML = trap.owned;
+        if (TrapOwned) TrapOwned.innerHTML = trap.owned;
     }
     document.getElementById("trappingBar").style.width = (100 - ((game.global.timeLeftOnTrap / trimps.speed) * 100)) + "%";
 }
