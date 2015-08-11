@@ -145,8 +145,46 @@ overflow-x: hidden;
 
 .psText {
     font-size: 1.2em;
-    display: block;
+	display: block;
     text-align: center;
+}
+
+.psText:hover, .bdHover:hover{
+	text-decoration: underline;
+	color: #318696 !important;
+}
+
+.psQ{
+	border: 1px solid white;
+	border-radius: 50%;
+	width: 10%;
+	font-size: .8em;
+	background-color: blue;
+	padding: 1.75% 4%;
+}
+
+.bdTable{
+	font-size: 1.1em;
+	text-align: center;
+}
+
+.bdTable > tbody > tr > td{
+	width: 33%;
+	border: 1px solid black;
+}
+
+.bdTitle{
+	font-weight: bold;
+	text-decoration: underline;
+
+}
+
+.bdPercent{
+	
+}
+
+.bdNumber{
+	
 }
 
 .collectRow {}

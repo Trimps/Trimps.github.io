@@ -19,7 +19,7 @@
 		<http://www.gnu.org/licenses/>. */
 
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
-function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
+function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) {
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
@@ -132,8 +132,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 		costText = "";
 	}
 	if (what == "Reset"){
-		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone.";
-		costText="<div class='maxCenter'><div class='btn btn-info' onclick='resetGame();unlockTooltip();tooltip(\"hide\")'>Reset</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone. <b style='color: red'>This is not the soft-reset you're looking for. This will delete your save.</b>";
+		costText="<div class='maxCenter'><div class='btn btn-danger onclick='resetGame();unlockTooltip();tooltip(\"hide\")'>Delete Save</div> <div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -192,8 +192,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 		costText = "";
 	}
 	if (what == "Maps"){
-		if (!game.global.mapsActive && !game.global.preMapsActive)
-		tooltipText = "Leave your current world temporarily and enter the Map Chamber";
+		if (!game.global.preMapsActive)
+		tooltipText = "Travel to the Map Chamber";
 		else
 		tooltipText = "Go back to to the World Map.";
 		costText = "";
@@ -262,9 +262,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck) {
 		costText = "";
 	}
 	if (what == 'confirm'){
+		if (!renameBtn) renameBtn = "Confirm";
 		what = numCheck;
 		tooltipText = textString;
-		costText = '<div class="maxCenter" id="confirmTipCost"><div class="btn btn-info" onclick="' + attachFunction + '; cancelTooltip()">Confirm</div><div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div></div>';
+		if (!noHide) attachFunction = attachFunction + "; cancelTooltip()";
+		costText = '<div class="maxCenter" id="confirmTipCost"><div class="btn btn-info" onclick="' + attachFunction + '">' + renameBtn + '</div><div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div></div>';
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -293,6 +295,114 @@ function cancelTooltip(){
 
 function unlockTooltip(){
 	game.global.lockTooltip = false;
+}
+
+function getPsString(what) {
+	var resOrder = ["food", "wood", "metal", "science", "gems", "fragments"];
+	var books = ["Speedfarming", "Speedlumber", "Speedminer", "Speedscience"];
+	var jobs = ["Farmer", "Lumberjack", "Miner", "Scientist", "Dragimp", "Explorer"];
+	var index = resOrder.indexOf(what);
+	var job = game.jobs[jobs[index]];
+	var book = game.upgrades[books[index]];
+	var base = (what == "fragments") ? 0.1 : 0.5;
+	var textString =  "<table class='bdTable table table-striped'><tbody>";
+	//Add base
+	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + prettify(base) + "</td></tr>";
+	//Add job count
+	var currentCalc = job.owned * base;
+	textString += "<tr><td class='bdTitle'>" + jobs[index] + "s</td><td class='bdPercent'>" + prettify(job.owned) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+	//Add books
+	if (typeof book !== 'undefined' && book.done > 0){
+		var bookStrength = Math.pow(1.25, book.done);
+		currentCalc *= bookStrength;
+		bookStrength = prettify((bookStrength - 1) * 100) + "%";
+		textString += "<tr><td class='bdTitle'>" + books[index] + "</td><td class='bdPercent'>+ " + bookStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add bounty
+	if (what != "gems" && game.upgrades.Bounty.done > 0){
+		currentCalc *= 2;
+		textString += "<tr><td class='bdTitle'>Bounty</td><td class='bdPercent'>+ 100%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add Tribute
+	if (what == "gems" && game.buildings.Tribute.owned > 0){
+		var tributeStrength = Math.pow(game.buildings.Tribute.increase.by, game.buildings.Tribute.owned);
+		currentCalc *= tributeStrength;
+		tributeStrength = prettify((tributeStrength - 1) * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Tribute</td><td class='bdPercent'>+ " + tributeStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add Whipimp
+	if (game.unlocks.impCount.Whipimp > 0){
+		var whipStrength = Math.pow(1.003, game.unlocks.impCount.Whipimp);
+		currentCalc *= (whipStrength);
+		whipStrength = prettify((whipStrength - 1) * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Whipimp</td><td class='bdPercent'>+ " + whipStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add motivation
+	if (game.portal.Motivation.level > 0){
+		var motivationStrength = (game.portal.Motivation.level * game.portal.Motivation.modifier);
+		currentCalc  *= (motivationStrength + 1);
+		motivationStrength = prettify(motivationStrength * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Motivation</td><td class='bdPercent'>+ " + motivationStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add player
+	if (game.global.playerGathering == what){
+		var playerStrength = game.global.playerModifier;
+		currentCalc += playerStrength;
+		textString += "<tr><td class='bdTitle'>You</td><td class='bdPercent'>+ " + prettify(playerStrength) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	textString += "</tbody></table>";
+	game.global.lockTooltip = false;
+	tooltip('confirm', null, 'update', textString, "getPsString('" + what + "')", what.charAt(0).toUpperCase() + what.substr(1, what.length) + " Per Second", "Refresh", true);
+}
+
+
+
+function getTrimpPs() {
+	var trimps = game.resources.trimps;
+	var base = 0.0085;
+	var textString =  "<table class='bdTable table table-striped'><tbody>";
+	//Add base
+	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + base + "</td></tr>";
+	//Add job count
+	var breeding = trimps.owned - trimps.employed;
+	var currentCalc = breeding * base;
+	textString += "<tr><td class='bdTitle'>Breeding</td><td class='bdPercent'>" + prettify(breeding) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+	//Add Potency
+	if (game.upgrades.Potency.done > 0){
+		var potencyStrength = Math.pow(1.1, game.upgrades.Potency.done);
+		currentCalc *= potencyStrength;
+		potencyStrength = prettify((potencyStrength - 1) * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Potency</td><td class='bdPercent'>+ " + potencyStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add Nurseries
+	if (game.buildings.Nursery.owned > 0){
+		var nurseryStrength = Math.pow(1.01, game.buildings.Nursery.owned);
+		currentCalc *= nurseryStrength;
+		nurseryStrength = prettify((nurseryStrength - 1) * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Nurseries</td><td class='bdPercent'>+ " + nurseryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add Venimp
+	if (game.unlocks.impCount.Venimp > 0){
+		var venimpStrength = Math.pow(1.003, game.unlocks.impCount.Venimp);
+		currentCalc *= (venimpStrength);
+		venimpStrength = prettify((venimpStrength - 1) * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Venimp</td><td class='bdPercent'>+ " + venimpStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add motivation
+	if (game.portal.Pheromones.level > 0){
+		var PheromonesStrength = (game.portal.Pheromones.level * game.portal.Pheromones.modifier);
+		currentCalc  *= (PheromonesStrength + 1);
+		PheromonesStrength = prettify(PheromonesStrength * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Pheromones</td><td class='bdPercent'>+ " + PheromonesStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add quick trimps
+	if (game.unlocks.quickTrimps){
+		currentCalc *= 2;
+		textString += "<tr><td class='bdTitle'>Quick Trimps</td><td class='bdPercent'>+ 100%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	textString += "</tbody></table>";
+	game.global.lockTooltip = false;
+	tooltip('confirm', null, 'update', textString, "getTrimpPs()", "Trimps Per Second", "Refresh", true);
 }
 
 function swapNotation(updateOnly){

@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.093,
+		version: 1.094,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -264,8 +264,12 @@ var toReturn = {
 			},
 			abandon: function () {
 				game.worldUnlocks.Miner.fire();
+				for (var x = 0; x < game.challenges.Metal.heldBooks; x++){
+					unlockUpgrade("Speedminer");
+				}
 			},
 			fireAbandon: false,
+			heldBooks: 0,
 			unlocks: "Artisanistry",
 		},
 		Size: {
@@ -331,11 +335,13 @@ var toReturn = {
 		w18: "There seems to be a strange force urging you to keep going. The atmosphere is becoming... angrier. Part of you wants to turn around and go back, but most of you wants to keep going.",
 		w19: "You look behind and see your kingdom. You have gems, a colony, and territory. You wonder if enough Trimps have already fallen in battle. After contemplation, one word falls out of your mouth as you begin to move forward. 'Nah'",
 		w20: "You can sense that you're close to your goal.",
-		w22: "You're a rebel. The universe pointed you into that portal, but you kept pushing forward. You feel... less like you've been here before.",
-		w24: "Strange, the sky seems to be getting darker. You ask one of your Trimps for the time, but he doesn't know what a clock is.",
+		w22: "Strange, the sky seems to be getting darker. You ask one of your Trimps for the time, but he doesn't know what a clock is.",
+		w25: "You're a rebel. The universe pointed you into that portal, but you kept pushing forward. You feel... less like you've been here before.",
 		w27: "It seems like the further you press on, the less you know. You still feel an urge to use the portal, though the urge has begun to dwindle.",
-		w27: "Your Trimps came up with a pretty catchy battle song that got stuck in your head. None of them survived the next fight though, and you can't remember most of it. Life's tough.",
+		w29: "Your Trimps came up with a pretty catchy battle song that got stuck in your head. None of them survived the next fight though, and you can't remember most of it. Life's tough.",
 		w33: "You climb over a large hill that was separating this zone from the last. The sky is pitch black and lightning crackles in the distance. This is a site of heavy corruption.",
+		w35: "You start to wonder how long you've been doing the same thing over and over. There must be something you can do to start to break the cycle. Perhaps you could alter the portal...",
+		w40: "You can't help but notice that the Trimps seem to be the only creatures on this planet not immediately hostile towards outsiders. You ask a nearby Trimp soldier what he thinks you are, and he drools a bit.",
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
@@ -1159,7 +1165,7 @@ var toReturn = {
 		},
 		Wormhole: {
 			world: -1,
-			startAt: 35,
+			startAt: 37,
 			message: "You found a crystal powerful enough to create wormholes!",
 			level: [10, 20],
 			icon: "link",
@@ -1470,6 +1476,11 @@ var toReturn = {
 			icon: "book",
 			title: "Speedminer",
 			fire: function() {
+				if (game.global.challengeActive == "Metal"){
+					message("Your scientists stare blankly at you for a moment, then slowly and quietly place the new book on the shelves.", "Notices");
+					game.challenges.Metal.heldBooks++;
+					return;
+				}
 				unlockUpgrade("Speedminer");
 			}
 		},
@@ -1787,7 +1798,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 600,
-			tooltip: "Use your crazy, helium-cooled, easy-to-aim wormhole generator to create easy-to-travel links to other colonizable planets where your Trimps can sleep and work. Each supports $incby$ Trimps.",
+			tooltip: "Use your crazy, helium-cooled, easy-to-aim wormhole generator to create easy-to-travel links to other colonizable planets where your Trimps can sleep and work. Each supports $incby$ Trimps. <b>This building costs helium to create.</b>",
 			cost: {
 				helium: [10, 1.075],
 				metal: [100000, 1.1]

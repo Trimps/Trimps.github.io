@@ -291,7 +291,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div id="foodCollectBtn" class="workBtn pointer noselect" onclick="setGather('food')">Gather</div>
 								</div>
 								<div class="col-xs-6">
-									<span class="psText" id="foodPs">+0/sec</span>
+									<span class="psText pointer noselect" id="foodPs" onclick="getPsString('food')">+0/sec</span>
 								</div>
 							</div>
 						</div>
@@ -312,7 +312,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div id="woodCollectBtn" class="workBtn pointer noselect" onclick="setGather('wood')">Chop</div>
 								</div>
 								<div class="col-xs-6">
-									<span class="psText" id="woodPs">+0/sec</span>
+									<span class="psText pointer noselect" id="woodPs" onclick="getPsString('wood')">+0/sec</span>
 								</div>
 							</div>
 						</div>
@@ -333,7 +333,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div id="metalCollectBtn" class="workBtn pointer noselect" onclick="setGather('metal')">Mine</div>
 								</div>
 								<div class="col-xs-6">
-									<span class="psText" id="metalPs">+0/sec</span>
+									<span class="psText pointer noselect" id="metalPs" onclick="getPsString('metal')">+0/sec</span>
 								</div>
 							</div>
 						</div>
@@ -349,7 +349,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div id="scienceCollectBtn" class="workBtn pointer noselect" onclick="setGather('science')">Research</div>
 								</div>
 								<div class="col-xs-6">
-									<span class="psText" id="sciencePs">+0/sec</span>
+									<span class="psText pointer noselect" id="sciencePs" onclick="getPsString('science')">+0/sec</span>
 								</div>
 							</div>
 						</div>
@@ -362,14 +362,14 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<br/>
 					<span class="ownedArea"><span id="fragmentsOwned">0</span></span>
 					<br/>
-					<span class="psText" id="fragmentsPs" style="display: none">+0/sec</span>
+					<span class="psText pointer noselect" id="fragmentsPs" style="display: none" onclick="getPsString('fragments')">+0/sec</span>
 				</div>
 				<div id="gems" class="playerGather playerGatherSm" style="visibility: hidden;">
 					<span class="title">Gems</span>
 					<br/>
 					<span class="ownedArea"><span id="gemsOwned">0</span></span>
 					<br/>
-					<span class="psText" id="gemsPs" style="display: none">+0/sec</span>
+					<span class="psText pointer noselect" id="gemsPs" style="display: none" onclick="getPsString('gems')">+0/sec</span>
 				</div>
 				<div id="helium" class="playerGather playerGatherSm" style="display: none">
 					<span class="title">Helium</span>
@@ -390,7 +390,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 					</div>
 					<div id="unempHide" style="visibility: hidden">
 						<span id="trimpsUnemployed">0</span> breeding
-						<br/><span id="trimpsPs">+0/sec</span>
+						<br/><span id="trimpsPs" class="pointer noselect bdHover" onclick="getTrimpPs()">+0/sec</span>
 						<br/>
 					</div>
 					<div id="empHide" style="visibility: hidden">
@@ -728,7 +728,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 						<div class="btn btn-info" onclick="save()">Save</div>
 					</td>
 					<td>
-						<div class="btn btn-info" onclick="tooltip('Reset', null, 'update')">Reset</div>
+						<div class="btn btn-info" onclick="tooltip('Reset', null, 'update')">Delete Save</div>
 					</td>
 					<td>
 						<div class="btn btn-info" id="toggleBtn" onclick="toggleSave()">Auto-Saving</div>
@@ -794,9 +794,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?25"></script>
-	<script type="text/javascript" src="updates.js?25"></script>
-	<script type="text/javascript" src="main.js?25"></script>
+	<script type="text/javascript" src="config.js?26"></script>
+	<script type="text/javascript" src="updates.js?26"></script>
+	<script type="text/javascript" src="main.js?26"></script>
 	
 </body>
 

@@ -903,16 +903,15 @@ function buyBuilding(what) {
 
 function refundQueueItem(what) {
 	var name = what.split('.');
-    var struct = game.buildings[name[0]];
+    var struct = game.buildings[name[0]];			
 	struct.purchased -= parseInt(name[1]);
     for (var costItem in struct.cost) {
 		var thisCostItem = struct.cost[costItem];
 		var refund = 0;
 		for (var x = 0; x < parseInt(name[1]); x++){
-			if (typeof thisCostItem[1] !== 'undefined') refund += resolvePow(thisCostItem, struct);
+			if (typeof thisCostItem[1] !== 'undefined') refund += Math.floor(thisCostItem[0] * Math.pow(thisCostItem[1], struct.purchased + x));			
 			else if (typeof struct.cost[costItem] === 'function') refund += struct.cost[costItem]();
 			else refund += thisCostItem;
-			
 		}
 		addResCheckMax(costItem, parseFloat(refund));
     }
@@ -1639,8 +1638,7 @@ function mapsClicked() {
         mapsSwitch();
         return;
     }
-    if (game.global.mapsActive) game.global.switchToWorld = true;
-    else game.global.switchToMaps = true;
+	game.global.switchToMaps = true;
 }
 
 
@@ -1649,7 +1647,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
 		game.global.fighting = false;
         game.global.switchToMaps = false;
         game.global.switchToWorld = false;
-        if (game.global.mapsActive || game.global.preMapsActive) {
+        if (game.global.preMapsActive) {
             game.global.mapsActive = false;
             game.global.preMapsActive = false;
         } else game.global.preMapsActive = true;
@@ -1693,7 +1691,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "none";
         document.getElementById("mapGrid").style.display = "block";
-        document.getElementById("mapsBtn").innerHTML = "World";
+        document.getElementById("mapsBtn").innerHTML = "Maps";
         document.getElementById("worldNumber").innerHTML = "</br>Lv: " + currentMapObj.level;
         document.getElementById("worldName").innerHTML = currentMapObj.name;
     } else {
@@ -1707,6 +1705,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("worldName").innerHTML = "Zone";
 		document.getElementById("repeatBtn").style.visibility = "hidden";
     }
+	updateAllBattleNumbers();
 }
 
 function resetAdvMaps() {
@@ -1789,7 +1788,7 @@ function battle(force) {
     if (pause) return;
     var trimps = game.resources.trimps;
 	var trimpsMax = trimps.realMax();
-    if (trimps.soldiers >= trimps.maxSoldiers) {
+    if (trimps.soldiers > 0) {
         startFight();
         return;
     }
@@ -1852,11 +1851,13 @@ function startFight() {
 		if (game.portal.Power.level > 0) game.global.soldierCurrentAttack += (game.global.soldierCurrentAttack * game.portal.Power.level * game.portal.Power.modifier);
         game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100)) + game.global.block) * trimpsFighting);
 		document.getElementById("goodGuyBar").style.width = "100%";
+		updateAllBattleNumbers();
 		/*         document.getElementById("trimpsFighting").innerHTML = prettify(trimpsFighting);
         
         document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
         document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true); */
     }
+	
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
 /*     document.getElementById("goodGuyHealth").innerHTML = prettify(game.global.soldierHealth);
@@ -1864,7 +1865,7 @@ function startFight() {
     document.getElementById("goodGuyBar").style.backgroundColor = getBarColor((game.global.soldierHealth / game.global.soldierHealthMax) * 100);
     document.getElementById("badGuyHealth").innerHTML = prettify(cell.health);
     document.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth); */
-	updateAllBattleNumbers();
+	
 }
 
 function updateAllBattleNumbers () {
@@ -1890,7 +1891,6 @@ function updateAllBattleNumbers () {
 	document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
 	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true);
 	document.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true);
-	document.getElementById("trimpsFighting").innerHTML = game.resources.trimps.maxSoldiers;
 }
 
 function calculateDamage(number, buildString) { //number = base attack
