@@ -1850,12 +1850,13 @@ function startFight() {
 		if (game.portal.Power.level > 0) game.global.soldierCurrentAttack += (game.global.soldierCurrentAttack * game.portal.Power.level * game.portal.Power.modifier);
         game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100)) + game.global.block) * trimpsFighting);
 		document.getElementById("goodGuyBar").style.width = "100%";
-		updateAllBattleNumbers();
+		
 		/*         document.getElementById("trimpsFighting").innerHTML = prettify(trimpsFighting);
         
         document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
         document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true); */
     }
+	updateAllBattleNumbers(game.resources.trimps.soldiers < game.resources.trimps.maxSoldiers);
 	
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
@@ -1867,7 +1868,7 @@ function startFight() {
 	
 }
 
-function updateAllBattleNumbers () {
+function updateAllBattleNumbers (skipNum) {
 	var cellNum;
     var cell;
     var cellElem;
@@ -1886,7 +1887,7 @@ function updateAllBattleNumbers () {
     document.getElementById("goodGuyBar").style.backgroundColor = getBarColor((game.global.soldierHealth / game.global.soldierHealthMax) * 100);
     document.getElementById("badGuyHealth").innerHTML = prettify(cell.health);
 	document.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth);
-	document.getElementById("trimpsFighting").innerHTML = prettify(game.resources.trimps.maxSoldiers);
+	if (!skipNum) document.getElementById("trimpsFighting").innerHTML = prettify(game.resources.trimps.maxSoldiers);
 	document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
 	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true);
 	document.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true);
