@@ -1025,6 +1025,28 @@ overflow-x: hidden;
 	font-size: 1.1vw;
 }
 
+.btn-new {
+  color: #fff;
+  background-color: #4C177D;
+  border-color: #39115e;
+}
+.btn-new:hover,
+.btn-new:focus,
+.btn-new.focus,
+.btn-new:active,
+.btn-new.active,
+.open > .dropdown-toggle.btn-new {
+  color: #fff;
+  background-color: #39115e;
+  border-color: #39115e;
+}
+.btn-new:active,
+.btn-new.active,
+.open > .dropdown-toggle.btn-new {
+  background-image: none;
+}
+
+
 #flagMustRestart{
 	color: maroon;
 }

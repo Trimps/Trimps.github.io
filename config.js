@@ -1384,6 +1384,7 @@ var toReturn = {
 			world: -5,
 			level: 29,
 			icon: "book",
+			title: "Trimpma Sutra",
 			fire: function () {
 				unlockUpgrade("Potency");
 			}
