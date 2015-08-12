@@ -553,14 +553,14 @@ var kongregate = parent.kongregateAPI.getAPI();
 								<span class="battleStatsTitle" id="goodGuyName">Trimps(<span id="trimpsFighting">1</span>) <span id="critSpan"></span></span>
 								<br/>
 								<div class="row guyRow" id="goodGuyStatsRow">
-									<div class="col-xs-4" style="padding-right: 5px">
+									<div class="col-xs-4 bdHover pointer noselect" style="padding-right: 5px" onclick="getBattleStatBd('health')">
 										<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span> HP
 										<br/>
 									</div>
-									<div class="col-xs-3 lowPad" id="blockDiv" style="visibility: hidden">
+									<div class="col-xs-3 lowPad pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
 										<span id="goodGuyBlock">0</span> BLK
 									</div>
-									<div class="col-xs-5 lowPad">
+									<div class="col-xs-5 bdHover lowPad pointer noselect" onclick="getBattleStatBd('attack')">
 										<span id="goodGuyAttack"></span> DMG
 									</div>
 								</div>
@@ -794,9 +794,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?26"></script>
-	<script type="text/javascript" src="updates.js?26"></script>
-	<script type="text/javascript" src="main.js?26"></script>
+	<script type="text/javascript" src="config.js?27"></script>
+	<script type="text/javascript" src="updates.js?27"></script>
+	<script type="text/javascript" src="main.js?27"></script>
 	
 </body>
 

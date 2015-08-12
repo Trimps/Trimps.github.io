@@ -133,7 +133,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Reset"){
 		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone. <b style='color: red'>This is not the soft-reset you're looking for. This will delete your save.</b>";
-		costText="<div class='maxCenter'><div class='btn btn-danger onclick='resetGame();unlockTooltip();tooltip(\"hide\")'>Delete Save</div> <div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div class='btn btn-danger' onclick='resetGame();unlockTooltip();tooltip(\"hide\")'>Delete Save</div> <div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -405,7 +405,71 @@ function getTrimpPs() {
 	tooltip('confirm', null, 'update', textString, "getTrimpPs()", "Trimps Per Second", "Refresh", true);
 }
 
+function getBattleStatBd(what) {
+	var equipment = {};
+	var name = what.charAt(0).toUpperCase() + what.substr(1, what.length);
+	var textString =  "<table class='bdTableSm table table-striped'><tbody><tr><td></td><td>Base</td><td>Level</td><td>Item " + name + "</td><td>Total</td></tr>";
+	var currentCalc = 0;
+	var percent = 0;
+	if (what == "health" || what == "attack"){
+		currentCalc += (what == "health") ? 50 : 6;
+		for (var equip in game.equipment){
+			var temp = game.equipment[equip];
+			if (typeof temp[what] === 'undefined' || temp.level <= 0 || temp.blockNow) continue;
+			var equipStrength = temp[what + "Calculated"] * temp.level;
+			currentCalc += equipStrength;
+			percent = ((equipStrength / game.global[what]) * 100).toFixed(1) + "%";
+			textString += "<tr><td class='bdTitle'>" + equip + "</td><td>" + prettify(temp[what + "Calculated"]) + "</td><td>" + temp.level + "</td><td>" + prettify(equipStrength) + " (" + percent + ")</td><td>" + prettify(currentCalc) + "</td></tr>";
+		}
+	}
+	else if (what == "block"){
+		//Add Gym
+		var gym = game.buildings.Gym;
 
+		if (gym.owned > 0){
+			var gymStrength = gym.owned * gym.increase.by;
+			percent = ((gymStrength / game.global.block) * 100).toFixed(1) + "%";
+			currentCalc += gymStrength;
+			textString += "<tr><td class='bdTitle'>Gym</td><td>" + prettify(gym.increase.by) + "</td><td>" + prettify(gym.owned) + "</td><td>" + prettify(gymStrength) + " (" + percent + ")</td><td>" + prettify(currentCalc) + "</td></tr>";
+		}
+		var shield = game.equipment.Shield;
+		if (shield.blockNow && shield.level > 0){
+			var shieldStrength = shield.level * shield.blockCalculated;
+			percent = ((shieldStrength / game.global.block) * 100).toFixed(1) + "%";
+			currentCalc += shieldStrength;
+			textString += "<tr><td class='bdTitle'>Shield</td><td>" + prettify(shield.blockCalculated) + "</td><td>" + prettify(shield.level) + "</td><td>" + prettify(shieldStrength) + " (" + percent + ")</td><td>" + prettify(currentCalc) + "</td></tr>";
+		}
+		var trainer = game.jobs.Trainer;
+		if (trainer.owned > 0){
+			var trainerStrength = trainer.owned * (trainer.modifier / 100);
+			currentCalc  *= (trainerStrength + 1);
+			trainerStrength = prettify(trainerStrength * 100) + "%";
+			textString += "<tr><td class='bdTitle'>Trainers</td><td>" + prettify(trainer.modifier) + "%</td><td>" + prettify(trainer.owned) + "</td><td>+ " + trainerStrength + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+		}
+	
+	
+	
+	}
+	
+	//Add coordination
+	currentCalc  *= game.resources.trimps.maxSoldiers;
+	textString += "<tr><td class='bdTitle'>Soldiers</td><td class='bdPercentSm'></td><td></td><td>x " + prettify(game.resources.trimps.maxSoldiers) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+	//Add perk
+	var perk = "";
+	if (what == "health") perk = "Toughness";
+	if (what == "attack") perk = "Power";
+	if (perk && game.portal[perk].level > 0){
+		var PerkStrength = (game.portal[perk].level * game.portal[perk].modifier);
+		currentCalc  *= (PerkStrength + 1);
+		PerkStrength = prettify(PerkStrength * 100) + "%";
+		textString += "<tr><td class='bdTitle'>" + perk + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+	}
+
+
+	textString += "</tbody></table>";
+	game.global.lockTooltip = false;
+	tooltip('confirm', null, 'update', textString, "getBattleStatBd('" + what + "')", name, "Refresh", true);
+}
 
 function swapNotation(updateOnly){
 	if (!updateOnly) game.global.standardNotation = !game.global.standardNotation;
@@ -538,6 +602,9 @@ function resetGame(keepPortal) {
 	document.getElementById("battleHeadContainer").style.display = "block";
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
+	document.getElementById("buildingsBar").style.width = "0%";
+	document.getElementById("buildingsBar").innerHTML = "";
+	
 	for (var item in game.resources){
 		var elem = document.getElementById(item + "Ps");
 		if (elem != null) elem.innerHTML = "+0/sec";
@@ -586,6 +653,8 @@ function resetGame(keepPortal) {
 			game.resources.science.owned += 5000;
 			game.resources.wood.owned += 100;
 			game.resources.food.owned += 100;
+			game.global.autoCraftModifier += 0.25;
+			document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
 		}
 		if (challenge != "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 	}

@@ -163,6 +163,15 @@ overflow-x: hidden;
 	padding: 1.75% 4%;
 }
 
+.bdTableSm{
+	font-size: .85vw;
+	text-align: center;
+}
+
+.bdTableSm > tbody > tr > td{
+	border: 1px solid black;
+}
+
 .bdTable{
 	font-size: 1.1em;
 	text-align: center;
@@ -499,7 +508,7 @@ overflow-x: hidden;
 }
 
 #tooltipDiv {
-    width: 30vw;
+    width: 32.5vw;
     position: absolute;
     background: lightgrey;
     display: none;

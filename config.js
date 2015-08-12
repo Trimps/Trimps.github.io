@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.094,
+		version: 1.095,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -294,7 +294,7 @@ var toReturn = {
 			unlocks: "Carpentry",
 		},
 		Scientist: {
-			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with 11500 science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with 5000 science, 100 food, and 100 wood every time you use your portal.",
+			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with 11500 science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with 5000 science, 1 foreman, and 100 food and wood every time you use your portal.",
 			completed: false,
 			filter: function () {
 				return (game.global.world >= 40 || game.global.highestLevelCleared >= 39);
