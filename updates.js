@@ -405,6 +405,8 @@ function getTrimpPs() {
 	tooltip('confirm', null, 'update', textString, "getTrimpPs()", "Trimps Per Second", "Refresh", true);
 }
 
+
+
 function swapNotation(updateOnly){
 	if (!updateOnly) game.global.standardNotation = !game.global.standardNotation;
 	document.getElementById("notationBtn").innerHTML = (game.global.standardNotation) ? "Standard Notation" : "Scientific Notation";

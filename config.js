@@ -752,6 +752,7 @@ var toReturn = {
 				game.resources.trimps.max += amt;
 				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + amt + " Trimps to live inside!", "Loot", "gift");
 				game.unlocks.impCount.Tauntimp++;
+				game.unlocks.impCount.TauntimpAdded += amt;
 			}
 		},
 		Whipimp: {
@@ -1839,7 +1840,7 @@ var toReturn = {
 			}
 		}
 	},
-
+//jobs
 	jobs: {
 		Farmer: {
 			locked: 1,
@@ -2689,6 +2690,7 @@ var toReturn = {
 			Feyimp: 0,
 			Flutimp: 0,
 			Tauntimp: 0,
+			TauntimpAdded: 0,
 			Venimp: 0,
 			Whipimp: 0,
 		},
