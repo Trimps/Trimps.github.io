@@ -1026,7 +1026,9 @@ overflow-x: hidden;
 }
 
 .btn-warning {
-  color: #000;
+  color: #fff;
+  background-color: #ce8c2d;
+  border-color: #885b1c;
 }
 .btn-warning:hover,
 .btn-warning:focus,
@@ -1034,7 +1036,9 @@ overflow-x: hidden;
 .btn-warning:active,
 .btn-warning.active,
 .open > .dropdown-toggle.btn-warning {
-  color: #000;
+  color: #fff;
+  background-color: #ab7324;
+  border-color: #885b1c;
 }
 
 .btn-info {
