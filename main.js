@@ -292,6 +292,7 @@ function load(saveString, autoLoad) {
 	if (game.global.kongBonusMode) activateKongBonus();
 	if (game.global.totalPortals >= 1) document.getElementById("pastUpgradesBtn").style.display = "inline-block";
 	if (game.global.challengeActive && typeof game.challenges[game.global.challengeActive].onLoad !== 'undefined') game.challenges[game.global.challengeActive].onLoad();
+	if (game.global.challengeActive != "Scientist") document.getElementById("scienceCollectBtn").style.display = "block";
 }
 
 function portalClicked() {
@@ -762,24 +763,52 @@ function gather() {
     var what = game.global.playerGathering;	
     var amount;
     for (var job in game.jobs) {
-        if (game.jobs[job].owned < 1) continue;
-        var perSec = (game.jobs[job].owned * game.jobs[job].modifier);
-        var increase = game.jobs[job].increase;
-        if (increase == "custom") continue;
+		var perSec = 0;
+		var increase = game.jobs[job].increase;
+		if (increase == "custom") continue;
+        if (game.jobs[job].owned > 0){
+			perSec = (game.jobs[job].owned * game.jobs[job].modifier);
+			if (game.portal.Motivation.level > 0) perSec += (perSec * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		}
+		if (what && increase == what) perSec += game.global.playerModifier;
         amount = perSec / game.settings.speed;
-		//Motivation
-		if (game.portal.Motivation.level > 0) amount += (amount * game.portal.Motivation.level * game.portal.Motivation.modifier);
-        addResCheckMax(increase, amount);
+		if (game.resources[increase].max > 0){
+			var timeToFillElem = document.getElementById(increase + "TimeToFill");
+			if (timeToFillElem) timeToFillElem.innerHTML = calculateTimeToMax(game.resources[increase], perSec);
+		}
+		addResCheckMax(increase, amount);
     }
     if (what === "" || what == "buildings") return;
     if (what == "trimps") {
         trapThings();
         return;
     }
-    var toGather = game.resources[what];
-    if (typeof toGather === 'undefined') return;
-    amount = (game.global.playerModifier) / game.settings.speed;
-    addResCheckMax(what, amount);
+}
+
+function calculateTimeToMax(resource, perSec) {
+	if (perSec <= 0) return "";
+	var remaining = ((resource.max * (1 + game.portal.Packrat.modifier * game.portal.Packrat.level))) - resource.owned;
+	if (remaining <= 0) return "";
+	var toFill = Math.round(remaining / perSec);
+	var units = "";
+	if (toFill < 60) units = "Seconds";
+	else if (toFill < 3600){ //less than an hour, divide seconds by 60 to get minutes
+		toFill /= 60;
+		units = "Minutes";
+	}
+	else if (toFill < 86400) { //less than a day, divide seconds by 3600 to get hours
+		toFill /= 3600;
+		units = "Hours";
+	}
+	else if (toFill < 31536000) { //less than a year, divide seconds by 3600 * 24 = 85400 to get days
+		toFill /= 86400;
+		units = "Days";
+	}
+	else { //Greater than a year, divide seconds by days * 365 = 31536000 to get years
+		toFill /= 31536000;
+		units = "Years";
+	}
+	return toFill.toFixed(1) + " " + units;
 }
 
 function checkTriggers(force) {
@@ -923,7 +952,8 @@ function startQueue(what, count) {
 }
 
 function craftBuildings(makeUp) {
-    var buildingsBar = document.getElementById("buildingsBar");
+    var buildingsBar = document.getElementById("queueItemsHere").firstChild;
+	var timeRemaining = document.getElementById("queueTimeRemaining");
     var speedElem = document.getElementById("buildSpeed");
     if (game.global.crafting === "" && game.global.buildingsQueue.length > 0) {
         setNewCraftItem();
@@ -937,21 +967,25 @@ function craftBuildings(makeUp) {
     if (!makeUp) {
         speedElem.innerHTML = prettify(Math.floor(modifier * 100)) + "%";
         game.global.timeLeftOnCraft -= ((1 / game.settings.speed) * modifier);
-        buildingsBar.style.width = (100 - ((game.global.timeLeftOnCraft / game.buildings[game.global.crafting].craftTime) * 100)) + "%";
-        buildingsBar.innerHTML = (game.global.timeLeftOnCraft / modifier).toFixed(1) + " Seconds";
+		var percent = 1 - (game.global.timeLeftOnCraft / game.buildings[game.global.crafting].craftTime);
+        
+		var timeLeft = (game.global.timeLeftOnCraft / modifier).toFixed(1);
+		if (timeLeft < 0.1) timeLeft = 0.1;
+        if (timeRemaining) timeRemaining.innerHTML = " - " + timeLeft + " Seconds";
+		buildingsBar.style.background = "rgba(30, 144, 255, " + percent + ")";
         if (game.global.timeLeftOnCraft > 0) return;
-        buildingsBar.innerHTML = "";
-        buildingsBar.style.width = "0%";
     }
     buildBuilding(game.global.crafting);
     removeQueueItem("first");
 	if (game.global.buildingsQueue.length === 0){
+		if (game.global.trapBuildToggled && game.global.trapBuildAllowed) {
+			autoTrap();
+			return;
+		}
 		checkEndOfQueue()
 	}
 	else{
-		var nextCraft = game.global.buildingsQueue[0].split('.')[0];
-		game.global.crafting = nextCraft;
-		game.global.timeLeftOnCraft = game.buildings[nextCraft].craftTime;
+		setNewCraftItem();
 	}
 }
 
@@ -999,7 +1033,10 @@ function setNewCraftItem() {
     var queueItem = game.global.buildingsQueue[0].split('.')[0];
     game.global.crafting = queueItem;
     game.global.timeLeftOnCraft = game.buildings[queueItem].craftTime;
-    document.getElementById("buildingsBar").style.width = "0%";
+	var elem = document.getElementById("queueItemsHere").firstChild;
+	var timeLeft = (game.global.timeLeftOnCraft / (game.global.autoCraftModifier + game.global.playerModifier)).toFixed(1);
+	if (timeLeft <= 0.1) {timeLeft = 0.1; elem.style.background = "rgb(30, 144, 255)";}
+	if (elem && !document.getElementById("queueTimeRemaining")) elem.innerHTML += "<span id='queueTimeRemaining'> - " + timeLeft + " Seconds</span>";
 }
 
 function calculatePercentageBuildingCost(what, resourceToCheck, costModifier, replaceMax){
@@ -1837,7 +1874,7 @@ function startFight() {
         }
         cell.maxHealth = cell.health;
         document.getElementById("badGuyBar").style.width = "100%";
-        document.getElementById("badGuyBar").style.backgroundColor = "blue";
+        document.getElementById("badGuyBar").style.backgroundColor = "#00B2EE";
 /*         document.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true); */
     }
     if (game.global.soldierHealth === 0) {
@@ -1989,6 +2026,7 @@ function fight(makeUp) {
 				game.global.currentMapId = "";
 				game.global.mapGridArray = [];
 				game.global.fighting = false;
+				game.global.switchToMaps = false;
 				mapsSwitch(true);
 				return;
 			}

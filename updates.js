@@ -602,8 +602,6 @@ function resetGame(keepPortal) {
 	document.getElementById("battleHeadContainer").style.display = "block";
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
-	document.getElementById("buildingsBar").style.width = "0%";
-	document.getElementById("buildingsBar").innerHTML = "";
 	
 	for (var item in game.resources){
 		var elem = document.getElementById(item + "Ps");
@@ -827,7 +825,7 @@ function removeQueueItem(what) {
 			var newQueue = name[0] + "." + name[1];
 			name = name[0] + " X" + name[1];
 			game.global.buildingsQueue[0] = newQueue;
-			elem.innerHTML = '<span class="queueItemName">' + name + '</span>';
+			elem.firstChild.innerHTML = name;
 		}
 		else{
 			queue.removeChild(elem);
@@ -838,13 +836,13 @@ function removeQueueItem(what) {
 	}
 	var index = getQueueElemIndex(what, queue);
 	var elem = document.getElementById(what);
+	if (!game.global.buildingsQueue[index]) index = 0;
 	queue.removeChild(elem);
 	refundQueueItem(game.global.buildingsQueue[index]);
 	game.global.buildingsQueue.splice(index, 1);
 	if (index === 0) {
 		game.global.crafting = "";
 		game.global.timeLeftOnCraft = 0;
-		document.getElementById("buildingsBar").style.width = "0%";
 	}
 	checkEndOfQueue();
 }
@@ -852,7 +850,7 @@ function removeQueueItem(what) {
 function getQueueElemIndex(id, queue){
 	var childs = queue.getElementsByTagName('*');
 	for (var i = 0, len = childs.length; i < len; i++){
-	  if (childs[i].id == id) return (i / 2);
+	  if (childs[i].id == id) return ((i - 1)/ 2);
 	}
 }
 
@@ -870,7 +868,8 @@ function addQueueItem(what) {
 	var name = what.split('.');
 	if (name[1] > 1) name = name[0] + " X" + prettify(name[1]);
 	else name = name[0];
-	elem.innerHTML += '<div class="queueItem" id="queueItem' + game.global.nextQueueId + '" onmouseover="tooltip(\'Queue\',null,event)" onmouseout="tooltip(\'hide\')" onClick="removeQueueItem(\'queueItem' + game.global.nextQueueId + '\')"><span class="queueItemName">' + name + '</span></div>';
+	elem.innerHTML += '<div class="queueItem" id="queueItem' + game.global.nextQueueId + '" onmouseover="tooltip(\'Queue\',null,event)" onmouseout="tooltip(\'hide\')" onClick="removeQueueItem(\'queueItem' + game.global.nextQueueId + '\'); cancelTooltip();"><span class="queueItemName">' + name + '</span></div>';
+	if (game.global.nextQueueId == 0) setNewCraftItem();
 	game.global.nextQueueId++;
 }
 
@@ -970,6 +969,7 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 		psText = prettify(psText);
 					
 
+					
 		
 /*		var color = (psText < 0) ? "red" : "green";
 		if (psText == 0) color = "black"; */
@@ -1116,11 +1116,34 @@ function unlockEquipment(what) {
 	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
 }
 
-function getBarColor(percent) {
-	var color = "";
-	if (percent > 50) color = "blue";
-	else if (percent > 25) color = "yellow";
-	else if (percent > 10) color = "orange";
-	else color = "red";
-	return color;
+function getBarColor(percent, forText) {
+	if (percent > 50) return "#00B2EE";
+	else if (percent > 25) return "yellow";
+	else if (percent > 10) return "#FFA824";
+	else return "red";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

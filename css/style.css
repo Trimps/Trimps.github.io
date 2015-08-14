@@ -69,7 +69,7 @@ overflow-x: hidden;
 }
 
 .resProgress {
-    height: 10%;
+    height: 12%;
 }
 
 .playerGatherSm {
@@ -255,7 +255,7 @@ overflow-x: hidden;
     margin-bottom: 10px;
     padding-bottom: 5px;
     padding-top: 5px;
-    height: 105px;
+    height: 85px;
 }
 
 .queueItem {
@@ -277,7 +277,6 @@ overflow-x: hidden;
     color: white;
     font-size: 1.2em;
     text-align: center;
-    height: 40px;
 }
 
 #buildingsCollectBtn {
@@ -286,7 +285,7 @@ overflow-x: hidden;
 
 #buildingsQueue {
     overflow-y: auto;
-    height: 30px;
+    height: 40px;
 }
 
 #noQueue {
@@ -337,7 +336,7 @@ overflow-x: hidden;
 
 #buyContainer {
 	overflow-y: auto;
-	height: calc(99vh - 20vw - 215px);
+	height: calc(99vh - 20vw - 195px);
 }
 
 #outerBuyContainer{
@@ -396,9 +395,10 @@ overflow-x: hidden;
 #settingsRow {
     position: fixed;
     bottom: 0;
-    background-color: grey;
+    background-color: #545353;
     width: 100%;
     left: 0;
+	color: white;
 }
 
 .settingsBtn {
@@ -1025,10 +1025,34 @@ overflow-x: hidden;
 	font-size: 1.1vw;
 }
 
+.btn-warning {
+  color: #000;
+}
+.btn-warning:hover,
+.btn-warning:focus,
+.btn-warning.focus,
+.btn-warning:active,
+.btn-warning.active,
+.open > .dropdown-toggle.btn-warning {
+  color: #000;
+}
+
+.btn-info {
+  color: #000;
+}
+.btn-info:hover,
+.btn-info:focus,
+.btn-info.focus,
+.btn-info:active,
+.btn-info.active,
+.open > .dropdown-toggle.btn-info {
+  color: #000;
+}
+
 .btn-new {
-  color: #fff;
-  background-color: #4C177D;
-  border-color: #39115e;
+  color: #000;
+  background-color: #b2b200;
+  border-color: #666600;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -1037,8 +1061,8 @@ overflow-x: hidden;
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: #fff;
-  background-color: #39115e;
-  border-color: #39115e;
+  background-color: #7f7f00;
+  border-color: #666600;
 }
 .btn-new:active,
 .btn-new.active,
@@ -1059,3 +1083,18 @@ input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
+.progress {
+    position: relative;
+}
+
+.progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+	font-size: 1vw;
+	line-height: 1vw;
+	margin: 0;
+	padding: 0;
+	color: black;
+ }

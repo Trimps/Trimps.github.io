@@ -7,7 +7,7 @@
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?1" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -56,7 +56,9 @@
 							<span class="ownedArea"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="foodBar" role="progressbar"></div>
+								<div class="progress-bar" id="foodBar" role="progressbar">
+									<span id="foodTimeToFill"></span>
+								</div>
 							</div>
 							<div class="row collectRow">
 								<div class="col-xs-6">
@@ -76,7 +78,9 @@
 							<span class="ownedArea"><span id="woodOwned">0</span> / <span id="woodMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="woodBar" role="progressbar"></div>
+								<div class="progress-bar" id="woodBar" role="progressbar">
+									<span id="woodTimeToFill"></span>
+								</div>
 							</div>
 
 							<div class="row collectRow">
@@ -98,7 +102,9 @@
 							<span class="ownedArea"><span id="metalOwned">0</span> / <span id="metalMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="metalBar" role="progressbar"></div>
+								<div class="progress-bar" id="metalBar" role="progressbar">
+									<span id="metalTimeToFill"></span>
+								</div>
 							</div>
 							<div class="row collectRow">
 								<div class="col-xs-6">
@@ -221,9 +227,6 @@
 					</div>
 					<div class="queue niceScroll" id="buildingsQueue">
 						<span id='noQueue'>Nothing in queue...</span><div id="queueItemsHere"></div>
-					</div>
-					<div class="progress structProg">
-						<div class="progress-bar buyProgress  progress-bar-striped active" id="buildingsBar" role="progressbar"></div>
 					</div>
 				</div>
 				<div id="outerBuyContainer">	
@@ -564,9 +567,9 @@
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?27"></script>
-	<script type="text/javascript" src="updates.js?27"></script>
-	<script type="text/javascript" src="main.js?27"></script>
+	<script type="text/javascript" src="config.js?28"></script>
+	<script type="text/javascript" src="updates.js?28"></script>
+	<script type="text/javascript" src="main.js?28"></script>
 	
 </body>
 
