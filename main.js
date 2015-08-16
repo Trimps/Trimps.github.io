@@ -1235,7 +1235,7 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	//No need to touch level if it's newNum
 	if (fromLoad) return;
 	equipment.level = 0;
-	if (!noInc && !fromLoad) levelEquipment(what);
+	if (!noInc && !fromLoad) levelEquipment(what, 1);
     if (document.getElementById(what + "Numeral") !== null) document.getElementById(what + "Numeral").innerHTML = romanNumeral(equipment.prestige);
 }
 
@@ -2125,13 +2125,14 @@ function buyEquipment(what) {
 	tooltip(what, "equipment", "update");	
 }
 
-function levelEquipment(what) {
+function levelEquipment(what, manualNumber) {
 	var toBuy = game.equipment[what];
-	toBuy.level += game.global.buyAmt;
+	var number = (manualNumber) ? manualNumber : game.global.buyAmt;
+	toBuy.level += number;
 	var stat;
 	if (toBuy.blockNow) stat = "block";
 	else stat = (typeof toBuy.health !== 'undefined') ? "health" : "attack";
-	game.global[stat] += (toBuy[stat + "Calculated"] * game.global.buyAmt);
+	game.global[stat] += (toBuy[stat + "Calculated"] * number);
 
 }
 
