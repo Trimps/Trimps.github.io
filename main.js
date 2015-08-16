@@ -71,6 +71,7 @@ function save(exportThis) {
         delete saveGame.upgrades[itemB].tooltip;
         delete saveGame.upgrades[itemB].cost;
 		delete saveGame.upgrades[itemB].prestiges;
+		delete saveGame.upgrades[itemB].modifier;
     }
     for (var itemC in saveGame.jobs) {
         delete saveGame.jobs[itemC].tooltip;
@@ -233,6 +234,13 @@ function load(saveString, autoLoad) {
 		game.resources.trimps.max += (game.buildings.Wormhole.owned * 500);
 		game.buildings.Wormhole.increase.by = "1000";
 		if (game.global.world >= 33) game.worldUnlocks.Doom.fire();
+	}
+	if (oldVersion < 1.1){
+		if (game.global.world >= 25){
+			for (var mys = 0; mys < Math.floor((game.global.world - 20) / 5); mys++){
+				unlockUpgrade("Gymystic");
+			}
+		}
 	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
@@ -844,6 +852,7 @@ function canAffordTwoLevel(whatObj, takeEm) {
             var cost = whatObjCost[res];
             if (typeof cost === 'function') cost = cost();
             if (typeof cost[1] !== 'undefined') cost = resolvePow(cost, whatObj);
+			if (whatObj.prestiges && (res == "metal" || res == "wood")) cost *= Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level);
             if (group[res].owned < cost) return false;
             if (takeEm) group[res].owned -= cost;
         }
@@ -1026,6 +1035,7 @@ function buildBuilding(what) {
     if (buildingSplit[2] == "mult") toIncrease[buildingSplit[1]] = parseFloat(toIncrease[buildingSplit[1]]) * parseFloat(building.increase.by).toFixed(5);
     else
         toIncrease[buildingSplit[1]] += parseFloat(building.increase.by);
+	if (typeof building.fire !== 'undefined') building.fire();
     numTab();
 }
 
@@ -1194,6 +1204,17 @@ function breed() {
     trimps.owned += breeding / game.settings.speed;
 }
 
+function testGymystic(oldPercent) {
+	var number = game.buildings.Gym.increase.by;
+	game.buildings.Gym.increase.by *= Math.pow(1 - oldPercent, game.buildings.Gym.owned);
+	
+	game.buildings.Gym.increase.by *= Math.pow(game.upgrades.Gymystic.modifier, game.buildings.Gym.owned);
+	game.global.block -= (game.buildings.Gym.increase.by - number) * game.buildings.Gym.owned;
+
+}
+
+
+
 function prestigeEquipment(what, fromLoad, noInc) {
     var equipment = game.equipment[what];
 	if (!fromLoad && !noInc) equipment.prestige++;
@@ -1214,6 +1235,7 @@ function prestigeEquipment(what, fromLoad, noInc) {
 	//No need to touch level if it's newNum
 	if (fromLoad) return;
 	equipment.level = 0;
+	if (!noInc && !fromLoad) levelEquipment(what);
     if (document.getElementById(what + "Numeral") !== null) document.getElementById(what + "Numeral").innerHTML = romanNumeral(equipment.prestige);
 }
 
@@ -1508,6 +1530,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         if ((special.world == -3) && ((world % 2) != 1)) continue;
         if ((special.world == -5) && ((world % 5) !== 0)) continue;
         if ((special.world == -33) && ((world % 3) !== 0)) continue;
+		if ((special.world == -25) && ((world % 25) !== 0)) continue;
 		if ((maps) && (special.filter) && game.mapConfig.locations[map.location].resourceType != item) continue;
 		if (typeof special.specialFilter !== 'undefined'){
 			if (!special.specialFilter()) continue;
@@ -1704,7 +1727,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("preMaps").style.display = "block";
         document.getElementById("mapGrid").style.display = "none";
         mapsBtn.innerHTML = "World";
-		document.getElementById("repeatBtn").style.visibility = "hidden";
+		document.getElementById("repeatBtn").style.display = "none";
         if (game.global.lookingAtMap && !game.global.currentMapId) selectMap(game.global.lookingAtMap, true);
 		else if (game.global.currentMapId === "") {
             document.getElementById("selectMapBtn").style.visibility = "hidden";
@@ -1986,7 +2009,6 @@ function fight(makeUp) {
 			console.debug(err);
 		}
 		try{
-			if (typeof kongregate !== 'undefined' && !game.global.cheater) kongregate.stats.submit("BadGuys", 1);
 			if (typeof kongregate !== 'undefined' && !game.global.mapsActive && !game.global.cheater) kongregate.stats.submit("HighestLevel", ((game.global.world * 100) + cell.level));
 		}
 		catch(err){
@@ -2096,15 +2118,21 @@ function buyEquipment(what) {
 	var toBuy = game.equipment[what];
 	if (typeof toBuy === 'undefined') return;
 	var canAfford = canAffordBuilding(what, null, null, true);
-	if (canAfford){
+	if (canAfford) {
 		canAffordBuilding(what, true, null, true);
-		toBuy.level += game.global.buyAmt;
-		var stat;
-		if (toBuy.blockNow) stat = "block";
-		else stat = (typeof toBuy.health !== 'undefined') ? "health" : "attack";
-		game.global[stat] += (toBuy[stat + "Calculated"] * game.global.buyAmt);
+		levelEquipment(what);
 	}
 	tooltip(what, "equipment", "update");	
+}
+
+function levelEquipment(what) {
+	var toBuy = game.equipment[what];
+	toBuy.level += game.global.buyAmt;
+	var stat;
+	if (toBuy.blockNow) stat = "block";
+	else stat = (typeof toBuy.health !== 'undefined') ? "health" : "attack";
+	game.global[stat] += (toBuy[stat + "Calculated"] * game.global.buyAmt);
+
 }
 
 function affordOneTier(what, whereFrom, take) {
@@ -2136,7 +2164,6 @@ function fadeIn(elem, speed) {
             clearInterval(fadeInt);
         }
     }, speed);
-
 }
 
 function autoTrap() {
@@ -2361,6 +2388,12 @@ function purchaseImport(){
 	updateImports(0);
 	boneTemp.bundle = [];
 	updateImportButton("First, select an Imp", false);
+	try{
+	if (typeof ga !== 'undefined') ga('send', 'event', 'MTX', "Import");
+		}
+	catch(err){
+		console.debug(err);
+	}
 }
 
 function purchaseMisc(what){
@@ -2429,12 +2462,6 @@ function boostHe(checkOnly) {
 	game.global.totalPortals++;
 	document.getElementById("pastUpgradesBtn").style.display = "inline-block";
 	document.getElementById("pastUpgradesBtn").style.border = "1px solid red";
-	try{
-		if (typeof ga !== 'undefined' && !checkOnly) ga('send', 'event', 'MTX', 'Helium');
-			}
-		catch(err){
-			console.debug(err);
-		}
 }
 
 function buyGoldenMaps() {
@@ -2468,8 +2495,11 @@ function showPurchaseBones() {
 
 function hidePurchaseBones() {
 	document.getElementById("boneWrapper0").style.display = "block";
-	document.getElementById("boneWrapper1").style.display = "none";
-	document.getElementById("boneWrapper2").style.display = "none";	
+	var elem1 = document.getElementById("boneWrapper1");
+	if (elem1){
+		elem1.style.display = "none";
+		document.getElementById("boneWrapper2").style.display = "none";	
+	}
 }
 
 function kredPurchase(what) {

@@ -59,6 +59,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				var costItem = toTip.cost[cost];
 				for (var item in costItem) {
 					price = costItem[item];
+					if (isItIn == "upgrades" && game.upgrades[what].prestiges && (item == "metal" || item == "wood")) 
+						price *= Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level);
 					if (typeof price === 'function') price = price();
 					if (typeof price[1] !== 'undefined') price = resolvePow(price, toTip);
 					var itemToCheck = game[cost];
@@ -244,10 +246,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (isItIn == "upgrades"){
 		if (typeof tooltipText.split('@')[1] !== 'undefined'){
-			var prestigeCost = "<b>You may not want to do this right away.</b> Your next " + game.upgrades[what].prestiges + " will cost ";
-			prestigeCost += prettify(Math.ceil(getNextPrestigeCost(what) * (Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level))));
-			prestigeCost += (game.upgrades[what].prestiges == "Shield") ? " wood" : " metal";
-			prestigeCost += " and grant " + getNextPrestigeValue(what) + ".";
+			var prestigeCost = "<b>You may not want to do this right away.</b> Your next " + game.upgrades[what].prestiges + " will grant " + getNextPrestigeValue(what) + ".";
 			tooltipText = tooltipText.replace('@', prestigeCost);
 		}
 		if (typeof tooltipText.split('$')[1] !== 'undefined'){
@@ -278,6 +277,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else
 		tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
+	}
+	if (typeof tooltipText.split('~') !== 'undefined') {
+		var percentIncrease = game.upgrades.Gymystic.done;
+		var text = ".";
+		if (percentIncrease > 0){
+			percentIncrease += 4;
+			text = " and increase the base block of all other Gyms by " + percentIncrease + "%.";
+		}
+		tooltipText = tooltipText.replace('~', text);
+	
 	}
 	document.getElementById("tipTitle").innerHTML = what;
 	document.getElementById("tipText").innerHTML = tooltipText;
@@ -425,7 +434,6 @@ function getBattleStatBd(what) {
 	else if (what == "block"){
 		//Add Gym
 		var gym = game.buildings.Gym;
-
 		if (gym.owned > 0){
 			var gymStrength = gym.owned * gym.increase.by;
 			percent = ((gymStrength / game.global.block) * 100).toFixed(1) + "%";
@@ -446,11 +454,7 @@ function getBattleStatBd(what) {
 			trainerStrength = prettify(trainerStrength * 100) + "%";
 			textString += "<tr><td class='bdTitle'>Trainers</td><td>" + prettify(trainer.modifier) + "%</td><td>" + prettify(trainer.owned) + "</td><td>+ " + trainerStrength + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 		}
-	
-	
-	
 	}
-	
 	//Add coordination
 	currentCalc  *= game.resources.trimps.maxSoldiers;
 	textString += "<tr><td class='bdTitle'>Soldiers</td><td class='bdPercentSm'></td><td></td><td>x " + prettify(game.resources.trimps.maxSoldiers) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
@@ -464,11 +468,42 @@ function getBattleStatBd(what) {
 		PerkStrength = prettify(PerkStrength * 100) + "%";
 		textString += "<tr><td class='bdTitle'>" + perk + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
-
-
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getBattleStatBd('" + what + "')", name, "Refresh", true);
+}
+
+function getMaxTrimps() {
+	var trimps = game.resources.trimps;
+	var base = 10;
+	var textString =  "<table class='bdTable table table-striped'><tbody>";
+	//Add base
+	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + base + "</td></tr>";
+	//Add job count
+	var housing = trimps.max - game.global.totalGifts - game.unlocks.impCount.TauntimpAdded;
+	var currentCalc = housing + base;
+	textString += "<tr><td class='bdTitle'>Housing</td><td class='bdPercent'>+ " + prettify(housing) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+	//Add Territory Bonus
+	if (game.global.totalGifts > 0){
+		currentCalc += game.global.totalGifts;
+		textString += "<tr><td class='bdTitle'>Territory Bonus</td><td class='bdPercent'>+ " + game.global.totalGifts + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add Tauntimp
+	if (game.unlocks.impCount.TauntimpAdded > 0){
+		currentCalc += game.unlocks.impCount.TauntimpAdded;
+		textString += "<tr><td class='bdTitle'>Tauntimp</td><td class='bdPercent'>+ " + game.unlocks.impCount.TauntimpAdded + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add Carpentry
+	if (game.portal.Carpentry.level > 0){
+		var carpentryStrength = Math.pow(1.1, game.portal.Carpentry.level);
+		currentCalc  *= (carpentryStrength);
+		currentCalc = Math.floor(currentCalc);
+		carpentryStrength = prettify(carpentryStrength * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Carpentry</td><td class='bdPercent'>+ " + carpentryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	textString += "</tbody></table>";
+	game.global.lockTooltip = false;
+	tooltip('confirm', null, 'update', textString, "getMaxTrimps()", "Max Trimps", "Refresh", true);
 }
 
 function swapNotation(updateOnly){
@@ -1029,6 +1064,10 @@ function unlockUpgrade(what, displayOnly) {
 	}
 	var upgrade = game.upgrades[what];
 	upgrade.locked = 0;
+	if (upgrade.prestiges){
+		var resName = (what == "Supershield") ? "wood" : "metal";
+		upgrade.cost.resources[resName] = getNextPrestigeCost(what);
+	}
 	var done = upgrade.done;
 	var dif = upgrade.allowed - done;
 	if (!displayOnly) {

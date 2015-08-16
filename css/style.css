@@ -1054,9 +1054,9 @@ overflow-x: hidden;
 }
 
 .btn-new {
-  color: #000;
-  background-color: #b2b200;
-  border-color: #666600;
+  color: #fff;
+  background-color: #00611C;
+  border-color: #004213;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -1065,8 +1065,8 @@ overflow-x: hidden;
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: #fff;
-  background-color: #7f7f00;
-  border-color: #666600;
+  background-color: #005218;
+  border-color: #004213;
 }
 .btn-new:active,
 .btn-new.active,

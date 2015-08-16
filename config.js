@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.096,
+		version: 1.1,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -90,6 +90,7 @@ var toReturn = {
 		lastOfflineProgress: "",
 		cheater: false,
 		sLevel: 0,
+		totalGifts: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -342,6 +343,7 @@ var toReturn = {
 		w33: "You climb over a large hill that was separating this zone from the last. The sky is pitch black and lightning crackles in the distance. This is a site of heavy corruption.",
 		w35: "You start to wonder how long you've been doing the same thing over and over. There must be something you can do to start to break the cycle. Perhaps you could alter the portal...",
 		w40: "You can't help but notice that the Trimps seem to be the only creatures on this planet not immediately hostile towards outsiders. You ask a nearby Trimp soldier what he thinks you are, and he drools a bit.",
+		w50: "It's been a long time since you've found any blueprints in the maps. You start to wonder how they even got there in the first place.",
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
@@ -796,7 +798,6 @@ var toReturn = {
 			health: 2,
 			fast: false,
 			loot: function () {
-				if (typeof kongregate !== 'undefined') 
 				message("Your Trimps managed to pull 1 perfectly preserved bone from that Skeletimp!", "Loot", "italic");
 				game.global.b++;
 				game.global.lastSkeletimp = new Date().getTime();
@@ -810,7 +811,6 @@ var toReturn = {
 			health: 2.5,
 			fast: false,
 			loot: function () {
-				if (typeof kongregate !== 'undefined') 
 				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic");
 				game.global.b += 2;
 				game.global.lastSkeletimp  = new Date().getTime();
@@ -1062,9 +1062,6 @@ var toReturn = {
 			icon: "th-large",
 			startAt: 11,
 			canRunOnce: true,
-/* 		specialFilter: function () {
-				return (game.equipment.Shield.prestige >= 3) ? true : false;
-			}, */
 			fire: function () {
 				game.global.mapsOwned++;
 				game.global.totalMapsEarned++;
@@ -1175,7 +1172,17 @@ var toReturn = {
 				unlockBuilding("Wormhole");
 			}
 		},
-		
+		Collector: {
+			world: -1,
+			startAt: 50,
+			message: "You found plans for some sort of overly complicated solar panel.",
+			level: [3, 19],
+			icon: "dashboard",
+			canRunOnce: true,
+			fire: function () {
+				unlockBuilding("Collector");
+			}
+		},
 		Trapstorm: {
 			world: -1,
 			startAt: 10,
@@ -1252,7 +1259,6 @@ var toReturn = {
 				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
 			}
 		},
-
 	},
 
 	//if you put a function in here as fire, you won't have anything unlocked, the name is just for funsies
@@ -1379,6 +1385,17 @@ var toReturn = {
 				unlockUpgrade("TrainTacular");
 			}
 		},
+		Gymystic: {
+			world: -5,
+			startAt: 25,
+			level: 44,
+			icon: "book",
+			message: "Trimp cave paintings predicted the existence of a book such as this one, you had no idea it actually existed. It smells dusty.",
+			title: "Some old, dusty book",
+			fire: function () {
+				unlockUpgrade("Gymystic");
+			}
+		},
  		Potency: {
 			message: "Also known as the Trimpma Sutra, this book will help your Trimps make more Trimps",
 			world: -5,
@@ -1388,7 +1405,8 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade("Potency");
 			}
-		}, 
+		},
+		
 		//19 is for Armor
 		Miner: {
 			message: "You found an ancient book about mining. With some research you should be able to teach the Trimps to mine!",
@@ -1579,6 +1597,7 @@ var toReturn = {
 			fire: function () {
 				var amt = 5 + (game.portal.Trumps.modifier * game.portal.Trumps.level);
 				game.resources.trimps.max += amt;
+				game.global.totalGifts += amt;
 				message("<span class='glyphicon glyphicon-gift'></span>You have cleared enough land to support " + amt + " more Trimps!", "Loot");
 			}
 		},
@@ -1700,14 +1719,20 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 20,
-			tooltip: "A building where your Trimps can work out. Each Gym increases the amount of damage each trimp can block by $incby$.",
+			tooltip: "A building where your Trimps can work out. Each Gym increases the amount of damage each trimp can block by $incby$~",
 			cost: {
 				wood: [400, 1.185]
 			},
 			increase: {
 			what: "global.block",
 			by: 4
-			}
+			},
+			fire: function () {
+				if (game.upgrades.Gymystic.done == 0) return;
+				var oldBlock = game.buildings.Gym.increase.by;
+				game.buildings.Gym.increase.by *= (game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done - 1)));
+				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * (game.buildings.Gym.owned));		
+			},
 		},
 		House: {
 			locked: 1,
@@ -1809,7 +1834,21 @@ var toReturn = {
 				what: "trimps.max",
 				by: 1000
 			}
-		},		
+		},
+		Collector: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 1200,
+			tooltip: "Each collector allows you to harvest more of the power of your home star, allowing your Trimps to colonize a larger chunk of your solar system.",
+			cost: {
+				gems: [500000000000, 1.12],
+			},
+			increase: {
+				what: "trimps.max",
+				by: 5000,
+			}
+		},
 		Tribute: {
 			locked: 1,
 			owned: 0,
@@ -2340,10 +2379,29 @@ var toReturn = {
 				game.jobs.Trainer.modifier = Math.ceil(game.jobs.Trainer.modifier += 5);
 			}
 		},
+		Gymystic: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will cause each gym you purchase to increase the block provided by all Gyms by 5%. Each consecutive level of this upgrade will increase the block provided by an additional 1%. <b>The extra block provided compounds per Gym</b>",
+			done: 0,
+			cost: {
+				resources: {
+					wood: 1000000000,
+					science: 5000000,
+				}
+			},
+			modifier: 1.05,
+			fire: function () {
+				var oldBlock = game.buildings.Gym.increase.by;
+				console.log(game.upgrades.Gymystic.done);
+				game.buildings.Gym.increase.by = 6 * Math.pow(game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done)), game.buildings.Gym.owned);
+				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * game.buildings.Gym.owned);
+			}
+		},
 		Supershield: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your shield. This will destroy your old shield and vastly increase the cost of further upgrades, but will vastly increase the amount of stats given. @",
+			tooltip: "Researching this will prestige your shield. This will bring your shield to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of stats given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2359,7 +2417,7 @@ var toReturn = {
 		Dagadder: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your dagger. This will destroy your old dagger and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
+			tooltip: "Researching this will prestige your dagger. This will bring your dagger to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2375,7 +2433,7 @@ var toReturn = {
 		Bootboost: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your boots. This will destroy your old boots and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
+			tooltip: "Researching this will prestige your boots. This will bring your boots to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2391,7 +2449,7 @@ var toReturn = {
 		Megamace: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your mace. This will destroy your old mace and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
+			tooltip: "Researching this will prestige your mace. This will bring your mace to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2407,7 +2465,7 @@ var toReturn = {
 		Hellishmet: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your helmet. This will destroy your old helmet and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
+			tooltip: "Researching this will prestige your helmet. This will bring your helmet to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2423,7 +2481,7 @@ var toReturn = {
 		Polierarm: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your polearm. This will destroy your old polearm and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
+			tooltip: "Researching this will prestige your polearm. This will bring your polearm to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2439,7 +2497,7 @@ var toReturn = {
 		Pantastic: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your pants. This will destroy your old pants and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
+			tooltip: "Researching this will prestige your pants. This will bring your pants to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2455,7 +2513,7 @@ var toReturn = {
 		Axeidic: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your axe. This will destroy your old axe and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
+			tooltip: "Researching this will prestige your axe. This will bring your axe to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2471,7 +2529,7 @@ var toReturn = {
 		Smoldershoulder: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your shoulderguards. This will destroy your old shoulderguards and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
+			tooltip: "Researching this will prestige your shoulderguards. This will bring your shoulderguards to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2487,7 +2545,7 @@ var toReturn = {
 		Greatersword: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your greatsword. This will destroy your old greatsword and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
+			tooltip: "Researching this will prestige your greatsword. This will bring your greatsword to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
 			done: 0,
 			cost: {
 				resources: {
@@ -2503,7 +2561,7 @@ var toReturn = {
 		Bestplate: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Researching this will prestige your breastplate. This will destroy your old breastplate and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
+			tooltip: "Researching this will prestige your breastplate. This will bring your breastplate to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
 			done: 0,
 			cost: {
 				resources: {
