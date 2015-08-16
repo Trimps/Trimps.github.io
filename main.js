@@ -1168,6 +1168,10 @@ function buyUpgrade(what) {
     canAfford = canAffordTwoLevel(upgrade, true);
     upgrade.fire();
 	upgrade.done++;
+	if (upgrade.prestiges){
+		var resName = (what == "Supershield") ? "wood" : "metal";
+		upgrade.cost.resources[resName] = getNextPrestigeCost(what);
+	}
 	if ((upgrade.allowed - upgrade.done) <= 0) upgrade.locked = 1;
     var dif = upgrade.allowed - upgrade.done;
     if (dif > 1) {
@@ -1179,6 +1183,7 @@ function buyUpgrade(what) {
         document.getElementById(what + "Owned").innerHTML = upgrade.done;
         return;
     }
+
     document.getElementById("upgradesHere").removeChild(document.getElementById(what));
     tooltip("hide");
 }
