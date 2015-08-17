@@ -480,7 +480,7 @@ function getMaxTrimps() {
 	//Add base
 	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + base + "</td></tr>";
 	//Add job count
-	var housing = trimps.max - game.global.totalGifts - game.unlocks.impCount.TauntimpAdded;
+	var housing = trimps.max - game.global.totalGifts - game.unlocks.impCount.TauntimpAdded - base;
 	var currentCalc = housing + base;
 	textString += "<tr><td class='bdTitle'>Housing</td><td class='bdPercent'>+ " + prettify(housing) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
 	//Add Territory Bonus
