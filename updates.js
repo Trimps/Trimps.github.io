@@ -498,7 +498,7 @@ function getMaxTrimps() {
 		var carpentryStrength = Math.pow(1.1, game.portal.Carpentry.level);
 		currentCalc  *= (carpentryStrength);
 		currentCalc = Math.floor(currentCalc);
-		carpentryStrength = prettify(carpentryStrength * 100) + "%";
+		carpentryStrength = prettify((carpentryStrength - 1) * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Carpentry</td><td class='bdPercent'>+ " + carpentryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
