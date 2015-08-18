@@ -140,7 +140,12 @@ function load(saveString, autoLoad) {
 		}
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This should be the last reset!", "Notices");
         return;
-    } else savegame.global.version = game.global.version;
+    } 
+	else if (savegame.global.isBeta == true) {
+		message("You can't import a save from the beta version to this version!", "Notices")
+		return;
+	}
+	else savegame.global.version = game.global.version;
     
 	
 	if (typeof savegame.global !== 'undefined') {
