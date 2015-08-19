@@ -2456,6 +2456,7 @@ function updateBones() {
 function boostHe(checkOnly) {
 	var level = game.global.highestLevelCleared - 19;
 	var amt = 30;
+	if (!checkOnly) game.global.canRespecPerks = true;
 	if (level <= 0) {
 		if (checkOnly) return amt;
 		game.global.heliumLeftover += amt;

@@ -93,6 +93,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "Confirm Purchase"){
 		var btnText = "Make Purchase";
 		if (game.global.b < numCheck){
+			if (typeof kongregate === 'undefined') return;
 			tooltipText = "You can't afford this bonus. Would you like to visit the shop?";
 			attachFunction = "showPurchaseBones()";
 			btnText = "Visit Shop"
