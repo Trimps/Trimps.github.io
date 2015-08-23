@@ -372,10 +372,22 @@ overflow-x: hidden;
     padding: 10px;
     height: 100%;
     width: 100%;
+	font-size: 1vw;
+}
+
+.fightBar{
+	height: 1.4vw;
+	font-size: 1.6vw !important;
+	font-weight: bold;
+}
+
+.innerFightBar{
+	font-size: 1.4vw !important;
+	line-height: 1.4vw !important;
 }
 
 #battleHeadContainer {
-    height: 90px;
+	margin-bottom: 1vw;
 }
 
 #battleHead {
@@ -391,6 +403,8 @@ overflow-x: hidden;
 #gridRow {
     height: calc(99% - 140px);
 }
+
+
 
 #settingsRow {
     position: fixed;
@@ -541,6 +555,10 @@ overflow-x: hidden;
     font-size: 1.2em;
 }
 
+.badBadge {
+	font-size: .8em;
+}
+
 .errorMessage {
     color: red;
 }
@@ -565,6 +583,10 @@ overflow-x: hidden;
 	padding-top: 5%;
 	padding-bottom: 5%;
 	
+}
+
+.brokenUpgrade {
+	color: purple;
 }
 
 .niceScroll::-webkit-scrollbar-track {
@@ -705,6 +727,7 @@ overflow-x: hidden;
 
 .NoticesMessage {
     color: red;
+	background: rgba(0, 0, 0, 0.5);
 }
 .StoryMessage {
 	color: #00FFFF;
@@ -1025,6 +1048,41 @@ overflow-x: hidden;
 	font-size: 1.1vw;
 }
 
+#extraGridInfo{
+	font-size: 1vw;
+}
+
+#extraGridInfoTitle{
+	text-align: center;
+	font-weight: bold;
+	font-size: 1.2vw;
+}
+
+#extraGridInfoSummary{
+	margin-top: 1vw;
+	font-size: 1.1vw;
+}
+
+#extraGridInfoSub{
+	font-weight: bold;
+	margin-top: 1vw;
+}
+
+#extraGridInfoBtns{
+	margin-top: 1vw;
+	text-align: center;
+	font-size: 1.3vw;
+
+}
+
+.formationBtn{
+	background-color: grey;
+	color: white;
+	text-align: center;
+	border: 2px solid black;
+	display: none;
+}
+
 .btn-warning {
   color: #fff;
   background-color: #ce8c2d;
@@ -1055,8 +1113,8 @@ overflow-x: hidden;
 
 .btn-new {
   color: #fff;
-  background-color: #00611C;
-  border-color: #004213;
+  background-color: #b5466b;
+  border-color: #62253a;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -1065,8 +1123,8 @@ overflow-x: hidden;
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: #fff;
-  background-color: #005218;
-  border-color: #004213;
+  background-color: #923956;
+  border-color: #62253a;
 }
 .btn-new:active,
 .btn-new.active,
@@ -1082,6 +1140,7 @@ overflow-x: hidden;
 input[type=number] {
     -moz-appearance:textfield;
 }
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -1092,7 +1151,7 @@ input::-webkit-inner-spin-button {
     position: relative;
 }
 
-.progress span {
+.progress > div > span {
     position: absolute;
     display: block;
     width: 100%;

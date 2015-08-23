@@ -1,4 +1,4 @@
-/* 		Trimps
+/*		Trimps
 		Copyright (C) 2015 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
@@ -14,12 +14,12 @@
 		You should have received a copy of the GNU General Public License
 		along with this program (if you are reading this on the original
 		author's website, you can find a copy at
-		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
+		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 function newGame () {
 var toReturn = {
 	global: {
-		version: 1.1,
+		version: 2,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -91,6 +91,9 @@ var toReturn = {
 		cheater: false,
 		sLevel: 0,
 		totalGifts: 0,
+		brokenPlanet: false,
+		formation: 0,
+		bestHelium: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -107,7 +110,13 @@ var toReturn = {
 			attack: 13,
 			health: 14,
 			cost: 57,
-			block: 10,
+			block: 10
+		},
+		difs: {
+			attack: 0,
+			health: 0,
+			block: 0,
+			trainers: 0
 		},
 		getEnemyAttack: function (level, name) {
 			var world = getCurrentMapObject();
@@ -117,20 +126,22 @@ var toReturn = {
 			amt += 50 * Math.sqrt(world * Math.pow(3.27, world));
 			amt -= 10;
 			if (world == 1){
-				amt *= .35;
-				amt = (amt * .20) + ((amt * .75) * (level / 100));			
+				amt *= 0.35;
+				amt = (amt * 0.20) + ((amt * 0.75) * (level / 100));			
 			}
 			else if (world == 2){
-				amt *= .5;
-				amt = (amt * .32) + ((amt * .68) * (level / 100));
+				amt *= 0.5;
+				amt = (amt * 0.32) + ((amt * 0.68) * (level / 100));
 			}
-			else
-			amt = (amt * .375) + ((amt * .7) * (level / 100));
+			else if (world < 60)
+				amt = (amt * 0.375) + ((amt * 0.7) * (level / 100));
+			else{ 
+				amt = (amt * 0.4) + ((amt * 0.9) * (level / 100));
+				amt *= Math.pow(1.1, world - 59);
+			}	
 			
-			if (world > 6 && game.global.mapsActive) amt *= 1.1;
-			
+			if (world > 6 && game.global.mapsActive) amt *= 1.1;	
 			amt *= game.badGuys[name].attack;
-			
 			return Math.floor(amt);
 		},
 		getEnemyHealth: function (level, name) {
@@ -140,61 +151,70 @@ var toReturn = {
 			amt += 130 * Math.sqrt(world * Math.pow(3.265, world));
 			amt -= 110;
 			if (world == 1 || world == 2 && level < 10){
-				amt *= .6;
-			amt = (amt * .25) + ((amt * .72) * (level / 100));
+				amt *= 0.6;
+			amt = (amt * 0.25) + ((amt * 0.72) * (level / 100));
 			}
-			else
-			amt = (amt * .4) + ((amt * .4) * (level / 110));
-			
+			else if (world < 60)
+				amt = (amt * 0.4) + ((amt * 0.4) * (level / 110));
+			else{
+				amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
+				amt *= Math.pow(1.05, world - 59);
+			}
 			if (world > 5 && game.global.mapsActive) amt *= 1.1;
-			
 			amt *= game.badGuys[name].health;
-			
 			return Math.floor(amt);
 		}
 	},
 	//portal
 	portal: {
+		Resilience: {
+			level: 0,
+			locked: true,
+			modifier: 0.1,
+			priceBase: 100,
+			heliumSpent: 0,
+			tooltip: "Use your acquired skills in Trimp strengthening to gain a 10% <b>compounding</b> increase to total Trimp health. Effect increased by Toughness."
+		},
 		Relentlessness:{
 			level: 0,
 			locked: true,
-			modifier: .05,
-			otherModifier: .3,
+			modifier: 0.05,
+			otherModifier: 0.3,
 			priceBase: 75,
 			heliumSpent: 0,
 			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for 230% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. Maximum of 10 levels.",
-			max: 10,
+			max: 10
 		},
 		Carpentry: {
 			level: 0,
 			locked: true,
-			modifier: .1,
+			modifier: 0.1,
 			priceBase: 25,
 			heliumSpent: 0,
-			tooltip: "You've built quite a few houses and you're getting pretty good at it. Bringing your expertise in construction back through the portal will allow you to house 10% more Trimps per level <b>than the current amount (compounds)</b>.",
+			tooltip: "You've built quite a few houses and you're getting pretty good at it. Bringing your expertise in construction back through the portal will allow you to house 10% more Trimps per level <b>than the current amount (compounds)</b>."
 		},
 		Artisanistry: {
 			level: 0,
 			locked: true,
-			modifier: .05,
+			modifier: 0.05,
 			priceBase: 15,
 			heliumSpent: 0,
-			tooltip: "You're beginning to notice ways to make equally powerful equipment with considerably fewer resources. Bringing back these new ideas will allow you to spend 5% fewer resources <b>than the current cost (compounds)</b> per level on all equipment.",
+			tooltip: "You're beginning to notice ways to make equally powerful equipment with considerably fewer resources. Bringing back these new ideas will allow you to spend 5% fewer resources <b>than the current cost (compounds)</b> per level on all equipment."
 		},
 		Agility: {
 			level: 0, 
-			modifier: .05,
+			modifier: 0.05,
 			priceBase: 4,
 			heliumSpent: 0,
 			tooltip: "Study up on muscle training exercises to help condition Trimps to be more quick and agile. Each level increases fight speed by 5% <b>of current speed (compounds)</b>. Maximum of 20 levels.",
-			max: 20,
+			max: 20
 		},
 		Bait: {
 			level: 0,
 			modifier: 1,
 			priceBase: 4,
 			heliumSpent: 0,
-			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp.",
+			tooltip: "A few of these in your traps are sure to bring in extra Trimps. Each level allows traps to catch $modifier$ extra Trimp."
 		},
 		Trumps: {
 		//fiveTrimpMax worldUnlock
@@ -203,7 +223,7 @@ var toReturn = {
 			modifier: 1,
 			priceBase: 3,
 			heliumSpent: 0,
-			tooltip: "Practicing aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus.",
+			tooltip: "Practicing aggressive strategizing allows you to earn $modifier$ extra max population from each battle territory bonus."
 		},
 		//breed main
 		Pheromones: {
@@ -211,7 +231,7 @@ var toReturn = {
 			modifier: 0.1,
 			priceBase: 3,
 			heliumSpent: 0,
-			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanantly breed 10% faster.",
+			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanantly breed 10% faster."
 		},
 		//trapThings main
 		Packrat: {
@@ -219,7 +239,7 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "Study the ancient, secret Trimp methods of hoarding. Each level increases the amount of stuff you can shove in each Barn, Shed, and Forge by 10%.",
 			priceBase: 3,
-			level: 0,
+			level: 0
 		},
 		//updatePs updates
 		//gather main
@@ -228,32 +248,32 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 5%.",
 			priceBase: 2,
-			level: 0,
+			level: 0
 		},
 		//startFight main
 		Power: {
 			level: 0,
-			modifier: .05,
+			modifier: 0.05,
 			priceBase: 1,
 			heliumSpent: 0,
-			tooltip: "Trimps learn through example. Spending some time bench pressing dead Elephimps should inspire any future Trimps to become stronger too. Adds 5% attack permanently to your Trimps.",
+			tooltip: "Trimps learn through example. Spending some time bench pressing dead Elephimps should inspire any future Trimps to become stronger too. Adds 5% attack permanently to your Trimps."
 		},
 		//startFight main
 		Toughness: {
-			modifier: .05,
+			modifier: 0.05,
 			priceBase: 1,
 			heliumSpent: 0,
 			tooltip: "Pay your Trimps to knock you around a little bit. By learning to not be such a wuss, your Trimps will be less wussy as well. Adds 5% health permanently to your Trimps.",
-			level: 0,
+			level: 0
 		},
 		//rewardResources main
 		Looting: {
-			modifier: .05,
+			modifier: 0.05,
 			priceBase: 1,
 			heliumSpent: 0,
 			tooltip: "Walk back through the empty zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%.",
-			level: 0,
-		},
+			level: 0
+		}
 	},
 	
 	challenges: {
@@ -271,7 +291,7 @@ var toReturn = {
 			},
 			fireAbandon: false,
 			heldBooks: 0,
-			unlocks: "Artisanistry",
+			unlocks: "Artisanistry"
 		},
 		Size: {
 			description: "Tweak the portal to bring you to an alternate reality, where Trimps are bigger and stronger, to force yourself to figure out a way to build larger housing. Your Trimps will gather 50% more Food, Wood, and Metal, but your housing will fit 50% fewer Trimps. If you complete The Dimension of Anger without disabling the challenge, your stats will return to normal.",
@@ -289,10 +309,10 @@ var toReturn = {
 				game.jobs.Farmer.modifier *= 1.5;
 				game.jobs.Lumberjack.modifier *= 1.5;
 				game.jobs.Miner.modifier *= 1.5;
-				game.resources.trimps.maxMod = .5;
+				game.resources.trimps.maxMod = 0.5;
 			},
 			fireAbandon: true,
-			unlocks: "Carpentry",
+			unlocks: "Carpentry"
 		},
 		Scientist: {
 			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with 11500 science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with 5000 science, 1 foreman, and 100 food and wood every time you use your portal.",
@@ -311,9 +331,25 @@ var toReturn = {
 			onLoad: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
 			},
-			fireAbandon: false,
+			fireAbandon: false
+		},
+		Trimp: {
+			description: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination, but completing <b>'The block' (11)</b> will teach you how to keep your Trimps alive for much longer.",
+			completed: false,
+			heldBooks: 0,
+			fireAbandon: true,
+			unlocks: "Resilience",
+			filter: function () {
+				return (game.global.world >= 60 || game.global.highestLevelCleared >= 59);
+			},
+			abandon: function () {
+				for (var x = 0; x < game.challenges.Trimp.heldBooks; x++){
+					unlockUpgrade("Coordination");
+				}
+			}
 		}
 	},
+	
 	
 	
 	
@@ -343,7 +379,23 @@ var toReturn = {
 		w33: "You climb over a large hill that was separating this zone from the last. The sky is pitch black and lightning crackles in the distance. This is a site of heavy corruption.",
 		w35: "You start to wonder how long you've been doing the same thing over and over. There must be something you can do to start to break the cycle. Perhaps you could alter the portal...",
 		w40: "You can't help but notice that the Trimps seem to be the only creatures on this planet not immediately hostile towards outsiders. You ask a nearby Trimp soldier what he thinks you are, and he drools a bit.",
-		w50: "It's been a long time since you've found any blueprints in the maps. You start to wonder how they even got there in the first place.",
+		w42: "The world seems so barren out this far. You feel like you're finally starting to get ahead of the curve, but you know by now not to get comfortable.",
+		w44: "Each day and night seems to grow longer than the one before. Is time slowing down? Argh! You fall to your knees with a splitting headache and a strong desire to use the portal. After a few minutes, it passes and you forget what happened. What are we talking about?",
+		w46: "All traces of hills and mountains have long since been trudged past. The world is flat and hostile. You wish your Trimps were better conversationalists.",
+		w48: "As your Trimps scavenge every last bit of helium from that Blimp, one of them begins freaking out. He runs around waving his little arms and making funny noises for a while, eats some dirt, then takes a little nap. You wonder if that's normal. Yeah... probably fine.",
+		w50: "It's been a long time since you've found any blueprints in the maps. You start to wonder where those things even come from.",
+		w51: "Your scientists have detected an anomaly at the end of Zone 59. They recommend that you stop doing whatever it is that you're doing.",
+		w53: "As you get closer to the anomaly, you start to notice more and more strange behaviour from your Trimps. Holes in your memory are starting to become noticeable as multiple existences blend in to one. Trippy.",
+		w54: "As you get closer to the anomaly, you start to notice more and more strange behaviour from your Trimps. Holes in your memory are starting to become noticeable as multiple existences blend in to one. Trippy.",
+		w56: "A loud boom echoes in the distance, and one of your Trimps runs up to you with outstretched arms, looking quite frightened. He probably just wants some armor and weapons! You hand him some gear and send him on his way.",
+		w58: "A huge storm has formed and daylight has become a luxury you have mostly forgotten about. Your Trimps seem to want to go back home, but you're pretty sure you're supposed to keep going this way, so you do. You're very close to the anomaly.",
+		w59: "There it is. The anomaly is at the end of the zone. You can see it but you don't know what you're seeing. Where did that... thing... come from?! This is highly Improbable.",
+		w60: "The ground instantly cracks and large plumes of green gas escape from the planet's core to the atmosphere. The planet feels different. Everything feels different. This Universe has grown unstable, the planet has broken. What have you done?",
+		w61: "Other than all the dead Trimps, that wasn't so bad.",
+		w65: "You feel more powerful than ever. The universe seems to be constantly adjusting itself to get rid of you, yet you rise against and persist. Something as tiny as you taking on an entire universe! David and his slingshot got nothin' on that.",
+		w68: "You figure some entertainment wouldn't be awful, and decide to teach your Trimps how to play soccer. A few hours and zero progress later, you really regret that decision.",
+		w70: "The Improbabilities haven't seemed to slow down. You know you need to figure out a plan, but you don't know what to plan for.",
+		w72: "You slash through another Improbability with relative ease, but something isn't right. A sour smell hits your nose and in disgust, you whip around in search of the source. Oh, wait, it's just the Trimps.",
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
@@ -392,15 +444,15 @@ var toReturn = {
 		},
 		gems: {
 			owned: 0,
-			max: -1,
+			max: -1
 		},
 		fragments: {
 			owned: 0,
-			max: -1,
+			max: -1
 		},
- 		helium: {
+		helium: {
 			owned: 0,
-			max: -1,
+			max: -1
 		} 
 	},
 	
@@ -562,8 +614,8 @@ var toReturn = {
 		
 		Squimp: {
 			location: "All",
-			attack: .8,
-			health: .7,
+			attack: 0.8,
+			health: 0.7,
 			fast: true
 		},
 		Elephimp: {
@@ -620,8 +672,8 @@ var toReturn = {
 			health: 1.1,
 			fast: true,
 			loot: function (level) {
-				var amt = rewardResource("food", .5, level, true);
-				message("<span class='glyphicon glyphicon-apple'></span>That Chickimp dropped " + prettify(amt) + " food!", "Loot");
+				var amt = rewardResource("food", 0.5, level, true);
+				message("That Chickimp dropped " + prettify(amt) + " food!", "Loot", "Apple");
 			}
 		},
 		Onoudidimp: {
@@ -636,8 +688,8 @@ var toReturn = {
 			health: 1.5,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("wood", .5, level, true);
-				message("<span class='glyphicon glyphicon-tree-deciduous'></span>That Grimp dropped " + prettify(amt) + " wood!", "Loot");
+				var amt = rewardResource("wood", 0.5, level, true);
+				message("That Grimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous");
 			}
 		},
 		Seirimp: {
@@ -646,8 +698,8 @@ var toReturn = {
 			health: 1.4,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .5, level, true);
-				message("<span class='glyphicon glyphicon-fire'></span>That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot");
+				var amt = rewardResource("metal", 0.5, level, true);
+				message("That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot", "fire");
 			}
 		},
 		Blimp: {
@@ -661,10 +713,10 @@ var toReturn = {
 				var amt = rewardResource("food", 2, level);
 				rewardResource("wood", 2, level);
 				rewardResource("metal", 2, level);
-				message("<span class='glyphicon glyphicon-piggy-bank'></span>That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot");
+				message("That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot", "piggy-bank");
 				if (game.global.portalActive){
 					amt = rewardResource("helium", 1, level);
-					message("<span class='glyphicon glyphicon-oil'></span>You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
+					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
 				}
 			}
 		},
@@ -674,7 +726,7 @@ var toReturn = {
 			world: 20,
 			attack: 1.1,
 			health: 4,
-			fast: false,
+			fast: false
 		},
 		Dragimp: {
 			location: "World",
@@ -683,8 +735,8 @@ var toReturn = {
 			health: 1.5,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("gems", .2, level, false);
-				message("<span class='glyphicon glyphicon-certificate'></span>That Dragimp dropped " + prettify(amt) + " gems!", "Loot");
+				var amt = rewardResource("gems", 0.2, level, false);
+				message("That Dragimp dropped " + prettify(amt) + " gems!", "Loot", "certificate");
 			}
 		},
 		Mitschimp: {
@@ -696,9 +748,24 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("wood", 2, level, true);
-				message("<span class='glyphicon glyphicon-tree-deciduous'></span>Mitschimp dropped " + prettify(amt) + " wood!", "Loot");
+				message("Mitschimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous");
 			}
 		},
+		Improbability: {
+			locked: 1,
+			location: "World",
+			last: true,
+			world: 59,
+			attack: 1.2,
+			health: 6,
+			fast: true,
+			loot: function (level) {
+				if (!game.global.brokenPlanet) planetBreaker();
+				var amt = rewardResource("helium", 5, level);
+				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story"); 
+			}
+		},
+		//Exotics
 		Goblimp: {
 			location: "Maps",
 			locked: 1,
@@ -745,8 +812,8 @@ var toReturn = {
 			location: "World",
 			locked: 1,
 			world: 1,
-			attack: .5,
-			health: .5,
+			attack: 0.5,
+			health: 0.5,
 			fast: true,
 			dropDesc: "Grants 1/3 Zone # in Max Trimps",
 			loot: function () {
@@ -794,7 +861,7 @@ var toReturn = {
 			location: "World",
 			locked: 1,
 			world: 1,
-			attack: .77,
+			attack: 0.77,
 			health: 2,
 			fast: false,
 			loot: function () {
@@ -807,14 +874,14 @@ var toReturn = {
 			location: "World",
 			locked: 1,
 			world: 1,
-			attack: .99,
+			attack: 0.99,
 			health: 2.5,
 			fast: false,
 			loot: function () {
 				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic");
 				game.global.b += 2;
 				game.global.lastSkeletimp  = new Date().getTime();
-			},
+			}
 		}
 		
 	},
@@ -834,33 +901,33 @@ var toReturn = {
 		},
 		locations: {
 			Sea: {
-				resourceType: "Food",
+				resourceType: "Food"
 			},
 			Mountain: {
-				resourceType: "Metal",
+				resourceType: "Metal"
 			},
 			Forest: {
-				resourceType: "Wood",
+				resourceType: "Wood"
 			},
 			Hell: {
 				resourceType: "Metal",
-				upgrade: "Portal",
+				upgrade: "Portal"
 			},
 			Block: {
 				resourceType: "Wood",
-				upgrade: "Shieldblock",
+				upgrade: "Shieldblock"
 			},
 			Wall: {
 				resourceType: "Food",
-				upgrade: "Bounty",
+				upgrade: "Bounty"
 			},
 			Doom: {
 				resourceType: "Metal",
 				upgrade: "Relentlessness"
 			},
 			All: {
-				resourceType: "Metal",
-			},
+				resourceType: "Metal"
+			}
 		
 		},
 		sizeBase: 50,
@@ -887,7 +954,7 @@ var toReturn = {
 				game.portal.Relentlessness.locked = false;
 			}
 		},
-	 	Portal: {
+		Portal: {
 			world: 20,
 			level: "last",
 			icon: "repeat",
@@ -928,7 +995,13 @@ var toReturn = {
 					game.global.challengeActive = "";
 					game.challenges.Scientist.abandon();
 					game.global.sLevel = 1;
-					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive 5000 science every time you portal.", "Notices");
+					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive extra science, food, wood, metal, and 1 Foreman every time you portal.", "Notices");
+				}
+				if (game.global.challengeActive == "Trimp"){
+					game.global.challengeActive = "";
+					game.challenges.Trimp.abandon();
+					game.portal.Resilience.locked = false;
+					message("You have completed the <b>Trimp Challenge!</b> You have unlocked the 'Resilience' perk, and your Trimps can fight together again.", "Notices");
 				}
 				unlockUpgrade("Shieldblock");
 			}
@@ -1074,7 +1147,7 @@ var toReturn = {
 					difficulty: 1.1,
 					size: 100,
 					loot: 1.7,
-					noRecycle: true,
+					noRecycle: true
 				});
 				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to The Block!", "Notices");
@@ -1099,7 +1172,7 @@ var toReturn = {
 					difficulty: 1.5,
 					size: 100,
 					loot: 1.5,
-					noRecycle: true,
+					noRecycle: true
 				});
 				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to The Wall!", "Loot", "th-large");
@@ -1128,7 +1201,7 @@ var toReturn = {
 				unlockBuilding("Hotel");
 			}
 		},
- 		UberHotel: {
+		UberHotel: {
 			world: -1,
 			startAt: 40,
 			message: "You found a book that will teach you how to improve your hotels!",
@@ -1206,7 +1279,7 @@ var toReturn = {
 				unlockBuilding("Nursery");
 			}
 		},
-/* 		UberResort: {
+/*		UberResort: {
 			world: 40,
 			message: "You found a book that will teach you how to improve your resorts!",
 			level: "last",
@@ -1222,8 +1295,8 @@ var toReturn = {
 			icon: "certificate",
 			repeat: 5,
 			fire: function (level) {
-				var amt = rewardResource("gems", .5, level, true);
-				message("<span class='glyphicon glyphicon-certificate'></span>You found " + prettify(amt) + " gems! Terrific!", "Loot");
+				var amt = rewardResource("gems", 0.5, level, true);
+				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "certificate");
 			}
 		},
 		Metal: {
@@ -1233,9 +1306,9 @@ var toReturn = {
 			repeat: 2,
 			filter: true,
 			fire: function (level) {
-				var amt = rewardResource("metal", .5, level, true);
-				message("<span class='glyphicon glyphicon-fire'></span>You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot");
-			},
+				var amt = rewardResource("metal", 0.5, level, true);
+				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "fire");
+			}
 		},
 		Food: {
 			world: -1,
@@ -1244,8 +1317,8 @@ var toReturn = {
 			repeat: 2,
 			filter: true,
 			fire: function (level) {
-				var amt = rewardResource("food", .5, level, true);
-				message("<span class='glyphicon glyphicon-apple'></span>That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot");
+				var amt = rewardResource("food", 0.5, level, true);
+				message("That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot", "Apple");
 			}
 		},
 		Wood: {
@@ -1255,10 +1328,10 @@ var toReturn = {
 			repeat: 2,
 			filter: true,
 			fire: function (level) {
-				var amt = rewardResource("wood", .5, level, true);
-				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
+				var amt = rewardResource("wood", 0.5, level, true);
+				message("You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot", "tree-deciduous");
 			}
-		},
+		}
 	},
 
 	//if you put a function in here as fire, you won't have anything unlocked, the name is just for funsies
@@ -1385,9 +1458,22 @@ var toReturn = {
 				unlockUpgrade("TrainTacular");
 			}
 		},
+		Warpstation: {
+			message: "Time to colonize the galaxy.",
+			world: 60,
+			level: 19,
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			icon: "home",
+			title: "New Ship",
+			fire: function () {
+				unlockBuilding("Warpstation");
+			}
+		},
 		Gymystic: {
 			world: -5,
 			startAt: 25,
+			lastAt: 55,
 			level: 44,
 			icon: "book",
 			message: "Trimp cave paintings predicted the existence of a book such as this one, you had no idea it actually existed. It smells dusty.",
@@ -1396,7 +1482,29 @@ var toReturn = {
 				unlockUpgrade("Gymystic");
 			}
 		},
- 		Potency: {
+		Dominance: {
+			world: 70,
+			level: 44,
+			icon: "book",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			title: "Formation",
+			fire: function () {
+				unlockUpgrade("Dominance");
+			}
+		},
+		Barrier: {
+			world: 80,
+			level: 44,
+			icon: "book",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			title: "Formation",
+			fire: function () {
+				unlockUpgrade("Barrier");
+			}
+		},
+		Potency: {
 			message: "Also known as the Trimpma Sutra, this book will help your Trimps make more Trimps",
 			world: -5,
 			level: 29,
@@ -1406,7 +1514,6 @@ var toReturn = {
 				unlockUpgrade("Potency");
 			}
 		},
-		
 		//19 is for Armor
 		Miner: {
 			message: "You found an ancient book about mining. With some research you should be able to teach the Trimps to mine!",
@@ -1448,16 +1555,6 @@ var toReturn = {
 				unlockUpgrade("Scientists");
 			}
 		},
-		Speedscience: {
-			message: "You found a book called Speedscience! What do you think it could possibly do?!",
-			world: -2,
-			level: 39,
-			icon: "book",
-			title: "Speedscience",
-			fire: function () {
-				unlockUpgrade("Speedscience");
-			}
-		},
 		Explorer: {
 			message: "You found a book detailing the intricacies of solo exploration!",
 			world: 15,
@@ -1467,10 +1564,47 @@ var toReturn = {
 			fire: function () {
 				if (game.upgrades.Explorers.allowed === 0) unlockUpgrade("Explorers");
 			}
+		},		
+		Speedscience: {
+			message: "You found a book called Speedscience! What do you think it could possibly do?!",
+			brokenPlanet: -1,
+			world: -2,
+			level: 39,
+			icon: "book",
+			title: "Speedscience",
+			fire: function () {
+				unlockUpgrade("Speedscience");
+			}
+		},
+		Megascience: {
+			message: "You found a book called Megascience! It seems to fade in and out of reality.",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -2,
+			level: 39,
+			icon: "book",
+			title: "Megascience",
+			fire: function () {
+				unlockUpgrade("Megascience");
+			}
+		},
+		Gigastation: {
+			message: "You found blueprints detailing how to upgrade your Warpstation. Blimey!",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -1,
+			startAt: 61,
+			level: 19,
+			icon: "book",
+			title: "Gigastation",
+			fire: function () {
+				unlockUpgrade("Gigastation");
+			}
 		},
 		//49 is for weapon
 		Speedfarming:{
 			message: "You found a book called Speedfarming! It looks delicious!",
+			brokenPlanet: -1,
 			world: -1,
 			level: 79,
 			icon: "book",
@@ -1479,8 +1613,22 @@ var toReturn = {
 				unlockUpgrade("Speedfarming");
 			}
 		},
+		Megafarming:{
+			message: "You found a book called Megafarming! It indicates that you should actually water your crops. Brilliant!",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -1,
+			level: 79,
+			icon: "book",
+			title: "Megafarming",
+			fire: function () {
+				unlockUpgrade("Megafarming");
+			}
+		},
+
 		Speedlumber: {
 			message: "You found a book called Speedlumber! It looks long.",
+			brokenPlanet: -1,
 			world: -1,
 			level: 69,
 			icon: "book",
@@ -1489,8 +1637,21 @@ var toReturn = {
 				unlockUpgrade("Speedlumber");
 			}
 		},
+		Megalumber: {
+			message: "You found a book called Megalumber! The quote on the back reads 'How much wood could a Wood Trimp chop if a Wood Trimp could chop wood?'",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -1,
+			level: 69,
+			icon: "book",
+			title: "Megalumber",
+			fire: function () {
+				unlockUpgrade("Megalumber");
+			}
+		},
 		Speedminer: {
 			message: "You found a book called Speedminer!",
+			brokenPlanet: -1,
 			world: -1,
 			level: 59,
 			icon: "book",
@@ -1502,6 +1663,18 @@ var toReturn = {
 					return;
 				}
 				unlockUpgrade("Speedminer");
+			}
+		},
+		Megaminer: {
+			message: "You found a book called Megaminer! The front is really shiny and has a Trimp on it. Creepy, it seems to follow your eyes.",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -1,
+			level: 59,
+			icon: "book",
+			title: "Megaminer",
+			fire: function() {
+				unlockUpgrade("Megaminer");
 			}
 		},
 		Foreman: {
@@ -1532,6 +1705,11 @@ var toReturn = {
 			icon: "book",
 			title: "Coordination",
 			fire: function() {
+				if (game.global.challengeActive == "Trimp"){
+					message("Your scientists don't think that it's a very smart idea to try any of the suggestions in this book.", "Notices");
+					game.challenges.Trimp.heldBooks ++;
+					return;
+				}
 				unlockUpgrade("Coordination");
 			}
 		},
@@ -1585,7 +1763,7 @@ var toReturn = {
 			icon: "th",
 			fire: function() {
 				var amt = rewardResource("fragments");
-				message("<span class='glyphicon glyphicon-th'></span>You found " + prettify(amt) + " map fragments!", "Loot");
+				message("You found " + prettify(amt) + " map fragments!", "Loot", "th");
 			}
 		},
 		//portal Trumps
@@ -1598,7 +1776,7 @@ var toReturn = {
 				var amt = 5 + (game.portal.Trumps.modifier * game.portal.Trumps.level);
 				game.resources.trimps.max += amt;
 				game.global.totalGifts += amt;
-				message("<span class='glyphicon glyphicon-gift'></span>You have cleared enough land to support " + amt + " more Trimps!", "Loot");
+				message("You have cleared enough land to support " + amt + " more Trimps!", "Loot", "gift");
 			}
 		},
 		fruit: {
@@ -1607,8 +1785,8 @@ var toReturn = {
 			icon: "apple",
 			repeat: 9,
 			fire: function (level) {
-				var amt = rewardResource("food", .5, level);
-				message("<span class='glyphicon glyphicon-apple'></span>That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot");
+				var amt = rewardResource("food", 0.5, level);
+				message("That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot", "apple");
 			}
 		},
 		groundLumber: {
@@ -1617,8 +1795,8 @@ var toReturn = {
 			icon: "tree-deciduous",
 			repeat: 8,
 			fire: function (level) {
-				var amt = rewardResource("wood", .5, level);
-				message("<span class='glyphicon glyphicon-tree-deciduous'></span>You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot");
+				var amt = rewardResource("wood", 0.5, level);
+				message("You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot", "tree-deciduous");
 			}
 		},
 		freeMetals: {
@@ -1628,7 +1806,7 @@ var toReturn = {
 			repeat: 6,
 			fire: function (level) {
 				var amt = rewardResource("metal", 0.5, level);
-				message("<span class='glyphicon glyphicon-fire'></span>You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot");
+				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "fire");
 			}
 		}
 	},
@@ -1656,7 +1834,7 @@ var toReturn = {
 			tooltip: "Has room for $incby$ more lovely Trimps, and enough workspace for half of them.",
 			cost: {
 				food: [125, 1.24],
-				wood: [75, 1.24],
+				wood: [75, 1.24]
 			},
 			increase: {
 				what: "trimps.max",
@@ -1672,8 +1850,8 @@ var toReturn = {
 			percent: true,
 			cost: {
 				food: function () {
-					return calculatePercentageBuildingCost("Barn", "food", .25);
-				},
+					return calculatePercentageBuildingCost("Barn", "food", 0.25);
+				}
 			},
 			increase: {
 				what: "food.max.mult",
@@ -1689,7 +1867,7 @@ var toReturn = {
 			tooltip: "Increases your maximum wood by 100%",
 			cost: {
 				wood: function () {
-					return calculatePercentageBuildingCost("Shed", "wood", .25);
+					return calculatePercentageBuildingCost("Shed", "wood", 0.25);
 				}
 			},
 			increase: {
@@ -1706,7 +1884,7 @@ var toReturn = {
 			tooltip: "Increases your maximum metal by 100%",
 			cost: {
 				metal: function () {
-					return calculatePercentageBuildingCost("Forge", "metal", .25);
+					return calculatePercentageBuildingCost("Forge", "metal", 0.25);
 				}
 			},
 			increase: {
@@ -1728,11 +1906,11 @@ var toReturn = {
 			by: 4
 			},
 			fire: function () {
-				if (game.upgrades.Gymystic.done == 0) return;
+				if (game.upgrades.Gymystic.done === 0) return;
 				var oldBlock = game.buildings.Gym.increase.by;
 				game.buildings.Gym.increase.by *= (game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done - 1)));
 				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * (game.buildings.Gym.owned));		
-			},
+			}
 		},
 		House: {
 			locked: 1,
@@ -1760,7 +1938,7 @@ var toReturn = {
 				gems: [100, 1.2],
 				food: [3000, 1.2],
 				wood: [2000, 1.2],
-				metal: [500, 1.2],
+				metal: [500, 1.2]
 				
 			},
 			increase: {
@@ -1778,7 +1956,7 @@ var toReturn = {
 				gems: [2000, 1.18],
 				food: [10000, 1.18],
 				wood: [12000, 1.18],
-				metal: [5000, 1.18],
+				metal: [5000, 1.18]
 				
 			},
 			increase: {
@@ -1796,7 +1974,7 @@ var toReturn = {
 				gems: [20000, 1.16],
 				food: [100000, 1.16],
 				wood: [120000, 1.16],
-				metal: [50000, 1.16],
+				metal: [50000, 1.16]
 				
 			},
 			increase: {
@@ -1842,12 +2020,28 @@ var toReturn = {
 			craftTime: 1200,
 			tooltip: "Each collector allows you to harvest more of the power of your home star, allowing your Trimps to colonize a larger chunk of your solar system.",
 			cost: {
-				gems: [500000000000, 1.12],
+				gems: [500000000000, 1.12]
 			},
 			increase: {
 				what: "trimps.max",
-				by: 5000,
+				by: 5000
 			}
+		},
+		Warpstation: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 1200,
+			tooltip: "Create a gigantic Warpstation, capabale of housing tons of Trimps and instantly transporting them back to the home planet when needed. Supports $incby$ Trimps.",
+			cost: {
+				gems: [100000000000000, 1.3],
+				metal: [1000000000000000, 1.3]
+			},
+			increase: {
+				what: "trimps.max", 
+				by: 10000
+			}
+		
 		},
 		Tribute: {
 			locked: 1,
@@ -1860,7 +2054,7 @@ var toReturn = {
 			},
 			increase: {
 				what: "Dragimp.modifier.mult",
-				by: 1.05,
+				by: 1.05
 			}
 		},
 		Nursery: {
@@ -1876,7 +2070,7 @@ var toReturn = {
 			},
 			increase: {
 				what: "trimps.potency.mult",
-				by: 1.01,
+				by: 1.01
 			}
 		}
 	},
@@ -1887,7 +2081,7 @@ var toReturn = {
 			owned: 0,
 			tooltip: "Train one of your Trimps in the ancient art of farming. Each Farmer earns $modifier$ food per second",
 			cost: {
-				food: [5, 1.0]
+				food: 5
 			},
 			increase: "food",
 			modifier: 0.5
@@ -1897,7 +2091,7 @@ var toReturn = {
 			owned: 0,
 			tooltip: "Show a Trimp how to cut one of those weird trees down. Each Lumberjack hauls back $modifier$ logs per second.",
 			cost: {
-				food: [5, 1.0]
+				food: 5
 			},
 			increase: "wood",
 			modifier: 0.5
@@ -1907,7 +2101,7 @@ var toReturn = {
 			owned: 0,
 			tooltip: "Send your misbehaving Trimps to the mines for some therapeutic work. Each Miner can find and smelt $modifier$ bars of metal per second",
 			cost: {
-				food: [20, 1.0],
+				food: 20
 			},
 			increase: "metal",
 			modifier: 0.5
@@ -1917,7 +2111,7 @@ var toReturn = {
 			owned: 0,
 			tooltip: "It takes some patience, but you can teach these Trimps to do some research for you. Each Scientist records $modifier$ units of pure science each second.",
 			cost: {
-				food: [100, 1.0]
+				food: 100
 			},
 			increase: "science",
 			modifier: 0.5
@@ -1940,13 +2134,13 @@ var toReturn = {
 				food: [15000, 1.1]
 			},
 			increase: "fragments",
-			modifier: .1
+			modifier: 0.1
 		},
 		Dragimp: {
 			locked: 1,
 			owned: 0,
 			increase: "gems",
-			modifier: .5,
+			modifier: 0.5
 		}
 	},
 	
@@ -2114,7 +2308,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: 50000,
-					fragments: 5,
+					fragments: 5
 				}
 			},
 			fire: function () {
@@ -2181,6 +2375,91 @@ var toReturn = {
 				game.jobs.Scientist.modifier *= 1.25;
 			}			
 		},
+		Megafarming: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to farm 50% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [10000000000, 1.4],
+					food: [100000000000, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Farmer.modifier *= 1.5;
+			}			
+		},
+		Megaminer: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to mine 50% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [10000000000, 1.4],
+					metal: [100000000000, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Miner.modifier *= 1.5;
+			}			
+		},		
+		Megalumber: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to chop wood 50% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [10000000000, 1.4],
+					wood: [100000000000, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Lumberjack.modifier *= 1.5;
+			}			
+		},		
+		Megascience: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to science things 50% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [100000000000, 1.6]
+				}
+			},
+			fire: function () {
+				game.jobs.Scientist.modifier *= 1.5;
+			}			
+		},
+		Gigastation: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "Prestige your Warpstation, increasing the amount of Trimps it can house by 25% and the base cost by 50%. There's no turning back, learning these blueprints will make your previous model of Warpstation obsolete but functional, and you will keep all Trimps housed there. Learning this will build one new Warpstation.",
+			done: 0,
+			cost: {
+				resources: {
+					gems: [100000000000000, 1.5],
+					metal: [1000000000000000, 1.5],
+					science: [100000000000, 1.4]
+				}
+			},
+			fire: function () {
+				game.buildings.Warpstation.increase.by *= 1.25;
+				game.buildings.Warpstation.cost.gems[0] *= 1.5;
+				game.buildings.Warpstation.cost.metal[0] *= 1.5;
+				if (game.buildings.Warpstation.purchased > game.buildings.Warpstation.owned){
+					for (var x = 0; x < game.global.buildingsQueue.length; x++){
+						if (game.global.buildingsQueue[x].split('.')[0] == "Warpstation") removeQueueItem("queueItem" + (game.global.nextQueueId - game.global.buildingsQueue.length - x)); 
+					}
+				}
+				game.buildings.Warpstation.purchased = 1;
+				game.buildings.Warpstation.owned = 1;
+				game.resources.trimps.max += game.buildings.Warpstation.increase.by;
+			}
+		},		
 		Efficiency: {
 			locked: 1,
 			allowed: 0,
@@ -2206,7 +2485,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: [1000, 1.4],
-					wood: [4000, 1.4],
+					wood: [4000, 1.4]
 				}
 			},
 			fire: function () {
@@ -2229,24 +2508,7 @@ var toReturn = {
 				game.resources.trimps.max += ((game.buildings.Hotel.owned) * game.buildings.Hotel.increase.by);
 				game.buildings.Hotel.increase.by *= 2;
 			}
-		},/* 	
-		UberResort: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will increase the space gained from each Resort by 2x",
-			done: 0,
-			cost: {
-				resources: {
-					science: [30000, 1.15],
-					food: [2000000, 1.1],
-					metal: [1000000, 1.1]
-				}
-			},
-			fire: function () {
-				game.resources.trimps.max += ((game.buildings.Resort.owned * 2) * game.buildings.Resort.increase.by);
-				game.buildings.Resort.increase.by *= 2;
-			}
-		}, */
+		},
 		Anger: {
 			locked: 1,
 			allowed: 0,
@@ -2270,7 +2532,7 @@ var toReturn = {
 					difficulty: 2.5,
 					size: 100,
 					loot: 3,
-					noRecycle: true,
+					noRecycle: true
 				});
 				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to the Dimension of Anger! Should be fun!", "Notices");
@@ -2283,7 +2545,7 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					gems: 10000,
+					gems: 10000
 				}
 			},
 			fire: function () {
@@ -2292,25 +2554,6 @@ var toReturn = {
 				unlockBuilding("Tribute");
 			}
 		},
-/* 		Producer: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book explains some low-stress methods for getting your Trimps to work harder. Low-stress for you, of course. Doubles the rate at which Farmers, Lumberjacks and Miners gather resources.",
-			done: 0,
-			cost: {
-				resources: {
-					science: [1500, 1.2],
-					food: [5000, 1.2],
-					wood: [5000, 1.2],
-					metal: [5000, 1.2]
-				}
-			},
-			fire: function () {
-				game.jobs.Farmer.modifier *= 2;
-				game.jobs.Miner.modifier *= 2;
-				game.jobs.Lumberjack.modifier *= 2;
-			}
-		}, */
 		Shieldblock: {
 			locked: 1,
 			allowed: 0,
@@ -2322,7 +2565,7 @@ var toReturn = {
 			cost: {
 				resources: {
 					science: 3000,
-					wood: 10000,
+					wood: 10000
 				}
 			},
 			fire: function () {
@@ -2330,11 +2573,8 @@ var toReturn = {
 				prestigeEquipment("Shield", false, true);
 				equipment.blockNow = true;
 				equipment.tooltip = game.equipment.Shield.blocktip;
-			    equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
-/* 				cost[0] = Math.round(equipment.oc * Math.pow(1.069, ((equipment.prestige - 1) * game.global.prestige.cost) + 1));
-				cost.lastCheckAmount = null;
-				cost.lastCheckCount = null;
-				cost.lastCheckOwned = null; */
+				equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
+				levelEquipment("Shield", 1);
 			}
 		},
 		Trapstorm: {
@@ -2346,13 +2586,58 @@ var toReturn = {
 				resources: {
 					science: 10000,
 					food: 100000,
-					wood: 100000,
+					wood: 100000
 					
 				}
 			},
 			fire: function () {
 				game.global.trapBuildAllowed = true;
 				fadeIn("autoTrapBtn", 10);
+			}
+		},
+		Formations: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "The air may be filled with pollution, but your Trimps seem to be getting smarter and a battle technique from what could only be a past life has crept into your memory. This would probably be a good opportunity to teach it to your Trimps. Once researched, you will be able to enter the 'Heap Formation'. This can be toggled to increase your Trimps' health by 4x, but reduce block and attack by half.",
+			done: 0,
+			cost: {
+				resources: {
+					science: 10000000000,
+					food: 100000000000
+				}
+			},
+			fire: function () {
+				unlockFormation("start");
+			}
+		},
+		Dominance: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "Another formation has crept back in to your memory. Where are these coming from? Who are you? Who cares, this one will allow your Trimps to deal 4x damage at the cost of half health and block.",
+			done: 0,
+			cost: {
+				resources: {
+					science: 20000000000,
+					food: 200000000000
+				}			
+			},
+			fire: function () {
+				unlockFormation(2);
+			}
+		},
+		Barrier: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "Woah, you just remembered that all Trimps lifting their shields in the same direction at the same time can produce a nice protecting wall. Seems like common sense now that you thought of it. It will require training the Trimps, but this formation allows for 4x block at the cost of half attack and health.",
+			done: 0,
+			cost: {
+				resources: {
+					science: 40000000000,
+					food: 400000000000
+				}			
+			},	
+			fire: function () {
+				unlockFormation(3);
 			}
 		},
 		
@@ -2387,13 +2672,12 @@ var toReturn = {
 			cost: {
 				resources: {
 					wood: 1000000000,
-					science: 5000000,
+					science: 5000000
 				}
 			},
 			modifier: 1.05,
 			fire: function () {
 				var oldBlock = game.buildings.Gym.increase.by;
-				console.log(game.upgrades.Gymystic.done);
 				game.buildings.Gym.increase.by = 6 * Math.pow(game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done)), game.buildings.Gym.owned);
 				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * game.buildings.Gym.owned);
 			}
@@ -2691,7 +2975,7 @@ var toReturn = {
 			cost: {
 				special: function () {
 					return (game.triggers.upgrades.done > 0 && game.resources.science.owned > 0);
-				},
+				}
 			},
 			fire: function () {
 				unlockUpgrade('Battle');
@@ -2733,7 +3017,7 @@ var toReturn = {
 			fire: function () {
 				document.getElementById("unempHide").style.visibility = "visible";
 			}
-		},
+		}
 	},
 	unlocks: {
 		imps: {
@@ -2742,7 +3026,7 @@ var toReturn = {
 			Flutimp: false,
 			Tauntimp: false,
 			Venimp: false,
-			Whipimp: false,
+			Whipimp: false
 		},
 		impCount: {
 			Goblimp: 0,
@@ -2751,10 +3035,10 @@ var toReturn = {
 			Tauntimp: 0,
 			TauntimpAdded: 0,
 			Venimp: 0,
-			Whipimp: 0,
+			Whipimp: 0
 		},
 		goldMaps: false,
-		quickTrimps: false,
+		quickTrimps: false
 	}
 };
 return toReturn;

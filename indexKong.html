@@ -7,7 +7,7 @@
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?1" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?2" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -38,7 +38,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 		You should have received a copy of the GNU General Public License
 		along with this program (if you are reading this on the original
 		author's website, you can find a copy at
-		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
+		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. -->
 <body>
 	<noscript>
@@ -553,38 +553,64 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<div id="battleHeadContainer">
 						<div class="row" id="battleStatsRow">
 							<div class="col-xs-6" id="goodGuyCol">
-								<span class="battleStatsTitle" id="goodGuyName">Trimps(<span id="trimpsFighting">1</span>) <span id="critSpan"></span></span>
-								<br/>
-								<div class="row guyRow" id="goodGuyStatsRow">
-									<div class="col-xs-4 bdHover pointer noselect" style="padding-right: 5px" onclick="getBattleStatBd('health')">
-										<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span> HP
-										<br/>
+								<div class="row">
+									<div class="col-xs-6">
+										<div class="battleStatsTitle" id="goodGuyName">Trimps (<span id="trimpsFighting">1</span>) <span id="critSpan"></span></div>
 									</div>
-									<div class="col-xs-3 lowPad pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
-										<span id="goodGuyBlock">0</span> BLK
-									</div>
-									<div class="col-xs-5 bdHover lowPad pointer noselect" onclick="getBattleStatBd('attack')">
-										<span id="goodGuyAttack"></span> DMG
+									<div class="col-xs-6">
+										<div class="row">
+											<div class="col-xs-3">
+												<div class="formationBtn pointer" onclick="setFormation('0')" id="formation0" title="No Formation">
+													X
+												</div>
+											</div>
+											<div class="col-xs-3">
+												<div class="formationBtn pointer" onclick="setFormation('1')" id="formation1" title="Heap Formation - Trimps gain 4x health but lose half of their attack and block">
+													H
+												</div>										
+											</div>
+											<div class="col-xs-3">
+												<div class="formationBtn pointer" onclick="setFormation('2')" id="formation2" title="Dominance Formation - Trimps gain 4x attack but lose half of their health and block">
+													D
+												</div>										
+											</div>
+											<div class="col-xs-3">
+												<div class="formationBtn pointer" onclick="setFormation('3')" id="formation3" title="Barrier Formation - Trimps gain 4x block but lose half of their health and attack">
+													B
+												</div>											
+											</div>
+										</div>
 									</div>
 								</div>
-								<div class="progress">
-									<div class="progress-bar " id="goodGuyBar" role="progressbar"></div>
+								<div class="row guyRow" id="goodGuyStatsRow">
+									<div class="col-xs-6 bdHover pointer noselect" onclick="getBattleStatBd('attack')">
+										<span id="goodGuyAttack"></span> DMG
+									</div>
+									<div class="col-xs-6 pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
+										<span id="goodGuyBlock">0</span> BLK
+									</div>
+								</div>
+								<div class="progress fightBar">
+									<div class="progress-bar" id="goodGuyBar" role="progressbar">
+										<span class="bdHover pointer noselect innerFightBar" onclick="getBattleStatBd('health')">
+											<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span>
+										</span>
+									</div>
 								</div>
 							</div>
 							<div class="col-xs-6" id="badGuyCol" style="visibility: hidden">
 								<span class="battleStatsTitle" id="badGuyName"></span>
-								<br/>
-								<div class="row guyRow" id="badGuyRow">
-									<div class="col-xs-6">
-										<span id="badGuyHealth">0</span>/<span id="badGuyHealthMax">0</span> HP
-										<br/>
-									</div>
-									<div class="col-xs-6">
+								<div class="guyRow" id="badGuyRow">
+									<div>
 										<span id="badGuyAttack"></span> DMG
 									</div>
 								</div>
-								<div class="progress">
-									<div class="progress-bar " id="badGuyBar" role="progressbar"></div>
+								<div class="progress fightBar">
+									<div class="progress-bar" id="badGuyBar" role="progressbar">
+										<span class="innerFightBar">
+											<span id="badGuyHealth">0</span>/<span id="badGuyHealthMax">0</span>
+										</span>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -625,7 +651,6 @@ var kongregate = parent.kongregateAPI.getAPI();
 									Bone Trader
 								</span>
 							</div>
-							
 						</div>
 						<div class="col-xs-10" id="gridContainer">
 							<div id="grid"></div>
@@ -718,7 +743,15 @@ var kongregate = parent.kongregateAPI.getAPI();
 								<div id="mapsHere" class="niceScroll">
 								</div>
 							</div>
-							<div id="mapGrid" style="display: none"></div>
+							<div id="mapGrid" style="display: none;"></div>
+							<div id="extraGridInfo" style="display: none;">
+								<div id="extraGridInfoTitle"></div>
+								<div id="extraGridInfoSummary"></div>
+								<div id="extraGridInfoSub"></div>
+								<div id="extraGridInfoBtns">
+									<span class="btn btn-info" onclick="restoreGrid()">Continue</span>
+								</div> 
+							</div>
 						</div>
 					</div>
 				</div>
@@ -797,9 +830,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?29"></script>
-	<script type="text/javascript" src="updates.js?29"></script>
-	<script type="text/javascript" src="main.js?30"></script>
+	<script type="text/javascript" src="config.js?31"></script>
+	<script type="text/javascript" src="updates.js?31"></script>
+	<script type="text/javascript" src="main.js?31"></script>
 	
 </body>
 

@@ -1,5 +1,5 @@
 //I made this, don't steal it and stuff.
-/* 		Trimps
+/*		Trimps
 		Copyright (C) 2015 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License
 		along with this program (if you are reading this on the original
 		author's website, you can find a copy at
-		<https://googledrive.com/host/0BwflTm9l-5_0fnFvVzI2TW1hU3J6TGc2NEt6VFc4N0hzaWpGX082LWY2aDJTSV85aVRxYVU/license.txt>). If not, see
+		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
@@ -96,11 +96,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			if (typeof kongregate === 'undefined') return;
 			tooltipText = "You can't afford this bonus. Would you like to visit the shop?";
 			attachFunction = "showPurchaseBones()";
-			btnText = "Visit Shop"
+			btnText = "Visit Shop";
 		}
 		else
 		tooltipText = textString;
-		costText += '<div class="maxCenter"><div class="btn btn-info" onclick="' + attachFunction + '; cancelTooltip()">' + btnText + '</div><div class="btn btn-info" onclick="cancelTooltip()">Cancel</div></div>'
+		costText += '<div class="maxCenter"><div class="btn btn-info" onclick="' + attachFunction + '; cancelTooltip()">' + btnText + '</div><div class="btn btn-info" onclick="cancelTooltip()">Cancel</div></div>';
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -110,7 +110,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
-		costText += "<div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Done</div>"
+		costText += "<div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Done</div>";
 	}
 	if (what == "Welcome"){
 		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear. Please make sure you regularly back up your save file by using the 'Export' button in the bar below and saving that somewhere safe. I recommend using Chrome or Firefox. <br/><br/> Thank you for playing, and I hope you enjoy the game!";
@@ -155,7 +155,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Custom"){
-		tooltipText = "Type a number below to purchase a specific amount. (Max is 15000)<br/><br/><input type='number' id='customNumberBox' style='width: 50%' value='" + game.global.lastCustomAmt + "'></input>"
+		tooltipText = "Type a number below to purchase a specific amount.<br/><br/><input type='number' id='customNumberBox' style='width: 50%' value='" + game.global.lastCustomAmt + "'></input>";
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='numTab(5)'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
@@ -212,8 +212,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			if (workspaces < buyAmt && workspaces > 0) buyAmt = workspaces;
 			costText = getTooltipJobText(what, buyAmt);
 		}
-		
-		
 		if (game.global.buyAmt > 1) what += " X" + buyAmt;
 	}
 	if (isItIn == "buildings"){
@@ -293,7 +291,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	document.getElementById("tipText").innerHTML = tooltipText;
 	document.getElementById("tipCost").innerHTML = costText;
 	elem.style.display = "block";
-	if (ondisplay != null)
+	if (ondisplay !== null)
 		ondisplay();
 }
 
@@ -309,25 +307,34 @@ function unlockTooltip(){
 
 function getPsString(what) {
 	var resOrder = ["food", "wood", "metal", "science", "gems", "fragments"];
-	var books = ["Speedfarming", "Speedlumber", "Speedminer", "Speedscience"];
+	var books = ["farming", "lumber", "miner", "science"];
 	var jobs = ["Farmer", "Lumberjack", "Miner", "Scientist", "Dragimp", "Explorer"];
 	var index = resOrder.indexOf(what);
 	var job = game.jobs[jobs[index]];
-	var book = game.upgrades[books[index]];
+	var book = game.upgrades["Speed" + books[index]];
+	var mBook = game.upgrades["Mega" + books[index]];
 	var base = (what == "fragments") ? 0.1 : 0.5;
 	var textString =  "<table class='bdTable table table-striped'><tbody>";
 	//Add base
 	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + prettify(base) + "</td></tr>";
 	//Add job count
 	var currentCalc = job.owned * base;
-	textString += "<tr><td class='bdTitle'>" + jobs[index] + "s</td><td class='bdPercent'>" + prettify(job.owned) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+	textString += "<tr><td class='bdTitle'>" + jobs[index] + "s</td><td class='bdPercent'>" + prettify(job.owned) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	//Add books
 	if (typeof book !== 'undefined' && book.done > 0){
 		var bookStrength = Math.pow(1.25, book.done);
 		currentCalc *= bookStrength;
 		bookStrength = prettify((bookStrength - 1) * 100) + "%";
-		textString += "<tr><td class='bdTitle'>" + books[index] + "</td><td class='bdPercent'>+ " + bookStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Speed" + books[index] + "</td><td class='bdPercent'>+ " + bookStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	//Add Megabooks
+	if (typeof mBook !== 'undefined' && mBook.done > 0){
+		var mBookStrength = Math.pow(1.5, mBook.done);
+		currentCalc *= mBookStrength;
+		mBookStrength = prettify((mBookStrength - 1) * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Mega" + books[index] + "</td><td class='bdPercent'>+ " + mBookStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	
 	//Add bounty
 	if (what != "gems" && game.upgrades.Bounty.done > 0){
 		currentCalc *= 2;
@@ -376,7 +383,7 @@ function getTrimpPs() {
 	//Add job count
 	var breeding = trimps.owned - trimps.employed;
 	var currentCalc = breeding * base;
-	textString += "<tr><td class='bdTitle'>Breeding</td><td class='bdPercent'>" + prettify(breeding) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+	textString += "<tr><td class='bdTitle'>Breeding</td><td class='bdPercent'>" + prettify(breeding) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	//Add Potency
 	if (game.upgrades.Potency.done > 0){
 		var potencyStrength = Math.pow(1.1, game.upgrades.Potency.done);
@@ -397,6 +404,11 @@ function getTrimpPs() {
 		currentCalc *= (venimpStrength);
 		venimpStrength = prettify((venimpStrength - 1) * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Venimp</td><td class='bdPercent'>+ " + venimpStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.brokenPlanet){
+		currentCalc /= 10;
+		textString += "<tr style='color: red'><td class='bdTitle'>Broken Planet</td><td class='bdPercent'>/  10</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	
 	}
 	//Add motivation
 	if (game.portal.Pheromones.level > 0){
@@ -469,6 +481,21 @@ function getBattleStatBd(what) {
 		PerkStrength = prettify(PerkStrength * 100) + "%";
 		textString += "<tr><td class='bdTitle'>" + perk + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	//Add resilience
+	if (what == "health" && game.portal.Resilience.level > 0){
+		var resStrength = Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
+		currentCalc *= resStrength;
+		resStrength = prettify((resStrength - 1) * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Resilience</td><td>" + (game.portal.Resilience.modifier * 100) + "%</td><td>" + game.portal.Resilience.level + "</td><td>+ " + resStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add formations
+	if (game.global.formation > 0){
+		var formStrength = 0.5;
+		if ((game.global.formation == 1 && what == "health") || (game.global.formation == 2 && what == "damage") || (game.global.formation == 3 && what == "block")) formStrength = 4;
+		currentCalc *= formStrength;
+		textString += "<tr><td class='bdTitle'>Formation</td><td></td><td></td><td>x " + formStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+
+	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getBattleStatBd('" + what + "')", name, "Refresh", true);
@@ -483,7 +510,7 @@ function getMaxTrimps() {
 	//Add job count
 	var housing = trimps.max - game.global.totalGifts - game.unlocks.impCount.TauntimpAdded - base;
 	var currentCalc = housing + base;
-	textString += "<tr><td class='bdTitle'>Housing</td><td class='bdPercent'>+ " + prettify(housing) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+	textString += "<tr><td class='bdTitle'>Housing</td><td class='bdPercent'>+ " + prettify(housing) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	//Add Territory Bonus
 	if (game.global.totalGifts > 0){
 		currentCalc += game.global.totalGifts;
@@ -537,7 +564,7 @@ function prettify(number) {
 	}
 	else
 	{
-		var exponent = parseFloat(numberTmp).toExponential(2)
+		var exponent = parseFloat(numberTmp).toExponential(2);
 		exponent = exponent.replace('+','<sup>') + '</sup>';
 		return exponent;
 	}
@@ -638,10 +665,13 @@ function resetGame(keepPortal) {
 	document.getElementById("battleHeadContainer").style.display = "block";
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
+	document.getElementById("wrapper").style.background = "url(css/bg2.png) center repeat-x";
+	setFormation(0);
+	hideFormations();
 	
 	for (var item in game.resources){
 		var elem = document.getElementById(item + "Ps");
-		if (elem != null) elem.innerHTML = "+0/sec";
+		if (elem !== null) elem.innerHTML = "+0/sec";
 	}
 	filterTabs("all");
 	var gatherBtns = ["buildings", "food", "wood", "metal", "science", "trimps"];
@@ -658,6 +688,7 @@ function resetGame(keepPortal) {
 	var challenge = "";
 	var sLevel = 0;
 	var lastSkele;
+	var bestHelium;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -667,6 +698,7 @@ function resetGame(keepPortal) {
 		highestLevel = game.global.highestLevelCleared;
 		sLevel = game.global.sLevel;
 		lastSkele = game.global.lastSkeletimp;
+		bestHelium = (game.resources.helium.owned > game.global.bestHelium) ? game.resources.helium.owned : game.global.bestHelium;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 	}
 	game = null;
@@ -674,6 +706,7 @@ function resetGame(keepPortal) {
 	game.global.autoSave = autoSave;
 	game.global.messages = messages;
 	if (keepPortal){
+		game.global.bestHelium = bestHelium;
 		game.portal = portal;
 		game.global.b = b;
 		game.global.heliumLeftover = helium;
@@ -690,7 +723,7 @@ function resetGame(keepPortal) {
 			game.global.autoCraftModifier += 0.25;
 			document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
 		}
-		if (challenge != "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
+		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 	}
 	numTab(1);
 	pauseFight(true);
@@ -713,7 +746,7 @@ function message(messageString, type, lootIcon) {
 		}
 	}
 	if (type == "Notices"){
-		messageString = "<span class='glyphicon glyphicon-off'></span>" + messageString;
+		messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
 	}
 	log.innerHTML += "<span" + addId + " class='" + type + "Message message' style='display: " + displayType + "'>" + messageString + "</span>";
 	log.scrollTop = log.scrollHeight;
@@ -780,7 +813,7 @@ function enableDisableTab(what, enable){
 
 
 function getTabClass(displayed){
-	return (displayed) ? "btn btn-success logFlt" : "btn btn-danger logFlt"
+	return (displayed) ? "btn btn-success logFlt" : "btn btn-danger logFlt";
 }
 
 
@@ -790,8 +823,7 @@ function numTab (what) {
 		
 		unlockTooltip();
 		tooltip('hide');
-		num = Math.ceil(parseInt(document.getElementById("customNumberBox").value));
-		if (num > 15000) num = 15000;
+		num = Math.ceil(parseInt(document.getElementById("customNumberBox").value, 10));
 		if (num > 0) {
 			document.getElementById("tab5Text").innerHTML = "+" + prettify(num);
 			game.global.buyAmt = num;
@@ -802,7 +834,7 @@ function numTab (what) {
 			return;
 		}
 	}
-	if (what == null) what = game.global.numTab;
+	if (what === null) what = game.global.numTab;
 	else
 	game.global.numTab = what;
 	for (var x = 1; x <= 5; x++){
@@ -853,11 +885,12 @@ function updateSideSize() { //resizes main menu items
 //Buildings Specific
 function removeQueueItem(what) {
 	var queue = document.getElementById("queueItemsHere");
+	var elem;
 	if (what == "first"){
-		var elem = queue.firstChild;
+		elem = queue.firstChild;
 		var name = game.global.buildingsQueue[0].split('.');
 		if (name[1] > 1){
-			name[1] = (parseInt(name[1]) - 1);
+			name[1] = (parseInt(name[1], 10) - 1);
 			var newQueue = name[0] + "." + name[1];
 			name = name[0] + " X" + name[1];
 			game.global.buildingsQueue[0] = newQueue;
@@ -871,7 +904,7 @@ function removeQueueItem(what) {
 		return;
 	}
 	var index = getQueueElemIndex(what, queue);
-	var elem = document.getElementById(what);
+	elem = document.getElementById(what);
 	if (!game.global.buildingsQueue[index]) index = 0;
 	queue.removeChild(elem);
 	refundQueueItem(game.global.buildingsQueue[index]);
@@ -886,7 +919,7 @@ function removeQueueItem(what) {
 function getQueueElemIndex(id, queue){
 	var childs = queue.getElementsByTagName('*');
 	for (var i = 0, len = childs.length; i < len; i++){
-	  if (childs[i].id == id) return ((i - 1)/ 2);
+		if (childs[i].id == id) return ((i - 1)/ 2);
 	}
 }
 
@@ -905,7 +938,7 @@ function addQueueItem(what) {
 	if (name[1] > 1) name = name[0] + " X" + prettify(name[1]);
 	else name = name[0];
 	elem.innerHTML += '<div class="queueItem" id="queueItem' + game.global.nextQueueId + '" onmouseover="tooltip(\'Queue\',null,event)" onmouseout="tooltip(\'hide\')" onClick="removeQueueItem(\'queueItem' + game.global.nextQueueId + '\'); cancelTooltip();"><span class="queueItemName">' + name + '</span></div>';
-	if (game.global.nextQueueId == 0) setNewCraftItem();
+	if (game.global.nextQueueId === 0) setNewCraftItem();
 	game.global.nextQueueId++;
 }
 
@@ -913,7 +946,7 @@ function addQueueItem(what) {
 //Number updates
 function updateLabels() { //Tried just updating as something changes, but seems to be better to do all at once all the time
 	var toUpdate;
-	//Resources (food, wood, metal, trimps, science). All but science have max and a bar. Per second will be handled in separate function, and called from job loop.
+	//Resources (food, wood, metal, trimps, science). Per second will be handled in separate function, and called from job loop.
 	for (var item in game.resources){
 		toUpdate = game.resources[item];
 		if (!(toUpdate.owned > 0)){
@@ -1012,7 +1045,10 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 		var color = "white";
 		psText = (psText < 0) ? "-" + psText : "+" + psText;
 		psText += "/sec";
-		if (trimps && game.unlocks.quickTrimps) {psText += " (x2!)"; color = "orange"};
+		if (trimps && game.unlocks.quickTrimps) {
+			psText += " (x2!)"; 
+			color = "orange";
+		}
 		elem.innerHTML = psText;
 		elem.style.color = color;
 }
@@ -1051,7 +1087,7 @@ function unlockJob(what) {
 function unlockMap(what) { //what here is the array index
 	var item = game.global.mapsOwnedArray[what];
 	var elem = document.getElementById("mapsHere");
-	var btnClass = "thing noselect pointer mapThing"
+	var btnClass = "thing noselect pointer mapThing";
 	if (game.unlocks.goldMaps && !item.noRecycle) btnClass += " goldMap";
 	if (item.noRecycle) btnClass += " noRecycle";
 	elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
@@ -1106,7 +1142,7 @@ function checkButtons(what) {
 		for (var itemBuild in game.buildings){
 			var thisBuilding = game.buildings[itemBuild];
 			if (thisBuilding.locked == 1) continue;
-			updateButtonColor(itemBuild, canAffordBuilding(itemBuild))
+			updateButtonColor(itemBuild, canAffordBuilding(itemBuild));
 		}
 		return;
 	}
@@ -1114,7 +1150,7 @@ function checkButtons(what) {
 		for (var itemEquip in game.equipment){
 			var thisEquipment = game.equipment[itemEquip];
 			if (thisEquipment.locked == 1) continue;
-			updateButtonColor(itemEquip, canAffordBuilding(itemEquip, null, null, true))
+			updateButtonColor(itemEquip, canAffordBuilding(itemEquip, null, null, true));
 		}
 		return;
 	}
@@ -1139,10 +1175,21 @@ function checkButtons(what) {
 }
 
 function updateButtonColor(what, canAfford, isJob) {
+	var elem = document.getElementById(what);
+	if (elem === null){
+		return;
+	}
 	var color = (canAfford) ? "black" : "grey";
 	if (isJob && game.global.firing === true) color = (game.jobs[what].owned >= 1) ? "red" : "grey";
-	if (document.getElementById(what) === null) console.log(what);
-	document.getElementById(what).style.backgroundColor = color;
+	if (what == "Warpstation" && color == "black") color = getWarpstationColor();
+	elem.style.background = color;
+}
+
+function getWarpstationColor() {
+	var amt = game.upgrades.Gigastation.done * 5;
+	if (amt > 255) amt = 255;
+	return "rgb(0, " + Math.floor(amt / 2) + ", " + amt + ")";
+
 }
 
 function unlockEquipment(what) {
