@@ -820,11 +820,11 @@ function calculateTimeToMax(resource, perSec) {
 	if (perSec <= 0) return "";
 	var remaining = ((resource.max * (1 + game.portal.Packrat.modifier * game.portal.Packrat.level))) - resource.owned;
 	if (remaining <= 0) return "";
-	var toFill = Math.round(remaining / perSec);
-	var years = Math.round(toFill / 31536000);
-	var days = Math.round(toFill / 86400) % 365;
-	var hours = Math.round( toFill / 3600) % 24;
-	var minutes = Math.round(toFill / 60) % 60;
+	var toFill = Math.floor(remaining / perSec);
+	var years = Math.floor(toFill / 31536000);
+	var days = Math.floor(toFill / 86400) % 365;
+	var hours = Math.floor( toFill / 3600) % 24;
+	var minutes = Math.floor(toFill / 60) % 60;
 	var seconds = toFill % 60;
 	if (toFill < 60) return Math.floor(toFill) + " Secs";
 	if (toFill < 3600) return minutes + " Mins " + seconds + " Secs";
