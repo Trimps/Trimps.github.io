@@ -20,6 +20,8 @@
 
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) {
+	if (document.getElementById(what + "Alert") !== null)	document.getElementById(what + "Alert").innerHTML = "";
+	if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
@@ -27,8 +29,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.display = "none";
 		return;
 	}
-	if (document.getElementById(what + "Alert") !== null)	document.getElementById(what + "Alert").innerHTML = "";
-	if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
 	if (event != "update"){
 		var cordx = 0;
 		var cordy = 0;
