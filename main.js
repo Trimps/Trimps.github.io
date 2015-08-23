@@ -953,6 +953,7 @@ function refundQueueItem(what) {
 		var refund = 0;
 		if (typeof thisCostItem[1] !== 'undefined')
 			refund =  Math.floor((thisCostItem[0] * Math.pow(thisCostItem[1], struct.purchased)) * ((Math.pow(thisCostItem[1], name[1]) - 1) / (thisCostItem[1] - 1)));
+		else if (typeof struct.cost[costItem] === 'function') refund += struct.cost[costItem]();
 		else 
 			refund = thisCostItem * name[1];
 		addResCheckMax(costItem, parseFloat(refund));
