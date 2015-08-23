@@ -834,7 +834,7 @@ function numTab (what) {
 			return;
 		}
 	}
-	if (what === null) what = game.global.numTab;
+	if (typeof what === 'undefined') what = game.global.numTab;
 	else
 	game.global.numTab = what;
 	for (var x = 1; x <= 5; x++){
