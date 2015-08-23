@@ -137,7 +137,7 @@ var toReturn = {
 				amt = (amt * 0.375) + ((amt * 0.7) * (level / 100));
 			else{ 
 				amt = (amt * 0.4) + ((amt * 0.9) * (level / 100));
-				amt *= Math.pow(1.1, world - 59);
+				amt *= Math.pow(1.15, world - 59);
 			}	
 			
 			if (world > 6 && game.global.mapsActive) amt *= 1.1;	
@@ -158,7 +158,7 @@ var toReturn = {
 				amt = (amt * 0.4) + ((amt * 0.4) * (level / 110));
 			else{
 				amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
-				amt *= Math.pow(1.05, world - 59);
+				amt *= Math.pow(1.1, world - 59);
 			}
 			if (world > 5 && game.global.mapsActive) amt *= 1.1;
 			amt *= game.badGuys[name].health;
@@ -2447,14 +2447,20 @@ var toReturn = {
 				}
 			},
 			fire: function () {
+
+				if (game.buildings.Warpstation.purchased > game.buildings.Warpstation.owned){
+					var thisLength = game.global.buildingsQueue.length;
+					var thisRemoved = 0;
+					for (var x = 0; x < thisLength; x++){
+						if (game.global.buildingsQueue[x - thisRemoved].split('.')[0] == "Warpstation") {
+							removeQueueItem("queueItem" + (game.global.nextQueueId - game.global.buildingsQueue.length + x - thisRemoved)); 
+							thisRemoved++;
+						}
+					}
+				}
 				game.buildings.Warpstation.increase.by *= 1.25;
 				game.buildings.Warpstation.cost.gems[0] *= 1.5;
 				game.buildings.Warpstation.cost.metal[0] *= 1.5;
-				if (game.buildings.Warpstation.purchased > game.buildings.Warpstation.owned){
-					for (var x = 0; x < game.global.buildingsQueue.length; x++){
-						if (game.global.buildingsQueue[x].split('.')[0] == "Warpstation") removeQueueItem("queueItem" + (game.global.nextQueueId - game.global.buildingsQueue.length - x)); 
-					}
-				}
 				game.buildings.Warpstation.purchased = 1;
 				game.buildings.Warpstation.owned = 1;
 				game.resources.trimps.max += game.buildings.Warpstation.increase.by;
