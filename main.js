@@ -324,7 +324,7 @@ function load(saveString, autoLoad) {
 }
 
 function loadGigastations() {
-	var modifier = Math.pow(1.5, game.upgrades.Gigastation.done);
+	var modifier = Math.pow(1.75, game.upgrades.Gigastation.done);
 	game.buildings.Warpstation.cost.gems[0] *= modifier;
 	game.buildings.Warpstation.cost.metal[0] *= modifier;
 }

@@ -2034,8 +2034,8 @@ var toReturn = {
 			craftTime: 1200,
 			tooltip: "Create a gigantic Warpstation, capabale of housing tons of Trimps and instantly transporting them back to the home planet when needed. Supports $incby$ Trimps.",
 			cost: {
-				gems: [100000000000000, 1.3],
-				metal: [1000000000000000, 1.3]
+				gems: [100000000000000, 1.4],
+				metal: [1000000000000000, 1.4]
 			},
 			increase: {
 				what: "trimps.max", 
@@ -2437,12 +2437,12 @@ var toReturn = {
 		Gigastation: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Prestige your Warpstation, increasing the amount of Trimps it can house by 25% and the base cost by 50%. There's no turning back, learning these blueprints will make your previous model of Warpstation obsolete but functional, and you will keep all Trimps housed there. Learning this will build one new Warpstation.",
+			tooltip: "Prestige your Warpstation, increasing the amount of Trimps it can house by 20% and the base cost by 75%. There's no turning back, learning these blueprints will make your previous model of Warpstation obsolete but functional, and you will keep all Trimps housed there. Learning this will build one new Warpstation.",
 			done: 0,
 			cost: {
 				resources: {
-					gems: [100000000000000, 1.5],
-					metal: [1000000000000000, 1.5],
+					gems: [100000000000000, 1.75],
+					metal: [1000000000000000, 1.75],
 					science: [100000000000, 1.4]
 				}
 			},
@@ -2458,9 +2458,9 @@ var toReturn = {
 						}
 					}
 				}
-				game.buildings.Warpstation.increase.by *= 1.25;
-				game.buildings.Warpstation.cost.gems[0] *= 1.5;
-				game.buildings.Warpstation.cost.metal[0] *= 1.5;
+				game.buildings.Warpstation.increase.by *= 1.20;
+				game.buildings.Warpstation.cost.gems[0] *= 1.75;
+				game.buildings.Warpstation.cost.metal[0] *= 1.75;
 				game.buildings.Warpstation.purchased = 1;
 				game.buildings.Warpstation.owned = 1;
 				game.resources.trimps.max += game.buildings.Warpstation.increase.by;
