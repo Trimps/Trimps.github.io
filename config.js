@@ -731,7 +731,7 @@ var toReturn = {
 				rewardResource("wood", 2, level);
 				rewardResource("metal", 2, level);
 				message("That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot", "piggy-bank");
-				if (game.global.world >= 20 && (game.global.totalPortals >= 1 || game.global.portalActive)){
+				if (game.global.world >= 21 && (game.global.totalPortals >= 1 || game.global.portalActive)){
 					if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 					amt = rewardResource("helium", 1, level);
 					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
