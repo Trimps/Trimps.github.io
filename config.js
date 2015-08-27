@@ -999,6 +999,12 @@ var toReturn = {
 					game.portal.Carpentry.locked = false;
 					message("You have completed the <b>Size Challenge!</b> You have unlocked a new perk, and your Trimps have been reduced down to their normal size.", "Notices");
 				}
+				if (game.global.challengeActive == "Discipline"){
+					game.global.challengeActive = "";
+					game.challenges.Discipline.completed = true;
+					game.portal.Range.locked = false;
+					message("You have completed the <b>Discipline Challenge!</b> You have unlocked a new perk, and your Trimps have regained their Discipline.", "Notices");
+				}
 			}
 		},
 		Shieldblock: {

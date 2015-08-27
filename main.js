@@ -323,6 +323,13 @@ function load(saveString, autoLoad) {
 			message("Your scientists have detected an anomaly at the end of Zone 59. They warn you to be careful if you intend to approach it.", "Notices");
 		}
 	}
+	if (game.global.portalActive && game.global.challengeActive == "Discipline" && game.portal.Range.locked){
+		game.global.challengeActive = "";
+		game.challenges.Discipline.completed = true;
+		game.portal.Range.locked = false;
+		message("You have completed the <b>Discipline Challenge!</b> You have unlocked a new perk, and your Trimps have regained their Discipline.", "Notices");
+	}
+	
 }
 
 function loadGigastations() {
