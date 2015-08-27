@@ -7,7 +7,7 @@
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?2" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?3" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -148,6 +148,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 				<div id="boneMiscColumn" class="col-xs-4 boneBuyColumn">
 					<div class="boneBuyTitle">Other Goodies</div>
 						<div class="boostSpacer">
+						<div id="buyHeliumArea">
 							<div class="boneBtn primaryColor pointer noselect" id="heliumPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Instant Portal for 100 bones. Your new helium will appear in the View Perks menu at the bottom of the screen. Is this what you wanted to do?', 'purchaseMisc(\'helium\')', 100)"> 
 								Buy Portal (100 bones)
 							</div>
@@ -155,6 +156,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 								<b>+ <span id="heliumGainedMisc"></span> Helium </b><br/>
 								Automatically gain helium equal to the amount you would receive for reaching your highest zone, and enable your respec if it has already been used this run
 							</div>
+						</div>
 							<div id="mapsMisc">
 								<div class="boneBtn primaryColor pointer noselect" id="mapsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Golden Maps for 20 bones. All of your current and future maps will gain +100% loot added to their normal loot roll. Is this what you wanted to do?', 'purchaseMisc(\'maps\')', 20)">
 									Buy Golden Maps (20 bones)
@@ -468,7 +470,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 				</ul>
 				</div>
 
-					<div id="numTabs">
+					<div id="numTabs" class="numTabs">
 						<ul class="nav nav-tabs nav-justified">
 							<li role="presentation" id="tab1" onclick="numTab(1)">
 								<a id="tab1Text" href="#">+1</a>
@@ -797,27 +799,61 @@ var kongregate = parent.kongregateAPI.getAPI();
 		<div id="portalTitle"></div>
 		<div id="portalError" style="display: none"></div>
 		<div id="portalHelium"><span id="portalHeliumOwned">0</span> Helium Canisters</div>
-		<div id="portalStory"></div>
-		<div id="portalUpgradesHere"></div>
-		<div id="challenges"  style="display: none">
-			<div id="challengeTitle">Challenges</div>
-			<div id="challengeDescription">
-				You have an available challenge. You can choose to start a challenge by selecting it before activating the Portal. You can abandon the challenge at any time via the "View Perks" menu.
-				<br/><span id="flagMustRestart" style="display: none;"><b>If you abandon this challenge, the portal will become unstable and the world will restart (you'll keep permanent bonuses like helium)</b></span>
-				<div id="specificChallengeDescription">
-				
+		<div class="row" id="portalRow">
+			<div id="perkCol" class="col-xs-6">
+			<div id="portalStory"></div>
+				<div id="pnumTabs" class="numTabs">
+					<ul class="nav nav-tabs nav-justified" id="portalTabs">
+						<li role="presentation" id="ptab1" onclick="numTab(1, true)">
+							<a id="ptab1Text" href="#">+1</a>
+						</li>
+						<li role="presentation" id="ptab2" onclick="numTab(2, true)">
+							<a id="ptab2Text" href="#">+10</a>
+						</li>
+						<li role="presentation" id="ptab3" onclick="numTab(3, true)">
+							<a id="ptab3Text" href="#">+25</a>
+						</li>
+						<li role="presentation" id="ptab4" onclick="numTab(4, true)">
+							<a id="ptab4Text" href="#">+100</a>
+						</li>
+						<li role="presentation" id="ptab5" onclick="tooltip('Custom', null, 'update', true)">
+							<a id="ptab5Text" href="#">Custom</a>
+						</li>
+						<li role="presentation" id="ptabRemove" style="display: none" onclick="toggleRemovePerks()">
+							<a id="ptabRemoveText" href="#">Remove</a>
+						</li>
+					</ul>
 				</div>
+				
+				<div id="portalUpgradesHere"></div>
 			</div>
-			<div id="challengesHere">
-			
+			<div id="challengeCol" class="col-xs-6">
+				<div id="viewChallenge" style="display: none">
+					<span id="viewChallengeText">You do not currently have an active challenge.</span>
+				<br/><br/>
+				<div class="btn btn-warning inPortalBtn" style="display: none" id="cancelChallengeBtn" onclick="confirmAbandonChallenge()">Abandon Challenge</div>
+
+				</div>
+				<div id="challenges"  style="display: none">
+					<div id="challengeTitle">Challenges</div>
+					<div id="challengeDescription">
+						You can also choose to activate a challenge before using your portal. The first time you complete a challenge, you'll earn a permanent reward. You can abandon or view an active challenge at any time by clicking the "View Perks" button.
+						<span id="flagMustRestart" style="display: none;"><b>If you abandon this challenge, the portal will become unstable and the world will restart (you'll keep permanent bonuses like helium)</b></span>
+
+						<div id="specificChallengeDescription">
+						
+						</div>
+					</div>
+					<div id="challengesHere">
+					
+					</div>
+				</div>
 			</div>
 		</div>
 		<div id="portalBtnContainer">
 			<div class="btn btn-primary inPortalBtn" id="activatePortalBtn" onclick="activateClicked()">Activate Portal</div>
 			<div class="btn btn-danger inPortalBtn" id="cancelPortalBtn" onclick="cancelPortal()">Cancel</div>
 			<div class="btn btn-warning inPortalBtn" style="display: none" id="respecPortalBtn" onclick="respecPerks()"></div>
-			<br/><br/>
-			<div class="btn btn-warning inPortalBtn" style="display: none" id="cancelChallengeBtn" onclick="confirmAbandonChallenge();">Abandon Challenge</div>
 		</div>
 	</div>
 
@@ -830,9 +866,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?33"></script>
-	<script type="text/javascript" src="updates.js?33"></script>
-	<script type="text/javascript" src="main.js?33"></script>
+	<script type="text/javascript" src="config.js?34"></script>
+	<script type="text/javascript" src="updates.js?34"></script>
+	<script type="text/javascript" src="main.js?34"></script>
 	
 </body>
 

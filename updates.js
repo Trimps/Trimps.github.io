@@ -17,7 +17,7 @@
 		author's website, you can find a copy at
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
-
+ 
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) {
 	if (document.getElementById(what + "Alert") !== null)	document.getElementById(what + "Alert").innerHTML = "";
@@ -91,6 +91,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = costText.slice(0, -2);
 	}
 	if (what == "Confirm Purchase"){
+		if (attachFunction == "purchaseImport()" && !boneTemp.selectedImport) return;
 		var btnText = "Make Purchase";
 		if (game.global.b < numCheck){
 			if (typeof kongregate === 'undefined') return;
@@ -155,8 +156,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Custom"){
-		tooltipText = "Type a number below to purchase a specific amount.<br/><br/><input type='number' id='customNumberBox' style='width: 50%' value='" + game.global.lastCustomAmt + "'></input>";
-		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='numTab(5)'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		tooltipText = "Type a number below to purchase a specific amount."
+		if (textString) tooltipText += " <b>Max of 1,000 for perks</b>";
+		tooltipText += "<br/><br/><input type='number' id='customNumberBox' style='width: 50%' value='" + game.global.lastCustomAmt + "'></input>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='numTab(5, " + textString + ")'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -222,7 +225,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				what += " X1";
 			}
 			else {
-				
 				what += " X" + game.global.buyAmt;
 			}
 		}
@@ -230,6 +232,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (isItIn == "portal"){
 		var resAppend = (game.global.kongBonusMode) ? " Bonus Points" : " Helium Canisters";
 		costText = prettify(getPortalUpgradePrice(what)) + resAppend;
+		if (game.global.buyAmt > 1) what += " X" + game.global.buyAmt;
 	}
 	if (isItIn == "equipment"){
 		costText = canAffordBuilding(what, false, true, true);
@@ -238,9 +241,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			tooltipText += " (" + prettify(blockPerShield) + " after Trainers)";
 		}
 		if (game.global.buyAmt > 1) {
-			
 			what += " X" + game.global.buyAmt;
-
 		}
 	}
 	if (isItIn == "upgrades"){
@@ -254,6 +255,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			color = color ? "green" : "red";
 			tooltipText = upgradeTextSplit[0] + "<span style='color: " + color + "; font-weight: bold;'>" + upgradeTextSplit[1]  + "</span>";
 		}
+		if (what == "Coordination" && (game.resources.trimps.realMax() < (game.resources.trimps.maxSoldiers * 3))) {
+			var amtToGo = ((game.resources.trimps.maxSoldiers * 3) - game.resources.trimps.realMax());
+			tooltipText += "<b>You need enough room for " + prettify(game.resources.trimps.maxSoldiers * 3) + " max Trimps. You need " + prettify(Math.floor(amtToGo)) + " more.</b>";
+		}
 	}
 	if (isItIn == "maps"){
 		tooltipText = "This is a map. Click it to see its properties or to run it. Maps can be run as many times as you want.";
@@ -264,7 +269,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		what = numCheck;
 		tooltipText = textString;
 		if (!noHide) attachFunction = attachFunction + "; cancelTooltip()";
-		costText = '<div class="maxCenter" id="confirmTipCost"><div class="btn btn-info" onclick="' + attachFunction + '">' + renameBtn + '</div><div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div></div>';
+		costText = ' <div class="maxCenter" id="confirmTipCost"><div class="btn btn-info" onclick="' + attachFunction + '">' + renameBtn + '</div><div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div></div>';
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -285,7 +290,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			text = " and increase the base block of all other Gyms by " + percentIncrease + "%.";
 		}
 		tooltipText = tooltipText.replace('~', text);
-	
 	}
 	document.getElementById("tipTitle").innerHTML = what;
 	document.getElementById("tipText").innerHTML = tooltipText;
@@ -668,6 +672,8 @@ function resetGame(keepPortal) {
 	document.getElementById("wrapper").style.background = "url(css/bg2.png) center repeat-x";
 	setFormation(0);
 	hideFormations();
+	hideBones();
+	cancelTooltip();
 	
 	for (var item in game.resources){
 		var elem = document.getElementById(item + "Ps");
@@ -698,7 +704,7 @@ function resetGame(keepPortal) {
 		highestLevel = game.global.highestLevelCleared;
 		sLevel = game.global.sLevel;
 		lastSkele = game.global.lastSkeletimp;
-		bestHelium = (game.resources.helium.owned > game.global.bestHelium) ? game.resources.helium.owned : game.global.bestHelium;
+		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 	}
 	game = null;
@@ -730,9 +736,10 @@ function resetGame(keepPortal) {
 	repeatClicked(true);
 	toggleAutoTrap(true);
 	resetAdvMaps();
+	cancelPortal();
 }
 
-function message(messageString, type, lootIcon) {
+function message(messageString, type, lootIcon, extraClass) {
 	var log = document.getElementById("log");
 	var displayType = (game.global.messages[type]) ? "block" : "none";
 	if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span> " + messageString;
@@ -748,7 +755,7 @@ function message(messageString, type, lootIcon) {
 	if (type == "Notices"){
 		messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
 	}
-	log.innerHTML += "<span" + addId + " class='" + type + "Message message' style='display: " + displayType + "'>" + messageString + "</span>";
+	log.innerHTML += "<span" + addId + " class='" + type + "Message message" +  " " + extraClass + "' style='display: " + displayType + "'>" + messageString + "</span>";
 	log.scrollTop = log.scrollHeight;
 	trimMessages(type);
 }
@@ -817,15 +824,22 @@ function getTabClass(displayed){
 }
 
 
-function numTab (what) {
+function numTab (what, p) {
 	var num = 0;
 	if (what == 5){
 		
 		unlockTooltip();
 		tooltip('hide');
-		num = Math.ceil(parseInt(document.getElementById("customNumberBox").value, 10));
+		var numBox = document.getElementById("customNumberBox");
+		if (numBox)	num = Math.ceil(parseInt(document.getElementById("customNumberBox").value, 10));
+		else num = game.global.lastCustomAmt;
+		if (p && num > 1000){
+			return;
+		}
 		if (num > 0) {
-			document.getElementById("tab5Text").innerHTML = "+" + prettify(num);
+			var text = "+" + prettify(num);
+			document.getElementById("tab5Text").innerHTML = text;
+			document.getElementById("ptab5Text").innerHTML = text;
 			game.global.buyAmt = num;
 			game.global.lastCustomAmt = num;
 		}
@@ -837,8 +851,9 @@ function numTab (what) {
 	if (typeof what === 'undefined') what = game.global.numTab;
 	else
 	game.global.numTab = what;
+	var tabType = (p) ? "ptab" : "tab";
 	for (var x = 1; x <= 5; x++){
-		var thisTab = document.getElementById("tab" + x);
+		var thisTab = document.getElementById(tabType + x);
 		thisTab.style.background = (what == x) ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.25)";	
 		if (x == 5) return;
 		switch (x){
@@ -1134,7 +1149,10 @@ function checkButtons(what) {
 	if (what == "upgrades"){
 		for (var itemA in game.upgrades){
 			if (game.upgrades[itemA].locked == 1) continue;
-			updateButtonColor(itemA, canAffordTwoLevel(game.upgrades[itemA]));
+			if (itemA == "Coordination")
+				updateButtonColor(itemA, (canAffordTwoLevel(game.upgrades[itemA]) && (game.resources.trimps.realMax() >= (game.resources.trimps.maxSoldiers * 3))));
+			else
+				updateButtonColor(itemA, canAffordTwoLevel(game.upgrades[itemA]));
 		}
 		return;
 	}

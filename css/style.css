@@ -303,6 +303,14 @@ overflow-x: hidden;
     background: rgba(255, 255, 255, 0.25);
 }
 
+#viewChallengeText {
+	font-size: 1.3vw;
+}
+
+#portalRow {
+	margin-top: 1vw;
+}
+
 .nav > li > a:hover {
     background: rgba(0, 0, 0, 0.5);
 }
@@ -685,6 +693,8 @@ overflow-x: hidden;
 	height: 100vh;
 	padding: 20px;
 	text-align: center;
+	padding-left: 10vw;
+	padding-right: 10vw;
 }
 
 .activatePortalBtn{
@@ -693,7 +703,6 @@ overflow-x: hidden;
 }
 
 #portalStory{
-	width: 50vw;
 	display: inline-block;
 	font-size: 1.2vw;
 }
@@ -703,7 +712,6 @@ overflow-x: hidden;
 }
 
 #portalUpgradesHere{
-	width: 50vw;
 	display: inline-block;
 }
 
@@ -735,6 +743,12 @@ overflow-x: hidden;
 #saveGame{
 	color: #7CFC00;
 }
+
+.exotic{
+	color: #640169 !important;
+	background: rgba(255, 255, 255, 0.5);
+}
+
 .noRecycle{
 	background-color: red;
 }
@@ -1015,15 +1029,13 @@ overflow-x: hidden;
 }
 
 #specificChallengeDescription{
-	height: 3vw;
+	min-height: 10vw;
 	margin: 1vw;
 	color: #318696;
 	background-color: #d0d0d0;
 }
 
 #challenges{
-	background-color: grey;
-	color: white;
 	margin: 1vw;
 }
 
@@ -1034,6 +1046,18 @@ overflow-x: hidden;
 
 #challengeDescription{
 	font-size: 1vw;
+	height: 20vw;
+}
+
+#portalTabs{
+    background: black;
+	border: 1px solid white;
+	margin-bottom: .5vw;
+	margin-top: .5vw;
+}
+
+#ptabRemove > a {
+	color: red;
 }
 
 #portalError{
@@ -1075,6 +1099,10 @@ overflow-x: hidden;
 
 }
 
+.finishedChallenge {
+	background-color: grey;
+}
+
 .formationBtn{
 	background-color: grey;
 	color: white;
@@ -1113,8 +1141,8 @@ overflow-x: hidden;
 
 .btn-new {
   color: #fff;
-  background-color: #b5466b;
-  border-color: #62253a;
+  background: rgba(0, 255, 0, 0.3);
+  border-color: #037c03;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -1123,8 +1151,8 @@ overflow-x: hidden;
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: #fff;
-  background-color: #923956;
-  border-color: #62253a;
+  background: rgba(2, 190, 2, 0.3);
+  border-color: #037c03;
 }
 .btn-new:active,
 .btn-new.active,

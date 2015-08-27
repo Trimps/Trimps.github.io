@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.01,
+		version: 2.1,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -94,6 +94,8 @@ var toReturn = {
 		brokenPlanet: false,
 		formation: 0,
 		bestHelium: 0,
+		tempHighHelium: 0,
+		removingPerks: false,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -201,6 +203,15 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "You're beginning to notice ways to make equally powerful equipment with considerably fewer resources. Bringing back these new ideas will allow you to spend 5% fewer resources <b>than the current cost (compounds)</b> per level on all equipment."
 		},
+		Range: {
+			level: 0,
+			locked: true,
+			modifier: 2,
+			max: 10,
+			priceBase: 1,
+			heliumSpent: 0,
+			tooltip: "Use your new-found leadership skills in order to increase the minimum damage your Trimps deal by 2% per level. Stacks up to 10 times, doesn't affect max damage. At 10 levels, you will get a minimum of 100% benefit from all attack damage per strike.",
+		},
 		Agility: {
 			level: 0, 
 			modifier: 0.05,
@@ -277,11 +288,18 @@ var toReturn = {
 	},
 	
 	challenges: {
+		Discipline: {
+			description: "Tweak the portal to bring you back to a universe where Trimps are less disciplined, in order to teach you how to be a better Trimp trainer. Your Trimps' minimum damage will be drastically lower, but their high end damage will be considerably higher. Completing The Dimension Of Anger will cause Trimp damage to return to normal.",
+			filter: function () {
+				return (game.resources.helium.owned >= 30);
+			},
+			unlocks: "Range",
+		},
 		Metal: {
 			description: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies. If you complete The Dimension Of Anger without disabling the challenge, miners will re-unlock.",
 			completed: false,
 			filter: function () {
-				return (game.global.totalPortals >= 1);
+				return (game.global.highestLevelCleared >= 24);
 			},
 			abandon: function () {
 				game.worldUnlocks.Miner.fire();
@@ -392,7 +410,7 @@ var toReturn = {
 		w59: "There it is. The anomaly is at the end of the zone. You can see it but you don't know what you're seeing. Where did that... thing... come from?! This is highly Improbable.",
 		w60: "The ground instantly cracks and large plumes of green gas escape from the planet's core to the atmosphere. The planet feels different. Everything feels different. This Universe has grown unstable, the planet has broken. What have you done?",
 		w61: "Other than all the dead Trimps, that wasn't so bad.",
-		w65: "You feel more powerful than ever. The universe seems to be constantly adjusting itself to get rid of you, yet you rise against and persist. Something as tiny as you taking on an entire universe! David and his slingshot got nothin' on that.",
+		w65: "You feel more powerful than ever. The universe seems to be constantly adjusting itself to get rid of you, yet you rise against and persist. Something as tiny as you taking on an entire universe!",
 		w68: "You figure some entertainment wouldn't be awful, and decide to teach your Trimps how to play soccer. A few hours and zero progress later, you really regret that decision.",
 		w70: "The Improbabilities haven't seemed to slow down. You know you need to figure out a plan, but you don't know what to plan for.",
 		w72: "You slash through another Improbability with relative ease, but something isn't right. A sour smell hits your nose and in disgust, you whip around in search of the source. Oh, wait, it's just the Trimps.",
@@ -405,7 +423,6 @@ var toReturn = {
 		speed: 10,
 		speedTemp: 0,
 		slowdown: false,
-		barAnimation: true
 	},
 	
 	resources: {
@@ -714,7 +731,8 @@ var toReturn = {
 				rewardResource("wood", 2, level);
 				rewardResource("metal", 2, level);
 				message("That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot", "piggy-bank");
-				if (game.global.portalActive){
+				if (game.global.world >= 20 && (game.global.totalPortals >= 1 || game.global.portalActive)){
+					if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 					amt = rewardResource("helium", 1, level);
 					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
 				}
@@ -776,7 +794,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 3, level, true);
-				message("That Goblimp dropped " + prettify(amt) + " gems! What a bro!", "Loot", "certificate");
+				message("That Goblimp dropped " + prettify(amt) + " gems! What a bro!", "Loot", "certificate", "exotic");
 				game.unlocks.impCount.Goblimp++;
 			}
 		},
@@ -790,7 +808,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 7.5, level);
-				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "certificate");
+				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "certificate", "exotic");
 				game.unlocks.impCount.Feyimp++;
 			}
 		},
@@ -804,7 +822,7 @@ var toReturn = {
 			dropDesc: "Drops Fragments",
 			loot: function (level) {
 				var amt = rewardResource("fragments", 1, level, true);
-				message("You stole " + prettify(amt) + " fragments from that Flutimp! It really didn't look like she needed them though, don't feel bad.", "Loot", "th");
+				message("You stole " + prettify(amt) + " fragments from that Flutimp! It really didn't look like she needed them though, don't feel bad.", "Loot", "th", "exotic");
 				game.unlocks.impCount.Flutimp++;
 			}
 		},
@@ -812,14 +830,14 @@ var toReturn = {
 			location: "World",
 			locked: 1,
 			world: 1,
-			attack: 0.5,
-			health: 0.5,
-			fast: true,
+			attack: 1,
+			health: 1,
+			fast: false,
 			dropDesc: "Grants 1/3 Zone # in Max Trimps",
 			loot: function () {
 				var amt = Math.ceil(game.global.world / 3);
 				game.resources.trimps.max += amt;
-				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + amt + " Trimps to live inside!", "Loot", "gift");
+				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + amt + " Trimps to live inside!", "Loot", "gift", "exotic");
 				game.unlocks.impCount.Tauntimp++;
 				game.unlocks.impCount.TauntimpAdded += amt;
 			}
@@ -839,7 +857,7 @@ var toReturn = {
 				game.jobs.Scientist.modifier *= 1.003;
 				game.jobs.Dragimp.modifier *= 1.003;
 				game.jobs.Explorer.modifier *= 1.003;
-				message("Seeing the Whipimp fall has caused all of your Trimps to work 0.3% harder!", "Loot", "star");
+				message("Seeing the Whipimp fall has caused all of your Trimps to work 0.3% harder!", "Loot", "star", "exotic");
 				game.unlocks.impCount.Whipimp++;
 			}
 		},
@@ -853,7 +871,7 @@ var toReturn = {
 			dropDesc: "Grants 0.3% Trimp breed speed",
 			loot: function () {
 				game.resources.trimps.potency *= 1.003;
-				message("This ground up Venimp increased your Trimps' breeding speed by 0.3%!", "Loot", "glass");
+				message("This ground up Venimp increased your Trimps' breeding speed by 0.3%!", "Loot", "glass", "exotic");
 				game.unlocks.impCount.Venimp++;
 			}
 		},
@@ -1201,17 +1219,61 @@ var toReturn = {
 				unlockBuilding("Hotel");
 			}
 		},
+		UberHut: {
+			world: -1,
+			startAt: 18,
+			message: "This extremely technical book will teach anyone who can understand the big words how to make bigger huts.",
+			level: [10, 20],
+			icon: "book",
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("UberHut");
+			}
+		},
+		UberHouse: {
+			world: -1, 
+			startAt: 29,
+			message: "This book talks about adding a second floor to your homes! Mind... blown...",
+			level: [10, 20],
+			icon: "book",
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("UberHouse");
+			}
+		},
+		UberMansion: {
+			world: -1, 
+			startAt: 34,
+			message: "This book will teach you how to make your Trimps share their mansions!",
+			level: [10, 20],
+			icon: "book",
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("UberMansion");
+			}
+		},
 		UberHotel: {
 			world: -1,
 			startAt: 40,
-			message: "You found a book that will teach you how to improve your hotels!",
+			message: "This book will teach you how to build smaller hotel rooms!",
 			level: [5, 10],
 			icon: "book",
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("UberHotel");
 			}
-		}, 
+		},
+		UberResort: {
+			world: -1,
+			startAt: 47,
+			level: [5, 10],
+			message: "Wow! This book! It's so Resortsfull!",
+			icon: "book",
+			canRunOnce: true,
+			fire: function () {
+				unlockUpgrade("UberResort");
+			}
+		},
 		Resort: {
 			world: -1,
 			startAt: 25,
@@ -1279,16 +1341,6 @@ var toReturn = {
 				unlockBuilding("Nursery");
 			}
 		},
-/*		UberResort: {
-			world: 40,
-			message: "You found a book that will teach you how to improve your resorts!",
-			level: "last",
-			icon: "book",
-			canRunOnce: true,
-			fire: function () {
-				unlockUpgrade("UberResort");
-			}
-		}, */
 		gems: {
 			world: -1,
 			level: [0, 7],
@@ -1594,6 +1646,63 @@ var toReturn = {
 			addClass: "brokenUpgrade",
 			world: -1,
 			startAt: 61,
+			lastAt: 69,
+			level: 19,
+			icon: "book",
+			title: "Gigastation",
+			fire: function () {
+				unlockUpgrade("Gigastation");
+			}
+		},
+		Gigastation2: {
+			message: "You found blueprints detailing how to upgrade your Warpstation. Blimey!",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -2,
+			startAt: 70,
+			lastAt: 78,
+			level: 19,
+			icon: "book",
+			title: "Gigastation",
+			fire: function () {
+				unlockUpgrade("Gigastation");
+			}
+		},
+		Gigastation3: {
+			message: "You found blueprints detailing how to upgrade your Warpstation. Blimey!",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -33,
+			startAt: 81,
+			lastAt: 90,
+			level: 19,
+			icon: "book",
+			title: "Gigastation",
+			fire: function () {
+				unlockUpgrade("Gigastation");
+			}
+		},
+		Gigastation4: {
+			message: "You found blueprints detailing how to upgrade your Warpstation. Blimey!",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -5,
+			startAt: 95,
+			lastAt: 100,
+			level: 19,
+			icon: "book",
+			title: "Gigastation",
+			fire: function () {
+				unlockUpgrade("Gigastation");
+			}
+		},
+		Gigastation5: {
+			message: "You found blueprints detailing how to upgrade your Warpstation. Blimey!",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -10,
+			startAt: 110,
+			lastAt: 120,
 			level: 19,
 			icon: "book",
 			title: "Gigastation",
@@ -2498,6 +2607,57 @@ var toReturn = {
 				game.resources.trimps.potency *= 1.1;
 			}
 		},
+	UberHut: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will increase the space gained from each Hut by 2x",
+			done: 0,
+			cost: {
+				resources: {
+					science: 30000,
+					food: 200000,
+					metal: 100000
+				}
+			},
+			fire: function () {
+				game.resources.trimps.max += ((game.buildings.Hut.owned) * game.buildings.Hut.increase.by);
+				game.buildings.Hut.increase.by *= 2;
+			}
+		},
+	UberHouse: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will increase the space gained from each House by 2x",
+			done: 0,
+			cost: {
+				resources: {
+					science: 300000,
+					food: 2000000,
+					metal: 1000000
+				}
+			},
+			fire: function () {
+				game.resources.trimps.max += ((game.buildings.House.owned) * game.buildings.House.increase.by);
+				game.buildings.House.increase.by *= 2;
+			}
+		},
+	UberMansion: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will increase the space gained from each Mansion by 2x",
+			done: 0,
+			cost: {
+				resources: {
+					science: 3000000,
+					food: 20000000,
+					metal: 10000000
+				}
+			},
+			fire: function () {
+				game.resources.trimps.max += ((game.buildings.Mansion.owned) * game.buildings.Mansion.increase.by);
+				game.buildings.Mansion.increase.by *= 2;
+			}
+		},
 	UberHotel: {
 			locked: 1,
 			allowed: 0,
@@ -2505,9 +2665,9 @@ var toReturn = {
 			done: 0,
 			cost: {
 				resources: {
-					science: [300000, 1.15],
-					food: [20000000, 1.1],
-					metal: [10000000, 1.1]
+					science: 30000000,
+					food: 200000000,
+					metal: 100000000
 				}
 			},
 			fire: function () {
@@ -2515,6 +2675,24 @@ var toReturn = {
 				game.buildings.Hotel.increase.by *= 2;
 			}
 		},
+	UberResort: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will increase the space gained from each Resort by 2x",
+			done: 0,
+			cost: {
+				resources: {
+					science: 300000000,
+					food: 2000000000,
+					metal: 1000000000
+				}
+			},
+			fire: function () {
+				game.resources.trimps.max += ((game.buildings.Resort.owned) * game.buildings.Resort.increase.by);
+				game.buildings.Resort.increase.by *= 2;
+			}
+		},
+
 		Anger: {
 			locked: 1,
 			allowed: 0,
