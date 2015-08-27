@@ -1990,7 +1990,7 @@ function startFight() {
     }
     cellElem.style.backgroundColor = "yellow";
 	var badName = cell.name;
-	if (game.global.brokenPlanet)
+	if (game.global.brokenPlanet && !game.global.mapsActive)
 		badName += ' <span class="badge badBadge" title="20% of this Bad Guy\'s damage pierces through block"><span class="glyphicon glyphicon-tint"></span></span>';	
 	if (game.badGuys[cell.name].fast)
 		badName += ' <span class="badge badBadge" title="This Bad Guy is fast and attacks first"><span class="glyphicon glyphicon-forward"></span></span>';
