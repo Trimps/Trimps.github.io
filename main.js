@@ -2091,20 +2091,19 @@ function updateAllBattleNumbers (skipNum) {
 }
 
 function calculateDamage(number, buildString, isTrimp) { //number = base attack
-    var fluctuation = 20; //%fluctuation
-	var min;
-	var minMult = fluctuation;
+    var fluctuation = .2; //%fluctuation
+	var maxFluct = -1;
+	var minFluct = -1;
 	if (game.global.challengeActive == "Discipline" && isTrimp){
-		fluctuation = 99.5;
-		minMult = 99.5;
+		fluctuation = .995;
 	}
 	else if (game.portal.Range.level > 0 && isTrimp){
-		minMult = fluctuation - (2 * game.portal.Range.level);
+		minFluct = fluctuation - (.02 * game.portal.Range.level);
 	}
-    var multiplier = (fluctuation / 100);
-	minMult /= 100;
-   min = Math.floor(number * (1 - minMult));
-    var max = Math.ceil(number + (number * multiplier));
+	if (maxFluct == -1) maxFluct = fluctuation;
+	if (minFluct == -1) minFluct = fluctuation;
+	var min = Math.floor(number * (1 - minFluct));
+    var max = Math.ceil(number + (number * maxFluct));
     if (buildString) return prettify(min, 0) + "-" + prettify(max, 0);
     number = Math.floor(Math.random() * ((max + 1) - min)) + min;
     return number;
