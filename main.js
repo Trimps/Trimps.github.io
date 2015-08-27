@@ -2090,7 +2090,7 @@ function calculateDamage(number, buildString, isTrimp) { //number = base attack
 	if (game.global.challengeActive == "Discipline" && isTrimp){
 		fluctuation = 99.5;
 	}
-	else if (game.portal.Range.level > 0){
+	else if (game.portal.Range.level > 0 && isTrimp){
 		minMult = fluctuation - (2 * game.portal.Range.level);
 	}
     var multiplier = (fluctuation / 100);
