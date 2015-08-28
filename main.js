@@ -1414,14 +1414,14 @@ function getMapMinMax(what, value){
 
 function buyMap() {
 	var cost = updateMapCost(true);
-	if (game.resources.fragments.owned >= cost){
-		var newLevel = parseInt(document.getElementById("mapLevelInput").value, 10);
-		if (newLevel > 5 && newLevel <= game.global.world){
-		game.resources.fragments.owned -= cost;
-		
+	var newLevel = parseInt(document.getElementById("mapLevelInput").value, 10);
+	if (!newLevel || newLevel <= 5 || newLevel > game.global.world || isNaN(newLevel) || isNaN(cost)) {
+		message("You must create a map between level 6 and your highest zone, " + game.global.world + ".", "Notices");
+		return;
+	}
+	if (cost > 0 && game.resources.fragments.owned >= cost){
+		game.resources.fragments.owned -= cost;	
 		createMap(newLevel);
-		}
-		else message("You must create a map between level 6 and your highest zone, " + game.global.world + ".", "Notices");
 	}
 	else message("You can't afford this map! You need " + prettify(cost) + " fragments.", "Notices");
 }
