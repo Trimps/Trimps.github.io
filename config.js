@@ -1376,7 +1376,7 @@ var toReturn = {
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("food", 0.5, level, true);
-				message("That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot", "Apple");
+				message("That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot", "apple");
 			}
 		},
 		Wood: {
