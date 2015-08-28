@@ -690,7 +690,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				var amt = rewardResource("food", 0.5, level, true);
-				message("That Chickimp dropped " + prettify(amt) + " food!", "Loot", "Apple");
+				message("That Chickimp dropped " + prettify(amt) + " food!", "Loot", "apple");
 			}
 		},
 		Onoudidimp: {
