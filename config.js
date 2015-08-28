@@ -1589,7 +1589,7 @@ var toReturn = {
 			}
 		},
 		Trainer: {
-			message: "You found an book about proper physical training!",
+			message: "You found a book about proper physical training!",
 			world: 3,
 			level: 3, 
 			icon: "book",
