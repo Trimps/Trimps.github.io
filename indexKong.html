@@ -877,7 +877,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 	function onWheel (e){
 		if (e.target.parentElement.offsetParent === buyCol){
 		try{
-		if((e.wheelDelta < 0 && (buyHere.clientHeight === (buyHere.scrollHeight - buyHere.scrollTop))) || (e.wheelDelta > 0 && (buyHere.scrollTop == 0))){
+		if((e.wheelDelta < 0 && (buyHere.scrollTop === (buyHere.scrollHeight - buyHere.offsetHeight))) || (e.wheelDelta > 0 && (buyHere.scrollTop == 0))){
 			e.preventDefault();
 			e.stopPropagation();
 			}
