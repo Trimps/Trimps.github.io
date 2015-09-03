@@ -240,7 +240,7 @@ function load(saveString, autoLoad) {
 			}
 		}
 	}
-	if (oldVersion < 2.11){
+	if (oldVersion < 2.111){
 		var totalHelium = 0;
 		for (var item in game.portal){
 			if (game.portal[item].locked) continue;
@@ -250,6 +250,7 @@ function load(saveString, autoLoad) {
 		}
 		game.global.totalHeliumEarned = totalHelium;
 		game.global.totalHeliumEarned += game.global.heliumLeftover;
+		game.global.totalHeliumEarned += game.resources.helium.owned;
 	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
