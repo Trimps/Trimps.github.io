@@ -106,6 +106,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
 	}
+	if (what == "Respec"){
+		tooltipText = "You can respec your perks once per portal. Clicking cancel after clicking this button will not consume your respec.";
+		costText = "";
+	}
 	if (what == "Donate"){
 		tooltipText = "I've spent a lot of hours working on this game, and I would love more than anything to be able to continue adding and expanding. I really enjoy making games, like a lot. Your donation, no matter how small, will help me to be able to make more games, and I will be forever indebted to you! <br/><form style='text-align: center' action='https://www.paypal.com/cgi-bin/webscr' method='post' target='_blank'><input type='hidden' name='cmd' value='_s-xclick'><input type='hidden' name='hosted_button_id' value='MGFEJS3VVJG6U'><input type='image' src='https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif' border='0' name='submit' alt='PayPal - The safer, easier way to pay online!'><img alt='' border='0' src='https://www.paypalobjects.com/en_US/i/scr/pixel.gif' width='1' height='1'></form>";
 		game.global.lockTooltip = true;
@@ -670,6 +674,7 @@ function resetGame(keepPortal) {
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
 	document.getElementById("wrapper").style.background = "url(css/bg2.png) center repeat-x";
+	document.getElementById("tab5Text").innerHTML = "+1";
 	setFormation(0);
 	hideFormations();
 	hideBones();
@@ -695,6 +700,7 @@ function resetGame(keepPortal) {
 	var sLevel = 0;
 	var lastSkele;
 	var bestHelium;
+	var totalHeliumEarned;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -704,6 +710,7 @@ function resetGame(keepPortal) {
 		highestLevel = game.global.highestLevelCleared;
 		sLevel = game.global.sLevel;
 		lastSkele = game.global.lastSkeletimp;
+		totalHeliumEarned = game.global.totalHeliumEarned;
 		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 	}
@@ -722,12 +729,16 @@ function resetGame(keepPortal) {
 		game.global.challengeActive = challenge;
 		game.global.sLevel = sLevel;
 		game.global.lastSkeletimp = lastSkele;
-		if (sLevel == 1) {
+		game.global.totalHeliumEarned = totalHeliumEarned;
+		if (sLevel >= 1) {
 			game.resources.science.owned += 5000;
 			game.resources.wood.owned += 100;
 			game.resources.food.owned += 100;
 			game.global.autoCraftModifier += 0.25;
 			document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
+		}
+		if (sLevel >= 2){
+			applyS2();
 		}
 		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 	}
@@ -737,6 +748,24 @@ function resetGame(keepPortal) {
 	toggleAutoTrap(true);
 	resetAdvMaps();
 	cancelPortal();
+}
+
+function applyS2(){
+	var toUnlock = ["Supershield", "Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate"];
+	for (var x = 0; x < toUnlock.length; x++){
+		var upgradeToUnlock = game.mapUnlocks[toUnlock[x]];
+		upgradeToUnlock.fire();
+		upgradeToUnlock.last += 5;
+	}
+	game.buildings.Barn.owned = 5;
+	game.buildings.Barn.purchased = 5;
+	game.resources.food.max = 16000;
+	game.buildings.Shed.owned = 5;
+	game.buildings.Shed.purchased = 5;
+	game.resources.wood.max = 16000;
+	game.buildings.Forge.owned = 5;
+	game.buildings.Forge.purchased = 5;
+	game.resources.metal.max = 16000;
 }
 
 function message(messageString, type, lootIcon, extraClass) {
