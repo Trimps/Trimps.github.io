@@ -2154,7 +2154,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 1200,
-			tooltip: "Create a gigantic Warpstation, capabale of housing tons of Trimps and instantly transporting them back to the home planet when needed. Supports $incby$ Trimps.",
+			tooltip: "Create a gigantic Warpstation, capable of housing tons of Trimps and instantly transporting them back to the home planet when needed. Supports $incby$ Trimps.",
 			cost: {
 				gems: [100000000000000, 1.4],
 				metal: [1000000000000000, 1.4]
