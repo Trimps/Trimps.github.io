@@ -724,17 +724,9 @@ overflow-x: hidden;
 #portalHelium{
 	font-size: 2vw;
 }
-#portalTotalHelium{
-	font-size: 1.3vw;
-}
 
 .inPortalBtn{
 	font-size: 2vw !important;
-}
-
-.inPortalBtnSm{
-	font-size: 1.5vw !important;
-	margin-bottom: .5vw;
 }
 
 #biomeAdvMapsSelect{
@@ -1019,14 +1011,8 @@ overflow-x: hidden;
 	background-color: #998100;
 }
 
-#bonesFrom{
-	margin-top: .5vw;
-	display: inline-block;
-}
-
 #getBundleBtn{
-	margin-top: .5vw;
-	margin-left: -4px;
+	margin-top: 1vw;
 	border: 1px solid black;
 	font-size: 0.8em !important;
 	color: white !important;
@@ -1155,8 +1141,8 @@ overflow-x: hidden;
 
 .btn-new {
   color: #fff;
-  background-color: #500F0F;
-  border-color: #230707;
+  background: rgba(0, 255, 0, 0.3);
+  border-color: #037c03;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -1165,14 +1151,15 @@ overflow-x: hidden;
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: #fff;
-  background-color: #3c0c0c;
-  border-color: #230707;
+  background: rgba(2, 190, 2, 0.3);
+  border-color: #037c03;
 }
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   background-image: none;
 }
+
 
 #flagMustRestart{
 	color: maroon;

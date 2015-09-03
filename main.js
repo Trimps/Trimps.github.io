@@ -240,17 +240,7 @@ function load(saveString, autoLoad) {
 			}
 		}
 	}
-	if (oldVersion < 2.11){
-		var totalHelium = 0;
-		for (var item in game.portal){
-			if (game.portal[item].locked) continue;
-			var portUpgrade = game.portal[item];
-			if (typeof portUpgrade.level === 'undefined' || portUpgrade.level <= 0) continue;
-			totalHelium += portUpgrade.heliumSpent;
-		}
-		game.global.totalHeliumEarned = totalHelium;
-		game.global.totalHeliumEarned += game.global.heliumLeftover;
-	}
+
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
@@ -339,7 +329,6 @@ function load(saveString, autoLoad) {
 		game.portal.Range.locked = false;
 		message("You have completed the <b>Discipline Challenge!</b> You have unlocked a new perk, and your Trimps have regained their Discipline.", "Notices");
 	}
-	document.getElementById("tab5Text").innerHTML = "+" + prettify(game.global.lastCustomAmt);
 	
 }
 
@@ -355,20 +344,14 @@ function portalClicked() {
 	game.global.respecActive = false;
 	game.global.tempHighHelium = game.resources.helium.owned;
 	document.getElementById("wrapper").style.display = "none";
-	var bgColor = "";
-	if (game.global.sLevel == 1) bgColor = "#00b386";
-	else if (game.global.sLevel == 2) bgColor = "#3db0f8";
-	else bgColor = "green";
-	document.getElementById("portalWrapper").style.backgroundColor = bgColor;
+	document.getElementById("portalWrapper").style.backgroundColor = (game.global.sLevel === 0) ? "green" : "#00b386";
 	document.getElementById("portalWrapper").style.color = "black";
 	fadeIn("portalWrapper", 10);
 	var titleText = "Time Portal";
 	if (game.global.sLevel == 1) titleText += " Mk. II";
-	else if (game.global.sLevel == 2) titleText += " Mk. III";
 	document.getElementById("portalTitle").innerHTML = titleText;	
 	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(game.resources.helium.owned + game.global.heliumLeftover) + '</span> Helium';
-	document.getElementById("totalHeliumEarned").innerHTML = prettify(game.global.totalHeliumEarned);
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
 	document.getElementById("activatePortalBtn").innerHTML = "Activate Portal";
 	document.getElementById("respecPortalBtn").style.display = "none";
@@ -384,23 +367,14 @@ function displayChallenges() {
 	document.getElementById("specificChallengeDescription").innerHTML = "";
 	challengesHere.innerHTML = '<div class="noselect pointer challengeThing thing" id="challenge0" onclick="selectChallenge(0)"><span class="thingName">None</span></div>';
 	for (var what in game.challenges){
-		var name = "";
 		var challenge = game.challenges[what];
 		if (!challenge.filter()) continue;
 		challengeCount++;
 		var done = false;
 		if (game.portal[game.challenges[what].unlocks]) done = (game.portal[game.challenges[what].unlocks].locked) ? false : true;
-		else if (what == "Scientist" && game.global.sLevel > 0) {
-			if (game.global.sLevel >= 1 && game.global.highestLevelCleared >= 49){
-				name = "Scientist II";
-				if (game.global.sLevel == 2) done = true;
-			}
-			else
-			done = true;
-		}
+		else if (what == "Scientist" && game.global.sLevel > 0) done = true;
 		done = (done) ? "finishedChallenge" : "";
-		if (!name) name = what;
-		challengesHere.innerHTML += '<div class="noselect pointer challengeThing thing ' + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + name + '</span></div>';
+		challengesHere.innerHTML += '<div class="noselect pointer challengeThing thing ' + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + what + '</span></div>';
 	}
 	if (challengeCount > 0) document.getElementById("challenges").style.display = "block";
 	document.getElementById("flagMustRestart").style.display = "none";
@@ -420,35 +394,13 @@ function selectChallenge(what) {
 	var desc = game.challenges[what].description;
 	desc += "<b>";
 	if (game.portal[game.challenges[what].unlocks]) desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
-	else if (what == "Scientist") {
-		var sciLev = getScientistLevel();
-		if (sciLev == game.global.sLevel) desc += " You have already completed this challenge!";
-		desc = desc.replace("_", getScientistInfo(sciLev));
-		desc = desc.replace("*", getScientistInfo(sciLev, true));
-	}
+	else if (what == "Scientist" && game.global.sLevel > 0) desc += " You have already completed this challenge!";
 	desc += "</b>";
 	document.getElementById("specificChallengeDescription").innerHTML = desc;
 	game.global.selectedChallenge = what;
 	document.getElementById("flagMustRestart").style.display = (what == "Scientist") ? "inline" : "none";
 	
 	if (addChallenge !== null) addChallenge.innerHTML = "You have the <b>" + what + " Challenge</b> active.";
-}
-
-function getScientistLevel() {
-	if (game.global.sLevel == 0) return 1;
-	if (game.global.highestLevelCleared >= 49) return 2;
-	return 1;
-}
-
-function getScientistInfo(number, reward){
-	switch (number){
-		case 1: {
-			return (reward) ? "5000 Science, 100 Food, 100 Wood, and 1 Foreman" : 11500;
-		}
-		case 2: {
-			return (reward) ? "5 Barns, 5 Sheds, 5 Forges, and T2 Equipment unlocked" : 8000;
-		}
-	}
 }
 
 function confirmAbandonChallenge(){
@@ -477,27 +429,14 @@ function viewPortalUpgrades() {
 	game.global.viewingUpgrades = true;
 	game.resources.helium.respecMax = game.global.heliumLeftover;
 	document.getElementById("viewChallenge").style.display = "block";
-	var challengeText = "";
-	if (game.global.challengeActive){
-		var description = game.challenges[game.global.challengeActive].description;
-		if (game.global.challengeActive == "Scientist"){
-			var sciLevel = getScientistLevel();
-			description = description.replace('_', getScientistInfo(sciLevel));
-			description = description.replace('*', getScientistInfo(sciLevel, true));
-		}
-		challengeText = "You have the " + game.global.challengeActive + " challenge active. \"" + description + "\"";
-	}
-	else
-		challengeText = "You don't have an active challenge.";
-	document.getElementById("viewChallengeText").innerHTML = challengeText;
+	document.getElementById("viewChallengeText").innerHTML = (game.global.challengeActive) ? "You have the " + game.global.challengeActive + " challenge active. \"" + game.challenges[game.global.challengeActive].description + "\"" : "You don't have an active challenge.";
 	document.getElementById("wrapper").style.display = "none";
 	document.getElementById("portalWrapper").style.backgroundColor = "black";
 	document.getElementById("portalWrapper").style.color = "white";
 	fadeIn("portalWrapper", 10);
 	document.getElementById("portalTitle").innerHTML = "View Perks";
-	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(parseInt(game.global.heliumLeftover, 10)) + '</span> Helium Left Over';
+	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(parseInt(game.global.heliumLeftover, 10)) + '</span> Left Over';
 	document.getElementById("portalStory").innerHTML = "These are all of your perks! You can reset them once per run.";
-	document.getElementById("totalHeliumEarned").innerHTML = prettify(parseInt(game.global.totalHeliumEarned, 10));
 	document.getElementById("cancelPortalBtn").innerHTML = "Cancel";
 	document.getElementById("activatePortalBtn").style.display = "none";
 	if (game.global.canRespecPerks) {
@@ -601,32 +540,23 @@ function respecPerks(){
 	if (!game.global.viewingUpgrades) return;
 	game.global.respecActive = true;
 	displayPortalUpgrades();
-	game.resources.helium.respecMax = game.global.heliumLeftover;
+	game.resources.helium.respecMax = 0;
+	for (var item in game.portal){
+		if (game.portal[item].locked) continue;
+		var portUpgrade = game.portal[item];
+		if (typeof portUpgrade.level === 'undefined') continue;
+		portUpgrade.levelTemp -= portUpgrade.level;
+		portUpgrade.heliumSpentTemp -= portUpgrade.heliumSpent;
+		game.resources.helium.respecMax += portUpgrade.heliumSpent;
+		document.getElementById(item + "Owned").innerHTML = "0";
+	}
+
+	game.resources.helium.respecMax += game.global.heliumLeftover;
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax);
 	document.getElementById("respecPortalBtn").style.display = "none";
 	document.getElementById("portalStory").innerHTML = "You can only respec once per run. Clicking cancel will not consume this use.";
 	document.getElementById("portalTitle").innerHTML = "Respec Perks";
 	document.getElementById("ptabRemove").style.display = "table-cell";
-	document.getElementById("clearPerksBtn").style.display = "inline-block";
-}
-
-function clearPerks(){
-	if (!game.global.respecActive) return;
-	game.resources.helium.respecMax = game.global.heliumLeftover;
-	game.resources.helium.totalSpentTemp = 0;
-	for (var item in game.portal){
-		if (game.portal[item].locked) continue;
-		var portUpgrade = game.portal[item];
-		if (typeof portUpgrade.level === 'undefined') continue;
-		portUpgrade.levelTemp = 0;
-		portUpgrade.levelTemp -= portUpgrade.level;
-		game.resources.helium.respecMax += portUpgrade.heliumSpent;
-		portUpgrade.heliumSpentTemp = 0;
-		portUpgrade.heliumSpentTemp -= portUpgrade.heliumSpent;
-		document.getElementById(item + "Owned").innerHTML = "0";
-	}
-	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax);
-
 }
 
 function activateClicked(){	
@@ -808,7 +738,6 @@ function cancelPortal(keep){
 	}
 	game.global.viewingUpgrades = false;
 	game.global.respecActive = false;
-	document.getElementById("clearPerksBtn").style.display = "none";
 	document.getElementById("respecPortalBtn").style.display = "none";
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	document.getElementById("portalWrapper").style.display = "none";
@@ -892,16 +821,12 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
 		if (level < 0) level = 0;
 		amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
 		amt += Math.round(baseAmt * level);
-		if (what != "helium" && what != "gems" && what != "fragments"){
-			var resTrimps = game.resources.trimps.realMax();
-			
-			amt = ((Math.sqrt(game.resources.trimps.realMax() / 100) + 1)  * amt *  ((game.resources.trimps.realMax() / 250000) + 1));
-			if (checkMapLootScale && world > 65 && ((game.global.world - 3) < world)){
-				amt *= Math.pow(1.5, world - 65);
-			}  
-		}
+		//if (what != "helium" && what != "gems" && what != "fragments") amt *= (game.resources.trimps.realMax() / 100) + 1;
 		amt = Math.round(amt);
 	}
+    //var amt = Math.round(baseAmt * (Math.pow(1.02, level)));
+    //var otherAmt = Math.round(baseAmt * level);
+    //if (otherAmt > amt) amt = otherAmt;
     if (checkMapLootScale) amt = Math.round(amt * map.loot);
 	if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
     addResCheckMax(what, amt);
@@ -1030,7 +955,6 @@ function checkTriggers(force) {
 
 function canAffordTwoLevel(whatObj, takeEm) {
 	if (whatObj.specialFilter && !whatObj.specialFilter()) return false;
-	if (whatObj.prestiges && game.equipment[whatObj.prestiges].locked) return false;
     for (var costGroup in whatObj.cost) {
         if (costGroup == "special") {
             var toReturn = whatObj.cost.special();
@@ -2534,11 +2458,6 @@ function showBones() {
 		document.getElementById("quickTrimpsDesc").innerHTML = "This bonus is active!";
 	}
 	document.getElementById("heliumGainedMisc").innerHTML = prettify(boostHe(true));
-	if (typeof kongregate === 'undefined') return;
-	if (countUnpurchasedImports() < 4) {
-		document.getElementById("bundleRow").style.display = "none";
-		document.getElementById("getBundleBtn").style.display = "none";
-	}
 }
 
 function updateImportButton(text, enabled){
@@ -2829,6 +2748,10 @@ function countUnpurchasedImports(){
 function showPurchaseBones() {
 	document.getElementById("boneWrapper0").style.display = "none";
 	document.getElementById("boneWrapper1").style.display = "block";
+	if (countUnpurchasedImports() < 4) {
+		document.getElementById("bundleRow").style.display = "none";
+		document.getElementById("getBundleBtn").style.display = "none";
+	}
 }
 
 function hidePurchaseBones() {

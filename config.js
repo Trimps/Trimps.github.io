@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.11,
+		version: 2.1,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -78,7 +78,7 @@ var toReturn = {
 		heliumLeftover: 0,
 		viewingUpgrades: false,
 		totalPortals: 0,
-		lastCustomAmt: 1,
+		lastCustomAmt: 0,
 		trapBuildAllowed: false,
 		trapBuildToggled: false,
 		lastSkeletimp: 0,
@@ -95,7 +95,6 @@ var toReturn = {
 		formation: 0,
 		bestHelium: 0,
 		tempHighHelium: 0,
-		totalHeliumEarned: 0,
 		removingPerks: false,
 		menu: {
 			buildings: true,
@@ -334,7 +333,7 @@ var toReturn = {
 			unlocks: "Carpentry"
 		},
 		Scientist: {
-			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with * each time you use your portal.",
+			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with 11500 science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with 5000 science, 1 foreman, and 100 food and wood every time you use your portal.",
 			completed: false,
 			filter: function () {
 				return (game.global.world >= 40 || game.global.highestLevelCleared >= 39);
@@ -345,7 +344,7 @@ var toReturn = {
 			},
 			start: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
-				game.resources.science.owned = getScientistInfo(getScientistLevel());
+				game.resources.science.owned += 11500;
 			},
 			onLoad: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
@@ -353,7 +352,7 @@ var toReturn = {
 			fireAbandon: false
 		},
 		Trimp: {
-			description: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination, but completing <b>'The Block' (11)</b> will teach you how to keep your Trimps alive for much longer.",
+			description: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination, but completing <b>'The block' (11)</b> will teach you how to keep your Trimps alive for much longer.",
 			completed: false,
 			heldBooks: 0,
 			fireAbandon: true,
@@ -735,7 +734,6 @@ var toReturn = {
 				if (game.global.world >= 21 && (game.global.totalPortals >= 1 || game.global.portalActive)){
 					if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 					amt = rewardResource("helium", 1, level);
-					game.global.totalHeliumEarned += amt;
 					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
 				}
 			}
@@ -782,7 +780,6 @@ var toReturn = {
 			loot: function (level) {
 				if (!game.global.brokenPlanet) planetBreaker();
 				var amt = rewardResource("helium", 5, level);
-				game.global.totalHeliumEarned += amt;
 				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story"); 
 			}
 		},
@@ -964,7 +961,6 @@ var toReturn = {
 			world: 33,
 			level: "last",
 			icon: "compressed",
-			title: "Unleash the Crit",
 			filterUpgrade: true,
 			canRunOnce: true,
 			specialFilter: function () {
@@ -980,7 +976,6 @@ var toReturn = {
 			world: 20,
 			level: "last",
 			icon: "repeat",
-			title: "Portal",
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
@@ -988,7 +983,6 @@ var toReturn = {
 				game.global.portalActive = true;
 				fadeIn("helium", 10);
 				game.resources.helium.owned += 30;
-				game.global.totalHeliumEarned += 30;
 				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract 30 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
 				fadeIn("portalBtn", 10);
 				if (game.global.challengeActive == "Metal"){
@@ -1018,15 +1012,14 @@ var toReturn = {
 			message: "That thing dropped a book. Doesn't look like an ordinary book. Looks... blockier...",
 			level: "last",
 			icon: "book",
-			title: "Shieldblock",
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
 				if (game.global.challengeActive == "Scientist"){
 					game.global.challengeActive = "";
 					game.challenges.Scientist.abandon();
-					game.global.sLevel = getScientistLevel();
-					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive " + getScientistInfo(game.global.sLevel, true) + " every time you portal.", "Notices");
+					game.global.sLevel = 1;
+					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive extra science, food, wood, metal, and 1 Foreman every time you portal.", "Notices");
 				}
 				if (game.global.challengeActive == "Trimp"){
 					game.global.challengeActive = "";
@@ -1042,12 +1035,12 @@ var toReturn = {
 			message: "It's all shiny and stuff. You're pretty sure you've never seen a book this shiny.",
 			level: "last",
 			icon: "book",
-			title: "Bounty",
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("Bounty");
 			}
+		
 		},
 		Supershield: {
 			world: -1,
@@ -1177,7 +1170,7 @@ var toReturn = {
 					level: 11,
 					difficulty: 1.1,
 					size: 100,
-					loot: 2,
+					loot: 1.7,
 					noRecycle: true
 				});
 				unlockMap(game.global.mapsOwnedArray.length - 1);
@@ -1202,7 +1195,7 @@ var toReturn = {
 					level: 15,
 					difficulty: 1.5,
 					size: 100,
-					loot: 2,
+					loot: 1.5,
 					noRecycle: true
 				});
 				unlockMap(game.global.mapsOwnedArray.length - 1);
@@ -1862,7 +1855,7 @@ var toReturn = {
 			icon: "th-large",
 			title: "Too dark to see",
 			fire: function () {
-				createMap(33, "Trimple Of Doom", "Doom", 3, 100, 1.8, true); 
+				createMap(33, "Trimple Of Doom", "Doom", 1.8, 100, 1.8, true); 
 			}
 		},
 		FirstMap: {
