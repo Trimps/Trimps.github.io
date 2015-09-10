@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.111,
+		version: 2.2,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -40,6 +40,7 @@ var toReturn = {
 		soldierHealthRemaining: 0,
 		soldierCurrentAttack: 0,
 		soldierCurrentBlock: 0,
+		radioStacks: 0,
 		fighting: false,
 		health: 50,
 		attack: 6,
@@ -218,7 +219,7 @@ var toReturn = {
 			modifier: 0.05,
 			priceBase: 4,
 			heliumSpent: 0,
-			tooltip: "Study up on muscle training exercises to help condition Trimps to be more quick and agile. Each level increases fight speed by 5% <b>of current speed (compounds)</b>. Maximum of 20 levels.",
+			tooltip: "Crank your portal into overdrive, requiring extra helium but increasing the clock speed of the Universe. Each level reduces the time between Trimp and Bad Guy attacks by 5% <b>of the current time (compounds)</b>. Maximum of 20 levels.",
 			max: 20
 		},
 		Bait: {
@@ -366,6 +367,15 @@ var toReturn = {
 					unlockUpgrade("Coordination");
 				}
 			}
+		},
+		Electricity: {
+			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with double helium for all Blimps and Improbabilities killed up to Zone 80. This is repeatable but requires a key to start each time.",
+			completed: false,
+			hasKey: false,
+			filter: function () {
+				return this.hasKey;
+			},
+			heldHelium: 0,
 		}
 	},
 	
@@ -415,6 +425,7 @@ var toReturn = {
 		w68: "You figure some entertainment wouldn't be awful, and decide to teach your Trimps how to play soccer. A few hours and zero progress later, you really regret that decision.",
 		w70: "The Improbabilities haven't seemed to slow down. You know you need to figure out a plan, but you don't know what to plan for.",
 		w72: "You slash through another Improbability with relative ease, but something isn't right. A sour smell hits your nose and in disgust, you whip around in search of the source. Oh, wait, it's just the Trimps.",
+		w80: "When's the last time you made a map? You have a feeling you should probably do that.",
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
@@ -717,7 +728,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", 0.5, level, true);
-				message("That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot", "fire");
+				message("That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot", "*cubes");
 			}
 		},
 		Blimp: {
@@ -736,7 +747,8 @@ var toReturn = {
 					if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 					amt = rewardResource("helium", 1, level);
 					game.global.totalHeliumEarned += amt;
-					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story"); 
+					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story");
+					if (game.global.challengeActive == "Electricity" && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
 				}
 			}
 		},
@@ -756,7 +768,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 0.2, level, false);
-				message("That Dragimp dropped " + prettify(amt) + " gems!", "Loot", "certificate");
+				message("That Dragimp dropped " + prettify(amt) + " gems!", "Loot", "*diamond");
 			}
 		},
 		Mitschimp: {
@@ -771,6 +783,14 @@ var toReturn = {
 				message("Mitschimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous");
 			}
 		},
+		Warden: {
+			location: "Prison",
+			last: true,
+			world: 80,
+			attack: 2,
+			health: 3,
+			fast: false
+		},
 		Improbability: {
 			locked: 1,
 			location: "World",
@@ -783,7 +803,8 @@ var toReturn = {
 				if (!game.global.brokenPlanet) planetBreaker();
 				var amt = rewardResource("helium", 5, level);
 				game.global.totalHeliumEarned += amt;
-				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story"); 
+				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story");
+				if (game.global.challengeActive == "Electricity" && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
 			}
 		},
 		//Exotics
@@ -797,7 +818,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 3, level, true);
-				message("That Goblimp dropped " + prettify(amt) + " gems! What a bro!", "Loot", "certificate", "exotic");
+				message("That Goblimp dropped " + prettify(amt) + " gems! What a bro!", "Loot", "*diamond", "exotic");
 				game.unlocks.impCount.Goblimp++;
 			}
 		},
@@ -811,7 +832,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 7.5, level);
-				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "certificate", "exotic");
+				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "*diamond", "exotic");
 				game.unlocks.impCount.Feyimp++;
 			}
 		},
@@ -946,6 +967,10 @@ var toReturn = {
 				resourceType: "Metal",
 				upgrade: "Relentlessness"
 			},
+			Prison: {
+				resourceType: "Food",
+				upgrade: "Keys"
+			},
 			All: {
 				resourceType: "Metal"
 			}
@@ -960,6 +985,26 @@ var toReturn = {
 	},
 	
 	mapUnlocks: {
+		Keys: {
+			world: 80,
+			level: "last",
+			icon: "*key4",
+			title: "The Warden's Keys",
+			filterUpgrade: true,
+			canRunOnce: true,
+			fire: function () {
+				message("You have slain the Warden and taken his keys. How weird would it be if they fit in that key hole on the portal?", "Story");
+				game.challenges.Electricity.hasKey = true;
+				if (game.global.challengeActive == "Electricity") {
+					message("You have completed the Electricity challenge! You have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
+					game.resources.helium.owned += game.challenges.Electricity.heldHelium;
+					game.challenges.Electricity.heldHelium = 0;
+					game.global.challengeActive = "";
+					game.global.radioStacks = 0;
+					updateRadioStacks();
+				}
+			}
+		},
 		Relentlessness: {
 			world: 33,
 			level: "last",
@@ -1054,6 +1099,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Shield!",
 			level: "last",
 			icon: "book",
+			title: "Supershield",
 			last: 1,
 			fire: function () {
 				unlockUpgrade("Supershield");
@@ -1064,6 +1110,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Dagger!",
 			level: "last",
 			icon: "book",
+			title: "Dagadder",
 			last: 1,
 			fire: function () {
 				unlockUpgrade("Dagadder");
@@ -1074,6 +1121,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Boots!",
 			level: "last",
 			icon: "book",
+			title: "Bootboost",
 			last: 1,
 			fire: function () {
 				unlockUpgrade("Bootboost");
@@ -1084,6 +1132,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Mace!",
 			level: "last",
 			icon: "book",
+			title: "Megamace",
 			last: 2,
 			fire: function () {
 				unlockUpgrade("Megamace");
@@ -1094,6 +1143,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Helmet!",
 			level: "last",
 			icon: "book",
+			title: "Hellishmet",
 			last: 2,
 			fire: function () {
 				unlockUpgrade("Hellishmet");
@@ -1104,6 +1154,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Polearm!",
 			level: "last",
 			icon: "book",
+			title: "Polierarm",
 			last: 3,
 			fire: function () {
 				unlockUpgrade("Polierarm");
@@ -1114,6 +1165,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Pants!",
 			level: "last",
 			icon: "book",
+			title: "Pantastic",
 			last: 3,
 			fire: function () {
 				unlockUpgrade("Pantastic");
@@ -1124,6 +1176,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Battleaxe!",
 			level: "last",
 			icon: "book",
+			title: "Axeidic",
 			last: 4,
 			fire: function () {
 				unlockUpgrade("Axeidic");
@@ -1134,6 +1187,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Shoulderguards!",
 			level: "last",
 			icon: "book",
+			title: "Smoldershoulder",
 			last: 4,
 			fire: function () {
 				unlockUpgrade("Smoldershoulder");
@@ -1144,6 +1198,7 @@ var toReturn = {
 			message: "You found a book that will teach you how to upgrade your Greatsword!",
 			level: "last",
 			icon: "book",
+			title: "Greatersword",
 			last: 5,
 			fire: function () {
 				unlockUpgrade("Greatersword");
@@ -1152,6 +1207,7 @@ var toReturn = {
 		Bestplate: {
 			world: -1,
 			message: "You found a book that will teach you how to upgrade your Breastplate!",
+			title: "Bestplate",
 			level: "last",
 			icon: "book",
 			last: 5,
@@ -1164,6 +1220,7 @@ var toReturn = {
 			message: "Holy cowimp! A unique map!",
 			level: [10, 20],
 			icon: "th-large",
+			title: "The Block",
 			startAt: 11,
 			canRunOnce: true,
 			fire: function () {
@@ -1189,6 +1246,7 @@ var toReturn = {
 			message: "Oh snap! Another unique map!",
 			level: [10, 20],
 			icon: "th-large",
+			title: "The Wall",
 			startAt: 15,
 			canRunOnce: true,
 			fire: function () {
@@ -1209,13 +1267,26 @@ var toReturn = {
 				message("You just made a map to The Wall!", "Loot", "th-large");
 			}
 		},
-		
+		ThePrison: {
+			startAt: 80,
+			level: [1, 10],
+			icon: "th-large",
+			canRunOnce: true,
+			title: "The Prison",
+			fire: function () {
+				game.global.mapsUnlocked = true;
+				unlockMapStuff();
+				createMap(80, "The Prison", "Prison", 2.6, 100, 2.6, true);
+				message("You found The Prison! You have a bad feeling about going in...", "Story");
+			}
+		},
 		Mansion: {
 			world: -1,
 			startAt: 8,
 			message: "You found plans for a Mansion! Your Trimps will be pretty stoked",
 			level: [10, 20],
-			icon: "home",
+			icon: "*home4",
+			title: "Mansion",
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Mansion");
@@ -1226,7 +1297,8 @@ var toReturn = {
 			startAt: 14,
 			message: "You found plans for a hotel! (A decent hotel, too)",
 			level: [10, 20],
-			icon: "home",
+			icon: "*office",
+			title: "The Trimps' Guide to Cheap Hotel Construction",
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Hotel");
@@ -1238,6 +1310,7 @@ var toReturn = {
 			message: "This extremely technical book will teach anyone who can understand the big words how to make bigger huts.",
 			level: [10, 20],
 			icon: "book",
+			title: "Hut hut hut",
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("UberHut");
@@ -1249,6 +1322,7 @@ var toReturn = {
 			message: "This book talks about adding a second floor to your homes! Mind... blown...",
 			level: [10, 20],
 			icon: "book",
+			title: "A Tale of Two Stories",
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("UberHouse");
@@ -1260,6 +1334,7 @@ var toReturn = {
 			message: "This book will teach you how to make your Trimps share their mansions!",
 			level: [10, 20],
 			icon: "book",
+			title: "Sharing is Caring",
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("UberMansion");
@@ -1271,6 +1346,7 @@ var toReturn = {
 			message: "This book will teach you how to build smaller hotel rooms!",
 			level: [5, 10],
 			icon: "book",
+			title: "The Art of Tiny Hotel Rooms",
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("UberHotel");
@@ -1282,6 +1358,7 @@ var toReturn = {
 			level: [5, 10],
 			message: "Wow! This book! It's so Resortsfull!",
 			icon: "book",
+			title: "Time for a better vacation",
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("UberResort");
@@ -1292,7 +1369,8 @@ var toReturn = {
 			startAt: 25,
 			message: "You found plans for a huge resort!",
 			level: [10, 20],
-			icon: "home",
+			icon: "*building",
+			title: "Time for a vacation",
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Resort");
@@ -1304,6 +1382,7 @@ var toReturn = {
 			message: "You found a key to Dimension ZZZ!",
 			level: [10, 20],
 			icon: "cog",
+			title: "Transgalactic Gateway",
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Gateway");
@@ -1315,6 +1394,7 @@ var toReturn = {
 			message: "You found a crystal powerful enough to create wormholes!",
 			level: [10, 20],
 			icon: "link",
+			title: "Inter-Dimensional Hole-Maker",
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Wormhole");
@@ -1326,6 +1406,7 @@ var toReturn = {
 			message: "You found plans for some sort of overly complicated solar panel.",
 			level: [3, 19],
 			icon: "dashboard",
+			title: "Collector",
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Collector");
@@ -1337,6 +1418,7 @@ var toReturn = {
 			message: "A book that teaches your Foremen a new skill. Riveting.",
 			level: [5, 15],
 			icon: "book",
+			title: "Trapstorm",
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("Trapstorm");
@@ -1349,6 +1431,7 @@ var toReturn = {
 			message: "You found blueprints for some sort of nursery that can harness more power from gems.",
 			level: [5, 20],
 			icon: "home",
+			title: "Nusery",
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Nursery");
@@ -1357,28 +1440,31 @@ var toReturn = {
 		gems: {
 			world: -1,
 			level: [0, 7],
-			icon: "certificate",
+			icon: "*diamond",
+			title: "Gems",
 			repeat: 5,
 			fire: function (level) {
 				var amt = rewardResource("gems", 0.5, level, true);
-				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "certificate");
+				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "*diamond");
 			}
 		},
 		Metal: {
 			world: -1,
 			level: [0, 2],
-			icon: "fire",
+			icon: "*cubes",
+			title: "Metal",
 			repeat: 2,
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("metal", 0.5, level, true);
-				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "fire");
+				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes");
 			}
 		},
 		Food: {
 			world: -1,
 			level: [0, 2],
 			icon: "apple",
+			title: "Food",
 			repeat: 2,
 			filter: true,
 			fire: function (level) {
@@ -1390,6 +1476,7 @@ var toReturn = {
 			world: -1,
 			level: [0, 2],
 			icon: "tree-deciduous",
+			title: "Wood",
 			repeat: 2,
 			filter: true,
 			fire: function (level) {
@@ -1529,7 +1616,8 @@ var toReturn = {
 			level: 19,
 			brokenPlanet: 1,
 			addClass: "brokenUpgrade",
-			icon: "home",
+			title: "The Galaxy will be your Ocean",
+			icon: "*rocket4",
 			title: "New Ship",
 			fire: function () {
 				unlockBuilding("Warpstation");
@@ -1540,6 +1628,18 @@ var toReturn = {
 			startAt: 25,
 			lastAt: 55,
 			level: 44,
+			icon: "book",
+			message: "Trimp cave paintings predicted the existence of a book such as this one, you had no idea it actually existed. It smells dusty.",
+			title: "Some old, dusty book",
+			fire: function () {
+				unlockUpgrade("Gymystic");
+			}
+		},
+		Gymystic2: {
+			world: -25,
+			startAt: 75,
+			lastAt: 150,
+			level: 54,
 			icon: "book",
 			message: "Trimp cave paintings predicted the existence of a book such as this one, you had no idea it actually existed. It smells dusty.",
 			title: "Some old, dusty book",
@@ -1570,7 +1670,7 @@ var toReturn = {
 			}
 		},
 		Potency: {
-			message: "Also known as the Trimpma Sutra, this book will help your Trimps make more Trimps",
+			message: "This book will help your Trimps make more Trimps!",
 			world: -5,
 			level: 29,
 			icon: "book",
@@ -1600,7 +1700,7 @@ var toReturn = {
 			world: 3,
 			level: 3, 
 			icon: "book",
-			title: "Step Up Your Block GAME",
+			title: "Step Up Your Block Game!",
 			fire: function () {
 				unlockUpgrade("Trainers");
 			}		
@@ -1661,7 +1761,7 @@ var toReturn = {
 			startAt: 61,
 			lastAt: 69,
 			level: 19,
-			icon: "book",
+			icon: "*make-group",
 			title: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
@@ -1675,7 +1775,7 @@ var toReturn = {
 			startAt: 70,
 			lastAt: 78,
 			level: 19,
-			icon: "book",
+			icon: "*make-group",
 			title: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
@@ -1689,7 +1789,7 @@ var toReturn = {
 			startAt: 81,
 			lastAt: 90,
 			level: 19,
-			icon: "book",
+			icon: "*make-group",
 			title: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
@@ -1701,23 +1801,9 @@ var toReturn = {
 			addClass: "brokenUpgrade",
 			world: -5,
 			startAt: 95,
-			lastAt: 100,
+			lastAt: 130,
 			level: 19,
-			icon: "book",
-			title: "Gigastation",
-			fire: function () {
-				unlockUpgrade("Gigastation");
-			}
-		},
-		Gigastation5: {
-			message: "You found blueprints detailing how to upgrade your Warpstation. Blimey!",
-			brokenPlanet: 1,
-			addClass: "brokenUpgrade",
-			world: -10,
-			startAt: 110,
-			lastAt: 120,
-			level: 19,
-			icon: "book",
+			icon: "*make-group",
 			title: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
@@ -1869,6 +1955,7 @@ var toReturn = {
 			world: 6,
 			level: [1, 5],
 			icon: "th-large",
+			title: "Tricky Paradise",
 			fire: function () {
 				game.global.mapsUnlocked = true;
 				unlockMapStuff();
@@ -1883,6 +1970,7 @@ var toReturn = {
 			level: [0, 20],
 			repeat: 10,
 			icon: "th",
+			title: "Map Fragments",
 			fire: function() {
 				var amt = rewardResource("fragments");
 				message("You found " + prettify(amt) + " map fragments!", "Loot", "th");
@@ -1893,6 +1981,7 @@ var toReturn = {
 			world: -1,
 			level: [10, 20],
 			icon: "gift",
+			title: "Battle Territory Bonus!",
 			repeat: 45,
 			fire: function () {
 				var amt = 5 + (game.portal.Trumps.modifier * game.portal.Trumps.level);
@@ -1905,6 +1994,7 @@ var toReturn = {
 			world: -1,
 			level: [0, 4],
 			icon: "apple",
+			title: "Food",
 			repeat: 9,
 			fire: function (level) {
 				var amt = rewardResource("food", 0.5, level);
@@ -1915,6 +2005,7 @@ var toReturn = {
 			world: -1,
 			level: [0, 2],
 			icon: "tree-deciduous",
+			title: "Wood",
 			repeat: 8,
 			fire: function (level) {
 				var amt = rewardResource("wood", 0.5, level);
@@ -1924,11 +2015,12 @@ var toReturn = {
 		freeMetals: {
 			world: -1,
 			level: [3, 5],
-			icon: "fire",
+			title: "Metal",
+			icon: "*cubes",
 			repeat: 6,
 			fire: function (level) {
 				var amt = rewardResource("metal", 0.5, level);
-				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "fire");
+				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes");
 			}
 		}
 	},

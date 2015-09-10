@@ -1,7 +1,10 @@
-//I wrote all of this code by hand (now with some help by people on github, credits over there) with no libraries so I could learn stuff (except LZString for save import/export, string compression is out of my league. Credits in that file). This is my first javascript project, so be nice.
+//This is my first javascript project, be nice.
 //Feel free to read through the code and use stuff if you want, I don't know how to properly comment code so I just wrote stuff where I felt like it
 //I will be continually cleaning up and making this code more readable as my javascript skills improve
 //Contact me via Kongregate as GreenSatellite, reddit on /r/Trimps, or Email at trimpsgame@gmail.com
+//This UI layout was made possible by bootstrap http://www.getbootstrap.com, and the icons are from Glyphicons http://www.glyphicons.com and Icomoon https://icomoon.io
+//If you want to learn how to make javascript games, this is the short tutorial that got me started: http://dhmholley.co.uk/incrementals.html
+
 /*		Trimps
 		Copyright (C) 2015 Zach Hood
 
@@ -895,10 +898,9 @@ function rewardResource(what, baseAmt, level, checkMapLootScale) {
 		amt += Math.round(baseAmt * level);
 		if (what != "helium" && what != "gems" && what != "fragments"){
 			var resTrimps = game.resources.trimps.realMax();
-			
 			amt = ((Math.sqrt(game.resources.trimps.realMax() / 100) + 1)  * amt *  ((game.resources.trimps.realMax() / 250000) + 1));
-			if (checkMapLootScale && world > 65 && ((game.global.world - 3) < world)){
-				amt *= Math.pow(1.5, world - 65);
+			if (checkMapLootScale && world > 60 && ((game.global.world - 3) < world)){
+				amt *= Math.pow(1.5, world - 60);
 			}  
 		}
 		amt = Math.round(amt);
@@ -1659,7 +1661,16 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
 }
 
 function addSpecialToLast(special, array, item) {
-    array[array.length - 1].text = '<span class="glyphicon glyphicon-' + special.icon + '"></span>';
+	var title = "";
+	if (special.title) title = "title='" + special.title + "' ";
+	var prefix = "";
+	var icon = special.icon;
+		if (icon && icon.charAt(0) == "*") {
+			icon = icon.replace("*", "");
+			prefix =  "icomoon icon-" 
+		}
+		else prefix = "glyphicon glyphicon-";
+    array[array.length - 1].text = '<span ' + title + 'class="' + prefix + icon + '"></span>';
     array[array.length - 1].special = item;
     return array;
 }
@@ -1712,6 +1723,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         if ((special.world == -5) && ((world % 5) !== 0)) continue;
         if ((special.world == -33) && ((world % 3) !== 0)) continue;
 		if ((special.world == -10) && ((world % 10) !== 0)) continue;
+		if ((special.world == -20) && ((world % 20) !== 0)) continue;
 		if ((special.world == -25) && ((world % 25) !== 0)) continue;
 		if ((maps) && (special.filter) && game.mapConfig.locations[map.location].resourceType != item) continue;
 		if (typeof special.specialFilter !== 'undefined'){
@@ -1766,10 +1778,17 @@ function findHomeForSpecial(special, item, array, max){
 		}
 		if (hax !== 0 && level < max) {
 			var addClass = (special.addClass) ? special.addClass : "";
+			var prefix = "";
+			var icon = special.icon;
+			if (icon && icon.charAt(0) == "*") {
+				icon = icon.replace("*", "");
+				prefix =  "icomoon icon-" 
+			}
+			else prefix = "glyphicon glyphicon-";
 			if (typeof special.title !== 'undefined') 
-			array[level].text = '<span title="' + special.title + '" class="glyphicon glyphicon-' + special.icon + ' ' + addClass + '"></span>';
+			array[level].text = '<span title="' + special.title + '" class="' + prefix + icon + ' ' + addClass + '"></span>';
 			else{
-			array[level].text = '<span class="glyphicon glyphicon-' + special.icon + ' ' + addClass +  '"></span>';
+			array[level].text = '<span class="' + prefix + icon + ' ' + addClass +  '"></span>';
 			}
 			array[level].special = item;
 		}
@@ -2071,6 +2090,9 @@ function startFight() {
 		badName += ' <span class="badge badBadge" title="20% of this Bad Guy\'s damage pierces through block"><span class="glyphicon glyphicon-tint"></span></span>';	
 	if (game.badGuys[cell.name].fast)
 		badName += ' <span class="badge badBadge" title="This Bad Guy is fast and attacks first"><span class="glyphicon glyphicon-forward"></span></span>';
+	if (game.global.challengeActive == "Electricity"){
+		badName += ' <span class="badge badBadge" title="This Bad Guy is electric and stacks a debuff on your Trimps"><span class="icomoon icon-power-cord"></span></span>';
+	}
 	document.getElementById("badGuyName").innerHTML = badName;
     if (cell.maxHealth == -1) {
         cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
@@ -2085,6 +2107,10 @@ function startFight() {
         document.getElementById("badGuyBar").style.backgroundColor = "#00B2EE";
     }
     if (game.global.soldierHealth <= 0) {
+		if (game.global.radioStacks) {
+			game.global.radioStacks = 0;
+			updateRadioStacks();
+		}
 		game.global.difs.attack = 0;
 		game.global.difs.health = 0;
 		game.global.difs.block = 0;
@@ -2181,8 +2207,16 @@ function calculateDamage(number, buildString, isTrimp) { //number = base attack
 	if (minFluct == -1) minFluct = fluctuation;
 	var min = Math.floor(number * (1 - minFluct));
     var max = Math.ceil(number + (number * maxFluct));
-    if (buildString) return prettify(min, 0) + "-" + prettify(max, 0);
-    number = Math.floor(Math.random() * ((max + 1) - min)) + min;
+    if (buildString) {
+		if (game.global.radioStacks > 0){
+			var mult = game.global.radioStacks * .1;
+			mult = (mult > 1) ? 1 : 1 - mult;
+			min *= mult;
+			max *= mult;
+		}
+		return prettify(min) + "-" + prettify(max);
+    }
+	number = Math.floor(Math.random() * ((max + 1) - min)) + min;
     return number;
 }
 
@@ -2287,6 +2321,7 @@ function fight(makeUp) {
 	}
 	if (attackAndBlock < 0) attackAndBlock = 0;
 	var trimpAttack = calculateDamage(game.global.soldierCurrentAttack, false, true);
+	if (game.global.radioStacks > 0) trimpAttack *= (1 - (game.global.radioStacks * 0.1));
 	var gotCrit = false;
 	var critSpan = document.getElementById("critSpan");
 	critSpan.innerHTML = "";
@@ -2296,9 +2331,15 @@ function fight(makeUp) {
 			gotCrit = true;
 		}
 	}
+	var attacked = false;
+	var wasAttacked = false;
     if (game.badGuys[cell.name].fast) {
         game.global.soldierHealth -= attackAndBlock;
-        if (game.global.soldierHealth > 0) cell.health -= trimpAttack;
+		wasAttacked = true;
+        if (game.global.soldierHealth > 0) {
+			cell.health -= trimpAttack;
+			attacked = true;
+		}
         else {
             game.global.soldierHealth = 0;
 			gotCrit = false;
@@ -2309,7 +2350,11 @@ function fight(makeUp) {
     }
 	else {
         cell.health -= trimpAttack;
-        if (cell.health > 0) game.global.soldierHealth -= attackAndBlock;
+		attacked = true;
+        if (cell.health > 0) {
+			game.global.soldierHealth -= attackAndBlock;
+			wasAttacked = true;
+		}
         else
             {
 				cell.health = 0; 
@@ -2317,6 +2362,14 @@ function fight(makeUp) {
 			}
         if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
     }
+	if (game.global.challengeActive == "Electricity" && attacked){
+		game.global.soldierHealth -= game.global.soldierHealthMax * (game.global.radioStacks * 0.1);
+		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
+	}
+	if (game.global.challengeActive == "Electricity" && wasAttacked){
+		game.global.radioStacks++;
+		updateRadioStacks();
+	}
 	if (gotCrit) critSpan.innerHTML = "Crit!";
     if (cell.health <= 0) game.global.battleCounter = 800;
     if (makeUp) return;
@@ -2326,6 +2379,16 @@ function fight(makeUp) {
     document.getElementById("badGuyBar").style.width = percent + "%";
     document.getElementById("badGuyBar").style.backgroundColor = getBarColor(percent);
     /*	if (game.jobs.Medic.owned >= 1) setTimeout(heal, 500); */
+}
+
+function updateRadioStacks(){
+	var elem = document.getElementById("debuffSpan");
+	if (game.global.radioStacks > 0){
+		var number = game.global.radioStacks * 10;
+		elem.innerHTML = '<span class="badge trimpBadge" title="Your Trimps are dealing ' + number + '% less damage and taking ' + number + '% of their total health as damage per attack">' + game.global.radioStacks + '<span class="icomoon icon-power"></span></span>';
+		document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true, true);
+	}
+	else elem.innerHTML = "";
 }
 
 /* function heal() {

@@ -567,6 +567,12 @@ overflow-x: hidden;
 	font-size: .8em;
 }
 
+.trimpBadge {
+	font-size: .8em;
+	background-color: yellow;
+	color: black;
+}
+
 .errorMessage {
     color: red;
 }
@@ -1013,6 +1019,11 @@ overflow-x: hidden;
 #critSpan{
 	font-weight: bold;
 	color: yellow;
+	font-size: .9em;
+}
+
+#tab5{
+	width: 2.2%;
 }
 
 .goldMap{
@@ -1154,9 +1165,9 @@ overflow-x: hidden;
 }
 
 .btn-new {
-  color: #fff;
-  background-color: #500F0F;
-  border-color: #230707;
+  color: #51b9c0;
+  background-color: #000;
+  border-color: #0f676c;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -1164,9 +1175,9 @@ overflow-x: hidden;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-  color: #fff;
-  background-color: #3c0c0c;
-  border-color: #230707;
+  color: #000;
+  background-color: #51b9c0;
+  border-color: #0f676c;
 }
 .btn-new:active,
 .btn-new.active,

@@ -261,7 +261,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		if (what == "Coordination" && (game.resources.trimps.realMax() < (game.resources.trimps.maxSoldiers * 3))) {
 			var amtToGo = ((game.resources.trimps.maxSoldiers * 3) - game.resources.trimps.realMax());
-			tooltipText += "<b>You need enough room for " + prettify(game.resources.trimps.maxSoldiers * 3) + " max Trimps. You need " + prettify(Math.floor(amtToGo)) + " more.</b>";
+			tooltipText += "<b>You need enough room for " + prettify(game.resources.trimps.maxSoldiers * 3) + " max Trimps. You are short " + prettify(Math.floor(amtToGo)) + " Trimps.</b>";
 		}
 	}
 	if (isItIn == "maps"){
@@ -499,7 +499,7 @@ function getBattleStatBd(what) {
 	//Add formations
 	if (game.global.formation > 0){
 		var formStrength = 0.5;
-		if ((game.global.formation == 1 && what == "health") || (game.global.formation == 2 && what == "damage") || (game.global.formation == 3 && what == "block")) formStrength = 4;
+		if ((game.global.formation == 1 && what == "health") || (game.global.formation == 2 && what == "attack") || (game.global.formation == 3 && what == "block")) formStrength = 4;
 		currentCalc *= formStrength;
 		textString += "<tr><td class='bdTitle'>Formation</td><td></td><td></td><td>x " + formStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 
@@ -771,9 +771,15 @@ function applyS2(){
 function message(messageString, type, lootIcon, extraClass) {
 	var log = document.getElementById("log");
 	var displayType = (game.global.messages[type]) ? "block" : "none";
+	var prefix = "";
+	if (lootIcon && lootIcon.charAt(0) == "*") {
+		lootIcon = lootIcon.replace("*", "");
+		prefix =  "icomoon icon-" 
+	}
+	else prefix = "glyphicon glyphicon-";
 	if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span> " + messageString;
 	if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span> " + messageString;
-	if (type == "Loot" && lootIcon) messageString = "<span class='glyphicon glyphicon-" + lootIcon + "'></span> " + messageString;
+	if (type == "Loot" && lootIcon) messageString = "<span class='" + prefix + lootIcon + "'></span> " + messageString;
 	var addId = "";
 	if (messageString == "Game Saved!") {
 		addId = " id='saveGame'";
