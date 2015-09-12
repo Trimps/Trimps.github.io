@@ -1030,7 +1030,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			unlockBuilding(itemA);
 			elem = document.getElementById(itemA + "Owned");
 		}
-		elem.innerHTML = prettify(toUpdate.owned);
+		elem.innerHTML = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
 		if (itemA == "Trap") {
 		document.getElementById("trimpTrapText").innerHTML = prettify(toUpdate.owned);
 		document.getElementById("trimpTrapText2").innerHTML = prettify(toUpdate.owned);
@@ -1046,7 +1046,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			continue;
 		}
 		if (document.getElementById(itemB) === null) unlockJob(itemB);
-		document.getElementById(itemB + "Owned").innerHTML = prettify(toUpdate.owned);
+		document.getElementById(itemB + "Owned").innerHTML = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
 		var perSec = (toUpdate.owned * toUpdate.modifier);
 		updatePs(toUpdate);
 	}

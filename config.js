@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.21,
+		version: 2.211,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -186,9 +186,23 @@ var toReturn = {
 			},
 			tooltips: {
 				enabled: true,
-				description: "Swap between having the large tooltips always display, and having them only display while holding shift",
+				description: "Hide button tooltips unless shift is held. Hides formation tooltips until toggled back on.",
 				titleOn: "Showing Tooltips",
-				titleOff: "Shift for Tooltips"
+				titleOff: "Shift for Tooltips",
+				onToggle: function () {
+					if (this.enabled){
+						document.getElementById("formation0").title = "No Formation";
+						document.getElementById("formation1").title = "Heap Formation - Trimps gain 4x health but lose half of their attack and block";
+						document.getElementById("formation2").title = "Dominance Formation - Trimps gain 4x attack but lose half of their health and block";
+						document.getElementById("formation3").title = "Barrier Formation - Trimps gain 4x block but lose half of their health and attack";
+					}
+					else {
+						var elems = document.getElementsByClassName("formationBtn");
+						for (var x  = 0; x < elems.length; x++){
+							elems[x].title = "";
+						}
+					}
+				}
 			},
 			queueAnimation: {
 				enabled: true,
@@ -209,9 +223,15 @@ var toReturn = {
 					}
 				}
 			},
+			menuFormatting: {
+				enabled: true,
+				description: "Toggle on or off number formatting for jobs and buildings on the left menu",
+				titleOn: "Formatting Menu",
+				titleOff: "No Menu Formatting"
+			},
 			deleteSave: {
 				enabled: false,
-				description: "Delete your save",
+				description: "Delete your save and start fresh. Your Trimps won't be happy.",
 				titleOff: "Delete Save",
 				onToggle: function () {
 					tooltip('Reset', null, 'update');

@@ -427,10 +427,12 @@ overflow-x: hidden;
 	width: 14.1% !important;
 	border: 1px solid black;
 	display: table-cell !important;
-	font-size: .8vw;
 	text-align: center;
 }
 
+.noTitle.title {
+	display: none;
+}
 
 
 .settingBtn {

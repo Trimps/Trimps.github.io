@@ -337,7 +337,8 @@ function load(saveString, autoLoad) {
 	
 	game.options.displayed = false;
 	displaySettings();
-	if (game.options.menu.barOutlines.enabled) game.options.menu.barOutlines.onToggle();
+	game.options.menu.barOutlines.onToggle();
+	game.options.menu.tooltips.onToggle();
 	
 	
 	unlockFormation("all");
