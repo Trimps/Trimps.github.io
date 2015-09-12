@@ -225,7 +225,7 @@ var toReturn = {
 			},
 			menuFormatting: {
 				enabled: true,
-				description: "Toggle on or off number formatting for jobs and buildings on the left menu",
+				description: "Toggle on or off large number formatting for jobs and buildings on the left menu",
 				titleOn: "Formatting Menu",
 				titleOff: "No Menu Formatting"
 			},
