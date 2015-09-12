@@ -339,6 +339,7 @@ function load(saveString, autoLoad) {
 	displaySettings();
 	game.options.menu.barOutlines.onToggle();
 	game.options.menu.tooltips.onToggle();
+	displayPerksBtn();
 	
 	
 	unlockFormation("all");
@@ -2974,11 +2975,6 @@ function onPurchaseResult(result) {
 	}
 }
 
-load();
-displayPerksBtn();
-
-setTimeout(autoSave, 60000);
-
 function gameLoop(makeUp, now) {
 /*	if (now < game.global.lastOfflineProgress) return;
 	game.global.lastOnline = now; get4432*/
@@ -2989,6 +2985,7 @@ function gameLoop(makeUp, now) {
     battleCoordinator(makeUp);
 }
 
+//Timeouts
 function costUpdatesTimeout() {
 	checkButtons("buildings");
     checkButtons("jobs");
@@ -2997,8 +2994,6 @@ function costUpdatesTimeout() {
     checkTriggers();
 	setTimeout(costUpdatesTimeout, 250);
 }
-
-costUpdatesTimeout();
 
 function gameTimeout() {
 	var now = new Date().getTime();
@@ -3029,11 +3024,8 @@ function updatePortalTimer() {
 	setTimeout(updatePortalTimer, 1000);
 }
 
-updatePortalTimer();
-
-setTimeout(gameTimeout(), (1000 / game.settings.speed));
-
 var shiftPressed = false;
+
 document.addEventListener('keydown', function(e) {
 	if (e.keyCode == 27) { // ESC
 		// cancel the current dialog box
@@ -3051,6 +3043,17 @@ document.addEventListener('keyup', function(e) {
 	}
 
 }, true);
+
+
+load();
+updatePortalTimer();
+displayPerksBtn();
+
+setTimeout(autoSave, 60000);
+costUpdatesTimeout();
+setTimeout(gameTimeout(), (1000 / game.settings.speed));
+
+
 
 
 
