@@ -1503,7 +1503,7 @@ var toReturn = {
 			message: "You found blueprints for some sort of nursery that can harness more power from gems.",
 			level: [5, 20],
 			icon: "home",
-			title: "Nusery",
+			title: "Nursery",
 			canRunOnce: true,
 			fire: function () {
 				unlockBuilding("Nursery");
