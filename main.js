@@ -28,14 +28,14 @@ if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== 
 document.getElementById("versionNumber").innerHTML = game.global.version;
 function toggleSave(updateOnly) {
     var elem = document.getElementById("toggleBtn");
-    if (updateOnly) game.global.autoSave = (game.global.autoSave) ? false : true;
-    if (game.global.autoSave) {
-        game.global.autoSave = false;
+    if (updateOnly) game.options.menu.autoSave.enabled = (game.options.menu.autoSave.enabled) ? false : true;
+    if (game.options.menu.autoSave.enabled) {
+        game.options.menu.autoSave.enabled = false;
         elem.innerHTML = "Not Saving";
         elem.className = "";
         elem.className = "btn btn-danger";
     } else {
-        game.global.autoSave = true;
+        game.options.menu.autoSave.enabled = true;
         elem.innerHTML = "Auto-Saving";
         elem.className = "";
         elem.className = "btn btn-info";
@@ -43,7 +43,7 @@ function toggleSave(updateOnly) {
 }
 
 function autoSave() {
-    if (game.global.autoSave) save();
+    if (game.options.menu.autoSave.enabled) save();
     setTimeout(autoSave, 60000);
 }
 
@@ -100,6 +100,12 @@ function save(exportThis) {
 		delete portal.tooltip;
 		delete portal.otherModifier;
 	}
+	for (var itemS in saveGame.options.menu){
+		var settingItem = saveGame.options.menu[itemS];
+		delete settingItem.description;
+		delete settingItem.titleOn;
+		delete settingItem.titleOff;
+	}
 	for (var itemF in saveGame.challenges){
 		var challenge = saveGame.challenges[itemF];
 		delete challenge.description;
@@ -119,12 +125,18 @@ function save(exportThis) {
 
 }
 
+//.replace(/(\r\n|\n|\r|\s)/gm,"")
+
 function load(saveString, autoLoad) {
     var savegame;
 	var oldVersion = 0;
     if (saveString) {
         savegame = JSON.parse(LZString.decompressFromBase64(document.getElementById("importBox").value));
         tooltip('hide');
+		if (!savegame) {
+			message("It looks like your import code isn't working properly. Please make sure that your export code is saved in a text file compatible with all of the characters. If you believe this code should be working, you can Email it to Trimpsgame@gmail.com and I will do my best to restore it for you!", "Notices");
+			return;
+		}
     } else if (localStorage.getItem("trimpSave1") !== null) {
         savegame = JSON.parse(LZString.decompressFromBase64(localStorage.getItem("trimpSave1")));
     }
@@ -162,11 +174,17 @@ function load(saveString, autoLoad) {
             }
         }
     }
-    for (var a in game) { //global, resources, jobs, buildings, upgrades, triggers, equipment, settings
+    for (var a in game) { //global, resources, jobs, buildings, upgrades, triggers, equipment, settings, options
         if (a == "global") continue;
         if (a == "badGuys") continue;
         if (a == "worldUnlocks") continue;
         if (a == "mapConfig") continue;
+		if (a == "options" && savegame.options){
+			for (var itemO in savegame.options.menu){
+				if (game.options.menu[itemO]) game.options.menu[itemO].enabled = savegame.options.menu[itemO].enabled;
+			}
+			continue;
+		}
 		if (a == "unlocks" && savegame.unlocks) {
 			game.unlocks.quickTrimps = savegame.unlocks.quickTrimps;
 			game.unlocks.goldMaps = savegame.unlocks.goldMaps;
@@ -243,7 +261,7 @@ function load(saveString, autoLoad) {
 			}
 		}
 	}
-	if (oldVersion < 2.111){
+	if (oldVersion < 2.21){
 		var totalHelium = 0;
 		for (var item in game.portal){
 			if (game.portal[item].locked) continue;
@@ -254,6 +272,8 @@ function load(saveString, autoLoad) {
 		game.global.totalHeliumEarned = totalHelium;
 		game.global.totalHeliumEarned += game.global.heliumLeftover;
 		game.global.totalHeliumEarned += game.resources.helium.owned;
+		game.options.menu.autoSave.enabled = savegame.global.autoSave;
+		game.options.menu.standardNotation.enabled = savegame.global.standardNotation;
 	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
@@ -292,7 +312,6 @@ function load(saveString, autoLoad) {
 	if (game.global.mapsUnlocked) unlockMapStuff();
 	repeatClicked(true);
 	game.global.lockTooltip = false;
-	swapNotation(true);
 	document.getElementById("worldNumber").innerHTML = game.global.world;
     mapsSwitch(true);
     checkTriggers(true);
@@ -306,16 +325,21 @@ function load(saveString, autoLoad) {
     if (game.global.autoCraftModifier > 0)
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
-    toggleSave(true);
 	checkOfflineProgress();
 	updateLabels();
 	if (game.global.viewingUpgrades) viewPortalUpgrades();
 	if (game.global.respecActive) respecPerks();
 	if (game.global.kongBonusMode) activateKongBonus();
-	if (game.global.totalPortals >= 1) document.getElementById("pastUpgradesBtn").style.display = "inline-block";
+	
 	if (game.global.challengeActive && typeof game.challenges[game.global.challengeActive].onLoad !== 'undefined') game.challenges[game.global.challengeActive].onLoad();
 	if (game.global.challengeActive != "Scientist") document.getElementById("scienceCollectBtn").style.display = "block";
 	if (game.global.brokenPlanet) document.getElementById("wrapper").style.background = "url(css/bg2_vert.png) center repeat-y";
+	
+	game.options.displayed = false;
+	displaySettings();
+	if (game.options.menu.barOutlines.enabled) game.options.menu.barOutlines.onToggle();
+	
+	
 	unlockFormation("all");
 	setFormation();
 	game.global.removingPerks = false;
@@ -477,6 +501,7 @@ function abandonChallenge(restart){
 }
 
 function viewPortalUpgrades() {
+	if (game.global.totalPortals == 0) return;
 	cancelTooltip();
 	game.global.viewingUpgrades = true;
 	game.resources.helium.respecMax = game.global.heliumLeftover;
@@ -754,7 +779,6 @@ function getPortalUpgradePrice(what, removing){
 }
 
 function commitPortalUpgrades(){
-	document.getElementById("pastUpgradesBtn").style.display = "inline-block";
 	if (!canCommitCarpentry()) return false;
 	for (var item in game.portal){
 		if (game.portal[item].locked) continue;
@@ -800,6 +824,7 @@ function activatePortal(){
 	cancelPortal(true);
 	resetGame(true);
 	game.global.totalPortals++;
+	displayPerksBtn();
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 }
@@ -1167,7 +1192,8 @@ function craftBuildings(makeUp) {
 		var timeLeft = (game.global.timeLeftOnCraft / modifier).toFixed(1);
 		if (timeLeft < 0.1) timeLeft = 0.1;
         if (timeRemaining) timeRemaining.innerHTML = " - " + timeLeft + " Seconds";
-		buildingsBar.style.background = "rgba(30, 144, 255, " + percent + ")";
+		if (game.options.menu.queueAnimation.enabled) buildingsBar.style.background = "rgba(30, 144, 255, " + percent + ")";
+		else buildingsBar.style.backgroundColor = "initial";
         if (game.global.timeLeftOnCraft > 0) return;
     }
     buildBuilding(game.global.crafting);
@@ -1231,7 +1257,7 @@ function setNewCraftItem() {
     game.global.timeLeftOnCraft = game.buildings[queueItem].craftTime;
 	var elem = document.getElementById("queueItemsHere").firstChild;
 	var timeLeft = (game.global.timeLeftOnCraft / (game.global.autoCraftModifier + game.global.playerModifier)).toFixed(1);
-	if (timeLeft <= 0.1) {timeLeft = 0.1; elem.style.background = "rgb(30, 144, 255)";}
+	if (timeLeft <= 0.1) {timeLeft = 0.1; if (game.options.menu.queueAnimation.enabled) elem.style.background = "rgb(30, 144, 255)";}
 	if (elem && !document.getElementById("queueTimeRemaining")) elem.innerHTML += "<span id='queueTimeRemaining'> - " + timeLeft + " Seconds</span>";
 }
 
@@ -2853,7 +2879,7 @@ function boostHe(checkOnly) {
 		if (checkOnly) return amt;
 		game.global.heliumLeftover += amt;
 		game.global.totalPortals++;
-		document.getElementById("pastUpgradesBtn").style.display = "inline-block";
+		displayPerksBtn();
 		document.getElementById("pastUpgradesBtn").style.border = "1px solid red";
 		return;
 	}
@@ -2865,8 +2891,9 @@ function boostHe(checkOnly) {
 	amt = (amt > game.global.bestHelium) ? amt : game.global.bestHelium;
 	if (checkOnly) return amt;
 	game.global.heliumLeftover += amt;
+	game.global.totalHeliumEarned += amt;
 	game.global.totalPortals++;
-	document.getElementById("pastUpgradesBtn").style.display = "inline-block";
+	displayPerksBtn();
 	document.getElementById("pastUpgradesBtn").style.border = "1px solid red";
 }
 
@@ -2947,7 +2974,7 @@ function onPurchaseResult(result) {
 }
 
 load();
-
+displayPerksBtn();
 
 setTimeout(autoSave, 60000);
 
@@ -2989,12 +3016,40 @@ function gameTimeout() {
     setTimeout(gameTimeout, (tick - dif));
 }
 
+function updatePortalTimer() {
+	if (game.global.portalTime < 0) return;
+	var timeSince = new Date().getTime() - game.global.portalTime;
+	timeSince /= 1000;
+	var days = Math.floor(timeSince / 86400);
+	var hours = Math.floor( timeSince / 3600) % 24;
+	var minutes = Math.floor(timeSince / 60) % 60;
+	var seconds = Math.floor(timeSince % 60);
+	document.getElementById("portalTimer").innerHTML = days + ":" + hours + ":" + minutes + ":" + seconds;  
+	setTimeout(updatePortalTimer, 1000);
+}
+
+updatePortalTimer();
+
 setTimeout(gameTimeout(), (1000 / game.settings.speed));
 
+var shiftPressed = false;
 document.addEventListener('keydown', function(e) {
 	if (e.keyCode == 27) { // ESC
 		// cancel the current dialog box
 		cancelTooltip();
 	}
+	if (e.keyCode == 16) { // Shift
+		shiftPressed = true;
+	}
 }, true);
+document.addEventListener('keyup', function(e) {
+	if (e.keyCode == 16){
+		if (game.options.menu.tooltips.enabled == false) cancelTooltip();
+		shiftPressed = false;
+		
+	}
+
+}, true);
+
+
 

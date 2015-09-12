@@ -423,13 +423,56 @@ overflow-x: hidden;
 	color: white;
 }
 
-.settingsBtn {
+#settingsTable > tbody > tr > td {
+	width: 14.1% !important;
+	border: 1px solid black;
+	display: table-cell !important;
+	font-size: .8vw;
+	text-align: center;
+}
+
+
+
+.settingBtn {
     font-size: 1.3vw;
+	border: 1px solid black;
+	cursor: pointer;
+	text-align: center;
+
+}
+
+.settingBtntrue{
+	background-color: #5cb85c;
+}
+
+.settingBtnfalse{
+	background-color: #d9534f;
+}
+
+.optionContainer {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 2vw;
+	margin-right: 2vw;
+	margin-bottom: 1vw;
+	width: 15.5vw;
+}
+
+.optionItemDescription{
+	padding-left: .5vw;
+	padding-right: .5vw;
+	font-size: 1vw;
+}
+
+#settingsHere{
+	margin-bottom: 2vw;
+	margin-top: 2vw;
 }
 
 #numTabs{
 	margin-top: 5px;
 }
+
 #numTabs > ul > li > a {
     padding: 3px;
 }
@@ -1167,7 +1210,7 @@ overflow-x: hidden;
 .btn-new {
   color: #51b9c0;
   background-color: #000;
-  border-color: #0f676c;
+  border-color: #0f676c !important;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -1177,7 +1220,7 @@ overflow-x: hidden;
 .open > .dropdown-toggle.btn-new {
   color: #000;
   background-color: #51b9c0;
-  border-color: #0f676c;
+  border-color: #0f676c !important;
 }
 .btn-new:active,
 .btn-new.active,

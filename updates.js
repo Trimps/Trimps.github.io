@@ -20,15 +20,18 @@
  
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) {
+	
 	if (document.getElementById(what + "Alert") !== null)	document.getElementById(what + "Alert").innerHTML = "";
 	if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
 	if (game.global.lockTooltip) return;
+	
 	var elem = document.getElementById("tooltipDiv");
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
 	if (what == "hide"){
 		elem.style.display = "none";
 		return;
 	}
+	if (event != 'update' && !game.options.menu.tooltips.enabled && !shiftPressed) return;
 	if (event != "update"){
 		var cordx = 0;
 		var cordy = 0;
@@ -543,8 +546,8 @@ function getMaxTrimps() {
 }
 
 function swapNotation(updateOnly){
-	if (!updateOnly) game.global.standardNotation = !game.global.standardNotation;
-	document.getElementById("notationBtn").innerHTML = (game.global.standardNotation) ? "Standard Notation" : "Scientific Notation";
+	if (!updateOnly) game.options.menu.standardNotation.enabled = !game.options.menu.standardNotation.enabled;
+	document.getElementById("notationBtn").innerHTML = (game.options.menu.standardNotation.enabled) ? "Standard Notation" : "Scientific Notation";
 	if (game.global.fighting) updateAllBattleNumbers();
 }
 
@@ -566,7 +569,7 @@ function prettify(number) {
 		'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V'
 	];
 	var suffix;
-	if ((base <= suffices.length && base > 0) && game.global.standardNotation)
+	if ((base <= suffices.length && base > 0) && game.options.menu.standardNotation.enabled)
 	{
 		suffix = suffices[base-1];
 	}
@@ -690,7 +693,6 @@ function resetGame(keepPortal) {
 		setGather(gatherBtns[gatherBtn], true);
 	}
 	var messages = game.global.messages;
-	var autoSave = game.global.autoSave;
 	var portal;
 	var helium;
 	var b;
@@ -701,6 +703,7 @@ function resetGame(keepPortal) {
 	var lastSkele;
 	var bestHelium;
 	var totalHeliumEarned;
+	var options = game.options;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -718,6 +721,7 @@ function resetGame(keepPortal) {
 	game = newGame();
 	game.global.autoSave = autoSave;
 	game.global.messages = messages;
+	game.options = options;
 	if (keepPortal){
 		game.global.bestHelium = bestHelium;
 		game.portal = portal;
@@ -730,6 +734,7 @@ function resetGame(keepPortal) {
 		game.global.sLevel = sLevel;
 		game.global.lastSkeletimp = lastSkele;
 		game.global.totalHeliumEarned = totalHeliumEarned;
+
 		if (sLevel >= 1) {
 			game.resources.science.owned += 5000;
 			game.resources.wood.owned += 100;
@@ -1025,7 +1030,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			unlockBuilding(itemA);
 			elem = document.getElementById(itemA + "Owned");
 		}
-		elem.innerHTML = toUpdate.owned;
+		elem.innerHTML = prettify(toUpdate.owned);
 		if (itemA == "Trap") {
 		document.getElementById("trimpTrapText").innerHTML = prettify(toUpdate.owned);
 		document.getElementById("trimpTrapText2").innerHTML = prettify(toUpdate.owned);
@@ -1041,7 +1046,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			continue;
 		}
 		if (document.getElementById(itemB) === null) unlockJob(itemB);
-		document.getElementById(itemB + "Owned").innerHTML = toUpdate.owned;
+		document.getElementById(itemB + "Owned").innerHTML = prettify(toUpdate.owned);
 		var perSec = (toUpdate.owned * toUpdate.modifier);
 		updatePs(toUpdate);
 	}
@@ -1263,6 +1268,49 @@ function getBarColor(percent, forText) {
 	else return "red";
 }
 
+function displayPerksBtn(){
+	var btn = document.getElementById("pastUpgradesBtn");
+	if (game.global.totalPortals == 0){
+		btn.className = "btn";
+		btn.innerHTML = "???";
+	}
+	else {
+		btn.className = "btn btn-primary";
+		btn.innerHTML = "View Perks";
+	}
+}
+
+
+function toggleSettingsMenu(){
+	game.options.displayed = !game.options.displayed;
+	var menuElem = document.getElementById("settingsHere");
+	if (game.options.displayed) menuElem.style.display = "block";
+	else
+	menuElem.style.display = "none";
+	
+	
+}
+
+function displaySettings() {
+	var settingsHere = document.getElementById("settingsHere");
+	var html = "";
+	for (var item in game.options.menu){
+		var optionItem = game.options.menu[item];
+		var text = (optionItem.enabled) ? optionItem.titleOn : optionItem.titleOff;
+		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\")'>" + text + "</div><div class='optionItemDescription'>" + optionItem.description + "</div></div> ";
+	}
+	settingsHere.innerHTML = html;
+}
+
+function toggleSetting(setting){
+	var menuOption = game.options.menu[setting];
+	menuOption.enabled = !menuOption.enabled;
+	if (menuOption.onToggle) menuOption.onToggle();
+	var menuElem = document.getElementById("toggle" + setting);
+	menuElem.innerHTML = (menuOption.enabled) ? menuOption.titleOn : menuOption.titleOff;
+	menuElem.className = "";
+	menuElem.className = "settingBtn settingBtn" + menuOption.enabled;
+}
 
 
 

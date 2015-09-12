@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.2,
+		version: 2.21,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -47,9 +47,9 @@ var toReturn = {
 		block: 0,
 		autoBattle: false,
 		autoCraftModifier: 0,
-		autoSave: true,
 		start: new Date().getTime(),
 		time: 0,
+		portalTime: new Date().getTime(),
 		lastFightUpdate: "",
 		battleCounter: 0,
 		firing: false,
@@ -66,8 +66,7 @@ var toReturn = {
 		buyAmt: 1,
 		numTab: 1,
 		spreadsheetMode: false,
-		lockTooltip: false,
-		standardNotation: true,
+		lockTooltip: false,	
 		portalActive: false,
 		mapsUnlocked: false,
 		lastOnline: 0,
@@ -98,6 +97,7 @@ var toReturn = {
 		tempHighHelium: 0,
 		totalHeliumEarned: 0,
 		removingPerks: false,
+		lastPortal: new Date().getTime(),
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -167,6 +167,57 @@ var toReturn = {
 			if (world > 5 && game.global.mapsActive) amt *= 1.1;
 			amt *= game.badGuys[name].health;
 			return Math.floor(amt);
+		}
+	},
+	options: {
+		displayed: false,
+		menu: {
+			autoSave: {
+				enabled: true,
+				description: "Automatically save the game once per minute",
+				titleOn: "Auto Saving",
+				titleOff: "Not Saving",
+			},
+			standardNotation: {
+				enabled: true,
+				description: "Swap between standard and exponential number formatting",
+				titleOn: "Standard Formatting",
+				titleOff: "Exponential Formatting"
+			},
+			tooltips: {
+				enabled: true,
+				description: "Swap between having the large tooltips always display, and having them only display while holding shift",
+				titleOn: "Showing Tooltips",
+				titleOff: "Shift for Tooltips"
+			},
+			queueAnimation: {
+				enabled: true,
+				description: "Toggle on or off the building queue blue color animation",
+				titleOn: "Animation",
+				titleOff: "No Animation",
+			},
+			barOutlines: {
+				enabled: false,
+				description: "Toggle on or off a black bar at the end of all progress bars",
+				titleOn: "Outline",
+				titleOff: "No Outline",
+				onToggle: function () {
+					var outlineStyle = (this.enabled) ? "2px solid black" : "none";
+					var bars = document.getElementsByClassName("progress-bar");
+					for (var x = 0; x < bars.length; x++){
+						bars[x].style.borderRight = outlineStyle;
+					}
+				}
+			},
+			deleteSave: {
+				enabled: false,
+				description: "Delete your save",
+				titleOff: "Delete Save",
+				onToggle: function () {
+					tooltip('Reset', null, 'update');
+					this.enabled = false;
+				}
+			}
 		}
 	},
 	//portal
@@ -998,6 +1049,7 @@ var toReturn = {
 				if (game.global.challengeActive == "Electricity") {
 					message("You have completed the Electricity challenge! You have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
 					game.resources.helium.owned += game.challenges.Electricity.heldHelium;
+					game.global.totalHeliumEarned += game.challenges.Electricity.heldHelium;
 					game.challenges.Electricity.heldHelium = 0;
 					game.global.challengeActive = "";
 					game.global.radioStacks = 0;

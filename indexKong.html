@@ -8,7 +8,7 @@
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?5" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?6" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -766,36 +766,32 @@ var kongregate = parent.kongregateAPI.getAPI();
 		<div id="settingsRow">
 			<table id="settingsTable">
 				<tr>
-					<td>
-						<div class="btn btn-info" onclick="save()">Save</div>
+					<td class="btn btn-info" onclick="save()">
+						Save
 					</td>
-					<td>
-						<div class="btn btn-info" onclick="tooltip('Reset', null, 'update')">Delete Save</div>
+					<td class="btn btn-info" onclick="tooltip('Export', null, 'update')">
+						<div>Export</div>
 					</td>
-					<td>
-						<div class="btn btn-info" id="toggleBtn" onclick="toggleSave()">Auto-Saving</div>
+					<td class="btn btn-info" onclick="tooltip('Import', null, 'update')">
+						<div>Import</div>
 					</td>
-					<td>
-						<div class="btn btn-info" onclick="tooltip('Export', null, 'update')">Export</div>
+					<td class="btn btn-default" onclick="toggleSettingsMenu()">
+						<div>Settings</div>
 					</td>
-					<td>
-						<div class="btn btn-info" onclick="tooltip('Import', null, 'update')">Import</div>
+					<td class="btn" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">
+						
 					</td>
-					<td>
-						<div class="btn btn-info" id="notationBtn" onclick="swapNotation()">Standard Decimal</div>
+					<td class="btn btn-new" onclick="window.open('updates.html', '_blank')">
+							V <span id="versionNumber"></span> | What's New 
 					</td>
-					<td>
-						<div class="btn btn-primary" style="display: none" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">View Perks</div>
-					</td>
-
-					<td>
-						V <span id="versionNumber"></span>
-						<a href="updates.html" target="_blank">
-							<div class="btn btn-new">What's New</div>
-						</a>
+					<td id="portalTimer">
+						&nbsp;
 					</td>
 				</tr>
 			</table>
+			<div id="settingsHere" style="display: none">
+
+			</div>
 		</div>
 	</div>
 
@@ -873,9 +869,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?38"></script>
-	<script type="text/javascript" src="updates.js?38"></script>
-	<script type="text/javascript" src="main.js?38"></script>
+	<script type="text/javascript" src="config.js?39"></script>
+	<script type="text/javascript" src="updates.js?39"></script>
+	<script type="text/javascript" src="main.js?39"></script>
 			<script type="text/javascript">
 	document.body.addEventListener('DOMMouseScroll', onWheel, true);
 	document.body.addEventListener('mousewheel', onWheel, true);
