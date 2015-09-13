@@ -1139,10 +1139,15 @@ function getBuildingItemPrice(toBuy, costItem, isEquipment){
 	return price;
 }
 
-function buyBuilding(what) {
-    var toBuy = game.buildings[what];
+function buyBuilding(what, confirmed) {
+
+	var toBuy = game.buildings[what];
     if (typeof toBuy === 'undefined') return;
     var canAfford = canAffordBuilding(what);
+	    if (what == "Wormhole" && !confirmed && game.options.menu.confirmhole.enabled){
+		tooltip('Confirm Purchase', null, 'update', 'You are about to purchase ' + game.global.buyAmt + ' Wormholes, <b>which cost helium</b>. Make sure you can earn back what you spend!', 'buyBuilding(\'Wormhole\', true)');
+		return;
+	}
 	if (canAfford){
 		canAffordBuilding(what, true);
 		var purchaseAmt = (game.buildings[what].percent) ? 1 : game.global.buyAmt; 
@@ -1295,7 +1300,7 @@ function trapThings() {
         game.global.timeLeftOnTrap = -1;
         if (TrapOwned) TrapOwned.innerHTML = trap.owned;
     }
-    document.getElementById("trappingBar").style.width = (100 - ((game.global.timeLeftOnTrap / trimps.speed) * 100)) + "%";
+    if (game.options.menu.progressBars.enabled) document.getElementById("trappingBar").style.width = (100 - ((game.global.timeLeftOnTrap / trimps.speed) * 100)) + "%";
 }
 
 function buyJob(what) {
@@ -2131,8 +2136,6 @@ function startFight() {
             cell.health *= difficulty;
         }
         cell.maxHealth = cell.health;
-        document.getElementById("badGuyBar").style.width = "100%";
-        document.getElementById("badGuyBar").style.backgroundColor = "#00B2EE";
     }
     if (game.global.soldierHealth <= 0) {
 		if (game.global.radioStacks) {
@@ -2159,7 +2162,6 @@ function startFight() {
 			game.global.soldierCurrentBlock *= (game.global.formation == 3) ? 4 : 0.5;
 		}
 		game.global.soldierHealth = game.global.soldierHealthMax;
-		document.getElementById("goodGuyBar").style.width = "100%";
     }
 	else {
 		//Check differences in equipment, apply perks, bonuses, and formation
@@ -2210,15 +2212,34 @@ function updateAllBattleNumbers (skipNum) {
         cellElem = document.getElementById("cell" + cellNum);
     }
     cellElem.style.backgroundColor = "yellow";
-	document.getElementById("goodGuyHealth").innerHTML = prettify(game.global.soldierHealth);
     document.getElementById("goodGuyHealthMax").innerHTML = prettify(game.global.soldierHealthMax);
-    document.getElementById("goodGuyBar").style.backgroundColor = getBarColor((game.global.soldierHealth / game.global.soldierHealthMax) * 100);
-    document.getElementById("badGuyHealth").innerHTML = prettify(cell.health);
+	updateGoodBar();
+	updateBadBar(cell);
 	document.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth);
 	if (!skipNum) document.getElementById("trimpsFighting").innerHTML = prettify(game.resources.trimps.maxSoldiers);
 	document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
 	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true, true);
 	document.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true);
+}
+
+function updateGoodBar() {
+    document.getElementById("goodGuyHealth").innerHTML = prettify(game.global.soldierHealth);
+	if (!game.options.menu.progressBars.enabled) return;
+	var barElem = document.getElementById("goodGuyBar");
+    var percent = ((game.global.soldierHealth / game.global.soldierHealthMax) * 100);
+    barElem.style.width = percent + "%";
+    barElem.style.backgroundColor = getBarColor(percent);
+}
+
+function updateBadBar(cell) {
+	
+/*     var cell = (game.global.mapsActive) ? game.global.mapGridArray[game.global.lastClearedMapCell + 1] : game.global.gridArray[game.global.lastClearedCell + 1]; */
+	document.getElementById("badGuyHealth").innerHTML = prettify(cell.health);
+	if (!game.options.menu.progressBars.enabled) return;
+	var barElem = document.getElementById("badGuyBar");
+	var percent = ((cell.health / cell.maxHealth) * 100);
+    barElem.style.width = percent + "%";
+    barElem.style.backgroundColor = getBarColor(percent);
 }
 
 function calculateDamage(number, buildString, isTrimp) { //number = base attack
@@ -2401,11 +2422,9 @@ function fight(makeUp) {
 	if (gotCrit) critSpan.innerHTML = "Crit!";
     if (cell.health <= 0) game.global.battleCounter = 800;
     if (makeUp) return;
-    document.getElementById("badGuyHealth").innerHTML = prettify(cell.health, 0);
     updateGoodBar();
-    var percent = ((cell.health / cell.maxHealth) * 100);
-    document.getElementById("badGuyBar").style.width = percent + "%";
-    document.getElementById("badGuyBar").style.backgroundColor = getBarColor(percent);
+	updateBadBar(cell);
+    
     /*	if (game.jobs.Medic.owned >= 1) setTimeout(heal, 500); */
 }
 
@@ -2426,13 +2445,6 @@ function updateRadioStacks(){
 	if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
 	updateGoodBar();
 } */
-
-function updateGoodBar() {
-    document.getElementById("goodGuyHealth").innerHTML = prettify(game.global.soldierHealth, 0);
-    var percent = ((game.global.soldierHealth / game.global.soldierHealthMax) * 100);
-    document.getElementById("goodGuyBar").style.width = percent + "%";
-    document.getElementById("goodGuyBar").style.backgroundColor = getBarColor(percent);
-}
 
 function buyEquipment(what) {
 	var toBuy = game.equipment[what];
@@ -3020,7 +3032,15 @@ function updatePortalTimer() {
 	var hours = Math.floor( timeSince / 3600) % 24;
 	var minutes = Math.floor(timeSince / 60) % 60;
 	var seconds = Math.floor(timeSince % 60);
-	document.getElementById("portalTimer").innerHTML = days + ":" + hours + ":" + minutes + ":" + seconds;  
+	var timeArray = [days, hours, minutes, seconds];
+	var timeString = "";
+	for (var x = 0; x < 4; x++){
+		var thisTime = timeArray[x];
+		thisTime = thisTime.toString();
+		timeString += (thisTime.length < 2) ? "0" + thisTime : thisTime;
+		if (x != 3) timeString += ":";
+	}
+	document.getElementById("portalTimer").innerHTML = timeString;
 	setTimeout(updatePortalTimer, 1000);
 }
 

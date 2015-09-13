@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.211,
+		version: 2.212,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -228,6 +228,26 @@ var toReturn = {
 				description: "Toggle on or off large number formatting for jobs and buildings on the left menu",
 				titleOn: "Formatting Menu",
 				titleOff: "No Menu Formatting"
+			},
+			progressBars: {
+				enabled: true,
+				description: "Toggle progress bars on and off. May reduce CPU usage.",
+				titleOn: "Progress Bars",
+				titleOff: "No Progress Bars",
+				onToggle: function () {
+					if (!this.enabled){
+						var bars = document.getElementsByClassName("progress-bar");
+						for (var x = 0; x < bars.length; x++){
+							bars[x].style.width = "0%";
+						}
+					}
+				}
+			},
+			confirmhole: {
+				enabled: true,
+				description: "Toggles on or off the confirmation pop-up on scary purchases like Wormholes",
+				titleOn: "Confirming",
+				titleOff: "Not Confirming"
 			},
 			deleteSave: {
 				enabled: false,

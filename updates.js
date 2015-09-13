@@ -31,7 +31,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.display = "none";
 		return;
 	}
-	if (event != 'update' && !game.options.menu.tooltips.enabled && !shiftPressed) return;
+	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed) return;
 	if (event != "update"){
 		var cordx = 0;
 		var cordy = 0;
@@ -96,7 +96,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "Confirm Purchase"){
 		if (attachFunction == "purchaseImport()" && !boneTemp.selectedImport) return;
 		var btnText = "Make Purchase";
-		if (game.global.b < numCheck){
+		if (numCheck && game.global.b < numCheck){
 			if (typeof kongregate === 'undefined') return;
 			tooltipText = "You can't afford this bonus. Would you like to visit the shop?";
 			attachFunction = "showPurchaseBones()";
@@ -1016,9 +1016,11 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		else if (item == "trimps") newMax = toUpdate.realMax();
 		document.getElementById(item + "Max").innerHTML = prettify(newMax);
 		var bar = document.getElementById(item + "Bar");
-		var percentToMax = ((toUpdate.owned / newMax) * 100);
-		bar.style.backgroundColor = getBarColor(100 - percentToMax);
-		bar.style.width = percentToMax + "%";
+		if (game.options.menu.progressBars.enabled){
+			var percentToMax = ((toUpdate.owned / newMax) * 100);
+			bar.style.backgroundColor = getBarColor(100 - percentToMax);
+			bar.style.width = percentToMax + "%";
+		}
 	}
 	updateSideTrimps();
 	//Buildings, trap is the only unique building, needs to be displayed in trimp area as well
