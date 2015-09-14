@@ -1286,6 +1286,7 @@ function displayPerksBtn(){
 function toggleSettingsMenu(){
 	game.options.displayed = !game.options.displayed;
 	var menuElem = document.getElementById("settingsHere");
+	if (menuElem.innerHTML == "") displaySettings();
 	if (game.options.displayed) menuElem.style.display = "block";
 	else
 	menuElem.style.display = "none";
