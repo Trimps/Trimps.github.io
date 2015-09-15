@@ -1299,7 +1299,7 @@ function displaySettings() {
 	var html = "";
 	for (var item in game.options.menu){
 		var optionItem = game.options.menu[item];
-		var text = (optionItem.enabled) ? optionItem.titleOn : optionItem.titleOff;
+		var text = optionItem.titles[optionItem.enabled];
 		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\")'>" + text + "</div><div class='optionItemDescription'>" + optionItem.description + "</div></div> ";
 	}
 	settingsHere.innerHTML = html;
@@ -1307,10 +1307,15 @@ function displaySettings() {
 
 function toggleSetting(setting){
 	var menuOption = game.options.menu[setting];
-	menuOption.enabled = !menuOption.enabled;
+	var toggles = menuOption.titles.length;
+	if (toggles == 2)	menuOption.enabled = (menuOption.enabled) ? 0 : 1;
+	else {
+		menuOption.enabled++;
+		if (menuOption.enabled >= toggles) menuOption.enabled = 0;
+	}
 	if (menuOption.onToggle) menuOption.onToggle();
 	var menuElem = document.getElementById("toggle" + setting);
-	menuElem.innerHTML = (menuOption.enabled) ? menuOption.titleOn : menuOption.titleOff;
+	menuElem.innerHTML = menuOption.titles[menuOption.enabled];
 	menuElem.className = "";
 	menuElem.className = "settingBtn settingBtn" + menuOption.enabled;
 }

@@ -103,8 +103,7 @@ function save(exportThis) {
 	for (var itemS in saveGame.options.menu){
 		var settingItem = saveGame.options.menu[itemS];
 		delete settingItem.description;
-		delete settingItem.titleOn;
-		delete settingItem.titleOff;
+		delete settingItem.titles;
 	}
 	for (var itemF in saveGame.challenges){
 		var challenge = saveGame.challenges[itemF];
@@ -274,6 +273,11 @@ function load(saveString, autoLoad) {
 		game.global.totalHeliumEarned += game.resources.helium.owned;
 		game.options.menu.autoSave.enabled = savegame.global.autoSave;
 		game.options.menu.standardNotation.enabled = savegame.global.standardNotation;
+	}
+	if (oldVersion < 2.213) {
+		for (var item in game.options.menu){
+			game.options.menu[item].enabled = (game.options.menu[item].enabled) ? 1 : 0;
+		}
 	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {

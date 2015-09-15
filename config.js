@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.212,
+		version: 2.213,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -173,22 +173,19 @@ var toReturn = {
 		displayed: false,
 		menu: {
 			autoSave: {
-				enabled: true,
+				enabled: 1,
 				description: "Automatically save the game once per minute",
-				titleOn: "Auto Saving",
-				titleOff: "Not Saving",
+				titles: ["Not Saving", "Auto Saving"],
 			},
 			standardNotation: {
-				enabled: true,
+				enabled: 1,
 				description: "Swap between standard and exponential number formatting",
-				titleOn: "Standard Formatting",
-				titleOff: "Exponential Formatting"
+				titles: ["Exponential Formatting", "Standard Formatting"],
 			},
 			tooltips: {
-				enabled: true,
+				enabled: 1,
 				description: "Hide button tooltips unless shift is held. Hides formation tooltips until toggled back on.",
-				titleOn: "Showing Tooltips",
-				titleOff: "Shift for Tooltips",
+				titles: ["Shift for Tooltips", "Showing Tooltips"],
 				onToggle: function () {
 					if (this.enabled){
 						document.getElementById("formation0").title = "No Formation";
@@ -205,16 +202,14 @@ var toReturn = {
 				}
 			},
 			queueAnimation: {
-				enabled: true,
+				enabled: 1,
 				description: "Toggle on or off the building queue blue color animation",
-				titleOn: "Animation",
-				titleOff: "No Animation",
+				titles: ["No Animation", "Animation"]
 			},
 			barOutlines: {
-				enabled: false,
+				enabled: 1,
 				description: "Toggle on or off a black bar at the end of all progress bars",
-				titleOn: "Outline",
-				titleOff: "No Outline",
+				titles: ["No Outline", "Outline"],
 				onToggle: function () {
 					var outlineStyle = (this.enabled) ? "2px solid black" : "none";
 					var bars = document.getElementsByClassName("progress-bar");
@@ -224,38 +219,37 @@ var toReturn = {
 				}
 			},
 			menuFormatting: {
-				enabled: true,
+				enabled: 1,
 				description: "Toggle on or off large number formatting for jobs and buildings on the left menu",
-				titleOn: "Formatting Menu",
-				titleOff: "No Menu Formatting"
+				titles: ["No Menu Formatting", "Formatting Menu"]
 			},
 			progressBars: {
-				enabled: true,
-				description: "Toggle progress bars on and off. May reduce CPU usage.",
-				titleOn: "Progress Bars",
-				titleOff: "No Progress Bars",
+				enabled: 1,
+				description: "Toggle progress bars to on, off, or performance. Performance and off will reduce CPU usage.",
+				titles: ["No Progress Bars", "Progress Bars", "Performance Bars"],
 				onToggle: function () {
-					if (!this.enabled){
-						var bars = document.getElementsByClassName("progress-bar");
-						for (var x = 0; x < bars.length; x++){
-							bars[x].style.width = "0%";
+				var bars = document.getElementsByClassName("progress-bar");
+					for (var x = 0; x < bars.length; x++){
+						if (this.enabled == 2) bars[x].className += " noTransition";
+						else {
+							bars[x].className = bars[x].className.replace(" noTransition", "");
+							if (this.enabled == 0) bars[x].style.width = "0%";
 						}
 					}
 				}
 			},
 			confirmhole: {
-				enabled: true,
+				enabled: 1,
 				description: "Toggles on or off the confirmation pop-up on scary purchases like Wormholes",
-				titleOn: "Confirming",
-				titleOff: "Not Confirming"
+				titles: ["Not Confirming", "Confirming"],
 			},
 			deleteSave: {
-				enabled: false,
+				enabled: 0,
 				description: "Delete your save and start fresh. Your Trimps won't be happy.",
-				titleOff: "Delete Save",
+				titles: ["Delete Save"],
 				onToggle: function () {
 					tooltip('Reset', null, 'update');
-					this.enabled = false;
+					this.enabled = 0;
 				}
 			}
 		}

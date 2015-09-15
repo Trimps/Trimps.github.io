@@ -443,12 +443,17 @@ overflow-x: hidden;
 
 }
 
-.settingBtntrue{
+.settingBtntrue, .settingBtn1{
 	background-color: #5cb85c;
 }
 
-.settingBtnfalse{
+.settingBtnfalse, .settingBtn0{
 	background-color: #d9534f;
+}
+
+.settingBtn2{
+	background-color: yellow;
+	color: black;
 }
 
 .optionContainer {
@@ -1257,4 +1262,10 @@ input::-webkit-inner-spin-button {
 	margin: 0;
 	padding: 0;
 	color: black;
+ }
+ 
+ .noTransition {
+	-webkit-transition: none !important;
+       -o-transition: none !important;
+          transition: none !important;
  }
