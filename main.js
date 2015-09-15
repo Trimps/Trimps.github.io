@@ -343,6 +343,7 @@ function load(saveString, autoLoad) {
 	displaySettings();
 	game.options.menu.barOutlines.onToggle();
 	game.options.menu.tooltips.onToggle();
+	game.options.menu.progressBars.onToggle();
 	displayPerksBtn();
 	
 	
