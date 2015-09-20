@@ -2580,7 +2580,7 @@ function setFormation(what) {
 			var oldHealth = game.global.soldierHealthMax;
 			game.global.soldierHealthMax *= health;
 			game.global.soldierHealth -= oldHealth - game.global.soldierHealthMax;
-			if (game.global.soldierHealth <= 0) game.global.soldierHealth = 1;
+			if (game.global.soldierHealth <= 0) game.global.soldierHealth = 0;
 			game.global.soldierCurrentBlock *= block;
 			game.global.soldierCurrentAttack *= attack;
 			updateAllBattleNumbers(true);
