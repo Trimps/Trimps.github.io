@@ -38,6 +38,7 @@ overflow-x: hidden;
 
 .resourceRow{
 	height: 49.9%;
+	padding-right: .25vw;
 }
 
 #resourceColumn {
@@ -49,23 +50,24 @@ overflow-x: hidden;
 }
 
 #miscColumn {
-    padding-left: .3%;
-    padding-right: .3%;
+    padding-left: .25vw;
+    padding-right: .25vw;
 	height: 100%;
 }
 
 #trimpsColumn {
-    padding-left: .3%;
-    padding-right: .3%;
+    padding-left: .25vw;
+    padding-right: .25vw;
     height: 100%;
 }
 
 .resourceRow >:first-child {
-    padding-right: 1%;
+    padding-right: .25vw;
 }
 
 .resourceRow >:nth-child(2) {
-    padding-left: 1%;
+    padding-left: .25vw;
+	padding-right: .25vw;
 }
 
 .resProgress {
@@ -228,7 +230,7 @@ overflow-x: hidden;
 }
 
 #logColumn {
-    padding-left: .3%;
+    padding-left: .25vw;
 	height: 100%;
 }
 
@@ -236,6 +238,7 @@ overflow-x: hidden;
 
 #buyCol {
 	height: 100%;
+	padding-right: .25vw;
 }
 
 .alert {
@@ -367,7 +370,7 @@ overflow-x: hidden;
 	margin-right: 0.25%;
     padding: .2vh;
     text-align: center;
-    background-color: #5B6073;
+    background-color: grey;
     color: white;
     font-size: .85vw;
     border: 1px solid white;
@@ -513,6 +516,7 @@ overflow-x: hidden;
 
 #rightCol {
 	height: calc(99vh - 20vw - 27px);
+	padding-left: .25vw;
 }
 
 .ownedArea {
@@ -621,6 +625,26 @@ overflow-x: hidden;
 	font-size: .8em;
 	background-color: yellow;
 	color: black;
+}
+
+.antiBadge{
+	font-size: .8em;
+}
+
+.autosaving{
+	color: white; 
+	background-color: #5cb85c; 
+	border-radius: 25px; 
+	padding: 0.25em;
+	font-size: .9em;
+}
+
+.notAutosaving{
+	color: white; 
+	background-color: #d9534f; 
+	font-size: .9em;
+	border-radius: 25px; 
+	padding: 0.25em;
 }
 
 .errorMessage {
@@ -1215,9 +1239,15 @@ overflow-x: hidden;
 }
 
 .btn-new {
-  color: #a048a6;
-  background-color: #000;
-  border-color: #48104c !important;
+  color: white;
+  background: -webkit-radial-gradient(#062566, black, #062566); /* Safari 5.1 to 6.0 */
+  background: -o-radial-gradient(#062566, black, #062566); /* For Opera 11.6 to 12.0 */
+  background: -moz-radial-gradient(#062566, black, #062566); /* For Firefox 3.6 to 15 */
+  background: radial-gradient(#062566, black, #062566); /* Standard syntax */
+  border-color: #062566 !important;
+
+
+
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -1225,9 +1255,12 @@ overflow-x: hidden;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-  color: #fff;
-  background-color: #48104c;
-  border-color: #a048a6 !important;
+  color: white;
+  background: -webkit-radial-gradient(black, #062566, black); /* Safari 5.1 to 6.0 */
+  background: -o-radial-gradient(black, #062566, black); /* For Opera 11.6 to 12.0 */
+  background: -moz-radial-gradient(black, #062566, black); /* For Firefox 3.6 to 15 */
+  background: radial-gradient(black, #062566, black); /* Standard syntax */
+  border-color: #062566 !important;
 }
 .btn-new:active,
 .btn-new.active,

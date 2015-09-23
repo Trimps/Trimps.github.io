@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.213,
+		version: 2.3,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -97,7 +97,10 @@ var toReturn = {
 		tempHighHelium: 0,
 		totalHeliumEarned: 0,
 		removingPerks: false,
+		lastBreedTime: 0,
+		antiStacks: 0,
 		lastPortal: new Date().getTime(),
+		prisonClear: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -176,6 +179,11 @@ var toReturn = {
 				enabled: 1,
 				description: "Automatically save the game once per minute",
 				titles: ["Not Saving", "Auto Saving"],
+				onToggle: function () {
+					var elem = document.getElementById("saveIndicator");
+					if (this.enabled) elem.innerHTML = "<span class='autosaving'>(AutoSaving)</span>";
+					else elem.innerHTML = "<span class='notAutosaving'>(Not AutoSaving)</span>";
+				}
 			},
 			standardNotation: {
 				enabled: 1,
@@ -256,13 +264,22 @@ var toReturn = {
 	},
 	//portal
 	portal: {
+		Anticipation: {
+			level: 0,
+			locked: true,
+			max: 10,
+			modifier: 0.02,
+			priceBase: 1000,
+			heliumSpent: 0,
+			tooltip: "Use your experiences in understanding the attention span of Trimps to increase the damage dealt by all soldiers based on how long it took to get an army together. Increases damage by 2% per level per second up to 30 seconds."
+		},
 		Resilience: {
 			level: 0,
 			locked: true,
 			modifier: 0.1,
 			priceBase: 100,
 			heliumSpent: 0,
-			tooltip: "Use your acquired skills in Trimp strengthening to gain a 10% <b>compounding</b> increase to total Trimp health. Effect increased by Toughness."
+			tooltip: "Use your acquired skills in Trimp strengthening to gain a 10% <b>compounding</b> increase to total Trimp health."
 		},
 		Relentlessness:{
 			level: 0,
@@ -371,7 +388,8 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "Walk back through the empty zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%.",
 			level: 0
-		}
+		},
+
 	},
 	
 	challenges: {
@@ -458,9 +476,24 @@ var toReturn = {
 			completed: false,
 			hasKey: false,
 			filter: function () {
-				return this.hasKey;
+				return (game.global.prisonClear > 0);
 			},
 			heldHelium: 0,
+		},
+		Trapper: {
+			description: "Travel to a dimension where Trimps refuse to breed in captivity, teaching yourself new ways to take advantage of situations where breed rate is low. Clearing <b>'Trimple Of Doom' (33)</b> with this challenge active will return your breeding rate to normal.",
+			completed: false,
+			heldBooks: 0,
+			fireAbandon: true,
+			unlocks: "Anticipation",
+			filter: function () {
+				return (game.global.highestLevelCleared >= 69);
+			},
+			abandon: function () {
+				for (var x = 0; x < game.challenges.Trapper.heldBooks; x++){
+					unlockUpgrade("Potency");
+				}
+			}
 		}
 	},
 	
@@ -725,7 +758,6 @@ var toReturn = {
 	},
 
 	badGuys: {
-		
 		Squimp: {
 			location: "All",
 			attack: 0.8,
@@ -790,6 +822,12 @@ var toReturn = {
 				message("That Chickimp dropped " + prettify(amt) + " food!", "Loot", "apple");
 			}
 		},
+		Hippopotamimp: {
+		   location: "Sea",
+		   attack: 1.4,
+		   health: 1.1,
+		   fast: false
+		},
 		Onoudidimp: {
 			location: "Mountain",
 			attack: 0.8,
@@ -852,7 +890,7 @@ var toReturn = {
 			health: 1.5,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("gems", 0.2, level, false);
+				var amt = rewardResource("gems", 0.35, level, false);
 				message("That Dragimp dropped " + prettify(amt) + " gems!", "Loot", "*diamond");
 			}
 		},
@@ -866,6 +904,24 @@ var toReturn = {
 			loot: function (level) {
 				var amt = rewardResource("wood", 2, level, true);
 				message("Mitschimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous");
+			}
+		},
+		Indianimp: {
+			location: "Doom",
+			last: true,
+			world: 33,
+			attack: 1.07,
+			health: 0.9,
+			fast: true,
+			loot: function (level) {
+				var amt = rewardResource("metal", 2, level, true);
+				message("Indianimp dropped " + prettify(amt) + " metal!", "Loot", "*cubes");
+				if (game.global.challengeActive == "Trapper"){
+					game.global.challengeActive = "";
+					game.challenges.Trapper.abandon();
+					game.portal.Anticipation.locked = false;
+					message("You have completed the 'Trapper' challenge! Your Trimps now remember how to breed, and you have unlocked a new perk!", "Notices");
+				}
 			}
 		},
 		Warden: {
@@ -910,7 +966,7 @@ var toReturn = {
 		Feyimp: {
 			location: "World",
 			locked: 1,
-			world: 6,
+			world: 1,
 			attack: 1,
 			health: 1,
 			dropDesc: "Drops 10x Gems",
@@ -1080,6 +1136,7 @@ var toReturn = {
 			fire: function () {
 				message("You have slain the Warden and taken his keys. How weird would it be if they fit in that key hole on the portal?", "Story");
 				game.challenges.Electricity.hasKey = true;
+				game.global.prisonClear++;
 				if (game.global.challengeActive == "Electricity") {
 					message("You have completed the Electricity challenge! You have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
 					game.resources.helium.owned += game.challenges.Electricity.heldHelium;
@@ -1762,6 +1819,11 @@ var toReturn = {
 			icon: "book",
 			title: "Trimpma Sutra",
 			fire: function () {
+				if (game.global.challengeActive == "Trapper"){
+					message("Your Scientists let you know that your Trimps won't understand the book, but they offer to hold on to it for you for later. How nice of them!", "Notices");
+					game.challenges.Trapper.heldBooks++;
+					return;
+				}
 				unlockUpgrade("Potency");
 			}
 		},
@@ -1971,6 +2033,18 @@ var toReturn = {
 				unlockUpgrade("Megaminer");
 			}
 		},
+		Geneticist: {
+			message: "Your Trimps report a strange bronze object on the floor, and you decide to come look at it. It looks freaky, so you ask one of your Trimps to pick it up first. He instantly starts itching his face and babbling off a bunch of science stuff, so you let another Trimp touch it and he does the same. This seems to make your Trimps smarter than Scientists, but may cause side effects.",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: 70,
+			level: 49,
+			title: "The Great Bell of Trimp",
+			icon: "bell",
+			fire: function () {
+				unlockJob("Geneticist");
+			}
+		},
 		Foreman: {
 			message: "You found a crafting foreman! He will build buildings automatically for you!",
 			world: -1,
@@ -2117,7 +2191,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 5,
-			tooltip: "Each Trap allows you to catch one thing",
+			tooltip: "Each Trap allows you to catch one thing.",
 			cost: {
 				food: 10,
 				wood: 10
@@ -2126,27 +2200,12 @@ var toReturn = {
 				if (document.getElementById("trimps").style.visibility == "hidden") fadeIn("trimps", 10);
 			}
 		},
-		Hut: {
-			locked: 1,
-			owned: 0,
-			purchased: 0,
-			craftTime: 10,
-			tooltip: "Has room for $incby$ more lovely Trimps, and enough workspace for half of them.",
-			cost: {
-				food: [125, 1.24],
-				wood: [75, 1.24]
-			},
-			increase: {
-				what: "trimps.max",
-				by: 3
-			}
-		},
 		Barn: {
 			locked: 1,
 			owned: 0,
 			purchased: 0,
 			craftTime: 10,
-			tooltip: "Increases your maximum food by 100%",
+			tooltip: "Increases your maximum food by 100%.",
 			percent: true,
 			cost: {
 				food: function () {
@@ -2164,7 +2223,7 @@ var toReturn = {
 			purchased: 0,
 			craftTime: 10,
 			percent: true,
-			tooltip: "Increases your maximum wood by 100%",
+			tooltip: "Increases your maximum wood by 100%.",
 			cost: {
 				wood: function () {
 					return calculatePercentageBuildingCost("Shed", "wood", 0.25);
@@ -2181,7 +2240,7 @@ var toReturn = {
 			purchased: 0,
 			craftTime: 10,
 			percent: true,
-			tooltip: "Increases your maximum metal by 100%",
+			tooltip: "Increases your maximum metal by 100%.",
 			cost: {
 				metal: function () {
 					return calculatePercentageBuildingCost("Forge", "metal", 0.25);
@@ -2192,24 +2251,19 @@ var toReturn = {
 				by: 2
 			}
 		},
-		Gym: {
+		Hut: {
 			locked: 1,
 			owned: 0,
 			purchased: 0,
-			craftTime: 20,
-			tooltip: "A building where your Trimps can work out. Each Gym increases the amount of damage each trimp can block by $incby$~",
+			craftTime: 10,
+			tooltip: "Has room for $incby$ more lovely Trimps, and enough workspace for half of them.",
 			cost: {
-				wood: [400, 1.185]
+				food: [125, 1.24],
+				wood: [75, 1.24]
 			},
 			increase: {
-			what: "global.block",
-			by: 4
-			},
-			fire: function () {
-				if (game.upgrades.Gymystic.done === 0) return;
-				var oldBlock = game.buildings.Gym.increase.by;
-				game.buildings.Gym.increase.by *= (game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done - 1)));
-				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * (game.buildings.Gym.owned));		
+				what: "trimps.max",
+				by: 3
 			}
 		},
 		House: {
@@ -2343,6 +2397,26 @@ var toReturn = {
 			}
 		
 		},
+		Gym: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 20,
+			tooltip: "A building where your Trimps can work out. Each Gym increases the amount of damage each trimp can block by $incby$~",
+			cost: {
+				wood: [400, 1.185]
+			},
+			increase: {
+			what: "global.block",
+			by: 4
+			},
+			fire: function () {
+				if (game.upgrades.Gymystic.done === 0) return;
+				var oldBlock = game.buildings.Gym.increase.by;
+				game.buildings.Gym.increase.by *= (game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done - 1)));
+				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * (game.buildings.Gym.owned));		
+			}
+		},
 		Tribute: {
 			locked: 1,
 			owned: 0,
@@ -2372,14 +2446,14 @@ var toReturn = {
 				what: "trimps.potency.mult",
 				by: 1.01
 			}
-		}
+		},
 	},
 //jobs
 	jobs: {
 		Farmer: {
 			locked: 1,
 			owned: 0,
-			tooltip: "Train one of your Trimps in the ancient art of farming. Each Farmer earns $modifier$ food per second",
+			tooltip: "Train one of your Trimps in the ancient art of farming. Each Farmer harvests $modifier$ food per second.",
 			cost: {
 				food: 5
 			},
@@ -2399,7 +2473,7 @@ var toReturn = {
 		Miner: {
 			locked: 1,
 			owned: 0,
-			tooltip: "Send your misbehaving Trimps to the mines for some therapeutic work. Each Miner can find and smelt $modifier$ bars of metal per second",
+			tooltip: "Send your misbehaving Trimps to the mines for some therapeutic work. Each Miner can find and smelt $modifier$ bars of metal per second.",
 			cost: {
 				food: 20
 			},
@@ -2419,7 +2493,7 @@ var toReturn = {
 		Trainer: {
 			locked: 1,
 			owned: 0,
-			tooltip: "Each trainer will increase the base amount your soldiers can block by $modifier$%",
+			tooltip: "Each trainer will increase the base amount your soldiers can block by $modifier$%.",
 			cost: {
 				food: [750, 1.1]
 			},
@@ -2441,13 +2515,74 @@ var toReturn = {
 			owned: 0,
 			increase: "gems",
 			modifier: 0.5
+		},
+		Geneticist: {
+			locked: 1,
+			owned: 0,
+			tooltip: "Each Geneticist will increase the health of each Trimp by 1% (compounding), but slows the rate at which baby Trimps grow by 2% (compounding).",
+			cost: {
+				food: [1000000000000000, 1.03],
+			},
+			increase: "custom",
+			modifier: 1
 		}
 	},
 	
 	upgrades: {
-		Battle: {
+	//Important Upgrades
+		Coordination: {
 			locked: 1,
-			tooltip: "Figure out how to teach these Trimps to kill some bad guys",
+			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require 25% more Trimps (rounded up), but attack and health will be increased by the same amount.",
+			done: 0,
+			allowed: 0,
+			cost: {
+				resources: {
+					science: [250, 1.3],
+					food: [600, 1.3],
+					wood: [600, 1.3],
+					metal: [300, 1.3]
+				}
+			},
+			fire: function () {
+				game.resources.trimps.maxSoldiers = Math.ceil(1.25 * game.resources.trimps.maxSoldiers);
+			}
+		},
+		Gigastation: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "Prestige your Warpstation, increasing the amount of Trimps it can house by 20% and the base cost by 75%. There's no turning back, learning these blueprints will make your previous model of Warpstation obsolete but functional, and you will keep all Trimps housed there. Learning this will build one new Warpstation.",
+			done: 0,
+			cost: {
+				resources: {
+					gems: [100000000000000, 1.75],
+					metal: [1000000000000000, 1.75],
+					science: [100000000000, 1.4]
+				}
+			},
+			fire: function () {
+				if (game.buildings.Warpstation.purchased > game.buildings.Warpstation.owned){
+					var thisLength = game.global.buildingsQueue.length;
+					var thisRemoved = 0;
+					for (var x = 0; x < thisLength; x++){
+						if (game.global.buildingsQueue[x - thisRemoved].split('.')[0] == "Warpstation") {
+							removeQueueItem("queueItem" + (game.global.nextQueueId - game.global.buildingsQueue.length + x - thisRemoved)); 
+							thisRemoved++;
+						}
+					}
+				}
+				game.buildings.Warpstation.increase.by *= 1.20;
+				game.buildings.Warpstation.cost.gems[0] *= 1.75;
+				game.buildings.Warpstation.cost.metal[0] *= 1.75;
+				game.buildings.Warpstation.purchased = 1;
+				game.buildings.Warpstation.owned = 1;
+				game.resources.trimps.max += game.buildings.Warpstation.increase.by;
+			}
+		},
+		
+	//One Time Use Upgrades, in order of common unlock order
+		Battle: { //0
+			locked: 1,
+			tooltip: "Figure out how to teach these Trimps to kill some bad guys.",
 			done: 0,
 			allowed: 0,
 			cost: {
@@ -2465,7 +2600,7 @@ var toReturn = {
 				fadeIn("metal", 10);
 			}
 		},
-		Bloodlust: {
+		Bloodlust: { //1
 			locked: 1,
 			tooltip: "This book will teach your Trimps to Battle on their own.",
 			done: 0,
@@ -2481,7 +2616,65 @@ var toReturn = {
 				fadeIn("pauseFight", 1);
 			}
 		},
-		Bounty: {
+		Blockmaster: { //4
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will increase the block gained from each Gym by 1.5x",
+			done: 0,
+			cost: {
+				resources: {
+					science: [750, 1.17],
+					food: [2000, 1.17],
+					metal: [1000, 1.17]
+				}
+			},
+			fire: function () {
+				game.global.block = Math.ceil(1.5 * game.global.block);
+				game.buildings.Gym.increase.by = Math.ceil(1.5 * game.buildings.Gym.increase.by);
+			}
+		},
+		Trapstorm: { //10
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book details the fine art of teaching your foremen to actually do stuff instead of just sitting around. When asked, your foremen will start construction on a new Trap if the queue is empty.",
+			done: 0,
+			cost: {
+				resources: {
+					science: 10000,
+					food: 100000,
+					wood: 100000
+					
+				}
+			},
+			fire: function () {
+				game.global.trapBuildAllowed = true;
+				fadeIn("autoTrapBtn", 10);
+			}
+		},
+		Shieldblock: { //11
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book explains methods of using a shield to actually block damage. The current shield will need to be completely destroyed and rebuilt, but it will give block instead of health. <b>This is permanent</b>. $Your Shield Must be Prestige III or higher$",
+			done: 0,
+			specialFilter: function () {
+				return (game.equipment.Shield.prestige >= 3) ? true : false;
+			},
+			cost: {
+				resources: {
+					science: 3000,
+					wood: 10000
+				}
+			},
+			fire: function () {
+			var equipment = game.equipment.Shield;
+				prestigeEquipment("Shield", false, true);
+				equipment.blockNow = true;
+				equipment.tooltip = game.equipment.Shield.blocktip;
+				equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
+				levelEquipment("Shield", 1);
+			}
+		},
+		Bounty: { //15
 			locked: 1,
 			tooltip: "This book will teach your Farmers, Lumberjacks, Miners, Scientists, and Explorers to all be twice as productive.",
 			done: 0,
@@ -2503,388 +2696,23 @@ var toReturn = {
 				
 			}
 		},
-		Coordination: {
+		Egg: { //17
 			locked: 1,
-			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require 25% more Trimps (rounded up), but attack and health will be increased by the same amount.",
-			done: 0,
 			allowed: 0,
+			tooltip: "Your top scientists are pretty sure this is a Dragimp egg. They know Dragimps love shiny things, maybe it'll come out for some gems.",
+			done: 0,
 			cost: {
 				resources: {
-					science: [250, 1.3],
-					food: [600, 1.3],
-					wood: [600, 1.3],
-					metal: [300, 1.3]
+					gems: 10000
 				}
 			},
 			fire: function () {
-				game.resources.trimps.maxSoldiers = Math.ceil(1.25 * game.resources.trimps.maxSoldiers);
+				game.jobs.Dragimp.owned = 1;
+				fadeIn("gemsPs", 10);
+				unlockBuilding("Tribute");
 			}
 		},
-		Blockmaster: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will increase the block gained from each Gym by 1.5x",
-			done: 0,
-			cost: {
-				resources: {
-					science: [750, 1.17],
-					food: [2000, 1.17],
-					metal: [1000, 1.17]
-				}
-			},
-			fire: function () {
-				game.global.block = Math.ceil(1.5 * game.global.block);
-				game.buildings.Gym.increase.by = Math.ceil(1.5 * game.buildings.Gym.increase.by);
-			}
-		},
-		Blockbetter: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will increase the block gained from each Gym by 1.5x",
-			done: 0,
-			cost: {
-				resources: {
-					science: [750, 1.1],
-					food: [2000, 1.1],
-					metal: [1000, 1.1]
-				}
-			},
-			fire: function () {
-				game.global.block = Math.ceil(2 * game.global.block);
-				game.buildings.Gym.increase.by = Math.ceil(2 * game.buildings.Gym.increase.by);
-			}
-		},
-		Miners: {
-			locked: 1,
-			tooltip: "You really don't like reading books, but it seems better than mining yourself.",
-			done: 0,
-			allowed: 0,
-			cost: {
-				resources: {
-					science: 60,
-					wood: 300,
-					metal: 100
-				}
-			},
-			fire: function () {
-				unlockJob("Miner");
-			}
-		},
-		Trainers: {
-			locked: 1,
-			tooltip: "This book holds all of the secrets of upper management. Train your Trimps to train other Trimps.",
-			done: 0,
-			allowed: 0,
-			cost: {
-				resources: {
-					science: 500,
-					food: 1000
-				}
-			},
-			fire: function () {
-				unlockJob("Trainer");
-			}
-		},
-		Scientists: {
-			locked: 1,
-			tooltip: "You really don't believe it, but that book indicates that Trimps can be smart. Better read it and find out how.",
-			done: 0,
-			allowed: 0,
-			cost: {
-				resources: {
-					science: 100,
-					food: 350
-				}
-			},
-			fire: function () {
-				unlockJob("Scientist");
-			}			
-		},
-		Explorers: {
-			locked: 1,
-			tooltip: "This book will allow you to hire trimps who can create map fragments for you!",
-			done: 0,
-			allowed: 0,
-			cost: {
-				resources: {
-					science: 50000,
-					fragments: 5
-				}
-			},
-			fire: function () {
-				unlockJob("Explorer");
-				fadeIn("fragmentsPs", 10);
-			}
-		},
-		Speedlumber: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trimps how to cut wood 25% faster!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [200, 1.4],
-					wood: [500, 1.4]
-				}
-			},
-			fire: function () {
-				game.jobs.Lumberjack.modifier *= 1.25;
-			}			
-		},
-		Speedfarming: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trimps how to farm 25% faster!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [200, 1.4],
-					food: [500, 1.4]
-				}
-			},
-			fire: function () {
-				game.jobs.Farmer.modifier *= 1.25;
-			}			
-		},
-		Speedminer: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trimps how to mine 25% faster!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [200, 1.4],
-					metal: [500, 1.4]
-				}
-			},
-			fire: function () {
-				game.jobs.Miner.modifier *= 1.25;
-			}			
-		},
-		Speedscience: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trimps how to science things 25% faster!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [400, 1.4]
-				}
-			},
-			fire: function () {
-				game.jobs.Scientist.modifier *= 1.25;
-			}			
-		},
-		Megafarming: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trimps how to farm 50% faster!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [10000000000, 1.4],
-					food: [100000000000, 1.4]
-				}
-			},
-			fire: function () {
-				game.jobs.Farmer.modifier *= 1.5;
-			}			
-		},
-		Megaminer: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trimps how to mine 50% faster!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [10000000000, 1.4],
-					metal: [100000000000, 1.4]
-				}
-			},
-			fire: function () {
-				game.jobs.Miner.modifier *= 1.5;
-			}			
-		},		
-		Megalumber: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trimps how to chop wood 50% faster!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [10000000000, 1.4],
-					wood: [100000000000, 1.4]
-				}
-			},
-			fire: function () {
-				game.jobs.Lumberjack.modifier *= 1.5;
-			}			
-		},		
-		Megascience: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trimps how to science things 50% faster!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [100000000000, 1.6]
-				}
-			},
-			fire: function () {
-				game.jobs.Scientist.modifier *= 1.5;
-			}			
-		},
-		Gigastation: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "Prestige your Warpstation, increasing the amount of Trimps it can house by 20% and the base cost by 75%. There's no turning back, learning these blueprints will make your previous model of Warpstation obsolete but functional, and you will keep all Trimps housed there. Learning this will build one new Warpstation.",
-			done: 0,
-			cost: {
-				resources: {
-					gems: [100000000000000, 1.75],
-					metal: [1000000000000000, 1.75],
-					science: [100000000000, 1.4]
-				}
-			},
-			fire: function () {
-
-				if (game.buildings.Warpstation.purchased > game.buildings.Warpstation.owned){
-					var thisLength = game.global.buildingsQueue.length;
-					var thisRemoved = 0;
-					for (var x = 0; x < thisLength; x++){
-						if (game.global.buildingsQueue[x - thisRemoved].split('.')[0] == "Warpstation") {
-							removeQueueItem("queueItem" + (game.global.nextQueueId - game.global.buildingsQueue.length + x - thisRemoved)); 
-							thisRemoved++;
-						}
-					}
-				}
-				game.buildings.Warpstation.increase.by *= 1.20;
-				game.buildings.Warpstation.cost.gems[0] *= 1.75;
-				game.buildings.Warpstation.cost.metal[0] *= 1.75;
-				game.buildings.Warpstation.purchased = 1;
-				game.buildings.Warpstation.owned = 1;
-				game.resources.trimps.max += game.buildings.Warpstation.increase.by;
-			}
-		},		
-		Efficiency: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach you how to be twice as productive in everything you do! Hurray! <b>Note that this applies only to your productivity, not workers.</b>",
-			done: 0,
-			cost: {
-				resources: {
-					science: [400, 1.25],
-					food: [400, 1.2],
-					wood: [400, 1.2],
-					metal: [400, 1.2]
-				}
-			},
-			fire: function () {
-				game.global.playerModifier *= 2;
-			}			
-		},
-		Potency: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your trimps how to be 10% more efficient at making baby Trimps!",
-			done: 0,
-			cost: {
-				resources: {
-					science: [1000, 1.4],
-					wood: [4000, 1.4]
-				}
-			},
-			fire: function () {
-				game.resources.trimps.potency *= 1.1;
-			}
-		},
-	UberHut: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will increase the space gained from each Hut by 2x",
-			done: 0,
-			cost: {
-				resources: {
-					science: 30000,
-					food: 200000,
-					metal: 100000
-				}
-			},
-			fire: function () {
-				game.resources.trimps.max += ((game.buildings.Hut.owned) * game.buildings.Hut.increase.by);
-				game.buildings.Hut.increase.by *= 2;
-			}
-		},
-	UberHouse: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will increase the space gained from each House by 2x",
-			done: 0,
-			cost: {
-				resources: {
-					science: 300000,
-					food: 2000000,
-					metal: 1000000
-				}
-			},
-			fire: function () {
-				game.resources.trimps.max += ((game.buildings.House.owned) * game.buildings.House.increase.by);
-				game.buildings.House.increase.by *= 2;
-			}
-		},
-	UberMansion: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will increase the space gained from each Mansion by 2x",
-			done: 0,
-			cost: {
-				resources: {
-					science: 3000000,
-					food: 20000000,
-					metal: 10000000
-				}
-			},
-			fire: function () {
-				game.resources.trimps.max += ((game.buildings.Mansion.owned) * game.buildings.Mansion.increase.by);
-				game.buildings.Mansion.increase.by *= 2;
-			}
-		},
-	UberHotel: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will increase the space gained from each Hotel by 2x",
-			done: 0,
-			cost: {
-				resources: {
-					science: 30000000,
-					food: 200000000,
-					metal: 100000000
-				}
-			},
-			fire: function () {
-				game.resources.trimps.max += ((game.buildings.Hotel.owned) * game.buildings.Hotel.increase.by);
-				game.buildings.Hotel.increase.by *= 2;
-			}
-		},
-	UberResort: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book will increase the space gained from each Resort by 2x",
-			done: 0,
-			cost: {
-				resources: {
-					science: 300000000,
-					food: 2000000000,
-					metal: 1000000000
-				}
-			},
-			fire: function () {
-				game.resources.trimps.max += ((game.buildings.Resort.owned) * game.buildings.Resort.increase.by);
-				game.buildings.Resort.increase.by *= 2;
-			}
-		},
-
-		Anger: {
+		Anger: { //20
 			locked: 1,
 			allowed: 0,
 			tooltip: "Your scientists are pissed. Not because of anything you did, but this gem seems to be making them mad. It'll take some research, but you think you can create a map to the place the gem originated from.",
@@ -2912,64 +2740,26 @@ var toReturn = {
 				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to the Dimension of Anger! Should be fun!", "Notices");
 			}
-		},
-		Egg: {
+		},		
+		Gymystic: { //25
 			locked: 1,
 			allowed: 0,
-			tooltip: "Your top scientists are pretty sure this is a Dragimp egg. They know Dragimps love shiny things, maybe it'll come out for some gems.",
+			tooltip: "This book will cause each gym you purchase to increase the block provided by all Gyms by 5%. Each consecutive level of this upgrade will increase the block provided by an additional 1%. <b>The extra block provided compounds per Gym.</b>",
 			done: 0,
 			cost: {
 				resources: {
-					gems: 10000
+					wood: 1000000000,
+					science: 5000000
 				}
 			},
+			modifier: 1.05,
 			fire: function () {
-				game.jobs.Dragimp.owned = 1;
-				fadeIn("gemsPs", 10);
-				unlockBuilding("Tribute");
+				var oldBlock = game.buildings.Gym.increase.by;
+				game.buildings.Gym.increase.by = 6 * Math.pow(game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done)), game.buildings.Gym.owned);
+				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * game.buildings.Gym.owned);
 			}
-		},
-		Shieldblock: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book explains methods of using a shield to actually block damage. The current shield will need to be completely destroyed and rebuilt, but it will give block instead of health. <b>This is permanent</b>. $Your Shield Must be Prestige III or higher$",
-			done: 0,
-			specialFilter: function () {
-				return (game.equipment.Shield.prestige >= 3) ? true : false;
-			},
-			cost: {
-				resources: {
-					science: 3000,
-					wood: 10000
-				}
-			},
-			fire: function () {
-			var equipment = game.equipment.Shield;
-				prestigeEquipment("Shield", false, true);
-				equipment.blockNow = true;
-				equipment.tooltip = game.equipment.Shield.blocktip;
-				equipment.blockCalculated = Math.round(equipment.block * Math.pow(1.19, ((equipment.prestige - 1) * game.global.prestige.block) + 1));
-				levelEquipment("Shield", 1);
-			}
-		},
-		Trapstorm: {
-			locked: 1,
-			allowed: 0,
-			tooltip: "This book details the fine art of teaching your foremen to actually do stuff instead of just sitting around. When asked, your foremen will start construction on a new Trap if the queue is empty.",
-			done: 0,
-			cost: {
-				resources: {
-					science: 10000,
-					food: 100000,
-					wood: 100000
-					
-				}
-			},
-			fire: function () {
-				game.global.trapBuildAllowed = true;
-				fadeIn("autoTrapBtn", 10);
-			}
-		},
+		},		
+	//Formations
 		Formations: {
 			locked: 1,
 			allowed: 0,
@@ -3015,48 +2805,156 @@ var toReturn = {
 				unlockFormation(3);
 			}
 		},
-		
-		
-		
-		
-		
-		//Equipment upgrades
-
-		TrainTacular: {
+	//Jobs, in order of unlock
+		Miners: {
 			locked: 1,
-			allowed: 0,
-			tooltip: "This book will teach your Trainers to increase block by an additional 5%!",
+			tooltip: "You really don't like reading books, but it seems better than mining yourself.",
 			done: 0,
+			allowed: 0,
 			cost: {
 				resources: {
-					science: [1000, 1.7],
-					food: [2000, 1.7],
-					wood: [3000, 1.7],
-					metal: [2000, 1.7]
+					science: 60,
+					wood: 300,
+					metal: 100
 				}
 			},
 			fire: function () {
-				game.jobs.Trainer.modifier = Math.ceil(game.jobs.Trainer.modifier += 5);
+				unlockJob("Miner");
 			}
 		},
-		Gymystic: {
+		Scientists: {
 			locked: 1,
-			allowed: 0,
-			tooltip: "This book will cause each gym you purchase to increase the block provided by all Gyms by 5%. Each consecutive level of this upgrade will increase the block provided by an additional 1%. <b>The extra block provided compounds per Gym</b>",
+			tooltip: "You really don't believe it, but that book indicates that Trimps can be smart. Better read it and find out how.",
 			done: 0,
+			allowed: 0,
 			cost: {
 				resources: {
-					wood: 1000000000,
-					science: 5000000
+					science: 100,
+					food: 350
 				}
 			},
-			modifier: 1.05,
 			fire: function () {
-				var oldBlock = game.buildings.Gym.increase.by;
-				game.buildings.Gym.increase.by = 6 * Math.pow(game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done)), game.buildings.Gym.owned);
-				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * game.buildings.Gym.owned);
+				unlockJob("Scientist");
+			}			
+		},
+		Trainers: {
+			locked: 1,
+			tooltip: "This book holds all of the secrets of upper management. Train your Trimps to train other Trimps.",
+			done: 0,
+			allowed: 0,
+			cost: {
+				resources: {
+					science: 500,
+					food: 1000
+				}
+			},
+			fire: function () {
+				unlockJob("Trainer");
 			}
 		},
+		Explorers: {
+			locked: 1,
+			tooltip: "This book will allow you to hire trimps who can create map fragments for you!",
+			done: 0,
+			allowed: 0,
+			cost: {
+				resources: {
+					science: 50000,
+					fragments: 5
+				}
+			},
+			fire: function () {
+				unlockJob("Explorer");
+				fadeIn("fragmentsPs", 10);
+			}
+		},
+	//Housing upgrades, in order of unlock
+		UberHut: {
+				locked: 1,
+				allowed: 0,
+				tooltip: "This book will increase the space gained from each Hut by 2x.",
+				done: 0,
+				cost: {
+					resources: {
+						science: 30000,
+						food: 200000,
+						metal: 100000
+					}
+				},
+				fire: function () {
+					game.resources.trimps.max += ((game.buildings.Hut.owned) * game.buildings.Hut.increase.by);
+					game.buildings.Hut.increase.by *= 2;
+				}
+			},
+		UberHouse: {
+				locked: 1,
+				allowed: 0,
+				tooltip: "This book will increase the space gained from each House by 2x.",
+				done: 0,
+				cost: {
+					resources: {
+						science: 300000,
+						food: 2000000,
+						metal: 1000000
+					}
+				},
+				fire: function () {
+					game.resources.trimps.max += ((game.buildings.House.owned) * game.buildings.House.increase.by);
+					game.buildings.House.increase.by *= 2;
+				}
+			},
+		UberMansion: {
+				locked: 1,
+				allowed: 0,
+				tooltip: "This book will increase the space gained from each Mansion by 2x.",
+				done: 0,
+				cost: {
+					resources: {
+						science: 3000000,
+						food: 20000000,
+						metal: 10000000
+					}
+				},
+				fire: function () {
+					game.resources.trimps.max += ((game.buildings.Mansion.owned) * game.buildings.Mansion.increase.by);
+					game.buildings.Mansion.increase.by *= 2;
+				}
+			},
+		UberHotel: {
+				locked: 1,
+				allowed: 0,
+				tooltip: "This book will increase the space gained from each Hotel by 2x.",
+				done: 0,
+				cost: {
+					resources: {
+						science: 30000000,
+						food: 200000000,
+						metal: 100000000
+					}
+				},
+				fire: function () {
+					game.resources.trimps.max += ((game.buildings.Hotel.owned) * game.buildings.Hotel.increase.by);
+					game.buildings.Hotel.increase.by *= 2;
+				}
+			},
+		UberResort: {
+				locked: 1,
+				allowed: 0,
+				tooltip: "This book will increase the space gained from each Resort by 2x.",
+				done: 0,
+				cost: {
+					resources: {
+						science: 300000000,
+						food: 2000000000,
+						metal: 1000000000
+					}
+				},
+				fire: function () {
+					game.resources.trimps.max += ((game.buildings.Resort.owned) * game.buildings.Resort.increase.by);
+					game.buildings.Resort.increase.by *= 2;
+				}
+			},
+	//Equipment Prestiges
 		Supershield: {
 			locked: 1,
 			allowed: 0,
@@ -3232,13 +3130,181 @@ var toReturn = {
 			fire: function () {
 				prestigeEquipment("Breastplate");
 			}
-		}
+		},
+	//Repeatable upgrades, in order of frequency (rarest first)
+		Potency: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your trimps how to be 10% more efficient at making baby Trimps!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [1000, 1.4],
+					wood: [4000, 1.4]
+				}
+			},
+			fire: function () {
+				game.resources.trimps.potency *= 1.1;
+			}
+		},
+		TrainTacular: { //5
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trainers to increase block by an additional 5%!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [1000, 1.7],
+					food: [2000, 1.7],
+					wood: [3000, 1.7],
+					metal: [2000, 1.7]
+				}
+			},
+			fire: function () {
+				game.jobs.Trainer.modifier = Math.ceil(game.jobs.Trainer.modifier += 5);
+			}
+		},
+		Efficiency: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach you how to be twice as productive in everything you do! Hurray! <b>Note that this applies only to your productivity, not workers.</b>",
+			done: 0,
+			cost: {
+				resources: {
+					science: [400, 1.25],
+					food: [400, 1.2],
+					wood: [400, 1.2],
+					metal: [400, 1.2]
+				}
+			},
+			fire: function () {
+				game.global.playerModifier *= 2;
+			}			
+		},
+		Speedminer: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to mine 25% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [200, 1.4],
+					metal: [500, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Miner.modifier *= 1.25;
+			}			
+		},
+		Speedlumber: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to cut wood 25% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [200, 1.4],
+					wood: [500, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Lumberjack.modifier *= 1.25;
+			}			
+		},
+		Speedfarming: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to farm 25% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [200, 1.4],
+					food: [500, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Farmer.modifier *= 1.25;
+			}			
+		},
+		Speedscience: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to science things 25% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [400, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Scientist.modifier *= 1.25;
+			}			
+		},
+		Megaminer: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to mine 50% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [10000000000, 1.4],
+					metal: [100000000000, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Miner.modifier *= 1.5;
+			}			
+		},	
+		Megalumber: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to chop wood 50% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [10000000000, 1.4],
+					wood: [100000000000, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Lumberjack.modifier *= 1.5;
+			}			
+		},	
+		Megafarming: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to farm 50% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [10000000000, 1.4],
+					food: [100000000000, 1.4]
+				}
+			},
+			fire: function () {
+				game.jobs.Farmer.modifier *= 1.5;
+			}			
+		},
+		Megascience: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to science things 50% faster!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [100000000000, 1.6]
+				}
+			},
+			fire: function () {
+				game.jobs.Scientist.modifier *= 1.5;
+			}			
+		},
 	},
 
 	triggers: {
 		Trap: {
 			done: 0,
-			message: "Maybe there's something meaty and delicious here to Trap",
+			message: "Maybe there's something meaty and delicious here to Trap.",
 			cost: {
 				resources: {
 					food: 5,
@@ -3265,7 +3331,7 @@ var toReturn = {
 		},
 		Barn: {
 			done: 0,
-			message: "The food stores are getting pretty full, maybe you should start thinking about a Barn",
+			message: "The food stores are getting pretty full, maybe you should start thinking about a Barn.",
 			cost: {
 				resources: {
 					food: 350
@@ -3277,7 +3343,7 @@ var toReturn = {
 		},
 		Shed: {
 			done: 0,
-			message: "A nice Shed would allow you to keep more wood on hand",
+			message: "A nice Shed would allow you to keep more wood on hand.",
 			cost: {
 				resources: {
 					wood: 350
@@ -3383,7 +3449,10 @@ var toReturn = {
 		},
 		breeding: {
 			done: 0,
-			message: "Apparently the Trimps breed if they're not working. Doesn't look pleasant.",
+			message: function () {
+				if (game.global.challengeActive == "Trapper") return "Your Trimps look really bored.";
+				else return "Apparently the Trimps breed if they're not working. Doesn't look pleasant.";		
+			},
 			cost: {
 				special: function () {
 					return (game.resources.trimps.owned - game.resources.trimps.employed >= 2) ? true : false;

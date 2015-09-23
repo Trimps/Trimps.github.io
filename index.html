@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 2.2</title>
+	<title>Trimps 2.3</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?9" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?10" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -456,7 +456,7 @@
 							<div class="col-xs-6" id="goodGuyCol">
 								<div class="row">
 									<div class="col-xs-7" style="padding-right: 5px">
-										<div class="battleStatsTitle" id="goodGuyName">Trimps (<span id="trimpsFighting">1</span>) <span id="debuffSpan"></span> <span id="critSpan"></span></div>
+										<div class="battleStatsTitle" id="goodGuyName">Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="debuffSpan"></span></div>
 									</div>
 									<div class="col-xs-5" style="padding-left: 5px;">
 										<div class="row">
@@ -484,10 +484,10 @@
 									</div>
 								</div>
 								<div class="row guyRow" id="goodGuyStatsRow">
-									<div class="col-xs-6 bdHover pointer noselect" onclick="getBattleStatBd('attack')">
-										<span id="goodGuyAttack"></span> DMG
+									<div class="col-xs-8 bdHover pointer noselect" onclick="getBattleStatBd('attack')">
+										<span id="goodGuyAttack"></span> DMG <span id="critSpan"></span>
 									</div>
-									<div class="col-xs-6 pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
+									<div class="col-xs-4 pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
 										<span id="goodGuyBlock">0</span> BLK
 									</div>
 								</div>
@@ -662,7 +662,7 @@
 			<table id="settingsTable">
 				<tr>
 					<td class="btn btn-info" onclick="save()">
-						Save
+						Save <span id="saveIndicator"></span>
 					</td>
 					<td class="btn btn-info" onclick="tooltip('Export', null, 'update')">
 						<div>Export</div>
@@ -763,9 +763,9 @@
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?42"></script>
-	<script type="text/javascript" src="updates.js?42"></script>
-	<script type="text/javascript" src="main.js?42"></script>
+	<script type="text/javascript" src="config.js?43"></script>
+	<script type="text/javascript" src="updates.js?43"></script>
+	<script type="text/javascript" src="main.js?43"></script>
 	
 </body>
 
