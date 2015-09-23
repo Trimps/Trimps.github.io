@@ -2320,13 +2320,13 @@ function calculateDamage(number, buildString, isTrimp) { //number = base attack
 	var min = Math.floor(number * (1 - minFluct));
     var max = Math.ceil(number + (number * maxFluct));
     if (buildString) {
-		if (game.global.radioStacks > 0){
+		if (game.global.radioStacks > 0 && isTrimp){
 			var mult = game.global.radioStacks * .1;
 			mult = (mult > 1) ? 1 : 1 - mult;
 			min *= mult;
 			max *= mult;
 		}
-		if (game.global.antiStacks > 0){
+		if (game.global.antiStacks > 0 && isTrimp){
 			var antiMult = (game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1;
 			min *= antiMult;
 			max *= antiMult;
