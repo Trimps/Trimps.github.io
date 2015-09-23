@@ -966,7 +966,7 @@ var toReturn = {
 		Feyimp: {
 			location: "World",
 			locked: 1,
-			world: 1,
+			world: 6,
 			attack: 1,
 			health: 1,
 			dropDesc: "Drops 10x Gems",
