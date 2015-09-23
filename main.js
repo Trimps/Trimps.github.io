@@ -941,8 +941,8 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 		if (world >= 15) tempModifier *= 2;
 		//Whipimp
 		if (game.unlocks.impCount.Whipimp) tempModifier *= Math.pow(1.003, game.unlocks.impCount.Whipimp);
-		//Half of max can work, a little less than third on average are applied to one of these 3 jobs. 0.14 is pretty average.
-		var avgSec = tempModifier * (game.resources.trimps.realMax() * 0.14);
+		//Half of max can work, a little less than third on average are applied to one of these 3 jobs. 0.16 is pretty average.
+		var avgSec = tempModifier * (game.resources.trimps.realMax() * 0.16);
 		//Base is 7 seconds at 1 baseAmt
 		if (world < 100)
 			amt = avgSec * 7 * baseAmt;
