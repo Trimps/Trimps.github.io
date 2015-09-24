@@ -478,6 +478,11 @@ var toReturn = {
 			filter: function () {
 				return (game.global.prisonClear > 0);
 			},
+			fireAbandon: true,
+			abandon: function () {
+				game.global.radioStacks = 0;
+				updateRadioStacks();
+			},
 			heldHelium: 0,
 		},
 		Trapper: {

@@ -2193,13 +2193,13 @@ function startFight() {
         cell.maxHealth = cell.health;
     }
     if (game.global.soldierHealth <= 0) {
-		if (game.global.lastBreedTime){
+		if (game.portal.Anticipation.level){
 			game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
 			if (game.global.antiStacks >= 30) game.global.antiStacks = 30;
 			game.global.lastBreedTime = 0;
 			updateAntiStacks();
 		}
-		if (game.global.radioStacks) {
+		if (game.global.challengeActive == "Electricity") {
 			game.global.radioStacks = 0;
 			updateRadioStacks();
 		}
@@ -2517,6 +2517,7 @@ function updateAntiStacks(){
 		number = Math.floor(number * 100);
 		elem.innerHTML = '<span class="badge antiBadge" title="Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' seconds to populate.">' + game.global.antiStacks + '<span class="icomoon icon-target2"></span></span>';
 	}
+	else elem.innerHTML = "";
 }
 
 /* function heal() {
@@ -3137,19 +3138,19 @@ document.addEventListener('keydown', function(e) {
 			break;
 		case 49:
 		case 88:
-			if (game.upgrades.Formations.done) setFormation('0');
+			if (game.upgrades.Formations.done && !game.global.lockTooltip) setFormation('0');
 			break;
 		case 50:
 		case 72:
-			if (game.upgrades.Formations.done) setFormation('1');
+			if (game.upgrades.Formations.done && !game.global.lockTooltip) setFormation('1');
 			break;
 		case 51:
 		case 68:
-			if (game.upgrades.Dominance.done) setFormation('2');
+			if (game.upgrades.Dominance.done && !game.global.lockTooltip) setFormation('2');
 			break;
 		case 52:
 		case 66:
-			if (game.upgrades.Barrier.done) setFormation('3');
+			if (game.upgrades.Barrier.done && !game.global.lockTooltip) setFormation('3');
 			break;
 	}
 }, true);
