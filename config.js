@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.3,
+		version: 2.31,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -101,6 +101,7 @@ var toReturn = {
 		antiStacks: 0,
 		lastPortal: new Date().getTime(),
 		prisonClear: 0,
+		frugalDone: false,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -472,7 +473,7 @@ var toReturn = {
 			}
 		},
 		Electricity: {
-			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with double helium for all Blimps and Improbabilities killed up to Zone 80. This is repeatable but requires a key to start each time.",
+			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with double helium for all Blimps and Improbabilities killed up to Zone 80. This is repeatable!",
 			completed: false,
 			hasKey: false,
 			filter: function () {
@@ -499,7 +500,29 @@ var toReturn = {
 					unlockUpgrade("Potency");
 				}
 			}
+		},
+		Frugal: {
+			description: "Bring yourself to a dimension where Equipment is cheap but unable to be prestiged, in order to teach yourself better resource and equipment management. Completing <b>'Dimension of Anger' (20)</b> with this challenge active will return missing books to maps, and your new skills in Frugality will permanently cause MegaBooks to increase gather speed by 60% instead of 50%. Loot rewards will be increased by the same amount per level.",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 99);
+			},
+			start: function (reset) {
+				var mod = (reset) ? 1.2 : 1.1;
+				for (var item in game.equipment){
+					var cost = (item == "Shield") ? "wood" : "metal";
+					game.equipment[item].cost[cost][1] = mod;
+				}
+			},
+			onLoad: function () {
+				this.start();
+			},
+			fireAbandon: true,
+			abandon: function () {
+				this.start(true);
+			}
 		}
+		
 	},
 	
 	
@@ -1204,6 +1227,12 @@ var toReturn = {
 					game.portal.Range.locked = false;
 					message("You have completed the <b>Discipline Challenge!</b> You have unlocked a new perk, and your Trimps have regained their Discipline.", "Notices");
 				}
+				if (game.global.challengeActive == "Frugal"){
+					game.global.challengeActive = "";
+					game.global.frugalDone = true;
+					game.challenges.Frugal.abandon();
+					message("You have completed the 'Frugal' challenge! You can once again find equipment upgrades in maps, and Megabooks now increase gather rates by an extra 10%!", "Notices");
+				}
 			}
 		},
 		Shieldblock: {
@@ -1248,6 +1277,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Supershield",
+			prestige: true,
 			last: 1,
 			fire: function () {
 				unlockUpgrade("Supershield");
@@ -1259,6 +1289,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Dagadder",
+			prestige: true,
 			last: 1,
 			fire: function () {
 				unlockUpgrade("Dagadder");
@@ -1270,6 +1301,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Bootboost",
+			prestige: true,
 			last: 1,
 			fire: function () {
 				unlockUpgrade("Bootboost");
@@ -1281,6 +1313,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Megamace",
+			prestige: true,
 			last: 2,
 			fire: function () {
 				unlockUpgrade("Megamace");
@@ -1292,6 +1325,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Hellishmet",
+			prestige: true,
 			last: 2,
 			fire: function () {
 				unlockUpgrade("Hellishmet");
@@ -1303,6 +1337,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Polierarm",
+			prestige: true,
 			last: 3,
 			fire: function () {
 				unlockUpgrade("Polierarm");
@@ -1314,6 +1349,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Pantastic",
+			prestige: true,
 			last: 3,
 			fire: function () {
 				unlockUpgrade("Pantastic");
@@ -1325,6 +1361,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Axeidic",
+			prestige: true,
 			last: 4,
 			fire: function () {
 				unlockUpgrade("Axeidic");
@@ -1336,6 +1373,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Smoldershoulder",
+			prestige: true,
 			last: 4,
 			fire: function () {
 				unlockUpgrade("Smoldershoulder");
@@ -1347,6 +1385,7 @@ var toReturn = {
 			level: "last",
 			icon: "book",
 			title: "Greatersword",
+			prestige: true,
 			last: 5,
 			fire: function () {
 				unlockUpgrade("Greatersword");
@@ -1358,6 +1397,7 @@ var toReturn = {
 			title: "Bestplate",
 			level: "last",
 			icon: "book",
+			prestige: true,
 			last: 5,
 			fire: function () {
 				unlockUpgrade("Bestplate");
@@ -3248,7 +3288,7 @@ var toReturn = {
 		Megaminer: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to mine 50% faster!",
+			tooltip: "This book will teach your Trimps how to mine ?% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -3257,13 +3297,14 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Miner.modifier *= 1.5;
+				var amt = (game.global.frugalDone) ? 1.6 : 1.5;
+				game.jobs.Miner.modifier *= amt;
 			}			
 		},	
 		Megalumber: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to chop wood 50% faster!",
+			tooltip: "This book will teach your Trimps how to chop wood ?% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -3272,13 +3313,14 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Lumberjack.modifier *= 1.5;
+				var amt = (game.global.frugalDone) ? 1.6 : 1.5;
+				game.jobs.Lumberjack.modifier *= amt;
 			}			
 		},	
 		Megafarming: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to farm 50% faster!",
+			tooltip: "This book will teach your Trimps how to farm ?% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -3287,13 +3329,14 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Farmer.modifier *= 1.5;
+				var amt = (game.global.frugalDone) ? 1.6 : 1.5;
+				game.jobs.Farmer.modifier *= amt;
 			}			
 		},
 		Megascience: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will teach your Trimps how to science things 50% faster!",
+			tooltip: "This book will teach your Trimps how to science things ?% faster!",
 			done: 0,
 			cost: {
 				resources: {
@@ -3301,7 +3344,8 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.jobs.Scientist.modifier *= 1.5;
+				var amt = (game.global.frugalDone) ? 1.6 : 1.5;
+				game.jobs.Scientist.modifier *= amt;
 			}			
 		},
 	},

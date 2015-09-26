@@ -264,6 +264,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			color = color ? "green" : "red";
 			tooltipText = upgradeTextSplit[0] + "<span style='color: " + color + "; font-weight: bold;'>" + upgradeTextSplit[1]  + "</span>";
 		}
+		if (typeof tooltipText.split('?')[1] !== 'undefined'){
+			var percentNum = (game.global.frugalDone) ? '60' : '50';
+			tooltipText = tooltipText.replace('?', percentNum);
+		}
 		if (what == "Coordination" && (game.resources.trimps.realMax() < (game.resources.trimps.maxSoldiers * 3))) {
 			var amtToGo = ((game.resources.trimps.maxSoldiers * 3) - game.resources.trimps.realMax());
 			tooltipText += "<b>You need enough room for " + prettify(game.resources.trimps.maxSoldiers * 3) + " max Trimps. You are short " + prettify(Math.floor(amtToGo)) + " Trimps.</b>";
@@ -342,7 +346,8 @@ function getPsString(what) {
 	}
 	//Add Megabooks
 	if (typeof mBook !== 'undefined' && mBook.done > 0){
-		var mBookStrength = Math.pow(1.5, mBook.done);
+		var mod = (game.global.frugalDone) ? 1.6 : 1.5;
+		var mBookStrength = Math.pow(mod, mBook.done);
 		currentCalc *= mBookStrength;
 		mBookStrength = prettify((mBookStrength - 1) * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Mega" + books[index] + "</td><td class='bdPercent'>+ " + mBookStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
@@ -731,6 +736,7 @@ function resetGame(keepPortal) {
 	var totalHeliumEarned;
 	var options = game.options;
 	var prison;
+	var frugal;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -742,6 +748,7 @@ function resetGame(keepPortal) {
 		lastSkele = game.global.lastSkeletimp;
 		totalHeliumEarned = game.global.totalHeliumEarned;
 		prison = game.global.prisonClear;
+		frugal = game.global.frugalDone;
 		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 	}
@@ -763,6 +770,7 @@ function resetGame(keepPortal) {
 		game.global.lastSkeletimp = lastSkele;
 		game.global.totalHeliumEarned = totalHeliumEarned;
 		game.global.prisonClear = prison;
+		game.global.frugalDone = frugal;
 
 		if (sLevel >= 1) {
 			game.resources.science.owned += 5000;
@@ -782,14 +790,18 @@ function resetGame(keepPortal) {
 	toggleAutoTrap(true);
 	resetAdvMaps();
 	cancelPortal();
+	updateRadioStacks();
+	updateAntiStacks();
 }
 
 function applyS2(){
-	var toUnlock = ["Supershield", "Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate"];
-	for (var x = 0; x < toUnlock.length; x++){
-		var upgradeToUnlock = game.mapUnlocks[toUnlock[x]];
-		upgradeToUnlock.fire();
-		upgradeToUnlock.last += 5;
+	if (game.global.challengeActive != "Frugal"){
+		var toUnlock = ["Supershield", "Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate"];
+		for (var x = 0; x < toUnlock.length; x++){
+			var upgradeToUnlock = game.mapUnlocks[toUnlock[x]];
+			upgradeToUnlock.fire();
+			upgradeToUnlock.last += 5;
+		}
 	}
 	game.buildings.Barn.owned = 5;
 	game.buildings.Barn.purchased = 5;
@@ -1167,13 +1179,29 @@ function unlockJob(what) {
 function drawJob(what, where){
 	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 }
+function refreshMaps(){
+	document.getElementById("mapsHere").innerHTML = "";
+	for (var item in game.global.mapsOwnedArray) {
+			unlockMap(item);
+	}
+}
+
+function getUniqueColor(item){
+	if (item.location && game.mapConfig.locations[item.location].upgrade){
+			var upgrade = game.mapUnlocks[game.mapConfig.locations[item.location].upgrade];
+			if (upgrade.specialFilter && !upgrade.specialFilter()) return " noRecycleDone";
+			if (upgrade.canRunOnce) return " noRecycle";
+			
+		}
+	return " noRecycleDone";	
+}
 
 function unlockMap(what) { //what here is the array index
 	var item = game.global.mapsOwnedArray[what];
 	var elem = document.getElementById("mapsHere");
 	var btnClass = "thing noselect pointer mapThing";
 	if (game.unlocks.goldMaps && !item.noRecycle) btnClass += " goldMap";
-	if (item.noRecycle) btnClass += " noRecycle";
+	if (item.noRecycle)	btnClass += getUniqueColor(item);
 	elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
 	//onmouseover="tooltip(\'' + item.id + '\',\'maps\',event)" onmouseout="tooltip(\'hide\')"
 }

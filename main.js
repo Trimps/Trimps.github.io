@@ -431,6 +431,7 @@ function displayChallenges() {
 			else
 			done = true;
 		}
+		else if (what == "Frugal") done = game.global.frugalDone;
 		done = (done) ? "finishedChallenge" : "";
 		if (!name) name = what;
 		challengesHere.innerHTML += '<div class="noselect pointer challengeThing thing ' + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + name + '</span></div>';
@@ -876,6 +877,7 @@ function loadEquipment(oldEquipment){
 	var newEquipment = game.equipment;
 	for (var item in oldEquipment){
 		//Name changes would go here, I suppose
+
 		if (typeof newEquipment[item] === 'undefined') continue;
 		var oldEquip = oldEquipment[item];
 		var newEquip = newEquipment[item];
@@ -936,7 +938,10 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 		//Base * speed books
 		var tempModifier = 0.5 * Math.pow(1.25, (world >= 59) ? 59 : world);
 		//Mega books
-		if (world >= 60) tempModifier *= Math.pow(1.5, world - 59);
+		if (world >= 60) {	
+			if (game.global.frugalDone) tempModifier *= Math.pow(1.6, world - 59);
+			else tempModifier *= Math.pow(1.5, world - 59);
+		}
 		//Bounty
 		if (world >= 15) tempModifier *= 2;
 		//Whipimp
@@ -1431,7 +1436,6 @@ function buyUpgrade(what, confirmed) {
 	upgrade.done++;
 	if (upgrade.prestiges){
 		var resName = (what == "Supershield") ? "wood" : "metal";
-		console.log("here");
 		upgrade.cost.resources[resName] = getNextPrestigeCost(what);
 	}
 	if ((upgrade.allowed - upgrade.done) <= 0) upgrade.locked = 1;
@@ -1559,7 +1563,7 @@ function updateMapCost(getValue){
 	baseCost += (parseInt(document.getElementById("lootAdvMapsRange").value, 10) * 2);
 	baseCost += Math.floor(parseInt(document.getElementById("difficultyAdvMapsRange").value, 10) * 1.5);
 	baseCost = Math.floor((baseCost / 4) + (Math.pow(1.15, baseCost - 1)));
-	if (document.getElementById("biomeAdvMapsSelect").value != "Random") baseCost *= 4;
+	if (document.getElementById("biomeAdvMapsSelect").value != "Random") baseCost *= 2;
 	if (getValue) return baseCost;
 	document.getElementById("mapCostFragmentCost").innerHTML = prettify(baseCost);
 	
@@ -1785,6 +1789,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
     for (var item in unlocksObj) {
         var special = unlocksObj[item];
 		if (special.brokenPlanet && ((special.brokenPlanet == 1 && !game.global.brokenPlanet) || special.brokenPlanet == -1 && game.global.brokenPlanet)) continue;
+		if (map && game.global.challengeActive == "Frugal" && special.prestige) continue;
 		if (special.startAt < 0) continue;
 		if (special.lastAt < game.global.world) continue;
 		if ((maps) && (special.filterUpgrade) && (game.mapConfig.locations[map.location].upgrade != item)) continue;		
@@ -2402,7 +2407,9 @@ function fight(makeUp) {
             if (game.global.mapsActive) {
                 if (typeof game.mapUnlocks[cell.special].last !== 'undefined') game.mapUnlocks[cell.special].last += 5;
                 if (typeof game.mapUnlocks[cell.special].canRunOnce !== 'undefined') game.mapUnlocks[cell.special].canRunOnce = false;
+				if (unlock.filterUpgrade) refreshMaps();
             }
+			
         } else if (cell.special !== "") {
             unlockEquipment(cell.special);
         }

@@ -838,8 +838,13 @@ overflow-x: hidden;
 }
 
 .noRecycle{
+	background-color: #5cb85c;
+}
+
+.noRecycleDone{
 	background-color: red;
 }
+
 .successColor{
 	background-color: #5cb85c;
 }
