@@ -272,7 +272,7 @@ var toReturn = {
 			modifier: 0.02,
 			priceBase: 1000,
 			heliumSpent: 0,
-			tooltip: "Use your experiences in understanding the attention span of Trimps to increase the damage dealt by all soldiers based on how long it took to get an army together. Increases damage by 2% per level per second up to 30 seconds."
+			tooltip: "Use your experiences in understanding the attention span of Trimps to increase the damage dealt by all soldiers based on how long it took to get an army together. Increases damage by 2% per level per second up to 30 seconds. Maximum of 10 levels."
 		},
 		Resilience: {
 			level: 0,
