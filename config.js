@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.31,
+		version: 2.32,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -983,7 +983,7 @@ var toReturn = {
 			world: 6,
 			attack: 1,
 			health: 1,
-			dropDesc: "Drops 3x Gems",
+			dropDesc: "Drops 6x Gems",
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 3, level, true);
@@ -997,7 +997,7 @@ var toReturn = {
 			world: 6,
 			attack: 1,
 			health: 1,
-			dropDesc: "Drops 10x Gems",
+			dropDesc: "Drops 15x Gems",
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 7.5, level);

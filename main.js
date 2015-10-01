@@ -936,26 +936,26 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 	var amt = 0;
 	if (what == "food" || what == "metal" || what == "wood"){
 		//Base * speed books
-		var tempModifier = 0.5 * Math.pow(1.25, (world >= 59) ? 59 : world);
+		var tempModifier = 0.5 * Math.pow(1.25, (game.global.world >= 59) ? 59 : game.global.world);
 		//Mega books
-		if (world >= 60) {	
-			if (game.global.frugalDone) tempModifier *= Math.pow(1.6, world - 59);
-			else tempModifier *= Math.pow(1.5, world - 59);
+		if (game.global.world >= 60) {	
+			if (game.global.frugalDone) tempModifier *= Math.pow(1.6, game.global.world - 59);
+			else tempModifier *= Math.pow(1.5, game.global.world - 59);
 		}
 		//Bounty
-		if (world >= 15) tempModifier *= 2;
+		if (game.global.world >= 15) tempModifier *= 2;
 		//Whipimp
 		if (game.unlocks.impCount.Whipimp) tempModifier *= Math.pow(1.003, game.unlocks.impCount.Whipimp);
 		//Half of max can work, a little less than third on average are applied to one of these 3 jobs. 0.16 is pretty average.
 		var avgSec = tempModifier * (game.resources.trimps.realMax() * 0.16);
 		//Base is 7 seconds at 1 baseAmt
-		if (world < 100)
+		if (game.global.world < 100)
 			amt = avgSec * 7 * baseAmt;
 		else 
 			amt = avgSec * 10 * baseAmt;
 	}
 	else if (what == "fragments"){
-		amt = Math.floor(Math.pow(1.15, world));
+		amt = Math.floor(Math.pow(1.15, game.global.world));
 	}
 	else{
 		if (what == "helium") level = Math.round((level - 1900) / 100);
