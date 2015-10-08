@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.32,
+		version: 2.4,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -102,6 +102,7 @@ var toReturn = {
 		lastPortal: new Date().getTime(),
 		prisonClear: 0,
 		frugalDone: false,
+		lastUnlock: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -252,6 +253,11 @@ var toReturn = {
 				description: "Toggles on or off the confirmation pop-up on scary purchases like Wormholes",
 				titles: ["Not Confirming", "Confirming"],
 			},
+			lockOnUnlock: {
+				enabled: 0,
+				description: "Enables/disables the locking of buildings, jobs, upgrades, and equipment for 1 second after unlocking something new.",
+				titles: ["Not Locking", "Locking"],
+			},
 			deleteSave: {
 				enabled: 0,
 				description: "Delete your save and start fresh. Your Trimps won't be happy.",
@@ -265,6 +271,27 @@ var toReturn = {
 	},
 	//portal
 	portal: {
+		Coordinated: {
+			level: 0,
+			locked: true,
+			max: 15,
+			priceBase: 150000,
+			modifier: 0.98,
+			heliumSpent: 0,
+			currentSend: 1,
+			onChange: function (overrideLevel) {
+				var newValue = 1;
+				var level = (overrideLevel) ? this.level + this.levelTemp : this.level;
+				var currentMod = 0.25 * Math.pow(this.modifier, level);
+				currentMod += 1;
+				for (var x = 0; x < game.upgrades.Coordination.done; x++){
+					newValue = Math.ceil(newValue * currentMod);
+				}
+				if (overrideLevel) return newValue;
+				this.currentSend = newValue;
+			},
+			tooltip: "Use knowledge gained while studying Coordinated Bad Guys to reduce the amount of Trimps required per level of Coordination by 2% <b>of current amount (compounding)</b>, while keeping the stat bonus the same."
+		},
 		Anticipation: {
 			level: 0,
 			locked: true,
@@ -272,6 +299,12 @@ var toReturn = {
 			modifier: 0.02,
 			priceBase: 1000,
 			heliumSpent: 0,
+			onChange: function () {
+				if (this.level <= 0) {
+					game.global.antiStacks = 0;
+					updateAntiStacks();
+				}
+			},
 			tooltip: "Use your experiences in understanding the attention span of Trimps to increase the damage dealt by all soldiers based on how long it took to get an army together. Increases damage by 2% per level per second up to 30 seconds. Maximum of 10 levels."
 		},
 		Resilience: {
@@ -351,9 +384,9 @@ var toReturn = {
 		},
 		//trapThings main
 		Packrat: {
-			modifier: 0.1,
+			modifier: 0.2,
 			heliumSpent: 0,
-			tooltip: "Study the ancient, secret Trimp methods of hoarding. Each level increases the amount of stuff you can shove in each Barn, Shed, and Forge by 10%.",
+			tooltip: "Study the ancient, secret Trimp methods of hoarding. Each level increases the amount of stuff you can shove in each Barn, Shed, and Forge by 20%.",
 			priceBase: 3,
 			level: 0
 		},
@@ -521,6 +554,14 @@ var toReturn = {
 			abandon: function () {
 				this.start(true);
 			}
+		},
+		Coordinate: {
+			description: "Visit a dimension where Bad Guys are Coordinated but never fast, to allow you to study naturally evolved Coordination. Completing <b>'Dimension of Anger' (20)</b> with this challenge active will cause all enemies to lose their Coordination.",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 119);
+			},
+			unlocks: "Coordinated"
 		}
 		
 	},
@@ -531,6 +572,7 @@ var toReturn = {
 	worldText: {
 		w2: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However the world is large, and there are many more zones to explore. Chop chop.",
 		w3: "By your orders, your scientists have begun to try and figure out how large this planet is.",
+		w4: "You order your Trimps to search the area for the keys to your ship, but nobody finds anything. Bummer.",
 		w5: "Do you see that thing at the end of this zone? It's huge! It's terrifying! You've never seen anything like it before, but you know that it is a Blimp. How did you know that? Stop knowing things and go kill it.",
 		w6: "You step over the corpse of the Blimp as it rapidly deflates, and one of your Trimps chuckles at the sound produced. You all cross the sulfuric river to the next zone, and can feel the presence of an ancient knowledge. Better explore.",
 		w7: "Slow and steady wins the race. Unless you're racing someone who is actually trying.",
@@ -572,6 +614,19 @@ var toReturn = {
 		w70: "The Improbabilities haven't seemed to slow down. You know you need to figure out a plan, but you don't know what to plan for.",
 		w72: "You slash through another Improbability with relative ease, but something isn't right. A sour smell hits your nose and in disgust, you whip around in search of the source. Oh, wait, it's just the Trimps.",
 		w80: "When's the last time you made a map? You have a feeling you should probably do that.",
+		w82: "Whew, that was an exhilarating kill. You decide to reward your Trimps with some Improbability stew. It's pretty tasty.",
+		w83: "That stew was probably a bad idea. Anyone else feeling sick?",
+		w85: "An ancient and fuzzy memory just crept back in to your head. You're not quite sure where it came from, but you know the memory is yours. You remember being on a ship, and seeing this planet from orbit. There was someone with you!",
+		w87: "Bits and pieces of memories continue trickling back in as you continue to put distance between yourself and the source of Anger. You can almost see in your mind who you came here with. Where could they be...",
+		w90: "You decide to ask your scientists to come up with an extravagant machine that can scan your brain for old memories to see if there's anything helpful up there. They seem excited about a new project and quickly get to work.",
+		w92: "You hear a huge explosion from the science lab and realize that the brain scan machine will probably never be finished.",
+		w95: "Need some motivation? You can do it! Maybe.",
+		w100: "You stop dead in your tracks. You remember who you came here with, and you remember that you are not happy with Captain Druopitee for sending you here. You know he landed with you. You know the ship is still here. He's here.",
+		w105: "You call a meeting with all of your Trimps to explain the situation. After giving an extremely long, epic, and motivational speech but hearing no reaction from the crowd, you remember that your Trimps have no idea what you're talking about.",
+		w106: "How long have you been trapped on this planet? Months? Decades? Travelling through time sure screws up your chronological perception.",
+		w109: "Though you have no idea which direction your home planet is, you still believe the ship's GPS could get you home. Maybe Druopitee has the keys. You really want to find him.",
+		w115: "You just remembered what a taco was. You could really use a taco right now.",
+		w120: "Your stamina is quickly dwindling. Trying to keep up with so many more extra Trimps each zone is beginning to wear you down. You'll need to fight with stronger, smaller groups to succeed.",
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
@@ -994,12 +1049,13 @@ var toReturn = {
 		Feyimp: {
 			location: "World",
 			locked: 1,
-			world: 6,
+			world: 1,
 			attack: 1,
 			health: 1,
 			dropDesc: "Drops 15x Gems",
 			fast: false,
 			loot: function (level) {
+				if (game.resources.gems.owned == 0) 	fadeIn("gems", 10);
 				var amt = rewardResource("gems", 7.5, level);
 				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "*diamond", "exotic");
 				game.unlocks.impCount.Feyimp++;
@@ -1026,11 +1082,11 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "Grants 1/3 Zone # in Max Trimps",
+			dropDesc: "Grants 0.3% extra max Trimps",
 			loot: function () {
-				var amt = Math.ceil(game.global.world / 3);
+				var amt = Math.ceil(game.resources.trimps.max * 0.003);
 				game.resources.trimps.max += amt;
-				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + amt + " Trimps to live inside!", "Loot", "gift", "exotic");
+				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic");
 				game.unlocks.impCount.Tauntimp++;
 				game.unlocks.impCount.TauntimpAdded += amt;
 			}
@@ -1232,6 +1288,11 @@ var toReturn = {
 					game.global.frugalDone = true;
 					game.challenges.Frugal.abandon();
 					message("You have completed the 'Frugal' challenge! You can once again find equipment upgrades in maps, and Megabooks now increase gather rates by an extra 10%!", "Notices");
+				}
+				if (game.global.challengeActive == "Coordinate"){
+					game.global.challengeActive = "";
+					game.portal.Coordinated.locked = false;
+					message("You have completed the 'Coordinate' challenge! The Bad Guys on this world no longer fight together, and have regained their speed. You have unlocked the 'Coordinated' perk!", "Notices");
 				}
 			}
 		},
@@ -2002,6 +2063,19 @@ var toReturn = {
 				unlockUpgrade("Gigastation");
 			}
 		},
+		Gigastation5: {
+			message: "You found blueprints detailing how to upgrade your Warpstation. Blimey!",
+			brokenPlanet: 1,
+			addClass: "brokenUpgrade",
+			world: -10,
+			startAt: 140,
+			level: 19,
+			icon: "*make-group",
+			title: "Gigastation",
+			fire: function () {
+				unlockUpgrade("Gigastation");
+			}
+		},
 		//49 is for weapon
 		Speedfarming:{
 			message: "You found a book called Speedfarming! It looks delicious!",
@@ -2577,7 +2651,7 @@ var toReturn = {
 	//Important Upgrades
 		Coordination: {
 			locked: 1,
-			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require 25% more Trimps (rounded up), but attack and health will be increased by the same amount.",
+			tooltip: "This book will teach your soldiers how to utilize the buddy system. Fighting will now require <coord>% more Trimps (rounded up), but attack and health will grow for each new Trimp.",
 			done: 0,
 			allowed: 0,
 			cost: {
@@ -2590,6 +2664,7 @@ var toReturn = {
 			},
 			fire: function () {
 				game.resources.trimps.maxSoldiers = Math.ceil(1.25 * game.resources.trimps.maxSoldiers);
+				if (game.portal.Coordinated.level) game.portal.Coordinated.currentSend = Math.ceil(game.portal.Coordinated.currentSend * ((0.25 * Math.pow(game.portal.Coordinated.modifier, game.portal.Coordinated.level)) + 1));
 			}
 		},
 		Gigastation: {

@@ -1245,11 +1245,11 @@ overflow-x: hidden;
 
 .btn-new {
   color: white;
-  background: -webkit-radial-gradient(#062566, black, #062566); /* Safari 5.1 to 6.0 */
-  background: -o-radial-gradient(#062566, black, #062566); /* For Opera 11.6 to 12.0 */
-  background: -moz-radial-gradient(#062566, black, #062566); /* For Firefox 3.6 to 15 */
-  background: radial-gradient(#062566, black, #062566); /* Standard syntax */
-  border-color: #062566 !important;
+  background: -webkit-linear-gradient(#023d08, black, #023d08); /* Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(#023d08, black, #023d08); /* For Opera 11.6 to 12.0 */
+  background: -moz-linear-gradient(#023d08, black, #023d08); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(#023d08, black, #023d08); /* Standard syntax */
+  border-color: #023d08 !important;
 
 
 
@@ -1261,11 +1261,11 @@ overflow-x: hidden;
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: white;
-  background: -webkit-radial-gradient(black, #062566, black); /* Safari 5.1 to 6.0 */
-  background: -o-radial-gradient(black, #062566, black); /* For Opera 11.6 to 12.0 */
-  background: -moz-radial-gradient(black, #062566, black); /* For Firefox 3.6 to 15 */
-  background: radial-gradient(black, #062566, black); /* Standard syntax */
-  border-color: #062566 !important;
+  background: -webkit-linear-gradient(black, #023d08, black); /* Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(black, #023d08, black); /* For Opera 11.6 to 12.0 */
+  background: -moz-linear-gradient(black, #023d08, black); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(black, #023d08, black); /* Standard syntax */
+  border-color: #023d08 !important;
 }
 .btn-new:active,
 .btn-new.active,

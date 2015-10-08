@@ -1,4 +1,3 @@
-//I made this, don't steal it and stuff.
 /*		Trimps
 		Copyright (C) 2015 Zach Hood
 
@@ -19,6 +18,8 @@
 		<http://www.gnu.org/licenses/>. */
  
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
+var customUp;
+var tooltipUpdateFunction = "";
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) {
 	
 	if (document.getElementById(what + "Alert") !== null)	document.getElementById(what + "Alert").innerHTML = "";
@@ -29,10 +30,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
 	if (what == "hide"){
 		elem.style.display = "none";
+		tooltipUpdateFunction = "";
 		return;
 	}
 	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed) return;
 	if (event != "update"){
+		var whatU = what, isItInU = isItIn, eventU = event, textStringU = textString, attachFunctionU = attachFunction, numCheckU = numCheck, renameBtnU = renameBtn, noHideU = noHide;
+		var newFunction = function () {
+			tooltip(whatU, isItInU, eventU, textStringU, attachFunctionU, numCheckU, renameBtnU, noHideU);
+		};
+		tooltipUpdateFunction = newFunction;
 		var cordx = 0;
 		var cordy = 0;
 		var e = event || window.event;
@@ -56,6 +63,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (isItIn !== null && isItIn != "maps"){
 		toTip = game[isItIn];
 		toTip = toTip[what];
+		if (typeof toTip === 'undefined') console.log(what);
 		tooltipText = toTip.tooltip;
 		for (var cost in toTip.cost) {
 			if (typeof toTip.cost[cost] === 'object' && typeof toTip.cost[cost][1] === 'undefined') {
@@ -163,9 +171,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Custom"){
-		tooltipText = "Type a number below to purchase a specific amount."
+		customUp = (textString) ? 2 : 1;
+		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 or 200k."
 		if (textString) tooltipText += " <b>Max of 1,000 for perks</b>";
-		tooltipText += "<br/><br/><input type='number' id='customNumberBox' style='width: 50%' value='" + game.global.lastCustomAmt + "'></input>";
+		tooltipText += "<br/><br/><input id='customNumberBox' style='width: 50%' value='" + prettify(game.global.lastCustomAmt) + "'></input>";
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='numTab(5, " + textString + ")'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
@@ -268,9 +277,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var percentNum = (game.global.frugalDone) ? '60' : '50';
 			tooltipText = tooltipText.replace('?', percentNum);
 		}
-		if (what == "Coordination" && (game.resources.trimps.realMax() < (game.resources.trimps.maxSoldiers * 3))) {
-			var amtToGo = ((game.resources.trimps.maxSoldiers * 3) - game.resources.trimps.realMax());
-			tooltipText += "<b>You need enough room for " + prettify(game.resources.trimps.maxSoldiers * 3) + " max Trimps. You are short " + prettify(Math.floor(amtToGo)) + " Trimps.</b>";
+		if (what == "Coordination"){
+			var coordReplace = (game.portal.Coordinated.level) ? (25 * Math.pow(game.portal.Coordinated.modifier, game.portal.Coordinated.level)).toFixed(3) : 25;
+			tooltipText = tooltipText.replace('<coord>', coordReplace);
+			if (!canAffordCoordinationTrimps()){
+				var nextCount = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
+				var amtToGo = ((nextCount * 3) - game.resources.trimps.realMax());
+				tooltipText += "<b>You need enough room for " + prettify(nextCount * 3) + " max Trimps. You are short " + prettify(Math.floor(amtToGo)) + " Trimps.</b>";
+			}
 		}
 	}
 	if (isItIn == "maps"){
@@ -290,7 +304,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	var tipSplit = tooltipText.split('$');
 	if (typeof tipSplit[1] !== 'undefined'){
 		if (tipSplit[1] == 'incby'){
-			tooltipText = tipSplit[0] + prettify(toTip.increase.by) + tipSplit[2];
+			var increase = toTip.increase.by;
+			if (game.portal.Carpentry.level) increase *= Math.pow(1.1, game.portal.Carpentry.level);
+			tooltipText = tipSplit[0] + prettify(increase) + tipSplit[2];
+		}
+		else if (isItIn == "jobs" && game.portal.Motivation.level){
+			tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]] * ((game.portal.Motivation.level * 0.05) + 1)) + tipSplit[2];
 		}
 		else
 		tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
@@ -316,6 +335,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 function cancelTooltip(){
 	unlockTooltip();
 	tooltip("hide");
+	tooltipUpdateFunction = "";
+	customUp = 0;
 }
 
 function unlockTooltip(){
@@ -556,12 +577,12 @@ function getMaxTrimps() {
 	//Add Territory Bonus
 	if (game.global.totalGifts > 0){
 		currentCalc += game.global.totalGifts;
-		textString += "<tr><td class='bdTitle'>Territory Bonus</td><td class='bdPercent'>+ " + game.global.totalGifts + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Territory Bonus</td><td class='bdPercent'>+ " + prettify(game.global.totalGifts) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Tauntimp
 	if (game.unlocks.impCount.TauntimpAdded > 0){
 		currentCalc += game.unlocks.impCount.TauntimpAdded;
-		textString += "<tr><td class='bdTitle'>Tauntimp</td><td class='bdPercent'>+ " + game.unlocks.impCount.TauntimpAdded + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Tauntimp</td><td class='bdPercent'>+ " + prettify(game.unlocks.impCount.TauntimpAdded) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Carpentry
 	if (game.portal.Carpentry.level > 0){
@@ -597,7 +618,8 @@ function prettify(number) {
 	
 	var suffices = [
 		'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
-		'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V'
+		'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv',
+		'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
 	];
 	var suffix;
 	if ((base <= suffices.length && base > 0) && game.options.menu.standardNotation.enabled)
@@ -783,6 +805,7 @@ function resetGame(keepPortal) {
 			applyS2();
 		}
 		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
+		game.portal.Coordinated.currentSend = 1;
 	}
 	numTab(1);
 	pauseFight(true);
@@ -816,6 +839,8 @@ function applyS2(){
 
 function message(messageString, type, lootIcon, extraClass) {
 	var log = document.getElementById("log");
+	var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
+
 	var displayType = (game.global.messages[type]) ? "block" : "none";
 	var prefix = "";
 	if (lootIcon && lootIcon.charAt(0) == "*") {
@@ -837,8 +862,8 @@ function message(messageString, type, lootIcon, extraClass) {
 		messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
 	}
 	log.innerHTML += "<span" + addId + " class='" + type + "Message message" +  " " + extraClass + "' style='display: " + displayType + "'>" + messageString + "</span>";
-	log.scrollTop = log.scrollHeight;
-	trimMessages(type);
+	if (needsScroll) log.scrollTop = log.scrollHeight;
+	if (type != "Story") trimMessages(type);
 }
 
 function nodeToArray(nodeList){
@@ -904,12 +929,37 @@ function getTabClass(displayed){
 function numTab (what, p) {
 	var num = 0;
 	
-	if (what == 5){
-		
+	if (what == 5){	
 		unlockTooltip();
 		tooltip('hide');
 		var numBox = document.getElementById("customNumberBox");
-		if (numBox)	num = Math.ceil(parseInt(document.getElementById("customNumberBox").value, 10));
+		if (numBox){
+			num = numBox.value.toLowerCase();
+			if (num.split('e')[1]){
+				num = num.split('e');
+				num = parseInt(num[0]) * (Math.pow(10, parseInt(num[1])));
+			}
+			else {
+				var digits = num.replace(/\D/g, ""),
+				letters = num.replace(/[^a-z]/gi, "");
+				var base = 0;
+				if (letters.length){			
+					var suffices = [
+						'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
+						'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv',
+						'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
+					];
+					for (var x = 0; x < suffices.length; x++){
+						if (suffices[x].toLowerCase() == letters){
+							base = x + 1;
+							break;
+						}
+					}
+					if (base) num = parseInt(digits) * Math.pow(1000, base)
+				}
+				if (!base) num = parseInt(num);
+			}
+		}
 		else num = game.global.lastCustomAmt;
 		if (p && num > 1000){
 			return;
@@ -1143,6 +1193,7 @@ function updateSideTrimps(){
 }
 
 function unlockBuilding(what) {
+	game.global.lastUnlock = new Date().getTime();
 	var locked = game.buildings[what].locked;
 	var elem = document.getElementById("buildingsHere");
 	elem.innerHTML = "";
@@ -1162,6 +1213,7 @@ function drawBuilding(what, where){
 }
 
 function unlockJob(what) {
+	game.global.lastUnlock = new Date().getTime();
 	var locked = game.jobs[what].locked;
 	game.jobs[what].locked = 0;
 	var elem = document.getElementById("jobsHere");
@@ -1207,6 +1259,7 @@ function unlockMap(what) { //what here is the array index
 }
 
 function unlockUpgrade(what, displayOnly) {
+	if (!displayOnly) game.global.lastUnlock = new Date().getTime();
 	var elem = document.getElementById("upgradesHere");
 	elem.innerHTML = "";
 	var upgrade = game.upgrades[what];
@@ -1257,7 +1310,7 @@ function checkButtons(what) {
 		for (var itemA in game.upgrades){
 			if (game.upgrades[itemA].locked == 1) continue;
 			if (itemA == "Coordination")
-				updateButtonColor(itemA, (canAffordTwoLevel(game.upgrades[itemA]) && (game.resources.trimps.realMax() >= (game.resources.trimps.maxSoldiers * 3))));
+				updateButtonColor(itemA, (canAffordTwoLevel(game.upgrades[itemA]) && canAffordCoordinationTrimps()));
 			else
 				updateButtonColor(itemA, canAffordTwoLevel(game.upgrades[itemA]));
 		}
@@ -1304,6 +1357,7 @@ function updateButtonColor(what, canAfford, isJob) {
 	if (elem === null){
 		return;
 	}
+	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) canAfford = false;
 	var color = (canAfford) ? "black" : "grey";
 	if (isJob && game.global.firing === true) color = (game.jobs[what].owned >= 1) ? "red" : "grey";
 	if (what == "Warpstation" && color == "black") color = getWarpstationColor();
@@ -1318,6 +1372,7 @@ function getWarpstationColor() {
 }
 
 function unlockEquipment(what) {
+	game.global.lastUnlock = new Date().getTime();
 	var equipment = game.equipment[what];
 	var elem = document.getElementById("equipmentHere");
 	equipment.locked = 0;

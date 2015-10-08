@@ -373,7 +373,12 @@ function load(saveString, autoLoad) {
 		message("You have completed the <b>Discipline Challenge!</b> You have unlocked a new perk, and your Trimps have regained their Discipline.", "Notices");
 	}
 	document.getElementById("tab5Text").innerHTML = "+" + prettify(game.global.lastCustomAmt);
-	
+	game.global.lastUnlock = 0;
+	if (game.resources.gems.owned > 0) fadeIn("gems", 10);
+/* 	for (var storyMsg in game.worldText){
+		if (parseInt(storyMsg.split('w')[1]) > game.global.world) break;
+		message(game.worldText[storyMsg], "Story");
+	} */
 }
 
 function loadGigastations() {
@@ -806,6 +811,7 @@ function commitPortalUpgrades(){
 		var portUpgrade = game.portal[item];
 		if (typeof portUpgrade.level === 'undefined') continue;
 		portUpgrade.level += portUpgrade.levelTemp;
+		if (portUpgrade.levelTemp !== 0 && portUpgrade.onChange) portUpgrade.onChange();
 		portUpgrade.levelTemp = 0;
 		portUpgrade.heliumSpent += portUpgrade.heliumSpentTemp;
 		portUpgrade.heliumSpentTemp = 0;
@@ -827,7 +833,8 @@ function canCommitCarpentry(){
 	var error = document.getElementById("portalError");
 	error.innerHTML = "";
 	var good = true;
-    if (newMax < (game.resources.trimps.maxSoldiers * 2.4)) {
+	var soldiers = (game.portal.Coordinated.level || game.portal.Coordinated.levelTemp) ? game.portal.Coordinated.onChange(true) : game.resources.trimps.maxSoldiers;
+    if (newMax < (soldiers * 2.4)) {
         error.innerHTML += "You do not have enough max Trimps with this Perk setup to sustain your Coordination. ";
 		error.style.display = "block";
 		good = false;
@@ -1191,7 +1198,7 @@ function getBuildingItemPrice(toBuy, costItem, isEquipment){
 }
 
 function buyBuilding(what, confirmed) {
-
+	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var toBuy = game.buildings[what];
     if (typeof toBuy === 'undefined') return;
     var canAfford = canAffordBuilding(what);
@@ -1355,6 +1362,7 @@ function trapThings() {
 }
 
 function buyJob(what) {
+	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	if (game.global.firing){
 		if (game.jobs[what].owned < 1) return;
 		game.resources.trimps.employed -= (game.jobs[what].owned < game.global.buyAmt) ? game.jobs[what].owned : game.global.buyAmt;
@@ -1420,9 +1428,15 @@ function checkJobItem(what, take, costItem, amtOnly, toBuy) {
     return true;
 }
 
+function canAffordCoordinationTrimps(){
+	var compare = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers ;
+	return (game.resources.trimps.realMax() >= (compare * 3))
+}
+
 function buyUpgrade(what, confirmed) {
-    if (what == "Coordination" && (game.resources.trimps.realMax() < (game.resources.trimps.maxSoldiers * 3))) {
-        return;
+	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
+    if (what == "Coordination") {
+       if (!canAffordCoordinationTrimps()) return;
     }
     var upgrade = game.upgrades[what];
     var canAfford = canAffordTwoLevel(upgrade);
@@ -1786,6 +1800,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         max = 100;
     }
     var canLast = true;
+	var prestigeItemsAvailable = [];
     for (var item in unlocksObj) {
         var special = unlocksObj[item];
 		if (special.brokenPlanet && ((special.brokenPlanet == 1 && !game.global.brokenPlanet) || special.brokenPlanet == -1 && game.global.brokenPlanet)) continue;
@@ -1794,17 +1809,17 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
 		if (special.lastAt < game.global.world) continue;
 		if ((maps) && (special.filterUpgrade) && (game.mapConfig.locations[map.location].upgrade != item)) continue;		
         if ((special.level == "last" && canLast && special.world <= world && special.canRunOnce)) {
-		if (typeof special.specialFilter !== 'undefined'){
-			if (!special.specialFilter()) continue;
-		}
-		if (special.startAt > world) continue;
-            if (countOnly){
-				specialCount++;
-				continue;
+			if (typeof special.specialFilter !== 'undefined'){
+				if (!special.specialFilter()) continue;
 			}
+			if (special.startAt > world) continue;
+			if (countOnly){
+					specialCount++;
+					continue;
+				}
 			array = addSpecialToLast(special, array, item);
-            canLast = false;
-            continue;
+			canLast = false;
+			continue;
         }
 		
 		
@@ -1828,6 +1843,10 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
 				specialCount++;
 				continue;
 			}
+			if (special.prestige && maps) {
+				prestigeItemsAvailable.push(item);
+				continue;
+			}
             array = addSpecialToLast(special, array, item);
             canLast = false;
             continue;
@@ -1836,6 +1855,18 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
 		if (special.canRunOnce === true && countOnly) {specialCount++; continue;}
         if (!countOnly)  findHomeForSpecial(special, item, array, max);
     }
+	if (canLast && prestigeItemsAvailable.length && maps){
+		var bestIndex = 0;
+		var bestZone = game.mapUnlocks[prestigeItemsAvailable[0]].last;
+		for (var x = 1; x < prestigeItemsAvailable.length; x++){
+			var thisUpgrade = game.mapUnlocks[prestigeItemsAvailable[x]];
+			if (thisUpgrade.last < bestZone){	
+				bestIndex = x;
+				bestZone = thisUpgrade.last;
+			}
+		}
+		addSpecialToLast(game.mapUnlocks[prestigeItemsAvailable[bestIndex]], array, prestigeItemsAvailable[bestIndex]);
+	}
 	if (countOnly) return specialCount;
 }
 
@@ -2145,21 +2176,32 @@ function battle(force) {
         return;
     }
     var breeding = (trimps.owned - trimps.employed);
-    if (breeding < trimps.maxSoldiers) return;
+	var adjustedMax = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : trimps.maxSoldiers;
+    if (breeding < adjustedMax) return;
     if (force) {
-        trimps.soldiers = trimps.maxSoldiers;
-        trimps.owned -= trimps.maxSoldiers;
+        trimps.soldiers = adjustedMax;
+        trimps.owned -= adjustedMax;
     } else {
         var max = Math.ceil((trimpsMax - trimps.employed) * 0.05);
         if ((trimps.owned) >= (trimpsMax - max)) {
-            trimps.soldiers = trimps.maxSoldiers;
-            trimps.owned -= trimps.maxSoldiers;
+            trimps.soldiers = adjustedMax;
+            trimps.owned -= adjustedMax;
         }
     }
-    if (game.resources.trimps.soldiers < trimps.maxSoldiers) {
+    if (game.resources.trimps.soldiers < adjustedMax) {
         return;
     }
     startFight();
+}
+
+function getBadCoordLevel(){
+	//For Coordinate challenge
+	var world = (game.global.mapsActive) ? getCurrentMapObject().level : game.global.world;
+	var amt = 1;
+	for (var x = 0; x < world - 1; x++){
+		amt = Math.ceil(amt * 1.25);
+	}
+	return amt;
 }
 
 function startFight() {
@@ -2168,6 +2210,7 @@ function startFight() {
     var cellNum;
     var cell;
     var cellElem;
+	var badCoord;
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
         cell = game.global.mapGridArray[cellNum];
@@ -2179,9 +2222,13 @@ function startFight() {
     }
     cellElem.style.backgroundColor = "yellow";
 	var badName = cell.name;
+	if (game.global.challengeActive == "Coordinate"){
+		badCoord = getBadCoordLevel();
+		badName += " (" + prettify(badCoord) + ")";	
+	}
 	if (game.global.brokenPlanet && !game.global.mapsActive)
 		badName += ' <span class="badge badBadge" title="20% of this Bad Guy\'s damage pierces through block"><span class="glyphicon glyphicon-tint"></span></span>';	
-	if (game.badGuys[cell.name].fast)
+	if (game.badGuys[cell.name].fast && game.global.challengeActive != "Coordinate")
 		badName += ' <span class="badge badBadge" title="This Bad Guy is fast and attacks first"><span class="glyphicon glyphicon-forward"></span></span>';
 	if (game.global.challengeActive == "Electricity"){
 		badName += ' <span class="badge badBadge" title="This Bad Guy is electric and stacks a debuff on your Trimps"><span class="icomoon icon-power-cord"></span></span>';
@@ -2190,6 +2237,7 @@ function startFight() {
     if (cell.maxHealth == -1) {
         cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
         cell.health = game.global.getEnemyHealth(cell.level, cell.name);
+		if (game.global.challengeActive == "Coordinate") cell.health *= badCoord;
         if (game.global.mapsActive) {
             var difficulty = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].difficulty;
             cell.attack *= difficulty;
@@ -2261,7 +2309,8 @@ function startFight() {
 			game.global.difs.block = 0;
 		}
 	}
-	updateAllBattleNumbers(game.resources.trimps.soldiers < game.resources.trimps.maxSoldiers);
+	var soldType = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
+	updateAllBattleNumbers(game.resources.trimps.soldiers < soldType);
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();	
 }
@@ -2284,7 +2333,7 @@ function updateAllBattleNumbers (skipNum) {
 	updateGoodBar();
 	updateBadBar(cell);
 	document.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth);
-	if (!skipNum) document.getElementById("trimpsFighting").innerHTML = prettify(game.resources.trimps.maxSoldiers);
+	if (!skipNum) document.getElementById("trimpsFighting").innerHTML = (game.portal.Coordinated.level) ? prettify(game.portal.Coordinated.currentSend) : prettify(game.resources.trimps.maxSoldiers);
 	document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
 	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true, true);
 	document.getElementById("badGuyAttack").innerHTML = calculateDamage(cell.attack, true);
@@ -2319,6 +2368,9 @@ function calculateDamage(number, buildString, isTrimp) { //number = base attack
 	}
 	else if (game.portal.Range.level > 0 && isTrimp){
 		minFluct = fluctuation - (.02 * game.portal.Range.level);
+	}
+	if (game.global.challengeActive == "Coordinate" && !isTrimp){
+		number *= getBadCoordLevel();
 	}
 	if (maxFluct == -1) maxFluct = fluctuation;
 	if (minFluct == -1) minFluct = fluctuation;
@@ -2380,7 +2432,10 @@ function fight(makeUp) {
     }
     if (cell.health <= 0) {
 		randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
-        message("You " + randomText + " a " + cell.name + "!", "Combat");
+		var killedText = "You " + randomText + " a " + cell.name;
+		if (game.global.challengeActive == "Coordinate") killedText += " group";
+		killedText += "!";
+        message(killedText, "Combat");
         try{
 			if (typeof ga !== 'undefined' && cell.level % 2 === 0 && !game.global.mapsActive) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
 			}
@@ -2461,7 +2516,7 @@ function fight(makeUp) {
 	}
 	var attacked = false;
 	var wasAttacked = false;
-    if (game.badGuys[cell.name].fast) {
+    if (game.badGuys[cell.name].fast && game.global.challengeActive != "Coordinate") {
         game.global.soldierHealth -= attackAndBlock;
 		wasAttacked = true;
         if (game.global.soldierHealth > 0) {
@@ -2536,6 +2591,7 @@ function updateAntiStacks(){
 } */
 
 function buyEquipment(what) {
+	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var toBuy = game.equipment[what];
 	if (typeof toBuy === 'undefined') return;
 	var canAfford = canAffordBuilding(what, null, null, true);
@@ -3093,6 +3149,7 @@ function costUpdatesTimeout() {
     checkButtons("equipment");
     checkButtons("upgrades");
     checkTriggers();
+	if (tooltipUpdateFunction) tooltipUpdateFunction();
 	setTimeout(costUpdatesTimeout, 250);
 }
 
@@ -3159,6 +3216,9 @@ document.addEventListener('keydown', function(e) {
 		case 66:
 			if (game.upgrades.Barrier.done && !game.global.lockTooltip) setFormation('3');
 			break;
+		case 13:
+			if (customUp == 1) numTab(5, false);
+			else if (customUp == 2) numTab(5, true);
 	}
 }, true);
 document.addEventListener('keyup', function(e) {
