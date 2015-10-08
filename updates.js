@@ -305,7 +305,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (typeof tipSplit[1] !== 'undefined'){
 		if (tipSplit[1] == 'incby'){
 			var increase = toTip.increase.by;
-			if (game.portal.Carpentry.level) increase *= Math.pow(1.1, game.portal.Carpentry.level);
+			if (game.portal.Carpentry.level && toTip.increase.what == "trimps.max") increase *= Math.pow(1.1, game.portal.Carpentry.level);
 			tooltipText = tipSplit[0] + prettify(increase) + tipSplit[2];
 		}
 		else if (isItIn == "jobs" && game.portal.Motivation.level){
