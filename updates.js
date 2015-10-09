@@ -308,7 +308,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			if (game.portal.Carpentry.level && toTip.increase.what == "trimps.max") increase *= Math.pow(1.1, game.portal.Carpentry.level);
 			tooltipText = tipSplit[0] + prettify(increase) + tipSplit[2];
 		}
-		else if (isItIn == "jobs" && game.portal.Motivation.level){
+		else if (isItIn == "jobs" && game.portal.Motivation.level && toTip.increase != "custom"){
 			tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]] * ((game.portal.Motivation.level * 0.05) + 1)) + tipSplit[2];
 		}
 		else
