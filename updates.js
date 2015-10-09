@@ -937,11 +937,10 @@ function numTab (what, p) {
 			num = numBox.value.toLowerCase();
 			if (num.split('e')[1]){
 				num = num.split('e');
-				num = parseInt(num[0]) * (Math.pow(10, parseInt(num[1])));
+				num = Math.floor(parseFloat(num[0]) * (Math.pow(10, parseInt(num[1]))));
 			}
 			else {
-				var digits = num.replace(/\D/g, ""),
-				letters = num.replace(/[^a-z]/gi, "");
+				var letters = num.replace(/[^a-z]/gi, "");
 				var base = 0;
 				if (letters.length){			
 					var suffices = [
@@ -955,7 +954,7 @@ function numTab (what, p) {
 							break;
 						}
 					}
-					if (base) num = parseInt(digits) * Math.pow(1000, base)
+					if (base) num = Math.floor(parseFloat(num.split(letters)[0]) * Math.pow(1000, base));
 				}
 				if (!base) num = parseInt(num);
 			}
