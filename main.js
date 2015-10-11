@@ -2154,7 +2154,7 @@ function battleCoordinator(makeUp) {
     game.global.battleCounter += (1000 / game.settings.speed);
 	var num = (game.portal.Agility.level) ? 1000 * Math.pow(1 - game.portal.Agility.modifier, game.portal.Agility.level) : 1000;
 	if (game.global.battleCounter >= num) {
-        game.global.battleCounter = 0;
+        game.global.battleCounter -= num;
         fight(makeUp);
     }
 }
