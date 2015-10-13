@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.4,
+		version: 2.401,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -103,6 +103,7 @@ var toReturn = {
 		prisonClear: 0,
 		frugalDone: false,
 		lastUnlock: 0,
+		lowestGen: -1,
 		menu: {
 			buildings: true,
 			jobs: false,

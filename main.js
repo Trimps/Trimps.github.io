@@ -1492,7 +1492,13 @@ function breed() {
     }
     trimps.owned += breeding / game.settings.speed;
 	if (trimps.owned >= trimpsMax) trimps.owned = trimpsMax;
-	else if (game.portal.Anticipation.level) game.global.lastBreedTime += (1000 / game.settings.speed);
+	else {
+		if (game.portal.Anticipation.level) game.global.lastBreedTime += (1000 / game.settings.speed);
+		if (game.jobs.Geneticist.locked == 0) {
+			if (game.global.lowestGen < 0) game.global.lowestGen = game.jobs.Geneticist.owned;
+			else if (game.jobs.Geneticist.owned < game.global.lowestGen) game.global.lowestGen = game.jobs.Geneticist.owned;
+		}
+	}
 }
 
 function testGymystic(oldPercent) {
@@ -2154,7 +2160,11 @@ function battleCoordinator(makeUp) {
     game.global.battleCounter += (1000 / game.settings.speed);
 	var num = (game.portal.Agility.level) ? 1000 * Math.pow(1 - game.portal.Agility.modifier, game.portal.Agility.level) : 1000;
 	if (game.global.battleCounter >= num) {
+<<<<<<< HEAD
         game.global.battleCounter -= num;
+=======
+        game.global.battleCounter -= num; //Thanks grabz
+>>>>>>> refs/remotes/Trimps/master
         fight(makeUp);
     }
 }
@@ -2264,7 +2274,10 @@ function startFight() {
         game.global.soldierHealthMax = (game.global.health * trimpsFighting);
 		//Toughness
 		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
-		if (game.jobs.Geneticist.owned > 0) game.global.soldierHealthMax *= Math.pow(1.01, game.jobs.Geneticist.owned);
+		if (game.global.lowestGen >= 0) {
+			game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
+			game.global.lowestGen = -1;
+		}
         game.global.soldierCurrentAttack = (game.global.attack * trimpsFighting);
 		//Resilience
 		if (game.portal.Resilience.level > 0) game.global.soldierHealthMax *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
