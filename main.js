@@ -2107,6 +2107,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("mapsBtn").innerHTML = "Maps";
         document.getElementById("worldNumber").innerHTML = "</br>Lv: " + currentMapObj.level;
         document.getElementById("worldName").innerHTML = currentMapObj.name;
+		document.getElementById("mapBonus").innerHTML = "";
     } else {
 		document.getElementById("battleHeadContainer").style.display = "block";
 		document.getElementById("mapsCreateRow").style.display = "none";
