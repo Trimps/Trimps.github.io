@@ -560,12 +560,12 @@ function getBattleStatBd(what) {
 
 	}
 	//Add Titimp
-	if (game.global.titimpLeft > 1 && game.global.mapsActive){
+	if (game.global.titimpLeft > 1 && game.global.mapsActive && what == "attack"){
 		currentCalc *= 2;
 		textString += "<tr><td class='bdTitle'>Titimp</td><td></td><td></td><td>x 2</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add map bonus
-	if (!game.global.mapsActive && game.global.mapBonus > 0){
+	if (!game.global.mapsActive && game.global.mapBonus > 0 && what == "attack"){
 		var mapBonusMult = 0.2 * game.global.mapBonus;
 		currentCalc *= (1 + mapBonusMult);
 		mapBonusMult *= 100;

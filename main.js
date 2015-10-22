@@ -3268,6 +3268,7 @@ function givePumpkimpLoot(){
 	seconds++;
 	var amt = simpleSeconds(item, seconds);
 	if (game.global.mapsActive) amt = scaleToCurrentMap(amt);
+	else if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
 	addResCheckMax(item, amt);
 	var messageNumber = Math.floor(Math.random() * success.length);
 	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", "pumpkimp");		
