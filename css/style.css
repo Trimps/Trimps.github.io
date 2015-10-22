@@ -70,6 +70,11 @@ overflow-x: hidden;
 	padding-right: .25vw;
 }
 
+#trimpsTimeToFill {
+	color: black;
+	margin-top: 4%;
+}
+
 .resProgress {
     height: 12%;
 }
@@ -837,6 +842,11 @@ overflow-x: hidden;
 	background: rgba(255, 255, 255, 0.5);
 }
 
+.pumpkimp{
+	color: orange !important;
+	background: rgba(0, 0, 0, 0.75);
+}
+
 .noRecycle{
 	background-color: #5cb85c;
 }
@@ -1024,7 +1034,7 @@ overflow-x: hidden;
 }
 
 #importPurchaseBtn{
-	margin-top: 1vw;
+	margin-top: .5vw;
 }
 
 .table > thead > tr > th,
@@ -1033,7 +1043,7 @@ overflow-x: hidden;
 .table > thead > tr > td,
 .table > tbody > tr > td,
 .table > tfoot > tr > td {
-  padding: .39vw;
+  padding: .2vw;
 }
 
 .buyBoostBtn{
@@ -1093,6 +1103,11 @@ overflow-x: hidden;
 
 .importsTable > tbody > tr {
 	background-color: #d0d0d0;
+	font-size: .75vw;
+}
+
+#mapBonus{
+	font-size: .8em;
 }
 
 #critSpan{
@@ -1245,13 +1260,13 @@ overflow-x: hidden;
 
 .btn-new {
   color: white;
-  background: -webkit-linear-gradient(#023d08, black, #023d08); /* Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(#023d08, black, #023d08); /* For Opera 11.6 to 12.0 */
-  background: -moz-linear-gradient(#023d08, black, #023d08); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(#023d08, black, #023d08); /* Standard syntax */
-  border-color: #023d08 !important;
-
-
+background: #d85d38; /* Old browsers */
+background: -moz-linear-gradient(top, #d85d38 0%, #140804 46%, #020100 50%, #0f0603 53%, #772e17 76%, #552111 87%, #2a1008 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d85d38), color-stop(46%,#140804), color-stop(50%,#020100), color-stop(53%,#0f0603), color-stop(76%,#772e17), color-stop(87%,#552111), color-stop(100%,#2a1008)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, #d85d38 0%,#140804 46%,#020100 50%,#0f0603 53%,#772e17 76%,#552111 87%,#2a1008 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, #d85d38 0%,#140804 46%,#020100 50%,#0f0603 53%,#772e17 76%,#552111 87%,#2a1008 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, #d85d38 0%,#140804 46%,#020100 50%,#0f0603 53%,#772e17 76%,#552111 87%,#2a1008 100%); /* IE10+ */
+background: linear-gradient(to bottom, #d85d38 0%,#140804 46%,#020100 50%,#0f0603 53%,#772e17 76%,#552111 87%,#2a1008 100%); /* W3C */
 
 }
 .btn-new:hover,
@@ -1261,11 +1276,14 @@ overflow-x: hidden;
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: white;
-  background: -webkit-linear-gradient(black, #023d08, black); /* Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(black, #023d08, black); /* For Opera 11.6 to 12.0 */
-  background: -moz-linear-gradient(black, #023d08, black); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(black, #023d08, black); /* Standard syntax */
-  border-color: #023d08 !important;
+background: #e06c3e; /* Old browsers */
+background: -moz-linear-gradient(top, #e06c3e 0%, #63240b 50%, #531801 51%, #8d4c33 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e06c3e), color-stop(50%,#63240b), color-stop(51%,#531801), color-stop(100%,#8d4c33)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, #e06c3e 0%,#63240b 50%,#531801 51%,#8d4c33 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, #e06c3e 0%,#63240b 50%,#531801 51%,#8d4c33 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, #e06c3e 0%,#63240b 50%,#531801 51%,#8d4c33 100%); /* IE10+ */
+background: linear-gradient(to bottom, #e06c3e 0%,#63240b 50%,#531801 51%,#8d4c33 100%); /* W3C */
+
 }
 .btn-new:active,
 .btn-new.active,

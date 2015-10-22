@@ -8,7 +8,7 @@
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?11" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?12" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -104,11 +104,11 @@ var kongregate = parent.kongregateAPI.getAPI();
 								<td><span class="glyphicon glyphicon-home" title="storage added"></span> <span id="ShedAdded">0</span> Sheds Auto-purchased</td>
 							</tr>
 							<tr>
-								<td>+ <span class="glyphicon glyphicon-fire" title="metal"></span> <span id="metalBoostPreview">0</span></td>
+								<td>+ <span class="icomoon icon-cubes" title="metal"></span> <span id="metalBoostPreview">0</span></td>
 								<td><span class="glyphicon glyphicon-home" title="storage added"></span> <span id="ForgeAdded"></span> Forges Auto-purchased</td>
 							</tr>
 							<tr>
-								<td colspan="2">+ <span class="glyphicon glyphicon-certificate" title="gems"></span> <span id="gemsBoostPreview">0</span></td>
+								<td colspan="2">+ <span class="icomoon icon-diamond" title="gems"></span> <span id="gemsBoostPreview">0</span></td>
 							</tr>
 							<tr>
 								<td colspan="2">+ <Span class="glyphicon glyphicon-th" title="fragments"></span> <span id="fragmentsBoostPreview">0</span></td>
@@ -132,19 +132,17 @@ var kongregate = parent.kongregateAPI.getAPI();
 				<div id="boneImportsColumn" class="col-xs-4 boneBuyColumn">
 					<div class="boneBuyTitle">Exotic Imp-orts</div>
 					<div class="boostSpacerImports boostSpacer">
-					<div class="boneBuyDesc">Exotic Imp-orts will be unlocked permanently once purchased, and will stick around through portals. Each has a 3% chance to spawn per square and better loot than normal enemies. You can also bundle 4 together and get some extra bones.</div>
-					<div class="importsPreview">
-						<div class="importLocation">Spawns in World</div>
-						<table class="table importsTable" id="importsTableWorld0">						
-						</table>
-						<div class="importLocation table-hover">Spawns in Maps</div>
-						<table class="table importsTable" id="importsTableMaps0">					
-						</table>
-					</div>
-					</div>
-					<div id="purchaseContainerImports">
-						<div class="boneBtn primaryColor pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new bad guy will begin spawning in your next Zone or Map at about an average of 3 spawns per 100 squares. Is this what you wanted to do?', 'purchaseImport()', 50)">
-							
+						<div class="boneBuyDesc">Exotic Imp-orts will be unlocked permanently once purchased, and will stick around through portals. Each has a 3% chance to spawn per square and better loot than normal enemies. You can also bundle 4 together and get some extra bones.</div>
+						<div class="importsPreview">
+							<div class="importLocation">Spawns in World</div>
+							<table class="table importsTable" id="importsTableWorld0">						
+							</table>
+							<div class="importLocation table-hover">Spawns in Maps</div>
+							<table class="table importsTable" id="importsTableMaps0">					
+							</table>
+						</div>
+						<div id="purchaseContainerImports">
+							<div class="boneBtn primaryColor pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new bad guy will begin spawning in your next Zone or Map at about an average of 3 spawns per 100 squares. Is this what you wanted to do?', 'purchaseImport()', 50)"></div>
 						</div>
 					</div>
 				</div>
@@ -397,7 +395,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<span class="ownedArea pointer noselect bdHover" onclick="getMaxTrimps()"><span id="trimpsOwned">0</span> / <span id="trimpsMax">10</span></span>
 					<br/>
 					<div class="progress resProgress">
-						<div class="progress-bar" id="trimpsBar" role="progressbar"></div>
+						<div class="progress-bar" id="trimpsBar" role="progressbar"><span id="trimpsTimeToFill"></span></div>
 					</div>
 					<div id="unempHide" style="visibility: hidden">
 						<span id="trimpsUnemployed">0</span> breeding
@@ -561,7 +559,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<div class="col-xs-6" id="goodGuyCol">
 								<div class="row">
 									<div class="col-xs-7" style="padding-right: 5px">
-										<div class="battleStatsTitle" id="goodGuyName">Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="debuffSpan"></span></div>
+										<div class="battleStatsTitle" id="goodGuyName">Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span>  <span id="titimpBuff"></span> <span id="debuffSpan"></span></div>
 									</div>
 									<div class="col-xs-5" style="padding-left: 5px;">
 										<div class="row">
@@ -581,7 +579,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 												</div>										
 											</div>
 											<div class="col-xs-3 lowPad">
-												<div class="formationBtn pointer" onclick="setFormation('3')" id="formation3" title="Barrier Formation - Trimps gain 4x block but lose half of their health and attack">
+												<div class="formationBtn pointer" onclick="setFormation('3')" id="formation3" title="Barrier Formation - Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack">
 													B
 												</div>											
 											</div>
@@ -625,7 +623,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<div class="row" id="gridRow">
 						<div class="col-xs-2" id="battleBtnsColumn">
 							<div id="battleSideTitle">
-									<span id="worldName">Zone</span> <span id="worldNumber">1</span>
+									<span id="worldName">Zone</span> <span id="worldNumber">1</span><br/><span id="mapBonus"></span>
 							</div>
 							<div class="battleSideBtnContainer">
 								<span class="btn btn-primary fightBtn" id="fightBtn" onmouseover="tooltip('Fight',null,event)" onmouseout="tooltip('hide')" onclick="fightManual()">
@@ -867,9 +865,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?45"></script>
-	<script type="text/javascript" src="updates.js?45"></script>
-	<script type="text/javascript" src="main.js?45"></script>
+	<script type="text/javascript" src="config.js?46"></script>
+	<script type="text/javascript" src="updates.js?46"></script>
+	<script type="text/javascript" src="main.js?46"></script>
 			<script type="text/javascript">
 	document.body.addEventListener('DOMMouseScroll', onWheel, true);
 	document.body.addEventListener('mousewheel', onWheel, true);

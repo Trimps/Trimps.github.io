@@ -396,6 +396,7 @@ function portalClicked() {
 	var bgColor = "";
 	if (game.global.sLevel == 1) bgColor = "#00b386";
 	else if (game.global.sLevel == 2) bgColor = "#3db0f8";
+	else if (game.global.sLevel == 3) bgColor = "#2a6a93";
 	else bgColor = "green";
 	document.getElementById("portalWrapper").style.backgroundColor = bgColor;
 	document.getElementById("portalWrapper").style.color = "black";
@@ -403,6 +404,7 @@ function portalClicked() {
 	var titleText = "Time Portal";
 	if (game.global.sLevel == 1) titleText += " Mk. II";
 	else if (game.global.sLevel == 2) titleText += " Mk. III";
+	else if (game.global.sLevel == 3) titleText += " Mk. IV";
 	document.getElementById("portalTitle").innerHTML = titleText;	
 	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(game.resources.helium.owned + game.global.heliumLeftover) + '</span> Helium';
@@ -429,7 +431,11 @@ function displayChallenges() {
 		var done = false;
 		if (game.portal[game.challenges[what].unlocks]) done = (game.portal[game.challenges[what].unlocks].locked) ? false : true;
 		else if (what == "Scientist" && game.global.sLevel > 0) {
-			if (game.global.sLevel >= 1 && game.global.highestLevelCleared >= 49){
+			if (game.global.sLevel >= 2 && game.global.highestLevelCleared >= 89){
+				name = "Scientist III";
+				if (game.global.sLevel == 3) done = true;
+			}
+			else if (game.global.sLevel >= 1 && game.global.highestLevelCleared >= 49){
 				name = "Scientist II";
 				if (game.global.sLevel == 2) done = true;
 			}
@@ -475,7 +481,8 @@ function selectChallenge(what) {
 
 function getScientistLevel() {
 	if (game.global.sLevel == 0) return 1;
-	if (game.global.highestLevelCleared >= 49) return 2;
+	if (game.global.highestLevelCleared >= 49 && game.global.sLevel == 1) return 2;
+	if (game.global.highestLevelCleared >= 89) return 3;
 	return 1;
 }
 
@@ -486,6 +493,9 @@ function getScientistInfo(number, reward){
 		}
 		case 2: {
 			return (reward) ? "5 Barns, 5 Sheds, 5 Forges, and T2 Equipment unlocked" : 8000;
+		}
+		case 3: {
+			return (reward) ? "full Trimps and double Efficiency" : 1500;
 		}
 	}
 }
@@ -987,9 +997,11 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 		}
 		//Add map loot bonus
 		amt = Math.round(amt * map.loot);
+		
 	}
 	//Add Looting
 	if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
+	if (game.unlocks.impCount.Magnimp && what != "helium") amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
 	amt = Math.floor(amt);
     addResCheckMax(what, amt);
     return amt;
@@ -1478,18 +1490,22 @@ function breed() {
         return;
     }
 
-    breeding = breeding * trimps.potency;
+    var potencyMod = trimps.potency;
 	if (game.global.brokenPlanet) breeding /= 10;
 	
 	//Pheromones
-	breeding += (breeding * game.portal.Pheromones.level * game.portal.Pheromones.modifier);
-	if (game.jobs.Geneticist.owned > 0) breeding *= Math.pow(.98, game.jobs.Geneticist.owned);
-	if (game.unlocks.quickTrimps) breeding *= 2;
+	potencyMod += (potencyMod * game.portal.Pheromones.level * game.portal.Pheromones.modifier);
+	if (game.jobs.Geneticist.owned > 0) potencyMod *= Math.pow(.98, game.jobs.Geneticist.owned);
+	if (game.unlocks.quickTrimps) potencyMod *= 2;
+	breeding = breeding * potencyMod;
     updatePs(breeding, true);
 	if (trimps.owned >= trimpsMax) {
         trimps.owned = trimpsMax;
         return;
     }
+	var timeRemaining = log10((trimpsMax - trimps.employed) / (trimps.owned - trimps.employed)) / log10(1 + (potencyMod / 10));
+	document.getElementById("trimpsTimeToFill").innerHTML = Math.floor(timeRemaining) + " Secs";
+	
     trimps.owned += breeding / game.settings.speed;
 	if (trimps.owned >= trimpsMax) trimps.owned = trimpsMax;
 	else {
@@ -1499,6 +1515,10 @@ function breed() {
 			else if (game.jobs.Geneticist.owned < game.global.lowestGen) game.global.lowestGen = game.jobs.Geneticist.owned;
 		}
 	}
+}
+
+function log10(val) {
+  return Math.log(val) / Math.LN10;
 }
 
 function testGymystic(oldPercent) {
@@ -1849,7 +1869,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
 				specialCount++;
 				continue;
 			}
-			if (special.prestige && maps) {
+			if (special.prestige && maps && game.options.menu.mapLoot.enabled == 0) {
 				prestigeItemsAvailable.push(item);
 				continue;
 			}
@@ -2033,6 +2053,8 @@ function mapsClicked() {
 }
 
 function mapsSwitch(updateOnly, fromRecycle) {
+	game.global.titimpLeft = 0;
+	updateTitimp();
     if (!updateOnly) {
 		game.global.fighting = false;
         game.global.switchToMaps = false;
@@ -2092,6 +2114,9 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("mapGrid").style.display = "none";
         document.getElementById("mapsBtn").innerHTML = "Maps";
         document.getElementById("worldNumber").innerHTML = game.global.world;
+		var mapBonus = document.getElementById("mapBonus");
+		if (game.global.mapBonus > 0) mapBonus.innerHTML = prettify(game.global.mapBonus * 20) + "% Map Bonus";
+		else mapBonus.innerHTML = "";
         document.getElementById("worldName").innerHTML = "Zone";
 		document.getElementById("repeatBtn").style.visibility = "hidden";
     }
@@ -2372,6 +2397,7 @@ function calculateDamage(number, buildString, isTrimp) { //number = base attack
     var fluctuation = .2; //%fluctuation
 	var maxFluct = -1;
 	var minFluct = -1;
+	
 	if (game.global.challengeActive == "Discipline" && isTrimp){
 		fluctuation = .995;
 	}
@@ -2386,6 +2412,11 @@ function calculateDamage(number, buildString, isTrimp) { //number = base attack
 	var min = Math.floor(number * (1 - minFluct));
     var max = Math.ceil(number + (number * maxFluct));
     if (buildString) {
+		if (!game.global.mapsActive && isTrimp && game.global.mapBonus > 0){
+			var mapBonusMult = 1 + (0.2 * game.global.mapBonus);
+			min *= mapBonusMult;
+			max *= mapBonusMult;
+		}
 		if (game.global.radioStacks > 0 && isTrimp){
 			var mult = game.global.radioStacks * .1;
 			mult = (mult > 1) ? 1 : 1 - mult;
@@ -2396,6 +2427,10 @@ function calculateDamage(number, buildString, isTrimp) { //number = base attack
 			var antiMult = (game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1;
 			min *= antiMult;
 			max *= antiMult;
+		}
+		if (game.global.titimpLeft >= 1 && isTrimp && game.global.mapsActive){
+			min *= 2;
+			max *= 2;
 		}
 		return prettify(min) + "-" + prettify(max);
     }
@@ -2409,6 +2444,8 @@ function nextWorld() {
 	}
     game.global.world++;
     document.getElementById("worldNumber").innerHTML = game.global.world;
+	game.global.mapBonus = 0;
+	document.getElementById("mapBonus").innerHTML = "";
     game.global.lastClearedCell = -1;
     game.global.gridArray = [];
     document.getElementById("grid").innerHTML = "";
@@ -2446,7 +2483,7 @@ function fight(makeUp) {
 		killedText += "!";
         message(killedText, "Combat");
         try{
-			if (typeof ga !== 'undefined' && cell.level % 2 === 0 && !game.global.mapsActive) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
+			if (typeof ga !== 'undefined' && cell.level % 10 === 0 && !game.global.mapsActive) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
 			}
 		catch(err){
 			console.debug(err);
@@ -2479,6 +2516,9 @@ function fight(makeUp) {
         }
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
+			if (getCurrentMapObject().level == game.global.world && game.global.mapBonus < 10){
+				game.global.mapBonus += 1;
+			}
 			if (game.global.repeatMap){
 				game.global.lastClearedMapCell = -1;
 				buildMapGrid(game.global.currentMapId);
@@ -2504,7 +2544,7 @@ function fight(makeUp) {
 	var cellAttack = calculateDamage(cell.attack);
     var attackAndBlock = (cellAttack - game.global.soldierCurrentBlock);
 	if (game.global.brokenPlanet && !game.global.mapsActive){
-		var overpower = cellAttack * 0.2;
+		var overpower = (game.global.formation == 3) ? cellAttack * 0.1 : cellAttack * 0.2;
 		if (attackAndBlock < overpower) attackAndBlock = overpower;
 	}
 	if (attackAndBlock < 0) attackAndBlock = 0;
@@ -2514,6 +2554,13 @@ function fight(makeUp) {
 		trimpAttack *= ((game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1);
 		updateAntiStacks();
 	}
+	if (game.global.titimpLeft >= 1){
+		trimpAttack *= 2;
+	}
+	if (!game.global.mapsActive && game.global.mapBonus > 0){
+		trimpAttack *= ((game.global.mapBonus * .2) + 1);
+	}
+	updateTitimp();
 	var gotCrit = false;
 	var critSpan = document.getElementById("critSpan");
 	critSpan.innerHTML = "";
@@ -2589,6 +2636,16 @@ function updateAntiStacks(){
 		elem.innerHTML = '<span class="badge antiBadge" title="Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' seconds to populate.">' + game.global.antiStacks + '<span class="icomoon icon-target2"></span></span>';
 	}
 	else elem.innerHTML = "";
+}
+
+function updateTitimp(){
+	var elem = document.getElementById("titimpBuff");
+	if (game.global.titimpLeft < 1){
+		elem.innerHTML = "";
+		return;
+	}
+		var number = Math.floor(game.global.titimpLeft);
+		elem.innerHTML = '<span class="badge antiBadge" title="Your Trimps are dealing double damage, thanks to the Titimp!">' + number + '<span class="icomoon icon-hammer"></span></span>';
 }
 
 /* function heal() {
@@ -2845,6 +2902,49 @@ function selectImp(name){
 
 function hideBones() {
 	document.getElementById("boneWrapper").style.display = "none";
+}
+
+function simpleSeconds(what, seconds) {
+		var compatible = ["Farmer", "Lumberjack", "Miner", "Dragimp", "Explorer"];
+		var job;
+		switch (what) {
+			case "food": 
+				job = "Farmer";
+				break;
+			case "wood":
+				job = "Lumberjack";
+				break;
+			case "metal":
+				job = "Miner";
+				break;
+			case "gems":
+				job = "Dragimp";
+				break;
+			case "fragments":
+				job = "Explorer";
+				break;
+			case "science":
+				job = "Scientist";
+				break;
+		}
+		job = game.jobs[job];
+		var amt = job.owned * job.modifier * seconds;
+		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		return amt;
+}
+
+function scaleToCurrentMap(amt) {
+    var map = getCurrentMapObject();
+	var world = map.level;
+		if (world < game.global.world){
+			//-20% loot compounding for each level below world
+			amt *= Math.pow(0.8, (game.global.world - world));
+		}
+		//Add map loot bonus
+		amt = Math.round(amt * map.loot);
+		if (game.unlocks.impCount.Magnimp) amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
+		if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
+		return amt;
 }
 
 //12 - 43200
@@ -3141,6 +3241,37 @@ function onPurchaseResult(result) {
 	}
 }
 
+function givePumpkimpLoot(){
+	var elligible = ["food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science"];
+	var success = [
+		"Oops, that Pumpkimp just wanted to give you some candy. You found ",
+		"When checking the Pumpkimp for loot, you find a pouch that says to take one. You take all ",
+		"That Pumpkimp gave you ",
+		"That Pumpkimp was so smashed that he gave you ",
+		"You're not wearing a costume, but you'll still take this "];
+	var failures = [
+		"That Pumpkimp gave you nothing! What a jerk!",
+		"As the Pumpkimp takes his final breath, he manages to mutter the word 'Trick'. No loot here.",
+		"You search the Pumpkimp for loot, but find nothing. Someone wasn't in the holiday spirit!",
+		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."];					
+	if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
+	if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
+	var roll = Math.floor(Math.random() * elligible.length);
+	var item = elligible[roll];
+	if (item == "nothing") {
+		var failNumber = Math.floor(Math.random() * failures.length);
+		message(failures[failNumber], "Loot", "*magic-wand", "pumpkimp");
+		return;
+	}
+	var seconds = Math.floor(Math.random() * 4);
+	seconds++;
+	var amt = simpleSeconds(item, seconds);
+	if (game.global.mapsActive) amt = scaleToCurrentMap(amt);
+	addResCheckMax(item, amt);
+	var messageNumber = Math.floor(Math.random() * success.length);
+	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", "pumpkimp");		
+}
+
 function gameLoop(makeUp, now) {
 /*	if (now < game.global.lastOfflineProgress) return;
 	game.global.lastOnline = now; get4432*/
@@ -3149,6 +3280,7 @@ function gameLoop(makeUp, now) {
 	if (game.global.trapBuildToggled && game.global.trapBuildAllowed && game.global.buildingsQueue.length === 0) autoTrap();
     breed(makeUp);
     battleCoordinator(makeUp);
+	if (game.global.titimpLeft) game.global.titimpLeft -= 0.1;
 }
 
 //Timeouts
