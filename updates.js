@@ -215,7 +215,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Maps"){
 		if (!game.global.preMapsActive)
-		tooltipText = "Travel to the Map Chamber. Maps are filled with goodies, and for each max level map you clear you will gain a 20% stacking damage bonus for that zone (stacks up to 10 times).";
+		tooltipText = "Travel to the Map Chamber";
 		else
 		tooltipText = "Go back to to the World Map.";
 		costText = "";
@@ -559,19 +559,6 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Formation</td><td></td><td></td><td>x " + formStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 
 	}
-	//Add Titimp
-	if (game.global.titimpLeft > 1 && game.global.mapsActive){
-		currentCalc *= 2;
-		textString += "<tr><td class='bdTitle'>Titimp</td><td></td><td></td><td>x 2</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
-	}
-	//Add map bonus
-	if (!game.global.mapsActive && game.global.mapBonus > 0){
-		var mapBonusMult = 0.2 * game.global.mapBonus;
-		currentCalc *= (1 + mapBonusMult);
-		mapBonusMult *= 100;
-		textString += "<tr><td class='bdTitle'>Map Bonus</td><td>20%</td><td>" + game.global.mapBonus + "</td><td>+ " + prettify(mapBonusMult) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
-		
-	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getBattleStatBd('" + what + "')", name, "Refresh", true);
@@ -807,10 +794,16 @@ function resetGame(keepPortal) {
 		game.global.prisonClear = prison;
 		game.global.frugalDone = frugal;
 
-		if (sLevel >= 1) applyS1();
-		if (sLevel >= 2) applyS2();
-		if (sLevel >= 3) applyS3();
-		
+		if (sLevel >= 1) {
+			game.resources.science.owned += 5000;
+			game.resources.wood.owned += 100;
+			game.resources.food.owned += 100;
+			game.global.autoCraftModifier += 0.25;
+			document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
+		}
+		if (sLevel >= 2){
+			applyS2();
+		}
 		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 		game.portal.Coordinated.currentSend = 1;
 	}
@@ -822,14 +815,6 @@ function resetGame(keepPortal) {
 	cancelPortal();
 	updateRadioStacks();
 	updateAntiStacks();
-}
-
-function applyS1(){
-	game.resources.science.owned += 5000;
-	game.resources.wood.owned += 100;
-	game.resources.food.owned += 100;
-	game.global.autoCraftModifier += 0.25;
-	document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
 }
 
 function applyS2(){
@@ -851,13 +836,6 @@ function applyS2(){
 	game.buildings.Forge.purchased = 5;
 	game.resources.metal.max = 16000;
 }
-
-function applyS3(){
-	game.global.playerModifier = 2;
-	game.resources.trimps.owned = game.resources.trimps.realMax();
-	if (document.getElementById("trimps").style.visibility == "hidden") fadeIn("trimps", 10);
-}
-
 
 function message(messageString, type, lootIcon, extraClass) {
 	var log = document.getElementById("log");

@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.5,
+		version: 2.401,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -104,8 +104,6 @@ var toReturn = {
 		frugalDone: false,
 		lastUnlock: 0,
 		lowestGen: -1,
-		titimpLeft: 0,
-		mapBonus: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -260,11 +258,6 @@ var toReturn = {
 				enabled: 0,
 				description: "Enables/disables the locking of buildings, jobs, upgrades, and equipment for 1 second after unlocking something new.",
 				titles: ["Not Locking", "Locking"],
-			},
-			mapLoot: {
-				enabled: 0,
-				description: "Toggle between receiving all equipment for one tier, or receiving all available tiers of the same equipment first when running maps.",
-				titles: ["Tier First", "Equip First"]
 			},
 			deleteSave: {
 				enabled: 0,
@@ -482,16 +475,12 @@ var toReturn = {
 		Scientist: {
 			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with * each time you use your portal.",
 			completed: false,
-			heldBooks: 0,
 			filter: function () {
 				return (game.global.world >= 40 || game.global.highestLevelCleared >= 39);
 			},
 			abandon: function () {
 				game.worldUnlocks.Scientist.fire();
 				document.getElementById("scienceCollectBtn").style.display = "block";
-				for (var x = 0; x < this.heldBooks; x++){
-					unlockUpgrade("Speedscience");
-				}
 			},
 			start: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
@@ -853,16 +842,6 @@ var toReturn = {
 	},
 
 	badGuys: {
-		Pumpkimp: {
-			location: "All",
-			attack: 0.9,
-			health: 1.5,
-			fast: false,
-			loot: function () {
-				//Happy Halloween and stuff.
-				givePumpkimpLoot();
-			}
-		},
 		Squimp: {
 			location: "All",
 			attack: 0.8,
@@ -1108,11 +1087,9 @@ var toReturn = {
 			loot: function () {
 				var amt = Math.ceil(game.resources.trimps.max * 0.003);
 				game.resources.trimps.max += amt;
+				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic");
 				game.unlocks.impCount.Tauntimp++;
 				game.unlocks.impCount.TauntimpAdded += amt;
-				if (game.portal.Carpentry.level) amt *= Math.pow((1 + game.portal.Carpentry.modifier), game.portal.Carpentry.level);
-				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic");
-				
 			}
 		},
 		Whipimp: {
@@ -1147,82 +1124,6 @@ var toReturn = {
 				message("This ground up Venimp increased your Trimps' breeding speed by 0.3%!", "Loot", "glass", "exotic");
 				game.unlocks.impCount.Venimp++;
 			}
-		},
-		Jestimp: {
-			location: "Maps",
-			locked: 1,
-			world: 1,
-			attack: 1,
-			health: 1,
-			fast: false,
-			dropDesc: "45 seconds of production for 1 random resource",
-			loot: function () {
-				var elligible = ["food", "wood", "metal", "science"];
-				if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-				if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
-				var roll = Math.floor(Math.random() * elligible.length);
-				var item = elligible[roll];
-				var amt = simpleSeconds(item, 45);
-				amt = scaleToCurrentMap(amt);
-				addResCheckMax(item, amt);
-				message("That Jestimp gave you " + prettify(amt) + " " + item + "!", "Loot", "*dice", "exotic");
-				game.unlocks.impCount.Jestimp++;
-			}
-		},
-		Titimp: {
-			location: "Maps",
-			locked: 1,
-			world: 1,
-			attack: 1,
-			health: 1,
-			fast: false,
-			dropDesc: "+100% damage for 30 seconds in maps",
-			loot: function () {
-				game.global.titimpLeft = 30;
-				message("That Titimp made your Trimps super strong!", "Loot", "*hammer", "exotic");
-			}		
-		},
-		Chronoimp: {
-			location: "Maps",
-			locked: 1,
-			world: 1,
-			attack: 1,
-			health: 1,
-			fast: false,
-			dropDesc: "5 seconds of production for all basic resources",
-			loot: function () {
-				var elligible = ["food", "wood", "metal", "science"];
-				if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-				if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
-				var cMessage = "That Chronoimp dropped ";
-				for (var x = 0; x < elligible.length; x++){
-					var item = elligible[x];
-					var amt = simpleSeconds(item, 5);
-					amt = scaleToCurrentMap(amt);
-					addResCheckMax(item, amt);
-					cMessage += prettify(amt) + " " + item;
-					if (x == (elligible.length - 1)) cMessage += "!";
-					else if (x == (elligible.length - 2)) cMessage += ", and ";
-					else cMessage += ", ";
-				}
-				message(cMessage, "Loot", "hourglass", "exotic");
-				game.unlocks.impCount.Chronoimp++;				
-			}		
-		},
-		Magnimp: {
-			location: "World",
-			locked: 1,
-			world: 1,
-			attack: 1,
-			health: 1,
-			fast: false,
-			dropDesc: "0.3% extra loot from maps and zones (Not Helium)",
-			loot: function () {
-				game.unlocks.impCount.Magnimp++;
-				var amt = Math.pow(1.003, game.unlocks.impCount.Magnimp);
-				amt = (amt - 1) * 100;
-				message("You killed a Magnimp! The strong magnetic forces now increase your loot by " + amt.toFixed(2) + "%!", "Loot", "magnet", "exotic");
-			}		
 		},
 		Skeletimp: {
 			location: "World",
@@ -2092,11 +1993,6 @@ var toReturn = {
 			icon: "book",
 			title: "Speedscience",
 			fire: function () {
-			if (game.global.challengeActive == "Scientist"){
-				message("You found a book called Speedscience, but you haven't found anyone to read it. Such a shame.", "Notices");
-				game.challenges.Scientist.heldBooks++;
-				return;
-			}
 				unlockUpgrade("Speedscience");
 			}
 		},
@@ -2371,8 +2267,7 @@ var toReturn = {
 				var amt = 5 + (game.portal.Trumps.modifier * game.portal.Trumps.level);
 				game.resources.trimps.max += amt;
 				game.global.totalGifts += amt;
-				if (game.portal.Carpentry.level) amt *= Math.pow((1 + game.portal.Carpentry.modifier), game.portal.Carpentry.level);
-				message("You have cleared enough land to support " + prettify(amt) + " more Trimps!", "Loot", "gift");
+				message("You have cleared enough land to support " + amt + " more Trimps!", "Loot", "gift");
 			}
 		},
 		fruit: {
@@ -3019,7 +2914,7 @@ var toReturn = {
 		Barrier: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Woah, you just remembered that all Trimps lifting their shields in the same direction at the same time can produce a nice protecting wall. Seems like common sense now that you thought of it. This formation increases block by 4x and cuts the amount of block that enemies can pierce by 50%, at the cost of half attack and health.",
+			tooltip: "Woah, you just remembered that all Trimps lifting their shields in the same direction at the same time can produce a nice protecting wall. Seems like common sense now that you thought of it. It will require training the Trimps, but this formation allows for 4x block at the cost of half attack and health.",
 			done: 0,
 			cost: {
 				resources: {
@@ -3700,11 +3595,7 @@ var toReturn = {
 			Flutimp: false,
 			Tauntimp: false,
 			Venimp: false,
-			Whipimp: false,
-			Jestimp: false,
-			Titimp: false,
-			Chronoimp: false,
-			Magnimp: false,
+			Whipimp: false
 		},
 		impCount: {
 			Goblimp: 0,
@@ -3713,11 +3604,7 @@ var toReturn = {
 			Tauntimp: 0,
 			TauntimpAdded: 0,
 			Venimp: 0,
-			Whipimp: 0,
-			Jestimp: 0,
-			Titimp: 0,
-			Chronoimp: 0,
-			Magnimp: 0
+			Whipimp: 0
 		},
 		goldMaps: false,
 		quickTrimps: false
