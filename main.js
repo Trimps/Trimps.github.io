@@ -1487,6 +1487,7 @@ function breed() {
 	
     if (breeding < 2 || game.global.challengeActive == "Trapper") {
         updatePs(0, true);
+		document.getElementById("trimpsTimeToFill").innerHTML = "";
         return;
     }
 
@@ -1501,6 +1502,7 @@ function breed() {
     updatePs(breeding, true);
 	if (trimps.owned >= trimpsMax) {
         trimps.owned = trimpsMax;
+		document.getElementById("trimpsTimeToFill").innerHTML = "";
         return;
     }
 	var timeRemaining = log10((trimpsMax - trimps.employed) / (trimps.owned - trimps.employed)) / log10(1 + (potencyMod / 10));
