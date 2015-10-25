@@ -882,7 +882,7 @@ var toReturn = {
       attack: 0.9,
       health: 1.5,
       fast: false,
-      date: [ "9", "25"], 
+      date: [ "11", "25"], 
       success: [
         "Santimp found you on the good list. You found ",
         "Santimp's bag had a rip in it. You found ",
