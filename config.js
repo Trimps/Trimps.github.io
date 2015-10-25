@@ -873,7 +873,10 @@ var toReturn = {
         "That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."
       ],
 			loot: function () {
-        var rewards = [ "food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science" ];
+        var rewards = [ "food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal" ];
+        if (!game.global.challengeActive == "Scientist") {
+          rewards.push("science")
+        }
 				HolidayLoot(rewards, "pumpkimp");
 			}
 		},
@@ -894,7 +897,10 @@ var toReturn = {
         "You've received a melted impsickle for being naughty."
       ],
       loot: function () {
-        var rewards = [ "food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science" ];
+        var rewards = [ "food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal" ];
+        if (!game.global.challengeActive == "Scientist") {
+          rewards.push("science")
+        }
         HolidayLoot(rewards, "santimp");
       }
     },
