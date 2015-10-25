@@ -874,7 +874,7 @@ var toReturn = {
       ],
 			loot: function () {
         var rewards = [ "food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science" ];
-				HolidayLoot(rewards, "Pumpkimp");
+				HolidayLoot(rewards, "pumpkimp");
 			}
 		},
     Santimp: {
@@ -895,7 +895,7 @@ var toReturn = {
       ],
       loot: function () {
         var rewards = [ "food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science" ];
-        HolidayLoot(rewards, "Santimp");
+        HolidayLoot(rewards, "santimp");
       }
     },
 		Squimp: {
