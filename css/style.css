@@ -847,6 +847,61 @@ overflow-x: hidden;
 	background: rgba(0, 0, 0, 0.75);
 }
 
+.Pumpkimp{
+	color: orange !important;
+	background: rgba(0, 0, 0, 0.75);
+}
+
+.santimp{
+	color: red !important;
+	background: rgba(0, 0, 0, 0.75);
+}
+
+.Santimp{
+	color: red !important;
+	background: rgba(0, 0, 0, 0.75);
+}
+
+.santimp{
+	color: red !important;
+	background: rgba(0, 0, 0, 0.75);
+}
+
+
+.noRecycle{
+	background-color: #5cb85c;
+}
+
+.noRecycleDone{
+	background-color: red;
+}
+
+.successColor{
+	background-color: #5cb85c;
+}
+.dangerColor{
+	background-color: #d9534f;
+}
+.infoColor{
+	background-color: #5bc0de;
+}
+.primaryColor{
+	background-color: #337ab7;
+	color: white;
+}
+.greyColor{
+	background-color: grey;
+}
+.tealColor{
+	background-color: #318696 !important;
+	color: white;
+}
+#boneWrapper{
+	position: absolute;
+	color: black;
+	background: rgba(255, 255, 255, 0.98);
+	border: 2px solid black;
+
 .noRecycle{
 	background-color: #5cb85c;
 }

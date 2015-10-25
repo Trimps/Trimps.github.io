@@ -858,11 +858,46 @@ var toReturn = {
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
+      date: [ "9", "31"], 
+      success: [
+        "Oops, that Pumpkimp just wanted to give you some candy. You found ",
+        "When checking the Pumpkimp for loot, you find a pouch that says to take one. You take all ",
+        "That Pumpkimp gave you ",
+        "That Pumpkimp was so smashed that he gave you ",
+        "You're not wearing a costume, but you'll still take this "
+      ],
+      failure: [
+        "That Pumpkimp gave you nothing! What a jerk!",
+        "As the Pumpkimp takes his final breath, he manages to mutter the word 'Trick'. No loot here.",
+        "You search the Pumpkimp for loot, but find nothing. Someone wasn't in the holiday spirit!",
+        "That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."
+      ],
 			loot: function () {
-				//Happy Halloween and stuff.
-				givePumpkimpLoot();
+        var rewards = [ "food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science" ];
+				HolidayLoot(rewards, "Pumpkimp");
 			}
 		},
+    Santimp: {
+      location: "All",
+      attack: 0.9,
+      health: 1.5,
+      fast: false,
+      date: [ "9", "25"], 
+      success: [
+        "Santimp found you on the good list. You found ",
+        "Santimp's bag had a rip in it. You found ",
+        "Santimp gave you "
+      ],
+      failure: [
+        "You're on the naughty list. No goodies for you.",
+        "Santimp checked his list twice and you were not found.",
+        "You've received a melted impsickle for being naughty."
+      ],
+      loot: function () {
+        var rewards = [ "food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science" ];
+        HolidayLoot(rewards, "Santimp");
+      }
+    },
 		Squimp: {
 			location: "All",
 			attack: 0.8,

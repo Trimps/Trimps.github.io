@@ -1733,6 +1733,32 @@ function buildMapGrid(mapId) {
     addSpecials(true);
 }
 
+function HolidayLoot(items, trimp){
+  var elligible = items
+  if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
+  if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
+  var roll = Math.floor(Math.random() * elligible.length);
+  var item = elligible[roll];
+  if (item == "nothing") {
+    var trimpname = "game.badGuys." + trimp + ".failure"
+    var failNumber = Math.floor(Math.random() * eval(trimpname).length);
+    message(eval(trimpname)[failNumber], "Loot", "*magic-wand", trimp);
+    return;
+  }
+  else {
+    var seconds = Math.floor(Math.random() * 4);
+    seconds++;
+    var amt = simpleSeconds(item, seconds);
+    if (game.global.mapsActive) amt = scaleToCurrentMap(amt);
+    else if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
+    addResCheckMax(item, amt);
+    var trimpname = "game.badGuys." + trimp + ".success"
+    var messageNumber = Math.floor(Math.random() * eval(trimpname).length);
+    message(eval(trimpname)[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", trimp);
+  }
+}
+
+
 function getMapIndex(mapId) {
         for (var x = 0; x < game.global.mapsOwnedArray.length; x++) {
             if (game.global.mapsOwnedArray[x].id == mapId) return x;
@@ -1770,29 +1796,43 @@ function buildGrid() {
 }
 
 function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
-	var selected;
-	var force = false;
+	  var selected;
+	  var force = false;
+    var oneday = 86400000
+    var leadtime = oneday * 7
     var badGuysArray = [];
     for (var item in game.badGuys) {
-		var badGuy = game.badGuys[item];
-		if (badGuy.locked) continue;
-		if (badGuy.location == "Maps" && !mapSuffix) continue;
-		if (level == totalCells && badGuy.last && (badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && world >= badGuy.world) {
+		  var badGuy = game.badGuys[item];
+		  if (badGuy.locked) continue;
+		  if (badGuy.location == "Maps" && !mapSuffix) continue;
+		  if (level == totalCells && badGuy.last && (badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && world >= badGuy.world) {
 			if (item == "Blimp" && (world != 5 && world  != 10 && world < 15)) continue;
 			if (!mapSuffix && (game.global.brokenPlanet || game.global.world == 59) && item == "Blimp") item = "Improbability";
 			selected = item;
 			force = true;
 			break;
-		}
-		if (!badGuy.last && (badGuy.location == "All" || badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && (typeof badGuy.world === 'undefined' || game.global.world >= game.badGuys[item].world)){
-		badGuysArray.push(item);
-		}
-	}
-	if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (Math.floor(Math.random() * 100) < 10) ? "Megaskeletimp" : "Skeletimp";} 
-	if (imports.length && !force && (Math.floor(Math.random() * 100) < (imports.length * 3))) return imports[Math.floor(Math.random() * imports.length)];
+		  }
+		  if (!badGuy.last && (badGuy.location == "All" || badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && (typeof badGuy.world === 'undefined' || game.global.world >= game.badGuys[item].world)){
+        if (badGuy.date) {
+          if (new Date() - new Date(new Date().getFullYear(), badGuy.date[0], badGuy.date[1]) <= -leadtime) {
+            continue;
+          }
+          else if (new Date() - new Date(new Date().getFullYear(), badGuy.date[0], badGuy.date[1]) >= oneday) { 
+            continue;
+          }
+          else {
+            badGuysArray.push(item);
+        }
+      }
+        else {
+          badGuysArray.push(item);
+        }
+      }
+	  }
+	  if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (Math.floor(Math.random() * 100) < 10) ? "Megaskeletimp" : "Skeletimp";} 
+	  if (imports.length && !force && (Math.floor(Math.random() * 100) < (imports.length * 3))) return imports[Math.floor(Math.random() * imports.length)];
     if (!force) selected = badGuysArray[Math.floor(Math.random() * badGuysArray.length)];
-	return selected;
-	
+    return selected;
 }
 
 function addSpecialToLast(special, array, item) {
@@ -3245,37 +3285,6 @@ function onPurchaseResult(result) {
 	}
 }
 
-function givePumpkimpLoot(){
-	var elligible = ["food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science"];
-	var success = [
-		"Oops, that Pumpkimp just wanted to give you some candy. You found ",
-		"When checking the Pumpkimp for loot, you find a pouch that says to take one. You take all ",
-		"That Pumpkimp gave you ",
-		"That Pumpkimp was so smashed that he gave you ",
-		"You're not wearing a costume, but you'll still take this "];
-	var failures = [
-		"That Pumpkimp gave you nothing! What a jerk!",
-		"As the Pumpkimp takes his final breath, he manages to mutter the word 'Trick'. No loot here.",
-		"You search the Pumpkimp for loot, but find nothing. Someone wasn't in the holiday spirit!",
-		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."];					
-	if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-	if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
-	var roll = Math.floor(Math.random() * elligible.length);
-	var item = elligible[roll];
-	if (item == "nothing") {
-		var failNumber = Math.floor(Math.random() * failures.length);
-		message(failures[failNumber], "Loot", "*magic-wand", "pumpkimp");
-		return;
-	}
-	var seconds = Math.floor(Math.random() * 4);
-	seconds++;
-	var amt = simpleSeconds(item, seconds);
-	if (game.global.mapsActive) amt = scaleToCurrentMap(amt);
-	else if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
-	addResCheckMax(item, amt);
-	var messageNumber = Math.floor(Math.random() * success.length);
-	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", "pumpkimp");		
-}
 
 function gameLoop(makeUp, now) {
 /*	if (now < game.global.lastOfflineProgress) return;
