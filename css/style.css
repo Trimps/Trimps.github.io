@@ -464,6 +464,10 @@ overflow-x: hidden;
 	color: black;
 }
 
+.settingBtn3{
+	background-color: #337AB7;
+}
+
 .optionContainer {
 	display: inline-block;
 	vertical-align: top;
