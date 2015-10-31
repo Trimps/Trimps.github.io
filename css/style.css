@@ -249,6 +249,10 @@ overflow-x: hidden;
 .alert {
     background-color: yellow;
     color: black;
+	min-width: initial;
+	padding: 2% 5.5%;
+	font-size: 1em;
+	border-radius: 100%;
 }
 
 #foremenCount,
@@ -313,6 +317,11 @@ overflow-x: hidden;
 
 #viewChallengeText {
 	font-size: 1.3vw;
+}
+
+.nextChallenge {
+	background-color: black !important;
+	color: white;
 }
 
 #portalRow {
@@ -432,7 +441,7 @@ overflow-x: hidden;
 }
 
 #settingsTable > tbody > tr > td {
-	width: 14.1% !important;
+	width: 9.1% !important;
 	border: 1px solid black;
 	display: table-cell !important;
 	text-align: center;
@@ -495,6 +504,10 @@ overflow-x: hidden;
 #buyTabsUl > li > a {
 	border: 1px solid #ddd;
 	border-radius: 8px 8px 0 0;
+}
+
+.buyTab{
+	font-size: 1vw;
 }
 
 #mapsHere {
@@ -611,8 +624,17 @@ overflow-x: hidden;
 
 .fightBtn{
 	width: 100%;
-	font-size: 1.1vw;
+	font-size: 1.1vw !important;
 }
+
+@media screen and (max-height: 800px) {
+    .fightBtn{
+		font-size: .95vw !important;
+		padding: .3vw !important;
+	}
+}
+
+
 
 #pauseFight{
 	font-size: 1vw;
@@ -782,6 +804,22 @@ overflow-x: hidden;
 	padding-right: 10vw;
 }
 
+#statsWrapper{
+	background-color: black;
+	width: 100vw;
+	height: 100vh;
+	padding: 20px;
+	text-align: center;
+	padding-left: 10vw;
+	padding-right: 10vw;
+	font-size: 1.5vw;
+	color: white;
+}
+
+#statsTitle{
+	font-size: 3vw;
+}
+
 .activatePortalBtn{
 	font-size: 1.3vw;
 	margin: 15px;
@@ -810,6 +848,9 @@ overflow-x: hidden;
 	font-size: 2vw;
 }
 #portalTotalHelium{
+	font-size: 1.3vw;
+}
+#portalTotalPortals{
 	font-size: 1.3vw;
 }
 

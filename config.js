@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.5,
+		version: 2.51,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -438,9 +438,10 @@ var toReturn = {
 		Discipline: {
 			description: "Tweak the portal to bring you back to a universe where Trimps are less disciplined, in order to teach you how to be a better Trimp trainer. Your Trimps' minimum damage will be drastically lower, but their high end damage will be considerably higher. Completing The Dimension Of Anger will cause Trimp damage to return to normal.",
 			filter: function () {
-				return (game.resources.helium.owned >= 30);
+				return (game.resources.helium.owned >= 30 || game.global.totalHeliumEarned >= 30);
 			},
 			unlocks: "Range",
+			unlockString: "have 30 total helium"
 		},
 		Metal: {
 			description: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies. If you complete The Dimension Of Anger without disabling the challenge, miners will re-unlock.",
@@ -456,7 +457,8 @@ var toReturn = {
 			},
 			fireAbandon: false,
 			heldBooks: 0,
-			unlocks: "Artisanistry"
+			unlocks: "Artisanistry",
+			unlockString: "reach Zone 25"
 		},
 		Size: {
 			description: "Tweak the portal to bring you to an alternate reality, where Trimps are bigger and stronger, to force yourself to figure out a way to build larger housing. Your Trimps will gather 50% more Food, Wood, and Metal, but your housing will fit 50% fewer Trimps. If you complete The Dimension of Anger without disabling the challenge, your stats will return to normal.",
@@ -477,7 +479,8 @@ var toReturn = {
 				game.resources.trimps.maxMod = 0.5;
 			},
 			fireAbandon: true,
-			unlocks: "Carpentry"
+			unlocks: "Carpentry",
+			unlockString: "reach Zone 35"
 		},
 		Scientist: {
 			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with * each time you use your portal.",
@@ -500,7 +503,8 @@ var toReturn = {
 			onLoad: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
 			},
-			fireAbandon: false
+			fireAbandon: false,
+			unlockString: "reach Zone 40"
 		},
 		Trimp: {
 			description: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination, but completing <b>'The Block' (11)</b> will teach you how to keep your Trimps alive for much longer.",
@@ -515,21 +519,8 @@ var toReturn = {
 				for (var x = 0; x < game.challenges.Trimp.heldBooks; x++){
 					unlockUpgrade("Coordination");
 				}
-			}
-		},
-		Electricity: {
-			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with double helium for all Blimps and Improbabilities killed up to Zone 80. This is repeatable!",
-			completed: false,
-			hasKey: false,
-			filter: function () {
-				return (game.global.prisonClear > 0);
 			},
-			fireAbandon: true,
-			abandon: function () {
-				game.global.radioStacks = 0;
-				updateRadioStacks();
-			},
-			heldHelium: 0,
+			unlockString: "break the planet at Zone 60"
 		},
 		Trapper: {
 			description: "Travel to a dimension where Trimps refuse to breed in captivity, teaching yourself new ways to take advantage of situations where breed rate is low. Clearing <b>'Trimple Of Doom' (33)</b> with this challenge active will return your breeding rate to normal.",
@@ -544,7 +535,23 @@ var toReturn = {
 				for (var x = 0; x < game.challenges.Trapper.heldBooks; x++){
 					unlockUpgrade("Potency");
 				}
-			}
+			},
+			unlockString: "reach Zone 70"
+		},
+		Electricity: {
+			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with double helium for all Blimps and Improbabilities killed up to Zone 80. This is repeatable!",
+			completed: false,
+			hasKey: false,
+			filter: function () {
+				return (game.global.prisonClear > 0);
+			},
+			fireAbandon: true,
+			abandon: function () {
+				game.global.radioStacks = 0;
+				updateRadioStacks();
+			},
+			heldHelium: 0,
+			unlockString: "clear 'The Prison' at Zone 80"
 		},
 		Frugal: {
 			description: "Bring yourself to a dimension where Equipment is cheap but unable to be prestiged, in order to teach yourself better resource and equipment management. Completing <b>'Dimension of Anger' (20)</b> with this challenge active will return missing books to maps, and your new skills in Frugality will permanently cause MegaBooks to increase gather speed by 60% instead of 50%.",
@@ -565,7 +572,8 @@ var toReturn = {
 			fireAbandon: true,
 			abandon: function () {
 				this.start(true);
-			}
+			},
+			unlockString: "reach Zone 100"
 		},
 		Coordinate: {
 			description: "Visit a dimension where Bad Guys are Coordinated but never fast, to allow you to study naturally evolved Coordination. Completing <b>'Dimension of Anger' (20)</b> with this challenge active will cause all enemies to lose their Coordination.",
@@ -573,7 +581,70 @@ var toReturn = {
 			filter: function () {
 				return (game.global.highestLevelCleared >= 119);
 			},
-			unlocks: "Coordinated"
+			unlocks: "Coordinated",
+			unlockString: "reach Zone 120"
+		}
+		
+	},
+	
+	stats:{
+		trimpsKilled: {
+			title: "Dead Trimps",
+			value: 0
+		},
+		battlesWon: {
+			title: "Battles Won",
+			value: 0
+		},
+		mapsCleared: {
+			title: "Maps Cleared",
+			value: 0
+		},
+		zonesCleared: {
+			title: "Zones Cleared",
+			value: 0
+		},
+		highestLevel: {
+			title: "Highest Zone",
+			value: function () {
+				return game.global.highestLevelCleared + 1;
+			}
+		},
+		totalPortals: {
+			title: "Total Portals Used",
+			display: function () {
+				return (game.global.totalPortals > 0);
+			},
+			value: function () {
+				return game.global.totalPortals;
+			}
+		},
+		totalHelium: {
+			title: "Total Helium Earned",
+			display: function () {
+				return (game.global.totalHeliumEarned > 0);
+			},
+			value: function () {
+				return game.global.totalHeliumEarned;
+			}
+		},
+		heliumHour: {
+			title: "He/Hour this Run",
+			display: function () {
+				return (game.resources.helium.owned > 0);
+			},
+			value: function () {
+				var timeThisPortal = new Date().getTime() - game.global.lastPortal;
+				timeThisPortal /= 3600000;
+				return Math.floor(game.resources.helium.owned / timeThisPortal);
+			}
+		},
+		planetsBroken: {
+			title: "Planets Broken",
+			display: function () {
+				return (this.value > 0);
+			},
+			value: 0
 		}
 		
 	},

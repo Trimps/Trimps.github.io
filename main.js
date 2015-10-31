@@ -387,6 +387,29 @@ function loadGigastations() {
 	game.buildings.Warpstation.cost.metal[0] *= modifier;
 }
 
+var trimpStatsDisplayed = false;
+function toggleStats(){
+	document.getElementById("statsWrapper").style.display = (trimpStatsDisplayed) ? "none" : "block";
+	document.getElementById("wrapper").style.display = (trimpStatsDisplayed) ? "block" : "none";
+	trimpStatsDisplayed = !trimpStatsDisplayed;
+	if (trimpStatsDisplayed){
+		document.getElementById("statsRow").innerHTML = '<div class="col-xs-4" id="statCol1"></div><div class="col-xs-4" id="statCol2"></div><div class="col-xs-4" id="statCol3"></div>';
+		var column = 1;
+		for (var item in game.stats){
+			var stat = game.stats[item];
+			if (typeof stat.display === 'function'){
+				if (!stat.display()) continue;
+			}
+			var elem = document.getElementById("statCol" + column);
+			var value = (typeof stat.value === 'function') ? stat.value() : stat.value;
+			value = prettify(value);
+			elem.innerHTML += '<div class="statContainer" id="stat' + item + 'Container"><span class="statTitle">' + stat.title + '</span><br/><span class="statValue" id="statTrimpsSlainValue">' + value + '</span></div><br/>'
+			column++;
+			if (column == 4) column = 1;
+		}
+	}
+}
+
 function portalClicked() {
 	cancelTooltip();
 	game.global.viewingUpgrades = false;
@@ -409,6 +432,7 @@ function portalClicked() {
 	document.getElementById("portalStory").innerHTML = "Well, you did it. You followed your instincts through this strange world, made your way through the Dimension of Anger, and obtained this portal. But why? Maybe there will be answers through this portal... Your scientists tell you they can overclock it to bring more memories and items back, but they'll need helium to cool it.";
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(game.resources.helium.owned + game.global.heliumLeftover) + '</span> Helium';
 	document.getElementById("totalHeliumEarned").innerHTML = prettify(game.global.totalHeliumEarned);
+	document.getElementById("totalPortals").innerHTML = game.global.totalPortals;
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
 	document.getElementById("activatePortalBtn").innerHTML = "Activate Portal";
 	document.getElementById("respecPortalBtn").style.display = "none";
@@ -423,10 +447,17 @@ function displayChallenges() {
 	var challengesHere = document.getElementById("challengesHere");
 	document.getElementById("specificChallengeDescription").innerHTML = "";
 	challengesHere.innerHTML = '<div class="noselect pointer challengeThing thing" id="challenge0" onclick="selectChallenge(0)"><span class="thingName">None</span></div>';
+	var firstFail = false;
+	var extraClass = "";
 	for (var what in game.challenges){
+		var thisFail = false;
 		var name = "";
 		var challenge = game.challenges[what];
-		if (!challenge.filter()) continue;
+		if (!challenge.filter()) {
+			if (firstFail) continue;
+			firstFail = true;
+			thisFail = true;
+		}
 		challengeCount++;
 		var done = false;
 		if (game.portal[game.challenges[what].unlocks]) done = (game.portal[game.challenges[what].unlocks].locked) ? false : true;
@@ -444,6 +475,7 @@ function displayChallenges() {
 		}
 		else if (what == "Frugal") done = game.global.frugalDone;
 		done = (done) ? "finishedChallenge" : "";
+		if (thisFail) done = "nextChallenge";
 		if (!name) name = what;
 		challengesHere.innerHTML += '<div class="noselect pointer challengeThing thing ' + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + name + '</span></div>';
 	}
@@ -455,6 +487,14 @@ function selectChallenge(what) {
 	displayChallenges();
 	document.getElementById("challenge" + what).style.border = "1px solid red";
 	var addChallenge = document.getElementById("addChallenge");
+	if (!game.challenges[what].filter()){
+		document.getElementById("specificChallengeDescription").innerHTML = "You will unlock this challenge once you " + game.challenges[what].unlockString;
+		game.global.selectedChallenge = "";
+		document.getElementById("flagMustRestart").style.display = "none";
+		if (addChallenge !== null) addChallenge.innerHTML = "";
+		return;
+	}
+	
 	if (what === 0){
 		game.global.selectedChallenge = "";
 		document.getElementById("specificChallengeDescription").innerHTML = "";
@@ -548,6 +588,7 @@ function viewPortalUpgrades() {
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(parseInt(game.global.heliumLeftover, 10)) + '</span> Helium Left Over';
 	document.getElementById("portalStory").innerHTML = "These are all of your perks! You can reset them once per run.";
 	document.getElementById("totalHeliumEarned").innerHTML = prettify(parseInt(game.global.totalHeliumEarned, 10));
+	document.getElementById("totalPortals").innerHTML = game.global.totalPortals;
 	document.getElementById("cancelPortalBtn").innerHTML = "Cancel";
 	document.getElementById("activatePortalBtn").style.display = "none";
 	if (game.global.canRespecPerks) {
@@ -626,6 +667,8 @@ function checkOfflineProgress(){
 	if (game.global.lastOfflineProgress > rightNow){
 		game.global.cheater = true;
 		if (typeof Kongregate !== 'undefined') message("It looks like you cheated by setting your clock forward and back again. While I won't penalize anyone for cheating in a single player game, your game will no longer submit high scores, and your Trimps don't respect you as much.", "Notices");
+		game.global.lastOfflineProgress = rightNow;
+		console.log("cheater");
 		return;
 	} 
 	game.global.lastOfflineProgress = rightNow;
@@ -2461,6 +2504,7 @@ function nextWorld() {
 function fight(makeUp) {
 	var randomText;
     if (game.global.soldierHealth <= 0) {
+		game.stats.trimpsKilled.value += game.resources.trimps.maxSoldiers;
         var s = (game.resources.trimps.maxSoldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
         message(game.resources.trimps.maxSoldiers + " Trimp" + s + "just " + randomText + ".", "Combat");
@@ -2481,6 +2525,7 @@ function fight(makeUp) {
         cellElem = document.getElementById("cell" + cellNum);
     }
     if (cell.health <= 0) {
+		game.stats.battlesWon.value++;
 		randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
 		var killedText = "You " + randomText + " a " + cell.name;
 		if (game.global.challengeActive == "Coordinate") killedText += " group";
@@ -2520,6 +2565,7 @@ function fight(makeUp) {
         }
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
+			game.stats.mapsCleared.value++;
 			if (getCurrentMapObject().level == game.global.world && game.global.mapBonus < 10){
 				game.global.mapBonus += 1;
 			}
@@ -2541,7 +2587,10 @@ function fight(makeUp) {
 				return;
 			}
 		}
-        if (cellNum == 99) nextWorld();
+        if (cellNum == 99) {
+			nextWorld();
+			game.stats.zonesCleared.value++;
+		}
         battle(true);
         return;
     }
@@ -2725,6 +2774,7 @@ function autoTrap() {
 }
 
 function planetBreaker(){
+	game.stats.planetsBroken.value++;
 	game.global.brokenPlanet = true;
 	document.getElementById("wrapper").style.background = "url(css/bg2_vert.png) center repeat-y";
 	document.getElementById("extraGridInfoTitle").innerHTML = "The Improbability";
@@ -3302,6 +3352,14 @@ function costUpdatesTimeout() {
 function gameTimeout() {
 	var now = new Date().getTime();
 	//4432
+	if ((now - game.global.start - game.global.time) > 1800000){
+		checkOfflineProgress();
+		game.global.start = now;
+		game.global.time = 0;
+		game.global.lastOnline = now;
+		setTimeout(gameTimeout(), (1000 / game.settings.speed));
+		return;
+	}
 	game.global.lastOnline = now;
     var tick = 1000 / game.settings.speed;
     game.global.time += tick;

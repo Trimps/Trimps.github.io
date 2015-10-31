@@ -772,6 +772,7 @@ function resetGame(keepPortal) {
 	var options = game.options;
 	var prison;
 	var frugal;
+	var stats;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -785,6 +786,7 @@ function resetGame(keepPortal) {
 		prison = game.global.prisonClear;
 		frugal = game.global.frugalDone;
 		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
+		stats = game.stats;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 	}
 	game = null;
@@ -806,6 +808,7 @@ function resetGame(keepPortal) {
 		game.global.totalHeliumEarned = totalHeliumEarned;
 		game.global.prisonClear = prison;
 		game.global.frugalDone = frugal;
+		game.stats = stats;
 
 		if (sLevel >= 1) applyS1();
 		if (sLevel >= 2) applyS2();
