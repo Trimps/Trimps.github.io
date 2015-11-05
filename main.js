@@ -94,6 +94,7 @@ function save(exportThis) {
 	for (var itemF in saveGame.challenges){
 		var challenge = saveGame.challenges[itemF];
 		delete challenge.description;
+		delete challenge.unlockString;
 	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
@@ -445,7 +446,7 @@ function displayChallenges() {
 	var challengeCount = 0;
 	game.global.selectedChallenge = "";
 	var challengesHere = document.getElementById("challengesHere");
-	document.getElementById("specificChallengeDescription").innerHTML = "";
+	document.getElementById("specificChallengeDescription").innerHTML = "<br/><br/><br/>Click a challenge below to learn more about and/or run it!";
 	challengesHere.innerHTML = '<div class="noselect pointer challengeThing thing" id="challenge0" onclick="selectChallenge(0)"><span class="thingName">None</span></div>';
 	var firstFail = false;
 	var extraClass = "";
@@ -467,13 +468,14 @@ function displayChallenges() {
 				if (game.global.sLevel == 3) done = true;
 			}
 			else if (game.global.sLevel >= 1 && game.global.highestLevelCleared >= 49){
-				name = "Scientist II";
+				name = (thisFail) ? "Scientist III" : "Scientist II";
 				if (game.global.sLevel == 2) done = true;
 			}
-			else
-			done = true;
+			else if (thisFail) name = "Scientist II";
+			else done = true;			
 		}
 		else if (what == "Frugal") done = game.global.frugalDone;
+		else if (what == "Slow") done = game.global.slowDone;
 		done = (done) ? "finishedChallenge" : "";
 		if (thisFail) done = "nextChallenge";
 		if (!name) name = what;
@@ -487,21 +489,24 @@ function selectChallenge(what) {
 	displayChallenges();
 	document.getElementById("challenge" + what).style.border = "1px solid red";
 	var addChallenge = document.getElementById("addChallenge");
+	if (what === 0){
+		game.global.selectedChallenge = "";
+		document.getElementById("specificChallengeDescription").innerHTML = "<br/><br/><br/>Click a challenge below to learn more about and/or run it!";
+		document.getElementById("flagMustRestart").style.display = "none";
+		if (addChallenge !== null) addChallenge.innerHTML = "";
+		return;
+	}
+
 	if (!game.challenges[what].filter()){
-		document.getElementById("specificChallengeDescription").innerHTML = "You will unlock this challenge once you " + game.challenges[what].unlockString;
+		var unlockString = (typeof game.challenges[what].unlockString === 'function') ? game.challenges[what].unlockString() : game.challenges[what].unlockString;
+		document.getElementById("specificChallengeDescription").innerHTML = "You will unlock this challenge once you " + unlockString;
 		game.global.selectedChallenge = "";
 		document.getElementById("flagMustRestart").style.display = "none";
 		if (addChallenge !== null) addChallenge.innerHTML = "";
 		return;
 	}
 	
-	if (what === 0){
-		game.global.selectedChallenge = "";
-		document.getElementById("specificChallengeDescription").innerHTML = "";
-		document.getElementById("flagMustRestart").style.display = "none";
-		if (addChallenge !== null) addChallenge.innerHTML = "";
-		return;
-	}
+
 	var desc = game.challenges[what].description;
 	desc += "<b>";
 	if (game.portal[game.challenges[what].unlocks]) desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
@@ -1135,9 +1140,9 @@ function gather() {
     }
 }
 
-function calculateTimeToMax(resource, perSec) {
+function calculateTimeToMax(resource, perSec, toNumber) {
 	if (perSec <= 0) return "";
-	var remaining = ((resource.max * (1 + game.portal.Packrat.modifier * game.portal.Packrat.level))) - resource.owned;
+	var remaining = (toNumber > 0) ? toNumber : ((resource.max * (1 + game.portal.Packrat.modifier * game.portal.Packrat.level))) - resource.owned;
 	if (remaining <= 0) return "";
 	var toFill = Math.floor(remaining / perSec);
 	var years = Math.floor(toFill / 31536000);
@@ -1222,8 +1227,21 @@ function canAffordBuilding(what, take, buildCostString, isEquipment){
 			else return false;
 		}
 		if (buildCostString) {
-			var percent = (game.resources[costItem].owned > 0) ? prettify(((price / game.resources[costItem].owned) * 100).toFixed(1)) : 0;
-			percent = "(" + percent + "%)";
+			var percent;
+			if (color == "red"){
+				var thisPs = getPsString(costItem, true);
+				if (thisPs > 0)
+				{
+					var test = price - game.resources[costItem].owned;
+					percent = calculateTimeToMax(null, thisPs, (price - game.resources[costItem].owned));		
+					percent = "(" + percent + ")";
+				}
+				else percent = "(Infinity)";
+			}
+			else{
+				percent = (game.resources[costItem].owned > 0) ? prettify(((price / game.resources[costItem].owned) * 100).toFixed(1)) : 0;
+				percent = "(" + percent + "%)";
+			}
 			costString += '<span class="' + color + '">' + costItem + ':&nbsp;' + prettify(price) + '&nbsp;' + percent + '</span>, ';
 			
 		}
@@ -1470,8 +1488,21 @@ function checkJobItem(what, take, costItem, amtOnly, toBuy) {
 	else
 		price = cost * toBuy;
     if (amtOnly) {
-		var percent = (game.resources[costItem].owned > 0) ? prettify(((price / game.resources[costItem].owned) * 100).toFixed(1)) : 0;
-		return prettify(price) + "&nbsp;(" + percent + "%)";
+		var percent;
+		if (game.resources[costItem].owned < price){
+			var thisPs = getPsString(costItem, true);
+			if (thisPs > 0)
+			{
+				percent = calculateTimeToMax(null, thisPs, (price - game.resources[costItem].owned));		
+				percent = "(" + percent + ")";
+			}
+			else percent = "(Infinity)";
+		}
+		else{
+			percent = (game.resources[costItem].owned > 0) ? prettify(((price / game.resources[costItem].owned) * 100).toFixed(1)) : 0;
+			percent = "(" + percent + "%)";
+		}
+		return prettify(price) + "&nbsp;" + percent;
 	}
     if (take) {
         game.resources[costItem].owned -= price;
@@ -2306,7 +2337,7 @@ function startFight() {
 	}
 	if (game.global.brokenPlanet && !game.global.mapsActive)
 		badName += ' <span class="badge badBadge" title="20% of this Bad Guy\'s damage pierces through block"><span class="glyphicon glyphicon-tint"></span></span>';	
-	if (game.badGuys[cell.name].fast && game.global.challengeActive != "Coordinate")
+	if (game.global.challengeActive == "Slow" || (game.badGuys[cell.name].fast && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom"))
 		badName += ' <span class="badge badBadge" title="This Bad Guy is fast and attacks first"><span class="glyphicon glyphicon-forward"></span></span>';
 	if (game.global.challengeActive == "Electricity"){
 		badName += ' <span class="badge badBadge" title="This Bad Guy is electric and stacks a debuff on your Trimps"><span class="icomoon icon-power-cord"></span></span>';
@@ -2323,6 +2354,10 @@ function startFight() {
         }
         cell.maxHealth = cell.health;
     }
+	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
+		cell.attack = Math.floor(game.global.getEnemyAttack(cell.level, cell.name) * Math.pow(1.25, cell.nomStacks));
+		updateNomStacks(cell.nomStacks);
+	}
     if (game.global.soldierHealth <= 0) {
 		if (game.portal.Anticipation.level){
 			game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
@@ -2503,15 +2538,6 @@ function nextWorld() {
 
 function fight(makeUp) {
 	var randomText;
-    if (game.global.soldierHealth <= 0) {
-		game.stats.trimpsKilled.value += game.resources.trimps.maxSoldiers;
-        var s = (game.resources.trimps.maxSoldiers > 1) ? "s " : " ";
-		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
-        message(game.resources.trimps.maxSoldiers + " Trimp" + s + "just " + randomText + ".", "Combat");
-        game.global.fighting = false;
-        game.resources.trimps.soldiers = 0;
-        return;
-    }
     var cellNum;
     var cell;
     var cellElem;
@@ -2524,10 +2550,29 @@ function fight(makeUp) {
         cell = game.global.gridArray[cellNum];
         cellElem = document.getElementById("cell" + cellNum);
     }
+    if (game.global.soldierHealth <= 0) {
+		game.stats.trimpsKilled.value += game.resources.trimps.maxSoldiers;
+        var s = (game.resources.trimps.maxSoldiers > 1) ? "s " : " ";
+		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
+        message(game.resources.trimps.maxSoldiers + " Trimp" + s + "just " + randomText + ".", "Combat");
+        game.global.fighting = false;
+        game.resources.trimps.soldiers = 0;
+		if (game.global.challengeActive == "Nom") {
+			cell.nomStacks = (cell.nomStacks) ? cell.nomStacks + 1 : 1;
+			if (cell.nomStacks > 100) cell.nomStacks = 100;
+			updateNomStacks(cell.nomStacks);
+			cell.health += (cell.maxHealth * 0.05);
+			if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
+			updateBadBar(cell);
+		}
+        return;
+    }
     if (cell.health <= 0) {
 		game.stats.battlesWon.value++;
 		randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
-		var killedText = "You " + randomText + " a " + cell.name;
+		var firstChar = cell.name.charAt(0);
+		var aAn = (firstChar == "A" || firstChar == "E" || firstChar == "I" || firstChar == "O" || firstChar == "U") ? " an " : " a ";
+		var killedText = "You " + randomText + aAn + cell.name;
 		if (game.global.challengeActive == "Coordinate") killedText += " group";
 		killedText += "!";
         message(killedText, "Combat");
@@ -2625,7 +2670,7 @@ function fight(makeUp) {
 	}
 	var attacked = false;
 	var wasAttacked = false;
-    if (game.badGuys[cell.name].fast && game.global.challengeActive != "Coordinate") {
+    if (game.global.challengeActive == "Slow" || (game.badGuys[cell.name].fast && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom")) {
         game.global.soldierHealth -= attackAndBlock;
 		wasAttacked = true;
         if (game.global.soldierHealth > 0) {
@@ -2642,6 +2687,7 @@ function fight(makeUp) {
     }
 	else {
         cell.health -= trimpAttack;
+		
 		attacked = true;
         if (cell.health > 0) {
 			game.global.soldierHealth -= attackAndBlock;
@@ -2661,6 +2707,10 @@ function fight(makeUp) {
 	if (game.global.challengeActive == "Electricity" && wasAttacked){
 		game.global.radioStacks++;
 		updateRadioStacks();
+	}
+	if (game.global.challengeActive == "Nom" && attacked){
+		game.global.soldierHealth -= game.global.soldierHealthMax * 0.05;
+		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
 	}
 	if (gotCrit) critSpan.innerHTML = "Crit!";
     if (cell.health <= 0) game.global.battleCounter = 800;
@@ -2699,6 +2749,14 @@ function updateTitimp(){
 	}
 		var number = Math.floor(game.global.titimpLeft);
 		elem.innerHTML = '<span class="badge antiBadge" title="Your Trimps are dealing double damage, thanks to the Titimp!">' + number + '<span class="icomoon icon-hammer"></span></span>';
+}
+
+function updateNomStacks(number){
+	var elem = document.getElementById('nomStack');
+	if (elem == null){
+		document.getElementById('badGuyName').innerHTML += ' <span class="badge badBadge" title="This Bad Guy is nice and plump from eating Trimps. Increases attack damage by 25% per stack"><span id="nomStack">' + number + '</span><span class="glyphicon glyphicon-scale"></span></span>';
+	}
+	else elem.innerHTML = number;
 }
 
 /* function heal() {
@@ -3352,7 +3410,7 @@ function costUpdatesTimeout() {
 function gameTimeout() {
 	var now = new Date().getTime();
 	//4432
-	if ((now - game.global.start - game.global.time) > 1800000){
+	if ((now - game.global.start - game.global.time) > 3600000){
 		checkOfflineProgress();
 		game.global.start = now;
 		game.global.time = 0;

@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.51,
+		version: 2.6,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -106,6 +106,7 @@ var toReturn = {
 		lowestGen: -1,
 		titimpLeft: 0,
 		mapBonus: 0,
+		slowDone: false,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -487,7 +488,9 @@ var toReturn = {
 			completed: false,
 			heldBooks: 0,
 			filter: function () {
-				return (game.global.world >= 40 || game.global.highestLevelCleared >= 39);
+				if (game.global.sLevel == 0) return (game.global.highestLevelCleared >= 39);
+				else if (game.global.sLevel == 1) return (game.global.highestLevelCleared >= 49);
+				else if (game.global.sLevel >= 2) return (game.global.highestLevelCleared >= 89);
 			},
 			abandon: function () {
 				game.worldUnlocks.Scientist.fire();
@@ -504,7 +507,11 @@ var toReturn = {
 				document.getElementById("scienceCollectBtn").style.display = "none";
 			},
 			fireAbandon: false,
-			unlockString: "reach Zone 40"
+			unlockString: function () {
+				if (game.global.sLevel == 0) return "reach Zone 40";
+				else if (game.global.sLevel == 1) return "reach Zone 50";
+				else if (game.global.sLevel >= 2) return "reach Zone 90";
+			}
 		},
 		Trimp: {
 			description: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination, but completing <b>'The Block' (11)</b> will teach you how to keep your Trimps alive for much longer.",
@@ -520,7 +527,7 @@ var toReturn = {
 					unlockUpgrade("Coordination");
 				}
 			},
-			unlockString: "break the planet at Zone 60"
+			unlockString: "reach Zone 60"
 		},
 		Trapper: {
 			description: "Travel to a dimension where Trimps refuse to breed in captivity, teaching yourself new ways to take advantage of situations where breed rate is low. Clearing <b>'Trimple Of Doom' (33)</b> with this challenge active will return your breeding rate to normal.",
@@ -583,6 +590,23 @@ var toReturn = {
 			},
 			unlocks: "Coordinated",
 			unlockString: "reach Zone 120"
+		},
+		Slow: {
+			description: "Legends tell of a dimension inhabited by incredibly fast bad guys, where blueprints exist for a powerful yet long forgotten weapon and piece of armor. All bad guys will attack first in this dimension, but clearing <b>Zone 120</b> with this challenge active will forever-after allow you to create these new pieces of equipment.",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 129);
+			},
+			unlockString: "reach Zone 130"
+		},
+		Nom: {
+			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with double helium for all Blimps and Improbabilities killed. This is repeatable!",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 144);
+			},
+			heldHelium: 0,
+			unlockString: "reach Zone 145"
 		}
 		
 	},
@@ -712,8 +736,8 @@ var toReturn = {
 		w120: "Your stamina is quickly dwindling. Trying to keep up with so many more extra Trimps each zone is beginning to wear you down. You'll need to fight with stronger, smaller groups to succeed.",
 	},
 	
-	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket"],
-	badGuyDeathTexts: ["slew", "killed", "destroyed"],
+	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over"],
+	badGuyDeathTexts: ["slew", "killed", "destroyed", "extinguished", "liquidated", "vaporized", "demolished", "ruined", "wrecked", "obliterated"],
 	
 	settings: {
 		speed: 10,
@@ -920,12 +944,38 @@ var toReturn = {
 			health: 35,
 			healthCalculated: 35,
 			prestige: 1
+		},
+		Arbalest: {
+			locked: 1,
+			tooltip: "A powerful ranged weapon. Your Trimps can do some damage with this sucker. Adds $attackCalculated$ attack to each soldier per level",
+			modifier: 1,
+			level: 0,
+			cost: {
+				metal: [200, 1.2]
+			},
+			oc: 200,
+			attack: 6,
+			attackCalculated: 6,
+			prestige: 1
+		},
+		Gambeson: {
+			locked: 1,
+			tooltip: "A cozy and thick padded jacket that goes under the breastplate. Your Trimps think they're great! Adds $healthCalculated$ health to each soldier per level.",
+			modifier: 1,
+			level: 0,
+			cost: {
+				metal: [250, 1.2]
+			},
+			oc: 200,
+			health: 25,
+			healthCalculated: 25,
+			prestige: 1
 		}
 	},
 
 	badGuys: {
 		Pumpkimp: {
-			location: "All",
+			location: "None",
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
@@ -1048,6 +1098,7 @@ var toReturn = {
 					game.global.totalHeliumEarned += amt;
 					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story");
 					if (game.global.challengeActive == "Electricity" && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
+					else if (game.global.challengeActive == "Nom" && game.global.world <= 149) game.challenges.Nom.heldHelium += amt;
 				}
 			}
 		},
@@ -1122,6 +1173,23 @@ var toReturn = {
 				game.global.totalHeliumEarned += amt;
 				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story");
 				if (game.global.challengeActive == "Electricity" && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
+				else if (game.global.challengeActive == "Nom" && game.global.world <= 144) game.challenges.Nom.heldHelium += amt;
+				if (game.global.challengeActive == "Slow" && game.global.world == 120){
+					message("You have completed the Slow challenge! You have found the patterns for the Gambeson and the Arbalest!", "Notices");
+					game.global.challengeActive = "";
+					if (!game.global.slowDone){
+						unlockEquipment("Arbalest");
+						unlockEquipment("Gambeson");
+					}
+					game.global.slowDone = true;
+				}
+				else if (game.global.challengeActive == "Nom" && game.global.world == 145){
+					message("You have completed the Nom challenge! You have been rewarded with " + prettify(game.challenges.Nom.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
+					game.resources.helium.owned += game.challenges.Nom.heldHelium;
+					game.global.totalHeliumEarned += game.challenges.Nom.heldHelium;
+					game.challenges.Nom.heldHelium = 0;
+					game.global.challengeActive = "";
+				}
 			}
 		},
 		//Exotics
@@ -1633,6 +1701,36 @@ var toReturn = {
 			last: 5,
 			fire: function () {
 				unlockUpgrade("Bestplate");
+			}
+		},
+		Harmbalest: {
+			world: -1,
+			message: "You found a book that will teach you how to upgrade your Arbalest!",
+			title: "Harmbalest",
+			level: "last",
+			specialFilter: function () {
+				return (game.equipment.Arbalest.locked == 0);
+			},
+			icon: "book",
+			prestige: true,
+			last: 5,
+			fire: function () {
+				unlockUpgrade("Harmbalest");
+			}
+		},
+		GambesOP: {
+			world: -1,
+			message: "You found a book that will teach you how to upgrade your Gambeson!",
+			title: "GambesOP",
+			level: "last",
+			specialFilter: function () {
+				return (game.equipment.Gambeson.locked == 0);
+			},
+			icon: "book",
+			prestige: true,
+			last: 5,
+			fire: function () {
+				unlockUpgrade("GambesOP");
 			}
 		},
 		TheBlock: {
@@ -2895,6 +2993,10 @@ var toReturn = {
 				drawGrid();
 				game.global.BattleClock = -1;
 				fadeIn("metal", 10);
+				if (game.global.slowDone) {
+					unlockEquipment("Gambeson");
+					unlockEquipment("Arbalest");
+				}
 			}
 		},
 		Bloodlust: { //1
@@ -3426,6 +3528,38 @@ var toReturn = {
 			prestiges: "Breastplate",
 			fire: function () {
 				prestigeEquipment("Breastplate");
+			}
+		},
+		Harmbalest: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "Researching this will prestige your arbalest. This will bring your arbalest to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of attack given. @",
+			done: 0,
+			cost: {
+				resources: {
+					science: [1950, 1.7],
+					gems: [810, 3]
+				}
+			},
+			prestiges: "Arbalest",
+			fire: function () {
+				prestigeEquipment("Arbalest");
+			}
+		},
+		GambesOP: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "Researching this will prestige your gambeson. This will bring your gambeson to level 1 and vastly increase the cost of further upgrades, but will vastly increase the amount of health given. @",
+			done: 0,
+			cost: {
+				resources: {
+					science: [2000, 1.7],
+					gems: [820, 3]
+				}
+			},
+			prestiges: "Gambeson",
+			fire: function () {
+				prestigeEquipment("Gambeson");
 			}
 		},
 	//Repeatable upgrades, in order of frequency (rarest first)
