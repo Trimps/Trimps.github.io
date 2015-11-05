@@ -487,10 +487,13 @@ var toReturn = {
 			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with * each time you use your portal.",
 			completed: false,
 			heldBooks: 0,
-			filter: function () {
+			filter: function (fromCheck) {
 				if (game.global.sLevel == 0) return (game.global.highestLevelCleared >= 39);
 				else if (game.global.sLevel == 1) return (game.global.highestLevelCleared >= 49);
-				else if (game.global.sLevel >= 2) return (game.global.highestLevelCleared >= 89);
+				else if (game.global.sLevel >= 2) {
+					if (game.global.highestLevelCleared > 69 && game.global.prisonClear) return (game.global.highestLevelCleared >= 89);
+					else return true;
+				}
 			},
 			abandon: function () {
 				game.worldUnlocks.Scientist.fire();

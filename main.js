@@ -454,7 +454,7 @@ function displayChallenges() {
 		var thisFail = false;
 		var name = "";
 		var challenge = game.challenges[what];
-		if (!challenge.filter()) {
+		if (!challenge.filter(true)) {
 			if (firstFail) continue;
 			firstFail = true;
 			thisFail = true;
