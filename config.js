@@ -969,7 +969,7 @@ var toReturn = {
 			cost: {
 				metal: [250, 1.2]
 			},
-			oc: 200,
+			oc: 250,
 			health: 25,
 			healthCalculated: 25,
 			prestige: 1
