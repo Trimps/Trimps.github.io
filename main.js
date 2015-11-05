@@ -3464,18 +3464,22 @@ document.addEventListener('keydown', function(e) {
 			break;
 		case 49:
 		case 88:
+		case 97:
 			if (game.upgrades.Formations.done && !game.global.lockTooltip) setFormation('0');
 			break;
 		case 50:
 		case 72:
+		case 98:
 			if (game.upgrades.Formations.done && !game.global.lockTooltip) setFormation('1');
 			break;
 		case 51:
 		case 68:
+		case 99:
 			if (game.upgrades.Dominance.done && !game.global.lockTooltip) setFormation('2');
 			break;
 		case 52:
 		case 66:
+		case 100:
 			if (game.upgrades.Barrier.done && !game.global.lockTooltip) setFormation('3');
 			break;
 		case 13:
