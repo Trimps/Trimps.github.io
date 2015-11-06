@@ -3480,6 +3480,7 @@ function updatePortalTimer() {
 }
 
 var shiftPressed = false;
+var ctrlPressed = true;
 // X = 88, h = 72, d = 68, b = 66
 document.addEventListener('keydown', function(e) {
 	switch(e.keyCode){
@@ -3489,25 +3490,31 @@ document.addEventListener('keydown', function(e) {
 		case 16:
 			shiftPressed = true;
 			break;
+		case 17:
+		case 224: 
+		case 91:
+		case 93:
+			ctrlPressed = true;
+			break;
 		case 49:
 		case 88:
 		case 97:
-			if (game.upgrades.Formations.done && !game.global.lockTooltip) setFormation('0');
+			if (game.upgrades.Formations.done && !game.global.lockTooltip && !ctrlPressed) setFormation('0');
 			break;
 		case 50:
 		case 72:
 		case 98:
-			if (game.upgrades.Formations.done && !game.global.lockTooltip) setFormation('1');
+			if (game.upgrades.Formations.done && !game.global.lockTooltip && !ctrlPressed) setFormation('1');
 			break;
 		case 51:
 		case 68:
 		case 99:
-			if (game.upgrades.Dominance.done && !game.global.lockTooltip) setFormation('2');
+			if (game.upgrades.Dominance.done && !game.global.lockTooltip && !ctrlPressed) setFormation('2');
 			break;
 		case 52:
 		case 66:
 		case 100:
-			if (game.upgrades.Barrier.done && !game.global.lockTooltip) setFormation('3');
+			if (game.upgrades.Barrier.done && !game.global.lockTooltip && !ctrlPressed) setFormation('3');
 			break;
 		case 13:
 			if (customUp == 1) numTab(5, false);
@@ -3517,8 +3524,10 @@ document.addEventListener('keydown', function(e) {
 document.addEventListener('keyup', function(e) {
 	if (e.keyCode == 16){
 		if (game.options.menu.tooltips.enabled == false) cancelTooltip();
-		shiftPressed = false;
-		
+		shiftPressed = false;	
+	}
+	if (e.keyCode == 17 || e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93){
+		ctrlPressed = false;
 	}
 
 }, true);
