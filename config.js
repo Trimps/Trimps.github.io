@@ -666,6 +666,13 @@ var toReturn = {
 				return Math.floor(game.resources.helium.owned / timeThisPortal);
 			}
 		},
+		bestHeliumHour: {
+			title: "Best He/Hour all Runs",
+			display: function () {
+				return (this.value > 0);
+			},
+			value: 0
+		},
 		planetsBroken: {
 			title: "Planets Broken",
 			display: function () {

@@ -893,6 +893,9 @@ function resetGame(keepPortal) {
 		frugal = game.global.frugalDone;
 		slow = game.global.slowDone;
 		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
+		if (game.stats.bestHeliumHour.value < game.stats.heliumHour.value()){
+			game.stats.bestHeliumHour.value = game.stats.heliumHour.value();
+		}
 		stats = game.stats;
 		repeat = game.global.repeatMap;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
