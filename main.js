@@ -3453,6 +3453,7 @@ function gameTimeout() {
         gameLoop(true, now);
         dif -= tick;
         game.global.time += tick;
+		ctrlPressed = false;
     }
     gameLoop(null, now);
     updateLabels();
