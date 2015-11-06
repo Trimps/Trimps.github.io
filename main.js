@@ -27,6 +27,11 @@
 if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== null) document.getElementById("boneBtn").style.display = "none";
 document.getElementById("versionNumber").innerHTML = game.global.version;
 
+var sessionMapValues = {
+	loot: 0,
+	difficulty: 0,
+	size: 0
+}
 
 function autoSave() {
     if (game.options.menu.autoSave.enabled) save();
@@ -1740,6 +1745,8 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
     unlockMap(game.global.mapsOwnedArray.length - 1);
 }
 
+
+
 function getRandomMapValue(what) { //what can be size, difficulty, or loot for now
     var amt = game.mapConfig[what + "Base"];
     var range = game.mapConfig[what + "Range"];
@@ -1750,10 +1757,12 @@ function getRandomMapValue(what) { //what can be size, difficulty, or loot for n
 		var minMax = getMapMinMax(what, advValue);
 		min = minMax[0];
 		max = minMax[1];
+		sessionMapValues[what] = advValue;
 	}
 	else{
 		min = amt - range;
 		max = amt + range;
+		sessionMapValues[what] = 0;
     }
 	var x = (Math.random() * (max - min) + min);
     x = x.toFixed(3);
@@ -2200,14 +2209,17 @@ function mapsSwitch(updateOnly, fromRecycle) {
     }
 }
 
+
+
 function resetAdvMaps() {
 	document.getElementById("mapLevelInput").value = game.global.world;
-	var inputs = document.getElementsByClassName("mapInput");
+	var inputs = ["loot", "difficulty", "size"];
 	for (var x = 0; x < inputs.length; x++){
-		inputs[x].value = 0;
+		var thisVal = (sessionMapValues[inputs[x]]) ? sessionMapValues[inputs[x]] : 0;
+		document.getElementById(inputs[x] + "AdvMapsRange").value = thisVal;
+		adjustMap(inputs[x], thisVal);
 	}
 	document.getElementById("biomeAdvMapsSelect").value = "Random";
-	initializeInputText();
 	updateMapCost();
 }
 
@@ -2412,6 +2424,9 @@ function startFight() {
 			var attackTemp = game.resources.trimps.soldiers * game.global.difs.attack * ((game.portal.Power.modifier * game.portal.Power.level) + 1);
 			if (game.global.formation !== 0){
 				attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
+			}
+			if (game.global.titimpLeft > 0) {
+				attackTemp *= 2;
 			}
 			game.global.soldierCurrentAttack += attackTemp;
 			game.global.difs.attack = 0;
@@ -3241,6 +3256,18 @@ function purchaseMisc(what){
 		catch(err){
 			console.debug(err);
 		}
+}
+
+
+function resetOnePortalRewards() {
+	if (game.unlocks.goldMaps) {
+		document.getElementById("mapsPurchaseBtn").style.backgroundColor = "#337ab7";
+		document.getElementById("goldMapsDesc").innerHTML = "All of your current and future maps will gain +100% loot <b>Until your next portal</b>";
+	}
+	if (game.unlocks.quickTrimps) {
+		document.getElementById("trimpsPurchaseBtn").style.backgroundColor = "#337ab7";
+		document.getElementById("quickTrimpsDesc").innerHTML = "All of your Trimps will breed 2x faster <br/><b>Until your next portal</b>";
+	}
 }
 
 function successPurchaseFlavor(){

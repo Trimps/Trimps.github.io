@@ -1,4 +1,7 @@
 /*Top Row*/
+.badge {
+	background-color: #3b3b3b;
+}
 body {
 	background-color: black;
 	overflow-y: hidden;
@@ -647,7 +650,7 @@ overflow-x: hidden;
 }
 
 .battleStatsTitle {
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 .badBadge {

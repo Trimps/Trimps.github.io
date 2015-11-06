@@ -847,6 +847,7 @@ function resetGame(keepPortal) {
 	document.getElementById("goodGuyHealth").innerHTML = "0";
 	document.getElementById("goodGuyHealthMax").innerHTML = "0";
 	document.getElementById("trimpsFighting").innerHTML = "1";
+	resetOnePortalRewards();
 	setFormation(0);
 	hideFormations();
 	hideBones();
