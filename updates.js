@@ -951,6 +951,10 @@ function applyS1(){
 function applyS2(){
 	if (game.global.challengeActive != "Frugal"){
 		var toUnlock = ["Supershield", "Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate"];
+		if (game.global.slowDone){
+			toUnlock.push("Harmbalest");
+			toUnlock.push("GambesOP");
+		}
 		for (var x = 0; x < toUnlock.length; x++){
 			var upgradeToUnlock = game.mapUnlocks[toUnlock[x]];
 			upgradeToUnlock.fire();
