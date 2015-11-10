@@ -660,10 +660,12 @@ var toReturn = {
 			display: function () {
 				return (game.resources.helium.owned > 0);
 			},
-			value: function () {
+			value: function (useTemp) {
 				var timeThisPortal = new Date().getTime() - game.global.lastPortal;
 				timeThisPortal /= 3600000;
-				return Math.floor(game.resources.helium.owned / timeThisPortal);
+				var resToUse = (useTemp) ? game.global.tempHighHelium : game.resources.helium.owned;
+				console.log(resToUse);
+				return Math.floor(resToUse / timeThisPortal);
 			}
 		},
 		bestHeliumHour: {
