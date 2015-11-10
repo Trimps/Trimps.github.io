@@ -664,7 +664,6 @@ var toReturn = {
 				var timeThisPortal = new Date().getTime() - game.global.lastPortal;
 				timeThisPortal /= 3600000;
 				var resToUse = (useTemp) ? game.global.tempHighHelium : game.resources.helium.owned;
-				console.log(resToUse);
 				return Math.floor(resToUse / timeThisPortal);
 			}
 		},
