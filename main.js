@@ -281,8 +281,6 @@ function load(saveString, autoLoad) {
 			else if (typeof statItem.valueTotal !== 'undefined' && typeof statItem.valueTotal !== 'function' && typeof savegame.stats !== 'undefined'){
 				if (typeof savegame.stats[statName] !== 'undefined') {
 					statItem.valueTotal = savegame.stats[statName].value;
-					console.log(statName);
-					console.log(savegame.stats);
 					}
 			}
 		}

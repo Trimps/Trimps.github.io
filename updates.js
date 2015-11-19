@@ -1331,10 +1331,6 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			
 		}
 		psText = prettify(psText);
-					
-
-					
-		
 /*		var color = (psText < 0) ? "red" : "green";
 		if (psText == 0) color = "black"; */
 		var color = "white";
