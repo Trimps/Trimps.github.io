@@ -122,7 +122,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Well Fed"){
-		tooltipText = "That Turkimp was delicious, and you have leftovers. If you gather Food, Wood, or Metal while this buff is active, you can share with your workers to increase their gather speed by 50%";
+		tooltipText = "That Turkimp was delicious, and you have leftovers. If you set yourself to gather Food, Wood, or Metal while this buff is active, you can share with your workers to increase their gather speed by 50%";
 		costText = "";
 		elem.style.top = "0";
 	}
