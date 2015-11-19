@@ -1938,7 +1938,7 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
 	}
 	if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (Math.floor(Math.random() * 100) < 10) ? "Megaskeletimp" : "Skeletimp";} 
 	if (imports.length && !force && (Math.floor(Math.random() * 100) < (imports.length * 3))) return imports[Math.floor(Math.random() * imports.length)];
-	if (!force && canTurkimp) {
+	if (!mapSuffix && !force && canTurkimp) {
 		var chance = .5 * (1 / (100 - 1 - (3 * imports.length)));
 		chance = Math.round(chance * 100000);
 		var roll = Math.floor(Math.random() * 100000);
