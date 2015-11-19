@@ -656,6 +656,9 @@ function getLootBd(what) {
 				amt = avgSec * 5;
 			amt = (amt * .8) + ((amt * .002) * (cell + 1));
 			currentCalc = amt;
+			if (game.global.turkimpTimer > 0 && (game.global.playerGathering == "food" || game.global.playerGathering == "metal" || game.global.playerGathering == "wood")){
+				currentCalc *= 1.166;
+			}
 			textString += "<tr><td class='bdTitle'>Base</td><td></td><td></td><td>" + prettify(amt) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 			amt = game.resources.trimps.realMax() * 0.16;
 			currentCalc *= amt;

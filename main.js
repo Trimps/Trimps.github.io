@@ -1054,6 +1054,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 		if (game.global.world >= 15) tempModifier *= 2;
 		//Whipimp
 		if (game.unlocks.impCount.Whipimp) tempModifier *= Math.pow(1.003, game.unlocks.impCount.Whipimp);
+		if (game.global.turkimpTimer > 0 && (game.global.playerGathering == "food" || game.global.playerGathering == "metal" || game.global.playerGathering == "wood")) tempModifier *= 1.166;
 		//Half of max can work, a little less than third on average are applied to one of these 3 jobs. 0.16 is pretty average.
 		var avgSec = tempModifier * (game.resources.trimps.realMax() * 0.16);
 		//Base is 7 seconds at 1 baseAmt
@@ -3133,6 +3134,12 @@ function simpleSeconds(what, seconds) {
 		job = game.jobs[job];
 		var amt = job.owned * job.modifier * seconds;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		if (game.global.playerGathering == what){		
+			if (game.global.turkimpTimer > 0 && (what == "food" || what == "metal" || what == "wood")){
+				amt *= 1.5;
+			}
+			amt += game.global.playerModifier;
+		}
 		return amt;
 }
 
