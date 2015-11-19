@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.601,
+		version: 2.7,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -107,6 +107,8 @@ var toReturn = {
 		titimpLeft: 0,
 		mapBonus: 0,
 		slowDone: false,
+		turkimpTimer: 0,
+		statsMode: "current",
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -617,23 +619,27 @@ var toReturn = {
 	stats:{
 		trimpsKilled: {
 			title: "Dead Trimps",
-			value: 0
+			value: 0,
+			valueTotal: 0
 		},
 		battlesWon: {
 			title: "Battles Won",
-			value: 0
+			value: 0,
+			valueTotal: 0
 		},
 		mapsCleared: {
 			title: "Maps Cleared",
-			value: 0
+			value: 0,
+			valueTotal: 0
 		},
 		zonesCleared: {
 			title: "Zones Cleared",
-			value: 0
+			value: 0,
+			valueTotal: 0
 		},
 		highestLevel: {
 			title: "Highest Zone",
-			value: function () {
+			valueTotal: function () {
 				return game.global.highestLevelCleared + 1;
 			}
 		},
@@ -642,7 +648,7 @@ var toReturn = {
 			display: function () {
 				return (game.global.totalPortals > 0);
 			},
-			value: function () {
+			valueTotal: function () {
 				return game.global.totalPortals;
 			}
 		},
@@ -651,9 +657,17 @@ var toReturn = {
 			display: function () {
 				return (game.global.totalHeliumEarned > 0);
 			},
-			value: function () {
+			valueTotal: function () {
 				return game.global.totalHeliumEarned;
 			}
+		},
+		spentOnWorms: {
+			title: "Wormholed Helium",
+			display: function () {
+				return ((this.value + this.valueTotal) > 0)
+			},
+			value: 0,
+			valueTotal: 0
 		},
 		heliumHour: {
 			title: "He/Hour this Run",
@@ -670,16 +684,16 @@ var toReturn = {
 		bestHeliumHour: {
 			title: "Best He/Hour all Runs",
 			display: function () {
-				return (this.value > 0);
+				return (this.valueTotal > 0);
 			},
-			value: 0
+			valueTotal: 0
 		},
 		planetsBroken: {
 			title: "Planets Broken",
 			display: function () {
-				return (this.value > 0);
+				return (this.valueTotal > 0);
 			},
-			value: 0
+			valueTotal: 0
 		}
 		
 	},
@@ -740,11 +754,23 @@ var toReturn = {
 		w92: "You hear a huge explosion from the science lab and realize that the brain scan machine will probably never be finished.",
 		w95: "Need some motivation? You can do it! Maybe.",
 		w100: "You stop dead in your tracks. You remember who you came here with, and you remember that you are not happy with Captain Druopitee for sending you here. You know he landed with you. You know the ship is still here. He's here.",
-		w105: "You call a meeting with all of your Trimps to explain the situation. After giving an extremely long, epic, and motivational speech but hearing no reaction from the crowd, you remember that your Trimps have no idea what you're talking about.",
+		w105: "You call a meeting with all of your Trimps to explain the situation. After giving an extremely long, epic, and motivational speech but hearing no reaction from the crowd, you remember that your Trimps cannot understand you. Will you ever learn?",
 		w106: "How long have you been trapped on this planet? Months? Decades? Travelling through time sure screws up your chronological perception.",
 		w109: "Though you have no idea which direction your home planet is, you still believe the ship's GPS could get you home. Maybe Druopitee has the keys. You really want to find him.",
 		w115: "You just remembered what a taco was. You could really use a taco right now.",
-		w120: "Your stamina is quickly dwindling. Trying to keep up with so many more extra Trimps each zone is beginning to wear you down. You'll need to fight with stronger, smaller groups to succeed.",
+		w120: "Your stamina is quickly dwindling. Trying to keep up with so many more extra Trimps each zone is beginning to wear you down. You'll need to practice fighting with stronger, smaller groups to succeed.",
+		w125: "Woah, you have a lot of Trimps right now. You hadn't really stopped to think about just how many individual Trimps you have directly under your control in a while. Neat!",
+		w130: "You decide to sit down and take a breather, when suddenly a Trimp comes waddle-galloping towards you holding a piece of paper. Hurriedly scrawled on the paper is a drawing of a strange weapon and piece of armor, along with numbers that seem to be dimensional coordinates. You would ask where he found it, but you know better by now.",
+		w132: "You can't stop thinking about where that Trimp found the coordinates for the Slow dimension. Why can't whatever is helping you just come out and help you?",
+		w135: "Ugh, your back is getting sore. It seems like travelling back in time does not reverse the ageing process for the traveller. Bummer.",
+		w136: "One of your scientists has informed you that his team was able to successfully create a cure for a non-existent disease. He explains that it's best to be prepared. You sigh heavily.",
+		w137: "One of your scientists has informed you that an outbreak of a new disease was detected in the laboratory. You go to check on your scientists, and it's quite obvious that they're faking it for attention. You sigh heavily.",
+		w138: "You spot another scientist running full speed towards you. He hurriedly informs you that they discovered a new dimension near Zone 35 that is occupied by gigantic Trimps. You sigh heavily.",
+		w139: "Another scientist is coming. You sigh heavily. He says something dumb. You decide to ignore the scientists for a little bit.",
+		w140: "It sure is calm and peaceful now. You watch a Falcimp turn a few circles in the sky. You wouldn't mind having wings, but overall you're pretty happy with your species.",
+		w143: "There's a scientist jumping around trying to get your attention. There's nothing interesting in the sky so you pretend to be fascinated with a rock. The scientist can see you're busy and waits patiently.",
+		w145: "Your Scientists are not making it easy to ignore them. You not-so-calmly ask what they want. One of them explains that they discovered a new dimension with lots of extra helium. You'll probably check it out, but you won't tell them that."
+		
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over"],
@@ -962,11 +988,11 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [200, 1.2]
+				metal: [450, 1.2]
 			},
-			oc: 200,
-			attack: 6,
-			attackCalculated: 6,
+			oc: 450,
+			attack: 15,
+			attackCalculated: 15,
 			prestige: 1
 		},
 		Gambeson: {
@@ -975,16 +1001,27 @@ var toReturn = {
 			modifier: 1,
 			level: 0,
 			cost: {
-				metal: [250, 1.2]
+				metal: [500, 1.2]
 			},
-			oc: 250,
-			health: 25,
-			healthCalculated: 25,
+			oc: 500,
+			health: 60,
+			healthCalculated: 60,
 			prestige: 1
 		}
 	},
 
 	badGuys: {
+		Turkimp: {
+			location: "World",
+			locked: 1,
+			attack: 1,
+			health: 1.6,
+			fast: false,
+			loot: function () {
+				//Happy Thanksgiving and stuff.
+				activateTurkimpPowers();
+			}
+		},
 		Pumpkimp: {
 			location: "None",
 			attack: 0.9,
@@ -1254,7 +1291,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "Grants 0.3% extra max Trimps",
+			dropDesc: "Grants an extra 0.3% of current Trimps",
 			loot: function () {
 				var amt = Math.ceil(game.resources.trimps.max * 0.003);
 				game.resources.trimps.max += amt;
@@ -1280,7 +1317,9 @@ var toReturn = {
 				game.jobs.Scientist.modifier *= 1.003;
 				game.jobs.Dragimp.modifier *= 1.003;
 				game.jobs.Explorer.modifier *= 1.003;
-				message("Seeing the Whipimp fall has caused all of your Trimps to work 0.3% harder!", "Loot", "star", "exotic");
+				var amt = Math.pow(1.003, game.unlocks.impCount.Whipimp);
+				amt = (amt - 1) * 100;
+				message("Seeing the Whipimps fall is causing all of your Trimps to work " + amt.toFixed(2) + "% harder!", "Loot", "star", "exotic");
 				game.unlocks.impCount.Whipimp++;
 			}
 		},
@@ -1294,7 +1333,9 @@ var toReturn = {
 			dropDesc: "Grants 0.3% Trimp breed speed",
 			loot: function () {
 				game.resources.trimps.potency *= 1.003;
-				message("This ground up Venimp increased your Trimps' breeding speed by 0.3%!", "Loot", "glass", "exotic");
+				var amt = Math.pow(1.003, game.unlocks.impCount.Venimp);
+				amt = (amt - 1) * 100;
+				message("The ground up Venimp now increases your Trimps' breed speed by " + amt.toFixed(2) + "%!", "Loot", "glass", "exotic");
 				game.unlocks.impCount.Venimp++;
 			}
 		},
@@ -1385,6 +1426,7 @@ var toReturn = {
 				message("Your Trimps managed to pull 1 perfectly preserved bone from that Skeletimp!", "Loot", "italic");
 				game.global.b++;
 				game.global.lastSkeletimp = new Date().getTime();
+				updateSkeleBtn();
 			}
 		},
 		Megaskeletimp: {
@@ -1398,6 +1440,7 @@ var toReturn = {
 				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic");
 				game.global.b += 2;
 				game.global.lastSkeletimp  = new Date().getTime();
+				updateSkeleBtn();
 			}
 		}
 		

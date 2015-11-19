@@ -33,7 +33,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipUpdateFunction = "";
 		return;
 	}
-	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed) return;
+	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed && what != "Well Fed") return;
 	if (event != "update"){
 		var whatU = what, isItInU = isItIn, eventU = event, textStringU = textString, attachFunctionU = attachFunction, numCheckU = numCheck, renameBtnU = renameBtn, noHideU = noHide;
 		var newFunction = function () {
@@ -84,7 +84,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 									percentOfTotal = calculateTimeToMax(null, thisPs, (price - itemToCheck[item].owned));
 									percentOfTotal = "(" + percentOfTotal + ")";
 								}
-								else percentOfTotal = "(Infinity)"						
+								else percentOfTotal = "(<span class='icomoon icon-infinity'></span>)"						
 							}
 							else {
 								percentOfTotal = (itemToCheck[item].owned > 0) ? prettify(((price / itemToCheck[item].owned) * 100).toFixed(1)) : 0;
@@ -121,12 +121,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "You can respec your perks once per portal. Clicking cancel after clicking this button will not consume your respec.";
 		costText = "";
 	}
-	if (what == "Donate"){
-		tooltipText = "I've spent a lot of hours working on this game, and I would love more than anything to be able to continue adding and expanding. I really enjoy making games, like a lot. Your donation, no matter how small, will help me to be able to make more games, and I will be forever indebted to you! <br/><form style='text-align: center' action='https://www.paypal.com/cgi-bin/webscr' method='post' target='_blank'><input type='hidden' name='cmd' value='_s-xclick'><input type='hidden' name='hosted_button_id' value='MGFEJS3VVJG6U'><input type='image' src='https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif' border='0' name='submit' alt='PayPal - The safer, easier way to pay online!'><img alt='' border='0' src='https://www.paypalobjects.com/en_US/i/scr/pixel.gif' width='1' height='1'></form>";
-		game.global.lockTooltip = true;
-		elem.style.left = "32.5%";
-		elem.style.top = "25%";
-		costText += "<div class='btn btn-info' onclick='unlockTooltip(); tooltip(\"hide\")'>Done</div>";
+	if (what == "Well Fed"){
+		tooltipText = "That Turkimp was delicious, and you have leftovers. If you gather Food, Wood, or Metal while this buff is active, you can share with your workers to increase their gather speed by 50%";
+		costText = "";
+		elem.style.top = "0";
 	}
 	if (what == "Welcome"){
 		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear. Please make sure you regularly back up your save file by using the 'Export' button in the bar below and saving that somewhere safe. I recommend using Chrome or Firefox. <br/><br/> Thank you for playing, and I hope you enjoy the game!";
@@ -403,9 +401,14 @@ function getPsString(what, rawNum) {
 	}
 	//Add player
 	if (game.global.playerGathering == what){
+		if (game.global.turkimpTimer > 0 && (what == "food" || what == "wood" || what == "metal")){
+			currentCalc *= 1.5;
+			textString += "<tr><td class='bdTitle'>Sharing Food</td><td class='bdPercent'>+ 50%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		}
 		var playerStrength = game.global.playerModifier;
 		currentCalc += playerStrength;
 		textString += "<tr><td class='bdTitle'>You</td><td class='bdPercent'>+ " + prettify(playerStrength) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+
 	}
 	if (rawNum) return currentCalc;
 	textString += "</tbody></table>";
@@ -688,7 +691,7 @@ function getLootBd(what) {
 		}
 		//Add map loot bonus	
 		currentCalc = Math.round(currentCalc * map.loot);
-		textString += "<tr><td class='bdTitle'>Map Loot</td><td></td><td></td><td>+ " + prettify(map.loot * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Map Loot</td><td></td><td></td><td>+ " + Math.floor((map.loot  - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.portal.Looting.level){
 		amt = (1 + (game.portal.Looting.level * game.portal.Looting.modifier));
@@ -716,6 +719,7 @@ function swapNotation(updateOnly){
 function prettify(number) {
 	var numberTmp = number;
 	number = Math.round(number * 1000000) / 1000000;
+	if (!isFinite(number)) return "<span class='icomoon icon-infinity'></span>";
 	if (number >= 1000 && number < 10000) return Math.floor(number);
 	if(number === 0)
 	{
@@ -847,6 +851,8 @@ function resetGame(keepPortal) {
 	document.getElementById("goodGuyHealth").innerHTML = "0";
 	document.getElementById("goodGuyHealthMax").innerHTML = "0";
 	document.getElementById("trimpsFighting").innerHTML = "1";
+	document.getElementById("turkimpBuff").style.display = "none";
+	document.getElementById("statsBtnRow").style.display = "block";
 	resetOnePortalRewards();
 	setFormation(0);
 	hideFormations();
@@ -920,6 +926,11 @@ function resetGame(keepPortal) {
 		game.global.prisonClear = prison;
 		game.global.frugalDone = frugal;
 		game.global.slowDone = slow;
+		for (var statItem in stats){
+			statItem = stats[statItem];
+			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined') statItem.valueTotal += statItem.value;
+			if (typeof statItem.value !== 'undefined' && typeof statItem.value !== 'function') statItem.value = 0;
+		}
 		game.stats = stats;
 		game.global.repeatMap = repeat;
 
@@ -1096,7 +1107,7 @@ function numTab (what, p) {
 							break;
 						}
 					}
-					if (base) num = Math.floor(parseFloat(num.split(letters)[0]) * Math.pow(1000, base));
+					if (base) num = Math.round(parseFloat(num.split(letters)[0]) * Math.pow(1000, base));
 				}
 				if (!base) num = parseInt(num);
 			}
@@ -1209,6 +1220,11 @@ function addQueueItem(what) {
 	game.global.nextQueueId++;
 }
 
+function updateSkeleBtn(){
+	document.getElementById("boneBtnContainer").style.display = "block";
+	document.getElementById("boneBtnText").innerHTML = "Trade " + prettify(game.global.b) + " Bones";
+}
+
 //
 //Number updates
 function updateLabels() { //Tried just updating as something changes, but seems to be better to do all at once all the time
@@ -1297,7 +1313,13 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			psText = (jobObj.owned * jobObj.modifier);
 			//portal Motivation
 			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
-			if (game.global.playerGathering == increase) psText += game.global.playerModifier;
+			 
+			if (game.global.playerGathering == increase){
+				if (game.global.turkimpTimer > 0){
+					psText *= 1.5;
+				}
+			psText += game.global.playerModifier;
+		}
 			elem = document.getElementById(increase + "Ps");
 			//Portal Packrat
 			increase = game.resources[increase];

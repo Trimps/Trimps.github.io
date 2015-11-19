@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 2.6</title>
+	<title>Trimps 2.7</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?15" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?16" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -147,7 +147,7 @@
 							</div>
 							<div class="miscDesc">
 								<b>+ <span id="heliumGainedMisc"></span> Helium </b><br/>
-								Automatically gain helium equal to the amount you would receive for reaching your highest zone, and enable your respec if it has already been used this run
+								Automatically gain helium equal to the amount you earned on your best run
 							</div>
 							</div>
 							<div id="mapsMisc">
@@ -286,8 +286,18 @@
 			</div>
 			<div class="col-xs-2" id="trimpsColumn">
 				<div id="trimps" class="playerGather" style="visibility: hidden;">
-					<span id="trimpTitle" class="title">???</span>
-					<br/>
+					<div class="row">
+						<div class="col-xs-3" style="padding-right: 0">
+							<div id="turkimpBuff" style="display: none" onmouseover="tooltip('Well Fed', null, event)" onmouseout="tooltip('hide')">
+								<span class="icomoon icon-spoon-knife"></span><br/><span id="turkimpTime"></span>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="maxCenter">
+								<span id="trimpTitle" class="title">???</span>													
+							</div>
+						</div>
+					</div>
 					<span class="ownedArea pointer noselect bdHover" onclick="getMaxTrimps()"><span id="trimpsOwned">0</span> / <span id="trimpsMax">10</span></span>
 					<br/>
 					<div class="progress resProgress">
@@ -558,9 +568,9 @@
 									Repeat Off
 								</span>
 							</div>
-							<div class="battleSideBtnContainer">
+							<div class="battleSideBtnContainer" style="display: none" id="boneBtnContainer">
 								<span class="btn btn-default fightBtn" id="boneBtnMain" onclick="showBones()">
-									Bone Trader
+									<span id="boneBtnText">Bone Trader</span>
 								</span>
 							</div>
 						</div>
@@ -770,7 +780,18 @@
 		</div>
 	</div>
 	<div id="statsWrapper" style="display: none">
-		<span id="statsTitle">Statistics!</span><br/><br/>
+		<span id="statsTitle">Statistics!</span><br/>
+		<div class="row" id="statsBtnRow">
+			<div class="col-xs-3">
+			</div>
+			<div class="col-xs-3 btn btn-info statToggleBtn" id='totalSelectBtn' onclick='toggleStats("total")'>
+				Total
+			</div>
+			<div class="col-xs-3 btn btn-success statToggleBtn" id="currentSelectBtn" onclick="toggleStats('current')">
+				Current Run
+			</div>
+		</div>
+		<br/>
 		<div class="row" id="statsRow">
 			<div class="col-xs-4" id="statCol1">
 			</div>
@@ -793,9 +814,9 @@
 		<div id="tipCost"></div>
 	</div>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?50"></script>
-	<script type="text/javascript" src="updates.js?50"></script>
-	<script type="text/javascript" src="main.js?50"></script>
+	<script type="text/javascript" src="config.js?51"></script>
+	<script type="text/javascript" src="updates.js?51"></script>
+	<script type="text/javascript" src="main.js?51"></script>
 	
 </body>
 

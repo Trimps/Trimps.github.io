@@ -2,9 +2,75 @@
 <head>
         <title>Updates</title>
 </head>
-<body style="text-align: center; background-color: grey">
-<div style="width: 1020px; display: inline-block; text-align: left; background-color: white; padding: 10px;">
+<style>
+	body {
+		text-align: center; 
+		background-color: #333;
+		color: #333;
+		font-size: 1.2em;
+	}
+	#wrapper {
+		max-width: 1020px; 
+		display: inline-block; 
+		text-align: left; 
+		background-color: white; 
+		padding: 10px;
+		background-color: #fafafa;
+	}
+	.betterList {
+		list-style: none;
+		padding: 0;
+	}
+	.betterList > li {
+		font-weight: bold;
+		font-size: 1.1em;
+		margin-bottom: 16px;
+	}
+	.betterList > ul > li {
+		list-style: disc;
+	}
+	.betterList > ul > li:first-child {
+		font-weight: bold;
+		list-style: none;
+		margin-left: -20px;
+		padding: 5px 0 5px 0;
+		color: #00008B;
+	}
+</style>
+<body>
+<div id="wrapper">
 <span style="font-size: 1.3em; font-weight: bold; display: block; width: 100%; text-align: center">Trimps Updates!</span>
+<ul class="betterList">
+	<li>2.7 - 11/18/15</li>
+	<ul>
+		<li>Content:</li>
+		<li>Turkimps are running wild around the Trimp home world. You'll find one about every other zone. They're tasty.</li>
+		<li>The rewards from the slow challenge have been improved</li>
+		<li>Story messages now go up to 145 (11 new ones)</li>
+		<li>Within the next week, there will be a new late game challenge/perk</li>
+	</ul>
+	<ul>
+		<li>UI / Quality of Life Stuff:</li>
+		<li>Statistics now store for total and for current run! Current run stats will start for your game as soon as you refresh on this patch, and all old stats will be moved to the total tab.</li>
+		<li>Total Helium Earned in stats no longer counts helium spent on Wormholes. A separate stat has been added to see how much you spend on Wormholes.</li>
+		<li>Whipimps and Venimps now display the total amount that they're helping you out by, rather than just saying 0.3%.</li>
+		<li>Bone Trader button now shows how many bones you have</li>
+		<li>Reworked how tooltips handle infinity. It's less obnoxious now</li>
+		<li>Biome is now saved with the other custom map settings</li>
+		<li>Added indicator for how many map bonus stacks you've earned, which is visible while you're inside maps.</li>
+		<li>The Map Chamber zone indicator (the grey box in the top left that shows zone level and stuff) now always shows current zone number and map bonus %.</li>
+		<li>Updated this update log, that counts right?</li>
+	</ul>
+	<ul>
+		<li>Bug Fixes:</li>
+		<li>Titimp now responds properly to purchasing new weapons while he is active</li>
+		<li>The timers in tooltips were off by one second. They now say there's one second left when there's actually one second left</li>
+		<li>'Map Loot' in the loot break down was showing 100% higher than it should have, and is not doing that any more.</li>
+		<li>Bone trader 'Buy Portal' description is now 73% more accurate</li>
+		<li>Fixed floating point error that had infiltrated the custom number box, and would occasionally cause large numbers to be slightly less than intended.</li>
+	</ul>
+</ul>
+
 <span style="font-weight: bold; font-size: 1.1em;">2.601 - 11/6/15</span>
 <ul>
 	<li>Created some more room by the Trimps stats in the battle window. This should prevent buffs from falling in to two lines on smaller resolutions.</li>
