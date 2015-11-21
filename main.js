@@ -1209,9 +1209,9 @@ function calculateTimeToMax(resource, perSec, toNumber) {
 	var days = Math.floor(toFill / 86400) % 365;
 	var hours = Math.floor( toFill / 3600) % 24;
 	var minutes = Math.floor(toFill / 60) % 60;
-	var seconds = toFill % 60;
+	var seconds = (toFill % 60) + 1;
 	if (!isFinite(years)) return "Long Time";
-	if (toFill < 60) return Math.floor(toFill + 1) + " Secs";
+	if (toFill < 60) return Math.floor(seconds) + " Secs";
 	if (toFill < 3600) return minutes + " Mins " + seconds + " Secs";
 	if (toFill < 86400) return hours + " Hours " + minutes + " Mins";
 	if (toFill < 31536000) return days + " Days " + hours + " Hours";
@@ -3106,6 +3106,7 @@ function selectImp(name){
 
 function hideBones() {
 	document.getElementById("boneWrapper").style.display = "none";
+	updateSkeleBtn();
 }
 
 function simpleSeconds(what, seconds) {
@@ -3359,6 +3360,7 @@ function successPurchaseFlavor(){
 
 function updateBones() {
 	document.getElementById("bonesOwned").innerHTML = prettify(game.global.b);
+	updateSkeleBtn();
 }
 
 function boostHe(checkOnly) {

@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.7,
+		version: 2.701,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -1311,6 +1311,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "Grants 0.3% Trimp gather speed",
 			loot: function () {
+				game.unlocks.impCount.Whipimp++;
 				game.jobs.Farmer.modifier *= 1.003;
 				game.jobs.Lumberjack.modifier *= 1.003;
 				game.jobs.Miner.modifier *= 1.003;
@@ -1319,8 +1320,7 @@ var toReturn = {
 				game.jobs.Explorer.modifier *= 1.003;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Whipimp);
 				amt = (amt - 1) * 100;
-				message("Seeing the Whipimps fall is causing all of your Trimps to work " + amt.toFixed(2) + "% harder!", "Loot", "star", "exotic");
-				game.unlocks.impCount.Whipimp++;
+				message("Seeing the Whipimps fall is causing all of your Trimps to work " + amt.toFixed(2) + "% harder!", "Loot", "star", "exotic");			
 			}
 		},
 		Venimp: {
@@ -1332,11 +1332,11 @@ var toReturn = {
 			fast: false,
 			dropDesc: "Grants 0.3% Trimp breed speed",
 			loot: function () {
+				game.unlocks.impCount.Venimp++;
 				game.resources.trimps.potency *= 1.003;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Venimp);
 				amt = (amt - 1) * 100;
-				message("The ground up Venimp now increases your Trimps' breed speed by " + amt.toFixed(2) + "%!", "Loot", "glass", "exotic");
-				game.unlocks.impCount.Venimp++;
+				message("The ground up Venimp now increases your Trimps' breed speed by " + amt.toFixed(2) + "%!", "Loot", "glass", "exotic");			
 			}
 		},
 		Jestimp: {
