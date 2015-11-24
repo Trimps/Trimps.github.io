@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.701,
+		version: 2.71,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -302,6 +302,14 @@ var toReturn = {
 				this.currentSend = newValue;
 			},
 			tooltip: "Use knowledge gained while studying Coordinated Bad Guys to reduce the amount of Trimps required per level of Coordination by 2% <b>of current amount (compounding)</b>, while keeping the stat bonus the same."
+		},
+		Siphonology: {
+			level: 0,
+			locked: true,
+			max: 3,
+			priceBase: 100000,
+			heliumSpent: 0,
+			tooltip: "Use strategies discovered in alternate dimensions to siphon Map Bonus Damage stacks from lower level maps. For each level of Siphonology, you will earn stacks from maps one level lower than your current world. Maximum of 3 levels.",
 		},
 		Anticipation: {
 			level: 0,
@@ -587,6 +595,22 @@ var toReturn = {
 			},
 			unlockString: "reach Zone 100"
 		},
+		Mapocalypse: {
+			description: "Experience a slightly distorted version of the 'Electricity' dimension, to help understand the relationship between maps and the world. Everything will work exactly the same as Electricity, but all maps will have an extra 300% difficulty. Clearing <b>'The Prison' (80)</b> will cause the world to return to normal. You <b>will</b> receive the Helium reward from Electricity.",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 114);
+			},
+			fireAbandon: true,
+			abandon: function () {
+				for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
+					game.global.mapsOwnedArray[x].difficulty = parseFloat(game.global.mapsOwnedArray[x].difficulty) - this.difficultyIncrease;
+				}
+			},
+			unlocks: "Siphonology",
+			unlockString: "reach Zone 115",
+			difficultyIncrease: 3
+		},
 		Coordinate: {
 			description: "Visit a dimension where Bad Guys are Coordinated but never fast, to allow you to study naturally evolved Coordination. Completing <b>'Dimension of Anger' (20)</b> with this challenge active will cause all enemies to lose their Coordination.",
 			completed: false,
@@ -613,6 +637,7 @@ var toReturn = {
 			heldHelium: 0,
 			unlockString: "reach Zone 145"
 		}
+
 		
 	},
 	
@@ -1145,7 +1170,7 @@ var toReturn = {
 					amt = rewardResource("helium", 1, level);
 					game.global.totalHeliumEarned += amt;
 					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story");
-					if (game.global.challengeActive == "Electricity" && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
+					if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
 					else if (game.global.challengeActive == "Nom" && game.global.world <= 149) game.challenges.Nom.heldHelium += amt;
 				}
 			}
@@ -1220,7 +1245,7 @@ var toReturn = {
 				var amt = rewardResource("helium", 5, level);
 				game.global.totalHeliumEarned += amt;
 				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story");
-				if (game.global.challengeActive == "Electricity" && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
+				if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
 				else if (game.global.challengeActive == "Nom" && game.global.world <= 144) game.challenges.Nom.heldHelium += amt;
 				if (game.global.challengeActive == "Slow" && game.global.world == 120){
 					message("You have completed the Slow challenge! You have found the patterns for the Gambeson and the Arbalest!", "Notices");
@@ -1514,8 +1539,13 @@ var toReturn = {
 				message("You have slain the Warden and taken his keys. How weird would it be if they fit in that key hole on the portal?", "Story");
 				game.challenges.Electricity.hasKey = true;
 				game.global.prisonClear++;
-				if (game.global.challengeActive == "Electricity") {
-					message("You have completed the Electricity challenge! You have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
+				if (game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") {
+					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
+					else if (game.global.challengeActive == "Mapocalypse") {
+						message("You have completed the Mapocalypse challenge! You have unlocked the 'Siphonology' Perk, and have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium.", "Notices");
+						game.portal.Siphonology.locked = false;
+						game.challenges.Mapocalypse.abandon();
+					}
 					game.resources.helium.owned += game.challenges.Electricity.heldHelium;
 					game.global.totalHeliumEarned += game.challenges.Electricity.heldHelium;
 					game.challenges.Electricity.heldHelium = 0;
@@ -1796,21 +1826,8 @@ var toReturn = {
 			startAt: 11,
 			canRunOnce: true,
 			fire: function () {
-				game.global.mapsOwned++;
-				game.global.totalMapsEarned++;
-				game.global.mapsOwnedArray.push({
-					id: "map" + game.global.totalMapsEarned,
-					name: "The Block",
-					location: "Block",
-					clears: 0,
-					level: 11,
-					difficulty: 1.1,
-					size: 100,
-					loot: 2,
-					noRecycle: true
-				});
-				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to The Block!", "Notices");
+				createMap(11, "The Block", "Block", 2, 100, 1.101, true, true); 
 			}
 		},
 		TheWall: {
@@ -1822,21 +1839,8 @@ var toReturn = {
 			startAt: 15,
 			canRunOnce: true,
 			fire: function () {
-				game.global.mapsOwned++;
-				game.global.totalMapsEarned++;
-				game.global.mapsOwnedArray.push({
-					id: "map" + game.global.totalMapsEarned,
-					name: "The Wall",
-					location: "Wall",
-					clears: 0,
-					level: 15,
-					difficulty: 1.5,
-					size: 100,
-					loot: 2,
-					noRecycle: true
-				});
-				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to The Wall!", "Loot", "th-large");
+				createMap(15, "The Wall", "Wall", 2, 100, 1.5, true, true); 
 			}
 		},
 		ThePrison: {
@@ -3177,21 +3181,8 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.global.mapsOwned++;
-				game.global.totalMapsEarned++;
-				game.global.mapsOwnedArray.push({
-					id: "map" + game.global.totalMapsEarned,
-					name: "Dimension of Anger",
-					location: "Hell",
-					clears: 0,
-					level: 20,
-					difficulty: 2.5,
-					size: 100,
-					loot: 3,
-					noRecycle: true
-				});
-				unlockMap(game.global.mapsOwnedArray.length - 1);
 				message("You just made a map to the Dimension of Anger! Should be fun!", "Notices");
+				createMap(20, "Dimension of Anger", "Hell", 3, 100, 2.5, true, true); 
 			}
 		},		
 		Gymystic: { //25

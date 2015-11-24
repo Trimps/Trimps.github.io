@@ -803,7 +803,7 @@ function prettifySub(number){
 	return number.substring(0, 4);	
 }
 
-function resetGame(keepPortal) {
+function resetGame(keepPortal) {	
 	document.getElementById("wood").style.visibility = "hidden";
 	document.getElementById("metal").style.visibility = "hidden";
 	document.getElementById("trimps").style.visibility = "hidden";
@@ -856,6 +856,7 @@ function resetGame(keepPortal) {
 	document.getElementById("trimpsFighting").innerHTML = "1";
 	document.getElementById("turkimpBuff").style.display = "none";
 	document.getElementById("statsBtnRow").style.display = "block";
+	document.getElementById("mapsBtn").innerHTML = "Maps";
 	resetOnePortalRewards();
 	setFormation(0);
 	hideFormations();

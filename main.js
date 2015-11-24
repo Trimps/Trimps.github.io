@@ -1782,7 +1782,7 @@ function buyMap() {
 	else message("You can't afford this map! You need " + prettify(cost) + " fragments.", "Notices");
 }
 
-function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeOverride,  difficultyOverride, setNoRecycle) {
+function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeOverride,  difficultyOverride, setNoRecycle, messageOverride) {
     game.global.mapsOwned++;
     game.global.totalMapsEarned++;
     var world = (newLevel > 5 && newLevel <= game.global.world) ? newLevel : game.global.world;
@@ -1793,18 +1793,20 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
 	if (lootOverride && game.unlocks.goldMaps) lootOverride += 1;
 	if (typeof mapName[1] === 'undefined') mapName[1] = "All";
 	if (nameOverride) mapName[0] = nameOverride;
+	var mapDifficulty = (difficultyOverride) ? difficultyOverride : getRandomMapValue("difficulty");
+	if (game.global.challengeActive == "Mapocalypse") mapDifficulty = parseFloat(mapDifficulty) + game.challenges.Mapocalypse.difficultyIncrease;
     game.global.mapsOwnedArray.push({
         id: "map" + game.global.totalMapsEarned,
         name: mapName[0],
 		location: (locationOverride) ? locationOverride : mapName[1],
         clears: 0,
         level: world,
-        difficulty: (difficultyOverride) ? difficultyOverride : getRandomMapValue("difficulty"),
+        difficulty: mapDifficulty,
         size: (sizeOverride) ? sizeOverride : Math.floor(getRandomMapValue("size")),
         loot: (lootOverride) ? lootOverride : lootg,
 		noRecycle: setNoRecycle ? true : false
     });
-    message("You just made " + mapName[0] + "!", "Loot", "th-large");
+    if (!messageOverride) message("You just made " + mapName[0] + "!", "Loot", "th-large");
     unlockMap(game.global.mapsOwnedArray.length - 1);
 }
 
@@ -1887,7 +1889,6 @@ function getMapIndex(mapId) {
 }
 
 var canSkeletimp = false;
-var canTurkimp = false;
 
 function buildGrid() {
     var world = game.global.world;
@@ -1901,7 +1902,6 @@ function buildGrid() {
 		}
 	}
 	canSkeletimp = false;
-	canTurkimp = true;
 	if ((new Date().getTime() - game.global.lastSkeletimp) >= 2700000) canSkeletimp = true;
     for (var i = 0; i < 100; i++) {
         array.push({
@@ -1939,12 +1939,11 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
 	}
 	if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (Math.floor(Math.random() * 100) < 10) ? "Megaskeletimp" : "Skeletimp";} 
 	if (imports.length && !force && (Math.floor(Math.random() * 100) < (imports.length * 3))) return imports[Math.floor(Math.random() * imports.length)];
-	if (!mapSuffix && !force && canTurkimp) {
-		var chance = .5 * (1 / (100 - 1 - (3 * imports.length)));
+	if (!mapSuffix && !force) {
+		var chance = .7 * (1 / (100 - 1 - (3 * imports.length)));
 		chance = Math.round(chance * 100000);
 		var roll = Math.floor(Math.random() * 100000);
 		if (roll < chance) {
-			canTurkimp = false;
 			return "Turkimp";
 		}
 	}
@@ -2265,7 +2264,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("preMaps").style.display = "none";
         document.getElementById("mapGrid").style.display = "block";
 		var btnText = "Maps";
-		if (game.global.mapBonus > 0 && currentMapObj.level == game.global.world) btnText += " (" + game.global.mapBonus + ")";
+		if (game.global.mapBonus > 0) btnText += " (" + game.global.mapBonus + ")";
         document.getElementById("mapsBtn").innerHTML = btnText;
         document.getElementById("worldNumber").innerHTML = "</br>Lv: " + currentMapObj.level;
         document.getElementById("worldName").innerHTML = currentMapObj.name;
@@ -2431,7 +2430,7 @@ function startFight() {
 		badName += ' <span class="badge badBadge" title="20% of this Bad Guy\'s damage pierces through block"><span class="glyphicon glyphicon-tint"></span></span>';	
 	if (game.global.challengeActive == "Slow" || (game.badGuys[cell.name].fast && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom"))
 		badName += ' <span class="badge badBadge" title="This Bad Guy is fast and attacks first"><span class="glyphicon glyphicon-forward"></span></span>';
-	if (game.global.challengeActive == "Electricity"){
+	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")){
 		badName += ' <span class="badge badBadge" title="This Bad Guy is electric and stacks a debuff on your Trimps"><span class="icomoon icon-power-cord"></span></span>';
 	}
 	document.getElementById("badGuyName").innerHTML = badName;
@@ -2457,7 +2456,7 @@ function startFight() {
 			game.global.lastBreedTime = 0;
 			updateAntiStacks();
 		}
-		if (game.global.challengeActive == "Electricity") {
+		if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")) {
 			game.global.radioStacks = 0;
 			updateRadioStacks();
 		}
@@ -2702,7 +2701,7 @@ function fight(makeUp) {
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
 			game.stats.mapsCleared.value++;
-			if (getCurrentMapObject().level == game.global.world && game.global.mapBonus < 10){
+			if (getCurrentMapObject().level >= (game.global.world - game.portal.Siphonology.level) && game.global.mapBonus < 10){
 				game.global.mapBonus += 1;
 			}
 			if (game.global.repeatMap){
@@ -2792,11 +2791,11 @@ function fight(makeUp) {
 			}
         if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
     }
-	if (game.global.challengeActive == "Electricity" && attacked){
+	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && attacked){
 		game.global.soldierHealth -= game.global.soldierHealthMax * (game.global.radioStacks * 0.1);
 		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
 	}
-	if (game.global.challengeActive == "Electricity" && wasAttacked){
+	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && wasAttacked){
 		game.global.radioStacks++;
 		updateRadioStacks();
 	}
