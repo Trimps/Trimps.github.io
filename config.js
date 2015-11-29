@@ -1454,7 +1454,7 @@ var toReturn = {
 			loot: function (level) {
 				checkAchieve("wallTimed")
 			}
-		},		
+		},
 		Indianimp: {
 			location: "Doom",
 			last: true,
