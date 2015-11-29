@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.71,
+		version: 2.72,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -109,6 +109,7 @@ var toReturn = {
 		slowDone: false,
 		turkimpTimer: 0,
 		statsMode: "current",
+		achievementBonus: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -142,7 +143,7 @@ var toReturn = {
 			amt -= 10;
 			if (world == 1){
 				amt *= 0.35;
-				amt = (amt * 0.20) + ((amt * 0.75) * (level / 100));			
+				amt = (amt * 0.20) + ((amt * 0.75) * (level / 100));
 			}
 			else if (world == 2){
 				amt *= 0.5;
@@ -263,6 +264,11 @@ var toReturn = {
 				enabled: 0,
 				description: "Enables/disables the locking of buildings, jobs, upgrades, and equipment for 1 second after unlocking something new.",
 				titles: ["Not Locking", "Locking"],
+			},
+			achievementPopups: {
+				enabled: 1,
+				description: "Toggle on or off the popups on completing an achievement",
+				titles: ["Not Popping", "Popping"]
 			},
 			mapLoot: {
 				enabled: 0,
@@ -444,7 +450,7 @@ var toReturn = {
 		},
 
 	},
-	
+
 	challenges: {
 		Discipline: {
 			description: "Tweak the portal to bring you back to a universe where Trimps are less disciplined, in order to teach you how to be a better Trimp trainer. Your Trimps' minimum damage will be drastically lower, but their high end damage will be considerably higher. Completing The Dimension Of Anger will cause Trimp damage to return to normal.",
@@ -662,6 +668,14 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		},
+		gemsCollected: {
+			title: "Gems Collected", 
+			value: 0, 
+			valueTotal: 0,
+			display: function () {
+				return ((this.value + this.valueTotal) > 0)
+			}
+		},
 		highestLevel: {
 			title: "Highest Zone",
 			valueTotal: function () {
@@ -723,7 +737,227 @@ var toReturn = {
 		
 	},
 	
-	
+	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20],
+	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545"], //handwritten hex colors make the best hex colors
+	achievements: {
+		zones: {
+			finished: 0,
+			title: "Zone Progress",
+			description: function (number) {
+				return "Complete Zone " + this.breakpoints[number];
+			},
+			evaluate: function () { return (game.global.highestLevelCleared + 1)},
+			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220],
+			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6],
+			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator"],
+			icon: "icomoon icon-compass2",
+			newStuff: []
+		},
+		damage: {
+			finished: 0,
+			title: "Trimp Damage",
+			description: function (number) {
+				return "Reach " + prettify(this.breakpoints[number], null, true) + " displayed damage";
+			},
+			breakpoints: [100, 100000, 1e+11, 1e+17, 1e+23, 1e+29, 1e+35, 1e+41, 1e+47, 1e+53, 1e+60, 1e+67],
+			tiers: [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6],
+			names: ["Lead Trimps", "Silver Trimps", "Golden Trimps", "Copper Trimps", "Platinum Trimps", "Iron Trimps", "Steel Trimps", "Obsidian Trimps", "Cobalt Trimps", "Topaz Trimps", "Diamond Trimps", "Transcendental Trimps"],
+			icon: "icomoon icon-bomb",
+			newStuff: []
+		},
+		trimps: {
+			finished: 0,
+			title: "Trimps Owned",
+			description: function (number) {
+				return "Have  " + prettify(this.breakpoints[number]) + " total Trimps";
+			},
+			breakpoints: [50, 150, 300, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000],
+			tiers: [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4],
+			names: ["Too Many Trimps", "Overcrowding", "This Is Trimp", "It Takes a Tribe", "It Takes a Town", "It Takes a City", "A Milli Trimpi", "Trimpsponential Growth", "MMMEGATRIMPS", "It Takes a Nation", "It Takes a Planet", "It Takes a Universe"],
+			icon: "icomoon icon-group",
+			newStuff: []
+		},
+		housing: {
+			finished: 0,
+			title: "Real Estate",
+			description: function (number) {
+				return "Build your first  " + this.breakpoints[number];
+			},
+			breakpoints: ["Hut", "House", "Mansion", "Hotel", "Resort", "Gateway", "Wormhole", "Collector", "Warpstation"],
+			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3],
+			names: ["Tiny Homes", "Residential Development", "Taste for Luxury", "Fancy", "The Skyline", "Dimensional Drift", "Too Cool For Helium", "Space From Stars", "To Infinity and Beyond"],
+			icon: "icomoon icon-building-o",
+			newStuff: []
+		},
+		portals: {
+			finished: 0,
+			title: "Total Portals",
+			description: function (number) {
+				var s = (number > 0) ? "s" : "";
+				return "Use the Portal " + prettify(this.breakpoints[number]) + " time" + s;
+			},
+			display: function () {
+				return (game.global.totalPortals > 0);
+			},
+			evaluate: function () { return game.global.totalPortals},
+			breakpoints: [1, 3, 10, 20, 50, 100, 200, 500],
+			tiers: [1, 2, 2, 2, 3, 3, 4, 4],
+			names: ["A Trimp Through Time", "When The Wild Things Are", "A Time Like No Other", "Venti Timeachino", "Time of Your Life", "Centennial Trimper", "Amnesia", "Dedicated Traveller"],
+			icon: "icomoon icon-history",
+			newStuff: []
+		},
+		totalZones: {
+			finished: 0,
+			title: "Total Zone Clears",
+			description: function (number) {
+				return "Clear  " + prettify(this.breakpoints[number]) + " total Zones";
+			},
+			evaluate: function () {
+				return game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal;
+			},
+			breakpoints: [30, 70, 130, 200, 400, 777, 1000, 1500],//total zones according to stats
+			tiers: [2, 2, 3, 3, 3, 4, 4, 5],
+			names: ["Pathfinder", "Bushwhacker", "Pioneer", "Seeker", "Adventurer", "Lucky Resolve", "GigaClearer", "Globetrotter"],
+			icon: "icomoon icon-globe3",
+			newStuff: []
+		},
+		totalMaps: {
+			finished: 0,
+			title: "Total Map Clears",
+			description: function (number) {
+				return "Clear  " + prettify(this.breakpoints[number]) + " total Maps";
+			},
+			display: function () {
+				return (this.evaluate() > 0);
+			},
+			evaluate: function () {
+				return game.stats.mapsCleared.value + game.stats.mapsCleared.valueTotal;
+			},
+			breakpoints: [50, 100, 2000, 5000, 10000, 20000, 50000, 100000],//total maps according to stats
+			tiers: [1, 2, 2, 3, 3, 4, 4, 5],
+			names: ["Map Maker", "Map Runner", "Map Destroyer", "Map Annihilator", "Map Slaughterer", "Map Commander", "Maptain", "Cartographer"],
+			icon: "icomoon icon-map4",
+			newStuff: []
+		},
+		totalGems: {
+			finished: 0,
+			title: "Gem Collection",
+			description: function (number) {
+				var number = this.breakpoints[number];
+				var s = (number > 1) ? "s" : "";
+				return "Collect  " + prettify(number) + " Gem" + s;
+			},
+			evaluate: function () {
+				return game.stats.gemsCollected.value + game.stats.gemsCollected.valueTotal;
+			},
+			breakpoints: [1, 1e+9, 1e+21, 1e+30, 1e+39, 1e+48],//total gems according to statistics
+			tiers: [1, 2, 3, 4, 5, 6],
+			names: ["What's This For?", "Collector of Shinies", "Dragimp Lover", "Expert of Shinies", "Jeweller", "Gemaster"],
+			icon: "icomoon icon-diamond",
+			newStuff: []
+		},
+		blockTimed: {
+			finished: 0,
+			title: "Speed: The Block",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "Clear The Block in " + number + " or less";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 10);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			reverse: true,
+			breakpoints: [480, 240, 120, 60],//In minutes
+			tiers: [1, 1, 2, 2],
+			names: ["Block Hobbyist", "Block Apprentice", "Block Professional", "Block Rockstar"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		wallTimed: {
+			finished: 0,
+			title: "Speed: The Wall",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "Clear The Wall in " + number + " or less";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 14);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			reverse: true,
+			breakpoints: [480, 240, 120, 60],//In minutes
+			tiers: [2, 2, 2, 3],
+			names: ["Wall Novice", "Wall Student", "Wall Contender", "Wall Scaler"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		angerTimed: {
+			finished: 0,
+			title: "Speed: Anger",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "Clear DoA in " + number + " or less";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 19);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			reverse: true,
+			breakpoints: [480, 240, 120, 60],//In minutes
+			tiers: [2, 2, 3, 3],
+			names: ["Angry Jogger", "Angry Runner", "Angry Sprinter", "Angry Racer"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		doomTimed: {
+			finished: 0,
+			title: "Speed: Doom",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "Clear ToD in " + number + " or less";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 32);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			reverse: true,
+			breakpoints: [480, 240, 120, 60],//In minutes
+			tiers: [2, 2, 3, 3],
+			names: ["Walk to Doom", "Trot to Doom", "Canter to Doom", "Gallop to Doom"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		prisonTimed: {
+			finished: 0,
+			title: "Speed: The Prison",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "Clear The Prison in " + number + " or less";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 79);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			reverse: true,
+			breakpoints: [480, 360, 240, 180, 150, 120, 105, 90], //In minutes
+			tiers: [3, 4, 4, 5, 5, 5, 6, 6],
+			names: ["Prison Odyssey", "Prison Expedition", "Prison Adventure", "Prison Trek", "Prison Tour", "Prison Road Trip", "Prison Hike", "Quick Prison Visit"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		
+	},
 	
 	
 	worldText: {
@@ -1181,7 +1415,10 @@ var toReturn = {
 			world: 20,
 			attack: 1.1,
 			health: 4,
-			fast: false
+			fast: false,
+			loot: function (level) {
+				checkAchieve("angerTimed")
+			}
 		},
 		Dragimp: {
 			location: "World",
@@ -1202,10 +1439,22 @@ var toReturn = {
 			health: 2.5,
 			fast: false,
 			loot: function (level) {
+				checkAchieve("blockTimed");
 				var amt = rewardResource("wood", 2, level, true);
 				message("Mitschimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous");
 			}
 		},
+		Brickimp: {
+			location: "Wall",
+			last: true,
+			world: 15,
+			attack: 1.2,
+			health: 2.5,
+			fast: false,
+			loot: function (level) {
+				checkAchieve("wallTimed")
+			}
+		},		
 		Indianimp: {
 			location: "Doom",
 			last: true,
@@ -1214,6 +1463,7 @@ var toReturn = {
 			health: 0.9,
 			fast: true,
 			loot: function (level) {
+				checkAchieve("doomTimed");
 				var amt = rewardResource("metal", 2, level, true);
 				message("Indianimp dropped " + prettify(amt) + " metal!", "Loot", "*cubes");
 				if (game.global.challengeActive == "Trapper"){
@@ -1230,7 +1480,10 @@ var toReturn = {
 			world: 80,
 			attack: 2,
 			health: 3,
-			fast: false
+			fast: false,
+			loot: function (level) {
+				checkAchieve("prisonTimed");
+			}
 		},
 		Improbability: {
 			locked: 1,

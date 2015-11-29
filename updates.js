@@ -164,6 +164,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "Allow the Trimps to start fighting on their own whenever their town gets overcrowded";
 		costText = "";
 	}
+	if (what == "New Achievements"){
+		tooltipText = "The universe has taken an interest in your achievements, and has begun tracking them. You already have some completed thanks to your previous adventures, would you like to see them?";
+		costText = "<div class='maxCenter'><div class='btn btn-success' onclick='toggleAchievementWindow(); cancelTooltip()'>Check Achievements</div> <div class='btn btn-danger' onclick='cancelTooltip()'>No, That Sounds Dumb</div></div>";
+		game.global.lockTooltip = true;
+		elem.style.left = "32.5%";
+		elem.style.top = "25%";
+	}
 	if (what == "Queue"){
 		tooltipText = "This is a building in your queue, you'll need to click \"Build\" to build it. Clicking an item in the queue will cancel it for a full refund.";
 		costText = "";
@@ -199,7 +206,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Import"){
 		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea id='importBox' style='width: 100%' rows='5'></textarea>";
-		costText="<div class='maxCenter'><div class='btn btn-info' onclick='load(true); cancelTooltip()'>Import</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div class='btn btn-info' onclick='cancelTooltip(); load(true);'>Import</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
@@ -522,6 +529,11 @@ function getBattleStatBd(what) {
 	//Add coordination
 	currentCalc  *= game.resources.trimps.maxSoldiers;
 	textString += "<tr><td class='bdTitle'>Soldiers</td><td class='bdPercentSm'></td><td></td><td>x " + prettify(game.resources.trimps.maxSoldiers) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+	//Add achievements
+	if (game.global.achievementBonus > 0){
+		currentCalc *= 1 + (game.global.achievementBonus / 100);
+		textString += "<tr><td class='bdTitle'>Achievements</td><td class='bdPercentSm'></td><td></td><td>+ " + game.global.achievementBonus + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>"
+	}
 	//Add perk
 	var perk = "";
 	if (what == "health") perk = "Toughness";
@@ -729,8 +741,7 @@ function prettify(number) {
 		return prettifySub(0);
 	}
 	var base = Math.floor(Math.log(number)/Math.log(1000));
-	
-	if (base <= 0) return prettifySub(number);
+	if (base <= 0) return prettifySub(number);	
 	number /= Math.pow(1000, base);
 	
 	var suffices = [
@@ -797,9 +808,10 @@ function romanNumeral(number){
 }
 
 function prettifySub(number){
-	number = number.toString();
+	number = number.toFixed(2).toString();
 	var hasDecimal = number.split('.');
 	if (typeof hasDecimal[1] === 'undefined' || hasDecimal[0].length >= 3) return number.substring(0, 3);
+	if (parseInt(hasDecimal[1]) == 0) return hasDecimal[0];
 	return number.substring(0, 4);	
 }
 
@@ -889,6 +901,7 @@ function resetGame(keepPortal) {
 	var slow;
 	var stats;
 	var repeat;
+	var achieves;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -909,6 +922,7 @@ function resetGame(keepPortal) {
 		stats = game.stats;
 		repeat = game.global.repeatMap;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
+		achieves = game.achievements;
 	}
 	game = null;
 	game = newGame();
@@ -916,6 +930,8 @@ function resetGame(keepPortal) {
 	game.global.messages = messages;
 	game.options = options;
 	if (keepPortal){
+		game.achievements = achieves;
+		calculateAchievementBonus();
 		game.global.bestHelium = bestHelium;
 		game.portal = portal;
 		game.global.b = b;
@@ -953,6 +969,7 @@ function resetGame(keepPortal) {
 	cancelPortal();
 	updateRadioStacks();
 	updateAntiStacks();
+	checkAchieve("portals");
 }
 
 function applyS1(){
@@ -997,7 +1014,6 @@ function applyS3(){
 function message(messageString, type, lootIcon, extraClass) {
 	var log = document.getElementById("log");
 	var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
-
 	var displayType = (game.global.messages[type]) ? "block" : "none";
 	var prefix = "";
 	if (lootIcon && lootIcon.charAt(0) == "*") {
@@ -1611,8 +1627,166 @@ function toggleSetting(setting){
 	menuElem.className = "";
 	menuElem.className = "settingBtn settingBtn" + menuOption.enabled;
 }
+	
+	function achievementCompatibilityUnlock() {
+		checkAchieve("zones", null, false, true);
+		checkAchieve("damage", calculateDamage(game.global.soldierCurrentAttack, true, true, true), false, true);
+		checkAchieve("trimps", game.resources.trimps.owned, false, true);
+		checkAchieve("portals", null, false, true);
+		checkAchieve("totalZones", null, false, true);
+		checkAchieve("totalMaps", null, false, true);
+		game.stats.gemsCollected.value += game.resources.gems.owned;
+		checkAchieve("totalGems", null, false, true);
+		for (var item in game.achievements.housing.breakpoints){
+			item = game.achievements.housing.breakpoints[item];
+			if (game.buildings[item].owned > 0) checkAchieve("housing", item, false, true);
+			else break;
+		}
+		if (game.global.achievementBonus > 0){
+			cancelTooltip();
+			tooltip("New Achievements", null, 'update');
+		}
+	}
 
+	function displayAchievementPopup(id, forHover, displayNumber){
+		if (!forHover && game.options.menu.achievementPopups.enabled == 0) return;
+		var achievement = game.achievements[id];
+		var index = achievement.newStuff.indexOf(displayNumber);
+		if (index != -1) {
+			document.getElementById(id + displayNumber + "Alert").style.display = "none";
+			achievement.newStuff.splice(index, 1);
+		}
+		var location = (forHover) ? "Hover" : "Popup";
+		if (!forHover) displayNumber = achievement.finished;
+		var color = game.colorsList[achievement.tiers[displayNumber]];
+		if (forHover && displayNumber > achievement.finished) {
+			document.getElementById("achievement" + location).style.display = "block";
+			document.getElementById("achievement" + location + "IconContainer").innerHTML = '<span style= "color: ' + color + ';" class="icomoon icon-locked achievementPopupIcon"></span>';
+			document.getElementById("achievement" + location + "Title").innerHTML = "Locked";
+			document.getElementById("achievement" + location + "Title").style.color = color;
+			document.getElementById("achievement" + location + "Description").innerHTML = "Locked";
+			document.getElementById("achievement" + location + "Reward").innerHTML = '<b>Reward:</b> +' + game.tierValues[achievement.tiers[displayNumber]] + "% Damage";	
+			return;
+		}
+		document.getElementById("achievement" + location).style.display = "block";
+		document.getElementById("achievement" + location + "IconContainer").innerHTML = '<span style= "color: ' + color + ';" class="' + achievement.icon + ' achievementPopupIcon"></span>';
+		document.getElementById("achievement" + location + "Title").innerHTML = achievement.names[displayNumber];
+		document.getElementById("achievement" + location + "Title").style.color = color;
+		document.getElementById("achievement" + location + "Description").innerHTML = achievement.description(displayNumber);
+		document.getElementById("achievement" + location + "Reward").innerHTML = '<b>Reward:</b> +' + game.tierValues[achievement.tiers[displayNumber]] + "% Damage";
+	}
 
+	function checkAchieve(id, evalProperty, doubleChecking, noDisplay) {
+		var achievement = game.achievements[id];
+		if (achievement.finished == achievement.tiers.length) return;
+		if (typeof achievement.evaluate !== 'undefined') evalProperty = achievement.evaluate();
+		if (typeof achievement.breakpoints[achievement.finished] === 'number'){
+			if (!achievement.reverse){
+				if (evalProperty < achievement.breakpoints[achievement.finished]) return;	
+			}
+			else {
+				if (evalProperty > achievement.breakpoints[achievement.finished]) return;
+			}
+		}
+		else if (evalProperty != achievement.breakpoints[achievement.finished]) return;
+		if (!noDisplay) displayAchievementPopup(id);
+		achievement.newStuff.push(achievement.finished);
+		achievement.finished++;
+		checkAchieve(id, evalProperty, true, noDisplay);
+		if (!doubleChecking) calculateAchievementBonus();
+		if (trimpAchievementsOpen && !doubleChecking) displayAchievements();
+	}
+	
+	function calculateAchievementBonus(){
+		var totalBonus = 0;
+		for (var item in game.achievements){
+			var achievement = game.achievements[item];
+			for (var x = 0; x < achievement.finished; x++){
+				totalBonus += game.tierValues[achievement.tiers[x]];
+			}	
+		}
+		game.global.achievementBonus = totalBonus.toFixed(1);
+	}
+	
+	function displayAchievements(){
+		var htmlString = "";
+		for (var item in game.achievements) {
+			var achievement = game.achievements[item];
+			if (typeof achievement.display !== 'undefined' && !achievement.display()) continue;
+			var amount = achievement.tiers.length;
+			var titleClass = 'class="achievementTitle';
+			if (amount > 12 && achievement.finished < 10) amount = 12;
+			titleClass += (amount > 12) ? ' doubleTall"' : '"';
+			htmlString += '<div class="achievementsContainer"><div ' + titleClass + '>' + achievement.title + '</div><span class="littleAchievementWrapper">';
+			var calcAmount = (amount > 12) ? (amount / 2) : amount;
+			width = 7.3;
+			for (var x = 0; x < amount; x++){
+				var displayColor = "grey";
+				var borderStyle = "";
+				var tierValue = "<span style='color: black;' class='" + achievement.icon + "'></span>";
+				if (achievement.finished == x) displayColor = "#C5C515"; //Yellow
+				else if (achievement.finished > x) {
+					displayColor = "#159515"; //Greenz
+					if (achievement.newStuff.length && achievement.newStuff.indexOf(x) != -1) tierValue = "<span id='" + item + x + "Alert' style='color: yellow;' class='icomoon icon-exclamation-circle'></span>&nbsp;" + tierValue;
+				}
+				else tierValue = "&nbsp;";
+				borderStyle = "border: 0.2vw solid " + game.colorsList[achievement.tiers[x]] + ";";
+				htmlString += '<div onmouseover="displayAchievementPopup(\'' + item + '\', true, ' + x + ')" class="achievementContainer" style="background-color: ' + displayColor + '; width: ' + width + '%;' + borderStyle + '">' + tierValue + '</div>';
+			}
+			htmlString += '</span><div id="' + item + 'Description" class="achievementDescription")"></div></div>';		
+		}
+		document.getElementById("achievementsHere").innerHTML = htmlString;
+		document.getElementById("achievementTotalPercent").innerHTML = game.global.achievementBonus;
+	}
+	
+	var trimpAchievementsOpen = false;
+	function toggleAchievementWindow(){
+		closeAchievementPopup();
+		document.getElementById("achievementWrapper").style.display = (trimpAchievementsOpen) ? "none" : "block";
+		document.getElementById("wrapper").style.display = (trimpAchievementsOpen) ? "block" : "none";
+		trimpAchievementsOpen = !trimpAchievementsOpen;
+		if (trimpAchievementHelpOn) toggleAchievementHelp();
+		if (!trimpAchievementsOpen) return;
+		displayAchievements();
+		var fluff = {
+			high: [", thanks to your bounty of achievements", ", must be all those achievements", ", you are one with the achievements", " and you water your achievements daily"],
+			mid: [", your achievement game shows promise", " on your path to achievement", ", thanks to your achievements"],
+			low: [", better get some more achievements", ", you'd do fine with a few more achievements", " but you wish you had a few more achievements"]
+		};
+		var percent = game.global.achievementBonus;
+		var fluffLevel;
+		if (percent < 15) fluffLevel = "low";
+		else if (percent < 150) fluffLevel = "mid";
+		else fluffLevel = "high";
+		fluff = fluff[fluffLevel];
+		fluff = fluff[Math.floor(Math.random() * fluff.length)]
+		document.getElementById("achievementFluff").innerHTML = fluff;
+		document.getElementById("achievementTotalPercent").innerHTML = percent;
+	}
+	
+	var trimpAchievementHelpOn = false;
+	function toggleAchievementHelp(){
+		document.getElementById("achievementHelp").style.color = (trimpAchievementHelpOn) ? "#202080" : "#6060C0";
+		document.getElementById("achievementHeader").style.display = (trimpAchievementHelpOn) ? "block" : "none";
+		document.getElementById("achievementHelpContainer").style.display = (trimpAchievementHelpOn) ? "none" : "block";
+		trimpAchievementHelpOn = !trimpAchievementHelpOn;
+	}
+	
+	function closeAchievementPopup(forHover){
+		var location = (forHover) ? "Hover" : "Popup";
+		document.getElementById("achievement" + location).style.display = "none";
+	}
+	
+	function showAchievementDescription(id, number){
+		var elem = document.getElementById(id + "Description");
+		var achievement = game.achievements[id];
+		if (number > achievement.finished) return;
+		elem.innerHTML = "<b>" + achievement.names[number] + ":</b> " + achievement.description(number) + "<br/><br/>";
+	}
+	
+	function hideAchievementDescription(id){
+		document.getElementById(id + "Description").innerHTML = "";
+	}
 
 
 

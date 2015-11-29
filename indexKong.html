@@ -8,7 +8,7 @@
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?16" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?17" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -797,6 +797,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<td class="btn btn-success" onclick="toggleStats()">
 						<div>Stats</div>
 					</td>
+					<td class="btn tealColor" onclick="toggleAchievementWindow()">
+						<div>Achieves</div>
+					</td>
 					<td class="btn btn-default" onclick="toggleSettingsMenu()">
 						<div>Settings</div>
 					</td>
@@ -880,6 +883,39 @@ var kongregate = parent.kongregateAPI.getAPI();
 			<div class="btn btn-warning inPortalBtn" style="display: none" id="respecPortalBtn" onclick="respecPerks()" onmouseover="tooltip('Respec', null, event)" onmouseout="tooltip('hide')"></div>
 		</div>
 	</div>
+	<div id="achievementWrapper" style="display: none">
+		<div id="achievementMainButtons">
+			<span id="achievementHelp" onclick="toggleAchievementHelp()" class="icomoon icon-question-circle"></span>
+			<span id="achievementMainClose" onclick="toggleAchievementWindow()" class="icomoon icon-close"></span>
+		</div>
+		<div class="row" id="achievementTopRow">
+			<div class="col-xs-6">
+				<div id="achievementHover" style="display: none">
+					<div class="row">
+						<div id="achievementHoverIconContainer" class="col-xs-3 lowPad">
+						</div>
+						<div class="col-xs-6">
+							<div id="achievementHoverTitle"></div>
+							<div id="achievementHoverDescription"></div>
+							<div id="achievementHoverReward"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-6">
+				<div class="maxCenter" id="achievementHeader">
+					<span class="achievementMainTitle">Achievements</span><br/>
+					<span class="achievementTotals">You are dealing <span id="achievementTotalPercent"></span>% extra damage<span id="achievementFluff"></span>.</span>
+				</div>
+				<div id="achievementHelpContainer" style="display: none">
+					You can earn achievements by doing stuff. Each achievement will boost the amount of damage your Trimps can deal, and later achievements grant a larger bonus. You can learn more about an achievement by hovering your mouse over it.
+				</div>
+			</div>
+			<div class="col-xs-1">
+			</div>
+		</div>
+		<div id="achievementsHere"></div>
+	</div>
 	<div id="statsWrapper" style="display: none">
 		<span id="statsTitle">Statistics!</span><br/>
 		<div class="row" id="statsBtnRow">
@@ -906,6 +942,23 @@ var kongregate = parent.kongregateAPI.getAPI();
 			Need help or want to talk about Trimps? Check out the <a href="http://www.reddit.com/r/trimps" target="_blank">/r/Trimps SubReddit</a>, the <a href="http://www.kongregate.com/forums/11405-trimps" target="_blank">Kongregate Forums</a>, or the <a href="http://trimps.wikia.com/wiki/Trimps_Wiki" target="_blank">community-created Trimps Wiki!</a>
 		</div>
 	</div>
+	<div id="achievementPopup" style="display: none">
+		<span class="achievementBtns">
+			<span class="achievementBtnGo icomoon icon-newspaper-o" onclick="toggleAchievementWindow()"></span>
+			<span class="achievementBtnClose icomoon icon-close" onclick="closeAchievementPopup()"></span>	
+		</span>
+		<div class="row">
+			<div id="achievementPopupIconContainer" class="col-xs-3 lowPad">
+			</div>
+			<div class="col-xs-8">
+				<div id="achievementPopupTitle"></div>
+				<div id="achievementPopupDescription"></div>
+				<div id="achievementPopupReward"></div>
+			</div>
+			<div class="col-xs-1">
+			</div>
+		</div>
+	</div>
 	<div id="tooltipDiv" style="display: none">
 		<div id="tipTitle"></div>
 		<hr/>
@@ -915,27 +968,27 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 	
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?54"></script>
-	<script type="text/javascript" src="updates.js?54"></script>
-	<script type="text/javascript" src="main.js?54"></script>
-			<script type="text/javascript">
-	document.body.addEventListener('DOMMouseScroll', onWheel, true);
-	document.body.addEventListener('mousewheel', onWheel, true);
-	var buyCol = document.getElementById("buyCol");
-	var buyHere = document.getElementById("buyContainer");
-	function onWheel (e){
-		if (e.target.parentElement.offsetParent === buyCol){
-		try{
-		if((e.wheelDelta < 0 && (buyHere.scrollTop === (buyHere.scrollHeight - buyHere.offsetHeight))) || (e.wheelDelta > 0 && (buyHere.scrollTop == 0))){
-			e.preventDefault();
-			e.stopPropagation();
+	<script type="text/javascript" src="config.js?55"></script>
+	<script type="text/javascript" src="updates.js?55"></script>
+	<script type="text/javascript" src="main.js?55"></script>
+	<script type="text/javascript">
+		document.body.addEventListener('DOMMouseScroll', onWheel, true);
+		document.body.addEventListener('mousewheel', onWheel, true);
+		var buyCol = document.getElementById("buyCol");
+		var buyHere = document.getElementById("buyContainer");
+		function onWheel (e){
+			if (e.target.parentElement.offsetParent === buyCol){
+			try{
+			if((e.wheelDelta < 0 && (buyHere.scrollTop === (buyHere.scrollHeight - buyHere.offsetHeight))) || (e.wheelDelta > 0 && (buyHere.scrollTop == 0))){
+				e.preventDefault();
+				e.stopPropagation();
+				}
+			}
+			catch(err){
+			
+			}
 			}
 		}
-		catch(err){
-		
-		}
-		}
-	}
 	</script>
 </body>
 

@@ -50,6 +50,8 @@ function save(exportThis) {
 	delete saveGame.worldText;
 	delete saveGame.trimpDeathTexts;
 	delete saveGame.badGuyDeathTexts;
+	delete saveGame.tierValues;
+	delete saveGame.colorsList;
     for (var item in saveGame.equipment) {
 		delete saveGame.equipment[item].tooltip;
 		delete saveGame.equipment[item].blocktip;
@@ -101,6 +103,15 @@ function save(exportThis) {
 		var challenge = saveGame.challenges[itemF];
 		delete challenge.description;
 		delete challenge.unlockString;
+	}
+	for (var itemG in saveGame.achievements){
+		var achievement = saveGame.achievements[itemG];
+		delete achievement.tiers;
+		delete achievement.breakpoints;
+		delete achievement.names;
+		delete achievement.title;
+		delete achievement.icon;
+		delete achievement.newStuff;
 	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
@@ -213,7 +224,7 @@ function load(saveString, autoLoad) {
                 }
         }
     }
-	
+	game.global.lockTooltip = false;
 	if (oldVersion === 1.0){
 		var hasPortal = false;
 		for (var portItem in game.portal){
@@ -297,8 +308,11 @@ function load(saveString, autoLoad) {
 			game.global.totalHeliumEarned = newTHV;
 		}
 	}
-	
-	
+	var noOfflineTooltip = false;
+	if (oldVersion < 2.72){
+		achievementCompatibilityUnlock();
+		noOfflineTooltip = true;
+	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
@@ -335,7 +349,6 @@ function load(saveString, autoLoad) {
 	filterTabs("all");
 	if (game.global.mapsUnlocked) unlockMapStuff();
 	repeatClicked(true);
-	game.global.lockTooltip = false;
 	document.getElementById("worldNumber").innerHTML = game.global.world;
     mapsSwitch(true);
     checkTriggers(true);
@@ -349,7 +362,7 @@ function load(saveString, autoLoad) {
     if (game.global.autoCraftModifier > 0)
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
-	checkOfflineProgress();
+	checkOfflineProgress(noOfflineTooltip);
 	updateLabels();
 	if (game.global.viewingUpgrades) viewPortalUpgrades();
 	if (game.global.respecActive) respecPerks();
@@ -708,7 +721,7 @@ function activateKongBonus(oldWorld){
 }
 
 //48 hours = 172800
-function checkOfflineProgress(){
+function checkOfflineProgress(noTip){
 	if (!game.global.lastOnline) return;
 	var rightNow = new Date().getTime();
 	var textArray = [];
@@ -752,7 +765,7 @@ function checkOfflineProgress(){
 	}
 	textString = textString.slice(0, -2);
 	textString += ".";
-	tooltip("Trustworthy Trimps", null, "update", textString);
+	if (!noTip) tooltip("Trustworthy Trimps", null, "update", textString);
 }
 
 function respecPerks(){
@@ -1103,6 +1116,7 @@ function addResCheckMax(what, number) {
     var res = game.resources[what];
 	if (res.max == -1) {
 		res.owned += number;
+		if (what == "gems") game.stats.gemsCollected.value += number;
 		return;
 	}
 	var newMax = res.max + (res.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
@@ -1120,7 +1134,7 @@ function fireMode(noChange) {
         elem.style.background = "rgba(255,255,255,0.25)";
         elem.innerHTML = "Fire";
     }
-    tooltip("Fire Trimps", null, "update");
+    if (!noChange) tooltip("Fire Trimps", null, "update");
 
 }
 
@@ -1441,6 +1455,7 @@ function buildBuilding(what) {
     var building = game.buildings[what];
     var toIncrease;
     building.owned++;
+	checkAchieve("housing", what);
     if (building.owned == 1 && typeof building.first !== 'undefined') building.first();
     if (document.getElementById(what + "Owned") === null) return;
     document.getElementById(what + "Owned").innerHTML = building.owned;
@@ -1610,7 +1625,7 @@ function buyUpgrade(what, confirmed) {
     var dif = upgrade.allowed - upgrade.done;
     if (dif > 1) {
 		dif -= 1;
-        document.getElementById(what + "Owned").innerHTML = upgrade.done + "( +" + dif + ")";
+        document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
 		tooltip(what, "upgrades", "update");
         return;
     } else if (dif == 1) {
@@ -1624,6 +1639,7 @@ function buyUpgrade(what, confirmed) {
 
 function breed() {
     var trimps = game.resources.trimps;
+	checkAchieve("trimps", trimps.owned);
     var breeding = trimps.owned - trimps.employed;
 	var trimpsMax = trimps.realMax();
 	
@@ -2566,12 +2582,15 @@ function updateBadBar(cell) {
     barElem.style.backgroundColor = getBarColor(percent);
 }
 
-function calculateDamage(number, buildString, isTrimp) { //number = base attack
+function calculateDamage(number, buildString, isTrimp, noCheckAchieve) { //number = base attack
     var fluctuation = .2; //%fluctuation
 	var maxFluct = -1;
 	var minFluct = -1;
 	if (game.global.titimpLeft >= 1 && isTrimp && game.global.mapsActive){
 		number *= 2;
+	}
+	if (game.global.achievementBonus > 0 && isTrimp){
+		number *= (1 + (game.global.achievementBonus / 100));
 	}
 	if (game.global.challengeActive == "Discipline" && isTrimp){
 		fluctuation = .995;
@@ -2603,7 +2622,10 @@ function calculateDamage(number, buildString, isTrimp) { //number = base attack
 			min *= antiMult;
 			max *= antiMult;
 		}
-
+		if (isTrimp) {
+			if (!noCheckAchieve) checkAchieve("damage", max);
+			else return max;
+		}
 		return prettify(min) + "-" + prettify(max);
     }
 	number = Math.floor(Math.random() * ((max + 1) - min)) + min;
@@ -2624,6 +2646,7 @@ function nextWorld() {
     buildGrid();
     drawGrid();
 	if (game.worldText["w" + game.global.world]) message(game.worldText["w" + game.global.world], "Story");
+	checkAchieve("zones");
 }
 
 function fight(makeUp) {
@@ -2701,6 +2724,7 @@ function fight(makeUp) {
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
 			game.stats.mapsCleared.value++;
+			checkAchieve("totalMaps");
 			if (getCurrentMapObject().level >= (game.global.world - game.portal.Siphonology.level) && game.global.mapBonus < 10){
 				game.global.mapBonus += 1;
 			}
@@ -2726,6 +2750,7 @@ function fight(makeUp) {
         if (cellNum == 99) {
 			nextWorld();
 			game.stats.zonesCleared.value++;
+			checkAchieve("totalZones");
 		}
         battle(true);
         return;
@@ -2923,7 +2948,7 @@ function autoTrap() {
 }
 
 function planetBreaker(){
-	game.stats.planetsBroken.value++;
+	game.stats.planetsBroken.valueTotal++;
 	game.global.brokenPlanet = true;
 	document.getElementById("wrapper").style.background = "url(css/bg2_vert.png) center repeat-y";
 	document.getElementById("extraGridInfoTitle").innerHTML = "The Improbability";
@@ -3538,6 +3563,25 @@ function updateTurkimpTime() {
 	document.getElementById("turkimpTime").innerHTML = mins + ":" + seconds;
 }
 
+function formatMinutesForDescriptions(number){
+	var text;
+	var minutes = Math.round(number % 60);
+	var hours = Math.round(number / 60);
+	if (hours == 0) text = minutes + " minutes";
+	else if (minutes > 0) text = (hours - 1) + ":" + minutes;
+	else {
+		var s = (hours > 1) ? "s" : "";
+		text = hours + " hour" + s;
+	}
+	return text;
+}
+
+function getMinutesThisPortal(){
+	var timeSince = new Date().getTime() - game.global.portalTime;
+	timeSince /= 1000;
+	return Math.round(timeSince / 60);
+}
+
 function gameLoop(makeUp, now) {
 /*	if (now < game.global.lastOfflineProgress) return;
 	game.global.lastOnline = now; get4432*/
@@ -3603,6 +3647,7 @@ function updatePortalTimer() {
 		if (x != 3) timeString += ":";
 	}
 	document.getElementById("portalTimer").innerHTML = timeString;
+	checkAchieve("totalGems");
 	setTimeout(updatePortalTimer, 1000);
 }
 

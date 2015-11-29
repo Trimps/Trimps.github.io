@@ -817,7 +817,7 @@ overflow-x: hidden;
 	padding-right: 10vw;
 }
 
-#statsWrapper{
+#statsWrapper, #achievementWrapper{
 	background-color: black;
 	width: 100vw;
 	height: 100vh;
@@ -827,6 +827,158 @@ overflow-x: hidden;
 	padding-right: 10vw;
 	font-size: 1.5vw;
 	color: white;
+}
+
+#achievementWrapper{
+	background-color:black;
+
+	padding: 2vw 5vw 2vw 5vw;
+}
+
+#achievementsHere{
+	margin-top: 2%;
+	overflow-y:  auto;
+	height: calc(98% - 9.5vw);
+	background: rgba(60, 60, 60, 0.4);
+	text-align: center;
+}
+
+.littleAchievementWrapper{
+	width: 85%;
+	display: inline-block;
+	text-align: left;
+}
+
+.achievementContainer{
+	border: 1px solid white;
+	margin: 0.5%;
+	display: inline-block;
+	color: black;
+	font-size: 1.22vw;
+	line-height: 1.45vw;
+	text-align: center;
+	padding-top: 0.15vw;
+}
+
+.achievementTitle{
+	width: 15%;
+	border: 0.2vw solid white;
+	background-color: white;
+	text-align: center;
+	display: inline-block;
+	font-size: 1.2vw;
+	color: black;
+	line-height: 1.6vw;
+	display: inline-block;
+	vertical-align: top;
+	margin-top: 0.4vw;
+}
+
+.doubleTall{
+	line-height: 4.15vw;
+}
+
+#achievementPopup{
+	position: absolute;
+	top: 70%;
+	width: 35%;
+	left: 32.5%;
+	background: rgba(220, 220, 220, 0.95);
+	color: #3f3f3f;
+	font-size: 1.5vw;
+	text-align: center;
+	border-radius: 25px;
+	border: 4px outset #536373;
+}
+
+#achievementHover{
+	width: 100%;
+	background: rgba(220, 220, 220, 0.95);
+	color: #3f3f3f;
+	font-size: 1.5vw;
+	text-align: center;
+	border-radius: 25px;
+	border: 4px outset #536373;
+
+}
+
+#achievementMessage{
+	width: 98%;
+	background-color: blue;
+	color: white;
+	text-align: center;
+}
+
+#achievementTopRow{
+	height: 7.5vw;
+}
+
+#achievementMainButtons{
+	position: absolute;
+	font-size: 2vw;
+	left: 95%;
+	z-index: 999999;
+}
+
+#achievementHelp{
+	color: #202080;
+	cursor: pointer;
+
+}
+
+#achievementHelpContainer{
+	font-size: 1.3vw;
+}
+
+#achievementMainClose{
+	color: #6f1f1f;
+	cursor: pointer;
+}
+
+#achievementHeader{
+	font-size: 1.5vw;
+}
+
+.achievementMainTitle{
+	font-weight: bold;
+	font-size: 1.3em;
+}
+
+.achievementPopupIcon{
+	font-size: 3.8em;
+	color: #151535;
+}
+
+#achievementPopupDescription, #achievementHoverDescription{
+	font-size: .85em;
+}
+
+#achievementPopupReward, #achievementHoverReward{
+	font-size: .85em;
+}
+
+#achievementPopupTitle, #achievementHoverTitle{
+	font-weight: bold;
+	color: #318696;
+}
+
+.achievementBtns{
+	left: 87%;
+	display: inline-block;
+	position: absolute;
+	z-index: 50;
+}
+
+.achievementBtnClose{
+	cursor: pointer;
+	color: #6f1f1f;
+	font-size: 1.15em;
+}
+
+.achievementBtnGo{
+	cursor: pointer;
+	color: #1f6f1f;
+	margin-right: 0.1vw;
 }
 
 #statsTitle{
