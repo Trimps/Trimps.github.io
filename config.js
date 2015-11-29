@@ -931,7 +931,7 @@ var toReturn = {
 			},
 			reverse: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
-			tiers: [2, 2, 3, 3],
+			tiers: [2, 3, 3, 4],
 			names: ["Walk to Doom", "Trot to Doom", "Canter to Doom", "Gallop to Doom"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
