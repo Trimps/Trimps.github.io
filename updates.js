@@ -808,7 +808,9 @@ function romanNumeral(number){
 }
 
 function prettifySub(number){
-	number = parseFloat(number.toFixed(3)).toString();
+	number = parseFloat(number.toFixed(3));
+	if (number >= 1000) number = 999;
+	number = number.toString();
 	var hasDecimal = number.split('.');
 	if (typeof hasDecimal[1] === 'undefined' || hasDecimal[0].length >= 3) return number.substring(0, 3);
 	return number.substring(0, 4);	
