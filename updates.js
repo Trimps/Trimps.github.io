@@ -103,6 +103,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Confirm Purchase"){
 		if (attachFunction == "purchaseImport()" && !boneTemp.selectedImport) return;
+		if (game.options.menu.boneAlerts.enabled == 0 && numCheck){
+			eval(attachFunction);
+			return;
+		}
 		var btnText = "Make Purchase";
 		if (numCheck && game.global.b < numCheck){
 			if (typeof kongregate === 'undefined') return;
@@ -157,8 +161,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Fight"){
 		tooltipText = "Send your poor Trimps to certain doom in the battlefield. You'll get cool stuff though, they'll understand.";
-		costText = (game.resources.trimps.maxSoldiers > 1) ? "s" : "";
-		costText = game.resources.trimps.maxSoldiers + " Trimp" + costText;
+		var soldiers = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
+		costText = (soldiers > 1) ? "s" : "";
+		costText = prettify(soldiers) + " Trimp" + costText;
 	}
 	if (what == "AutoFight"){
 		tooltipText = "Allow the Trimps to start fighting on their own whenever their town gets overcrowded";
@@ -870,8 +875,10 @@ function resetGame(keepPortal) {
 	document.getElementById("turkimpBuff").style.display = "none";
 	document.getElementById("statsBtnRow").style.display = "block";
 	document.getElementById("mapsBtn").innerHTML = "Maps";
+	document.getElementById("mapBonus").innerHTML = "";
 	resetOnePortalRewards();
-	setFormation(0);
+	
+	setFormation("0");
 	hideFormations();
 	hideBones();
 	cancelTooltip();
@@ -970,7 +977,7 @@ function resetGame(keepPortal) {
 	cancelPortal();
 	updateRadioStacks();
 	updateAntiStacks();
-	checkAchieve("portals");
+	if (keepPortal) checkAchieve("portals");
 }
 
 function applyS1(){
@@ -1335,7 +1342,7 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			//portal Motivation
 			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
 			 
-			if (game.global.playerGathering == increase){
+			if (game.global.playerGathering == increase && increase != "science"){
 				if (game.global.turkimpTimer > 0){
 					psText *= 1.5;
 				}
@@ -1660,7 +1667,7 @@ function toggleSetting(setting){
 		var location = (forHover) ? "Hover" : "Popup";
 		if (!forHover) displayNumber = achievement.finished;
 		var color = game.colorsList[achievement.tiers[displayNumber]];
-		if (forHover && displayNumber > achievement.finished) {
+		if (forHover && !achievement.showAll && displayNumber > achievement.finished) {
 			document.getElementById("achievement" + location).style.display = "block";
 			document.getElementById("achievement" + location + "IconContainer").innerHTML = '<span style= "color: ' + color + ';" class="icomoon icon-locked achievementPopupIcon"></span>';
 			document.getElementById("achievement" + location + "Title").innerHTML = "Locked";
