@@ -1342,8 +1342,8 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			//portal Motivation
 			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
 			 
-			if (game.global.playerGathering == increase && increase != "science"){
-				if (game.global.turkimpTimer > 0){
+			if (game.global.playerGathering == increase){
+				if (game.global.turkimpTimer > 0 && increase != "science"){
 					psText *= 1.5;
 				}
 			psText += game.global.playerModifier;
