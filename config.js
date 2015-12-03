@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.72,
+		version: 2.721,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -274,6 +274,11 @@ var toReturn = {
 				enabled: 0,
 				description: "Toggle between receiving all equipment for one tier, or receiving all available tiers of the same equipment first when running maps.",
 				titles: ["Tier First", "Equip First"]
+			},
+			boneAlerts: {
+				enabled: 1,
+				description: "Hide popup confirmation messages when in the bone trader.",
+				titles: ["Not Popping", "Popping"]
 			},
 			deleteSave: {
 				enabled: 0,
@@ -746,7 +751,7 @@ var toReturn = {
 			description: function (number) {
 				return "Complete Zone " + this.breakpoints[number];
 			},
-			evaluate: function () { return (game.global.highestLevelCleared + 1)},
+			evaluate: function () { return game.global.highestLevelCleared},
 			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220],
 			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6],
 			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator"],
@@ -863,13 +868,11 @@ var toReturn = {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear The Block in " + number + " or less";
 			},
-			display: function () {
-				return (game.global.highestLevelCleared >= 10);
-			},
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
 			reverse: true,
+			showAll: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
 			tiers: [1, 1, 2, 2],
 			names: ["Block Hobbyist", "Block Apprentice", "Block Professional", "Block Rockstar"],
@@ -884,12 +887,13 @@ var toReturn = {
 				return "Clear The Wall in " + number + " or less";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 14);
+				return (game.global.highestLevelCleared >= 10);
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
 			reverse: true,
+			showAll: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
 			tiers: [2, 2, 2, 3],
 			names: ["Wall Novice", "Wall Student", "Wall Contender", "Wall Scaler"],
@@ -904,12 +908,13 @@ var toReturn = {
 				return "Clear DoA in " + number + " or less";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 19);
+				return (game.global.highestLevelCleared >= 14);
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
 			reverse: true,
+			showAll: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
 			tiers: [2, 2, 3, 3],
 			names: ["Angry Jogger", "Angry Runner", "Angry Sprinter", "Angry Racer"],
@@ -924,12 +929,13 @@ var toReturn = {
 				return "Clear ToD in " + number + " or less";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 32);
+				return (game.global.highestLevelCleared >= 19);
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
 			reverse: true,
+			showAll: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
 			tiers: [2, 3, 3, 4],
 			names: ["Walk to Doom", "Trot to Doom", "Canter to Doom", "Gallop to Doom"],
@@ -944,12 +950,13 @@ var toReturn = {
 				return "Clear The Prison in " + number + " or less";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 79);
+				return (game.global.highestLevelCleared >= 32);
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
 			reverse: true,
+			showAll: true,
 			breakpoints: [480, 360, 240, 180, 150, 120, 105, 90], //In minutes
 			tiers: [3, 4, 4, 5, 5, 5, 6, 6],
 			names: ["Prison Odyssey", "Prison Expedition", "Prison Adventure", "Prison Trek", "Prison Tour", "Prison Road Trip", "Prison Hike", "Quick Prison Visit"],
@@ -1278,6 +1285,7 @@ var toReturn = {
 			fast: false,
 			loot: function () {
 				//Happy Thanksgiving and stuff.
+				//Also, happy post thanksgiving and stuff.
 				activateTurkimpPowers();
 			}
 		},
@@ -1587,7 +1595,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "Grants 0.3% Trimp gather speed",
+			dropDesc: "Grants 0.3% Trimp resource production speed",
 			loot: function () {
 				game.unlocks.impCount.Whipimp++;
 				game.jobs.Farmer.modifier *= 1.003;
