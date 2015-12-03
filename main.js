@@ -962,10 +962,10 @@ function canCommitCarpentry(){
 }
 
 function activatePortal(){
-	if (!commitPortalUpgrades()) return;	
+	if (!commitPortalUpgrades()) return;
 	cancelPortal(true);
-	game.global.totalPortals++;
 	resetGame(true);
+	game.global.totalPortals++;
 	displayPerksBtn();
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
@@ -1203,7 +1203,7 @@ function gather() {
         amount = perSec / game.settings.speed;
 		if (game.resources[increase].max > 0){
 			var timeToFillElem = document.getElementById(increase + "TimeToFill");
-			if (timeToFillElem) timeToFillElem.innerHTML = calculateTimeToMax(game.resources[increase], perSec, null, true);
+			if (timeToFillElem) timeToFillElem.innerHTML = calculateTimeToMax(game.resources[increase], perSec);
 		}
 		addResCheckMax(increase, amount);
     }
@@ -1214,7 +1214,7 @@ function gather() {
     }
 }
 
-function calculateTimeToMax(resource, perSec, toNumber, fromGather) {
+function calculateTimeToMax(resource, perSec, toNumber) {
 	if (perSec <= 0) return "";
 	var remaining = (toNumber > 0) ? toNumber : ((resource.max * (1 + game.portal.Packrat.modifier * game.portal.Packrat.level))) - resource.owned;
 	if (remaining <= 0) return "";
@@ -1224,15 +1224,8 @@ function calculateTimeToMax(resource, perSec, toNumber, fromGather) {
 	var hours = Math.floor( toFill / 3600) % 24;
 	var minutes = Math.floor(toFill / 60) % 60;
 	var seconds = (toFill % 60) + 1;
-	if (seconds == 60){
-		minutes++;
-		seconds = 0;
-	}
 	if (!isFinite(years)) return "Long Time";
-	if (toFill < 60) {
-		if (toFill < 1 && fromGather) return "";
-		return Math.floor(seconds) + " Secs";
-	}
+	if (toFill < 60) return Math.floor(seconds) + " Secs";
 	if (toFill < 3600) return minutes + " Mins " + seconds + " Secs";
 	if (toFill < 86400) return hours + " Hours " + minutes + " Mins";
 	if (toFill < 31536000) return days + " Days " + hours + " Hours";
@@ -1621,10 +1614,6 @@ function buyUpgrade(what, confirmed) {
 		tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a Gigastation, <b>which is not a renewable upgrade</b>. Make sure you have purchased all of the Warpstations you can afford first!', 'buyUpgrade(\'Gigastation\', true)');
 		return;
 	}
-	if (what == "Shieldblock" && !confirmed && game.options.menu.confirmhole.enabled && game.global.highestLevelCleared >= 30){
-		tooltip('Confirm Purchase', null, 'update', 'You are about to modify your Shield, causing it to block instead of grant health until your next portal. Are you sure?', 'buyUpgrade(\'Shieldblock\', true)');
-		return;
-	}	
 	canAfford = canAffordTwoLevel(upgrade, true);
     upgrade.fire();
 	upgrade.done++;
@@ -2432,6 +2421,7 @@ function getBadCoordLevel(){
 }
 
 function startFight() {
+    game.global.battleCounter = 0;
     document.getElementById("badGuyCol").style.visibility = "visible";
     var cellNum;
     var cell;
@@ -2475,9 +2465,7 @@ function startFight() {
 		cell.attack = Math.floor(game.global.getEnemyAttack(cell.level, cell.name) * Math.pow(1.25, cell.nomStacks));
 		updateNomStacks(cell.nomStacks);
 	}
-    var trimpsFighting = game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
-		game.global.battleCounter = 0;
 		if (game.portal.Anticipation.level){
 			game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
 			if (game.global.antiStacks >= 30) game.global.antiStacks = 30;
@@ -2492,6 +2480,7 @@ function startFight() {
 		game.global.difs.health = 0;
 		game.global.difs.block = 0;
 		game.global.difs.trainers = game.jobs.Trainer.owned;
+        var trimpsFighting = game.resources.trimps.maxSoldiers;
         game.global.soldierHealthMax = (game.global.health * trimpsFighting);
 		//Toughness
 		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
@@ -2515,7 +2504,7 @@ function startFight() {
 	else {
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
-			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
+			var healthTemp = game.resources.trimps.soldiers * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
 			if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.jobs.Geneticist.owned);
 			if (game.portal.Resilience.level > 0) healthTemp *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
 			if (game.global.formation !== 0){
@@ -2527,7 +2516,7 @@ function startFight() {
 			if (game.global.soldierHealth <= 0) game.global.soldierHealth = 0;
 		}
 		if (game.global.difs.attack !== 0) {
-			var attackTemp = trimpsFighting * game.global.difs.attack * ((game.portal.Power.modifier * game.portal.Power.level) + 1);
+			var attackTemp = game.resources.trimps.soldiers * game.global.difs.attack * ((game.portal.Power.modifier * game.portal.Power.level) + 1);
 			if (game.global.formation !== 0){
 				attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
 			}
@@ -2535,7 +2524,7 @@ function startFight() {
 			game.global.difs.attack = 0;
 		}
 		if (game.global.difs.block !== 0) {
-			var blockTemp = (trimpsFighting * game.global.difs.block * ((game.global.difs.trainers * (game.jobs.Trainer.modifier / 100)) + 1));
+			var blockTemp = (game.resources.trimps.soldiers * game.global.difs.block * ((game.global.difs.trainers * (game.jobs.Trainer.modifier / 100)) + 1));
 			if (game.global.formation !== 0){
 				blockTemp *= (game.global.formation == 3) ? 4 : 0.5;
 			}
@@ -2678,7 +2667,7 @@ function fight(makeUp) {
 		game.stats.trimpsKilled.value += game.resources.trimps.maxSoldiers;
         var s = (game.resources.trimps.maxSoldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
-        message(prettify(game.resources.trimps.maxSoldiers) + " Trimp" + s + "just " + randomText + ".", "Combat");
+        message(game.resources.trimps.maxSoldiers + " Trimp" + s + "just " + randomText + ".", "Combat");
         game.global.fighting = false;
         game.resources.trimps.soldiers = 0;
 		if (game.global.challengeActive == "Nom") {
@@ -3033,8 +3022,7 @@ function setFormation(what) {
 		game.global.formation = what;
 	}
 	else document.getElementById("formation0").style.backgroundColor = "grey";
-	var toSet = (what) ? what : game.global.formation;
-	document.getElementById("formation" + toSet).style.backgroundColor = "#5cb85c";
+	document.getElementById("formation" + game.global.formation).style.backgroundColor = "#5cb85c";
 }
 
 function unlockFormation(what){
@@ -3051,9 +3039,10 @@ function unlockFormation(what){
 }
 
 function hideFormations() {
-	for (var x = 0; x < 4; x++){
-		document.getElementById("formation" + x).style.display = "none";
-	}
+		document.getElementById("formation0").style.display = "none";
+		document.getElementById("formation1").style.display = "none";
+		document.getElementById("formation2").style.display = "none";
+		document.getElementById("formation3").style.display = "none";
 }
 
 //Bones
@@ -3227,10 +3216,6 @@ function addBoost(level, previewOnly) {
 		}
 		if (amt < 0) toggleMinusRes(true);
 		if (!previewOnly) resource.owned += amt;
-		if (!previewOnly && job.increase == "gems"){
-			game.stats.gemsCollected.value += amt;
-			checkAchieve("totalGems");
-		}
 		document.getElementById(job.increase + "BoostPreview").innerHTML = prettify(amt);
 	}
 }
