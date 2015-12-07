@@ -1227,7 +1227,7 @@ function calculateTimeToMax(resource, perSec, toNumber, fromGather) {
 	if (seconds == 60){
 		minutes++;
 		seconds = 0;
-		toFill = 60;
+		toFill++;
 	}
 	if (!isFinite(years)) return "Long Time";
 	if (toFill < 60) {
