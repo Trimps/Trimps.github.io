@@ -313,6 +313,9 @@ function load(saveString, autoLoad) {
 		achievementCompatibilityUnlock();
 		noOfflineTooltip = true;
 	}
+	if (oldVersion < 2.73){
+		if (game.jobs.Geneticist.owned > 0) game.global.lastLowGen = (game.global.lowestGen > 0) ? game.global.lowestGen : game.jobs.Geneticist.owned;
+	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
@@ -755,6 +758,7 @@ function checkOfflineProgress(noTip){
 			resource.owned += amt;
 			textString = prettify(amt) + " " + resName + ", ";
 			textArray.push(textString);
+			if (resName == "gems") game.stats.gemsCollected.value += amt;
 		}
 	}
 	if (textArray.length === 0) return;
@@ -799,7 +803,6 @@ function clearPerks(){
 		updatePerkColor(item);
 	}
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax);
-
 }
 
 function activateClicked(){	
@@ -1305,6 +1308,7 @@ function canAffordBuilding(what, take, buildCostString, isEquipment){
 		var price = 0;
 		price = parseFloat(getBuildingItemPrice(toBuy, costItem, isEquipment));
 		if (isEquipment) price = Math.ceil(price * (Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level)));
+		else if (game.portal.Resourceful.level) price = Math.ceil(price * (Math.pow(1 - game.portal.Resourceful.modifier, game.portal.Resourceful.level)));
 		if (price > game.resources[costItem].owned || !(isFinite(price))) {
 			if (buildCostString) color = "red";
 			else return false;
@@ -1387,7 +1391,7 @@ function refundQueueItem(what) {
 		else 
 			refund = thisCostItem * name[1];
 		addResCheckMax(costItem, parseFloat(refund));
-		if (what == "Wormhole" && costItem == "helium") {
+		if (what.split('.')[0] == "Wormhole" && costItem == "helium") {
 			game.global.totalHeliumEarned += parseFloat(refund);
 			game.stats.spentOnWorms.value -= parseFloat(refund);
 		}
@@ -2215,7 +2219,16 @@ function recycleMap() {
 		game.global.mapGridArray = [];
 	}
     mapsSwitch(true, true);
+}
 
+function updateMapCredits() {
+	var s = (game.challenges.Mapology.credits == 1) ? "" : "s"
+	document.getElementById("mapCreditsLeft").innerHTML = game.challenges.Mapology.credits + " Map Credit" + s;
+}
+
+function messageMapCredits() {
+	var s = (game.challenges.Mapology.credits == 1) ? "" : "s"
+	message("You have " + game.challenges.Mapology.credits + " Map Credit" + s + " left!", "Notices");
 }
 
 function mapsClicked() {
@@ -2225,6 +2238,23 @@ function mapsClicked() {
 		var bar = document.getElementById("goodGuyBar");
 		bar.style.backgroundColor = "red";
 		bar.style.width = "0%";
+		if (game.global.challengeActive == "Nom") {
+			var cell;
+			var cellNum;
+			if (game.global.mapsActive) {
+				cellNum = game.global.lastClearedMapCell + 1;
+				cell = game.global.mapGridArray[cellNum];
+			} else {
+				cellNum = game.global.lastClearedCell + 1;
+				cell = game.global.gridArray[cellNum];
+			}
+			cell.nomStacks = (cell.nomStacks) ? cell.nomStacks + 1 : 1;
+			if (cell.nomStacks > 100) cell.nomStacks = 100;
+			updateNomStacks(cell.nomStacks);
+			cell.health += (cell.maxHealth * 0.05);
+			if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
+			updateBadBar(cell);
+		}
 		mapsSwitch();
         return;
     }
@@ -2353,7 +2383,6 @@ function selectMap(mapId, force) {
 	document.getElementById("mapStatsLoot").innerHTML = Math.floor(map.loot * 100) + "%";
 	document.getElementById("mapStatsItems").innerHTML = addSpecials(true, true, map);
 	document.getElementById("mapStatsResource").innerHTML = game.mapConfig.locations[map.location].resourceType;
-	
     if (typeof game.global.mapsOwnedArray[getMapIndex(game.global.lookingAtMap)] !== 'undefined') document.getElementById(game.global.lookingAtMap).style.border = "1px solid white";
     document.getElementById(mapId).style.border = "1px solid red";
     game.global.lookingAtMap = mapId;
@@ -2364,6 +2393,17 @@ function selectMap(mapId, force) {
 
 function runMap() {
     if (game.global.lookingAtMap === "") return;
+
+	if (game.global.challengeActive == "Mapology") {
+		if (game.challenges.Mapology.credits < 1){
+			message("You are all out of Map Credits! Clear some more zones to earn some more.", "Notices");
+			return;
+		}
+		game.challenges.Mapology.credits--;
+		if (game.challenges.Mapology.credits <= 0) game.challenges.Mapology.credits = 0;
+		updateMapCredits();
+		messageMapCredits()
+	}
     var mapId = game.global.lookingAtMap;
     game.global.preMapsActive = false;
     game.global.mapsActive = true;
@@ -2500,6 +2540,7 @@ function startFight() {
 		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
 		if (game.global.lowestGen >= 0) {
 			game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
+			game.global.lastLowGen = game.global.lowestGen;
 			game.global.lowestGen = -1;
 		}
         game.global.soldierCurrentAttack = (game.global.attack * trimpsFighting);
@@ -2519,7 +2560,7 @@ function startFight() {
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
 			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
-			if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.jobs.Geneticist.owned);
+			if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.global.lastLowGen);
 			if (game.portal.Resilience.level > 0) healthTemp *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
 			if (game.global.formation !== 0){
 				healthTemp *= (game.global.formation == 1) ? 4 : 0.5;
@@ -2662,6 +2703,10 @@ function nextWorld() {
     drawGrid();
 	if (game.worldText["w" + game.global.world]) message(game.worldText["w" + game.global.world], "Story");
 	checkAchieve("zones");
+	if (game.global.challengeActive == "Mapology") {
+		game.challenges.Mapology.credits++;
+		updateMapCredits();
+	}
 }
 
 function fight(makeUp) {
@@ -2728,7 +2773,13 @@ function fight(makeUp) {
         if (typeof unlock !== 'undefined' && typeof unlock.fire !== 'undefined') {
             unlock.fire(cell.level);
             if (game.global.mapsActive) {
-                if (typeof game.mapUnlocks[cell.special].last !== 'undefined') game.mapUnlocks[cell.special].last += 5;
+                if (typeof game.mapUnlocks[cell.special].last !== 'undefined') {
+					game.mapUnlocks[cell.special].last += 5;
+/* 					if (typeof game.upgrades[cell.special].prestige && game.global.mapologyDone){
+						unlock.fire(cell.level);
+						game.mapUnlocks[cell.special].last += 5;
+					} */
+				}
                 if (typeof game.mapUnlocks[cell.special].canRunOnce !== 'undefined') game.mapUnlocks[cell.special].canRunOnce = false;
 				if (unlock.filterUpgrade) refreshMaps();
             }
@@ -2743,11 +2794,17 @@ function fight(makeUp) {
 			if (getCurrentMapObject().level >= (game.global.world - game.portal.Siphonology.level) && game.global.mapBonus < 10){
 				game.global.mapBonus += 1;
 			}
-			if (game.global.repeatMap){
+			if (game.global.repeatMap && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1)){
 				if (game.global.mapBonus > 0) document.getElementById("mapsBtn").innerHTML = "Maps (" + game.global.mapBonus + ")";
 				game.global.lastClearedMapCell = -1;
 				buildMapGrid(game.global.currentMapId);
 				drawGrid(true);
+				if (game.global.challengeActive == "Mapology") {
+					game.challenges.Mapology.credits--;
+					if (game.challenges.Mapology.credits <= 0) game.challenges.Mapology.credits = 0;
+					updateMapCredits();
+					messageMapCredits()
+				}
 				return;
 			}
 			else{
@@ -3585,9 +3642,12 @@ function updateTurkimpTime() {
 function formatMinutesForDescriptions(number){
 	var text;
 	var minutes = Math.round(number % 60);
-	var hours = Math.round(number / 60);
+	var hours = Math.floor(number / 60);
 	if (hours == 0) text = minutes + " minutes";
-	else if (minutes > 0) text = (hours - 1) + ":" + minutes;
+	else if (minutes > 0) {
+		if (minutes < 10) minutes = "0" + minutes;
+		text = hours + ":" + minutes;
+	}
 	else {
 		var s = (hours > 1) ? "s" : "";
 		text = hours + " hour" + s;

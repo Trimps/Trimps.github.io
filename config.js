@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.721,
+		version: 2.73,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -110,6 +110,7 @@ var toReturn = {
 		turkimpTimer: 0,
 		statsMode: "current",
 		achievementBonus: 0,
+		lastLowGen: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -293,6 +294,14 @@ var toReturn = {
 	},
 	//portal
 	portal: {
+		Resourceful: {
+			level: 0,
+			locked: true,
+			modifier: 0.05,
+			priceBase: 50000,
+			heliumSpent: 0,
+			tooltip: "Spending time with limited maps has taught you how to be more resourceful. Each level will allow you to spend 5% fewer resources <b>than the current cost</b> per level on all structures."
+		},
 		Coordinated: {
 			level: 0,
 			locked: true,
@@ -369,7 +378,7 @@ var toReturn = {
 			modifier: 0.05,
 			priceBase: 15,
 			heliumSpent: 0,
-			tooltip: "You're beginning to notice ways to make equally powerful equipment with considerably fewer resources. Bringing back these new ideas will allow you to spend 5% fewer resources <b>than the current cost (compounds)</b> per level on all equipment."
+			tooltip: "You're beginning to notice ways to make equally powerful equipment with considerably fewer resources. Bringing back these new ideas will allow you to spend 5% fewer resources <b>than the current cost</b> per level on all equipment."
 		},
 		Range: {
 			level: 0,
@@ -522,6 +531,7 @@ var toReturn = {
 				for (var x = 0; x < this.heldBooks; x++){
 					unlockUpgrade("Speedscience");
 				}
+				message("You can research science again!", "Notices");
 			},
 			start: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
@@ -606,6 +616,7 @@ var toReturn = {
 			},
 			unlockString: "reach Zone 100"
 		},
+
 		Mapocalypse: {
 			description: "Experience a slightly distorted version of the 'Electricity' dimension, to help understand the relationship between maps and the world. Everything will work exactly the same as Electricity, but all maps will have an extra 300% difficulty. Clearing <b>'The Prison' (80)</b> will cause the world to return to normal. You <b>will</b> receive the Helium reward from Electricity.",
 			completed: false,
@@ -647,7 +658,24 @@ var toReturn = {
 			},
 			heldHelium: 0,
 			unlockString: "reach Zone 145"
-		}
+		},
+		Mapology: {
+			description: "Travel to a dimension where maps are scarce, in an attempt to learn to be more resourceful. You will earn one map Credit for each World Zone you clear, and it costs 1 credit to run 1 map. Completing <b>Zone 100</b> with this challenge active will return you to your original dimension.",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 150);
+			},
+			fireAbandon: true,
+			abandon: function (){
+				document.getElementById("mapCreditsLeft").innerHTML = "";
+			},
+			onLoad: function () {
+				updateMapCredits();
+			},
+			unlocks: "Resourceful",
+			credits: 0,
+			unlockString: "reach Zone 150"
+		},
 
 		
 	},
@@ -751,6 +779,9 @@ var toReturn = {
 			description: function (number) {
 				return "Complete Zone " + this.breakpoints[number];
 			},
+			progress: function () {
+				return game.global.highestLevelCleared + " / " + this.breakpoints[this.finished];
+			},
 			evaluate: function () { return game.global.highestLevelCleared},
 			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220],
 			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6],
@@ -764,6 +795,10 @@ var toReturn = {
 			description: function (number) {
 				return "Reach " + prettify(this.breakpoints[number], null, true) + " displayed damage";
 			},
+			progress: function () {
+				return prettify(this.highest) + " / " + prettify(this.breakpoints[this.finished]);
+			},
+			highest: 0,
 			breakpoints: [100, 100000, 1e+11, 1e+17, 1e+23, 1e+29, 1e+35, 1e+41, 1e+47, 1e+53, 1e+60, 1e+67],
 			tiers: [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6],
 			names: ["Lead Trimps", "Silver Trimps", "Golden Trimps", "Copper Trimps", "Platinum Trimps", "Iron Trimps", "Steel Trimps", "Obsidian Trimps", "Cobalt Trimps", "Topaz Trimps", "Diamond Trimps", "Transcendental Trimps"],
@@ -775,6 +810,9 @@ var toReturn = {
 			title: "Trimps Owned",
 			description: function (number) {
 				return "Have  " + prettify(this.breakpoints[number]) + " total Trimps";
+			},
+			progress: function () {
+				return prettify(Math.floor(game.resources.trimps.owned)) + " / " + prettify(this.breakpoints[this.finished]);
 			},
 			breakpoints: [50, 150, 300, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000],
 			tiers: [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4],
@@ -804,6 +842,9 @@ var toReturn = {
 			display: function () {
 				return (game.global.totalPortals > 0);
 			},
+			progress: function () {
+				return this.evaluate() + " / " + this.breakpoints[this.finished];
+			},
 			evaluate: function () { return game.global.totalPortals},
 			breakpoints: [1, 3, 10, 20, 50, 100, 200, 500],
 			tiers: [1, 2, 2, 2, 3, 3, 4, 4],
@@ -820,6 +861,9 @@ var toReturn = {
 			evaluate: function () {
 				return game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal;
 			},
+			progress: function () {
+				return this.evaluate() + " / " + this.breakpoints[this.finished];
+			},
 			breakpoints: [30, 70, 130, 200, 400, 777, 1000, 1500],//total zones according to stats
 			tiers: [2, 2, 3, 3, 3, 4, 4, 5],
 			names: ["Pathfinder", "Bushwhacker", "Pioneer", "Seeker", "Adventurer", "Lucky Resolve", "GigaClearer", "Globetrotter"],
@@ -834,6 +878,9 @@ var toReturn = {
 			},
 			display: function () {
 				return (this.evaluate() > 0);
+			},
+			progress: function () {
+				return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
 			},
 			evaluate: function () {
 				return game.stats.mapsCleared.value + game.stats.mapsCleared.valueTotal;
@@ -851,6 +898,9 @@ var toReturn = {
 				var number = this.breakpoints[number];
 				var s = (number > 1) ? "s" : "";
 				return "Collect  " + prettify(number) + " Gem" + s;
+			},
+			progress: function () {
+				return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
 			},
 			evaluate: function () {
 				return game.stats.gemsCollected.value + game.stats.gemsCollected.valueTotal;
@@ -871,6 +921,10 @@ var toReturn = {
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
 			reverse: true,
 			showAll: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
@@ -892,6 +946,10 @@ var toReturn = {
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
 			reverse: true,
 			showAll: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
@@ -913,6 +971,10 @@ var toReturn = {
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
 			reverse: true,
 			showAll: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
@@ -934,6 +996,10 @@ var toReturn = {
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
 			reverse: true,
 			showAll: true,
 			breakpoints: [480, 240, 120, 60],//In minutes
@@ -955,6 +1021,10 @@ var toReturn = {
 			evaluate: function () {
 				return getMinutesThisPortal();
 			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
 			reverse: true,
 			showAll: true,
 			breakpoints: [480, 360, 240, 180, 150, 120, 105, 90], //In minutes
@@ -1035,11 +1105,11 @@ var toReturn = {
 		w139: "Another scientist is coming. You sigh heavily. He says something dumb. You decide to ignore the scientists for a little bit.",
 		w140: "It sure is calm and peaceful now. You watch a Falcimp turn a few circles in the sky. You wouldn't mind having wings, but overall you're pretty happy with your species.",
 		w143: "There's a scientist jumping around trying to get your attention. There's nothing interesting in the sky so you pretend to be fascinated with a rock. The scientist can see you're busy and waits patiently.",
-		w145: "Your Scientists are not making it easy to ignore them. You not-so-calmly ask what they want. One of them explains that they discovered a new dimension with lots of extra helium. You'll probably check it out, but you won't tell them that."
-		
+		w145: "Your Scientists are not making it easy to ignore them. You not-so-calmly ask what they want. One of them explains that they discovered a new dimension with lots of extra helium. You'll probably check it out, but you won't tell them that.",
+		w150: "Wow. These structures are getting expensive. There's probably a dimension for that..."
 	},
 	
-	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over"],
+	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over", "swam the river Styx", "turned in to jerky", "forgot to put armor on", "croaked", "flatlined", "won't follow you to battle again", "died. Lame", "lagged out", "imp-loded"],
 	badGuyDeathTexts: ["slew", "killed", "destroyed", "extinguished", "liquidated", "vaporized", "demolished", "ruined", "wrecked", "obliterated"],
 	
 	settings: {
@@ -1317,6 +1387,12 @@ var toReturn = {
 			health: 1.3,
 			fast: false
 		},
+		Chimp: {
+			location: "All",
+			attack: 1,
+			health: 1,
+			fast: false
+		},
 		Penguimp: {
 			location: "All",
 			attack: 1.1,
@@ -1393,6 +1469,109 @@ var toReturn = {
 			loot: function (level) {
 				var amt = rewardResource("metal", 0.5, level, true);
 				message("That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot", "*cubes");
+			}
+		},
+		Slagimp: {
+			location: "Depths",
+			attack: 0.9,
+			health: 1,
+			fast: true,
+			loot: function (level) {
+				var amt = rewardResource("gems", 0.3, level, true);
+				message("That Slagimp fell over, and " + prettify(amt) + " gems popped out! How about that?!", "Loot", "*diamond"); 
+			}
+		},
+		Moltimp: {
+			location: "Depths",
+			attack: 1.2,
+			health: 0.7,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("metal", 0.2, level, true);
+				message("The Moltimp thanked you for the combat, and handed you " + prettify(amt) + " bars of metal! Then he died.", "Loot", "*cubes");
+			}
+		},
+		Golimp: {
+			location: "Depths",
+			attack: 1.2,
+			health: 1.4,
+			fast: false,
+			loot: function (level) {
+				var random = Math.floor(Math.random() * 10);
+				var amt;
+				var res;
+				var icon;
+				if (random === 0) {
+					amt = rewardResource("fragments", 1, level, true);
+					res = "fragments";
+					icon = "th";
+				}
+				else {
+					amt = rewardResource("metal", 0.3, level, true);
+					res = "bars of metal";
+					icon = "*cubes";
+				}
+				message("The Golimp fell to pieces! You manage to grab " + prettify(amt) + " " + res + " before it begins pulling itself together.", "Loot", icon);
+			}
+		},
+		Lavimp: {
+			location: "Depths",
+			attack: 1,
+			health: 0.8,
+			fast: true
+		},
+		Flowimp: {
+			location: "Plentiful",
+			attack: 1.3,
+			health: 0.95,
+			fast: false
+		},
+		Kangarimp: {
+			location: "Plentiful",
+			attack: 0.95,
+			health: 0.95,
+			fast: true
+		},
+		Gnomimp: {
+			location: "Plentiful",
+			attack: 0.8,
+			health: 1,
+			fast: false
+		},
+		Slosnimp: {
+			location: "Plentiful",
+			attack: 1.05,
+			health: 0.8,
+			fast: false
+		},
+		Entimp: {
+			location: "Plentiful",
+			attack: 0.6,
+			health: 1.3,
+			fast: true,
+			loot: function (level) {
+				var amt = rewardResource("wood", 0.35, level, true);
+				message("The Entimp is no more. You manage to salvage " + prettify(amt) + " logs of wood from his trunk!", "Loot", "tree-deciduous");
+			}
+		},
+		Squirrimp: {
+			location: "Plentiful",
+			attack: 1,
+			health: 1.1,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("food", 0.35, level, true);
+				message("Time for some stew! You scored " + prettify(amt) + " food from that Squirrimp!", "Loot", "apple");
+			}			
+		},
+		Gravelimp: {
+			location: "Plentiful",
+			attack: 0.8,
+			health: 1.4,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("metal", 0.35, level, true);
+				message("You sift through the Gravelimp, and manage to find " + prettify(amt) + " bars of metal! Good on you!", "Loot", "tree-deciduous");
 			}
 		},
 		Blimp: {
@@ -1523,6 +1702,12 @@ var toReturn = {
 					game.global.totalHeliumEarned += game.challenges.Nom.heldHelium;
 					game.challenges.Nom.heldHelium = 0;
 					game.global.challengeActive = "";
+				}
+				else if (game.global.challengeActive == "Mapology" && game.global.world == 100){
+					message("You have completed the Mapology challenge! You have unlocked the 'Resourceful' Perk! Cheaper stuff!", "Notices");
+					game.global.challengeActive = "";
+					game.portal.Resourceful.locked = false;
+					game.challenges.Mapology.abandon();
 				}
 			}
 		},
@@ -1739,11 +1924,13 @@ var toReturn = {
 			"Abandoned", "Natural", "Enchanted", "Magical", "Calm", "Rugged", "Violent", "Weird", "Secret", "Forbidden", "Bewitched", 
 			"Dark", "Light", "Magnificent", "Evil", "Holy", "Hallowed", "Desecrated", "Silent", "Eternal", "Underground", "Temperate", "Chilly", 
 			"Muddy", "Dank", "Steamy", "Humid", "Dry", "Putrid", "Foul", "Dangerous", "Marred", "Blighted", "Crystal", "Frozen", "Simple", "Timeless"],
-			
-			suffix: ["Creek.Sea", "Coast.Sea", "Swamp.Sea", "Forest.Forest", "Mountain.Mountain", "Pass", "Way", "Plains", "Beach.Sea", "Hill.Mountain", "Gorge", "Valley", "Road", "Turn", 
-			"Lift", "Peak.Mountain", "Canyon", "Plateau.Mountain", "Crag", "Crater", "Flats", "Oaks.Forest",  "Pit", "Volcano.Mountain", "Glacier.Sea",  "Cavern.Sea", "Cave",  "Nest", "Fork", "Tundra", 
-			"Sea.Sea", "Ocean.Sea", "Lake.Sea", "Jungle.Forest", "Island.Sea", "Ruins", "Temple", "Bog.Sea", "Path", "Clearing", "Grove.Forest", "Jungle.Forest", "Thicket.Forest", "Woods.Forest",
-			"Oasis.Forest"]
+			suffix: ["Creek.Sea", "Coast.Sea", "Swamp.Sea", "Forest.Forest", "Mountain.Mountain", "Beach.Sea", "Hill.Mountain", "Butte.Mountain", 
+			"Ridge.Mountain", "Mesa.Mountain", "Valley.Depths", "Peak.Mountain", "Canyon.Depths", "Plateau.Mountain", "Crag.Depths", 
+			"Crater.Depths", "Oaks.Forest",  "Volcano.Mountain", "Glacier.Sea",  "Brook.Sea", "Cave.Depths",  "Sea.Sea", "Ocean.Sea", 
+			"Lake.Sea", "Jungle.Forest", "Island.Sea", "Ruins.Depths", "Temple.Depths", "Bog.Sea", "Grove.Forest", "Jungle.Forest", 
+			"Thicket.Forest", "Woods.Forest", "Oasis.Forest", "Mineshaft.Depths", "Tunnel.Depths", "Depths.Depths", "Cavern.Depths", 
+			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", 
+			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful"]
 		},
 		locations: {
 			Sea: {
@@ -1754,6 +1941,12 @@ var toReturn = {
 			},
 			Forest: {
 				resourceType: "Wood"
+			},
+			Depths: {
+				resourceType: "Gems"
+			},
+			Plentiful: {
+				resourceType: "Any"
 			},
 			Hell: {
 				resourceType: "Metal",
@@ -1778,7 +1971,6 @@ var toReturn = {
 			All: {
 				resourceType: "Metal"
 			}
-		
 		},
 		sizeBase: 50,
 		sizeRange: 25,
@@ -2274,6 +2466,7 @@ var toReturn = {
 				unlockBuilding("Nursery");
 			}
 		},
+		//This one is for all maps
 		gems: {
 			world: -1,
 			level: [0, 7],
@@ -2283,6 +2476,41 @@ var toReturn = {
 			fire: function (level) {
 				var amt = rewardResource("gems", 0.5, level, true);
 				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "*diamond");
+			}
+		},
+		//This one is for depths maps
+		Gems: {
+			world: -1,
+			level: [0, 4],
+			repeat: 3,
+			icon: "*diamond",
+			title: "Gems",
+			filter: true,
+			fire: function (level) {
+				var amt = rewardResource("gems", 0.5, level, true);
+				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "*diamond");
+			}
+		},
+		Any: {
+			world: -1,
+			level: [0, 2],
+			icon: "*leaf2",
+			title: "Food/Wood/Metal",
+			repeat: 2,
+			filter: true,
+			fire: function (level) {
+				var rand = Math.floor(Math.random() * 3);
+				switch(rand) {
+					case 0: 
+						game.mapUnlocks.Food.fire(level);
+						break;
+					case 1:
+						game.mapUnlocks.Wood.fire(level);
+						break;
+					case 2:
+						game.mapUnlocks.Metal.fire(level);
+						break;
+				}
 			}
 		},
 		Metal: {

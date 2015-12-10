@@ -957,6 +957,11 @@ overflow-x: hidden;
 	font-size: .85em;
 }
 
+#achievementHoverProgress {
+	font-size: .75em;
+	font-weight: bold;
+}
+
 #achievementPopupTitle, #achievementHoverTitle{
 	font-weight: bold;
 	color: #318696;

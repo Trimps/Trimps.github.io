@@ -559,10 +559,10 @@ function getBattleStatBd(what) {
 	//Add Geneticist
 	var geneticist = game.jobs.Geneticist;
 	if (geneticist.owned > 0 && what == "health"){
-		var geneticistStrength = Math.pow(1.01, geneticist.owned);
+		var geneticistStrength = Math.pow(1.01, game.global.lastLowGen);
 		currentCalc  *= geneticistStrength;
 		geneticistStrength = prettify((geneticistStrength * 100) - 100) + "%";
-		textString += "<tr><td class='bdTitle'>Geneticists</td><td>1%</td><td>" + prettify(geneticist.owned) + "</td><td>+ " + geneticistStrength + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Geneticists</td><td>1%</td><td>" + prettify(game.global.lastLowGen) + "</td><td>+ " + geneticistStrength + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Anticipation
 	var anticipation = game.portal.Anticipation;
@@ -1667,13 +1667,15 @@ function toggleSetting(setting){
 		var location = (forHover) ? "Hover" : "Popup";
 		if (!forHover) displayNumber = achievement.finished;
 		var color = game.colorsList[achievement.tiers[displayNumber]];
+		var prog = document.getElementById("achievementHoverProgress");
 		if (forHover && !achievement.showAll && displayNumber > achievement.finished) {
 			document.getElementById("achievement" + location).style.display = "block";
 			document.getElementById("achievement" + location + "IconContainer").innerHTML = '<span style= "color: ' + color + ';" class="icomoon icon-locked achievementPopupIcon"></span>';
 			document.getElementById("achievement" + location + "Title").innerHTML = "Locked";
 			document.getElementById("achievement" + location + "Title").style.color = color;
 			document.getElementById("achievement" + location + "Description").innerHTML = "Locked";
-			document.getElementById("achievement" + location + "Reward").innerHTML = '<b>Reward:</b> +' + game.tierValues[achievement.tiers[displayNumber]] + "% Damage";	
+			document.getElementById("achievement" + location + "Reward").innerHTML = '<b>Reward:</b> +' + game.tierValues[achievement.tiers[displayNumber]] + "% Damage";
+			prog.innerHTML = "";
 			return;
 		}
 		document.getElementById("achievement" + location).style.display = "block";
@@ -1682,12 +1684,25 @@ function toggleSetting(setting){
 		document.getElementById("achievement" + location + "Title").style.color = color;
 		document.getElementById("achievement" + location + "Description").innerHTML = achievement.description(displayNumber);
 		document.getElementById("achievement" + location + "Reward").innerHTML = '<b>Reward:</b> +' + game.tierValues[achievement.tiers[displayNumber]] + "% Damage";
+		if (displayNumber == achievement.finished && forHover && typeof achievement.progress !== 'undefined' && (typeof achievement.highest === 'undefined' || achievement.highest > 0)){
+			prog.innerHTML = "Progress: " + achievement.progress();
+		}
+		else
+			prog.innerHTML = "";
 	}
 
 	function checkAchieve(id, evalProperty, doubleChecking, noDisplay) {
 		var achievement = game.achievements[id];
 		if (achievement.finished == achievement.tiers.length) return;
 		if (typeof achievement.evaluate !== 'undefined') evalProperty = achievement.evaluate();
+		if (typeof achievement.highest !== 'undefined') {
+			if (achievement.reverse) {
+				if (achievement.highest === 0 || evalProperty < achievement.highest) achievement.highest = evalProperty;
+			}
+			else {
+				if (evalProperty > achievement.highest) achievement.highest = evalProperty;
+			}
+		}		
 		if (typeof achievement.breakpoints[achievement.finished] === 'number'){
 			if (!achievement.reverse){
 				if (evalProperty < achievement.breakpoints[achievement.finished]) return;	
