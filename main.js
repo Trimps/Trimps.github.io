@@ -2394,7 +2394,7 @@ function selectMap(mapId, force) {
 function runMap() {
     if (game.global.lookingAtMap === "") return;
 
-	if (game.global.challengeActive == "Mapology") {
+	if (game.global.challengeActive == "Mapology" && !game.global.currentMapId) {
 		if (game.challenges.Mapology.credits < 1){
 			message("You are all out of Map Credits! Clear some more zones to earn some more.", "Notices");
 			return;
