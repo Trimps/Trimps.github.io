@@ -1058,6 +1058,16 @@ overflow-x: hidden;
 	background: rgba(0, 0, 0, 0.75);
 }
 
+.presimpt{
+	color: rgb(64, 220, 64) !important;
+	background: rgba(220, 64, 64, 0.75);
+}
+
+.presimptBones{
+	color: white !important;
+	font-weight: bold;
+}
+
 .statToggleBtn{
 	font-size: 1.5vw;
 	border: 5px solid black;

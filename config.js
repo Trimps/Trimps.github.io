@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.73,
+		version: 2.74,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -111,6 +111,8 @@ var toReturn = {
 		statsMode: "current",
 		achievementBonus: 0,
 		lastLowGen: 0,
+		presimptStore: "food",
+		lastWarp: 0,
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -616,7 +618,6 @@ var toReturn = {
 			},
 			unlockString: "reach Zone 100"
 		},
-
 		Mapocalypse: {
 			description: "Experience a slightly distorted version of the 'Electricity' dimension, to help understand the relationship between maps and the world. Everything will work exactly the same as Electricity, but all maps will have an extra 300% difficulty. Clearing <b>'The Prison' (80)</b> will cause the world to return to normal. You <b>will</b> receive the Helium reward from Electricity.",
 			completed: false,
@@ -651,7 +652,7 @@ var toReturn = {
 			unlockString: "reach Zone 130"
 		},
 		Nom: {
-			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with double helium for all Blimps and Improbabilities killed. This is repeatable!",
+			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with triple helium for all Blimps and Improbabilities killed. This is repeatable!",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 144);
@@ -663,7 +664,7 @@ var toReturn = {
 			description: "Travel to a dimension where maps are scarce, in an attempt to learn to be more resourceful. You will earn one map Credit for each World Zone you clear, and it costs 1 credit to run 1 map. Completing <b>Zone 100</b> with this challenge active will return you to your original dimension.",
 			completed: false,
 			filter: function () {
-				return (game.global.highestLevelCleared >= 150);
+				return (game.global.highestLevelCleared >= 149);
 			},
 			fireAbandon: true,
 			abandon: function (){
@@ -675,9 +676,7 @@ var toReturn = {
 			unlocks: "Resourceful",
 			credits: 0,
 			unlockString: "reach Zone 150"
-		},
-
-		
+		},	
 	},
 	
 	stats:{
@@ -1033,7 +1032,31 @@ var toReturn = {
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
-		
+		bionicTimed: {
+			finished: 0,
+			title: "Speed: Bionic",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "<span style='font-size: .82em'>Clear Bionic Wonderland in " + number + " or less</span>";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 80);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
+			reverse: true,
+			showAll: true,
+			breakpoints: [1440, 1200, 720, 480, 240, 180], //In minutes
+			tiers: [4, 4, 5, 5, 6, 6],
+			names: ["Lover of Bots", "Friend of Bots", "Acquaintance of Bots", "Bot Disliker", "Bot Hater", "Bot Slayer"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},		
 	},
 	
 	
@@ -1095,7 +1118,8 @@ var toReturn = {
 		w109: "Though you have no idea which direction your home planet is, you still believe the ship's GPS could get you home. Maybe Druopitee has the keys. You really want to find him.",
 		w115: "You just remembered what a taco was. You could really use a taco right now.",
 		w120: "Your stamina is quickly dwindling. Trying to keep up with so many more extra Trimps each zone is beginning to wear you down. You'll need to practice fighting with stronger, smaller groups to succeed.",
-		w125: "Woah, you have a lot of Trimps right now. You hadn't really stopped to think about just how many individual Trimps you have directly under your control in a while. Neat!",
+		w123: "Woah, you have a lot of Trimps right now. You hadn't really stopped to think about just how many individual Trimps you have directly under your control in a while. Neat!",
+		w125: "You smell metal and gears, and suddenly feel like you should run a map.",
 		w130: "You decide to sit down and take a breather, when suddenly a Trimp comes waddle-galloping towards you holding a piece of paper. Hurriedly scrawled on the paper is a drawing of a strange weapon and piece of armor, along with numbers that seem to be dimensional coordinates. You would ask where he found it, but you know better by now.",
 		w132: "You can't stop thinking about where that Trimp found the coordinates for the Slow dimension. Why can't whatever is helping you just come out and help you?",
 		w135: "Ugh, your back is getting sore. It seems like travelling back in time does not reverse the ageing process for the traveller. Bummer.",
@@ -1347,6 +1371,17 @@ var toReturn = {
 	},
 
 	badGuys: {
+		Presimpt: {
+			location: "World",
+			locked: 1,
+			attack: 1.1,
+			health: 1.5,
+			fast: false,
+			loot: function () {
+				//Happy Politically Correct Holidays, everyone!
+				givePresimptLoot();
+			}
+		},
 		Turkimp: {
 			location: "World",
 			locked: 1,
@@ -1356,6 +1391,7 @@ var toReturn = {
 			loot: function () {
 				//Happy Thanksgiving and stuff.
 				//Also, happy post thanksgiving and stuff.
+				//Also, happy normal days now I guess
 				activateTurkimpPowers();
 			}
 		},
@@ -1672,6 +1708,55 @@ var toReturn = {
 				checkAchieve("prisonTimed");
 			}
 		},
+		//Putting Bionic Wonderland stuff right.... here cause why not
+		Robotrimp: {
+			location: "Bionic",
+			last: true,
+			world: 125,
+			attack: 2.1,
+			health: 2.9,
+			fast: false,
+			loot: function (level) {
+				checkAchieve("bionicTimed");
+				var amt1 = rewardResource("wood", 1, level, true);
+				var amt2 = rewardResource("food", 1, level, true);
+				message("Robotrimp discombobulated. Loot inspection reveals: " + prettify(amt1) + " wood and " + prettify(amt2) + " food. Splendiferous.", "Loot", "*cogs");
+			}
+		},
+		Mechimp: {
+			location: "Bionic",
+			world: 125,
+			attack: 1,
+			health: 1.5,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("metal", .25, level, true);
+				message("Mechimp disengaged. Reward encountered: " + prettify(amt) + " bars of metal. Huzzah.", "Loot", "*cubes");
+			}
+		},
+		Destructimp: {
+			location: "Bionic",
+			world: 125,
+			attack: 1.4,
+			health: 0.8,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("metal", .25, level, true);
+				message("Destructimp shorted out. Salvage results: " + prettify(amt) + " bars of metal. Acceptable.", "Loot", "*cubes");				
+			}
+		},
+		Terminatimp: {
+			location: "Bionic",
+			world: 125,
+			attack: 1.2,
+			health: 1.2,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("metal", .25, level, true);
+				message("Terminatimp Terminated. Findings: " + prettify(amt) + " bars of metal. Hasta la Vista.", "Loot", "*cubes");				
+			}
+		},
+		//End Bionic Wonderland stuff
 		Improbability: {
 			locked: 1,
 			location: "World",
@@ -1697,9 +1782,10 @@ var toReturn = {
 					game.global.slowDone = true;
 				}
 				else if (game.global.challengeActive == "Nom" && game.global.world == 145){
-					message("You have completed the Nom challenge! You have been rewarded with " + prettify(game.challenges.Nom.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
-					game.resources.helium.owned += game.challenges.Nom.heldHelium;
-					game.global.totalHeliumEarned += game.challenges.Nom.heldHelium;
+					var reward = game.challenges.Nom.heldHelium * 2;
+					message("You have completed the Nom challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
+					game.resources.helium.owned += reward;
+					game.global.totalHeliumEarned += reward;
 					game.challenges.Nom.heldHelium = 0;
 					game.global.challengeActive = "";
 				}
@@ -1840,7 +1926,8 @@ var toReturn = {
 			fast: false,
 			dropDesc: "+100% damage for 30 seconds in maps",
 			loot: function () {
-				game.global.titimpLeft = 30;
+				game.global.titimpLeft += 30;
+				if (game.global.titimpLeft > 45) game.global.titimpLeft = 45;
 				message("That Titimp made your Trimps super strong!", "Loot", "*hammer", "exotic");
 			}		
 		},
@@ -1967,6 +2054,9 @@ var toReturn = {
 			Prison: {
 				resourceType: "Food",
 				upgrade: "Keys"
+			},
+			Bionic: {
+				resourceType: "Any"
 			},
 			All: {
 				resourceType: "Metal"
@@ -2307,6 +2397,17 @@ var toReturn = {
 				unlockMapStuff();
 				createMap(80, "The Prison", "Prison", 2.6, 100, 2.6, true);
 				message("You found The Prison! You have a bad feeling about going in...", "Story");
+			}
+		},
+		BionicWonderland: {
+			startAt: 125,
+			level: [1, 15],
+			icon: "th-large",
+			canRunOnce: true,
+			title: "Bionic Wonderland",
+			fire: function () {
+				message("You found a map to the Bionic Wonderland. Sounds fun!", "Story");
+				createMap(125, "Bionic Wonderland", "Bionic", 3, 100, 2.6, true);
 			}
 		},
 		Mansion: {
@@ -2876,7 +2977,7 @@ var toReturn = {
 			addClass: "brokenUpgrade",
 			world: -5,
 			startAt: 95,
-			lastAt: 130,
+			lastAt: 170,
 			level: 19,
 			icon: "*make-group",
 			title: "Gigastation",
@@ -2889,7 +2990,7 @@ var toReturn = {
 			brokenPlanet: 1,
 			addClass: "brokenUpgrade",
 			world: -10,
-			startAt: 140,
+			startAt: 180,
 			level: 19,
 			icon: "*make-group",
 			title: "Gigastation",
@@ -3512,6 +3613,7 @@ var toReturn = {
 						}
 					}
 				}
+				game.global.lastWarp = game.buildings.Warpstation.owned;
 				game.buildings.Warpstation.increase.by *= 1.20;
 				game.buildings.Warpstation.cost.gems[0] *= 1.75;
 				game.buildings.Warpstation.cost.metal[0] *= 1.75;

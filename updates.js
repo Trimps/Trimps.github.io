@@ -22,8 +22,12 @@ var customUp;
 var tooltipUpdateFunction = "";
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) {
 	
-	if (document.getElementById(what + "Alert") !== null)	document.getElementById(what + "Alert").innerHTML = "";
-	if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
+	if (document.getElementById(what + "Alert") !== null){
+		if (typeof game[isItIn] !== 'undefined') game[isItIn][what].alert = false;
+		document.getElementById(what + "Alert").innerHTML = "";
+		if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
+	}
+	
 	if (game.global.lockTooltip) return;
 	
 	var elem = document.getElementById("tooltipDiv");
@@ -323,6 +327,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else
 		tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
+	}
+	if (what == "Warpstation" && isItIn == "buildings" && game.global.lastWarp) {
+		tooltipText += "<b> You purchased " + game.global.lastWarp + " Warpstations before your last Gigastation.</b>";
 	}
 	if (typeof tooltipText.split('~') !== 'undefined') {
 		var percentIncrease = game.upgrades.Gymystic.done;
@@ -910,6 +917,7 @@ function resetGame(keepPortal) {
 	var stats;
 	var repeat;
 	var achieves;
+	var pres;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -931,6 +939,7 @@ function resetGame(keepPortal) {
 		repeat = game.global.repeatMap;
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 		achieves = game.achievements;
+		pres = game.global.presimptStore;
 	}
 	game = null;
 	game = newGame();
@@ -968,6 +977,10 @@ function resetGame(keepPortal) {
 		
 		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 		game.portal.Coordinated.currentSend = 1;
+		if (pres == "gems" || pres == "fragments"){
+			pres = "food";
+		}
+		game.global.presimptStore = pres;
 	}
 	numTab(1);
 	pauseFight(true);
@@ -1385,17 +1398,19 @@ function updateSideTrimps(){
 
 function unlockBuilding(what) {
 	game.global.lastUnlock = new Date().getTime();
-	var locked = game.buildings[what].locked;
+	var building = game.buildings[what];
+	if (building.locked == 1) building.alert = true;
 	var elem = document.getElementById("buildingsHere");
 	elem.innerHTML = "";
-	game.buildings[what].locked = 0;
+	building.locked = 0;
 	for (var item in game.buildings){
-		if (game.buildings[item].locked == 1) continue;
-		drawBuilding(item, elem);	
-	}
-	if (locked == 1){
-		document.getElementById("buildingsAlert").innerHTML = "!";
-		document.getElementById(what + "Alert").innerHTML = "!";
+		building = game.buildings[item];
+		if (building.locked == 1) continue;
+		drawBuilding(item, elem);
+		if (building.alert){
+			document.getElementById("buildingsAlert").innerHTML = "!";
+			document.getElementById(item + "Alert").innerHTML = "!";
+		}
 	}
 }
 
@@ -1405,17 +1420,18 @@ function drawBuilding(what, where){
 
 function unlockJob(what) {
 	game.global.lastUnlock = new Date().getTime();
-	var locked = game.jobs[what].locked;
-	game.jobs[what].locked = 0;
+	var job = game.jobs[what];
+	if (job.locked == 1) job.alert = true;
+	job.locked = 0;
 	var elem = document.getElementById("jobsHere");
 	elem.innerHTML = "";
 	for (var item in game.jobs){
 		if (game.jobs[item].locked == 1) continue;
 		drawJob(item, elem);
-	}
-	if (locked == 1){
-		document.getElementById("jobsAlert").innerHTML = "!";
-		document.getElementById(what + "Alert").innerHTML = "!";
+		if (game.jobs[item].alert){
+			document.getElementById("jobsAlert").innerHTML = "!";
+			document.getElementById(what + "Alert").innerHTML = "!";
+		}
 	}
 }
 
@@ -1462,14 +1478,15 @@ function unlockUpgrade(what, displayOnly) {
 	
 	if (!displayOnly) {
 		upgrade.allowed++;
+		upgrade.alert = true;
 	}
 	for (var item in game.upgrades){
 		if (game.upgrades[item].locked == 1) continue;
 		drawUpgrade(item, elem);
-	}
-	if (!displayOnly){
-		document.getElementById("upgradesAlert").innerHTML = "!";
-		document.getElementById(what + "Alert").innerHTML = "!";
+		if (game.upgrades[item].alert){
+			document.getElementById("upgradesAlert").innerHTML = "!";
+			document.getElementById(item + "Alert").innerHTML = "!";
+		}
 	}
 }
 

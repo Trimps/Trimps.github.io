@@ -460,23 +460,33 @@ function toggleStats(toggleMode){
 		document.getElementById("currentSelectBtn").style.border = "5px solid black";
 	}
 	if (trimpStatsDisplayed){
-		document.getElementById("statsRow").innerHTML = '<div class="col-xs-4" id="statCol1"></div><div class="col-xs-4" id="statCol2"></div><div class="col-xs-4" id="statCol3"></div>';
-		var column = 1;
-		for (var item in game.stats){
-			var stat = game.stats[item];
-			if (typeof stat.display === 'function'){
-				if (!stat.display()) continue;
-			}
-			if (typeof stat.value === 'undefined' && mode == 'current') continue;
-			if (typeof stat.valueTotal == 'undefined' && mode == 'total') continue;
-			var value = (mode == 'current') ? stat.value : stat.valueTotal;
-			var elem = document.getElementById("statCol" + column);
-			value = (typeof value === 'function') ? value() : value;
-			if (mode == 'total' && typeof stat.valueTotal !== 'function' && typeof stat.value !== 'undefined') value += stat.value;
-			value = prettify(value);
-			elem.innerHTML += '<div class="statContainer" id="stat' + item + 'Container"><span class="statTitle">' + stat.title + '</span><br/><span class="statValue" id="statTrimpsSlainValue">' + value + '</span></div><br/>'
+		displayAllStats(true);
+	}
+}
+
+function displayAllStats(buildAll) {
+	if (buildAll) document.getElementById("statsRow").innerHTML = '<div class="col-xs-4" id="statCol1"></div><div class="col-xs-4" id="statCol2"></div><div class="col-xs-4" id="statCol3"></div>';
+	var mode = game.global.statsMode;
+	var column = 1;
+	for (var item in game.stats){
+		var stat = game.stats[item];
+		if (typeof stat.display === 'function'){
+			if (!stat.display()) continue;
+		}
+		if (typeof stat.value === 'undefined' && mode == 'current') continue;
+		if (typeof stat.valueTotal == 'undefined' && mode == 'total') continue;
+		var value = (mode == 'current') ? stat.value : stat.valueTotal;
+		value = (typeof value === 'function') ? value() : value;
+		if (mode == 'total' && typeof stat.valueTotal !== 'function' && typeof stat.value !== 'undefined') value += stat.value;
+		value = prettify(value);
+		if (buildAll){
+			document.getElementById("statCol" + column).innerHTML += '<div class="statContainer" id="stat' + item + 'Container"><span class="statTitle">' + stat.title + '</span><br/><span class="statValue" id="stat' + item + 'Value">' + value + '</span></div><br/>'
 			column++;
 			if (column == 4) column = 1;
+		}
+		else {
+			var elem = document.getElementById("stat" + item + "Value");
+			if (elem && value) elem.innerHTML = value;
 		}
 	}
 }
@@ -1092,6 +1102,9 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 	}
 	else if (what == "fragments"){
 		amt = Math.floor(Math.pow(1.15, game.global.world));
+		if (baseAmt > 1) {
+			amt *= baseAmt;
+		}
 	}
 	else{
 		if (what == "helium") level = Math.round((level - 1900) / 100);
@@ -1171,9 +1184,16 @@ function setGather(what, updateOnly) {
     }
     if (updateOnly) return;
 	game.global.playerGathering = what;
+	updateBuildSpeed();
 	collectBtn = document.getElementById(what + "CollectBtn");
     collectBtn.innerHTML = btnText + setGatherTextAs(what, true);
     collectBtn.style.background = colorOn;
+}
+
+function updateBuildSpeed(){
+	var modifier = (game.global.autoCraftModifier > 0) ? game.global.autoCraftModifier : 0;
+    if (game.global.playerGathering == "buildings") modifier += game.global.playerModifier;
+	document.getElementById("buildSpeed").innerHTML = (modifier > 0) ? prettify(Math.floor(modifier * 100)) + "%" : "";
 }
 
 function setGatherTextAs(what, on) {
@@ -1985,11 +2005,15 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
 	if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (Math.floor(Math.random() * 100) < 10) ? "Megaskeletimp" : "Skeletimp";} 
 	if (imports.length && !force && (Math.floor(Math.random() * 100) < (imports.length * 3))) return imports[Math.floor(Math.random() * imports.length)];
 	if (!mapSuffix && !force) {
-		var chance = .7 * (1 / (100 - 1 - (3 * imports.length)));
+		var chance = .35 * (1 / (100 - 1 - (3 * imports.length)));
+		
 		chance = Math.round(chance * 100000);
 		var roll = Math.floor(Math.random() * 100000);
 		if (roll < chance) {
 			return "Turkimp";
+		}
+		if (roll < chance * 3){
+			return "Presimpt";
 		}
 	}
     if (!force) selected = badGuysArray[Math.floor(Math.random() * badGuysArray.length)];
@@ -3631,6 +3655,33 @@ function activateTurkimpPowers() {
 	
 }
 
+function givePresimptLoot(){
+	var elligible = ["food", "food", "food", "food", "wood", "wood", "wood", "wood", "metal", "metal", "metal", "metal", "bones"];
+	var success = [
+		"You hurriedly open up the Presimpt, and find ",
+		"Ooh look, a Presimpt! You tear it open and receive ",
+		"Nifty! That Presimpt was carrying around ",
+		"Presimpts for everyone! Wait there's only one. Then Presimpt just for you! With ",
+		"This Presimpt has little snowman markings all over it! Inside, you find "];			
+	if (game.jobs.Dragimp.owned > 0) elligible.push("gems", "gems", "gems", "gems");
+	else elligible.push("food", "wood", "metal", "metal");
+	if (game.jobs.Explorer.locked == 0) elligible.push("fragments", "fragments", "fragments");
+	else elligible.push("food", "wood", "metal"); 
+	var roll = Math.floor(Math.random() * elligible.length);
+	var item = game.global.presimptStore;
+	game.global.presimptStore = elligible[roll];
+	if (item == "bones") {
+		message("You shake the Presimpt before opening it, and can tell there's something special in this one. Yup! That thoughtful Presimpt gave you a perfectly preserved bone!", "Loot", "*gift", "presimpt presimptBones");
+		game.global.b++;
+		updateSkeleBtn();
+		return;
+	}
+	var randomBoost = Math.floor(Math.random() * 3) + 2;
+	var amt = rewardResource(item, randomBoost, (game.global.lastClearedCell + 1));
+	var messageNumber = Math.floor(Math.random() * success.length);
+	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*gift", "presimpt");
+}
+
 function updateTurkimpTime() {
 	game.global.turkimpTimer -= 100;
 	var timeRemaining = game.global.turkimpTimer;
@@ -3739,6 +3790,7 @@ function updatePortalTimer() {
 	}
 	document.getElementById("portalTimer").innerHTML = timeString;
 	checkAchieve("totalGems");
+	if (trimpStatsDisplayed) displayAllStats();
 	setTimeout(updatePortalTimer, 1000);
 }
 
