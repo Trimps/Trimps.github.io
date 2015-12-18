@@ -1401,7 +1401,7 @@ function refundQueueItem(what) {
 		else if (typeof struct.cost[costItem] === 'function') refund += struct.cost[costItem]();
 		else 
 			refund = thisCostItem * name[1];
-		if (game.portal.Resourceful.level) refund *= Math.pow(0.95, game.portal.Resourceful.level);
+		if (game.portal.Resourceful.level) refund = Math.ceil(refund * (Math.pow(1 - game.portal.Resourceful.modifier, game.portal.Resourceful.level)));
 		addResCheckMax(costItem, parseFloat(refund));
 		if (what.split('.')[0] == "Wormhole" && costItem == "helium") {
 			game.global.totalHeliumEarned += parseFloat(refund);
