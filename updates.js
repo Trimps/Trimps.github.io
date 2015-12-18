@@ -328,7 +328,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else
 		tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
 	}
-	if (what == "Warpstation" && isItIn == "buildings" && game.global.lastWarp) {
+	if (isItIn == "buildings"  && what.split(' ')[0] == "Warpstation" && game.global.lastWarp) {
 		tooltipText += "<b> You purchased " + game.global.lastWarp + " Warpstations before your last Gigastation.</b>";
 	}
 	if (typeof tooltipText.split('~') !== 'undefined') {
