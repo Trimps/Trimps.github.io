@@ -1037,7 +1037,7 @@ var toReturn = {
 			title: "Speed: Bionic",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .82em'>Clear Bionic Wonderland in " + number + " or less</span>";
+				return "<span style='font-size: .8em'>Clear Bionic Wonderland in " + number + " or less</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 80);
@@ -1926,8 +1926,13 @@ var toReturn = {
 			fast: false,
 			dropDesc: "+100% damage for 30 seconds in maps",
 			loot: function () {
-				game.global.titimpLeft += 30;
-				if (game.global.titimpLeft > 45) game.global.titimpLeft = 45;
+				var timeRemaining = parseInt(game.global.titimpLeft);
+				if (timeRemaining > 0) {
+					timeRemaining += 30;
+					if (timeRemaining > 45) timeRemaining = 45;
+				}
+				else timeRemaining = 30;
+				game.global.titimpLeft = timeRemaining;
 				message("That Titimp made your Trimps super strong!", "Loot", "*hammer", "exotic");
 			}		
 		},
