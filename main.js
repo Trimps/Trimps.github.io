@@ -140,8 +140,19 @@ function load(saveString, autoLoad) {
 			message("It looks like your import code isn't working properly. Please make sure that your export code is saved in a text file compatible with all of the characters. If you believe this code should be working, you can Email it to Trimpsgame@gmail.com and I will do my best to restore it for you!", "Notices");
 			return;
 		}
-    } else if (localStorage.getItem("trimpSave1") !== null) {
-        savegame = JSON.parse(LZString.decompressFromBase64(localStorage.getItem("trimpSave1")));
+    } else  {
+		var unparsedSave;
+		try {
+			unparsedSave = localStorage.getItem("trimpSave1");
+		}
+		catch (e) {
+			message("Your browser is preventing Trimps from accessing localStorage, and you will not be able to save or load your progress. Please check your browser settings to ensure that 3rd party cookies are not disabled, and that you're not using any addons that might interrupt storage! <br/><br/> AutoSave has been disabled to prevent damage to your save. If you previously had a save file, it should still be waiting for you once you fix your browser settings.", "Notices");
+			game.options.menu.autoSave.enabled = 0;
+			game.options.menu.autoSave.onToggle();
+			return;
+		}
+        if (unparsedSave !== null) savegame = JSON.parse(LZString.decompressFromBase64(unparsedSave));
+		else return;
     }
     if (typeof savegame === 'undefined' || savegame === null || typeof savegame.global === 'undefined') {
 		tooltip("Welcome", null, "update");
@@ -1390,6 +1401,7 @@ function refundQueueItem(what) {
 		else if (typeof struct.cost[costItem] === 'function') refund += struct.cost[costItem]();
 		else 
 			refund = thisCostItem * name[1];
+		if (game.portal.Resourceful.level) refund *= Math.pow(0.95, game.portal.Resourceful.level);
 		addResCheckMax(costItem, parseFloat(refund));
 		if (what.split('.')[0] == "Wormhole" && costItem == "helium") {
 			game.global.totalHeliumEarned += parseFloat(refund);
