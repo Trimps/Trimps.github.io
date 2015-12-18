@@ -1051,7 +1051,7 @@ var toReturn = {
 			highest: 0,
 			reverse: true,
 			showAll: true,
-			breakpoints: [1440, 1200, 720, 480, 240, 180], //In minutes
+			breakpoints: [1440, 1200, 720, 480, 210, 150], //In minutes
 			tiers: [4, 4, 5, 5, 6, 6],
 			names: ["Lover of Bots", "Friend of Bots", "Acquaintance of Bots", "Bot Disliker", "Bot Hater", "Bot Slayer"],
 			icon: "icomoon icon-alarmclock",
