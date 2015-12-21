@@ -915,7 +915,7 @@ var toReturn = {
 			title: "Speed: The Block",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear The Block in " + number + " or less";
+				return "Clear The Block in " + number + " or less from start of run";
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
@@ -937,7 +937,7 @@ var toReturn = {
 			title: "Speed: The Wall",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear The Wall in " + number + " or less";
+				return "Clear The Wall in " + number + " or less from start of run";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 10);
@@ -962,7 +962,7 @@ var toReturn = {
 			title: "Speed: Anger",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear DoA in " + number + " or less";
+				return "Clear DoA in " + number + " or less from start of run";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 14);
@@ -987,7 +987,7 @@ var toReturn = {
 			title: "Speed: Doom",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear ToD in " + number + " or less";
+				return "Clear ToD in " + number + " or less from start of run";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 19);
@@ -1012,7 +1012,7 @@ var toReturn = {
 			title: "Speed: The Prison",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear The Prison in " + number + " or less";
+				return "Clear Prison in " + number + " or less from start of run";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 32);
@@ -1037,7 +1037,7 @@ var toReturn = {
 			title: "Speed: Bionic",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Bionic Wonderland in " + number + " or less</span>";
+				return "<span style='font-size: .8em'>Clear Bionic Wonderland in " + number + " or less from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 80);
