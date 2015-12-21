@@ -1409,7 +1409,7 @@ function unlockBuilding(what) {
 		drawBuilding(item, elem);
 		if (building.alert){
 			document.getElementById("buildingsAlert").innerHTML = "!";
-			document.getElementById(item + "Alert").innerHTML = "!";
+			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
 		}
 	}
 }
@@ -1430,7 +1430,7 @@ function unlockJob(what) {
 		drawJob(item, elem);
 		if (game.jobs[item].alert){
 			document.getElementById("jobsAlert").innerHTML = "!";
-			document.getElementById(what + "Alert").innerHTML = "!";
+			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
 		}
 	}
 }
@@ -1485,7 +1485,7 @@ function unlockUpgrade(what, displayOnly) {
 		drawUpgrade(item, elem);
 		if (game.upgrades[item].alert){
 			document.getElementById("upgradesAlert").innerHTML = "!";
-			document.getElementById(item + "Alert").innerHTML = "!";
+			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
 		}
 	}
 }
