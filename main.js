@@ -3712,11 +3712,11 @@ function updateTurkimpTime() {
 	var mins = Math.floor(timeRemaining / 60);
 	var seconds = Math.ceil(timeRemaining % 60);
 	if (seconds <= 9) seconds = "0" + seconds;
-	if (mins <= 9) mins = "0" + mins;
 	if (seconds == 60){
 		seconds = "00";
 		mins++;
 	}
+	if (mins < 10) mins = "0" + mins;
 	document.getElementById("turkimpTime").innerHTML = mins + ":" + seconds;
 }
 
