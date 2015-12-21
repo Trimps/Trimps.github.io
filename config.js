@@ -3609,14 +3609,7 @@ var toReturn = {
 			},
 			fire: function () {
 				if (game.buildings.Warpstation.purchased > game.buildings.Warpstation.owned){
-					var thisLength = game.global.buildingsQueue.length;
-					var thisRemoved = 0;
-					for (var x = 0; x < thisLength; x++){
-						if (game.global.buildingsQueue[x - thisRemoved].split('.')[0] == "Warpstation") {
-							removeQueueItem("queueItem" + (game.global.nextQueueId - game.global.buildingsQueue.length + x - thisRemoved)); 
-							thisRemoved++;
-						}
-					}
+					clearQueue('Warpstation');
 				}
 				game.global.lastWarp = game.buildings.Warpstation.owned;
 				game.buildings.Warpstation.increase.by *= 1.20;

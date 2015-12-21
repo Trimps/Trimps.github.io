@@ -185,6 +185,7 @@ function load(saveString, autoLoad) {
                 for (var itemA in game.global.buildingsQueue) {
                     addQueueItem(game.global.buildingsQueue[itemA]);
                 }
+				game.global.nextQueueId = game.global.buildingsQueue.length;
             }
         }
     }
@@ -944,6 +945,7 @@ function getPortalUpgradePrice(what, removing){
 
 function commitPortalUpgrades(){
 	if (!canCommitCarpentry()) return false;
+	checkHandleResourcefulRespec();
 	for (var item in game.portal){
 		if (game.portal[item].locked) continue;
 		var portUpgrade = game.portal[item];
@@ -983,6 +985,21 @@ function canCommitCarpentry(){
 		good = false;
 	}
 	return good;
+}
+
+function checkHandleResourcefulRespec(){
+	if (game.portal.Resourceful.level > game.portal.Resourceful.levelTemp) clearQueue();
+}
+
+function clearQueue(specific) {
+	var existing = 0;
+	for (var x = 0; x < game.global.nextQueueId; x++){
+		if (!document.getElementById("queueItem" + x)) continue;
+		existing++;
+		if (specific && game.global.buildingsQueue[existing - 1].split('.')[0] != specific) continue;
+		else existing--;
+		removeQueueItem("queueItem" + x);
+	}
 }
 
 function activatePortal(){
