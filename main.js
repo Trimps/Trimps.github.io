@@ -2841,6 +2841,7 @@ function fight(makeUp) {
 					updateMapCredits();
 					messageMapCredits()
 				}
+				fightManual();
 				return;
 			}
 			else{
