@@ -35,6 +35,25 @@ overflow-x: hidden;
     color: white;
 }
 
+.holidaySaleDesc{
+	color: red;
+	font-weight: bold;
+}
+
+.holidaySale{
+	font-weight: bold;
+	color: red;
+	background-color: rgba(255, 255, 255, 0.5);
+	display: inline-block;
+}
+
+.saleStrike{
+	text-decoration: line-through;
+	font-size: 0.8em;
+	color: red;
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
 #jobsTitleUnemployed{
 	font-size: .8em;
 }

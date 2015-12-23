@@ -61,7 +61,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 						You have <span id="bonesOwned">0</span> bones
 					</div>
 					<div id="getBonesBtn" class="boneBtn successColor pointer noselect" style="width: 33vw; display: inline-block" onclick="showPurchaseBones()">
-						<span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span> Get some more bones</span>						
+						<span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span> Get some more bones <span class='holidaySale'>(Holiday Sale Now!)</span></span>						
 					</div>
 					<br/>
 					<span id="bonesFrom">You Can Also Earn Bones In Game By Killing Skeletimps</span>
@@ -191,6 +191,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 				<div class="boneBuyDesc">
 					I love working on this game, but there's still so much to do, and any funds raised through bones will support the continued development of Trimps. Thank you so much for playing!
 				</div>
+				<div class="holidaySaleDesc">
+					By popular demand, Trimps is running a Holiday Sale! From now through the end of December, you will earn an extra 20% bones on top of the normal bonuses when purchasing bones!
+				</div>
 			</div>
 			</div>
 			<div class="col-xs-2">
@@ -205,35 +208,35 @@ var kongregate = parent.kongregateAPI.getAPI();
 		<div id="boneBuyTableContainer">
 			<table id="boneBuyTable" class="table">
 				<tbody>
-					<tr class="pointer noSelect" onclick="kredPurchase('20.bones')">
+					<tr class="pointer noSelect" onclick="kredPurchase('24.bones')">
 						<td>
-							20 Bones
+							<span class='saleStrike'>20</span> 24 Bones
 						</td>
 						<td>
-							&nbsp;
+							(Includes +4 Bones)
 						</td>
 						<td>
 							10 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span>
 						</td>
 					</tr>
-					<tr class="pointer noSelect" onclick="kredPurchase('42.bones')">
-						<td>42 Bones</td>
-						<td>(Includes +2 bones!)</td>
+					<tr class="pointer noSelect" onclick="kredPurchase('50.bones')">
+						<td><span class='saleStrike'>42</span> 50 Bones</td>
+						<td>(Includes <span class='saleStrike'>+2</span> +10 bones!)</td>
 						<td>20 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
 					</tr>
-					<tr class="pointer noSelect" onclick="kredPurchase('110.bones')">
-						<td>110 Bones</td>
-						<td>(Includes +10 bones!)</td>
+					<tr class="pointer noSelect" onclick="kredPurchase('130.bones')">
+						<td><span class='saleStrike'>110</span> 130 Bones</td>
+						<td>(Includes <span class='saleStrike'>+10</span> +30 bones!)</td>
 						<td>50 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
 					</tr>
-					<tr class="pointer noSelect" onclick="kredPurchase('230.bones')">
-						<td>230 Bones</td>
-						<td>(Includes +30 bones!)</td>
+					<tr class="pointer noSelect" onclick="kredPurchase('270.bones')">
+						<td><span class='saleStrike'>230</span> 270 Bones</td>
+						<td>(Includes <span class='saleStrike'>+30</span> +70 bones!)</td>
 						<td>100 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
 					</tr>
-					<tr class="pointer noSelect" onclick="kredPurchase('480.bones')">
-						<td>480 Bones</td>
-						<td>(Includes +80 bones!)</td>
+					<tr class="pointer noSelect" onclick="kredPurchase('560.bones')">
+						<td><span class='saleStrike'>480</span> 560 Bones</td>
+						<td>(Includes <span class='saleStrike'>+80</span> +160 bones!)</td>
 						<td>200 <span class="kredSpan"><img class="kredImg" src="imgs/kred_single.png"></img></span></td>
 					</tr>
 					<tr id="bundleRow" class="pointer noSelect" onclick="startBundling()">
