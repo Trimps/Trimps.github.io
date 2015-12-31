@@ -343,6 +343,7 @@ var toReturn = {
 				titles: ["Delete Save"],
 				onToggle: function () {
 					tooltip('Reset', null, 'update');
+					game.global.lockTooltip = true;
 					this.enabled = 0;
 				}
 			}

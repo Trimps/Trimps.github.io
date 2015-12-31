@@ -1708,7 +1708,7 @@ function displaySettings() {
 	for (var item in game.options.menu){
 		var optionItem = game.options.menu[item];
 		var text = optionItem.titles[optionItem.enabled];
-		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\")' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='cancelTooltip()'>" + text + "</div></div>";
+		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\")' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
 	}
 	settingsHere.innerHTML = html;
 }
