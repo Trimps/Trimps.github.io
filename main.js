@@ -782,6 +782,7 @@ function checkOfflineProgress(noTip){
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
 		if (game.portal.Meditation.level > 0) {
 			var toAlter;
+			var originalAmt = amt;
 			//Find how many stacks of 10 minutes were already stacked before logging out
 			var timeAtLastOnline = Math.floor((game.global.lastOnline - game.global.zoneStarted) / 600000);
 			//Figure out what percentage of the total time offline one 10 minute chunk is. This will be used to modify amt to the proper amount in 10 minute chunks in order to mimic stacks
@@ -799,7 +800,7 @@ function checkOfflineProgress(noTip){
 					//Check for z == 0 after removing chunkPercent, that way however much time was left before the first stack doesn't get calculated as having a stack
 					if (z == 0) continue;
 					//Find out exactly how much of amt needs to be modified to make up for this chunk
-					toAlter = (amt * chunkPercent / 100);
+					toAlter = (originalAmt * chunkPercent / 100);
 					//Remove it from toAlter
 					amt -= toAlter;
 					//Modify and add back
@@ -808,7 +809,7 @@ function checkOfflineProgress(noTip){
 			}
 			if (remaining){
 				//Check again how much needs to be altered
-				toAlter = (amt * (remaining / 100));
+				toAlter = (originalAmt * (remaining / 100));
 				//Remove
 				amt -= toAlter;
 				//Modify and add back the final amount
