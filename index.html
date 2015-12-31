@@ -172,6 +172,7 @@
 		</div>
 	</div>
 	<div id="wrapper" style="background: url(css/bg2.png) center repeat-x;">
+	<div id="innerWrapper">
 		<div id="warnings"></div>
 		<div class="row" id="topRow">
 			<div class="col-xs-4" id="resourceColumn">
@@ -180,7 +181,7 @@
 						<div id="food" class="playerGather">
 							<span class="title">Food</span>
 							<br/>
-							<span class="ownedArea"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
+							<span class="ownedArea bdHover" onclick="getMaxResources('Food')"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
 								<div class="progress-bar" id="foodBar" role="progressbar">
@@ -202,7 +203,7 @@
 						<div id="wood" class="playerGather" style="visibility: hidden;">
 							<span class="title">Wood</span>
 							<br/>
-							<span class="ownedArea"><span id="woodOwned">0</span> / <span id="woodMax"></span></span>
+							<span class="ownedArea bdHover" onclick="getMaxResources('Wood')"><span id="woodOwned">0</span> / <span id="woodMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
 								<div class="progress-bar" id="woodBar" role="progressbar">
@@ -226,7 +227,7 @@
 						<div id="metal" class="playerGather" style="visibility: hidden;">
 							<span class="title">Metal</span>
 							<br/>
-							<span class="ownedArea"><span id="metalOwned">0</span> / <span id="metalMax"></span></span>
+							<span class="ownedArea bdHover" onclick="getMaxResources('Metal')"><span id="metalOwned">0</span> / <span id="metalMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
 								<div class="progress-bar" id="metalBar" role="progressbar">
@@ -715,6 +716,7 @@
 			</table>
 			<div id="settingsHere" style="display: none"></div>
 		</div>
+	</div>
 	</div>
 
 	<div id="portalWrapper" style="display: none">

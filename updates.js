@@ -55,16 +55,27 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			cordy = e.clientY;
 			
 		}
-		elem.style.left = (cordx + 20) + "px";
-		elem.style.top = (cordy - 200) + "px";
+		cordy -= 200;
+		var bodw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+		var bodh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+		cordx += (bodw * 0.01);
+		bodw -= (bodw > 1500) ? (bodw * 0.35) : (bodw * 0.5);
+		bodh -= (bodh * 0.2);
+		if (cordy < 10) cordy = 10;
+		else if (cordy > bodh - 10) cordy = bodh - 10;
+		if (cordx < 10) cordx = 10;
+		else if (cordx > bodw - 10) cordx = bodw - 10;
+		elem.style.left = (cordx) + "px";
+		elem.style.top = (cordy) + "px";
 	}
+	else tooltipUpdateFunction = "";
 	var tooltipText;
 	var costText = "";
 	var toTip;
 	var price;
 	var canAfford;
 	var percentOfTotal = "";
-	if (isItIn !== null && isItIn != "maps"){
+	if (isItIn !== null && isItIn != "maps" && isItIn != "customText"){
 		toTip = game[isItIn];
 		toTip = toTip[what];
 		if (typeof toTip === 'undefined') console.log(what);
@@ -105,6 +116,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		costText = costText.slice(0, -2);
 	}
+
 	if (what == "Confirm Purchase"){
 		if (attachFunction == "purchaseImport()" && !boneTemp.selectedImport) return;
 		if (game.options.menu.boneAlerts.enabled == 0 && numCheck){
@@ -315,6 +327,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "32.5%";
 		elem.style.top = "25%";
 	}
+	if (isItIn == 'customText') {
+		costText = "";
+		tooltipText = textString;
+	}
 	var tipSplit = tooltipText.split('$');
 	if (typeof tipSplit[1] !== 'undefined'){
 		if (tipSplit[1] == 'incby'){
@@ -390,8 +406,7 @@ function getPsString(what, rawNum) {
 		currentCalc *= mBookStrength;
 		mBookStrength = prettify((mBookStrength - 1) * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Mega" + books[index] + "</td><td class='bdPercent'>+ " + mBookStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
-	}
-	
+	}	
 	//Add bounty
 	if (what != "gems" && game.upgrades.Bounty.done > 0){
 		currentCalc *= 2;
@@ -417,6 +432,20 @@ function getPsString(what, rawNum) {
 		currentCalc  *= (motivationStrength + 1);
 		motivationStrength = prettify(motivationStrength * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Motivation</td><td class='bdPercent'>+ " + motivationStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Add Meditation
+	if (game.portal.Meditation.level > 0){
+		var meditation = game.portal.Meditation;
+		var medStrength = meditation.getBonusPercent();
+		if (medStrength > 0){
+			currentCalc *= (1 + (medStrength * .01)).toFixed(2);
+			textString += "<tr><td class='bdTitle'>Meditation</td><td class='bdPercent'>" + (meditation.getBonusPercent(true) * 10) + " minutes (+" + medStrength + "%)</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		}	
+	}
+	//Add meditate (challenge)
+	if (game.global.challengeActive == "Meditate"){
+		currentCalc *= 1.15;
+		textString += "<tr><td class='bdTitle'>Meditate</td><td class='bdPercent'>+ 15%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add player
 	if (game.global.playerGathering == what){
@@ -639,6 +668,44 @@ function getMaxTrimps() {
 	tooltip('confirm', null, 'update', textString, "getMaxTrimps()", "Max Trimps", "Refresh", true);
 }
 
+function getMaxResources(what) {
+	var structure;
+	switch (what) {
+		case "Food":
+			structure = "Barn";
+			break;
+		case "Wood":
+			structure = "Shed";
+			break;
+		case "Metal":
+			structure = "Forge";
+			break;
+	}
+	if (!structure) return;
+	var structureObj = game.buildings[structure];
+	var base = 500;	
+	var textString =  "<table class='bdTable table table-striped'><tbody>";
+	//Add base
+	var currentCalc = base;
+	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + base + "</td></tr>";
+	//Add structure
+	var structBonus = Math.pow(2, structureObj.owned);
+	currentCalc *= structBonus;
+	structBonus = prettify(structBonus * 100) + "%";
+	textString += "<tr><td class='bdTitle'>" + structure + "</td><td class='bdPercent'>+ " + structBonus + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	//Add packrat
+	if (game.portal.Packrat.level){
+		var packAmt = (game.portal.Packrat.level * 0.2) + 1;
+		currentCalc *= packAmt;
+		packAmt = prettify(packAmt * 100) + '%';
+		textString += "<tr><td class='bdTitle'>Packrat</td><td class='bdPercent'>+ " + packAmt + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+
+	textString += "</tbody></table>";
+	game.global.lockTooltip = false;
+	tooltip('confirm', null, 'update', textString, "getMaxResources('" + what + "')", "Max " + what, "Refresh", true);
+}
+
 function getLootBd(what) {
     var map;
 	var world;
@@ -828,7 +895,11 @@ function prettifySub(number){
 	return number.substring(0, 4);	
 }
 
-function resetGame(keepPortal) {	
+function resetGame(keepPortal) {
+	if (game.options.menu.pauseGame.enabled){
+		game.options.menu.pauseGame.enabled = 0;
+		game.options.menu.pauseGame.onToggle();
+	}
 	document.getElementById("wood").style.visibility = "hidden";
 	document.getElementById("metal").style.visibility = "hidden";
 	document.getElementById("trimps").style.visibility = "hidden";
@@ -997,6 +1068,8 @@ function applyS1(){
 	game.resources.science.owned += 5000;
 	game.resources.wood.owned += 100;
 	game.resources.food.owned += 100;
+	game.buildings.Trap.owned += 10;
+	fadeIn("trimps", 10);
 	game.global.autoCraftModifier += 0.25;
 	document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
 }
@@ -1203,6 +1276,7 @@ function numTab (what, p) {
 
 //Buildings Specific
 function removeQueueItem(what) {
+	if (game.options.menu.pauseGame.enabled) return;
 	var queue = document.getElementById("queueItemsHere");
 	var elem;
 	if (what == "first"){
@@ -1354,7 +1428,8 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			psText = (jobObj.owned * jobObj.modifier);
 			//portal Motivation
 			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
-			 
+			if (game.portal.Meditation.level > 0) psText *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+			if (game.global.challengeActive == "Meditate") psText *= 1.15;
 			if (game.global.playerGathering == increase){
 				if (game.global.turkimpTimer > 0 && increase != "science"){
 					psText *= 1.5;
@@ -1407,7 +1482,7 @@ function unlockBuilding(what) {
 		building = game.buildings[item];
 		if (building.locked == 1) continue;
 		drawBuilding(item, elem);
-		if (building.alert){
+		if (building.alert && game.options.menu.showAlerts.enabled){
 			document.getElementById("buildingsAlert").innerHTML = "!";
 			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
 		}
@@ -1428,7 +1503,7 @@ function unlockJob(what) {
 	for (var item in game.jobs){
 		if (game.jobs[item].locked == 1) continue;
 		drawJob(item, elem);
-		if (game.jobs[item].alert){
+		if (game.jobs[item].alert && game.options.menu.showAlerts.enabled){
 			document.getElementById("jobsAlert").innerHTML = "!";
 			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
 		}
@@ -1483,7 +1558,7 @@ function unlockUpgrade(what, displayOnly) {
 	for (var item in game.upgrades){
 		if (game.upgrades[item].locked == 1) continue;
 		drawUpgrade(item, elem);
-		if (game.upgrades[item].alert){
+		if (game.upgrades[item].alert && game.options.menu.showAlerts.enabled){
 			document.getElementById("upgradesAlert").innerHTML = "!";
 			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
 		}
@@ -1633,7 +1708,7 @@ function displaySettings() {
 	for (var item in game.options.menu){
 		var optionItem = game.options.menu[item];
 		var text = optionItem.titles[optionItem.enabled];
-		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\")'>" + text + "</div><div class='optionItemDescription'>" + optionItem.description + "</div></div> ";
+		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\")' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='cancelTooltip()'>" + text + "</div></div>";
 	}
 	settingsHere.innerHTML = html;
 }
@@ -1651,6 +1726,7 @@ function toggleSetting(setting){
 	menuElem.innerHTML = menuOption.titles[menuOption.enabled];
 	menuElem.className = "";
 	menuElem.className = "settingBtn settingBtn" + menuOption.enabled;
+	tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
 }
 	
 	function achievementCompatibilityUnlock() {

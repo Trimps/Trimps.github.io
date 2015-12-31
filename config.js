@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.74,
+		version: 2.75,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -113,6 +113,7 @@ var toReturn = {
 		lastLowGen: 0,
 		presimptStore: "food",
 		lastWarp: 0,
+		zoneStarted: new Date().getTime(),
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -211,7 +212,7 @@ var toReturn = {
 						document.getElementById("formation0").title = "No Formation";
 						document.getElementById("formation1").title = "Heap Formation - Trimps gain 4x health but lose half of their attack and block";
 						document.getElementById("formation2").title = "Dominance Formation - Trimps gain 4x attack but lose half of their health and block";
-						document.getElementById("formation3").title = "Barrier Formation - Trimps gain 4x block but lose half of their health and attack";
+						document.getElementById("formation3").title = "Barrier Formation - Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack";
 					}
 					else {
 						var elems = document.getElementsByClassName("formationBtn");
@@ -283,9 +284,62 @@ var toReturn = {
 				description: "Hide popup confirmation messages when in the bone trader.",
 				titles: ["Not Popping", "Popping"]
 			},
+			showAlerts: {
+				enabled: 1,
+				description: "Toggle on or off the display of yellow alert icons when unlocking something new.",
+				titles: ["Not Alerting", "Alerting"]
+			},
+			showFullBreed: {
+				enabled: 0,
+				description: "In addition to time required to finish breeding, toggle on or off displaying time to breed a full group of soldiers from 100% full.",
+				titles: ["Less Breed Timer", "Full Breed Timer"]
+			},
+			darkTheme: {
+				enabled: 1,
+				description: "Toggle on or off the striped background image",
+				titles: ["Darkness", "Background Image"],
+				onToggle: function () {
+					var link;
+					if (!this.enabled){
+						link = document.createElement('link');
+						link.type = 'text/css';
+						link.rel = 'stylesheet';
+						link.href = 'css/dark.css';
+						link.id = 'darkTheme';
+						document.head.appendChild(link);
+						return;
+					}
+					link = document.getElementById("darkTheme");
+					if (!link) return;
+					link.disabled = true;
+					document.head.removeChild(link);				
+				}
+			},
+			pauseGame: {
+				enabled: 0,
+				description: "Pause your game. This will pause all resource gathering, offline progress, and timers.",
+				titles: ["Not Paused", "Paused"],
+				timeAtPause: 0,
+				onToggle: function () {
+					if (this.enabled) this.timeAtPause = new Date().getTime();
+					else if (this.timeAtPause) {
+						var now = new Date().getTime();
+						var dif = now - this.timeAtPause;
+						game.global.portalTime += dif;
+						game.global.lastSkeletimp += dif;
+						game.global.zoneStarted += dif;
+						this.timeAtPause = 0;
+						game.global.time = 0;
+						game.global.lastOnline = now;
+						game.global.start = now;
+						setTimeout(gameTimeout(), (100));
+						setTimeout(updatePortalTimer, 1000);
+					}
+				}
+			},
 			deleteSave: {
 				enabled: 0,
-				description: "Delete your save and start fresh. Your Trimps won't be happy.",
+				description: "Delete your save and start fresh. Your Trimps will not be happy.",
 				titles: ["Delete Save"],
 				onToggle: function () {
 					tooltip('Reset', null, 'update');
@@ -355,6 +409,23 @@ var toReturn = {
 			priceBase: 100,
 			heliumSpent: 0,
 			tooltip: "Use your acquired skills in Trimp strengthening to gain a 10% <b>compounding</b> increase to total Trimp health."
+		},
+		Meditation: {
+			level: 0,
+			locked: true,
+			modifier: 1,
+			priceBase: 75,
+			heliumSpent: 0,
+			max: 7,
+			tooltip: "Your experiences in the Dimension of Strong Things have taught you the value of taking your time. Every level of Meditation will increase your Trimps' gather speed by 1% for every 10 minutes spent on the same zone, up to 1 hour. This bonus is reset after clearing the current zone. Maximum of 7 levels.",
+			getBonusPercent: function (justStacks) {
+				var timeOnZone = new Date().getTime() - game.global.zoneStarted;
+				timeOnZone = Math.floor(timeOnZone / 600000);
+				if (timeOnZone > 6) timeOnZone = 6;
+				else if (timeOnZone <= 0) return 0;
+				if (justStacks) return timeOnZone;				
+				return (timeOnZone * this.modifier * this.level);
+			}
 		},
 		Relentlessness:{
 			level: 0,
@@ -548,6 +619,15 @@ var toReturn = {
 				else if (game.global.sLevel == 1) return "reach Zone 50";
 				else if (game.global.sLevel >= 2) return "reach Zone 90";
 			}
+		},
+		Meditate: {
+			description: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, and your trimps will gather 25% faster. Completing <b>'Trimple of Doom' (33)</b> will return the world to normal.",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 44);
+			},
+			unlocks: "Meditation",
+			unlockString: "reach Zone 45"
 		},
 		Trimp: {
 			description: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination, but completing <b>'The Block' (11)</b> will teach you how to keep your Trimps alive for much longer.",
@@ -1533,7 +1613,7 @@ var toReturn = {
 			health: 1.4,
 			fast: false,
 			loot: function (level) {
-				var random = Math.floor(Math.random() * 10);
+				var random = Math.floor(Math.random() * 5);
 				var amt;
 				var res;
 				var icon;
@@ -1694,6 +1774,11 @@ var toReturn = {
 					game.challenges.Trapper.abandon();
 					game.portal.Anticipation.locked = false;
 					message("You have completed the 'Trapper' challenge! Your Trimps now remember how to breed, and you have unlocked a new perk!", "Notices");
+				}
+				if (game.global.challengeActive == "Meditate"){
+					game.global.challengeActive = "";
+					game.portal.Meditation.locked = false;
+					message("You have completed the 'Meditate' challenge! The dimension has returned to normal, and you have unlocked a new perk!", "Notices");
 				}
 			}
 		},
@@ -3411,7 +3496,7 @@ var toReturn = {
 			},
 			increase:{
 				what: "trimps.max",
-				by: 1000
+				by: 1500
 			}
 		},
 		Collector: {

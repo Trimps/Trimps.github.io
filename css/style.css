@@ -13,7 +13,6 @@ overflow-x: hidden;
 }
 
 #wrapper {
-    padding: 15px;
     height: 100vh;
     background-size: auto 100%;
 }
@@ -176,6 +175,16 @@ overflow-x: hidden;
     font-size: 1.2em;
 	display: block;
     text-align: center;
+}
+
+.bdHover {
+	cursor: pointer;
+}
+
+#innerWrapper{
+	margin: 0;
+	padding: 0;
+	padding: 0.5%;
 }
 
 .psText:hover, .bdHover:hover{
@@ -633,7 +642,12 @@ overflow-x: hidden;
     font-size: 1.15em;
 	z-index: 99999999999999;
 }
-
+@media screen and (max-width: 1500px) {
+#tooltipDiv{
+	width: 47.5vw;
+	font-size: 1em;
+}
+}
 .maxCenter: {
     width: 100%;
     text-align: center;
