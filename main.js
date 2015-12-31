@@ -780,7 +780,41 @@ function checkOfflineProgress(noTip){
 		var resource = game.resources[resName];
 		var amt = job.owned * job.modifier;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
-		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+		if (game.portal.Meditation.level > 0) {
+			var toAlter;
+			//Find how many stacks of 10 minutes were already stacked before logging out
+			var timeAtLastOnline = Math.floor((game.global.lastOnline - game.global.zoneStarted) / 600000);
+			//Figure out what percentage of the total time offline one 10 minute chunk is. This will be used to modify amt to the proper amount in 10 minute chunks in order to mimic stacks
+			var chunkPercent = 60000 / dif;
+			//Start at 100% untouched
+			var remaining = 100;
+			//if a 10 minute chunk is larger than the time offline, no need to scale in chunks, skip to the end.
+			if (timeAtLastOnline < 6 && chunkPercent < 100){
+				//Start from however many stacks were held before logging out. End at 5 stacks, the 6th will be all time remaining rather than chunks and handled at the end
+				for (var z = timeAtLastOnline; z < 6; z++){			
+					//If no full chunks left, let the final calculation handle it
+					if (remaining < chunkPercent) break;
+					//Remove a chunk from remaining, as it is about to be calculated
+					remaining -= chunkPercent;
+					//Check for z == 0 after removing chunkPercent, that way however much time was left before the first stack doesn't get calculated as having a stack
+					if (z == 0) continue;
+					//Find out exactly how much of amt needs to be modified to make up for this chunk
+					toAlter = (amt * chunkPercent / 100);
+					//Remove it from toAlter
+					amt -= toAlter;
+					//Modify and add back
+					amt += (toAlter * (1 + (z * 0.01 * game.portal.Meditation.level)).toFixed(2));
+				}
+			}
+			if (remaining){
+				//Check again how much needs to be altered
+				toAlter = (amt * (remaining / 100));
+				//Remove
+				amt -= toAlter;
+				//Modify and add back the final amount
+				amt += (toAlter) * (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+			}
+		}
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		amt *= dif;
 		if (x < 3){
