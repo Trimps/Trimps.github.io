@@ -626,7 +626,7 @@ function getScientistLevel() {
 function getScientistInfo(number, reward){
 	switch (number){
 		case 1: {
-			return (reward) ? "5000 Science, 100 Food, 100 Wood, 5 Traps, and 1 Foreman" : 11500;
+			return (reward) ? "5000 Science, 100 Food, 100 Wood, 10 Traps, and 1 Foreman" : 11500;
 		}
 		case 2: {
 			return (reward) ? "5 Barns, 5 Sheds, 5 Forges, and T2 Equipment unlocked" : 8000;
