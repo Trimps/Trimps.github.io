@@ -781,7 +781,7 @@ function checkOfflineProgress(noTip){
 		var amt = job.owned * job.modifier;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
 		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
-		if (game.global.challengeActive == "Meditate") amt *= 1.15;
+		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		amt *= dif;
 		if (x < 3){
 			var newMax = resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level);

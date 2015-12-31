@@ -444,8 +444,8 @@ function getPsString(what, rawNum) {
 	}
 	//Add meditate (challenge)
 	if (game.global.challengeActive == "Meditate"){
-		currentCalc *= 1.15;
-		textString += "<tr><td class='bdTitle'>Meditate</td><td class='bdPercent'>+ 15%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		currentCalc *= 1.25;
+		textString += "<tr><td class='bdTitle'>Meditate</td><td class='bdPercent'>+ 25%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add player
 	if (game.global.playerGathering == what){
@@ -1429,7 +1429,7 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			//portal Motivation
 			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
 			if (game.portal.Meditation.level > 0) psText *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
-			if (game.global.challengeActive == "Meditate") psText *= 1.15;
+			if (game.global.challengeActive == "Meditate") psText *= 1.25;
 			if (game.global.playerGathering == increase){
 				if (game.global.turkimpTimer > 0 && increase != "science"){
 					psText *= 1.5;
