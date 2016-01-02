@@ -493,7 +493,7 @@ var toReturn = {
 			modifier: 0.1,
 			priceBase: 3,
 			heliumSpent: 0,
-			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanantly breed 10% faster."
+			tooltip: "Bring some pheromones with you to ensure that your Trimps will permanently breed 10% faster."
 		},
 		//trapThings main
 		Packrat: {

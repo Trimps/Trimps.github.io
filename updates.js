@@ -29,7 +29,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	
 	if (game.global.lockTooltip) return;
-	
 	var elem = document.getElementById("tooltipDiv");
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
 	if (what == "hide"){
@@ -53,7 +52,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		} else if (e.clientX || e.clientY) {
 			cordx = e.clientX;
 			cordy = e.clientY;
-			
 		}
 		cordy -= 200;
 		var bodw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
@@ -68,7 +66,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = (cordx) + "px";
 		elem.style.top = (cordy) + "px";
 	}
-	else tooltipUpdateFunction = "";
+	//else tooltipUpdateFunction = "";
 	var tooltipText;
 	var costText = "";
 	var toTip;
