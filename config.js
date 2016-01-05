@@ -291,7 +291,7 @@ var toReturn = {
 			},
 			showFullBreed: {
 				enabled: 0,
-				description: "In addition to time required to finish breeding, toggle on or off displaying time to breed a full group of soldiers. Once on, toggle between counting from 100% full, or counting from the AutoFight threshold.",
+				description: "Display time to breed a full group of soldiers. Toggle between off, time to breed from 100% full, or time from the AutoFight threshold.",
 				titles: ["Less Breed Timer", "From 100%", "From AutoFight"]
 			},
 			darkTheme: {
