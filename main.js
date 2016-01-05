@@ -1330,6 +1330,11 @@ function calculateTimeToMax(resource, perSec, toNumber, fromGather) {
 		seconds = 0;
 		toFill++;
 	}
+	if (minutes == 60 && hours == 0){
+		hours = 1;
+		minutes = 0;
+		toFill++;
+	} 
 	if (!isFinite(years)) return "Long Time";
 	if (toFill < 60) {
 		if (toFill < 1 && fromGather) return "";
