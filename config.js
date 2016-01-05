@@ -418,7 +418,7 @@ var toReturn = {
 			priceBase: 75,
 			heliumSpent: 0,
 			max: 7,
-			tooltip: "Your experiences in the Dimension of Strong Things have taught you the value of taking your time. Every level of Meditation will increase your Trimps' gather speed by 1% for every 10 minutes spent on the same zone, up to 1 hour. This bonus is reset after clearing the current zone. Maximum of 7 levels.",
+			tooltip: "Your experiences in the Dimension of Strong Things have taught you the value of taking your time. Every level of Meditation will increase your Trimps' gather speed by 1% for every 10 minutes spent on the same zone, up to 1 hour, even when offline. This bonus is reset after clearing the current zone. Maximum of 7 levels.",
 			getBonusPercent: function (justStacks) {
 				var timeOnZone = new Date().getTime() - game.global.zoneStarted;
 				timeOnZone = Math.floor(timeOnZone / 600000);
