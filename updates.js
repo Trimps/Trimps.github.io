@@ -1706,12 +1706,12 @@ function displaySettings() {
 	for (var item in game.options.menu){
 		var optionItem = game.options.menu[item];
 		var text = optionItem.titles[optionItem.enabled];
-		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\")' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
+		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\", this)' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
 	}
 	settingsHere.innerHTML = html;
 }
 
-function toggleSetting(setting){
+function toggleSetting(setting, elem){
 	var menuOption = game.options.menu[setting];
 	var toggles = menuOption.titles.length;
 	if (toggles == 2)	menuOption.enabled = (menuOption.enabled) ? 0 : 1;
@@ -1724,6 +1724,8 @@ function toggleSetting(setting){
 	menuElem.innerHTML = menuOption.titles[menuOption.enabled];
 	menuElem.className = "";
 	menuElem.className = "settingBtn settingBtn" + menuOption.enabled;
+	cancelTooltip();
+	if (elem != null) elem.onmouseover = function() {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
 	tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
 }
 	
