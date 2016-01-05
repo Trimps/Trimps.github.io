@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.75,
+		version: 2.751,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -291,8 +291,8 @@ var toReturn = {
 			},
 			showFullBreed: {
 				enabled: 0,
-				description: "In addition to time required to finish breeding, toggle on or off displaying time to breed a full group of soldiers from 100% full.",
-				titles: ["Less Breed Timer", "Full Breed Timer"]
+				description: "In addition to time required to finish breeding, toggle on or off displaying time to breed a full group of soldiers. Once on, toggle between counting from 100% full, or counting from the AutoFight threshold.",
+				titles: ["Less Breed Timer", "From 100%", "From AutoFight"]
 			},
 			darkTheme: {
 				enabled: 1,

@@ -1784,7 +1784,12 @@ function breed() {
 	var fullBreed = 0;
 	if (game.options.menu.showFullBreed.enabled){
 		var adjustedMax = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : trimps.maxSoldiers;
-		var totalTime = log10((trimpsMax - trimps.employed) / ((trimpsMax - adjustedMax) - trimps.employed)) / log10(1 + (potencyMod / 10));
+		var totalTime;
+		if (game.options.menu.showFullBreed.enabled == 1) totalTime = log10((trimpsMax - trimps.employed) / (trimpsMax - adjustedMax - trimps.employed)) / log10(1 + (potencyMod / 10));
+		else {
+			var threshold = Math.ceil((trimpsMax - trimps.employed) * 0.95);
+			totalTime = Math.ceil(log10(threshold / (threshold - adjustedMax)) / log10(1 + (potencyMod / 10)));
+		}
 		if (!game.global.brokenPlanet) totalTime /= 10;
 		fullBreed = Math.floor(totalTime) + " Secs";
 		timeRemaining += " / " + fullBreed;
