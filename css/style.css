@@ -648,9 +648,15 @@ overflow-x: hidden;
 	font-size: 1em;
 }
 }
-.maxCenter: {
-    width: 100%;
-    text-align: center;
+
+.onMapName{
+	width: 90%;
+	display: inline-block;
+}
+
+.onMapIcon{
+	width: 5%;
+	display: inline-block;
 }
 
 .alignCenter{
@@ -943,7 +949,7 @@ overflow-x: hidden;
 }
 
 #achievementTopRow{
-	height: 7.5vw;
+	height: 7.8vw;
 }
 
 #achievementMainButtons{
