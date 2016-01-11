@@ -648,6 +648,13 @@ overflow-x: hidden;
 	z-index: 99999999999999;
 }
 
+@media screen and (max-width: 1500px) {
+    #tooltipDiv{
+		font-size: 1.2vw;
+	}
+}
+
+
 #tooltipDiv > hr {
 	margin-top: 1vh;
 	margin-bottom: 1vh;
