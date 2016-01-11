@@ -17,17 +17,19 @@
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
  
-//in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
+
 var customUp;
 var tooltipUpdateFunction = "";
-function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) {
-	
+
+//onmouseover="tooltip('*TOOLTIP_TITLE*', 'customText', event, '*TOOLTIP_TEXT*');" onmouseout="tooltip('hide')"
+//in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
+function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) { //Now 20% less menacing. Work in progress.
+
 	if (document.getElementById(what + "Alert") !== null){
 		if (typeof game[isItIn] !== 'undefined') game[isItIn][what].alert = false;
 		document.getElementById(what + "Alert").innerHTML = "";
 		if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
 	}
-	
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
@@ -43,78 +45,19 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			tooltip(whatU, isItInU, eventU, textStringU, attachFunctionU, numCheckU, renameBtnU, noHideU);
 		};
 		tooltipUpdateFunction = newFunction;
-		var cordx = 0;
-		var cordy = 0;
-		var e = event || window.event;
-		if (e.pageX || e.pageY) {
-			cordx = e.pageX;
-			cordy = e.pageY;
-		} else if (e.clientX || e.clientY) {
-			cordx = e.clientX;
-			cordy = e.clientY;
-		}
-		cordy -= 200;
-		var bodw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-		var bodh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-		cordx += (bodw * 0.01);
-		bodw -= (bodw > 1500) ? (bodw * 0.35) : (bodw * 0.5);
-		bodh -= (bodh * 0.2);
-		if (cordy < 10) cordy = 10;
-		else if (cordy > bodh - 10) cordy = bodh - 10;
-		if (cordx < 10) cordx = 10;
-		else if (cordx > bodw - 10) cordx = bodw - 10;
-		elem.style.left = (cordx) + "px";
-		elem.style.top = (cordy) + "px";
 	}
-	//else tooltipUpdateFunction = "";
 	var tooltipText;
 	var costText = "";
 	var toTip;
-	var price;
-	var canAfford;
-	var percentOfTotal = "";
 	if (isItIn !== null && isItIn != "maps" && isItIn != "customText"){
 		toTip = game[isItIn];
 		toTip = toTip[what];
 		if (typeof toTip === 'undefined') console.log(what);
-		tooltipText = toTip.tooltip;
-		for (var cost in toTip.cost) {
-			if (typeof toTip.cost[cost] === 'object' && typeof toTip.cost[cost][1] === 'undefined') {
-				var costItem = toTip.cost[cost];
-				for (var item in costItem) {
-					price = costItem[item];
-					if (isItIn == "upgrades" && game.upgrades[what].prestiges && (item == "metal" || item == "wood")) 
-						price *= Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level);
-					if (typeof price === 'function') price = price();
-					if (typeof price[1] !== 'undefined') price = resolvePow(price, toTip);
-					var itemToCheck = game[cost];
-					if (typeof itemToCheck[item] !== 'undefined'){
-						canAfford = (itemToCheck[item].owned >= price) ? "green" : "red";
-						if (typeof itemToCheck[item].owned !== 'undefined'){
-							if (itemToCheck[item].owned < price && (typeof game.resources[item] !== 'undefined')){
-								var thisPs = getPsString(item, true);
-								if (thisPs > 0){
-									percentOfTotal = calculateTimeToMax(null, thisPs, (price - itemToCheck[item].owned));
-									percentOfTotal = "(" + percentOfTotal + ")";
-								}
-								else percentOfTotal = "(<span class='icomoon icon-infinity'></span>)"						
-							}
-							else {
-								percentOfTotal = (itemToCheck[item].owned > 0) ? prettify(((price / itemToCheck[item].owned) * 100).toFixed(1)) : 0;
-								percentOfTotal = "(" + percentOfTotal + "%)";
-							}
-						}
-						costText += '<span class="' + canAfford + '">' + item + ':&nbsp;' + prettify(price) + '&nbsp;' + percentOfTotal + '</span>, ';
-					}
-					else
-					costText += item + ": " + prettify(price) + ", ";
-				}
-				continue;
-			}
+		else {
+			tooltipText = toTip.tooltip;
+			costText = addTooltipPricing(toTip, what, isItIn);
 		}
-		costText = costText.slice(0, -2);
 	}
-
 	if (what == "Confirm Purchase"){
 		if (attachFunction == "purchaseImport()" && !boneTemp.selectedImport) return;
 		if (game.options.menu.boneAlerts.enabled == 0 && numCheck){
@@ -142,7 +85,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "Well Fed"){
 		tooltipText = "That Turkimp was delicious, and you have leftovers. If you set yourself to gather Food, Wood, or Metal while this buff is active, you can share with your workers to increase their gather speed by 50%";
 		costText = "";
-		elem.style.top = "0";
 	}
 	if (what == "Welcome"){
 		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear. Please make sure you regularly back up your save file by using the 'Export' button in the bar below and saving that somewhere safe. I recommend using Chrome or Firefox. <br/><br/> Thank you for playing, and I hope you enjoy the game!";
@@ -165,6 +107,15 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "Repeat Map"){
 		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast.";
 		costText = "";
+	}
+	if (what == "MagnetoShriek"){
+		var shriekValue = ((1 - game.mapUnlocks.roboTrimp.getShriekValue()) * 100).toFixed(1);
+		tooltipText = "Your pet RoboTrimp seems to be gifted at distorting the magnetic field around certain bad guys, especially Improbabilities. You can activate this ability once every 5 zones in order to tell your RoboTrimp to reduce the attack damage of the next Improbability by " + shriekValue + "%. This must be reactivated each time it comes off cooldown.";
+		tooltipText += "<span id='roboTrimpTooltipActive' style='font-weight: bold'><br/><br/>";
+		tooltipText += (game.global.useShriek) ? "MagnetoShriek is currently active and will fire on the next Improbability." : "MagnetoShriek is NOT active and will not fire.";
+		tooltipText += "</span>";
+		costText = "";
+		//elem.style.top = "55%";
 	}
 	if (what == "Reset"){
 		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone. <b style='color: red'>This is not the soft-reset you're looking for. This will delete your save.</b>";
@@ -360,6 +311,95 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	elem.style.display = "block";
 	if (ondisplay !== null)
 		ondisplay();
+	if (event != "update") positionTooltip(elem, event);
+}
+
+function positionTooltip(elem, event){
+	var cordx = 0;
+	var cordy = 0;
+	var e = event || window.event;
+	if (!e) return;
+	if (e.pageX || e.pageY) {
+		cordx = e.pageX;
+		cordy = e.pageY;
+	} else if (e.clientX || e.clientY) {
+		cordx = e.clientX;
+		cordy = e.clientY;
+	}
+	var bodw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+		bodh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
+		tiph = Math.max(elem.clientHeight, elem.scrollHeight, elem.offsetHeight),
+		tipw = bodw * .325,
+		center = cordx - (tipw / 2),
+		spacing = bodh * 0.04,
+		setLeft,
+		setTop,
+		setting = game.options.menu.tooltipPosition.enabled;
+	if (setting == 0) {
+		setLeft = cordx + spacing;
+		if ((setLeft + tipw) > bodw) setLeft = (bodw - tipw);
+		setTop = cordy - tiph - spacing;
+	}
+	if ((setting >= 1) || (setTop < 0)){
+		setLeft = center;
+		if (setLeft < 0) 
+			setLeft = 0;
+		else if (setLeft > (bodw - tipw)) 
+			setLeft = bodw - tipw;
+		var maxAbove = (cordy - tiph - spacing);
+		if (setting == 1 ||  (maxAbove < 0)){
+			setTop = cordy + spacing;
+			if ((setTop + tiph) > bodh)
+				setTop = maxAbove;
+		}
+		else
+			setTop = maxAbove;
+	}
+	elem.style.left = Math.floor(setLeft) + "px";
+	elem.style.top = Math.floor(setTop) + "px";
+}
+
+function addTooltipPricing(toTip, what, isItIn) {
+	var costText = "";
+	var price;
+	var canAfford;
+	var percentOfTotal = "";
+	for (var cost in toTip.cost) {
+		if (typeof toTip.cost[cost] === 'object' && typeof toTip.cost[cost][1] === 'undefined') {
+			var costItem = toTip.cost[cost];
+			for (var item in costItem) {
+				price = costItem[item];
+				if (isItIn == "upgrades" && game.upgrades[what].prestiges && (item == "metal" || item == "wood")) 
+					price *= Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level);
+				if (typeof price === 'function') price = price();
+				if (typeof price[1] !== 'undefined') price = resolvePow(price, toTip);
+				var itemToCheck = game[cost];
+				if (typeof itemToCheck[item] !== 'undefined'){
+					canAfford = (itemToCheck[item].owned >= price) ? "green" : "red";
+					if (typeof itemToCheck[item].owned !== 'undefined'){
+						if (itemToCheck[item].owned < price && (typeof game.resources[item] !== 'undefined')){
+							var thisPs = getPsString(item, true);
+							if (thisPs > 0){
+								percentOfTotal = calculateTimeToMax(null, thisPs, (price - itemToCheck[item].owned));
+								percentOfTotal = "(" + percentOfTotal + ")";
+							}
+							else percentOfTotal = "(<span class='icomoon icon-infinity'></span>)"						
+						}
+						else {
+							percentOfTotal = (itemToCheck[item].owned > 0) ? prettify(((price / itemToCheck[item].owned) * 100).toFixed(1)) : 0;
+							percentOfTotal = "(" + percentOfTotal + "%)";
+						}
+					}
+					costText += '<span class="' + canAfford + '">' + item + ':&nbsp;' + prettify(price) + '&nbsp;' + percentOfTotal + '</span>, ';
+				}
+				else
+				costText += item + ": " + prettify(price) + ", ";
+			}
+			continue;
+		}
+	}
+	costText = costText.slice(0, -2);
+	return costText;
 }
 
 // Correct function to call to cancel the current tooltip
@@ -456,13 +496,42 @@ function getPsString(what, rawNum) {
 		textString += "<tr><td class='bdTitle'>You</td><td class='bdPercent'>+ " + prettify(playerStrength) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 
 	}
+	//Add Loot	ALWAYS LAST
+	if (game.options.menu.useAverages.enabled){
+		var avg = getAvgLootSecond(what);
+		if (avg > 0) {
+			currentCalc += avg;
+			textString += "<tr><td class='bdTitle'>Average Loot</td><td class='bdPercent'>+ " + prettify(avg) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		}
+	}
 	if (rawNum) return currentCalc;
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getPsString('" + what + "')", what.charAt(0).toUpperCase() + what.substr(1, what.length) + " Per Second", "Refresh", true);
 }
 
-
+function getZoneStats(event, update) {
+	if (!update && game.global.lockTooltip) return;
+	var textString =  "<table class='bdTable table table-striped'><tbody>";
+	textString += "<tr><td class='bdTitle bdZoneTitle' colspan='3'>Zone "  + game.global.world + "</td></tr>";
+	textString += "<tr><td colspan='3'>You have been in this Zone for " + formatMinutesForDescriptions((new Date().getTime() - game.global.zoneStarted) / 1000 / 60) + "</td></tr>";
+	if ((game.global.mapsActive || game.global.preMapsActive) && game.global.currentMapId){
+		var map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
+		textString += "<tr><td class='bdTitle bdZoneTitle' colspan='3'>" + map.name + ", Level " + map.level + "</td></tr>";
+		textString += '<tr><td><span class="' + getMapIcon(map) + '"></span> ' + getMapIcon(map, true) + '</td><td><span class="icomoon icon-cube2"></span>' + map.size + ' <span class="icon icon-warning"></span>' + Math.floor(map.difficulty * 100) + '% <span class="icomoon icon-gift2"></span>' + Math.floor(map.loot * 100) + '%</span></td><td>Items: ' + addSpecials(true, true, map) + '</td></tr>';
+		textString += "<tr><td colspan='3'>You have been on this map for " + formatMinutesForDescriptions((new Date().getTime() - game.global.mapStarted) / 1000 / 60) + "</td></tr>";
+	}
+	textString += "</tbody></table>";
+	if (update) {
+		document.getElementById("tipText").innerHTML = textString;
+		return;
+	}
+	tooltip("World Info", "customText", event, textString) 
+	tooltipUpdateFunction = function() {
+		getZoneStats(null, true);
+	}
+	
+}
 
 function getTrimpPs() {
 	if (game.global.challengeActive == "Trapper") return;
@@ -626,7 +695,13 @@ function getBattleStatBd(what) {
 		currentCalc *= (1 + mapBonusMult);
 		mapBonusMult *= 100;
 		textString += "<tr><td class='bdTitle'>Map Bonus</td><td>20%</td><td>" + game.global.mapBonus + "</td><td>+ " + prettify(mapBonusMult) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
-		
+	}
+	//Add RoboTrimp
+	if (what == "attack" && game.global.roboTrimpLevel > 0){
+		var roboTrimpMod = 0.2 * game.global.roboTrimpLevel;
+		currentCalc *= (1 + roboTrimpMod);
+		roboTrimpMod *= 100;
+		textString += "<tr><td class='bdTitle'><span class='icomoon icon-chain'></span> RoboTrimp <span class='icomoon icon-chain'></span></td><td>20%</td><td>" + game.global.roboTrimpLevel + "</td><td>+ " + prettify(roboTrimpMod) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
@@ -952,6 +1027,9 @@ function resetGame(keepPortal) {
 	document.getElementById("statsBtnRow").style.display = "block";
 	document.getElementById("mapsBtn").innerHTML = "Maps";
 	document.getElementById("mapBonus").innerHTML = "";
+	document.getElementById("roboTrimpTurnsLeft").innerHTML = "";
+	document.getElementById("chainHolder").style.backgroundColor = "#d9534f";
+	document.getElementById("chainHolder").style.visibility = "hidden";
 	resetOnePortalRewards();
 	
 	setFormation("0");
@@ -987,6 +1065,7 @@ function resetGame(keepPortal) {
 	var repeat;
 	var achieves;
 	var pres;
+	var roboTrimp;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -1009,6 +1088,7 @@ function resetGame(keepPortal) {
 		if (game.global.selectedChallenge) challenge = game.global.selectedChallenge;
 		achieves = game.achievements;
 		pres = game.global.presimptStore;
+		roboTrimp = game.global.roboTrimpLevel;
 	}
 	game = null;
 	game = newGame();
@@ -1032,6 +1112,7 @@ function resetGame(keepPortal) {
 		game.global.prisonClear = prison;
 		game.global.frugalDone = frugal;
 		game.global.slowDone = slow;
+		game.global.roboTrimpLevel = roboTrimp;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined') statItem.valueTotal += statItem.value;
@@ -1414,7 +1495,7 @@ function checkAndDisplayEquipment() {
 }
 
 function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if trimps is true, like (32.4, true)
-		if (jobObj.increase == "custom") return;
+		if (jobObj.increase == "custom" || typeof jobObj.increase === 'undefined') return;
 		var psText;
 		var elem;
 		if (trimps) {
@@ -1444,11 +1525,12 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			psText = psText.toFixed(1);
 			
 		}
+		if (game.options.menu.useAverages.enabled) psText = parseFloat(psText) + getAvgLootSecond(jobObj.increase);
 		psText = prettify(psText);
 /*		var color = (psText < 0) ? "red" : "green";
 		if (psText == 0) color = "black"; */
 		var color = "white";
-		psText = (psText < 0) ? "-" + psText : "+" + psText;
+		psText = "+" + psText;
 		psText += "/sec";
 		if (trimps && game.unlocks.quickTrimps) {
 			psText += " (x2!)"; 
@@ -1521,11 +1603,32 @@ function refreshMaps(){
 function getUniqueColor(item){
 	if (item.location && game.mapConfig.locations[item.location].upgrade){
 			var upgrade = game.mapUnlocks[game.mapConfig.locations[item.location].upgrade];
-			if (upgrade.specialFilter && !upgrade.specialFilter()) return " noRecycleDone";
-			if (upgrade.canRunOnce) return " noRecycle";
-			
+			if (upgrade.specialFilter){ 
+				if (!upgrade.specialFilter(item.level)) return " noRecycleDone";
+				if (upgrade.specialFilter(item.level) && typeof upgrade.canRunOnce === 'undefined') return " noRecycle";
+			}
+			if (upgrade.canRunOnce) return " noRecycle";		
 		}
 	return " noRecycleDone";	
+}
+
+function getMapIcon(mapObject, nameOnly) {
+	var icon = mapObject.location;
+	icon = game.mapConfig.locations[icon].resourceType;
+	if (nameOnly) return icon;
+	switch (icon){
+		case "Food":
+			return "glyphicon glyphicon-apple";
+		case "Metal":
+			return "icomoon icon-cubes";
+		case "Wood":
+			return "glyphicon glyphicon-tree-deciduous";
+		case "Gems":
+			return "icomoon icon-diamond";
+		case "Any":
+			return "icomoon icon-leaf2";
+	}
+	return "icomoon icon-cubes";
 }
 
 function unlockMap(what) { //what here is the array index
@@ -1533,8 +1636,9 @@ function unlockMap(what) { //what here is the array index
 	var elem = document.getElementById("mapsHere");
 	var btnClass = "thing noselect pointer mapThing";
 	if (game.unlocks.goldMaps && !item.noRecycle) btnClass += " goldMap";
-	if (item.noRecycle)	btnClass += getUniqueColor(item);
-	elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
+	if (item.noRecycle) btnClass += getUniqueColor(item);
+	if (game.options.menu.extraStats.enabled) elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><div class="onMapIcon"><span class="' + getMapIcon(item) + '"></span></div><div class="thingName onMapName">' + item.name + '</div><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span><br/><span class="onMapStats"><span class="icomoon icon-cube2"></span>' + item.size + ' <span class="icon icon-warning"></span>' + Math.floor(item.difficulty * 100) + '% <span class="icomoon icon-gift2"></span>' + Math.floor(item.loot * 100) + '%</span></div>' + elem.innerHTML;
+	else elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
 	//onmouseover="tooltip(\'' + item.id + '\',\'maps\',event)" onmouseout="tooltip(\'hide\')"
 }
 
@@ -1548,7 +1652,6 @@ function unlockUpgrade(what, displayOnly) {
 		var resName = (what == "Supershield") ? "wood" : "metal";
 		upgrade.cost.resources[resName] = getNextPrestigeCost(what);
 	}
-	
 	if (!displayOnly) {
 		upgrade.allowed++;
 		upgrade.alert = true;
@@ -1724,8 +1827,9 @@ function toggleSetting(setting, elem){
 	menuElem.innerHTML = menuOption.titles[menuOption.enabled];
 	menuElem.className = "";
 	menuElem.className = "settingBtn settingBtn" + menuOption.enabled;
+	if (setting == "deleteSave") return;
 	cancelTooltip();
-	if (elem != null) elem.onmouseover = function() {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
+	if (elem != null) elem.onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
 	tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
 }
 	

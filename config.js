@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.751,
+		version: 2.8,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -99,7 +99,6 @@ var toReturn = {
 		removingPerks: false,
 		lastBreedTime: 0,
 		antiStacks: 0,
-		lastPortal: new Date().getTime(),
 		prisonClear: 0,
 		frugalDone: false,
 		lastUnlock: 0,
@@ -114,6 +113,22 @@ var toReturn = {
 		presimptStore: "food",
 		lastWarp: 0,
 		zoneStarted: new Date().getTime(),
+		mapStarted: new Date().getTime(),
+		bionicOwned: 0,
+		roboTrimpLevel: 0,
+		roboTrimpCooldown: 0,
+		useShriek: false,
+		usingShriek: false,
+		lootAvgs: {
+			food: [0],
+			foodTotal: 0,
+			wood: [0],
+			woodTotal: 0,
+			metal: [0],
+			metalTotal: 0,
+			gems: [0],
+			gemsTotal: 0
+		},
 		menu: {
 			buildings: true,
 			jobs: false,
@@ -205,31 +220,22 @@ var toReturn = {
 			},
 			tooltips: {
 				enabled: 1,
-				description: "Hide button tooltips unless shift is held. Hides formation tooltips until toggled back on.",
-				titles: ["Shift for Tooltips", "Showing Tooltips"],
-				onToggle: function () {
-					if (this.enabled){
-						document.getElementById("formation0").title = "No Formation";
-						document.getElementById("formation1").title = "Heap Formation - Trimps gain 4x health but lose half of their attack and block";
-						document.getElementById("formation2").title = "Dominance Formation - Trimps gain 4x attack but lose half of their health and block";
-						document.getElementById("formation3").title = "Barrier Formation - Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack";
-					}
-					else {
-						var elems = document.getElementsByClassName("formationBtn");
-						for (var x  = 0; x < elems.length; x++){
-							elems[x].title = "";
-						}
-					}
-				}
+				description: "Hide button tooltips unless shift is held.",
+				titles: ["Shift for Tooltips", "Showing Tooltips"]
+			},
+			tooltipPosition: {
+				enabled: 0,
+				description: "Toggle between top and right of mouse tooltip positioning, and centered above or below positioning for the tooltips.",
+				titles: ["Top Right Tips", "Center Bottom Tips", "Center Top Tips"]
 			},
 			queueAnimation: {
 				enabled: 1,
-				description: "Toggle on or off the building queue blue color animation",
+				description: "Toggle on or off the building queue blue color animation.",
 				titles: ["No Animation", "Animation"]
 			},
 			barOutlines: {
 				enabled: 1,
-				description: "Toggle on or off a black bar at the end of all progress bars",
+				description: "Toggle on or off a black bar at the end of all progress bars. Can help discern where the progress bar ends.",
 				titles: ["No Outline", "Outline"],
 				onToggle: function () {
 					var outlineStyle = (this.enabled) ? "2px solid black" : "none";
@@ -241,7 +247,7 @@ var toReturn = {
 			},
 			menuFormatting: {
 				enabled: 1,
-				description: "Toggle on or off large number formatting for jobs and buildings on the left menu",
+				description: "Toggle on or off large number formatting for jobs and buildings on the left menu. This turns 1000000 in to 1M.",
 				titles: ["No Menu Formatting", "Formatting Menu"]
 			},
 			progressBars: {
@@ -261,22 +267,22 @@ var toReturn = {
 			},
 			confirmhole: {
 				enabled: 1,
-				description: "Toggles on or off the confirmation pop-up on scary purchases like Wormholes",
+				description: "Toggles on or off the confirmation pop-up on scary purchases like Wormholes.",
 				titles: ["Not Confirming", "Confirming"],
 			},
 			lockOnUnlock: {
 				enabled: 0,
-				description: "Enables/disables the locking of buildings, jobs, upgrades, and equipment for 1 second after unlocking something new.",
+				description: "Enables/disables the locking of buildings, jobs, upgrades, and equipment for 1 second after unlocking something new. Useful to prevent accidental purchases.",
 				titles: ["Not Locking", "Locking"],
 			},
 			achievementPopups: {
 				enabled: 1,
-				description: "Toggle on or off the popups on completing an achievement",
+				description: "Decide whether or not you want popups on completing an achievement.",
 				titles: ["Not Popping", "Popping"]
 			},
 			mapLoot: {
 				enabled: 0,
-				description: "Toggle between receiving all equipment for one tier, or receiving all available tiers of the same equipment first when running maps.",
+				description: "Toggle between receiving all equipment for one tier, or receiving all available tiers of the same equipment first when running maps. Tier first will cause maps to drop Shield II -> Dagger II -> Boots II etc before continuing to tier III. Equip first is the older method, where all available Shields drop before any Daggers. Tier first is recommended for most situations.",
 				titles: ["Tier First", "Equip First"]
 			},
 			boneAlerts: {
@@ -315,6 +321,25 @@ var toReturn = {
 					document.head.removeChild(link);				
 				}
 			},
+			extraStats: {
+				enabled: 0,
+				description: "Toggle on or off adding extra information to map items.",
+				titles: ["Standard Maps", "Extra Info"],
+				onToggle: function () {
+					refreshMaps();
+				}
+			},
+			useAverages: {
+				enabled: 0,
+				description: "<b>Experimental, uses extra memory, may be jumpy.</b> Toggle on or off whether or not loot from maps and the world should be counted in the loot breakdown and tooltip calculations. Calculates the average of the last two minutes of loot. If you want to clear the last 2 minutes, try toggling it off and on again.",
+				titles: ["Not Averaging", "Averaging"],
+				onToggle: function () {
+					for (var item in game.global.lootAvgs){
+						if (Array.isArray(game.global.lootAvgs[item])) game.global.lootAvgs[item] = [0];
+						else game.global.lootAvgs[item] = 0;
+					}
+				}
+			},
 			pauseGame: {
 				enabled: 0,
 				description: "Pause your game. This will pause all resource gathering, offline progress, and timers.",
@@ -328,6 +353,7 @@ var toReturn = {
 						game.global.portalTime += dif;
 						game.global.lastSkeletimp += dif;
 						game.global.zoneStarted += dif;
+						game.global.mapStarted += dif;
 						this.timeAtPause = 0;
 						game.global.time = 0;
 						game.global.lastOnline = now;
@@ -342,8 +368,10 @@ var toReturn = {
 				description: "Delete your save and start fresh. Your Trimps will not be happy.",
 				titles: ["Delete Save"],
 				onToggle: function () {
+					cancelTooltip();
 					tooltip('Reset', null, 'update');
 					game.global.lockTooltip = true;
+					tooltipUpdateFunction = "";
 					this.enabled = 0;
 				}
 			}
@@ -724,6 +752,15 @@ var toReturn = {
 			unlocks: "Coordinated",
 			unlockString: "reach Zone 120"
 		},
+/* 		Crushed: {
+			description: "Journey to a dimension where Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health, because the atmosphere is rich in helium. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with double helium earned up to but not including Z125. This challenge is repeatable.",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 124);
+			},
+			heldHelium: 0,
+			unlockString: "reach Zone 125"
+		}, */
 		Slow: {
 			description: "Legends tell of a dimension inhabited by incredibly fast bad guys, where blueprints exist for a powerful yet long forgotten weapon and piece of armor. All bad guys will attack first in this dimension, but clearing <b>Zone 120</b> with this challenge active will forever-after allow you to create these new pieces of equipment.",
 			completed: false,
@@ -827,7 +864,7 @@ var toReturn = {
 				return (game.resources.helium.owned > 0);
 			},
 			value: function (useTemp) {
-				var timeThisPortal = new Date().getTime() - game.global.lastPortal;
+				var timeThisPortal = new Date().getTime() - game.global.portalTime;
 				timeThisPortal /= 3600000;
 				var resToUse = (useTemp) ? game.global.tempHighHelium : game.resources.helium.owned;
 				return Math.floor(resToUse / timeThisPortal);
@@ -1792,6 +1829,20 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				checkAchieve("prisonTimed");
+				if (game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") {
+					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
+					else if (game.global.challengeActive == "Mapocalypse") {
+						message("You have completed the Mapocalypse challenge! You have unlocked the 'Siphonology' Perk, and have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium.", "Notices");
+						game.portal.Siphonology.locked = false;
+						game.challenges.Mapocalypse.abandon();
+					}
+					game.resources.helium.owned += game.challenges.Electricity.heldHelium;
+					game.global.totalHeliumEarned += game.challenges.Electricity.heldHelium;
+					game.challenges.Electricity.heldHelium = 0;
+					game.global.challengeActive = "";
+					game.global.radioStacks = 0;
+					updateRadioStacks();
+				}
 			}
 		},
 		//Putting Bionic Wonderland stuff right.... here cause why not
@@ -1807,6 +1858,14 @@ var toReturn = {
 				var amt1 = rewardResource("wood", 1, level, true);
 				var amt2 = rewardResource("food", 1, level, true);
 				message("Robotrimp discombobulated. Loot inspection reveals: " + prettify(amt1) + " wood and " + prettify(amt2) + " food. Splendiferous.", "Loot", "*cogs");
+/* 				if (game.global.challengeActive == "Crushed") {
+					var heliumAdded = game.challenges.Crushed.heldHelium;
+					message("You have completed the Crushed challenge! You have been rewarded with " + prettify(heliumAdded) + " Helium.", "Notices");
+					game.resources.helium.owned += heliumAdded;
+					game.global.totalHeliumEarned += heliumAdded;
+					game.challenges.Crushed.heldHelium = 0;
+					game.global.challengeActive = "";
+				} */
 			}
 		},
 		Mechimp: {
@@ -2111,6 +2170,7 @@ var toReturn = {
 			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful"]
 		},
 		locations: {
+		//Add new resources to function getMapIcon in updates.js to get icons on maps
 			Sea: {
 				resourceType: "Food"
 			},
@@ -2147,7 +2207,8 @@ var toReturn = {
 				upgrade: "Keys"
 			},
 			Bionic: {
-				resourceType: "Any"
+				resourceType: "Any",
+				upgrade: "roboTrimp"
 			},
 			All: {
 				resourceType: "Metal"
@@ -2162,6 +2223,49 @@ var toReturn = {
 	},
 	
 	mapUnlocks: {
+		roboTrimp: {
+			world: 125,
+			level: "last",
+			icon: "*chain",
+			title: "RoboTrimp",
+			canRunWhenever: true,
+			filterUpgrade: true,
+			specialFilter: function (world) {
+				return (((world - 125) / 15).toFixed(2) == game.global.bionicOwned)
+			},
+			getShriekValue: function () {
+				var level = game.global.roboTrimpLevel;
+				if (level == 0) return 1;
+				if (level == 1) return 0.85;
+				return (0.85 * Math.pow(0.90, level - 1));
+			},
+			fire: function () {
+				var level = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
+				var bionicTier = parseInt(((level - 125) / 15));
+				if (bionicTier == game.global.bionicOwned) {
+					game.global.bionicOwned++;
+					message("You found a map to an even more advanced version of the Bionic Wonderland! Looks scary...", "Story");
+					var roman = romanNumeral(bionicTier + 2);
+					createMap((level + 15), "Bionic Wonderland " + roman, "Bionic", 3, 100, 2.6, true);
+				}
+				if (bionicTier == game.global.roboTrimpLevel) {
+					if (game.global.roboTrimpLevel == 0){
+						cancelTooltip();
+						var text = "There seems to be a small RoboTrimp that you appear to have orphaned. You decide to take him with you, since you're pretty good at training stuff. He deals <b>20%</b> extra damage for you, and has a special ability. You can learn more about the special ability by hovering over the new <span class='icomoon icon-chain'></span> icon by your soldiers.<br/><br/>You also found a map to a more powerful version of the Bionic Wonderland. You would bet there's another RoboTrimp who needs 'rescuing' in there.";
+						if (game.options.menu.tooltips.enabled == 0) text += '<br/><br/><b>Just a heads up</b>: You have tooltips disabled, so you will need to hold shift when you mouse over the <span class="icomoon icon-chain"></span> to read about it.';
+						tooltip('confirm', null, 'update', text, null, 'RoboTrimp');
+						game.global.roboTrimpLevel = 1;
+						document.getElementById("chainHolder").style.visibility = 'visible';
+					}
+					else {
+						game.global.roboTrimpLevel++;
+						var values = game.global.roboTrimpLevel;
+						values = [(values) * 20, ((1 - this.getShriekValue()) * 100).toFixed(1)];
+						message("<span class='icomoon icon-chain'></span> Hey look, another baby RoboTrimp! You decide to add him to your collection. You now deal " + Math.floor(values[0]) + "% extra damage thanks to your pets, and MagnetoShriek now removes " + Math.floor(values[1]) + "% of an Improbability's attack", "Notices");					
+					}
+				}
+			}
+		},
 		Keys: {
 			world: 80,
 			level: "last",
@@ -2169,24 +2273,13 @@ var toReturn = {
 			title: "The Warden's Keys",
 			filterUpgrade: true,
 			canRunOnce: true,
+			specialFilter: function () {
+				return (game.global.prisonClear == 0);
+			},
 			fire: function () {
 				message("You have slain the Warden and taken his keys. How weird would it be if they fit in that key hole on the portal?", "Story");
 				game.challenges.Electricity.hasKey = true;
 				game.global.prisonClear++;
-				if (game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") {
-					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
-					else if (game.global.challengeActive == "Mapocalypse") {
-						message("You have completed the Mapocalypse challenge! You have unlocked the 'Siphonology' Perk, and have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium.", "Notices");
-						game.portal.Siphonology.locked = false;
-						game.challenges.Mapocalypse.abandon();
-					}
-					game.resources.helium.owned += game.challenges.Electricity.heldHelium;
-					game.global.totalHeliumEarned += game.challenges.Electricity.heldHelium;
-					game.challenges.Electricity.heldHelium = 0;
-					game.global.challengeActive = "";
-					game.global.radioStacks = 0;
-					updateRadioStacks();
-				}
 			}
 		},
 		Relentlessness: {

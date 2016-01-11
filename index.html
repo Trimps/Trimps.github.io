@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 2.7</title>
+	<title>Trimps 2.8</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?20" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?21" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -466,28 +466,28 @@
 						<div class="row" id="battleStatsRow">
 							<div class="col-xs-6" id="goodGuyCol">
 								<div class="row">
-									<div class="col-xs-8" style="padding-right: 5px">
+									<div class="col-xs-9" style="padding-right: 5px">
 										<div class="battleStatsTitle" id="goodGuyName">Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span></div>
 									</div>
-									<div class="col-xs-4" style="padding-left: 5px;">
-										<div class="row">
-											<div class="col-xs-3 lowPad">
-												<div class="formationBtn pointer" onclick="setFormation('0')" id="formation0" title="No Formation">
+									<div class="col-xs-3" style="padding-left: 5px;">
+										<div class="row" style="padding-right: 15px;">
+											<div class="col-xs-3 noPad">
+												<div class="formationBtn pointer" onclick="setFormation('0')" id="formation0" onmouseover="tooltip('No Formation', 'customText', event, 'Clear your formations, return to normal stats, and derp around the battlefield. (Hotkeys: X or 1)')" onmouseout="tooltip('hide')">
 													X
 												</div>
 											</div>
-											<div class="col-xs-3 lowPad">
-												<div class="formationBtn pointer" onclick="setFormation('1')" id="formation1" title="Heap Formation - Trimps gain 4x health but lose half of their attack and block">
+											<div class="col-xs-3 noPad">
+												<div class="formationBtn pointer" onclick="setFormation('1')" id="formation1" onmouseover="tooltip('Heap Formation', 'customText', event, 'Trimps gain 4x health but lose half of their attack and block. (Hotkeys: H or 2)')" onmouseout="tooltip('hide')">
 													H
 												</div>
 											</div>
-											<div class="col-xs-3 lowPad">
-												<div class="formationBtn pointer" onclick="setFormation('2')" id="formation2" title="Dominance Formation - Trimps gain 4x attack but lose half of their health and block">
+											<div class="col-xs-3 noPad">
+												<div class="formationBtn pointer" onclick="setFormation('2')" id="formation2" onmouseover="tooltip('Dominance Formation', 'customText', event, 'Trimps gain 4x attack but lose half of their health and block. (Hotkeys: D or 3)')" onmouseout="tooltip('hide')">
 													D
 												</div>										
 											</div>
-											<div class="col-xs-3 lowPad">
-												<div class="formationBtn pointer" onclick="setFormation('3')" id="formation3" title="Barrier Formation - Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack">
+											<div class="col-xs-3 noPad">
+												<div class="formationBtn pointer" onclick="setFormation('3')" id="formation3" onmouseover="tooltip('Barrier Formation', 'customText', event, 'Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack. (Hotkeys: B or 4)')" onmouseout="tooltip('hide')">
 													B
 												</div>											
 											</div>
@@ -495,11 +495,14 @@
 									</div>
 								</div>
 								<div class="row guyRow" id="goodGuyStatsRow">
-									<div class="col-xs-8 bdHover pointer noselect" onclick="getBattleStatBd('attack')">
+									<div class="col-xs-6 lbdHover pointer noselect bdHover" style="padding-right: 0" onclick="getBattleStatBd('attack')">
 										<span id="goodGuyAttack"></span> DMG <span id="critSpan"></span>
 									</div>
-									<div class="col-xs-4 pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
+									<div class="col-xs-4 noPad pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
 										<span id="goodGuyBlock">0</span> BLK
+									</div>
+									<div class="col-xs-2 pointer noselect" style="padding-left: 0" id="roboTrimpBtn" onclick="magnetoShriek()">
+										<span id="chainHolder" style='visibility: hidden' onmouseover="tooltip('MagnetoShriek', null, event)" onmouseout="tooltip('hide')"><span id="roboTrimpTurnsLeft"></span> <span class="icomoon icon-chain" style="color: white"></span></span>
 									</div>
 								</div>
 								<div class="progress fightBar">
@@ -541,7 +544,7 @@
 					</div>
 					<div class="row" id="gridRow">
 						<div class="col-xs-2" id="battleBtnsColumn">
-							<div id="battleSideTitle">
+							<div id="battleSideTitle" onmouseover="getZoneStats(event)" onmouseout="tooltip('hide')">
 									<span id="worldName">Zone</span> <span id="worldNumber">1</span><br/><span id="mapBonus"></span>
 							</div>
 							<div class="battleSideBtnContainer">
@@ -580,7 +583,7 @@
 							<div id="preMaps" style="display: none">
 							<div style="display: none" id="mapsCreateRow" class="row">
 							<div id="mapLevelContainer" class="col-xs-4">
-								Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
+								Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer noselect incrementBtn" title="Recycle All Below" style="color: red" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
 							</div>
 							<div id="mapCostContainer" class="col-xs-4 lowPad">
 								<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
@@ -868,9 +871,9 @@
 		<div id="tipCost"></div>
 	</div>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?59"></script>
-	<script type="text/javascript" src="updates.js?59"></script>
-	<script type="text/javascript" src="main.js?59"></script>
+	<script type="text/javascript" src="config.js?60"></script>
+	<script type="text/javascript" src="updates.js?60"></script>
+	<script type="text/javascript" src="main.js?60"></script>
 </body>
 
 </html>

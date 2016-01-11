@@ -153,6 +153,11 @@ overflow-x: hidden;
 	padding-right: 5px;
 }
 
+.noPad {
+	padding-left: 0;
+	padding-right: 0;
+}
+
 #science {
     padding-top: 3.5%;
 }
@@ -639,14 +644,13 @@ overflow-x: hidden;
     display: none;
     padding: 10px;
     border: 2px solid blue;
-    font-size: 1.15em;
+    font-size: 0.9vw;
 	z-index: 99999999999999;
 }
-@media screen and (max-width: 1500px) {
-#tooltipDiv{
-	width: 47.5vw;
-	font-size: 1em;
-}
+
+#tooltipDiv > hr {
+	margin-top: 1vh;
+	margin-bottom: 1vh;
 }
 
 .onMapName{
@@ -962,7 +966,26 @@ overflow-x: hidden;
 #achievementHelp{
 	color: #202080;
 	cursor: pointer;
+}
 
+.bdZoneTitle{
+	font-size: 1.1em;
+}
+
+#roboTrimpBtn{
+	text-align: center;
+}
+
+#chainHolder{
+	width: 100%;
+	border-radius: 25px;
+	display: inline-block;
+	background-color: grey;
+	border: 1px solid black;
+	line-height: 1.1em;
+	font-size: 1.1em;
+	color: black;
+	padding-top: 0.1em;
 }
 
 #achievementHelpContainer{
@@ -1501,7 +1524,8 @@ overflow-x: hidden;
 	background-color: grey;
 	color: white;
 	text-align: center;
-	border: 2px solid black;
+	border: 1px solid black;
+	border-radius: 4px;
 	display: none;
 }
 
@@ -1546,8 +1570,14 @@ overflow-x: hidden;
 
 .btn-new {
   color: white;
-background: url('bg2.png') repeat-x center;
-background-size: auto 150%;
+background: rgba(14,11,92,1);
+background: -moz-linear-gradient(left, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
+background: -webkit-gradient(left top, right top, color-stop(0%, rgba(14,11,92,1)), color-stop(24%, rgba(0,0,0,1)), color-stop(47%, rgba(19,33,88,1)), color-stop(72%, rgba(39,68,184,1)), color-stop(80%, rgba(32,52,155,1)), color-stop(100%, rgba(15,12,82,1)));
+background: -webkit-linear-gradient(left, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
+background: -o-linear-gradient(left, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
+background: -ms-linear-gradient(left, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
+background: linear-gradient(to right, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0e0b5c', endColorstr='#0f0c52', GradientType=1 );
 
 }
 .btn-new:hover,
@@ -1557,8 +1587,14 @@ background-size: auto 150%;
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: white;
-  background: url('bg2_vert.png') repeat-y center;
-  background-size: 100% auto;
+background: rgba(11,8,97,1);
+background: -moz-linear-gradient(left, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
+background: -webkit-gradient(left top, right top, color-stop(0%, rgba(11,8,97,1)), color-stop(6%, rgba(25,21,79,1)), color-stop(14%, rgba(43,39,56,1)), color-stop(23%, rgba(57,68,122,1)), color-stop(25%, rgba(41,25,133,1)), color-stop(39%, rgba(18,26,166,1)), color-stop(47%, rgba(18,18,92,1)), color-stop(60%, rgba(57,57,204,1)), color-stop(65%, rgba(17,8,140,1)), color-stop(91%, rgba(56,56,171,1)), color-stop(100%, rgba(28,37,133,1)));
+background: -webkit-linear-gradient(left, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
+background: -o-linear-gradient(left, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
+background: -ms-linear-gradient(left, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
+background: linear-gradient(to right, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0b0861', endColorstr='#1c2585', GradientType=1 );
 
 }
 .btn-new:active,
