@@ -3271,7 +3271,10 @@ function fadeIn(elem, speed) {
     elem.style.opacity = 0;
     if (elem.style.display == "none") elem.style.display = "block";
     if (elem.style.visibility == "hidden") elem.style.visibility = "visible";
-
+	if (game.options.menu.fadeIns.enabled == 0) {
+		elem.style.opacity = 1;
+		return;
+	}
     var fadeInt = setInterval(function () {
         opacity = opacity + 0.01;
         elem.style.opacity = opacity;

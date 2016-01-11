@@ -321,6 +321,11 @@ var toReturn = {
 					document.head.removeChild(link);				
 				}
 			},
+			fadeIns: {
+				enabled: 1,
+				description: "Toggle on or off the fade in effect on elements.",
+				titles: ["Not Fading", "Fading"]
+			},
 			extraStats: {
 				enabled: 0,
 				description: "Toggle on or off adding extra information to map items.",
