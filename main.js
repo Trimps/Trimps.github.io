@@ -2435,7 +2435,7 @@ function recycleMap(map, fromMass) {
 	game.global.mapsOwned--;
 	var refund = getRecycleValue(mapObj.level);
 	game.resources.fragments.owned += refund;
-	if (!fromMass) message("Recycled " + mapObj.name + " for " + refund + " fragments.", "Notices");
+	if (!fromMass) message("Recycled " + mapObj.name + " for " + prettify(refund) + " fragments.", "Notices");
 	game.global.mapsOwnedArray.splice(map, 1);
     mapsSwitch(true, true);
 	return refund;
