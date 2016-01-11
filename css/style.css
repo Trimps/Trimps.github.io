@@ -648,7 +648,7 @@ overflow-x: hidden;
 	z-index: 99999999999999;
 }
 
-@media screen and (max-width: 1100px) {
+@media screen and (max-width: 1200px) {
     #tooltipDiv{
 		font-size: 1.1vw;
 	}
