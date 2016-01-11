@@ -1495,7 +1495,7 @@ function checkAndDisplayEquipment() {
 }
 
 function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if trimps is true, like (32.4, true)
-		if (jobObj.increase == "custom" || typeof jobObj.increase === 'undefined') return;
+		if (jobObj.increase == "custom" || (typeof jobObj.increase === 'undefined' && !trimps)) return;
 		var psText;
 		var elem;
 		if (trimps) {
