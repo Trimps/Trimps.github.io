@@ -3206,7 +3206,7 @@ function updateTitimp(){
 		return;
 	}
 		var number = Math.floor(game.global.titimpLeft);
-		elem.innerHTML = '<span class="badge antiBadge" onmouseover="tooltip(\'Titimp\', \'customText\', event, \'Your Trimps are dealing double damage, thanks to the Titimp!\');" onmouseout="tolltip(\'hide\')>' + number + '<span class="icomoon icon-hammer"></span></span>';
+		elem.innerHTML = '<span class="badge antiBadge" onmouseover="tooltip(\'Titimp\', \'customText\', event, \'Your Trimps are dealing double damage, thanks to the Titimp!\');" onmouseout="tolltip(\'hide\')">' + number + '<span class="icomoon icon-hammer"></span></span>';
 }
 
 function updateNomStacks(number){
