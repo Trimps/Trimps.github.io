@@ -2364,7 +2364,7 @@ var toReturn = {
 					game.global.challengeActive = "";
 					game.challenges.Scientist.abandon();
 					game.global.sLevel = getScientistLevel();
-					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive " + getScientistInfo(game.global.sLevel, true) + " every time you portal.", "Notices");
+					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive " + getScientistInfo(game.global.sLevel, true) + " every time you portal. You've unlocked Scientists, and <b>Don't forget that you can click Research on your Science again!</b>", "Notices");
 				}
 				if (game.global.challengeActive == "Trimp"){
 					game.global.challengeActive = "";
