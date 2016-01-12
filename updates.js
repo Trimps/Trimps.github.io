@@ -843,7 +843,7 @@ function getLootBd(what) {
 			}
 			break;
 		case "Fragments":
-			amt = Math.pow(1.15, world);
+			amt = Math.pow(1.15, game.global.world);
 			currentCalc = amt;
 			textString += "<tr><td class='bdTitle'>Base</td><td></td><td></td><td>" + prettify(amt) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 			break;
