@@ -145,6 +145,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "This is a building in your queue, you'll need to click \"Build\" to build it. Clicking an item in the queue will cancel it for a full refund.";
 		costText = "";
 	}
+	if (what == "Toxic"){
+		tooltipText = "This bad guy is toxic. You will find " + (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks).toFixed(1) + "% more loot! Oh, also, this bad guy has 5x attack, 2x health, your Trimps will lose 5% health each time they attack, and the toxic air is causing your Trimps to breed " + (100 - (Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks) * 100)).toFixed(2) + "% slower. These stacks will reset after clearing the zone.";
+		costText = "";
+	}
 	if (what == "Custom"){
 		customUp = (textString) ? 2 : 1;
 		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 or 200k."
@@ -248,7 +252,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			color = color ? "green" : "red";
 			tooltipText = upgradeTextSplit[0] + "<span style='color: " + color + "; font-weight: bold;'>" + upgradeTextSplit[1]  + "</span>";
 		}
-		if (typeof tooltipText.split('?')[1] !== 'undefined'){
+		if (typeof tooltipText.split('?')[1] !== 'undefined' && what != 'Dominance'){
 			var percentNum = (game.global.frugalDone) ? '60' : '50';
 			tooltipText = tooltipText.replace('?', percentNum);
 		}
@@ -485,6 +489,12 @@ function getPsString(what, rawNum) {
 		currentCalc *= 1.25;
 		textString += "<tr><td class='bdTitle'>Meditate</td><td class='bdPercent'>+ 25%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	if (game.global.challengeActive == "Toxicity"){
+		var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
+		currentCalc *= (1 + toxMult);
+		toxMult = (toxMult * 100).toFixed(1) + "%";
+		textString += "<tr><td class='bdTitle'>Tweaky (Toxicity)</td><td class='bdPercent'>+ " + toxMult + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	//Add player
 	if (game.global.playerGathering == what){
 		if (game.global.turkimpTimer > 0 && (what == "food" || what == "wood" || what == "metal")){
@@ -587,6 +597,11 @@ function getTrimpPs() {
 	if (game.unlocks.quickTrimps){
 		currentCalc *= 2;
 		textString += "<tr><td class='bdTitle'>Quick Trimps</td><td class='bdPercent'>+ 100%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
+		var potencyMod = Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
+		currentCalc *= potencyMod;
+		textString += "<tr style='color: red'><td class='bdTitle'>Toxic Air</td><td class='bdPercent'>X  " + potencyMod.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
@@ -872,6 +887,12 @@ function getLootBd(what) {
 		textString += "<tr><td class='bdTitle'>Magnimp</td><td>+ 0.3%</td><td>" + game.unlocks.impCount.Magnimp + "</td><td>+ " + prettify((amt - 1)  * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 
 	}
+	if (game.global.challengeActive == "Toxicity"){
+		var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
+		currentCalc *= (1 + toxMult);
+		toxMult = (toxMult * 100).toFixed(1) + "%";
+		textString += "<tr><td class='bdTitle'>Tweaky (Toxicity)</td><td>+" + game.challenges.Toxicity.lootMult + "%</td><td>" + game.challenges.Toxicity.stacks + "</td><td>+ " + toxMult + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getLootBd('" + what + "')", what + " Loot Breakdown", "Refresh", true);
@@ -1030,6 +1051,9 @@ function resetGame(keepPortal) {
 	document.getElementById("roboTrimpTurnsLeft").innerHTML = "";
 	document.getElementById("chainHolder").style.backgroundColor = "#d9534f";
 	document.getElementById("chainHolder").style.visibility = "hidden";
+	document.getElementById("badGuyAttack").style.color = "white";
+	document.getElementById("badCrit").innerHTML = "";
+	document.getElementById("badCanCrit").style.display = "none";
 	resetOnePortalRewards();
 	
 	setFormation("0");
@@ -1509,6 +1533,10 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
 			if (game.portal.Meditation.level > 0) psText *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 			if (game.global.challengeActive == "Meditate") psText *= 1.25;
+			if (game.global.challengeActive == "Toxicity"){
+					var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
+					psText *= (1 + toxMult);
+			}
 			if (game.global.playerGathering == increase){
 				if (game.global.turkimpTimer > 0 && increase != "science"){
 					psText *= 1.5;
@@ -1637,7 +1665,7 @@ function unlockMap(what) { //what here is the array index
 	var btnClass = "thing noselect pointer mapThing";
 	if (game.unlocks.goldMaps && !item.noRecycle) btnClass += " goldMap";
 	if (item.noRecycle) btnClass += getUniqueColor(item);
-	if (game.options.menu.extraStats.enabled) elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><div class="onMapIcon"><span class="' + getMapIcon(item) + '"></span></div><div class="thingName onMapName">' + item.name + '</div><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span><br/><span class="onMapStats"><span class="icomoon icon-cube2"></span>' + item.size + ' <span class="icon icon-warning"></span>' + Math.floor(item.difficulty * 100) + '% <span class="icomoon icon-gift2"></span>' + Math.floor(item.loot * 100) + '%</span></div>' + elem.innerHTML;
+	if (game.options.menu.extraStats.enabled) elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><div class="onMapIcon"><span class="' + getMapIcon(item) + '"></span></div><div class="thingName onMapName">' + item.name + '</div><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span><br/><span class="onMapStats"><span class="icomoon icon-gift2"></span>' + Math.floor(item.loot * 100) + '% </span><span class="icomoon icon-cube2"></span>' + item.size + ' <span class="icon icon-warning"></span>' + Math.floor(item.difficulty * 100) + '%</div>' + elem.innerHTML;
 	else elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
 	//onmouseover="tooltip(\'' + item.id + '\',\'maps\',event)" onmouseout="tooltip(\'hide\')"
 }

@@ -63,22 +63,25 @@ overflow-x: hidden;
 }
 
 #resourceColumn {
-    padding-right: .3%;
 	height: 100%;
+	padding-right: 0;
 }
 .maxH{
 	height: 100%;
 }
 
 #miscColumn {
-    padding-left: .25vw;
-    padding-right: .25vw;
+    margin-left: .25vw;
+    margin-right: 0;
 	height: 100%;
+	width: 8.33333333%;
+	padding-left: 0.75vw;
+	padding-right: 0.5vw;
 }
 
 #trimpsColumn {
-    padding-left: .25vw;
     padding-right: .25vw;
+	padding-left: 0;
     height: 100%;
 }
 
@@ -88,7 +91,18 @@ overflow-x: hidden;
 
 .resourceRow >:nth-child(2) {
     padding-left: .25vw;
-	padding-right: .25vw;
+	padding-right: 0;
+}
+
+.resourceRow{
+	padding-right: 0;
+}
+
+#resourceColumn{
+	padding-left: 0;
+	margin-left: 15px;
+	width: calc(32.83333333% - 15px);
+	margin-right: 0.25vw;
 }
 
 #trimpsTimeToFill {
@@ -190,6 +204,7 @@ overflow-x: hidden;
 	margin: 0;
 	padding: 0;
 	padding: 0.5%;
+	height: 100%;
 }
 
 .psText:hover, .bdHover:hover{
@@ -263,7 +278,6 @@ overflow-x: hidden;
 
 #logContainer {
     border: 2px solid white;
-    padding-top: 5px;
     height: 100%;
     width: 100%;
     background: rgba(121, 121, 123, 0.5);
@@ -624,7 +638,6 @@ overflow-x: hidden;
 .collecting {}
 
 #log {
-    margin-top: 5px;
     height: calc(100% - 42px);
     width: 100%;
     overflow-y: scroll;
@@ -684,12 +697,18 @@ overflow-x: hidden;
 	font-size: 1.1vw !important;
 }
 
+.shrinkBtnText{
+	font-size: 0.9vw !important;
+}
+
 @media screen and (max-height: 800px) {
     .fightBtn{
 		font-size: .95vw !important;
 		padding: .3vw !important;
 	}
 }
+
+
 
 #lootBdTabs{
 	background-color: black;
@@ -709,6 +728,10 @@ overflow-x: hidden;
 
 .badBadge {
 	font-size: .8em;
+}
+
+#badCanCrit{
+	font-size: 0.88em;
 }
 
 .trimpBadge {
@@ -1415,7 +1438,7 @@ overflow-x: hidden;
 	font-size: .8em;
 }
 
-#critSpan{
+#critSpan, #badCrit{
 	font-weight: bold;
 	color: yellow;
 	font-size: .9em;
@@ -1644,3 +1667,7 @@ input::-webkit-inner-spin-button {
        -o-transition: none !important;
           transition: none !important;
  }
+ 
+ #miscColumn  span {
+	font-size: 1.2vw !important;
+}

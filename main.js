@@ -24,7 +24,13 @@
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 "use strict";
-if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== null) document.getElementById("boneBtn").style.display = "none";
+if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== null) {
+	var boneBtn = document.getElementById("getBonesBtn");
+	boneBtn.onclick = "";
+	boneBtn.innerHTML = "Kongregate API not loaded! You cannot submit high scores or spend Kreds. Try refreshing or contacting Kongregate support!";
+	boneBtn.style.backgroundColor = "#d9534f";
+	document.getElementById("getBundleBtn").style.display = "none";
+}
 document.getElementById("versionNumber").innerHTML = game.global.version;
 
 var sessionMapValues = {
@@ -170,11 +176,14 @@ function load(saveString, autoLoad) {
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This should be the last reset!", "Notices");
         return;
     } 
-	else if (savegame.global.isBeta) {
-		message("You can't import a save from the beta version to this version!", "Notices");
-		return;
+	else if (game.global.isBeta) {
+		message("Note: You are playing on the beta/dev version. You will be unable to export your save from this version to the live version, and this server may go down or change without warning. Thank you for helping test!", "Notices");
 	}
-	else savegame.global.version = game.global.version;
+	else if (savegame.global.isBeta) {
+			message("You can't import a save from the beta version to this version!", "Notices");
+			return;
+	}
+	savegame.global.version = game.global.version;
     
 	
 	if (typeof savegame.global !== 'undefined') {
@@ -238,6 +247,9 @@ function load(saveString, autoLoad) {
         }
     }
 	game.global.lockTooltip = false;
+	
+	//Compatibility
+	
 	if (oldVersion === 1.0){
 		var hasPortal = false;
 		for (var portItem in game.portal){
@@ -276,9 +288,6 @@ function load(saveString, autoLoad) {
 				unlockUpgrade("Gymystic");
 			}
 		}
-	}
-	if (oldVersion < 2.21){
-
 	}
 	if (oldVersion < 2.213) {
 		for (var item in game.options.menu){
@@ -332,6 +341,13 @@ function load(saveString, autoLoad) {
 	if (oldVersion < 2.75){
 		game.buildings.Wormhole.increase.by = 1500;
 	}
+	if (oldVersion < 2.81 && typeof game.global.lootAvgs !== 'undefined'){
+		game.global.lootAvgs.fragments = [0];
+		game.global.lootAvgs.fragmentsTotal = 0;
+	}
+	
+	//End compatibility
+	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
@@ -382,7 +398,7 @@ function load(saveString, autoLoad) {
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
 	if (!game.options.menu.pauseGame.enabled) checkOfflineProgress(noOfflineTooltip);
-	if (!game.options.menu.darkTheme.enabled) game.options.menu.darkTheme.onToggle();
+	if (game.options.menu.darkTheme.enabled != 1) game.options.menu.darkTheme.onToggle();
 	updateLabels();
 	if (game.global.viewingUpgrades) viewPortalUpgrades();
 	if (game.global.respecActive) respecPerks();
@@ -1240,6 +1256,10 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 	//Add Looting
 	if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
 	if (game.unlocks.impCount.Magnimp && what != "helium") amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
+	if (game.global.challengeActive == "Toxicity"){
+		var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
+		amt *= (1 + toxMult);
+	}
 	amt = Math.floor(amt);
     addResCheckMax(what, amt);
 	if (game.options.menu.useAverages.enabled){
@@ -1248,7 +1268,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
     return amt;
 };
 
-function addResCheckMax(what, number, noStat, fromGather) {
+function addResCheckMax(what, number, noStat, fromGather, nonFilteredLoot) {
     var res = game.resources[what];
 	if (res.max == -1) {
 		res.owned += number;
@@ -1258,6 +1278,9 @@ function addResCheckMax(what, number, noStat, fromGather) {
 	var newMax = res.max + (res.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
     if (res.owned + number <= newMax) res.owned += number;
     else res.owned = newMax;
+	if (nonFilteredLoot && game.options.menu.useAverages.enabled){
+		addAvg(what, number);
+	}
 }
 
 function addAvg(what, number) {
@@ -1277,10 +1300,10 @@ function curateAvgs() {
 	for (var what in game.global.lootAvgs) {
 		if (!Array.isArray(game.global.lootAvgs[what])) continue;
 		var avgA = game.global.lootAvgs[what];
-		while (avgA.length > 120) {
+		while (avgA.length >= 60) {
 			game.global.lootAvgs[what + "Total"] -= avgA[0];
 			if (game.global.lootAvgs[what + "Total"] <= 0) game.global.lootAvgs[what + "Total"] = 0;
-			avgA = avgA.splice(0, 1);
+			avgA.splice(0, 1);
 		}
 		avgA.push(0);
 	}
@@ -1364,6 +1387,10 @@ function gather() {
 			if (game.portal.Motivation.level > 0) perSec += (perSec * game.portal.Motivation.level * game.portal.Motivation.modifier);
 			if (game.portal.Meditation.level > 0) perSec *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 			if (game.global.challengeActive == "Meditate") perSec *= 1.15;
+			if (game.global.challengeActive == "Toxicity"){
+				var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
+				perSec *= (1 + toxMult);
+			}
 		}
 		if (what && increase == what){
 			if (game.global.turkimpTimer > 0 && (what == "food" || what == "wood" || what == "metal")){
@@ -1844,29 +1871,34 @@ function breed() {
     }
 
     var potencyMod = trimps.potency;
-	if (game.global.brokenPlanet) breeding /= 10;
-	
+	//Broken Planet
+	if (game.global.brokenPlanet) potencyMod /= 10;
 	//Pheromones
-	potencyMod += (potencyMod * game.portal.Pheromones.level * game.portal.Pheromones.modifier);
+	potencyMod *= 1+ (game.portal.Pheromones.level * game.portal.Pheromones.modifier);
+	//Geneticist
 	if (game.jobs.Geneticist.owned > 0) potencyMod *= Math.pow(.98, game.jobs.Geneticist.owned);
+	//Quick Trimps
 	if (game.unlocks.quickTrimps) potencyMod *= 2;
+	if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
+		potencyMod *= Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
+	}
 	breeding = breeding * potencyMod;
     updatePs(breeding, true);
-
-	
-	var timeRemaining = log10((trimpsMax - trimps.employed) / (trimps.owned - trimps.employed)) / log10(1 + (potencyMod / 10));
-	if (!game.global.brokenPlanet) timeRemaining /= 10;
-	timeRemaining = Math.ceil(timeRemaining) + " Secs";
+	potencyMod = (1 + (potencyMod / 10));
+	var timeRemaining = log10((trimpsMax - trimps.employed) / (trimps.owned - trimps.employed)) / log10(potencyMod);
+	timeRemaining /= 10;
+	timeRemaining = (game.options.menu.showFullBreed.enabled > 0) ? timeRemaining.toFixed(1) : Math.ceil(timeRemaining);
+	timeRemaining += " Secs";
 	var fullBreed = 0;
 	if (game.options.menu.showFullBreed.enabled){
 		var adjustedMax = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : trimps.maxSoldiers;
 		var totalTime;
-		if (game.options.menu.showFullBreed.enabled == 1) totalTime = log10((trimpsMax - trimps.employed) / (trimpsMax - adjustedMax - trimps.employed)) / log10(1 + (potencyMod / 10));
+		if (game.options.menu.showFullBreed.enabled == 1) totalTime = log10((trimpsMax - trimps.employed) / (trimpsMax - adjustedMax - trimps.employed)) / log10(potencyMod);
 		else {
 			var threshold = Math.ceil((trimpsMax - trimps.employed) * 0.95);
-			totalTime = log10(threshold / (threshold - adjustedMax)) / log10(1 + (potencyMod / 10));
+			totalTime = log10(threshold / (threshold - adjustedMax)) / log10(potencyMod);
 		}
-		if (!game.global.brokenPlanet) totalTime /= 10;
+		totalTime /= 10;
 		fullBreed = totalTime.toFixed(1) + " Secs";
 		timeRemaining += " / " + fullBreed;
 	}
@@ -2255,7 +2287,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         if ((typeof special.startAt !== 'undefined') && (special.startAt > world)) continue;
         if (typeof special.canRunOnce === 'undefined' && (special.level == "last") && canLast && (special.last <= (world - 5))) {
 			if (countOnly){
-				specialCount++;
+				specialCount += Math.floor((world - special.last) / 5);
 				continue;
 			}
 			if (special.prestige && maps && game.options.menu.mapLoot.enabled == 0) {
@@ -2489,8 +2521,9 @@ function mapsClicked() {
     }
     if (game.global.fighting && !game.global.preMapsActive) {
 		message("Waiting to travel until your soldiers are finished.", "Notices");
+		
+		document.getElementById("mapsBtn").className = "btn btn-warning fightBtn shrinkBtnText";
 		document.getElementById("mapsBtn").innerHTML = "Abandon Soldiers";
-		document.getElementById("mapsBtn").style.fontSize = ".9vw";
 		}
     if (game.global.preMapsActive) {
         mapsSwitch();
@@ -2516,7 +2549,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
 	var mapsBtn = document.getElementById("mapsBtn");
 	var recycleBtn = document.getElementById("recycleMapBtn");
 	recycleBtn.innerHTML = "Recycle Map";
-	document.getElementById("mapsBtn").style.fontSize = "1.1vw";
+	document.getElementById("mapsBtn").className = "btn btn-warning fightBtn";
     if (game.global.preMapsActive) {
 		game.global.mapsActive = false;
 		setNonMapBox();
@@ -2738,6 +2771,7 @@ function startFight() {
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Electric\', \'customText\', event, \'This Bad Guy is electric and stacks a debuff on your Trimps\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-power-cord"></span></span>';
 	}
 	document.getElementById("badGuyName").innerHTML = badName;
+	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
     if (cell.maxHealth == -1) {
         cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
         cell.health = game.global.getEnemyHealth(cell.level, cell.name);
@@ -2748,7 +2782,12 @@ function startFight() {
             cell.health *= difficulty;
         }
 		if (game.global.challengeActive == "Meditate") cell.health *= 2;
+		else if (game.global.challengeActive == "Toxicity"){
+			cell.attack *= 5;
+			cell.health *= 2;
+		}
         cell.maxHealth = cell.health;
+		
     }
 	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
 		cell.attack = Math.floor(game.global.getEnemyAttack(cell.level, cell.name) * Math.pow(1.25, cell.nomStacks));
@@ -2964,6 +3003,18 @@ function nextWorld() {
 		if (game.global.roboTrimpCooldown > 0) game.global.roboTrimpCooldown--;
 		displayRoboTrimp();
 	}
+	if (game.global.challengeActive == "Toxicity") {
+		game.challenges.Toxicity.stacks = 0;
+		updateToxicityStacks();
+	}
+}
+
+function distributeToChallenges(amt) {
+	var challenge = game.global.challengeActive;
+	if (challenge == "Mapocalypse") challenge = "Electricity";
+	if (!challenge || typeof game.challenges[challenge].heliumThrough === 'undefined') return;
+	var challengeObj = game.challenges[challenge];
+	if (game.global.world <= challengeObj.heliumThrough) challengeObj.heldHelium += amt;
 }
 
 function fight(makeUp) {
@@ -3087,6 +3138,13 @@ function fight(makeUp) {
         return;
     }
 	var cellAttack = calculateDamage(cell.attack);
+	var badCrit = false;
+	if (game.global.challengeActive == "Crushed"){
+		if (checkCrushedCrit()) {
+			cellAttack *= 5;
+			badCrit = true;
+		}
+	}
     var attackAndBlock = (cellAttack - game.global.soldierCurrentBlock);
 	if (game.global.brokenPlanet && !game.global.mapsActive){
 		var overpower = (game.global.formation == 3) ? cellAttack * 0.1 : cellAttack * 0.2;
@@ -3155,17 +3213,44 @@ function fight(makeUp) {
 		game.global.radioStacks++;
 		updateRadioStacks();
 	}
-	if (game.global.challengeActive == "Nom" && attacked){
+	if (game.global.challengeActive == "Toxicity" && attacked) {
+		game.challenges.Toxicity.stacks++;
+		if (game.challenges.Toxicity.stacks > game.challenges.Toxicity.maxStacks) game.challenges.Toxicity.stacks = game.challenges.Toxicity.maxStacks;			
+		updateToxicityStacks();
+	}
+	if ((game.global.challengeActive == "Nom" || game.global.challengeActive == "Toxicity") && attacked){
 		game.global.soldierHealth -= game.global.soldierHealthMax * 0.05;
 		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
-	}
+	}	
 	if (gotCrit) critSpan.innerHTML = "Crit!";
+	document.getElementById("badCrit").innerHTML = (badCrit && wasAttacked) ? "Crit!" : "";
     if (cell.health <= 0) game.global.battleCounter = 800;
     if (makeUp) return;
     updateGoodBar();
 	updateBadBar(cell);
     
     /*	if (game.jobs.Medic.owned >= 1) setTimeout(heal, 500); */
+}
+
+function updateToxicityStacks(){
+	var elem = document.getElementById("toxicityBuff");
+	var stackCount = game.challenges.Toxicity.stacks;
+	if (elem === null) {
+		document.getElementById("badGuyName").innerHTML += '&nbsp;<span class="badge badBadge" id="toxicityBuff" onmouseover="tooltip(\'Toxic\', null, event)" onmouseout="tooltip(\'hide\')"><span id="toxicityStacks">' + stackCount + '</span><span class="icomoon icon-radioactive"></span></span>';
+		return;
+	}
+	document.getElementById("toxicityStacks").innerHTML = stackCount;
+}
+
+function checkCrushedCrit(){
+	var badCrit = false;
+	var canCritElem = document.getElementById("badCanCrit");
+	if (game.global.soldierHealth > game.global.soldierCurrentBlock){
+		canCritElem.style.display = "inline-block";
+		if (Math.floor(Math.random() * 2) == 0) badCrit = true;
+	}
+	else canCritElem.style.display = "none";
+	return badCrit;
 }
 
 function updateRadioStacks(tipOnly){
@@ -3506,6 +3591,11 @@ function simpleSeconds(what, seconds) {
 		job = game.jobs[job];
 		var amt = job.owned * job.modifier * seconds;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+		if (game.global.challengeActive == "Toxicity"){
+			var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
+			amt *= (1 + toxMult);
+		}
 		if (game.global.playerGathering == what){		
 			if (game.global.turkimpTimer > 0 && (what == "food" || what == "metal" || what == "wood")){
 				amt *= 1.5;
@@ -3541,6 +3631,11 @@ function addBoost(level, previewOnly) {
 		var resource = game.resources[job.increase];
 		var amt = job.owned * job.modifier * add;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+		if (game.global.challengeActive == "Toxicity"){
+			var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
+			amt *= (1 + toxMult);
+		}
 		if (typeof storage[x] !== 'undefined'){
 			var tempTotal = amt + resource.owned;
 			var tempMax = resource.max;
@@ -4034,7 +4129,7 @@ function updatePortalTimer() {
 	document.getElementById("portalTimer").innerHTML = timeString;
 	checkAchieve("totalGems");
 	if (trimpStatsDisplayed) displayAllStats();
-	if (game.options.menu.useAverages.enabled) curateAvgs();
+	if (game.options.menu.useAverages.enabled && Math.floor(timeSince % 3) == 0) curateAvgs();
 	setTimeout(updatePortalTimer, 1000);
 }
 

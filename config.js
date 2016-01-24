@@ -19,7 +19,8 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.8,
+		version: 2.81,
+		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -127,7 +128,9 @@ var toReturn = {
 			metal: [0],
 			metalTotal: 0,
 			gems: [0],
-			gemsTotal: 0
+			gemsTotal: 0,
+			fragments: [0],
+			fragmentsTotal: 0
 		},
 		menu: {
 			buildings: true,
@@ -297,16 +300,16 @@ var toReturn = {
 			},
 			showFullBreed: {
 				enabled: 0,
-				description: "Display time to breed a full group of soldiers. Toggle between off, time to breed from 100% full, or time from the AutoFight threshold.",
+				description: "Display time to breed a full group of soldiers. Toggle between off, time to breed from 100% full, or time from the AutoFight threshold. If 'From 100%' or 'From AutoFight' are enabled, the main breeding timer will gain an extra decimal of precision.",
 				titles: ["Less Breed Timer", "From 100%", "From AutoFight"]
 			},
 			darkTheme: {
 				enabled: 1,
-				description: "Toggle on or off the striped background image",
-				titles: ["Darkness", "Background Image"],
+				description: "Toggle between the default Trimps theme, a custom dark theme made by u/Grabarz19, and the default theme with a black background.",
+				titles: ["Black Background", "Default Theme", "Dark Theme"],
 				onToggle: function () {
 					var link;
-					if (!this.enabled){
+					if (this.enabled == 2){
 						link = document.createElement('link');
 						link.type = 'text/css';
 						link.rel = 'stylesheet';
@@ -315,10 +318,16 @@ var toReturn = {
 						document.head.appendChild(link);
 						return;
 					}
-					link = document.getElementById("darkTheme");
-					if (!link) return;
-					link.disabled = true;
-					document.head.removeChild(link);				
+					if (this.enabled == 0) {
+					document.getElementById("innerWrapper").style.backgroundColor = "black";	
+						link = document.getElementById("darkTheme");
+						if (!link) return;
+						link.disabled = true;
+						document.head.removeChild(link);		
+						
+						return;
+					}
+					document.getElementById("innerWrapper").style.backgroundColor = "initial";	
 				}
 			},
 			fadeIns: {
@@ -336,7 +345,7 @@ var toReturn = {
 			},
 			useAverages: {
 				enabled: 0,
-				description: "<b>Experimental, uses extra memory, may be jumpy.</b> Toggle on or off whether or not loot from maps and the world should be counted in the loot breakdown and tooltip calculations. Calculates the average of the last two minutes of loot. If you want to clear the last 2 minutes, try toggling it off and on again.",
+				description: "<b>Experimental, may be jumpy.</b> Toggle on or off whether or not loot from maps and the world should be counted in the loot breakdown and tooltip calculations. Calculates the average of the last two minutes of loot. If you want to clear the last 2 minutes, try toggling it off and on again.",
 				titles: ["Not Averaging", "Averaging"],
 				onToggle: function () {
 					for (var item in game.global.lootAvgs){
@@ -395,7 +404,6 @@ var toReturn = {
 		Coordinated: {
 			level: 0,
 			locked: true,
-			max: 15,
 			priceBase: 150000,
 			modifier: 0.98,
 			heliumSpent: 0,
@@ -708,6 +716,7 @@ var toReturn = {
 				updateRadioStacks();
 			},
 			heldHelium: 0,
+			heliumThrough: 79,
 			unlockString: "clear 'The Prison' at Zone 80"
 		},
 		Frugal: {
@@ -757,15 +766,20 @@ var toReturn = {
 			unlocks: "Coordinated",
 			unlockString: "reach Zone 120"
 		},
-/* 		Crushed: {
-			description: "Journey to a dimension where Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health, because the atmosphere is rich in helium. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with double helium earned up to but not including Z125. This challenge is repeatable.",
+		Crushed: {
+			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with double helium earned up to but not including Z125. This challenge is repeatable.",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 124);
 			},
+			fireAbandon: true,
+			abandon: function () {
+				document.getElementById("badCrit").innerHTML = "";
+			},
 			heldHelium: 0,
+			heliumThrough: 124,
 			unlockString: "reach Zone 125"
-		}, */
+		},
 		Slow: {
 			description: "Legends tell of a dimension inhabited by incredibly fast bad guys, where blueprints exist for a powerful yet long forgotten weapon and piece of armor. All bad guys will attack first in this dimension, but clearing <b>Zone 120</b> with this challenge active will forever-after allow you to create these new pieces of equipment.",
 			completed: false,
@@ -781,6 +795,7 @@ var toReturn = {
 				return (game.global.highestLevelCleared >= 144);
 			},
 			heldHelium: 0,
+			heliumThrough: 165,
 			unlockString: "reach Zone 145"
 		},
 		Mapology: {
@@ -799,7 +814,21 @@ var toReturn = {
 			unlocks: "Resourceful",
 			credits: 0,
 			unlockString: "reach Zone 150"
-		},	
+		},
+		Toxicity: {
+			description: "Travel to a dimension rich in helium, but also rich in toxic bad guys. All bad guys have 5x attack and 2x health. Each time you attack a bad guy, your Trimps lose 5% of their health, and toxins are released into the air which reduce the breeding speed of your Trimps by 0.3% (of the current amount), but also increase all loot found by 0.15%, stacking up to 1500 times. These stacks will reset when you clear a zone. Completing <b>Zone 165</b> with this challenge active will reward you with triple helium for all Blimps and Improbabilities killed. This is repeatable!",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 164);
+			},
+			heldHelium: 0,
+			heliumThrough: 165,
+			stacks: 0,
+			maxStacks: 1500,
+			stackMult: 0.997,
+			lootMult: 0.15,
+			unlockString: "reach Zone 165"
+		},
 	},
 	
 	stats:{
@@ -1253,7 +1282,20 @@ var toReturn = {
 		w140: "It sure is calm and peaceful now. You watch a Falcimp turn a few circles in the sky. You wouldn't mind having wings, but overall you're pretty happy with your species.",
 		w143: "There's a scientist jumping around trying to get your attention. There's nothing interesting in the sky so you pretend to be fascinated with a rock. The scientist can see you're busy and waits patiently.",
 		w145: "Your Scientists are not making it easy to ignore them. You not-so-calmly ask what they want. One of them explains that they discovered a new dimension with lots of extra helium. You'll probably check it out, but you won't tell them that.",
-		w150: "Wow. These structures are getting expensive. There's probably a dimension for that..."
+		w150: "Wow. These structures are getting expensive. There's probably a dimension for that...",
+		w153: "You remember a person from your past. From your old life. There's someone you need to get back to. You'll make it back.",
+		w156: "You watch in amazement as a Trimp grabs on to one of those weird tree things and swings around by its arms. These things are getting pretty strong.",
+		w157: "You watch in less amazement as a Trimp tries to take a bite out of a very large rock. These things are not getting much smarter.",
+		w159: "That's quite a sunset. You know once you finally make it out of here, you'll definitely never forget the sights. Unless, of course, you do.",
+		w160: "A small horde of Trimps comes running up towards you, making excited sounding noises. One of them walks to the front of the loud congregation and proudly holds up a boot, slightly larger but the same style as your own. It must be Druopitee's, confirmation that you're heading the right direction. You reward the Trimp who found it with some food and a few pats on the head, then send the boot to the lab to look for any further clues. You wonder why he took his boot off.",
+		w163: "Your scientists have informed you that half of the boot is now lost in another dimension, thanks to an 'important' test. The results were inconclusive. You ask them to please leave the remaining half in our current dimension, and they look disappointed.",
+		w165: "What's this now?! You found a little green piece of metal. Your scientists tell you that it came from a toxic dimension, but that it is also from a dimension rich in helium. They let you know that they can tune your portal to travel to the dimension it originated from, should you want to check it out.",
+		w166: "That last Improbability seemed like a nice guy.",
+		w168: "Hopefully spaceships don't rust.",
+		w170: "You reach the top of an incredibly large mountain. You can see at least 50 zones sprawled out before you. About 30 zones away, you can see a gigantic spire. It looks like architecture from your home world. You hope it's not a mirage...",
+		
+		
+		
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over", "swam the river Styx", "turned in to jerky", "forgot to put armor on", "croaked", "flatlined", "won't follow you to battle again", "died. Lame", "lagged out", "imp-loded"],
@@ -1750,8 +1792,7 @@ var toReturn = {
 					amt = rewardResource("helium", 1, level);
 					game.global.totalHeliumEarned += amt;
 					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story");
-					if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
-					else if (game.global.challengeActive == "Nom" && game.global.world <= 149) game.challenges.Nom.heldHelium += amt;
+					distributeToChallenges(amt);
 				}
 			}
 		},
@@ -1863,14 +1904,14 @@ var toReturn = {
 				var amt1 = rewardResource("wood", 1, level, true);
 				var amt2 = rewardResource("food", 1, level, true);
 				message("Robotrimp discombobulated. Loot inspection reveals: " + prettify(amt1) + " wood and " + prettify(amt2) + " food. Splendiferous.", "Loot", "*cogs");
-/* 				if (game.global.challengeActive == "Crushed") {
+				if (game.global.challengeActive == "Crushed") {
 					var heliumAdded = game.challenges.Crushed.heldHelium;
 					message("You have completed the Crushed challenge! You have been rewarded with " + prettify(heliumAdded) + " Helium.", "Notices");
 					game.resources.helium.owned += heliumAdded;
 					game.global.totalHeliumEarned += heliumAdded;
 					game.challenges.Crushed.heldHelium = 0;
 					game.global.challengeActive = "";
-				} */
+				}
 			}
 		},
 		Mechimp: {
@@ -1919,9 +1960,8 @@ var toReturn = {
 				if (!game.global.brokenPlanet) planetBreaker();
 				var amt = rewardResource("helium", 5, level);
 				game.global.totalHeliumEarned += amt;
-				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story");
-				if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && game.global.world <= 79) game.challenges.Electricity.heldHelium += amt;
-				else if (game.global.challengeActive == "Nom" && game.global.world <= 144) game.challenges.Nom.heldHelium += amt;
+				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story");				
+				distributeToChallenges(amt);
 				if (game.global.challengeActive == "Slow" && game.global.world == 120){
 					message("You have completed the Slow challenge! You have found the patterns for the Gambeson and the Arbalest!", "Notices");
 					game.global.challengeActive = "";
@@ -1931,12 +1971,13 @@ var toReturn = {
 					}
 					game.global.slowDone = true;
 				}
-				else if (game.global.challengeActive == "Nom" && game.global.world == 145){
-					var reward = game.challenges.Nom.heldHelium * 2;
-					message("You have completed the Nom challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
+				else if ((game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165)){
+					var challenge = game.global.challengeActive;
+					var reward = game.challenges[challenge].heldHelium * 2;
+					message("You have completed the " + challenge + " challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
 					game.resources.helium.owned += reward;
 					game.global.totalHeliumEarned += reward;
-					game.challenges.Nom.heldHelium = 0;
+					game.challenges[challenge].heldHelium = 0;
 					game.global.challengeActive = "";
 				}
 				else if (game.global.challengeActive == "Mapology" && game.global.world == 100){
@@ -2062,7 +2103,7 @@ var toReturn = {
 				var item = elligible[roll];
 				var amt = simpleSeconds(item, 45);
 				amt = scaleToCurrentMap(amt);
-				addResCheckMax(item, amt);
+				addResCheckMax(item, amt, null, null, true);
 				message("That Jestimp gave you " + prettify(amt) + " " + item + "!", "Loot", "*dice", "exotic");
 				game.unlocks.impCount.Jestimp++;
 			}
@@ -2103,7 +2144,7 @@ var toReturn = {
 					var item = elligible[x];
 					var amt = simpleSeconds(item, 5);
 					amt = scaleToCurrentMap(amt);
-					addResCheckMax(item, amt);
+					addResCheckMax(item, amt, null, null, true);
 					cMessage += prettify(amt) + " " + item;
 					if (x == (elligible.length - 1)) cMessage += "!";
 					else if (x == (elligible.length - 2)) cMessage += ", and ";
@@ -3349,7 +3390,7 @@ var toReturn = {
 			fire: function () {
 				game.global.mapsUnlocked = true;
 				unlockMapStuff();
-				createMap(6, "Tricky Paradise", "All", 1.20, 40, 1.11);
+				createMap(6, "Tricky Paradise", "Plentiful", 1.2, 45, 0.85);
 				message("You found your first map! Travel to your map chamber to check it out.", "Story");
 			}
 		},

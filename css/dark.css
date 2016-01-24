@@ -1,3 +1,186 @@
 #innerWrapper{
-	background: black;
+	background: black !important;
+}
+#SaveGame {
+    color: #2F6000
+}
+.NoticesMessage {
+    color: rgb(105, 30, 30)
+}
+#battleSideTitle {
+    border: 1px solid #212121
+}
+.battleCell {
+    border: 1px solid #000;
+    margin-left: -1px;
+    margin-top: -1px;
+    color: #000;
+    background-color: #2D79A2
+}
+#grid,
+#mapGrid {
+    color: #9B9B9B;
+    background-color: #000;
+}
+.formationBtn {
+    color: #000
+}
+#battleContainer {
+    background: #000 none repeat scroll 0% 0%;
+    border: 0px;
+    color: #9B9B9B
+}
+#outerBuyContainer {
+    background: #000 none repeat scroll 0% 0%
+}
+#logContainer {
+    background: #000 none repeat scroll 0% 0%;
+    border: 1px solid #212121;
+    padding-top: 0px;
+    color: #9B9B9B
+}
+.playerGather {
+    background: #000 none repeat scroll 0% 0%;
+    border: 0px;
+    color: #9B9B9B;
+    margin-bottom: 0px
+}
+#queueContainer {
+    background: #000 none repeat scroll 0% 0%
+}
+.btn-default {
+    background-color: #AEAEAE;
+    border: 0px;
+    color: #000
+}
+.btn-info {
+    background-color: #346E80;
+    border: 0px;
+    color: #AAA
+}
+.btn-warning {
+    background-color: #664515;
+    border: 0px;
+    color: #AAA
+}
+.btn-primary {
+    background-color: #183854;
+    border: 0px;
+    color: #AAA
+}
+.btn-success {
+    background-color: #1A3E1A;
+    border: 0px;
+    color: #AAA
+}
+.btn-danger {
+    background-color: #441817;
+    border: 0px;
+    color: #AAA
+}
+.btn-group,
+.btn-group-vertical {
+    vertical-align: top
+}
+.exotic {
+    color: #8B4D8F !important;
+    background: rgba(51, 51, 51, 0.5) none repeat scroll 0% 0%
+}
+#food {
+    border: 1px solid #212121
+}
+#wood {
+    border: 1px solid #212121;
+    margin-left: -1px
+}
+#metal {
+    border: 1px solid #212121;
+    margin-top: -1px
+}
+#science {
+    border: 1px solid #212121;
+    margin-left: -1px;
+    margin-top: -1px
+}
+.resourceRow >:first-child {
+    padding-right: 0px;
+	width: calc(50% - 4px);
+}
+.resourceRow >:nth-child(2) {
+    padding-left: 0px;
+	padding-right: 0px;
+	width: calc(50% - 4px);
+}
+#fragments {
+    border: 1px solid #212121;
+    border-left: 1px solid #212121
+}
+#gems {
+    border: 1px solid #212121;
+    border-left: 1px solid #212121;
+    border-top: 1px solid #212121;
+    margin-top: -1px;
+    height: calc(33.3% + 1px)
+}
+#helium {
+    border: 1px solid #212121;
+    border-left: 1px solid #212121;
+    margin-top: -1px
+}
+#miscColumn {
+    padding-left: 0px;
+    z-index: 0;
+	margin-left: 0px;
+}
+.playerGatherSm {
+    height: 33.3%
+}
+#resourceColumn {
+    padding-right: 0px;
+    z-index: 1
+}
+.psText {
+    color: rgb(52, 78, 48) !important
+}
+#trimpsPs {
+    color: rgb(52, 78, 48) !important
+}
+.progress {
+    background-color: #7E7E7E;
+    border-radius: 0px
+}
+#trapArea {
+    border: 1px solid #212121
+}
+.workBtn {
+    border: 1px solid #5D5D5D;
+    color: 9B9B9B
+}
+#queueContainer {
+    border: 1px solid #212121
+}
+#queueRow {
+    color: #9B9B9B
+}
+#noQueue {
+    color: #9B9B9B
+}
+.dangerColor {
+    background-color: #441817;
+    color: #AAA
+}
+.successColor {
+    background-color: #1A3E1A;
+    color: #AAA
+}
+#outerBuyContainer {
+    border: 1px solid #212121;
+    color: #9B9B9B
+}
+.thing {
+    margin-left: -1px;
+    margin-right: 0px;
+    margin-top: -1px;
+    width: 25%;
+    border-color: #5D5D5D
 }
