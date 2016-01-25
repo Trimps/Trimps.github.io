@@ -71,11 +71,10 @@ overflow-x: hidden;
 }
 
 #miscColumn {
-    margin-left: .25vw;
     margin-right: 0;
 	height: 100%;
 	width: 8.33333333%;
-	padding-left: 0.75vw;
+	padding-left: 0.5vw;
 	padding-right: 0.5vw;
 }
 
@@ -101,8 +100,8 @@ overflow-x: hidden;
 #resourceColumn{
 	padding-left: 0;
 	margin-left: 15px;
-	width: calc(32.83333333% - 15px);
-	margin-right: 0.25vw;
+	width: calc(33.33333333% - 15px);
+	padding-right: 15px;
 }
 
 #trimpsTimeToFill {
@@ -132,7 +131,12 @@ overflow-x: hidden;
 }
 
 #logBtnGroup {
-    height: 10%;
+    height: 2vw;
+	font-size: 1vw;
+}
+
+#logBtnGroup div button {
+	font-size: 0.8vw;
 }
 
 .workBtn {
@@ -638,7 +642,7 @@ overflow-x: hidden;
 .collecting {}
 
 #log {
-    height: calc(100% - 42px);
+    height: calc(100% - 2.1vw);
     width: 100%;
     overflow-y: scroll;
     padding-left: 5px;
