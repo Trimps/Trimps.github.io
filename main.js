@@ -356,14 +356,14 @@ function load(saveString, autoLoad) {
         drawGrid();
         document.getElementById('metal').style.visibility = "visible";
         for (var x = 0; x <= game.global.lastClearedCell; x++) {
-            document.getElementById("cell" + x).style.backgroundColor = "green";
+            document.getElementById("cell" + x).className = document.getElementById("cell" + x).className.replace("cellNotBeaten", "cellBeaten");
         }
         if (game.global.battleClock > 0) document.getElementById("battleTimer").style.visibility = "visible";
     }
     if (game.global.mapGridArray.length > 0 && game.global.currentMapId !== "") {
         drawGrid(true);
         for (var y = 0; y <= game.global.lastClearedMapCell; y++) {
-            document.getElementById("mapCell" + y).style.backgroundColor = "green";
+            document.getElementById("mapCell" + y).className =  document.getElementById("mapCell" + y).className.replace("cellNotBeaten", "cellBeaten");
         }
     } else if (game.global.mapGridArray.length === 0 && game.global.mapsActive) game.global.mapsActive = false;
     if (game.resources.trimps.owned > 0 || game.buildings.Trap.owned > 0) game.buildings.Trap.first();
@@ -456,6 +456,11 @@ function load(saveString, autoLoad) {
 		if (parseInt(storyMsg.split('w')[1]) > game.global.world) break;
 		message(game.worldText[storyMsg], "Story");
 	} */
+	
+	if(game.global.firing)
+		document.getElementById("fireBtn").className += " fireBtnFiring";
+	else
+		document.getElementById("fireBtn").className += " fireBtnNotFiring";
 }
 
 function loadGigastations() {
@@ -1313,10 +1318,10 @@ function fireMode(noChange) {
     if (!noChange) game.global.firing = !game.global.firing;
     var elem = document.getElementById("fireBtn");
     if (game.global.firing) {
-        elem.style.background = "rgba(255,0,0,0.5)";
+        elem.className = elem.className.replace("fireBtnNotFiring", "fireBtnFiring");
         elem.innerHTML = "Firing";
     } else {
-        elem.style.background = "rgba(255,255,255,0.25)";
+        elem.className = elem.className.replace("fireBtnFiring", "fireBtnNotFiring");
         elem.innerHTML = "Fire";
     }
     if (!noChange) tooltip("Fire Trimps", null, "update");
@@ -2404,7 +2409,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			cell.style.paddingTop = ((100 / cols) / 19)+ "vh";
 			cell.style.paddingBottom = ((100 / cols) / 19) + "vh";
 			cell.style.fontSize = ((cols / 14) + 1) + "vh";
-            cell.className = "battleCell";
+            cell.className = "battleCell cellNotBeaten";
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
 			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";
             counter++;
@@ -2650,8 +2655,12 @@ function selectMap(mapId, force) {
 	document.getElementById("mapStatsLoot").innerHTML = Math.floor(map.loot * 100) + "%";
 	document.getElementById("mapStatsItems").innerHTML = addSpecials(true, true, map);
 	document.getElementById("mapStatsResource").innerHTML = game.mapConfig.locations[map.location].resourceType;
-    if (typeof game.global.mapsOwnedArray[getMapIndex(game.global.lookingAtMap)] !== 'undefined') document.getElementById(game.global.lookingAtMap).style.border = "1px solid white";
-    document.getElementById(mapId).style.border = "1px solid red";
+	if (typeof game.global.mapsOwnedArray[getMapIndex(game.global.lookingAtMap)] !== 'undefined') {
+		var prevSelected = document.getElementById(game.global.lookingAtMap);
+		prevSelected.className = prevSelected.className.replace("mapElementSelected","mapElementNotSelected");
+	}
+	var currentSelected = document.getElementById(mapId);
+	currentSelected.className = currentSelected.className.replace("mapElementNotSelected", "mapElementSelected");
     game.global.lookingAtMap = mapId;
     document.getElementById("selectMapBtn").innerHTML = "Run Map";
     document.getElementById("selectMapBtn").style.visibility = "visible";
@@ -2757,7 +2766,7 @@ function startFight() {
         cell = game.global.gridArray[cellNum];
         cellElem = document.getElementById("cell" + cellNum);
     }
-    cellElem.style.backgroundColor = "yellow";
+    cellElem.className = cellElem.className.replace("cellNotBeaten", "cellCurrent");
 	var badName = cell.name;
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
@@ -2885,7 +2894,7 @@ function updateAllBattleNumbers (skipNum) {
         cellElem = document.getElementById("cell" + cellNum);
     }
 	if (cellElem == null) return;
-    cellElem.style.backgroundColor = "yellow";
+    cellElem.className = cellElem.className.replace("cellNotBeaten", "cellCurrent");
     document.getElementById("goodGuyHealthMax").innerHTML = prettify(game.global.soldierHealthMax);
 	updateGoodBar();
 	updateBadBar(cell);
@@ -3070,7 +3079,7 @@ function fight(makeUp) {
 		catch(err){
 			console.debug(err);
 		}
-        cellElem.style.backgroundColor = "green";
+        cellElem.className = cellElem.className.replace("cellCurrent", "cellBeaten");
         if (game.global.mapsActive) game.global.lastClearedMapCell = cellNum;
         else game.global.lastClearedCell = cellNum;
         game.global.fighting = false;
@@ -3863,7 +3872,7 @@ function buyGoldenMaps() {
 	game.unlocks.goldMaps = true;
 	for (var item in game.global.mapsOwnedArray){
 		game.global.mapsOwnedArray[item].loot = parseFloat(game.global.mapsOwnedArray[item].loot) + 1;
-		if (!game.global.mapsOwnedArray[item].noRecycle) document.getElementById(game.global.mapsOwnedArray[item].id).style.backgroundColor = "#998100";
+		if (!game.global.mapsOwnedArray[item].noRecycle) document.getElementById(game.global.mapsOwnedArray[item].id).className += " goldMap"; //bug fix, was setting color previously
 	}
 }
 
