@@ -361,12 +361,7 @@ overflow-x: hidden;
 }
 
 #fireBtn {
-    background: rgba(255, 255, 255, 0.25);
     border: 1px solid white;
-}
-
-.nav-tabs>li {
-    background: rgba(255, 255, 255, 0.25);
 }
 
 #viewChallengeText {
@@ -1674,4 +1669,52 @@ input::-webkit-inner-spin-button {
  
  #miscColumn  span {
 	font-size: 1.2vw !important;
+}
+
+.mapElementSelected {
+	border: 1px solid red;
+}
+
+.mapElementNotSelected {
+	border: 1px solid white;
+}
+
+.thingCanAfford {
+	background: black;
+}
+
+.thingCanNotAfford {
+	background: grey;
+}
+
+.thingFiringJob {
+	background: red;
+}
+
+.fireBtnFiring {
+	background: rgba(255,0,0,0.5);
+}
+
+.fireBtnNotFiring {
+	background: rgba(255,255,255,0.25);
+}
+
+.tabSelected {
+	background: rgba(0,0,0,0.5);
+}
+
+.tabNotSelected {
+	background: rgba(255,255,255,0.25);
+}
+
+.cellBeaten {
+	background: green;
+}
+
+.cellCurrent {
+	background: yellow;
+}
+
+.cellNotBeaten {
+	background: grey;
 }

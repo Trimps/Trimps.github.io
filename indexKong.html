@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 2.81 (Kongregate Version)</title>
+	<title>Trimps 2.811 (Kongregate Version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?22" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?23" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -476,29 +476,29 @@ var kongregate = parent.kongregateAPI.getAPI();
 				<div id="outerBuyContainer">	
 					<div id="buyTabs">
 				<ul id="buyTabsUl" class="nav nav-tabs nav-justified">
-					<li role="presentation" id="allTab" onclick="filterTabs('all')" class="buyTab"><a id="allA" href="#">All</a></li>
-					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="buyTab"><a id="buildingsA" href="#"><span id="buildingsAlert" class="alert badge"></span>Buildings</a></li>
-					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="buyTab"><a id="jobsA" href="#"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
-					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="buyTab"><a id="upgradesA" href="#"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
-					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="buyTab"><a id="equipmentA" href="#"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>				
+					<li role="presentation" id="allTab" onclick="filterTabs('all')" class="tabNotSelected buyTab"><a id="allA" href="#">All</a></li>
+					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="tabNotSelected buyTab"><a id="buildingsA" href="#"><span id="buildingsAlert" class="alert badge"></span>Buildings</a></li>
+					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="tabNotSelected buyTab"><a id="jobsA" href="#"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
+					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="tabNotSelected buyTab"><a id="upgradesA" href="#"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
+					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA" href="#"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>				
 				</ul>
 				</div>
 
 					<div id="numTabs" class="numTabs">
 						<ul class="nav nav-tabs nav-justified">
-							<li role="presentation" id="tab1" onclick="numTab(1)">
+							<li role="presentation" class="tabNotSelected" id="tab1" onclick="numTab(1)">
 								<a id="tab1Text" href="#">+1</a>
 							</li>
-							<li role="presentation" id="tab2" onclick="numTab(2)">
+							<li role="presentation" class="tabNotSelected" id="tab2" onclick="numTab(2)">
 								<a id="tab2Text" href="#">+10</a>
 							</li>
-							<li role="presentation" id="tab3" onclick="numTab(3)">
+							<li role="presentation" class="tabNotSelected" id="tab3" onclick="numTab(3)">
 								<a id="tab3Text" href="#">+25</a>
 							</li>
-							<li role="presentation" id="tab4" onclick="numTab(4)">
+							<li role="presentation" class="tabNotSelected" id="tab4" onclick="numTab(4)">
 								<a id="tab4Text" href="#">+100</a>
 							</li>
-							<li role="presentation" id="tab5">
+							<li role="presentation" class="tabNotSelected" id="tab5">
 								<a style="display: inline-block; width: 47%" id="tab5Text" href="#"  onclick="numTab(5)">+1</a>
 								<a style="display: inline-block; width: 47%" id="tab5Text2" href="#"  onclick="tooltip('Custom', null, 'update')">Custom</a>
 							</li>
@@ -976,9 +976,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 	
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?62"></script>
-	<script type="text/javascript" src="updates.js?62"></script>
-	<script type="text/javascript" src="main.js?62"></script>
+	<script type="text/javascript" src="config.js?63"></script>
+	<script type="text/javascript" src="updates.js?63"></script>
+	<script type="text/javascript" src="main.js?63"></script>
 	<script type="text/javascript">
 		document.body.addEventListener('DOMMouseScroll', onWheel, true);
 		document.body.addEventListener('mousewheel', onWheel, true);

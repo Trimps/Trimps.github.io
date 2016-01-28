@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.81,
+		version: 2.811,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -775,6 +775,7 @@ var toReturn = {
 			fireAbandon: true,
 			abandon: function () {
 				document.getElementById("badCrit").innerHTML = "";
+				document.getElementById("badCanCrit").style.display = "none";
 			},
 			heldHelium: 0,
 			heliumThrough: 124,
@@ -1911,6 +1912,7 @@ var toReturn = {
 					game.global.totalHeliumEarned += heliumAdded;
 					game.challenges.Crushed.heldHelium = 0;
 					game.global.challengeActive = "";
+					game.challenges.Crushed.abandon();
 				}
 			}
 		},
@@ -2103,7 +2105,7 @@ var toReturn = {
 				var item = elligible[roll];
 				var amt = simpleSeconds(item, 45);
 				amt = scaleToCurrentMap(amt);
-				addResCheckMax(item, amt, null, null, true);
+				addResCheckMax(item, amt);
 				message("That Jestimp gave you " + prettify(amt) + " " + item + "!", "Loot", "*dice", "exotic");
 				game.unlocks.impCount.Jestimp++;
 			}
