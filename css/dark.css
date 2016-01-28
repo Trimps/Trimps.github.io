@@ -335,7 +335,7 @@
 } */
 
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-	border-top:1px solid #141414;
+	border-top:1px solid black;
 }
 
 .primaryColor {
@@ -348,4 +348,26 @@
 
 .miscDesc {
 	background-color: #141414;
+}
+
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+	background-color: #141414;
+}
+
+.table-striped > tbody > tr:nth-of-type(2n) {
+	background-color: #060606;
+}
+
+#tooltipDiv {
+	background-color: #141414;
+	color: #9B9B9B;
+}
+
+hr{
+	border-color: black;
+}
+
+input, button, select, textarea{
+	background-color: black;
+	color: #9B9B9B;
 }
