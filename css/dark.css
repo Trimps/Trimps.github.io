@@ -371,3 +371,11 @@ input, button, select, textarea{
 	background-color: black;
 	color: #9B9B9B;
 }
+
+#mapLevelInput {
+    color: #9B9B9B;
+}
+
+#biomeAdvMapsSelect {
+    color: #9B9B9B;
+}
