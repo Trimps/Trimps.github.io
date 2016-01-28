@@ -1286,12 +1286,7 @@ function filterTabs (what) {
 }
 
 function enableDisableTab(what, enable){
-	var elem = document.getElementById(what + "Tab");
-	if(enable)
-		elem.className = elem.className.replace("tabNotSelected", "tabSelected");
-	else
-		elem.className = elem.className.replace("tabSelected", "tabNotSelected");
-	
+	document.getElementById(what + "Tab").style.background = (enable) ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.25)";
 	document.getElementById(what + "A").style.borderBottom = (enable) ? "0" : "1px solid #ddd";
 }
 
@@ -1356,11 +1351,7 @@ function numTab (what, p) {
 	var tabType = (p) ? "ptab" : "tab";
 	for (var x = 1; x <= 5; x++){
 		var thisTab = document.getElementById(tabType + x);
-		if(what == x)
-			thisTab.className = thisTab.className.replace("tabNotSelected", "tabSelected");
-		else
-			thisTab.className = thisTab.className.replace("tabSelected", "tabNotSelected");
-
+		thisTab.style.background = (what == x) ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.25)";	
 		if (x == 5) break;
 		switch (x){
 			case 1:
@@ -1607,7 +1598,7 @@ function unlockBuilding(what) {
 }
 
 function drawBuilding(what, where){
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 }
 
 function unlockJob(what) {
@@ -1628,7 +1619,7 @@ function unlockJob(what) {
 }
 
 function drawJob(what, where){
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 }
 function refreshMaps(){
 	document.getElementById("mapsHere").innerHTML = "";
@@ -1671,7 +1662,7 @@ function getMapIcon(mapObject, nameOnly) {
 function unlockMap(what) { //what here is the array index
 	var item = game.global.mapsOwnedArray[what];
 	var elem = document.getElementById("mapsHere");
-	var btnClass = "mapElementNotSelected thing noselect pointer mapThing";
+	var btnClass = "thing noselect pointer mapThing";
 	if (game.unlocks.goldMaps && !item.noRecycle) btnClass += " goldMap";
 	if (item.noRecycle) btnClass += getUniqueColor(item);
 	if (game.options.menu.extraStats.enabled) elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><div class="onMapIcon"><span class="' + getMapIcon(item) + '"></span></div><div class="thingName onMapName">' + item.name + '</div><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span><br/><span class="onMapStats"><span class="icomoon icon-gift2"></span>' + Math.floor(item.loot * 100) + '% </span><span class="icomoon icon-cube2"></span>' + item.size + ' <span class="icon icon-warning"></span>' + Math.floor(item.difficulty * 100) + '%</div>' + elem.innerHTML;
@@ -1712,7 +1703,7 @@ function drawUpgrade(what, where){
 	var done = upgrade.done;
 	var dif = upgrade.allowed - done;
 	if (dif >= 1) dif -= 1;
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
 	if (dif >= 1) document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
 }
 
@@ -1779,27 +1770,10 @@ function updateButtonColor(what, canAfford, isJob) {
 		return;
 	}
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) canAfford = false;
-	if (isJob && game.global.firing === true) {
-		if(game.jobs[what].owned >= 1) {
-			elem.className = elem.className.replace("thingCanNotAfford", "thingFiringJob");
-			elem.className = elem.className.replace("thingCanAfford", "thingFiringJob");
-		}
-	}
-	if (what == "Warpstation") {
-		if(canAfford)
-			elem.style.backgroundColor = getWarpstationColor();
-		else
-			elem.style.backgroundColor = "";
-	}
-	
-	if(isJob && game.global.firing === false) {
-		elem.className = elem.className.replace("thingFiringJob", "thingCanNotAfford");
-	}
-	
-	if(canAfford)
-		elem.className = elem.className.replace("thingCanNotAfford", "thingCanAfford");
-	else
-		elem.className = elem.className.replace("thingCanAfford", "thingCanNotAfford");
+	var color = (canAfford) ? "black" : "grey";
+	if (isJob && game.global.firing === true) color = (game.jobs[what].owned >= 1) ? "red" : "grey";
+	if (what == "Warpstation" && color == "black") color = getWarpstationColor();
+	elem.style.background = color;
 }
 
 function getWarpstationColor() {
@@ -1823,7 +1797,7 @@ function unlockEquipment(what, fromCheck) {
 	if (equipment.prestige > 1){
 		numeral = romanNumeral(equipment.prestige);
 	}
-	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
+	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
 }
 
 function getBarColor(percent, forText) {

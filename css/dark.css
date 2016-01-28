@@ -1,7 +1,7 @@
 #innerWrapper{
 	background: black !important;
 }
-#saveGame {
+#SaveGame {
     color: #2F6000
 }
 .NoticesMessage {
@@ -15,7 +15,7 @@
     margin-left: -1px;
     margin-top: -1px;
     color: #000;
-    
+    background-color: #2D79A2
 }
 #grid,
 #mapGrid {
@@ -49,17 +49,17 @@
     background: #000 none repeat scroll 0% 0%
 }
 .btn-default {
-    background-color: #5D5D5D;
+    background-color: #AEAEAE;
     border: 0px;
     color: #000
 }
 .btn-info {
-    background-color: #283D44;
+    background-color: #346E80;
     border: 0px;
     color: #AAA
 }
 .btn-warning {
-    background-color: #574800;
+    background-color: #664515;
     border: 0px;
     color: #AAA
 }
@@ -69,7 +69,7 @@
     color: #AAA
 }
 .btn-success {
-    background-color: #194A19;
+    background-color: #1A3E1A;
     border: 0px;
     color: #AAA
 }
@@ -170,7 +170,7 @@
     color: #AAA
 }
 .successColor {
-    background-color: #194A19;
+    background-color: #1A3E1A;
     color: #AAA
 }
 #outerBuyContainer {
@@ -182,170 +182,8 @@
     margin-right: 0px;
     margin-top: -1px;
     width: 25%;
-    border-color: #5D5D5D;
+    border-color: #5D5D5D
 }
 .infoColor{
 	background-color: #33616F;
-}
-
-#mapsHere{
-	padding-left: 1px;
-	padding-top: 1px;
-}
-
-.mapElementSelected {
-	border: 1px solid black;
-	-webkit-box-shadow: 0 0 0 2px #1414D8 inset;
-	   -moz-box-shadow: 0 0 0 2px #1414D8 inset;
-            box-shadow: 0 0 0 2px #1414D8 inset;
-}
-
-.mapElementNotSelected {
-	border: 1px solid black;
-	-webkit-box-shadow: 0 0 0 1px #000 inset;
-	   -moz-box-shadow: 0 0 0 1px #000 inset;
-            box-shadow: 0 0 0 1px #000 inset;
-}
-
-.thingCanAfford {
-	background: black;
-}
-
-.thingCanNotAfford {
-	background: #3F3F3F;
-}
-
-.thingFiringJob {
-	background: #441817;
-}
-
-.fireBtnFiring {
-	background: #441817;
-}
-
-.fireBtnNotFiring {
-	background: black;
-}
-
-.tabSelected {
-	background: #3F3F3F;
-}
-
-.tabNotSelected {
-	background: black;
-}
-
-.noRecycleDone {
-	background-color: #441817 !important;
-}
-
-.noRecycle {
-	background-color: #194A19 !important;
-}
-
-.goldMap {
-	background-color: #574800 !important;
-}
-
-.mapThing {
-	background-color: #3F3F3F;
-}
-
-.cellBeaten {
-	background: #194A19;
-}
-
-.cellCurrent {
-	background: #574800;
-}
-
-.cellNotBeaten {
-	background: #5D5D5D;
-}
-
-.brokenUpgrade {
-	color: #3B003B;
-}
-
-.tealColor {
-	background-color: #283D44 !important;
-}
-
-#buyTabsUl > li > a {
-	border: 1px solid #212121;
-	border-bottom: 1px solid rgb(221, 221, 221);
-}
-
-#portalTimer {
-	background-color: #121212;
-}
-
-.autosaving {
-	background-color: #194A19;
-}
-
-.notAutosaving {
-	background-color: #441817;
-}
-
-#settingsRow {
-	background-color: #141414;
-}
-
-.settingBtntrue, .settingBtn1 {
-	background-color: #194A19;
-	color: #9B9B9B;
-}
-.settingBtnfalse, .settingBtn0{
-	background-color: #441817;
-	color: #9B9B9B;
-}
-.settingBtn2{
-	background-color: #574800;
-	color: #9B9B9B;
-}
-
-#boneWrapper {
-	background-color: #141414;
-	color: #9B9B9B;
-}
-
-#boneBoostsColumn {
-	background-color: #000;
-}
-
-#boneImportsColumn {
-	background-color: #000;
-}
-
-#boneMiscColumn {
-	background-color: #000;
-}
-
-.boneBuyColumn {
-	border-color: #141414;
-}
-
-.boneBuyDesc {
-	background-color: #141414;
-}
-
-.table-striped > tbody > tr:nth-of-type(2n+1) {
-	background-color: #141414;
-}
-
-.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-	border-top:1px solid #141414;
-}
-
-.primaryColor {
-	background-color: #183854;
-}
-
-.boneBtn {
-	border-color: #141414;
-}
-
-.miscDesc {
-	background-color: #141414;
 }
