@@ -1679,15 +1679,15 @@ input::-webkit-inner-spin-button {
 	border: 1px solid white;
 }
 
-.thingCanAfford {
+.thingColorCanAfford {
 	background: black;
 }
 
-.thingCanNotAfford {
+.thingColorCanNotAfford {
 	background: grey;
 }
 
-.thingFiringJob {
+.thingColorFiringJob {
 	background: red;
 }
 
@@ -1707,14 +1707,38 @@ input::-webkit-inner-spin-button {
 	background: rgba(255,255,255,0.25);
 }
 
-.cellBeaten {
+.cellColorBeaten{
 	background: green;
 }
 
-.cellCurrent {
+.cellColorCurrent {
 	background: yellow;
 }
 
-.cellNotBeaten {
+.cellColorNotBeaten {
 	background: grey;
+}
+
+.percentColorBlue {
+	background-color: #00B2EE;
+}
+
+.percentColorYellow {
+	background-color: yellow;
+}
+
+.percentColorOrange {
+	background-color: #FFA824;
+}
+
+.percentColorRed {
+	background-color: red;
+}
+
+.psColorWhite {
+	color: white;
+}
+
+.psColorOrange {
+	color: orange;
 }

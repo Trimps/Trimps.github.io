@@ -19,65 +19,64 @@
 }
 #grid,
 #mapGrid {
-    color: #9B9B9B;
     background-color: #000;
 }
+
 .formationBtn {
     color: #000
 }
 #battleContainer {
-    background: #000 none repeat scroll 0% 0%;
     border: 0px;
     color: #9B9B9B
 }
-#outerBuyContainer {
-    background: #000 none repeat scroll 0% 0%
-}
 #logContainer {
-    background: #000 none repeat scroll 0% 0%;
     border: 1px solid #212121;
     padding-top: 0px;
     color: #9B9B9B
 }
 .playerGather {
-    background: #000 none repeat scroll 0% 0%;
     border: 0px;
     color: #9B9B9B;
     margin-bottom: 0px
 }
+
+#battleContainer,
+#outerBuyContainer,
+#logContainer,
+.playerGather,
 #queueContainer {
     background: #000 none repeat scroll 0% 0%
 }
 .btn-default {
+	color: black;
+	border: 0px;
     background-color: #5D5D5D;
-    border: 0px;
-    color: #000
 }
 .btn-info {
     background-color: #283D44;
-    border: 0px;
-    color: #AAA
 }
 .btn-warning {
     background-color: #574800;
-    border: 0px;
-    color: #AAA
 }
 .btn-primary {
     background-color: #183854;
-    border: 0px;
-    color: #AAA
 }
 .btn-success {
     background-color: #194A19;
-    border: 0px;
-    color: #AAA
 }
 .btn-danger {
     background-color: #441817;
-    border: 0px;
-    color: #AAA
 }
+
+.btn-info,
+.btn-warning,
+.btn-primary,
+.btn-success,
+.btn-danger {
+	border: 0px;
+    color: #AAA;
+}
+
 .btn-group,
 .btn-group-vertical {
     vertical-align: top
@@ -140,11 +139,9 @@
     z-index: 1
 }
 .psText {
-    color: rgb(52, 78, 48) !important
+    color: #9B9B9B !important
 }
-#trimpsPs {
-    color: rgb(52, 78, 48) !important
-}
+
 .progress {
     background-color: #7E7E7E;
     border-radius: 0px
@@ -154,17 +151,11 @@
 }
 .workBtn {
     border: 1px solid #5D5D5D;
-    color: 9B9B9B
 }
 #queueContainer {
     border: 1px solid #212121
 }
-#queueRow {
-    color: #9B9B9B
-}
-#noQueue {
-    color: #9B9B9B
-}
+
 .dangerColor {
     background-color: #441817;
     color: #AAA
@@ -175,7 +166,6 @@
 }
 #outerBuyContainer {
     border: 1px solid #212121;
-    color: #9B9B9B
 }
 .thing {
     margin-left: -1px;
@@ -207,30 +197,18 @@
             box-shadow: 0 0 0 1px #000 inset;
 }
 
-.thingCanAfford {
-	background: black;
-}
-
-.thingCanNotAfford {
-	background: #3F3F3F;
-}
-
-.thingFiringJob {
-	background: #441817;
-}
-
-.fireBtnFiring {
-	background: #441817;
-}
-
-.fireBtnNotFiring {
-	background: black;
-}
-
+.thingColorCanNotAfford,
 .tabSelected {
 	background: #3F3F3F;
 }
 
+.thingColorFiringJob,
+.fireBtnFiring {
+	background: #441817;
+}
+
+.thingColorCanAfford,
+.fireBtnNotFiring,
 .tabNotSelected {
 	background: black;
 }
@@ -251,15 +229,15 @@
 	background-color: #3F3F3F;
 }
 
-.cellBeaten {
+.cellColorBeaten {
 	background: #194A19;
 }
 
-.cellCurrent {
+.cellColorCurrent {
 	background: #574800;
 }
 
-.cellNotBeaten {
+.cellColorNotBeaten {
 	background: #5D5D5D;
 }
 
@@ -288,51 +266,21 @@
 	background-color: #441817;
 }
 
-#settingsRow {
-	background-color: #141414;
-}
-
 .settingBtntrue, .settingBtn1 {
 	background-color: #194A19;
-	color: #9B9B9B;
 }
 .settingBtnfalse, .settingBtn0{
 	background-color: #441817;
-	color: #9B9B9B;
 }
 .settingBtn2{
 	background-color: #574800;
-	color: #9B9B9B;
 }
 
-#boneWrapper {
-	background-color: #141414;
-	color: #9B9B9B;
-}
-
-#boneBoostsColumn {
-	background-color: #000;
-}
-
-#boneImportsColumn {
-	background-color: #000;
-}
-
+#boneBoostsColumn,
+#boneImportsColumn,
 #boneMiscColumn {
 	background-color: #000;
 }
-
-.boneBuyColumn {
-	border-color: #141414;
-}
-
-.boneBuyDesc {
-	background-color: #141414;
-}
-
-/* .table-striped > tbody > tr:nth-of-type(2n+1) {
-	background-color: #141414;
-} */
 
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
 	border-top:1px solid black;
@@ -342,25 +290,8 @@
 	background-color: #183854;
 }
 
-.boneBtn {
-	border-color: #141414;
-}
-
-.miscDesc {
-	background-color: #141414;
-}
-
-.table-striped > tbody > tr:nth-of-type(2n+1) {
-	background-color: #141414;
-}
-
 .table-striped > tbody > tr:nth-of-type(2n) {
 	background-color: #060606;
-}
-
-#tooltipDiv {
-	background-color: #141414;
-	color: #9B9B9B;
 }
 
 hr{
@@ -369,13 +300,73 @@ hr{
 
 input, button, select, textarea{
 	background-color: black;
+}
+
+.percentColorBlue {
+	background-color: #002B3B;
+}
+
+.percentColorYellow {
+	background-color: #574800;
+}
+
+.percentColorOrange {
+	background-color: #3F2600;
+}
+
+.percentColorRed {
+	background-color: #441817;
+}
+
+.boneBuyColumn {
+	border-color: #141414;
+}
+
+#settingsRow,
+#boneWrapper,
+.boneBuyColumn,
+.boneBuyDesc,
+.boneBtn,
+.miscDesc,
+.table-striped > tbody > tr:nth-of-type(2n+1),
+#tooltipDiv,
+.progress {
+	background-color: #141414;
+}
+
+#grid,
+#mapGrid,
+.workBtn,
+#queueRow,
+#noQueue,
+#outerBuyContainer,
+.settingBtntrue, .settingBtn1,
+.settingBtnfalse, .settingBtn0,
+.settingBtn2,
+#boneWrapper,
+#tooltipDiv,
+input, button, select, textarea,
+#trimpsTimeToFill,
+#foodTimeToFill,
+#woodTimeToFill,
+#metalTimeToFill,
+#goodGuyHealthMax,
+#badGuyHealthMax,
+.psColorWhite,
+#biomeAdvMapsSelect,
+#mapLevelInput,
+.progress > div > span {
 	color: #9B9B9B;
 }
 
-#mapLevelInput {
-    color: #9B9B9B;
+.progress-bar {
+	
 }
 
-#biomeAdvMapsSelect {
-    color: #9B9B9B;
+.psColorOrange {
+	color: #7A6500;
+}
+
+.StoryMessage {
+	color: #007A7A;
 }

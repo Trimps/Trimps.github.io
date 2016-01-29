@@ -1054,6 +1054,7 @@ function resetGame(keepPortal) {
 	document.getElementById("badGuyAttack").style.color = "white";
 	document.getElementById("badCrit").innerHTML = "";
 	document.getElementById("badCanCrit").style.display = "none";
+	
 	resetOnePortalRewards();
 	
 	setFormation("0");
@@ -1155,6 +1156,9 @@ function resetGame(keepPortal) {
 			pres = "food";
 		}
 		game.global.presimptStore = pres;
+		
+		//hope this is ok here -grabz
+		swapClass("psColor", "psColorWhite", document.getElementById("trimpsPs"));
 	}
 	numTab(1);
 	pauseFight(true);
@@ -1473,7 +1477,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		var bar = document.getElementById(item + "Bar");
 		if (game.options.menu.progressBars.enabled){
 			var percentToMax = ((toUpdate.owned / newMax) * 100);
-			bar.style.backgroundColor = getBarColor(100 - percentToMax);
+			swapClass("percentColor", getBarColorClass(100 - percentToMax), bar);
 			bar.style.width = percentToMax + "%";
 		}
 	}
@@ -1566,15 +1570,12 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 		psText = prettify(psText);
 /*		var color = (psText < 0) ? "red" : "green";
 		if (psText == 0) color = "black"; */
-		var color = "white";
 		psText = "+" + psText;
 		psText += "/sec";
 		if (trimps && game.unlocks.quickTrimps) {
 			psText += " (x2!)"; 
-			color = "orange";
 		}
 		elem.innerHTML = psText;
-		elem.style.color = color;
 }
 
 function updateSideTrimps(){
@@ -1607,7 +1608,7 @@ function unlockBuilding(what) {
 }
 
 function drawBuilding(what, where){
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 }
 
 function unlockJob(what) {
@@ -1628,7 +1629,7 @@ function unlockJob(what) {
 }
 
 function drawJob(what, where){
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 }
 function refreshMaps(){
 	document.getElementById("mapsHere").innerHTML = "";
@@ -1712,7 +1713,7 @@ function drawUpgrade(what, where){
 	var done = upgrade.done;
 	var dif = upgrade.allowed - done;
 	if (dif >= 1) dif -= 1;
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
 	if (dif >= 1) document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
 }
 
@@ -1781,8 +1782,11 @@ function updateButtonColor(what, canAfford, isJob) {
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) canAfford = false;
 	if (isJob && game.global.firing === true) {
 		if(game.jobs[what].owned >= 1) {
-			elem.className = elem.className.replace("thingCanNotAfford", "thingFiringJob");
-			elem.className = elem.className.replace("thingCanAfford", "thingFiringJob");
+			//note for future self:
+			//if you need to add more states here, change these to use the swapClass func -grabz
+			//with "thingColor" as first param
+			elem.className = elem.className.replace("thingColorCanNotAfford", "thingColorFiringJob");
+			elem.className = elem.className.replace("thingColorCanAfford", "thingColorFiringJob");
 		}
 	}
 	if (what == "Warpstation") {
@@ -1793,13 +1797,13 @@ function updateButtonColor(what, canAfford, isJob) {
 	}
 	
 	if(isJob && game.global.firing === false) {
-		elem.className = elem.className.replace("thingFiringJob", "thingCanNotAfford");
+		elem.className = elem.className.replace("thingColorFiringJob", "thingColorCanNotAfford");
 	}
 	
 	if(canAfford)
-		elem.className = elem.className.replace("thingCanNotAfford", "thingCanAfford");
+		elem.className = elem.className.replace("thingColorCanNotAfford", "thingColorCanAfford");
 	else
-		elem.className = elem.className.replace("thingCanAfford", "thingCanNotAfford");
+		elem.className = elem.className.replace("thingColorCanAfford", "thingColorCanNotAfford");
 }
 
 function getWarpstationColor() {
@@ -1823,14 +1827,15 @@ function unlockEquipment(what, fromCheck) {
 	if (equipment.prestige > 1){
 		numeral = romanNumeral(equipment.prestige);
 	}
-	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
+	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
 }
 
-function getBarColor(percent, forText) {
-	if (percent > 50) return "#00B2EE";
-	else if (percent > 25) return "yellow";
-	else if (percent > 10) return "#FFA824";
-	else return "red";
+//isPrevious returns the previous color, used for swapping with str.replace to know which one was before
+function getBarColorClass(percent) {
+	if (percent > 50) return "percentColorBlue";
+	else if (percent > 25) return "percentColorYellow";
+	else if (percent > 10) return "percentColorOrange";
+	else return "percentColorRed";
 }
 
 function displayPerksBtn(){
@@ -2062,6 +2067,23 @@ function toggleSetting(setting, elem){
 		document.getElementById(id + "Description").innerHTML = "";
 	}
 
+//i changed the variable names just for remembrance sake
+//thank me later -grabz
+function swapClass(prefix, newClass, elem) {
+  var className = elem.className;
+  className = className.split(prefix);
+  if(typeof className[1] === 'undefined') {
+	  console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class. This needs a fix, but being a neat little function that I am, I will add this class to the element myself.");
+	  elem.className += " " + newClass;
+	  return;
+  } 
+  var classEnd = className[1].indexOf(' ');
+  if (classEnd >= 0)
+  	className = className[0] + newClass + className[1].slice(classEnd, className[1].length);
+  else
+  	className = className[0] + newClass;
+  elem.className = className;
+}
 
 
 
