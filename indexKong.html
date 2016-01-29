@@ -289,7 +289,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<span class="ownedArea bdHover" onclick="getMaxResources('Food')"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="foodBar" role="progressbar">
+								<div class="progress-bar percentColorBlue" id="foodBar" role="progressbar">
 									<span id="foodTimeToFill"></span>
 								</div>
 							</div>
@@ -311,7 +311,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<span class="ownedArea bdHover" onclick="getMaxResources('Wood')"><span id="woodOwned">0</span> / <span id="woodMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="woodBar" role="progressbar">
+								<div class="progress-bar percentColorBlue" id="woodBar" role="progressbar">
 									<span id="woodTimeToFill"></span>
 								</div>
 							</div>
@@ -335,7 +335,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<span class="ownedArea bdHover" onclick="getMaxResources('Metal')"><span id="metalOwned">0</span> / <span id="metalMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="metalBar" role="progressbar">
+								<div class="progress-bar percentColorBlue" id="metalBar" role="progressbar">
 									<span id="metalTimeToFill"></span>
 								</div>
 							</div>
@@ -407,12 +407,12 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<span class="ownedArea pointer noselect bdHover" onclick="getMaxTrimps()"><span id="trimpsOwned">0</span> / <span id="trimpsMax">10</span></span>
 					<br/>
 					<div class="progress resProgress">
-						<div class="progress-bar" id="trimpsBar" role="progressbar"><span id="trimpsTimeToFill"></span></div>
+						<div class="progress-bar percentColorBlue " id="trimpsBar" role="progressbar"><span id="trimpsTimeToFill"></span></div>
 						
 					</div>
 					<div id="unempHide" style="visibility: hidden">
 						<span id="trimpsUnemployed">0</span> breeding
-						<br/><span id="trimpsPs" class="pointer noselect bdHover" onclick="getTrimpPs()">+0/sec</span>
+						<br/><span id="trimpsPs" class="pointer noselect bdHover psColorWhite" onclick="getTrimpPs()">+0/sec</span>
 						<br/>
 					</div>
 					<div id="empHide" style="visibility: hidden">
@@ -530,7 +530,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 											<span id="jobsTitleUnemployed" class="titleSpan"></span>
 										</div>
 										<div class="col-xs-3" style="padding-left: 5px">
-											<div id="fireBtn" class="pointer noselect" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
+											<div id="fireBtn" class="pointer noselect fireBtnNotFiring" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
 										</div>
 									</div>
 									<div class="row">
@@ -611,7 +611,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									</div>
 								</div>
 								<div class="progress fightBar">
-									<div class="progress-bar" id="goodGuyBar" role="progressbar">
+									<div class="progress-bar percentColorBlue" id="goodGuyBar" role="progressbar">
 										<span class="bdHover pointer noselect innerFightBar" onclick="getBattleStatBd('health')">
 											<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span>
 										</span>
@@ -637,7 +637,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 								</div>
 							</div>
 								<div class="progress fightBar">
-									<div class="progress-bar" id="badGuyBar" role="progressbar">
+									<div class="progress-bar percentColorBlue" id="badGuyBar" role="progressbar">
 										<span class="innerFightBar">
 											<span id="badGuyHealth">0</span>/<span id="badGuyHealthMax">0</span>
 										</span>

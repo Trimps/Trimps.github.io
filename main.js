@@ -356,14 +356,14 @@ function load(saveString, autoLoad) {
         drawGrid();
         document.getElementById('metal').style.visibility = "visible";
         for (var x = 0; x <= game.global.lastClearedCell; x++) {
-            document.getElementById("cell" + x).className = document.getElementById("cell" + x).className.replace("cellNotBeaten", "cellBeaten");
+            swapClass("cellColor", "cellColorBeaten", document.getElementById("cell" + x));
         }
         if (game.global.battleClock > 0) document.getElementById("battleTimer").style.visibility = "visible";
     }
     if (game.global.mapGridArray.length > 0 && game.global.currentMapId !== "") {
         drawGrid(true);
         for (var y = 0; y <= game.global.lastClearedMapCell; y++) {
-            document.getElementById("mapCell" + y).className =  document.getElementById("mapCell" + y).className.replace("cellNotBeaten", "cellBeaten");
+            swapClass("cellColor", "cellColorBeaten", document.getElementById("mapCell" + y));
         }
     } else if (game.global.mapGridArray.length === 0 && game.global.mapsActive) game.global.mapsActive = false;
     if (game.resources.trimps.owned > 0 || game.buildings.Trap.owned > 0) game.buildings.Trap.first();
@@ -458,9 +458,14 @@ function load(saveString, autoLoad) {
 	} */
 	
 	if(game.global.firing)
-		document.getElementById("fireBtn").className += " fireBtnFiring";
+		swapClass("fireBtn", "fireBtnFiring", document.getElementById("fireBtn"));
 	else
-		document.getElementById("fireBtn").className += " fireBtnNotFiring";
+		swapClass("fireBtn", "fireBtnNotFiring", document.getElementById("fireBtn"));
+	
+	if(game.unlocks.quickTrimps)
+		swapClass("psColor", "psColorOrange", document.getElementById("trimpsPs"));
+	else
+		swapClass("psColor", "psColorWhite", document.getElementById("trimpsPs"));
 }
 
 function loadGigastations() {
@@ -2409,7 +2414,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			cell.style.paddingTop = ((100 / cols) / 19)+ "vh";
 			cell.style.paddingBottom = ((100 / cols) / 19) + "vh";
 			cell.style.fontSize = ((cols / 14) + 1) + "vh";
-            cell.className = "battleCell cellNotBeaten";
+            cell.className = "battleCell cellColorNotBeaten";
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
 			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";
             counter++;
@@ -2766,7 +2771,7 @@ function startFight() {
         cell = game.global.gridArray[cellNum];
         cellElem = document.getElementById("cell" + cellNum);
     }
-    cellElem.className = cellElem.className.replace("cellNotBeaten", "cellCurrent");
+    swapClass("cellColor", "cellColorCurrent", cellElem);
 	var badName = cell.name;
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
@@ -2894,7 +2899,7 @@ function updateAllBattleNumbers (skipNum) {
         cellElem = document.getElementById("cell" + cellNum);
     }
 	if (cellElem == null) return;
-    cellElem.className = cellElem.className.replace("cellNotBeaten", "cellCurrent");
+    swapClass("cellColor", "cellColorCurrent", cellElem);
     document.getElementById("goodGuyHealthMax").innerHTML = prettify(game.global.soldierHealthMax);
 	updateGoodBar();
 	updateBadBar(cell);
@@ -2916,7 +2921,7 @@ function updateGoodBar() {
 	var barElem = document.getElementById("goodGuyBar");
     var percent = ((game.global.soldierHealth / game.global.soldierHealthMax) * 100);
     barElem.style.width = percent + "%";
-    barElem.style.backgroundColor = getBarColor(percent);
+    swapClass("percentColor", getBarColorClass(percent), barElem);
 }
 
 function updateBadBar(cell) {
@@ -2926,7 +2931,7 @@ function updateBadBar(cell) {
 	var barElem = document.getElementById("badGuyBar");
 	var percent = ((cell.health / cell.maxHealth) * 100);
     barElem.style.width = percent + "%";
-    barElem.style.backgroundColor = getBarColor(percent);
+	swapClass("percentColor", getBarColorClass(percent), barElem);
 }
 
 function calculateDamage(number, buildString, isTrimp, noCheckAchieve) { //number = base attack
@@ -3079,7 +3084,7 @@ function fight(makeUp) {
 		catch(err){
 			console.debug(err);
 		}
-        cellElem.className = cellElem.className.replace("cellCurrent", "cellBeaten");
+        swapClass("cellColor", "cellColorBeaten", cellElem);
         if (game.global.mapsActive) game.global.lastClearedMapCell = cellNum;
         else game.global.lastClearedCell = cellNum;
         game.global.fighting = false;
@@ -3878,6 +3883,7 @@ function buyGoldenMaps() {
 
 function buyQuickTrimps() {
 	game.unlocks.quickTrimps = true;
+	swapClass("psColor", "psColorOrange", document.getElementById("trimpsPs"));
 }
 
 function countUnpurchasedImports(){
