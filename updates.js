@@ -1784,6 +1784,11 @@ function updateButtonColor(what, canAfford, isJob) {
 			elem.className = elem.className.replace("thingCanNotAfford", "thingFiringJob");
 			elem.className = elem.className.replace("thingCanAfford", "thingFiringJob");
 		}
+		else{
+			elem.className = elem.className.replace("thingCanAfford", "thingCanNotAfford");
+			elem.className = elem.className.replace("thingFiringJob", "thingCanNotAfford");
+		}
+		return;
 	}
 	if (what == "Warpstation") {
 		if(canAfford)
