@@ -1913,16 +1913,13 @@ function breed() {
 		document.getElementById("trimpsTimeToFill").innerHTML = (fullBreed) ? fullBreed : "";
         return;
     }
-	document.getElementById("trimpsTimeToFill").innerHTML = timeRemaining;
-	
+	document.getElementById("trimpsTimeToFill").innerHTML = timeRemaining;	
     trimps.owned += breeding / game.settings.speed;
 	if (trimps.owned >= trimpsMax) trimps.owned = trimpsMax;
-	else {
-		if (game.portal.Anticipation.level) game.global.lastBreedTime += (1000 / game.settings.speed);
-		if (game.jobs.Geneticist.locked == 0) {
-			if (game.global.lowestGen < 0) game.global.lowestGen = game.jobs.Geneticist.owned;
-			else if (game.jobs.Geneticist.owned < game.global.lowestGen) game.global.lowestGen = game.jobs.Geneticist.owned;
-		}
+	if (game.portal.Anticipation.level) game.global.lastBreedTime += (1000 / game.settings.speed);
+	if (game.jobs.Geneticist.locked == 0) {
+		if (game.global.lowestGen < 0) game.global.lowestGen = game.jobs.Geneticist.owned;
+		else if (game.jobs.Geneticist.owned < game.global.lowestGen) game.global.lowestGen = game.jobs.Geneticist.owned;
 	}
 }
 
