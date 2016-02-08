@@ -567,10 +567,7 @@ color:#8F8F00
 	background:transparent repeating-radial-gradient(rgba(0, 179, 134, 0) 10%, rgba(61, 176, 248, 0.4) 10%, rgba(42, 106, 147, 0.4) 10%, rgba(27, 56, 75, 0.4) 20%) repeat scroll 0% 0%;
 }
 
-#ptabRemoveText {
-	background-color: #000;
-	color: #AD2A2A !important;
-}
+
 #portalError,
 #portalWrapper #flagMustRestart {
 	color: #AD2A2A;
