@@ -706,7 +706,7 @@ function getScientistInfo(number, reward){
 			return (reward) ? "start with full Trimps and double Efficiency" : 1500;
 		}
 		case 4: {
-			return (reward) ? "earn double prestige drops from each map, and the ability to auto purchase upgrades" : 70;
+			return (reward) ? "earn two levels of each prestige upgrade per map, and the ability to auto purchase upgrades" : 70;
 		}
 	}
 }
