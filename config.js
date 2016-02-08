@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.811,
+		version: 2.82,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -120,6 +120,14 @@ var toReturn = {
 		roboTrimpCooldown: 0,
 		useShriek: false,
 		usingShriek: false,
+		autoUpgrades: false,
+		autoPrestiges: false,
+		sessionMapValues: {
+			loot: 0,
+			difficulty: 0,
+			size: 0,
+			biome: "Random"
+		},
 		lootAvgs: {
 			food: [0],
 			foodTotal: 0,
@@ -300,7 +308,7 @@ var toReturn = {
 			},
 			showFullBreed: {
 				enabled: 0,
-				description: "Display time to breed a full group of soldiers. Toggle between off, time to breed from 100% full, or time from the AutoFight threshold. If 'From 100%' or 'From AutoFight' are enabled, the main breeding timer will gain an extra decimal of precision.",
+				description: "Display time to breed a full group of soldiers. Toggle between off, time to breed from 100% full, or time from the AutoFight threshold. If From 100% or From AutoFight are enabled, the main breeding timer will gain an extra decimal of precision.",
 				titles: ["Less Breed Timer", "From 100%", "From AutoFight"]
 			},
 			darkTheme: {
@@ -319,15 +327,21 @@ var toReturn = {
 						return;
 					}
 					if (this.enabled == 0) {
-					document.getElementById("innerWrapper").style.backgroundColor = "black";	
+						document.getElementById("innerWrapper").style.backgroundColor = "black";	
 						link = document.getElementById("darkTheme");
 						if (!link) return;
 						link.disabled = true;
-						document.head.removeChild(link);		
-						
+						document.head.removeChild(link);
 						return;
 					}
 					document.getElementById("innerWrapper").style.backgroundColor = "initial";	
+				},
+				restore: function () {
+					document.getElementById("innerWrapper").style.backgroundColor = "initial";	
+					link = document.getElementById("darkTheme");
+					if (!link) return;
+					link.disabled = true;
+					document.head.removeChild(link);
 				}
 			},
 			fadeIns: {
@@ -360,7 +374,10 @@ var toReturn = {
 				titles: ["Not Paused", "Paused"],
 				timeAtPause: 0,
 				onToggle: function () {
-					if (this.enabled) this.timeAtPause = new Date().getTime();
+					if (this.enabled) {
+						this.timeAtPause = new Date().getTime();
+						if (game.options.menu.autoSave.enabled == 1) save();
+					}
 					else if (this.timeAtPause) {
 						var now = new Date().getTime();
 						var dif = now - this.timeAtPause;
@@ -628,16 +645,58 @@ var toReturn = {
 			unlocks: "Carpentry",
 			unlockString: "reach Zone 35"
 		},
+		Balance: {
+			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 1.5X health, and all enemies in maps have 2X attack. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant double helium earned for all Blimps slain up to Zone 40. This challenge is repeatable!",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 39);
+			},
+			balanceStacks: 0,
+			addStack: function () {
+				this.balanceStacks++;
+				if (this.balanceStacks > 250) this.balanceStacks = 250;
+				else {
+					game.global.soldierHealthMax *= 0.99;
+					if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
+				}
+			},
+			removeStack: function () {
+				this.balanceStacks--;
+				if (this.balanceStacks < 0) this.balanceStacks = 0;
+				else {
+					game.global.soldierHealthMax *= 1.01;
+				}
+			},
+			abandon: function () {
+				this.balanceStacks = 0;
+				updateBalanceStacks();
+			},
+			getHealthMult: function (formatText) {
+				var num = Math.pow(0.99, this.balanceStacks);
+				if (formatText) return Math.floor((1 - num) * 100) + "%";
+				return num;
+			},
+			getGatherMult: function (formatText) {
+				if (formatText) return this.balanceStacks + "%";
+				return ((this.balanceStacks * 0.01) + 1);
+			},
+			heldHelium: 0,
+			heliumThrough: 39,
+			unlockString: "reach Zone 40"
+		},
 		Scientist: {
-			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to start with * each time you use your portal.",
+			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal.",
 			completed: false,
 			heldBooks: 0,
 			filter: function (fromCheck) {
 				if (game.global.sLevel == 0) return (game.global.highestLevelCleared >= 39);
 				else if (game.global.sLevel == 1) return (game.global.highestLevelCleared >= 49);
-				else if (game.global.sLevel >= 2) {
+				else if (game.global.sLevel == 2) {
 					if (game.global.highestLevelCleared > 69 && game.global.prisonClear) return (game.global.highestLevelCleared >= 89);
 					else return true;
+				}
+				else if (game.global.sLevel >= 3){
+					 return (game.global.highestLevelCleared >= 109);
 				}
 			},
 			abandon: function () {
@@ -647,6 +706,7 @@ var toReturn = {
 					unlockUpgrade("Speedscience");
 				}
 				message("You can research science again!", "Notices");
+				if (game.global.sLevel == 4) document.getElementById("autoUpgradeBtn").style.display = "block";
 			},
 			start: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
@@ -659,7 +719,8 @@ var toReturn = {
 			unlockString: function () {
 				if (game.global.sLevel == 0) return "reach Zone 40";
 				else if (game.global.sLevel == 1) return "reach Zone 50";
-				else if (game.global.sLevel >= 2) return "reach Zone 90";
+				else if (game.global.sLevel == 2) return "reach Zone 90";
+				else if (game.global.sLevel >= 3) return "reach Zone 110";
 			}
 		},
 		Meditate: {
@@ -904,6 +965,29 @@ var toReturn = {
 				var resToUse = (useTemp) ? game.global.tempHighHelium : game.resources.helium.owned;
 				return Math.floor(resToUse / timeThisPortal);
 			}
+		},
+		bestHeliumHourThisRun: {
+			title: "Best He/Hr this Run",
+			display: function () {
+				return (this.storedValue > 0);
+			},
+			storedValue: 0,
+			atZone: 0,
+			value: function () {
+				return prettify(game.stats.bestHeliumHourThisRun.storedValue) + ", Z:" + game.stats.bestHeliumHourThisRun.atZone;
+			},
+			evaluate: function () {
+				var heHr = game.stats.heliumHour.value();
+				if (heHr > this.storedValue){
+					this.storedValue = heHr;
+					this.atZone = game.global.world;
+				}
+			},
+			onPortal: function () {
+				this.storedValue = 0;
+				this.atZone = 0;
+			},
+			noFormat: true
 		},
 		bestHeliumHour: {
 			title: "Best He/Hour all Runs",
@@ -1794,6 +1878,15 @@ var toReturn = {
 					game.global.totalHeliumEarned += amt;
 					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story");
 					distributeToChallenges(amt);
+					if (game.global.world >= 40 && game.global.challengeActive == "Balance") {
+						var reward = game.challenges.Balance.heldHelium;
+						message("You have completed the Balance challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
+						game.resources.helium.owned += reward;
+						game.global.totalHeliumEarned += reward;
+						game.challenges.Balance.abandon();
+						game.global.challengeActive = "";
+					
+					}
 				}
 			}
 		},
@@ -2405,8 +2498,8 @@ var toReturn = {
 			fire: function () {
 				if (game.global.challengeActive == "Scientist"){
 					game.global.challengeActive = "";
-					game.challenges.Scientist.abandon();
 					game.global.sLevel = getScientistLevel();
+					game.challenges.Scientist.abandon();					
 					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive " + getScientistInfo(game.global.sLevel, true) + " every time you portal. You've unlocked Scientists, and <b>Don't forget that you can click Research on your Science again!</b>", "Notices");
 				}
 				if (game.global.challengeActive == "Trimp"){

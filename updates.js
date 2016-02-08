@@ -25,11 +25,7 @@ var tooltipUpdateFunction = "";
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) { //Now 20% less menacing. Work in progress.
 
-	if (document.getElementById(what + "Alert") !== null){
-		if (typeof game[isItIn] !== 'undefined') game[isItIn][what].alert = false;
-		document.getElementById(what + "Alert").innerHTML = "";
-		if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
-	}
+	checkAlert(what, isItIn);
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
@@ -318,6 +314,24 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (event != "update") positionTooltip(elem, event);
 }
 
+function checkAlert(what, isItIn){
+	if (document.getElementById(what + "Alert") === null) return;
+		if (typeof game[isItIn] !== 'undefined') game[isItIn][what].alert = false;
+		else return;
+		document.getElementById(what + "Alert").innerHTML = "";
+		if (document.getElementById(isItIn + "Alert") !== null)	document.getElementById(isItIn + "Alert").innerHTML = "";
+}
+
+function countAlertsIn(where){
+	var count = 0;
+	where = game[where];
+	for (var item in where){
+		item = where[item];
+		if (item.alert) count++;
+	}
+	return count;
+}
+
 function positionTooltip(elem, event){
 	var cordx = 0;
 	var cordy = 0;
@@ -495,6 +509,10 @@ function getPsString(what, rawNum) {
 		toxMult = (toxMult * 100).toFixed(1) + "%";
 		textString += "<tr><td class='bdTitle'>Tweaky (Toxicity)</td><td class='bdPercent'>+ " + toxMult + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	if (game.global.challengeActive == "Balance"){
+		currentCalc *= game.challenges.Balance.getGatherMult();
+		textString += "<tr><td class='bdTitle'>Strength (Balance)</td><td class='bdPercent'>+ " + game.challenges.Balance.getGatherMult(true) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}	
 	//Add player
 	if (game.global.playerGathering == what){
 		if (game.global.turkimpTimer > 0 && (what == "food" || what == "wood" || what == "metal")){
@@ -528,7 +546,7 @@ function getZoneStats(event, update) {
 	if ((game.global.mapsActive || game.global.preMapsActive) && game.global.currentMapId){
 		var map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
 		textString += "<tr><td class='bdTitle bdZoneTitle' colspan='3'>" + map.name + ", Level " + map.level + "</td></tr>";
-		textString += '<tr><td><span class="' + getMapIcon(map) + '"></span> ' + getMapIcon(map, true) + '</td><td><span class="icomoon icon-cube2"></span>' + map.size + ' <span class="icon icon-warning"></span>' + Math.floor(map.difficulty * 100) + '% <span class="icomoon icon-gift2"></span>' + Math.floor(map.loot * 100) + '%</span></td><td>Items: ' + addSpecials(true, true, map) + '</td></tr>';
+		textString += '<tr><td><span class="' + getMapIcon(map) + '"></span> ' + getMapIcon(map, true) + '</td><td><span class="icomoon icon-gift2"></span>' + Math.floor(map.loot * 100) + '%</span> <span class="icomoon icon-cube2"></span>' + map.size + ' <span class="icon icon-warning"></span>' + Math.floor(map.difficulty * 100) + '%</td><td>Items: ' + addSpecials(true, true, map) + '</td></tr>';
 		textString += "<tr><td colspan='3'>You have been on this map for " + formatMinutesForDescriptions((new Date().getTime() - game.global.mapStarted) / 1000 / 60) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
@@ -717,6 +735,10 @@ function getBattleStatBd(what) {
 		currentCalc *= (1 + roboTrimpMod);
 		roboTrimpMod *= 100;
 		textString += "<tr><td class='bdTitle'><span class='icomoon icon-chain'></span> RoboTrimp <span class='icomoon icon-chain'></span></td><td>20%</td><td>" + game.global.roboTrimpLevel + "</td><td>+ " + prettify(roboTrimpMod) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (what == "health" && game.global.challengeActive == "Balance"){
+		currentCalc *= game.challenges.Balance.getHealthMult();
+		textString += "<tr style='color: red'><td class='bdTitle'>Weakness (Balance)</td><td>1%</td><td>" + game.challenges.Balance.balanceStacks + "</td><td>- " + game.challenges.Balance.getHealthMult(true) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
@@ -1049,11 +1071,13 @@ function resetGame(keepPortal) {
 	document.getElementById("mapsBtn").innerHTML = "Maps";
 	document.getElementById("mapBonus").innerHTML = "";
 	document.getElementById("roboTrimpTurnsLeft").innerHTML = "";
-	document.getElementById("chainHolder").style.backgroundColor = "#d9534f";
+	swapClass("shriekState", "shriekStateCooldown", document.getElementById("chainHolder"));
 	document.getElementById("chainHolder").style.visibility = "hidden";
-	document.getElementById("badGuyAttack").style.color = "white";
+	swapClass("dmgColor", "dmgColorWhite", document.getElementById("badGuyAttack"));
 	document.getElementById("badCrit").innerHTML = "";
 	document.getElementById("badCanCrit").style.display = "none";
+	document.getElementById("autoUpgradeBtn").style.display = "none";
+	document.getElementById("autoPrestigeBtn").style.display = "none";
 	resetOnePortalRewards();
 	
 	setFormation("0");
@@ -1141,6 +1165,7 @@ function resetGame(keepPortal) {
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined') statItem.valueTotal += statItem.value;
 			if (typeof statItem.value !== 'undefined' && typeof statItem.value !== 'function') statItem.value = 0;
+			if (typeof statItem.onPortal === 'function') statItem.onPortal();
 		}
 		game.stats = stats;
 		game.global.repeatMap = repeat;
@@ -1148,6 +1173,7 @@ function resetGame(keepPortal) {
 		if (sLevel >= 1) applyS1();
 		if (sLevel >= 2) applyS2();
 		if (sLevel >= 3) applyS3();
+		if (sLevel >= 4) document.getElementById("autoUpgradeBtn").style.display = "block";
 		
 		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 		game.portal.Coordinated.currentSend = 1;
@@ -1155,11 +1181,20 @@ function resetGame(keepPortal) {
 			pres = "food";
 		}
 		game.global.presimptStore = pres;
+		
+		//hope this is ok here -grabz
+		swapClass("psColor", "psColorWhite", document.getElementById("trimpsPs"));
+	}
+	else {
+		game.options.menu.darkTheme.enabled = 0;
+		game.options.menu.darkTheme.restore();
 	}
 	numTab(1);
 	pauseFight(true);
 	repeatClicked(true);
 	toggleAutoTrap(true);
+	toggleAutoUpgrades(true);
+	toggleAutoPrestiges(true);
 	resetAdvMaps();
 	cancelPortal();
 	updateRadioStacks();
@@ -1215,7 +1250,7 @@ function message(messageString, type, lootIcon, extraClass) {
 	var prefix = "";
 	if (lootIcon && lootIcon.charAt(0) == "*") {
 		lootIcon = lootIcon.replace("*", "");
-		prefix =  "icomoon icon-" 
+		prefix =  "icomoon icon-";
 	}
 	else prefix = "glyphicon glyphicon-";
 	if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span> " + messageString;
@@ -1269,9 +1304,9 @@ function filterMessage(what, updateOnly){ //send true for updateOnly
 	for (var x = 0; x < toChange.length; x++){
 		toChange[x].style.display = displayed;
 	}
-	
 	log.scrollTop = log.scrollHeight;
 }
+
 //
 //Menu Stuff
 function filterTabs (what) {
@@ -1292,7 +1327,7 @@ function enableDisableTab(what, enable){
 	else
 		elem.className = elem.className.replace("tabSelected", "tabNotSelected");
 	
-	document.getElementById(what + "A").style.borderBottom = (enable) ? "0" : "1px solid #ddd";
+	//document.getElementById(what + "A").style.borderBottom = (enable) ? "0" : "1px solid #ddd";
 }
 
 
@@ -1442,7 +1477,7 @@ function addQueueItem(what) {
 	var name = what.split('.');
 	if (name[1] > 1) name = name[0] + " X" + prettify(name[1]);
 	else name = name[0];
-	elem.innerHTML += '<div class="queueItem" id="queueItem' + game.global.nextQueueId + '" onmouseover="tooltip(\'Queue\',null,event)" onmouseout="tooltip(\'hide\')" onClick="removeQueueItem(\'queueItem' + game.global.nextQueueId + '\'); cancelTooltip();"><span class="queueItemName">' + name + '</span></div>';
+	elem.innerHTML += '<div class="queueItem" id="queueItem' + game.global.nextQueueId + '" onmouseover="tooltip(\'Queue\',null,event)" onmouseout="tooltip(\'hide\')" onClick="removeQueueItem(\'queueItem' + game.global.nextQueueId + '\'); cancelTooltip();"><span class="queueItemName">' + name + '</span><div id="animationDiv"></div></div>';
 	if (game.global.nextQueueId === 0) setNewCraftItem();
 	game.global.nextQueueId++;
 }
@@ -1473,7 +1508,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		var bar = document.getElementById(item + "Bar");
 		if (game.options.menu.progressBars.enabled){
 			var percentToMax = ((toUpdate.owned / newMax) * 100);
-			bar.style.backgroundColor = getBarColor(100 - percentToMax);
+			swapClass("percentColor", getBarColorClass(100 - percentToMax), bar);
 			bar.style.width = percentToMax + "%";
 		}
 	}
@@ -1546,6 +1581,9 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 					var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
 					psText *= (1 + toxMult);
 			}
+			if (game.global.challengeActive == "Balance"){
+				psText *= game.challenges.Balance.getGatherMult();
+			}
 			if (game.global.playerGathering == increase){
 				if (game.global.turkimpTimer > 0 && increase != "science"){
 					psText *= 1.5;
@@ -1566,15 +1604,12 @@ function updatePs(jobObj, trimps){ //trimps is true/false, send PS as first if t
 		psText = prettify(psText);
 /*		var color = (psText < 0) ? "red" : "green";
 		if (psText == 0) color = "black"; */
-		var color = "white";
 		psText = "+" + psText;
 		psText += "/sec";
 		if (trimps && game.unlocks.quickTrimps) {
 			psText += " (x2!)"; 
-			color = "orange";
 		}
 		elem.innerHTML = psText;
-		elem.style.color = color;
 }
 
 function updateSideTrimps(){
@@ -1607,7 +1642,7 @@ function unlockBuilding(what) {
 }
 
 function drawBuilding(what, where){
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 }
 
 function unlockJob(what) {
@@ -1628,7 +1663,7 @@ function unlockJob(what) {
 }
 
 function drawJob(what, where){
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 }
 function refreshMaps(){
 	document.getElementById("mapsHere").innerHTML = "";
@@ -1712,7 +1747,7 @@ function drawUpgrade(what, where){
 	var done = upgrade.done;
 	var dif = upgrade.allowed - done;
 	if (dif >= 1) dif -= 1;
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
+	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
 	if (dif >= 1) document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
 }
 
@@ -1781,14 +1816,12 @@ function updateButtonColor(what, canAfford, isJob) {
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) canAfford = false;
 	if (isJob && game.global.firing === true) {
 		if(game.jobs[what].owned >= 1) {
-			elem.className = elem.className.replace("thingCanNotAfford", "thingFiringJob");
-			elem.className = elem.className.replace("thingCanAfford", "thingFiringJob");
+			//note for future self:
+			//if you need to add more states here, change these to use the swapClass func -grabz
+			//with "thingColor" as first param
+			elem.className = elem.className.replace("thingColorCanNotAfford", "thingColorFiringJob");
+			elem.className = elem.className.replace("thingColorCanAfford", "thingColorFiringJob");
 		}
-		else{
-			elem.className = elem.className.replace("thingCanAfford", "thingCanNotAfford");
-			elem.className = elem.className.replace("thingFiringJob", "thingCanNotAfford");
-		}
-		return;
 	}
 	if (what == "Warpstation") {
 		if(canAfford)
@@ -1798,13 +1831,13 @@ function updateButtonColor(what, canAfford, isJob) {
 	}
 	
 	if(isJob && game.global.firing === false) {
-		elem.className = elem.className.replace("thingFiringJob", "thingCanNotAfford");
+		elem.className = elem.className.replace("thingColorFiringJob", "thingColorCanNotAfford");
 	}
 	
 	if(canAfford)
-		elem.className = elem.className.replace("thingCanNotAfford", "thingCanAfford");
+		elem.className = elem.className.replace("thingColorCanNotAfford", "thingColorCanAfford");
 	else
-		elem.className = elem.className.replace("thingCanAfford", "thingCanNotAfford");
+		elem.className = elem.className.replace("thingColorCanAfford", "thingColorCanNotAfford");
 }
 
 function getWarpstationColor() {
@@ -1828,14 +1861,15 @@ function unlockEquipment(what, fromCheck) {
 	if (equipment.prestige > 1){
 		numeral = romanNumeral(equipment.prestige);
 	}
-	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
+	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
 }
 
-function getBarColor(percent, forText) {
-	if (percent > 50) return "#00B2EE";
-	else if (percent > 25) return "yellow";
-	else if (percent > 10) return "#FFA824";
-	else return "red";
+//isPrevious returns the previous color, used for swapping with str.replace to know which one was before
+function getBarColorClass(percent) {
+	if (percent > 50) return "percentColorBlue";
+	else if (percent > 25) return "percentColorYellow";
+	else if (percent > 10) return "percentColorOrange";
+	else return "percentColorRed";
 }
 
 function displayPerksBtn(){
@@ -2067,6 +2101,23 @@ function toggleSetting(setting, elem){
 		document.getElementById(id + "Description").innerHTML = "";
 	}
 
+//i changed the variable names just for remembrance sake
+//thank me later -grabz
+function swapClass(prefix, newClass, elem) {
+  var className = elem.className;
+  className = className.split(prefix);
+  if(typeof className[1] === 'undefined') {
+	  console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class. This needs a fix, but being a neat little function that I am, I will add this class to the element myself.");
+	  elem.className += " " + newClass;
+	  return;
+  } 
+  var classEnd = className[1].indexOf(' ');
+  if (classEnd >= 0)
+  	className = className[0] + newClass + className[1].slice(classEnd, className[1].length);
+  else
+  	className = className[0] + newClass;
+  elem.className = className;
+}
 
 
 

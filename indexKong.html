@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 2.811 (Kongregate Version)</title>
+	<title>Trimps 2.82 (Kongregate Version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?23" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?24" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -289,7 +289,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<span class="ownedArea bdHover" onclick="getMaxResources('Food')"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="foodBar" role="progressbar">
+								<div class="progress-bar percentColorBlue" id="foodBar" role="progressbar">
 									<span id="foodTimeToFill"></span>
 								</div>
 							</div>
@@ -311,7 +311,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<span class="ownedArea bdHover" onclick="getMaxResources('Wood')"><span id="woodOwned">0</span> / <span id="woodMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="woodBar" role="progressbar">
+								<div class="progress-bar percentColorBlue" id="woodBar" role="progressbar">
 									<span id="woodTimeToFill"></span>
 								</div>
 							</div>
@@ -335,7 +335,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<span class="ownedArea bdHover" onclick="getMaxResources('Metal')"><span id="metalOwned">0</span> / <span id="metalMax"></span></span>
 							<br/>
 							<div class="progress resProgress">
-								<div class="progress-bar" id="metalBar" role="progressbar">
+								<div class="progress-bar percentColorBlue" id="metalBar" role="progressbar">
 									<span id="metalTimeToFill"></span>
 								</div>
 							</div>
@@ -407,12 +407,12 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<span class="ownedArea pointer noselect bdHover" onclick="getMaxTrimps()"><span id="trimpsOwned">0</span> / <span id="trimpsMax">10</span></span>
 					<br/>
 					<div class="progress resProgress">
-						<div class="progress-bar" id="trimpsBar" role="progressbar"><span id="trimpsTimeToFill"></span></div>
+						<div class="progress-bar percentColorBlue " id="trimpsBar" role="progressbar"><span id="trimpsTimeToFill"></span></div>
 						
 					</div>
 					<div id="unempHide" style="visibility: hidden">
 						<span id="trimpsUnemployed">0</span> breeding
-						<br/><span id="trimpsPs" class="pointer noselect bdHover" onclick="getTrimpPs()">+0/sec</span>
+						<br/><span id="trimpsPs" class="pointer noselect bdHover psColorWhite" onclick="getTrimpPs()">+0/sec</span>
 						<br/>
 					</div>
 					<div id="empHide" style="visibility: hidden">
@@ -530,7 +530,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 											<span id="jobsTitleUnemployed" class="titleSpan"></span>
 										</div>
 										<div class="col-xs-3" style="padding-left: 5px">
-											<div id="fireBtn" class="pointer noselect" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
+											<div id="fireBtn" class="pointer noselect fireBtnNotFiring" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
 										</div>
 									</div>
 									<div class="row">
@@ -544,6 +544,13 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div class="row">
 										<div class="col-xs-4">
 											<span id="upgradesTitleSpan" class="titleSpan">Upgrades (research first)</span>
+										</div>
+										<div class="col-xs-2 lowPad">&nbsp;</div>
+										<div class="col-xs-3 lowPad">
+											<div id="autoPrestigeBtn" class="pointer noselect colorDanger autoUpgradeBtn" onclick="toggleAutoPrestiges()">AutoPrestige</div>
+										</div>
+										<div class="col-xs-3" style="padding-left: 5px">
+											<div id="autoUpgradeBtn" class="pointer noselect colorDanger autoUpgradeBtn" onclick="toggleAutoUpgrades()">AutoUpgrade</div>
 										</div>
 									</div>
 								</div>
@@ -577,22 +584,22 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div class="col-xs-3" style="padding-left: 5px;">
 										<div class="row" style="padding-right: 15px;">
 											<div class="col-xs-3 noPad">
-												<div class="formationBtn pointer" onclick="setFormation('0')" id="formation0" onmouseover="tooltip('No Formation', 'customText', event, 'Clear your formations, return to normal stats, and derp around the battlefield. (Hotkeys: X or 1)')" onmouseout="tooltip('hide')">
+												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('0')" id="formation0" onmouseover="tooltip('No Formation', 'customText', event, 'Clear your formations, return to normal stats, and derp around the battlefield. (Hotkeys: X or 1)')" onmouseout="tooltip('hide')">
 													X
 												</div>
 											</div>
 											<div class="col-xs-3 noPad">
-												<div class="formationBtn pointer" onclick="setFormation('1')" id="formation1" onmouseover="tooltip('Heap Formation', 'customText', event, 'Trimps gain 4x health but lose half of their attack and block. (Hotkeys: H or 2)')" onmouseout="tooltip('hide')">
+												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('1')" id="formation1" onmouseover="tooltip('Heap Formation', 'customText', event, 'Trimps gain 4x health but lose half of their attack and block. (Hotkeys: H or 2)')" onmouseout="tooltip('hide')">
 													H
 												</div>
 											</div>
 											<div class="col-xs-3 noPad">
-												<div class="formationBtn pointer" onclick="setFormation('2')" id="formation2" onmouseover="tooltip('Dominance Formation', 'customText', event, 'Trimps gain 4x attack but lose half of their health and block. (Hotkeys: D or 3)')" onmouseout="tooltip('hide')">
+												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('2')" id="formation2" onmouseover="tooltip('Dominance Formation', 'customText', event, 'Trimps gain 4x attack but lose half of their health and block. (Hotkeys: D or 3)')" onmouseout="tooltip('hide')">
 													D
 												</div>										
 											</div>
 											<div class="col-xs-3 noPad">
-												<div class="formationBtn pointer" onclick="setFormation('3')" id="formation3" onmouseover="tooltip('Barrier Formation', 'customText', event, 'Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack. (Hotkeys: B or 4)')" onmouseout="tooltip('hide')">
+												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('3')" id="formation3" onmouseover="tooltip('Barrier Formation', 'customText', event, 'Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack. (Hotkeys: B or 4)')" onmouseout="tooltip('hide')">
 													B
 												</div>											
 											</div>
@@ -607,11 +614,11 @@ var kongregate = parent.kongregateAPI.getAPI();
 										<span id="goodGuyBlock">0</span> BLK
 									</div>
 									<div class="col-xs-2 pointer noselect" style="padding-left: 0" id="roboTrimpBtn" onclick="magnetoShriek()">
-										<span id="chainHolder" style='visibility: hidden' onmouseover="tooltip('MagnetoShriek', null, event)" onmouseout="tooltip('hide')"><span id="roboTrimpTurnsLeft"></span> <span class="icomoon icon-chain" style="color: white"></span></span>
+										<span id="chainHolder" class="shriekStateCooldown" style='visibility: hidden' onmouseover="tooltip('MagnetoShriek', null, event)" onmouseout="tooltip('hide')"><span id="roboTrimpTurnsLeft"></span> <span class="icomoon icon-chain" style="color: white"></span></span>
 									</div>
 								</div>
 								<div class="progress fightBar">
-									<div class="progress-bar" id="goodGuyBar" role="progressbar">
+									<div class="progress-bar percentColorBlue" id="goodGuyBar" role="progressbar">
 										<span class="bdHover pointer noselect innerFightBar" onclick="getBattleStatBd('health')">
 											<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span>
 										</span>
@@ -625,7 +632,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<span class="battleStatsTitle" id="badGuyName"></span> <span id="badCanCrit" style="display: none" class="badge" onmouseover="tooltip('Crushing Blows', 'customText', event, 'Your current health is higher than your block, making you vulnerable to critical strikes from your enemies. Better fix that...')" onmouseout="tooltip('hide')"><span class="icomoon icon-hair-cross"></span></span><br/>
 									<div class="guyRow" id="badGuyRow">
 									<div>
-										<span id="badGuyAttack"></span> DMG <span id="badCrit"></span>
+										<span id="badGuyAttack" class="dmgColorWhite"></span> DMG <span id="badCrit"></span>
 									</div>
 								</div>
 									</div>
@@ -637,7 +644,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 								</div>
 							</div>
 								<div class="progress fightBar">
-									<div class="progress-bar" id="badGuyBar" role="progressbar">
+									<div class="progress-bar percentColorBlue" id="badGuyBar" role="progressbar">
 										<span class="innerFightBar">
 											<span id="badGuyHealth">0</span>/<span id="badGuyHealthMax">0</span>
 										</span>
@@ -827,7 +834,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 	</div>
 
-		<div id="portalWrapper" style="display: none">
+		<div id="portalWrapper" class="portalMk0" style="display: none">
 		<div id="portalTitle"></div>
 		<div id="portalError" style="display: none"></div>
 		<div id="portalHelium"><span id="portalHeliumOwned">0</span> Helium Canisters</div>
@@ -873,11 +880,11 @@ var kongregate = parent.kongregateAPI.getAPI();
 				<div id="challenges"  style="display: none">
 					<div id="challengeTitle">Challenges</div>
 					<div id="challengeDescription">
-						You can also choose to activate a challenge before using your portal. The first time you complete a challenge, you'll earn a permanent reward. You can abandon or view an active challenge at any time by clicking the "View Perks" button.
+						<span id="challengeDescriptionPre">You can also choose to activate a challenge before using your portal. The first time you complete a challenge, you'll earn a permanent reward. You can abandon or view an active challenge at any time by clicking the "View Perks" button.</span>
 						<span id="flagMustRestart" style="display: none;"><b>If you abandon this challenge, the portal will become unstable and the world will restart (you'll keep permanent bonuses like helium)</b></span>
 
 						<div id="specificChallengeDescription">
-						
+							
 						</div>
 					</div>
 					<div id="challengesHere">
@@ -976,9 +983,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 	
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?63"></script>
-	<script type="text/javascript" src="updates.js?63"></script>
-	<script type="text/javascript" src="main.js?63"></script>
+	<script type="text/javascript" src="config.js?64"></script>
+	<script type="text/javascript" src="updates.js?64"></script>
+	<script type="text/javascript" src="main.js?64"></script>
 	<script type="text/javascript">
 		document.body.addEventListener('DOMMouseScroll', onWheel, true);
 		document.body.addEventListener('mousewheel', onWheel, true);

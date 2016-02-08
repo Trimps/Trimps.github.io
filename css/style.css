@@ -57,6 +57,34 @@ overflow-x: hidden;
 	font-size: .8em;
 }
 
+.dmgColorWhite{
+	color: white;
+}
+
+.dmgColorRed{
+	color: red;
+}
+
+.shriekStateCooldown{
+	background-color: grey !important;
+}
+ 
+.shriekStateEnabled{
+	background-color: #5cb85c !important;
+ }
+
+.shriekStateDisabled{
+	background-color: #d9534f !important;
+ }
+ 
+ .formationStateEnabled{
+	background-color: #5cb85c !important;
+ }
+ 
+ .formationStateDisabled{
+	background-color: grey !important;
+ }
+ 
 .resourceRow{
 	height: 49.9%;
 	padding-right: .25vw;
@@ -322,6 +350,7 @@ overflow-x: hidden;
     padding-bottom: 5px;
     padding-top: 5px;
     height: 85px;
+	
 }
 
 .queueItem {
@@ -332,6 +361,24 @@ overflow-x: hidden;
     cursor: pointer;
     text-align: center;
     padding: 2px;
+	overflow: hidden; 
+	position: relative;
+}
+
+.queueItemName, #queueTimeRemaining{
+	z-index: 2 !important;
+	position: relative;
+}
+
+#animationDiv{
+	position:absolute; 
+    top:0; 
+	left: 0;
+    width:100%; 
+    height: 100%;
+    background:#1E90FF;
+	opacity: 0;
+	z-index: 1 !important;
 }
 
 #queueItemsHere >:nth-child(1) {
@@ -880,13 +927,66 @@ overflow-x: hidden;
 }
 
 #portalWrapper{
-	background-color: green;
+	color: black;
 	width: 100vw;
 	height: 100vh;
 	padding: 20px;
 	text-align: center;
 	padding-left: 10vw;
 	padding-right: 10vw;
+}
+
+.portalMk1{
+	background-color: green;
+}
+
+.portalMk2{
+	background-color: #00b386;
+}
+
+.portalMk3{
+	background-color: #3db0f8;
+}
+
+.portalMk4{
+	background-color: #2a6a93;
+}
+
+.portalMk5{
+	background: -webkit-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: -o-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: -moz-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+}
+
+.portalMkPreview{
+	background-color: black;
+	color: white !important;
+}
+
+.portalMk5 #portalStory,
+ .portalMk5 #challengeDescriptionPre,
+ .portalMk5 #challengeName,
+ .portalMk5 #portalTitle,
+ .portalMk5 #portalError,
+ .portalMk5 #portalHelium,
+ .portalMk5 #portalTotalHelium,
+ .portalMk5 #portalTotalPortals,
+ .portalMk5 #challengeTitle{
+  color: white !important;
+}
+
+.portalMk5 #flagMustRestart{
+	color: #C55B5B;
+
+}
+
+.perkColorOn{
+	background-color: black;
+}
+
+.perkColorOff{
+	background-color: grey;
 }
 
 #statsWrapper, #achievementWrapper{
@@ -1186,10 +1286,10 @@ overflow-x: hidden;
 	background-color: red;
 }
 
-.successColor{
+.successColor, .colorSuccess{
 	background-color: #5cb85c;
 }
-.dangerColor{
+.dangerColor, .colorDanger{
 	background-color: #d9534f;
 }
 .infoColor{
@@ -1599,14 +1699,14 @@ overflow-x: hidden;
 
 .btn-new {
   color: white;
-background: rgba(14,11,92,1);
-background: -moz-linear-gradient(left, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
-background: -webkit-gradient(left top, right top, color-stop(0%, rgba(14,11,92,1)), color-stop(24%, rgba(0,0,0,1)), color-stop(47%, rgba(19,33,88,1)), color-stop(72%, rgba(39,68,184,1)), color-stop(80%, rgba(32,52,155,1)), color-stop(100%, rgba(15,12,82,1)));
-background: -webkit-linear-gradient(left, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
-background: -o-linear-gradient(left, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
-background: -ms-linear-gradient(left, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
-background: linear-gradient(to right, rgba(14,11,92,1) 0%, rgba(0,0,0,1) 24%, rgba(19,33,88,1) 47%, rgba(39,68,184,1) 72%, rgba(32,52,155,1) 80%, rgba(15,12,82,1) 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0e0b5c', endColorstr='#0f0c52', GradientType=1 );
+	background: -webkit-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: -o-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: -moz-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+		-webkit-box-shadow:0px 0px 0.5vw 0.3vw #551a8b inset;
+	   -moz-box-shadow: 0px 0px 0.5vw 0.3vw #551a8b inset;
+            box-shadow: 0px 0px 0.5vw 0.3vw #551a8b inset;
+	border: 1px solid black;
 
 }
 .btn-new:hover,
@@ -1616,14 +1716,14 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0e0b5c', end
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
   color: white;
-background: rgba(11,8,97,1);
-background: -moz-linear-gradient(left, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
-background: -webkit-gradient(left top, right top, color-stop(0%, rgba(11,8,97,1)), color-stop(6%, rgba(25,21,79,1)), color-stop(14%, rgba(43,39,56,1)), color-stop(23%, rgba(57,68,122,1)), color-stop(25%, rgba(41,25,133,1)), color-stop(39%, rgba(18,26,166,1)), color-stop(47%, rgba(18,18,92,1)), color-stop(60%, rgba(57,57,204,1)), color-stop(65%, rgba(17,8,140,1)), color-stop(91%, rgba(56,56,171,1)), color-stop(100%, rgba(28,37,133,1)));
-background: -webkit-linear-gradient(left, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
-background: -o-linear-gradient(left, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
-background: -ms-linear-gradient(left, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
-background: linear-gradient(to right, rgba(11,8,97,1) 0%, rgba(25,21,79,1) 6%, rgba(43,39,56,1) 14%, rgba(57,68,122,1) 23%, rgba(41,25,133,1) 25%, rgba(18,26,166,1) 39%, rgba(18,18,92,1) 47%, rgba(57,57,204,1) 60%, rgba(17,8,140,1) 65%, rgba(56,56,171,1) 91%, rgba(28,37,133,1) 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0b0861', endColorstr='#1c2585', GradientType=1 );
+	background: -webkit-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: -o-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: -moz-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+		-webkit-box-shadow: 0px 0px 0.5vw 0.3vw #007f00 inset;
+	   -moz-box-shadow: 0px 0px 0.5vw 0.3vw #007f00 inset;
+            box-shadow: 0px 0px 0.5vw 0.3vw #007f00 inset;
+	border: 1px solid black;
 
 }
 .btn-new:active,
@@ -1672,22 +1772,25 @@ input::-webkit-inner-spin-button {
 }
 
 .mapElementSelected {
-	border: 1px solid red;
+	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
+    -moz-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
+    box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
+	border: 0;
 }
 
 .mapElementNotSelected {
 	border: 1px solid white;
 }
 
-.thingCanAfford {
+.thingColorCanAfford {
 	background: black;
 }
 
-.thingCanNotAfford {
+.thingColorCanNotAfford {
 	background: grey;
 }
 
-.thingFiringJob {
+.thingColorFiringJob {
 	background: red;
 }
 
@@ -1707,14 +1810,65 @@ input::-webkit-inner-spin-button {
 	background: rgba(255,255,255,0.25);
 }
 
-.cellBeaten {
+#buyTabs > ul > .tabSelected a {
+	border-bottom: 0;
+}
+
+.cellColorBeaten{
 	background: green;
 }
 
-.cellCurrent {
+.cellColorCurrent {
 	background: yellow;
 }
 
-.cellNotBeaten {
-	background: grey;
+.cellColorNotBeaten {
+	
 }
+
+.percentColorBlue {
+	background-color: #00B2EE;
+}
+
+.percentColorYellow {
+	background-color: yellow;
+}
+
+.percentColorOrange {
+	background-color: #FFA824;
+}
+
+.percentColorRed {
+	background-color: red;
+}
+
+.psColorWhite {
+	color: white;
+}
+
+.psColorOrange {
+	color: orange;
+}
+
+sup{
+	top: -0.3em;
+}
+
+.autoUpgradeBtn{
+	border: 1px solid white;
+	display: none;
+	font-size: 0.9vw;
+}
+
+.cBorderOn{
+	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
+    -moz-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
+    box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
+	border: 0;
+	
+}
+
+.queueItemBack{
+	display: inline-block;
+}
+
