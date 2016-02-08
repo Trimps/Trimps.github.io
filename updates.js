@@ -1819,9 +1819,12 @@ function updateButtonColor(what, canAfford, isJob) {
 			//note for future self:
 			//if you need to add more states here, change these to use the swapClass func -grabz
 			//with "thingColor" as first param
-			elem.className = elem.className.replace("thingColorCanNotAfford", "thingColorFiringJob");
-			elem.className = elem.className.replace("thingColorCanAfford", "thingColorFiringJob");
+			swapClass("thingColor", "thingColorFiringJob", elem);
 		}
+		else{
+			swapClass("thingColor", "thingColorCanNotAfford", elem);
+		}
+		return;
 	}
 	if (what == "Warpstation") {
 		if(canAfford)
