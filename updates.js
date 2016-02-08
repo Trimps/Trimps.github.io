@@ -1459,7 +1459,7 @@ function removeQueueItem(what) {
 function getQueueElemIndex(id, queue){
 	var childs = queue.getElementsByTagName('*');
 	for (var i = 0, len = childs.length; i < len; i++){
-		if (childs[i].id == id) return ((i - 1)/ 2);
+		if (childs[i].id == id) return ((i - 2)/ 3);
 	}
 }
 
