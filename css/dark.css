@@ -530,6 +530,11 @@ color:#8F8F00
 .alert{
     padding: 1.5% 4.8%;
 }
+
+.shriekStateCooldown{
+	background-color: #202020 !important;
+}
+
 #trimpsTimeToFill,
 #foodTimeToFill,
 #woodTimeToFill,
