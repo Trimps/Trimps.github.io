@@ -3122,7 +3122,7 @@ function fight(makeUp) {
             if (game.global.mapsActive) {
                 if (typeof game.mapUnlocks[cell.special].last !== 'undefined') {
 					game.mapUnlocks[cell.special].last += 5;
-					if (typeof game.upgrades[cell.special].prestige && game.global.sLevel == 4){
+					if (typeof game.upgrades[cell.special].prestige && game.global.sLevel == 4 && game.global.challengeActive != "Mapology"){
 						unlock.fire(cell.level);
 						game.mapUnlocks[cell.special].last += 5;
 						message(cell.text + " " + unlock.message.replace("a book", "two books"), "Unlocks");

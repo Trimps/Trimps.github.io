@@ -861,7 +861,7 @@ var toReturn = {
 			unlockString: "reach Zone 145"
 		},
 		Mapology: {
-			description: "Travel to a dimension where maps are scarce, in an attempt to learn to be more resourceful. You will earn one map Credit for each World Zone you clear, and it costs 1 credit to run 1 map. Completing <b>Zone 100</b> with this challenge active will return you to your original dimension.",
+			description: "Travel to a dimension where maps are scarce, in an attempt to learn to be more resourceful. You will earn one map Credit for each World Zone you clear, and it costs 1 credit to run 1 map. Completing <b>Zone 100</b> with this challenge active will return you to your original dimension. Double prestige from Scientist IV will not work during this challenge.",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 149);
