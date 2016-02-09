@@ -24,16 +24,16 @@
 
 #battleContainer {
     border: 0px;
-    color: #9B9B9B
+    color: #C8C8C8
 }
 #logContainer {
     border: 1px solid #212121;
     padding-top: 0px;
-    color: #9B9B9B
+    color: #C8C8C8
 }
 .playerGather {
     border: 0px;
-    color: #9B9B9B;
+    color: #C8C8C8;
     margin-bottom: 0px
 }
 
@@ -135,7 +135,7 @@
     z-index: 1
 }
 .psText {
-    color: #9B9B9B !important
+    color: #C8C8C8 !important
 }
 
 .progress {
@@ -402,12 +402,12 @@ input, button, select, textarea,
 .autosaving,
 .notAutosaving,
 .progress > div > span {
-	color: #9B9B9B;
+	color: #C8C8C8;
 }
 
 .portalMkPreview,
 #chainHolder > span{
-	color: #9B9B9B !important;
+	color: #C8C8C8 !important;
 }
 
 #portalTabs {
@@ -505,7 +505,7 @@ color:#8F8F00
 
 .alert {
  background-color: #003066;
- box-shadow: 1px 1px 0 0 #9B9B9B inset;
+ box-shadow: 1px 1px 0 0 #C8C8C8 inset;
 }
 
 .cBorderOn{
@@ -519,7 +519,7 @@ color:#8F8F00
 	margin-left:0px;
 	margin-top: 0px;
 	border: 0;
-	color:#9B9B9B;
+	color:#C8C8C8;
 	background-color: #283d44;
 }
 

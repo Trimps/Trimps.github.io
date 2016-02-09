@@ -3116,7 +3116,7 @@ function fight(makeUp) {
         var unlock;
         if (game.global.mapsActive) unlock = game.mapUnlocks[cell.special];
         else unlock = game.worldUnlocks[cell.special];
-        if (typeof unlock !== 'undefined' && typeof unlock.message !== 'undefined') message(cell.text + " " + unlock.message, "Unlocks");
+        var noMessage = false;
         if (typeof unlock !== 'undefined' && typeof unlock.fire !== 'undefined') {
             unlock.fire(cell.level);
             if (game.global.mapsActive) {
@@ -3125,6 +3125,8 @@ function fight(makeUp) {
 					if (typeof game.upgrades[cell.special].prestige && game.global.sLevel == 4){
 						unlock.fire(cell.level);
 						game.mapUnlocks[cell.special].last += 5;
+						message(cell.text + " " + unlock.message.replace("a book", "two books"), "Unlocks");
+						noMessage = true;
 					}
 				}
                 if (typeof game.mapUnlocks[cell.special].canRunOnce !== 'undefined') game.mapUnlocks[cell.special].canRunOnce = false;
@@ -3134,6 +3136,7 @@ function fight(makeUp) {
         } else if (cell.special !== "") {
             unlockEquipment(cell.special);
         }
+		if (typeof unlock !== 'undefined' && typeof unlock.message !== 'undefined' && !noMessage) message(cell.text + " " + unlock.message, "Unlocks");
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
 			game.stats.mapsCleared.value++;
