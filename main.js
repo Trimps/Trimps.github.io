@@ -2104,7 +2104,7 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
 }
 
 function checkVoidMap() {
-	if (game.global.totalPortals < 10) return;
+	if (game.global.totalPortals < 5) return;
 	var dif = game.global.lastVoidMap;
 	game.global.lastVoidMap++;
 	var max = game.global.highestLevelCleared;
