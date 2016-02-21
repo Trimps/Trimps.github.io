@@ -19,7 +19,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.82,
+		version: 2.9,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -89,7 +89,6 @@ var toReturn = {
 		challengeActive: "",
 		selectedChallenge: "",
 		lastOfflineProgress: "",
-		cheater: false,
 		sLevel: 0,
 		totalGifts: 0,
 		brokenPlanet: false,
@@ -122,6 +121,13 @@ var toReturn = {
 		usingShriek: false,
 		autoUpgrades: false,
 		autoPrestiges: false,
+		autoStorage: false,
+		autoStorageAvailable: false,
+		totalVoidMaps: 0,
+		voidMapsToggled: false,
+		voidBuff: "",
+		lastVoidMap: 0,
+		voidSeed: Math.floor(Math.random() * 1000000),
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -308,8 +314,8 @@ var toReturn = {
 			},
 			showFullBreed: {
 				enabled: 0,
-				description: "Display time to breed a full group of soldiers. Toggle between off, time to breed from 100% full, or time from the AutoFight threshold. If From 100% or From AutoFight are enabled, the main breeding timer will gain an extra decimal of precision.",
-				titles: ["Less Breed Timer", "From 100%", "From AutoFight"]
+				description: "Display time to breed a full group of soldiers next to the current breed timer.",
+				titles: ["Less Breed Timer", "More Breed Timer"]
 			},
 			darkTheme: {
 				enabled: 1,
@@ -1160,6 +1166,9 @@ var toReturn = {
 			progress: function () {
 				return "Best run is " + formatMinutesForDescriptions(this.highest);
 			},
+			display: function () {
+				return (game.global.totalPortals >= 1 || this.finished >= 1);
+			},
 			highest: 0,
 			reverse: true,
 			showAll: true,
@@ -1177,7 +1186,7 @@ var toReturn = {
 				return "Clear The Wall in " + number + " or less from start of run";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 10);
+				return (game.global.highestLevelCleared >= 10 && (game.global.totalPortals >= 1 || this.finished >= 1));
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
@@ -1202,7 +1211,7 @@ var toReturn = {
 				return "Clear DoA in " + number + " or less from start of run";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 14);
+				return (game.global.highestLevelCleared >= 14 && (game.global.totalPortals >= 1 || this.finished >= 1));
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
@@ -1227,7 +1236,7 @@ var toReturn = {
 				return "Clear ToD in " + number + " or less from start of run";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 19);
+				return (game.global.highestLevelCleared >= 19 && (game.global.totalPortals >= 1 || this.finished >= 1));
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
@@ -1252,7 +1261,7 @@ var toReturn = {
 				return "Clear Prison in " + number + " or less from start of run";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 32);
+				return (game.global.highestLevelCleared >= 32 && (game.global.totalPortals >= 1 || this.finished >= 1));
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
@@ -1890,6 +1899,36 @@ var toReturn = {
 				}
 			}
 		},
+		Cthulimp: {
+			location: "Void",
+			last: true,
+			world: 6,
+			attack: 2,
+			health: 5,
+			fast: true,
+			loot: function (level) {
+				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
+				var amt = (game.global.world >= 60) ? 10 : 2;
+				amt = rewardResource("helium", amt, level);
+				game.global.totalHeliumEarned += amt;
+				message("<span class='glyphicon glyphicon-oil'></span> Cthulimp and the map it came from crumble into the darkness, and you find yourself back in your map chamber with an extra " + prettify(amt) + " Helium!", "Story");
+				distributeToChallenges(amt);			
+			}
+		},
+		Shadimp: {
+			location: "Void",
+			world: 6,
+			attack: 1.2,
+			health: 1.3,
+			fast: true
+		},
+		Voidsnimp: {
+			location: "Void",
+			world: 6,
+			attack: 2.1,
+			health: 0.5,
+			fast: true
+		},
 		Megablimp: {
 			location: "Hell",
 			last: true,
@@ -2351,6 +2390,10 @@ var toReturn = {
 				resourceType: "Any",
 				upgrade: "roboTrimp"
 			},
+			Void: {
+				resourceType: "Any",
+				upgrade: "AutoStorage"
+			},
 			All: {
 				resourceType: "Metal"
 			}
@@ -2406,6 +2449,23 @@ var toReturn = {
 					}
 				}
 			}
+		},
+		AutoStorage: {
+			world: 150,
+			level: "last",
+			icon: "*eye4",
+			title: "Auspicious Presence",
+			canRunOnce: true,
+			filterUpgrade: true,
+			specialFilter: function(world) {
+				return !game.global.autoStorageAvailable;
+			},
+			fire: function(){
+				var text = "From the void, an auspicious presence reaches out and fills your mind. You feel at peace with the world. It asks you what you desire most, and without a second thought you reply that you wish your Trimps were smart enough to manage storage structures on their own. The presence lets you know that it is done, then dissipates. You instantly regret not asking to go home.";
+				tooltip('confirm', null, 'update', text, null, 'Auspicious Presence');
+				game.global.autoStorageAvailable = true;
+				document.getElementById("autoStorageBtn").style.display = "block";
+			}	
 		},
 		Keys: {
 			world: 80,

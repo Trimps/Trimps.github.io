@@ -21,7 +21,7 @@
 var customUp;
 var tooltipUpdateFunction = "";
 
-//onmouseover="tooltip('*TOOLTIP_TITLE*', 'customText', event, '*TOOLTIP_TEXT*');" onmouseout="tooltip('hide')"
+//"onmouseover="tooltip('*TOOLTIP_TITLE*', 'customText', event, '*TOOLTIP_TEXT*');" onmouseout="tooltip('hide')""
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) { //Now 20% less menacing. Work in progress.
 
@@ -609,7 +609,7 @@ function getTrimpPs() {
 	if (game.jobs.Geneticist.owned > 0) {
 		var mult = Math.pow(.98, game.jobs.Geneticist.owned);
 		currentCalc *= mult;
-		textString += "<tr style='color: red'><td class='bdTitle'>Geneticist</td><td class='bdPercent'>X  " + mult.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+		textString += "<tr style='color: red'><td class='bdTitle'>Geneticist</td><td class='bdPercent'>X  " + mult.toFixed(6) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
 	}
 	//Add quick trimps
 	if (game.unlocks.quickTrimps){
@@ -620,6 +620,10 @@ function getTrimpPs() {
 		var potencyMod = Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
 		currentCalc *= potencyMod;
 		textString += "<tr style='color: red'><td class='bdTitle'>Toxic Air</td><td class='bdPercent'>X  " + potencyMod.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+	}
+	if (game.global.voidBuff == "slowBreed"){
+		currentCalc *= 0.2;
+		textString += "<tr style='color: red'><td class='bdTitle'>Void Gas</td><td class='bdPercent'>X  0.2</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
@@ -773,6 +777,11 @@ function getMaxTrimps() {
 		carpentryStrength = prettify((carpentryStrength - 1) * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Carpentry</td><td class='bdPercent'>+ " + carpentryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	//Add Size Challenge
+	if (game.global.challengeActive == "Size"){
+		currentCalc = Math.floor(currentCalc / 2);
+		textString += "<tr style='color: red'><td class='bdTitle'>Huge</td><td class='bdPercent'>X 0.5</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getMaxTrimps()", "Max Trimps", "Refresh", true);
@@ -807,7 +816,7 @@ function getMaxResources(what) {
 	if (game.portal.Packrat.level){
 		var packAmt = (game.portal.Packrat.level * 0.2) + 1;
 		currentCalc *= packAmt;
-		packAmt = prettify(packAmt * 100) + '%';
+		packAmt = prettify((packAmt - 1) * 100) + '%';
 		textString += "<tr><td class='bdTitle'>Packrat</td><td class='bdPercent'>+ " + packAmt + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 
@@ -1078,6 +1087,8 @@ function resetGame(keepPortal) {
 	document.getElementById("badCanCrit").style.display = "none";
 	document.getElementById("autoUpgradeBtn").style.display = "none";
 	document.getElementById("autoPrestigeBtn").style.display = "none";
+	document.getElementById("voidBuff").innerHTML = "";
+	document.getElementById("voidMapsHere").innerHTML = "";
 	resetOnePortalRewards();
 	
 	setFormation("0");
@@ -1114,6 +1125,7 @@ function resetGame(keepPortal) {
 	var achieves;
 	var pres;
 	var roboTrimp;
+	var autoStorage;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.resources.helium.owned + game.global.heliumLeftover;
@@ -1127,6 +1139,7 @@ function resetGame(keepPortal) {
 		prison = game.global.prisonClear;
 		frugal = game.global.frugalDone;
 		slow = game.global.slowDone;
+		autoStorage = game.global.autoStorageAvailable;
 		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
 		if (game.stats.bestHeliumHour.valueTotal < game.stats.heliumHour.value(true)){
 			game.stats.bestHeliumHour.valueTotal = game.stats.heliumHour.value(true);
@@ -1160,6 +1173,7 @@ function resetGame(keepPortal) {
 		game.global.prisonClear = prison;
 		game.global.frugalDone = frugal;
 		game.global.slowDone = slow;
+		game.global.autoStorageAvailable = autoStorage;
 		game.global.roboTrimpLevel = roboTrimp;
 		for (var statItem in stats){
 			statItem = stats[statItem];
@@ -1174,15 +1188,16 @@ function resetGame(keepPortal) {
 		if (sLevel >= 2) applyS2();
 		if (sLevel >= 3) applyS3();
 		if (sLevel >= 4) document.getElementById("autoUpgradeBtn").style.display = "block";
-		
+		if (game.global.autoStorageAvailable) {
+			document.getElementById("autoStorageBtn").style.display = "block";
+			toggleAutoStorage(true);
+		}
 		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 		game.portal.Coordinated.currentSend = 1;
 		if (pres == "gems" || pres == "fragments"){
 			pres = "food";
 		}
 		game.global.presimptStore = pres;
-		
-		//hope this is ok here -grabz
 		swapClass("psColor", "psColorWhite", document.getElementById("trimpsPs"));
 	}
 	else {
@@ -1195,6 +1210,7 @@ function resetGame(keepPortal) {
 	toggleAutoTrap(true);
 	toggleAutoUpgrades(true);
 	toggleAutoPrestiges(true);
+	toggleVoidMaps(true);
 	resetAdvMaps();
 	cancelPortal();
 	updateRadioStacks();
@@ -1326,7 +1342,6 @@ function enableDisableTab(what, enable){
 		elem.className = elem.className.replace("tabNotSelected", "tabSelected");
 	else
 		elem.className = elem.className.replace("tabSelected", "tabNotSelected");
-	
 	//document.getElementById(what + "A").style.borderBottom = (enable) ? "0" : "1px solid #ddd";
 }
 
@@ -1705,12 +1720,21 @@ function getMapIcon(mapObject, nameOnly) {
 
 function unlockMap(what) { //what here is the array index
 	var item = game.global.mapsOwnedArray[what];
-	var elem = document.getElementById("mapsHere");
 	var btnClass = "mapElementNotSelected thing noselect pointer mapThing";
 	if (game.unlocks.goldMaps && !item.noRecycle) btnClass += " goldMap";
-	if (item.noRecycle) btnClass += getUniqueColor(item);
-	if (game.options.menu.extraStats.enabled) elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><div class="onMapIcon"><span class="' + getMapIcon(item) + '"></span></div><div class="thingName onMapName">' + item.name + '</div><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span><br/><span class="onMapStats"><span class="icomoon icon-gift2"></span>' + Math.floor(item.loot * 100) + '% </span><span class="icomoon icon-cube2"></span>' + item.size + ' <span class="icon icon-warning"></span>' + Math.floor(item.difficulty * 100) + '%</div>' + elem.innerHTML;
-	else elem.innerHTML = '<div class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + item.level + '</span></div>' + elem.innerHTML;
+	var level = item.level;
+	var tooltip = "";
+	var loc = "mapsHere";
+	if (item.location == "Void") {
+		btnClass += " voidMap";
+		level = '<span class="glyphicon glyphicon-globe"></span>';
+		tooltip = " onmouseover=\"tooltip('Void Map', 'customText', event, 'This Map will scale in level to your current Zone Number, enemies have a random buff, and the boss at the final cell will drop helium. This map will disappear after it is completed once, and leaving the map will reset its progress.');\" onmouseout=\"tooltip('hide')\"";
+		loc = "voidMapsHere";
+	}
+	else if (item.noRecycle) btnClass += getUniqueColor(item);
+	var elem = document.getElementById(loc);
+	if (game.options.menu.extraStats.enabled) elem.innerHTML = '<div' + tooltip + ' class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><div class="onMapIcon"><span class="' + getMapIcon(item) + '"></span></div><div class="thingName onMapName">' + item.name + '</div><br/><span class="thingOwned mapLevel">Level ' + level + '</span><br/><span class="onMapStats"><span class="icomoon icon-gift2"></span>' + Math.floor(item.loot * 100) + '% </span><span class="icomoon icon-cube2"></span>' + item.size + ' <span class="icon icon-warning"></span>' + Math.floor(item.difficulty * 100) + '%</div>' + elem.innerHTML;
+	else elem.innerHTML = '<div' + tooltip + ' class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel">Level ' + level + '</span></div>' + elem.innerHTML;
 	//onmouseover="tooltip(\'' + item.id + '\',\'maps\',event)" onmouseout="tooltip(\'hide\')"
 }
 

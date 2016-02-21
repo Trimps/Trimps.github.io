@@ -401,9 +401,18 @@ input, button, select, textarea,
 .colorSuccess,
 .autosaving,
 .notAutosaving,
-.progress > div > span {
+.progress > div > span,
+.voidMessage,
+.voidBadge,
+.voidCell {
 	color: #C8C8C8;
 }
+
+.voidMessage, .voidBadge, .voidCell.cellColorNotBeaten{
+	background-color: rgb(28, 5, 51);
+}
+
+#voidMapsBtn:hover { background-color:#390E65;}
 
 .portalMkPreview,
 #chainHolder > span{

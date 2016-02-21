@@ -337,6 +337,10 @@ function load(saveString, autoLoad) {
 		game.global.lootAvgs.fragments = [0];
 		game.global.lootAvgs.fragmentsTotal = 0;
 	}
+	if (oldVersion < 2.9){
+		if (game.options.menu.showFullBreed.enabled == 2) game.options.menu.showFullBreed.enabled = 1;
+		if (game.global.totalPortals > 5) message("Heavy use of the portal has created a chance for the Void to seep in to your world. Be alert.", "Story", null, "voidMessage");
+	}
 	
 	//End compatibility
 	
@@ -420,9 +424,14 @@ function load(saveString, autoLoad) {
 		toggleAutoUpgrades(true);
 		toggleAutoPrestiges(true);
 	}
+	if (game.global.autoStorageAvailable){
+		document.getElementById("autoStorageBtn").style.display = "block";
+		toggleAutoStorage(true);
+	}
 	unlockFormation("all");
 	setFormation();
 	game.global.removingPerks = false;
+	if (game.global.voidBuff) setVoidBuffTooltip();
 	if (game.upgrades.Gigastation.done >= 1) loadGigastations();
 	if (oldVersion < 2){
 		if (game.global.world == 59){
@@ -836,10 +845,7 @@ function checkOfflineProgress(noTip){
 	var rightNow = new Date().getTime();
 	var textArray = [];
 	if (game.global.lastOfflineProgress > rightNow){
-		game.global.cheater = true;
-		if (typeof Kongregate !== 'undefined') message("It looks like you cheated by setting your clock forward and back again. While I won't penalize anyone for cheating in a single player game, your game will no longer submit high scores, and your Trimps don't respect you as much.", "Notices");
 		game.global.lastOfflineProgress = rightNow;
-		console.log("cheater");
 		return;
 	} 
 	game.global.lastOfflineProgress = rightNow;
@@ -847,7 +853,9 @@ function checkOfflineProgress(noTip){
 	dif = Math.floor(dif / 1000);
 	if (dif < 60) return;
 	var textString = "";
+	var storageBought = [];
 	var compatible = ["Farmer", "Lumberjack", "Miner", "Dragimp", "Explorer"];
+	var storages = ['Barn', 'Shed', 'Forge'];
 	for (var x = 0; x < compatible.length; x++){
 		var job = game.jobs[compatible[x]];
 		var resName = job.increase;
@@ -895,7 +903,25 @@ function checkOfflineProgress(noTip){
 		if (x < 3){
 			var newMax = resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
 			var allowed = (newMax - resource.owned);
-			if (amt > allowed) amt = allowed;
+			if (amt > allowed){
+				if (!game.global.autoStorage) {
+					amt = allowed;
+				}
+				else {
+					var storageBuilding = game.buildings[storages[x]];
+					var count;
+					for (count = 1; count < 300; count++){
+						amt -= storageBuilding.cost[resName]();
+						storageBuilding.owned++;
+						storageBuilding.purchased++;
+						resource.max *= 2;
+						newMax = resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
+						if (newMax > (resource.owned + amt)) break;
+					}
+					var s = (count > 1) ? "s" : "";
+					storageBought.push(count + " " + storages[x] + s + ", ");
+				}
+			}
 		}
 		if (amt > 0){
 			resource.owned += amt;
@@ -911,6 +937,14 @@ function checkOfflineProgress(noTip){
 		if (y == textArray.length -2) textString += "and ";
 	}
 	textString = textString.slice(0, -2);
+	if (storageBought.length) {
+		textString += " <b>after buying</b> ";
+		for (var z = 0; z < storageBought.length; z++){
+			textString += storageBought[z];
+			if (z == storageBought.length - 2) textString += "and ";
+		}
+		textString = textString.slice(0, -2);
+	}
 	textString += ".";
 	if (!noTip) tooltip("Trustworthy Trimps", null, "update", textString);
 }
@@ -962,7 +996,7 @@ function activateClicked(){
 	if (game.global.kongBonusMode){
 		newText = "All set?";
 	}
-	else newText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades on this page. Who knows where or when it will send you.";
+	else newText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades you've earned, such as Helium, Perks, Bones, and Exotic Imports. Who knows where or when it will send you.";
 	if (game.global.selectedChallenge) newText += " <span id='addChallenge'>You have the <b>" + game.global.selectedChallenge + " Challenge</b> active.</span>";
 	else newText += " <span id='addChallenge'></span>";
 	newText += "<br/><div class='btn btn-info activatePortalBtn' onclick='activatePortal()'>Let's do it.</div>";
@@ -1579,7 +1613,7 @@ function getBuildingItemPrice(toBuy, costItem, isEquipment){
 	return price;
 }
 
-function buyBuilding(what, confirmed) {
+function buyBuilding(what, confirmed, fromAuto) {
 	if (game.options.menu.pauseGame.enabled) return;
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var toBuy = game.buildings[what];
@@ -1595,7 +1629,7 @@ function buyBuilding(what, confirmed) {
 		game.buildings[what].purchased += purchaseAmt;
 		startQueue(what, purchaseAmt);
 	}
-	tooltip(what, "buildings", "update");	
+	if (!fromAuto) tooltip(what, "buildings", "update");	
 }
 
 function refundQueueItem(what) {
@@ -1662,27 +1696,6 @@ function craftBuildings(makeUp) {
 	else{
 		setNewCraftItem();
 	}
-}
-
-function toggleAutoTrap(updateOnly) {
-	var elem = document.getElementById("autoTrapBtn");
-	elem.className = "";
-	elem.className = "workBtn pointer noselect";
-	if (!game.global.trapBuildAllowed){
-		elem.style.display = "none";
-		elem.innerHTML = "Traps Off";
-		elem.className += " dangerColor";
-		return;
-	}
-	else if (elem.style.display == "none") fadeIn("autoTrapBtn", 10);
-	if (!updateOnly) game.global.trapBuildToggled = !game.global.trapBuildToggled;
-	if (game.global.trapBuildToggled){
-		elem.className += " successColor";
-		elem.innerHTML = "Traps On";
-		return;
-	}
-	elem.className += " dangerColor";
-	elem.innerHTML = "Traps Off";
 }
 
 function buildBuilding(what) {
@@ -1902,6 +1915,9 @@ function breed() {
 	if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
 		potencyMod *= Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
 	}
+	if (game.global.voidBuff == "slowBreed"){
+		potencyMod *= 0.2;
+	}
 	breeding = breeding * potencyMod;
     updatePs(breeding, true);
 	potencyMod = (1 + (potencyMod / 10));
@@ -1912,12 +1928,12 @@ function breed() {
 	var fullBreed = 0;
 	if (game.options.menu.showFullBreed.enabled){
 		var adjustedMax = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : trimps.maxSoldiers;
-		var totalTime;
-		if (game.options.menu.showFullBreed.enabled == 1) totalTime = log10((trimpsMax - trimps.employed) / (trimpsMax - adjustedMax - trimps.employed)) / log10(potencyMod);
-		else {
-			var threshold = Math.ceil((trimpsMax - trimps.employed) * 0.95);
-			totalTime = log10(threshold / (threshold - adjustedMax)) / log10(potencyMod);
-		}
+		var totalTime = log10((trimpsMax - trimps.employed) / (trimpsMax - adjustedMax - trimps.employed)) / log10(potencyMod);
+		// if (game.options.menu.showFullBreed.enabled == 1) totalTime = log10((trimpsMax - trimps.employed) / (trimpsMax - adjustedMax - trimps.employed)) / log10(potencyMod);
+		// else {
+			// var threshold = Math.ceil((trimpsMax - trimps.employed) * 0.95);
+			// totalTime = log10(threshold / (threshold - adjustedMax)) / log10(potencyMod);
+		// }
 		totalTime /= 10;
 		fullBreed = totalTime.toFixed(1) + " Secs";
 		timeRemaining += " / " + fullBreed;
@@ -2085,6 +2101,93 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
     });
     if (!messageOverride) message("You just made " + mapName[0] + "!", "Loot", "th-large");
     unlockMap(game.global.mapsOwnedArray.length - 1);
+}
+
+function checkVoidMap() {
+	if (game.global.totalPortals < 10) return;
+	var dif = game.global.lastVoidMap;
+	game.global.lastVoidMap++;
+	var max = game.global.highestLevelCleared;
+	var min = (max > 80) ? (1000 + ((max - 80) * 13)) : 1000;
+	if (dif < min) return;
+	dif = Math.floor((dif - min) / 10);
+	var rng = getRandomIntSeeded(game.global.voidSeed++, 0, 50000);
+	if (rng > dif) return;
+	createVoidMap();
+	game.global.lastVoidMap = 0;
+}
+
+function getRandomIntSeeded(seed, minIncl, maxExcl) {
+	var x = Math.sin(seed++) * 10000;
+	return Math.floor((x - Math.floor(x)) * (maxExcl - minIncl)) + minIncl;
+}
+
+function createVoidMap() {
+	var prefixes = ['Deadly', 'Poisonous', 'Heinous', 'Destructive']; //Must match size of void specials
+	var suffixes = ['Nightmare', 'Void', 'Descent', 'Pit'];
+	//Size/loot/dif
+	var profiles = [[100, 3, 4], [90, 2.5, 4], [100, 2.5, 3.5], [85, 2, 4.5]];
+	var voidSpecials = ['doubleAttack', 'slowBreed', 'getCrit', 'bleed'];
+	game.global.totalMapsEarned++;
+	var prefixNum = Math.floor(Math.random() * prefixes.length);
+	var suffixNum = Math.floor(Math.random() * suffixes.length);
+	profiles = profiles[suffixNum];
+	game.global.mapsOwnedArray.push({
+		id: "map" + game.global.totalMapsEarned,
+		name: prefixes[prefixNum] + " " + suffixes[suffixNum],
+		location: "Void",
+		clears: 0,
+		level: -1,	
+		size: profiles[0],
+		loot: (game.unlocks.goldMaps) ? (profiles[1] + 1) : profiles[1],
+		difficulty: profiles[2],
+		noRecycle: true,
+		voidBuff: voidSpecials[prefixNum]
+	});
+	game.global.totalVoidMaps++;
+	message("A chill runs down your spine, and the bad guy quickly frosts over. A purple glow radiates from the ground in front of you, and a Void Map appears.", "Loot", "th-large", "voidMessage");
+	addVoidAlert();
+	unlockMap(game.global.mapsOwnedArray.length - 1);
+}
+
+function addVoidAlert(){ 
+	var alert = document.getElementById('voidAlert')
+	if (alert !== null) return;
+	document.getElementById('mapsBtn').innerHTML += ' <span id="voidAlert" class="alert badge">!</span>';
+}
+
+function setVoidBuffTooltip(){
+	var icon;
+	var text;
+	var title;
+	var stackCount = "";
+	var elem = document.getElementById('voidBuff');
+	switch(game.global.voidBuff){
+		case 'doubleAttack':
+			icon = 'icomoon icon-pushpin';
+			text = 'This bad guy attacks twice - once before you, and once again after you.';
+			title = 'Void Attack';
+			break;
+		case 'slowBreed':
+			icon = 'icomoon icon-cloudy2';
+			text = 'This map is reducing the repopulation speed of your Trimps by 80%.';
+			title = 'Void Gas';
+			break;
+		case 'getCrit':
+			icon = 'icomoon icon-heart6';
+			text = 'This bad guy has a 25% chance to crit you for 400% extra damage.';
+			title = 'Void Strength';
+			break;
+		case 'bleed':
+			icon = "icomoon icon-drop";
+			text = 'Every time this bad guy attacks, you will lose an additional 20% of your <b>current</b> health.';
+			title = 'Void Bleed';
+			break;
+		default:
+			elem.innerHTML = "";
+			return;
+	}
+	elem.innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + title + '\', \'customText\', event, \'' + text + '\')" onmouseout="tooltip(\'hide\')"><span id="voidBuffStacks">' + stackCount + '</span><span class="' + icon + '"></span></span>';
 }
 
 
@@ -2421,7 +2524,9 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			cell.style.paddingTop = ((100 / cols) / 19)+ "vh";
 			cell.style.paddingBottom = ((100 / cols) / 19) + "vh";
 			cell.style.fontSize = ((cols / 14) + 1) + "vh";
-            cell.className = "battleCell cellColorNotBeaten";
+			var className = "battleCell cellColorNotBeaten"
+			if (maps && map.location == "Void") className += " voidCell";
+            cell.className = className;
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
 			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";
             counter++;
@@ -2462,11 +2567,19 @@ function recycleBelow(confirmed){
 	if (total > 0) message("Recycled " + total + " maps for " + prettify(refund) + " fragments.", "Notices");
 }
 
-function recycleMap(map, fromMass) {
-    if (typeof map === 'undefined' && game.global.lookingAtMap === "") return;
-    if (typeof map === 'undefined') map = getMapIndex(game.global.lookingAtMap);
+function recycleMap(map, fromMass, killVoid) {
+    if (typeof map === 'undefined' || map == -1) {
+		if (game.global.lookingAtMap === "") return;
+		map = getMapIndex(game.global.lookingAtMap);
+	}
     if (map === null) return;
 	var mapObj = game.global.mapsOwnedArray[map];
+	var loc = "mapsHere";
+	if (killVoid){
+		game.global.voidBuff = "";
+		document.getElementById("voidBuff").innerHTML = "";
+	}
+	if (mapObj.location == "Void") loc = "voidMapsHere";
 	if (mapObj.noRecycle) {
 		game.global.currentMapId = "";
 		game.global.lastClearedMapCell = -1;
@@ -2474,7 +2587,7 @@ function recycleMap(map, fromMass) {
 		mapsSwitch(true);
 		return;
 	}
-    document.getElementById("mapsHere").removeChild(document.getElementById(mapObj.id));
+    document.getElementById(loc).removeChild(document.getElementById(mapObj.id));
     if (game.global.currentMapId == mapObj.id){
 		game.global.lookingAtMap = "";
 		game.global.currentMapId = "";
@@ -2482,11 +2595,18 @@ function recycleMap(map, fromMass) {
 	}
 	else if (game.global.lookingAtMap == mapObj.id) game.global.lookingAtMap = "";
 	game.global.mapsOwned--;
-	var refund = getRecycleValue(mapObj.level);
-	game.resources.fragments.owned += refund;
-	if (!fromMass) message("Recycled " + mapObj.name + " for " + prettify(refund) + " fragments.", "Notices");
+	var refund;
+	if (!killVoid) {
+		refund = getRecycleValue(mapObj.level);
+		game.resources.fragments.owned += refund;
+		if (!fromMass) message("Recycled " + mapObj.name + " for " + prettify(refund) + " fragments.", "Notices");
+	}
 	game.global.mapsOwnedArray.splice(map, 1);
-    mapsSwitch(true, true);
+    if (killVoid) {
+		game.global.totalVoidMaps--;
+		return;
+	}
+	mapsSwitch(true, true);
 	return refund;
 }
 
@@ -2556,11 +2676,13 @@ function mapsSwitch(updateOnly, fromRecycle) {
 		game.global.fighting = false;
         game.global.switchToMaps = false;
         game.global.switchToWorld = false;
+		game.global.voidBuff = "";
         if (game.global.preMapsActive) {
             game.global.mapsActive = false;
             game.global.preMapsActive = false;
         } else game.global.preMapsActive = true;
     }
+	toggleVoidMaps(true);
 	var currentMapObj;
 	if (game.global.currentMapId !== "") currentMapObj = getCurrentMapObject();
 	var mapsBtn = document.getElementById("mapsBtn");
@@ -2568,6 +2690,10 @@ function mapsSwitch(updateOnly, fromRecycle) {
 	recycleBtn.innerHTML = "Recycle Map";
 	document.getElementById("mapsBtn").className = "btn btn-warning fightBtn";
     if (game.global.preMapsActive) {
+		if (currentMapObj && currentMapObj.location == "Void") {
+			recycleMap(-1, true, true);
+			currentMapObj = false;
+		}
 		game.global.mapsActive = false;
 		setNonMapBox();
 		document.getElementById("battleHeadContainer").style.display = "none";
@@ -2602,6 +2728,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
 			disableShriek();
 			game.global.useShriek = true;
 		}
+		if (currentMapObj.location == "Void") currentMapObj.level = game.global.world;
 		fadeIn("repeatBtn", 10);
 		document.getElementById("battleHeadContainer").style.display = "block";
 		document.getElementById("mapsCreateRow").style.display = "none";
@@ -2705,6 +2832,11 @@ function runMap() {
     if (game.global.lastClearedMapCell == -1) {
         buildMapGrid(mapId);
         drawGrid(true);
+		var mapObj = getCurrentMapObject();
+		if (mapObj.location == "Void"){
+			game.global.voidBuff = mapObj.voidBuff;
+			setVoidBuffTooltip();
+		}
     }
 }
 
@@ -2744,8 +2876,8 @@ function battle(force) {
         trimps.soldiers = adjustedMax;
         trimps.owned -= adjustedMax;
     } else {
-        var max = Math.ceil((trimpsMax - trimps.employed) * 0.05);
-        if ((trimps.owned) >= (trimpsMax - max)) {
+        //var max = Math.ceil((trimpsMax - trimps.employed) * 0.05);
+        if (trimps.owned >= trimpsMax) {
             trimps.soldiers = adjustedMax;
             trimps.owned -= adjustedMax;
         }
@@ -3055,10 +3187,12 @@ function fight(makeUp) {
     var cellNum;
     var cell;
     var cellElem;
+	var currentMapObj;
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
         cell = game.global.mapGridArray[cellNum];
         cellElem = document.getElementById("mapCell" + cellNum);
+		currentMapObj = getCurrentMapObject();
     } else {
         cellNum = game.global.lastClearedCell + 1;
         cell = game.global.gridArray[cellNum];
@@ -3110,12 +3244,17 @@ function fight(makeUp) {
 		}
         swapClass("cellColor", "cellColorBeaten", cellElem);
         if (game.global.mapsActive) game.global.lastClearedMapCell = cellNum;
-        else game.global.lastClearedCell = cellNum;
+        else {
+			game.global.lastClearedCell = cellNum;
+		}
         game.global.fighting = false;
         document.getElementById("badGuyCol").style.visibility = "hidden";
         var unlock;
         if (game.global.mapsActive) unlock = game.mapUnlocks[cell.special];
-        else unlock = game.worldUnlocks[cell.special];
+        else {
+			checkVoidMap();
+			unlock = game.worldUnlocks[cell.special];
+		}
         var noMessage = false;
         if (typeof unlock !== 'undefined' && typeof unlock.fire !== 'undefined') {
             unlock.fire(cell.level);
@@ -3141,10 +3280,16 @@ function fight(makeUp) {
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
 			game.stats.mapsCleared.value++;
 			checkAchieve("totalMaps");
-			if (getCurrentMapObject().level >= (game.global.world - game.portal.Siphonology.level) && game.global.mapBonus < 10){
+			if (currentMapObj.level >= (game.global.world - game.portal.Siphonology.level) && game.global.mapBonus < 10){
 				game.global.mapBonus += 1;
 			}
-			if (game.global.repeatMap && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1)){
+			var skip = false;
+			if (currentMapObj.location == "Void") {
+				currentMapObj.noRecycle = false;
+				recycleMap(-1, true, true);
+				skip = true;
+			}
+			if (game.global.repeatMap && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1) && !skip){
 				if (game.global.mapBonus > 0) document.getElementById("mapsBtn").innerHTML = "Maps (" + game.global.mapBonus + ")";
 				game.global.lastClearedMapCell = -1;
 				buildMapGrid(game.global.currentMapId);
@@ -3153,7 +3298,7 @@ function fight(makeUp) {
 					game.challenges.Mapology.credits--;
 					if (game.challenges.Mapology.credits <= 0) game.challenges.Mapology.credits = 0;
 					updateMapCredits();
-					messageMapCredits()
+					messageMapCredits();
 				}
 				fightManual();
 				return;
@@ -3182,6 +3327,12 @@ function fight(makeUp) {
 	var badCrit = false;
 	if (game.global.challengeActive == "Crushed"){
 		if (checkCrushedCrit()) {
+			cellAttack *= 5;
+			badCrit = true;
+		}
+	}
+	if (game.global.voidBuff == "getCrit"){
+		if (Math.floor(Math.random() * 4) == 0){
 			cellAttack *= 5;
 			badCrit = true;
 		}
@@ -3216,24 +3367,28 @@ function fight(makeUp) {
 	}
 	var attacked = false;
 	var wasAttacked = false;
-    if (game.global.challengeActive == "Slow" || (game.badGuys[cell.name].fast && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom")) {
+    if (game.global.challengeActive == "Slow" || (((game.badGuys[cell.name].fast && game.global.challengeActive != "Nom") || game.global.voidBuff == "dblA") && game.global.challengeActive != "Coordinate")) {
         game.global.soldierHealth -= attackAndBlock;
 		wasAttacked = true;
+		var thisKillsTheTrimp = function() {
+			game.global.soldierHealth = 0;
+			gotCrit = false;
+		};
         if (game.global.soldierHealth > 0) {
 			cell.health -= trimpAttack;
 			attacked = true;
+			if (game.global.voidBuff == "dblA"){
+				game.global.soldierHealth -= attackAndBlock;
+				if (game.global.soldierHealth < 0) thisKillsTheTrimp();
+			}
 		}
-        else {
-            game.global.soldierHealth = 0;
-			gotCrit = false;
-		}
+        else thisKillsTheTrimp();
         if (cell.health <= 0) {cell.health = 0; 
 		//fight(makeUp); return;
 		}
     }
 	else {
         cell.health -= trimpAttack;
-		
 		attacked = true;
         if (cell.health > 0) {
 			game.global.soldierHealth -= attackAndBlock;
@@ -3241,7 +3396,7 @@ function fight(makeUp) {
 		}
         else
             {
-				cell.health = 0; 
+				cell.health = 0;
 				//fight(makeUp); return;
 			}
         if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
@@ -3262,7 +3417,11 @@ function fight(makeUp) {
 	if ((game.global.challengeActive == "Nom" || game.global.challengeActive == "Toxicity") && attacked){
 		game.global.soldierHealth -= game.global.soldierHealthMax * 0.05;
 		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
-	}	
+	}
+	if (game.global.voidBuff == "bleed" && wasAttacked) {
+		game.global.soldierHealth -= (game.global.soldierHealth * 0.2);
+		if (game.global.soldierHealth < 1) game.global.soldierHealth = 0;
+	}
 	if (gotCrit) critSpan.innerHTML = "Crit!";
 	document.getElementById("badCrit").innerHTML = (badCrit && wasAttacked) ? "Crit!" : "";
     if (cell.health <= 0) game.global.battleCounter = 800;
@@ -4136,6 +4295,70 @@ function costUpdatesTimeout() {
 	setTimeout(costUpdatesTimeout, 250);
 }
 
+function toggleVoidMaps(updateOnly){
+	var elem = document.getElementById("voidMapsBtn");
+	var mapsHere = document.getElementById("mapsHere");
+	var voidMapsHere = document.getElementById("voidMapsHere");
+	if (!updateOnly) game.global.voidMapsToggled = !game.global.voidMapsToggled;
+	else if (!game.global.preMapsActive) game.global.voidMapsToggled = false;
+	if (!game.global.voidMapsToggled){
+		voidMapsHere.style.display = "none";
+		mapsHere.style.display = "block";
+		elem.innerHTML = "Void Maps (" + game.global.totalVoidMaps + ")";
+		elem.style.display = (game.global.totalVoidMaps <= 0 || !game.global.preMapsActive) ? "none" : "block";
+		return;
+	}
+	elem.style.display = "block";
+	voidMapsHere.style.display = "block";
+	mapsHere.style.display = "none";
+	elem.innerHTML = "Back";
+}
+
+function toggleAutoTrap(updateOnly) {
+	var elem = document.getElementById("autoTrapBtn");
+	if (!game.global.trapBuildAllowed){
+		elem.style.display = "none";
+		elem.innerHTML = "AutoTraps Off";
+		swapClass("color", "colorDanger", elem);
+		return;
+	}
+	else if (elem.style.display == "none") fadeIn("autoTrapBtn", 10);
+	if (!updateOnly) game.global.trapBuildToggled = !game.global.trapBuildToggled;
+	if (game.global.trapBuildToggled){
+		swapClass("color", "colorSuccess", elem);
+		elem.innerHTML = "AutoTraps On";
+		return;
+	}
+	swapClass("color", "colorDanger", elem);
+	elem.innerHTML = "AutoTraps Off";
+}
+
+function toggleAutoStorage(noChange){
+	if (!noChange) game.global.autoStorage = !game.global.autoStorage;
+	var elem = document.getElementById("autoStorageBtn");
+	if (game.global.autoStorage) {
+		swapClass("color", "colorSuccess", elem);
+		elem.innerHTML = "AutoStorage On";
+	}
+	else {
+		swapClass("color", "colorDanger", elem);
+		elem.innerHTML = "AutoStorage Off";
+	}
+}
+
+function autoStorage(){
+	var toCheck = ["food", "wood", "metal"];
+	var storage = ["Barn", "Shed", "Forge"];
+	for (var x = 0; x < 3; x++){
+		var resource = game.resources[toCheck[x]];
+		var max = resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
+		if (resource.owned >= max) {
+			buyBuilding(storage[x], false, true);
+			break;
+		}
+	}
+}
+
 function toggleAutoUpgrades(noChange){
 	if (game.global.sLevel != 4) return;
 	var elem = document.getElementById("autoUpgradeBtn");
@@ -4185,6 +4408,7 @@ function autoUpgrades() {
 		}
 	}
 }
+
 
 function gameTimeout() {
 	if (game.options.menu.pauseGame.enabled) return;
@@ -4237,6 +4461,7 @@ function updatePortalTimer() {
 	if (trimpStatsDisplayed) displayAllStats();
 	if (game.options.menu.useAverages.enabled && Math.floor(timeSince % 3) == 0) curateAvgs();
 	if (game.resources.helium.owned > 0) game.stats.bestHeliumHourThisRun.evaluate();
+	if (game.global.autoStorage == true) autoStorage();
 	setTimeout(updatePortalTimer, 1000);
 }
 

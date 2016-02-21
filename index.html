@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 2.82</title>
+	<title>Trimps 2.9</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?24" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?25" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -358,7 +358,7 @@
 							<span id="buildSpeed"></span>
 						</div>
 						<div class="col-xs-3 lowPad">
-							<div id="autoTrapBtn" style="display: none" onclick="toggleAutoTrap()" class="workBtn pointer noselect dangerColor">Traps Off</div>
+							<div id="autoTrapBtn" style="display: none" onclick="toggleAutoTrap()" class="pointer noselect colorDanger autoUpgradeBtn">AutoTraps Off</div>
 						</div>
 						<div class="col-xs-3">
 							<div id="buildingsCollectBtn" onclick="setGather('buildings')" class="workBtn pointer noselect">Build</div>
@@ -409,6 +409,10 @@
 									<div class="row">
 										<div class="col-xs-4">
 											<span id="buildingsTitleSpan" class="titleSpan">Buildings</span>
+										</div>
+										<div class="col-xs-5 lowPad">&nbsp;</div>
+										<div class="col-xs-3" style="padding-left: 5px">
+											<div id="autoStorageBtn" class="pointer noselect colorDanger autoUpgradeBtn" onmouseover="tooltip('AutoStorage', 'customText', event, 'Enabling this will cause your Trimps to automatically add a storage building to the queue if you reach max capacity. This will work on and offline if enabled.')" onmouseout="tooltip('hide')" onclick="toggleAutoStorage()">AutoStorage</div>
 										</div>
 									</div>
 								</div>
@@ -524,7 +528,7 @@
 							<div>
 								<div class="row">
 									<div class="col-xs-10">
-									<span class="battleStatsTitle" id="badGuyName"></span> <span id="badCanCrit" style="display: none" class="badge" onmouseover="tooltip('Crushing Blows', 'customText', event, 'Your current health is higher than your block, making you vulnerable to critical strikes from your enemies. Better fix that...')" onmouseout="tooltip('hide')"><span class="icomoon icon-hair-cross"></span></span><br/>
+									<span class="battleStatsTitle" id="badGuyName"></span> <span id="voidBuff"></span><span id="badCanCrit" style="display: none" class="badge" onmouseover="tooltip('Crushing Blows', 'customText', event, 'Your current health is higher than your block, making you vulnerable to critical strikes from your enemies. Better fix that...')" onmouseout="tooltip('hide')"><span class="icomoon icon-hair-cross"></span></span><br/>
 									<div class="guyRow" id="badGuyRow">
 									<div>
 										<span id="badGuyAttack" class="dmgColorWhite"></span> DMG <span id="badCrit"></span>
@@ -567,6 +571,11 @@
 							<div class="battleSideBtnContainer">
 								<span class="btn btn-warning fightBtn" id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" onclick="mapsClicked()" style="display: none">
 									Maps
+								</span>
+							</div>
+							<div class="battleSideBtnContainer">
+								<span class="btn voidMessage fightBtn" id="voidMapsBtn" onclick="toggleVoidMaps()" style="display: none">
+									Void Maps
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
@@ -676,6 +685,8 @@
 									
 								</div>
 								<div id="mapsHere" class="niceScroll">
+								</div>
+								<div id="voidMapsHere" class="niceScroll">
 								</div>
 							</div>
 							<div id="mapGrid" style="display: none;"></div>
@@ -878,9 +889,9 @@
 		<div id="tipCost"></div>
 	</div>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?64"></script>
-	<script type="text/javascript" src="updates.js?64"></script>
-	<script type="text/javascript" src="main.js?64"></script>
+	<script type="text/javascript" src="config.js?65"></script>
+	<script type="text/javascript" src="updates.js?65"></script>
+	<script type="text/javascript" src="main.js?65"></script>
 </body>
 
 </html>

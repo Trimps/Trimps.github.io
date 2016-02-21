@@ -337,6 +337,11 @@ overflow-x: hidden;
 	border-radius: 100%;
 }
 
+#mapsBtn .alert{
+	background-color: #2E0854;
+	color: #DDDDFF;
+}
+
 #foremenCount,
 #buildSpeed {
     font-size: 1.12em;
@@ -606,7 +611,7 @@ overflow-x: hidden;
 	font-size: 1vw;
 }
 
-#mapsHere {
+#mapsHere, #voidMapsHere {
 	height: calc(100vh - 31.5vw - 90px);
     overflow-y: auto;
 	width: 100%;
@@ -1286,6 +1291,33 @@ overflow-x: hidden;
 	background-color: red;
 }
 
+.voidMap{
+background: -moz-linear-gradient(-45deg,  #2f006d 0%, #30046d 12%, #320370 25%, #3f0a6d 39%, #2f095e 50%, #2e0854 51%, #220535 60%, #25063d 76%, #12031e 92%, #131313 100%);
+background: -webkit-linear-gradient(-45deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
+background: linear-gradient(135deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f006d', endColorstr='#131313',GradientType=1 ); 
+color: #DDDDFF !important;
+}
+
+.voidMessage, .voidBadge, .voidCell.cellColorNotBeaten{
+	background-color: #2E0854;
+	color: #DDDDFF;
+}
+
+#voidMapsBtn{
+	font-size: 1vw !important;
+}
+
+#voidMapsBtn:hover{
+	background-color: #1f0539;
+	color: #FFF;
+}
+
+.voidBadge{
+	font-size: 0.9em;
+}
+
+
 .successColor, .colorSuccess{
 	background-color: #5cb85c;
 }
@@ -1698,15 +1730,11 @@ overflow-x: hidden;
 }
 
 .btn-new {
-  color: white;
-	background: -webkit-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: -o-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: -moz-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-		-webkit-box-shadow:0px 0px 0.5vw 0.3vw #551a8b inset;
-	   -moz-box-shadow: 0px 0px 0.5vw 0.3vw #551a8b inset;
-            box-shadow: 0px 0px 0.5vw 0.3vw #551a8b inset;
-	border: 1px solid black;
+background: -moz-linear-gradient(-45deg,  #2f006d 0%, #30046d 12%, #320370 25%, #3f0a6d 39%, #2f095e 50%, #2e0854 51%, #220535 60%, #25063d 76%, #12031e 92%, #131313 100%);
+background: -webkit-linear-gradient(-45deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
+background: linear-gradient(135deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f006d', endColorstr='#131313',GradientType=1 ); 
+color: #DDDDFF !important;
 
 }
 .btn-new:hover,
@@ -1715,15 +1743,11 @@ overflow-x: hidden;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-  color: white;
-	background: -webkit-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: -o-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: -moz-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-		-webkit-box-shadow: 0px 0px 0.5vw 0.3vw #007f00 inset;
-	   -moz-box-shadow: 0px 0px 0.5vw 0.3vw #007f00 inset;
-            box-shadow: 0px 0px 0.5vw 0.3vw #007f00 inset;
-	border: 1px solid black;
+background: -moz-linear-gradient(-45deg,  #5b00d3 0%, #30046d 12%, #3d0489 25%, #3f0a6d 39%, #2f095e 50%, #480c83 51%, #220535 60%, #5d0f9a 76%, #12031e 92%, #2f006d 100%);
+background: -webkit-linear-gradient(-45deg,  #5b00d3 0%,#30046d 12%,#3d0489 25%,#3f0a6d 39%,#2f095e 50%,#480c83 51%,#220535 60%,#5d0f9a 76%,#12031e 92%,#2f006d 100%);
+background: linear-gradient(135deg,  #5b00d3 0%,#30046d 12%,#3d0489 25%,#3f0a6d 39%,#2f095e 50%,#480c83 51%,#220535 60%,#5d0f9a 76%,#12031e 92%,#2f006d 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5b00d3', endColorstr='#2f006d',GradientType=1 ); 
+color: #DDDDFF !important;
 
 }
 .btn-new:active,
@@ -1820,10 +1844,6 @@ input::-webkit-inner-spin-button {
 
 .cellColorCurrent {
 	background: yellow;
-}
-
-.cellColorNotBeaten {
-	
 }
 
 .percentColorBlue {
