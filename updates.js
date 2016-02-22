@@ -1682,6 +1682,7 @@ function drawJob(what, where){
 }
 function refreshMaps(){
 	document.getElementById("mapsHere").innerHTML = "";
+	document.getElementById("voidMapsHere").innerHTML = "";
 	for (var item in game.global.mapsOwnedArray) {
 			unlockMap(item);
 	}
