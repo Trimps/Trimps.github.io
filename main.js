@@ -4351,8 +4351,8 @@ function autoStorage(){
 	var storage = ["Barn", "Shed", "Forge"];
 	for (var x = 0; x < 3; x++){
 		var resource = game.resources[toCheck[x]];
-		var max = resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
-		if (resource.owned >= max) {
+		var max = Math.floor(resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level));
+		if (resource.owned >= (max * 0.99)) {
 			buyBuilding(storage[x], false, true);
 			break;
 		}
