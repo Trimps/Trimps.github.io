@@ -294,7 +294,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
 	}
 	if (isItIn == "buildings" && what.split(' ')[0] == "Warpstation" && game.global.lastWarp) {
-		tooltipText += "<b> You purchased " + game.global.lastWarp + " Warpstations before your last Gigastation.</b>";
+		tooltipText += "<b> You purchased " + game.global.lastWarp + " Warpstations before your last Gigastation (" + game.upgrades.Gigastation.done + ").</b>";
 	}
 	if (typeof tooltipText.split('~') !== 'undefined') {
 		var percentIncrease = game.upgrades.Gymystic.done;
