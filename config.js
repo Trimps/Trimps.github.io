@@ -687,7 +687,7 @@ var toReturn = {
 				return ((this.balanceStacks * 0.01) + 1);
 			},
 			heldHelium: 0,
-			heliumThrough: 39,
+			heliumThrough: 40,
 			unlockString: "reach Zone 40"
 		},
 		Scientist: {
@@ -863,7 +863,7 @@ var toReturn = {
 				return (game.global.highestLevelCleared >= 144);
 			},
 			heldHelium: 0,
-			heliumThrough: 165,
+			heliumThrough: 145,
 			unlockString: "reach Zone 145"
 		},
 		Mapology: {
