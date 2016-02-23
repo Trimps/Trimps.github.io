@@ -1908,7 +1908,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
-				var amt = (game.global.world >= 60) ? 10 : 2;
+				var amt = (game.global.world >= 59) ? 10 : 2;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
 				message("<span class='glyphicon glyphicon-oil'></span> Cthulimp and the map it came from crumble into the darkness, and you find yourself back in your map chamber with an extra " + prettify(amt) + " Helium!", "Story");
