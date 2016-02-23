@@ -2132,6 +2132,7 @@ function createVoidMap() {
 	var prefixNum = Math.floor(Math.random() * prefixes.length);
 	var suffixNum = Math.floor(Math.random() * suffixes.length);
 	profiles = profiles[suffixNum];
+	if (game.global.challengeActive == "Mapocalypse") profiles[2] = profiles[2] + game.challenges.Mapocalypse.difficultyIncrease;
 	game.global.mapsOwnedArray.push({
 		id: "map" + game.global.totalMapsEarned,
 		name: prefixes[prefixNum] + " " + suffixes[suffixNum],
