@@ -3205,7 +3205,8 @@ function fight(makeUp) {
 		game.stats.trimpsKilled.value += game.resources.trimps.maxSoldiers;
         var s = (game.resources.trimps.maxSoldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
-        message(prettify(game.resources.trimps.maxSoldiers) + " Trimp" + s + "just " + randomText + ".", "Combat");
+		var currentSend = (game.portal.Coordinated.level) ? prettify(game.portal.Coordinated.currentSend) : prettify(game.resources.trimps.maxSoldiers);
+        message(currentSend + " Trimp" + s + "just " + randomText + ".", "Combat");
         game.global.fighting = false;
         game.resources.trimps.soldiers = 0;
 		if (game.global.challengeActive == "Nom") {
