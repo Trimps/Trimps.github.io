@@ -1211,6 +1211,7 @@ function resetGame(keepPortal) {
 	toggleAutoUpgrades(true);
 	toggleAutoPrestiges(true);
 	toggleVoidMaps(true);
+	fireMode(true);
 	resetAdvMaps();
 	cancelPortal();
 	updateRadioStacks();
