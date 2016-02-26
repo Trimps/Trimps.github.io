@@ -227,10 +227,12 @@
 
 .cellColorBeaten {
 	background: #194A19;
+	color: black !important;
 }
 
 .cellColorCurrent {
 	background: #574800;
+	color: black !important;
 }
 
 .cellColorNotBeaten {
@@ -407,6 +409,7 @@ input, button, select, textarea,
 .voidCell {
 	color: #C8C8C8;
 }
+
 
 .voidMessage, .voidBadge, .voidCell.cellColorNotBeaten{
 	background-color: rgb(28, 5, 51);
