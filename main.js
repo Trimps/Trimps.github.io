@@ -4394,6 +4394,7 @@ function toggleAutoPrestiges(noChange){
 
 function autoUpgrades() {
 	if (game.global.autoUpgrades == true) setTimeout(autoUpgrades, 1000);
+	else return;
 	if (game.options.menu.pauseGame.enabled == 1) return;
 	for (var item in game.upgrades){
 		if (item == "Shieldblock" || item == "Gigastation") continue;
