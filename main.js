@@ -2953,7 +2953,6 @@ function startFight() {
 		
     }
 	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
-		cell.attack = Math.floor(game.global.getEnemyAttack(cell.level, cell.name) * Math.pow(1.25, cell.nomStacks));
 		updateNomStacks(cell.nomStacks);
 	}
 	if (game.global.roboTrimpLevel && game.global.useShriek && cell.name == 'Improbability'){
@@ -3060,7 +3059,7 @@ function updateAllBattleNumbers (skipNum) {
 	document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
 	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true, true);
 	var badAttackElem = document.getElementById("badGuyAttack");
-	badAttackElem.innerHTML = calculateDamage(cell.attack, true);
+	badAttackElem.innerHTML = calculateDamage(cell.attack, true, false, false, cell);
 	if (game.global.usingShriek) {
 		swapClass("dmgColor", "dmgColorRed", badAttackElem);
 		badAttackElem.innerHTML += '<span class="icomoon icon-chain"></span>';
@@ -3086,7 +3085,7 @@ function updateBadBar(cell) {
 	swapClass("percentColor", getBarColorClass(percent), barElem);
 }
 
-function calculateDamage(number, buildString, isTrimp, noCheckAchieve) { //number = base attack
+function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { //number = base attack
     var fluctuation = .2; //%fluctuation
 	var maxFluct = -1;
 	var minFluct = -1;
@@ -3110,6 +3109,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve) { //numbe
 	}
 	if (isTrimp && game.global.roboTrimpLevel > 0){
 		number *= ((0.2 * game.global.roboTrimpLevel) + 1);
+	}
+	if (!isTrimp && game.global.challengeActive == "Nom" && typeof cell.nomStacks !== 'undefined'){
+		number *= Math.pow(1.25, cell.nomStacks);
 	}
 	if (!isTrimp && game.global.usingShriek) {
 		number *= game.mapUnlocks.roboTrimp.getShriekValue();
@@ -3324,7 +3326,7 @@ function fight(makeUp) {
         battle(true);
         return;
     }
-	var cellAttack = calculateDamage(cell.attack);
+	var cellAttack = calculateDamage(cell.attack, false, false, false, cell);
 	var badCrit = false;
 	if (game.global.challengeActive == "Crushed"){
 		if (checkCrushedCrit()) {
