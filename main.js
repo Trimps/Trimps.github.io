@@ -2914,6 +2914,13 @@ function startFight() {
         cellNum = game.global.lastClearedCell + 1;
         cell = game.global.gridArray[cellNum];
         cellElem = document.getElementById("cell" + cellNum);
+		if (cellElem == null && game.global.lastClearedCell == 99){ //Not sure what causes this to be needed, but on very rare occasions, this can prevent some save files from freezing on load
+			nextWorld();
+			game.stats.zonesCleared.value++;
+			checkAchieve("totalZones");
+			console.log("crisis averted");
+			return;
+		}
     }
     swapClass("cellColor", "cellColorCurrent", cellElem);
 	var badName = cell.name;
