@@ -899,6 +899,7 @@ function checkOfflineProgress(noTip){
 			}
 		}
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
+		if (game.global.challengeActive == "Balance") amt *= game.challenges.Balance.getGatherMult();
 		amt *= dif;
 		if (x < 3){
 			var newMax = resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level);
