@@ -3015,6 +3015,9 @@ function startFight() {
 			if (game.global.formation !== 0){
 				healthTemp *= (game.global.formation == 1) ? 4 : 0.5;
 			}
+			if (game.global.challengeActive == "Balance"){
+				healthTemp *= game.challenges.Balance.getHealthMult();
+			}
 			game.global.soldierHealthMax += healthTemp;
 			game.global.soldierHealth += healthTemp;
 			game.global.difs.health = 0;
