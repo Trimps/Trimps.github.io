@@ -2915,7 +2915,16 @@ function startFight() {
         cellNum = game.global.lastClearedCell + 1;
         cell = game.global.gridArray[cellNum];
         cellElem = document.getElementById("cell" + cellNum);
-		if (cellElem == null && game.global.lastClearedCell == 99){ //Not sure what causes this to be needed, but on very rare occasions, this can prevent some save files from freezing on load
+		if (cellElem == null){ //Not sure what causes this to be needed, but on very rare occasions, this can prevent some save files from freezing on load
+			if (game.global.lastClearedCell != 99) {
+				 if (game.global.lastClearedCell == -1){
+					buildGrid();
+					drawGrid();
+					document.getElementById("battleContainer").style.visibility = "visible";
+					console.log("Attempted to fight in World when no grid was initialized. Find an adult");
+				}
+				return;
+			}
 			nextWorld();
 			game.stats.zonesCleared.value++;
 			checkAchieve("totalZones");

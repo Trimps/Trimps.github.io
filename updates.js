@@ -2130,13 +2130,15 @@ function toggleSetting(setting, elem){
 		document.getElementById(id + "Description").innerHTML = "";
 	}
 
-//i changed the variable names just for remembrance sake
-//thank me later -grabz
 function swapClass(prefix, newClass, elem) {
+if (elem == null) {
+	console.log("swapClass, No element found");
+	return;
+	}
   var className = elem.className;
   className = className.split(prefix);
   if(typeof className[1] === 'undefined') {
-	  console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class. This needs a fix, but being a neat little function that I am, I will add this class to the element myself.");
+	  console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class.");
 	  elem.className += " " + newClass;
 	  return;
   } 
