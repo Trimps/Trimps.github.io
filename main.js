@@ -2921,6 +2921,7 @@ function startFight() {
 					buildGrid();
 					drawGrid();
 					document.getElementById("battleContainer").style.visibility = "visible";
+					document.getElementById('metal').style.visibility = "visible";
 					console.log("Attempted to fight in World when no grid was initialized. Find an adult");
 				}
 				return;
