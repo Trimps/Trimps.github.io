@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 2.9</title>
+	<title>Trimps 3.0</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?25" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?26" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -21,7 +21,7 @@
 </script>
 </head>
 <!-- 		Trimps
-		Copyright (C) 2015 Zach Hood
+		Copyright (C) 2016 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -462,6 +462,10 @@
 										<div class="col-xs-4">
 											<span id="equipmentTitleSpan" class="titleSpan">Equipment</span>
 										</div>
+										<div class="col-xs-2 lowPad">&nbsp;</div>
+										<div class="col-xs-3 lowPad">&nbsp;</div>
+										<div class="col-xs-3" style="padding-left: 5px">				
+										</div>
 									</div>
 								</div>
 							
@@ -588,6 +592,9 @@
 									Repeat Off
 								</span>
 							</div>
+							<div class="battleSideBtnContainer" style="display: none" id="heirloomBtnContainer">
+								<span id="heirloomsBtn" class="btn fightBtn heirloomsBtnColor" onclick="toggleHeirlooms()">Heirlooms</span>
+							</div>
 							<div class="battleSideBtnContainer" style="display: none" id="boneBtnContainer">
 								<span class="btn btn-default fightBtn" id="boneBtnMain" onclick="showBones()">
 									<span id="boneBtnText">Bone Trader</span>
@@ -644,7 +651,9 @@
 									<div id="difficultyAdvMapsText"></div>
 								</div>
 							</div>
+							<div id="heirRare" style="display: none">
 								
+							</div>
 								<div id="selectedMapContainer" class="row">
 									<div id="selectedMapCol" class="col-xs-3 lowPad">
 										<div id="selectedMapName"></div><br/>
@@ -866,6 +875,67 @@
 			Need help or want to talk about Trimps? Check out the <a href="http://www.reddit.com/r/trimps" target="_blank">/r/Trimps SubReddit</a>, the <a href="http://www.kongregate.com/forums/11405-trimps" target="_blank">Kongregate Forums</a>, or the <a href="http://trimps.wikia.com/wiki/Trimps_Wiki" target="_blank">community-created Trimps Wiki!</a>
 		</div>
 	</div>
+	<div id="heirloomWrapper" style="display: none">
+		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><div class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium</div><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()">Close</div></div></div>
+		<div id="heirloomHelp" style="display: none">
+			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. Once you have an Heirloom, you can click the icon below to select it.<br/><br/>
+			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. You can also click on the Heirloom's name on this menu to rename it.<br/><br/>
+			You can only carry a few Heirlooms (other than the two you have equipped) back through the Portal with you when you use it. <b>Any Heirlooms in the "Extra" section will be recycled for Nullifium on portal.</b>
+		</div>
+		<div class="row">
+			<div class="col-xs-6">
+				<div id="equippedHeirlooms">
+					<div class="row">
+						<div class="col-xs-6">
+							Equipped Shield<br/>
+							<div id="ShieldEquipped"></div><br/>
+							<span id="ShieldEquippedName"></span>
+						</div>
+						<div class="col-xs-6">
+							Equipped Staff<br/>
+							<div id="StaffEquipped"></div><br/>
+							<span id="StaffEquippedName"></span>
+						</div>
+					</div>
+					<div id="equippedHeirloomsBtnGroup" class="heirloomBtnGroup" style="visibility: hidden">
+						<div id="unequipHeirloomBtn" class="noselect heirloomBtnActive heirBtn"  onclick="unequipHeirloom()">Unequip</div>
+					</div>
+				</div>
+				<div id="carriedHeirlooms">
+					Carried - <span id="carriedHeirloomsText"></span> <div id="addCarriedBtn" onclick="addCarried()" class="heirloomBtnActive heirBtn noselect"></div>
+					<div id="carriedHeirloomsHere"></div>
+					<div id="carriedHeirloomsBtnGroup" class="heirloomBtnGroup" style="visibility: hidden">
+						<div id="equipHeirloomBtn" class="noselect heirloomBtnActive heirBtn"  onclick="equipHeirloom()">Equip</div>
+						<div id="stopCarryHeirloomBtn" class="noselect heirloomBtnActive heirBtn"  onclick="stopCarryHeirloom()">Stop Carrying</div>
+					</div>
+				</div>
+				<div id="extraHeirlooms">
+					Extra
+					<div id="extraHeirloomsHere"></div>
+					<div id="extraHeirloomsBtnGroup" class="heirloomBtnGroup" style="visibility: hidden">
+						<div id="equipHeirloomBtn2" class="noselect heirloomBtnActive heirBtn"  onclick="equipHeirloom()">Equip</div>
+						<div id="carryHeirloomBtn" class="noselect heirloomBtnActive heirBtn"  onclick="carryHeirloom()">Carry</div>
+						<div id="recycleHeirloomBtn" class="noselect heirloomBtnActive heirBtn"  onclick="recycleHeirloom()">Recycle</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-6">
+				<div id="selectedHeirloom"></div>
+				<div id="modBreakdown" style="display: none">
+					<div class="row">
+						<div class="col-xs-6" id="modReplaceBox">
+							<select id="modReplaceSelect"></select><br/>
+							<div id="modReplaceBtn" class="heirloomBtnActive heirBtn noselect" onclick="replaceMod()">Replace</div>
+						</div>
+						<div class="col-xs-6" id="modUpgradeBox">
+							<div id="modUpgradeCost"></div>
+							<div id="modUpgradeBtn" class="heirloomBtnActive heirBtn noselect" onclick="upgradeMod()">Upgrade</div>
+						</div>
+					</div>			
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="achievementPopup" style="display: none">
 		<span class="achievementBtns">
 			<span class="achievementBtnGo icomoon icon-newspaper-o" onclick="toggleAchievementWindow()"></span>
@@ -881,7 +951,18 @@
 			</div>
 		</div>
 	</div>
-	<div id="tooltipDiv" style="display: none">
+	<div id="heirloomsPopup" style="display: none">
+		<div id="heirloomsPopupBtns">
+			You Found an Heirloom!
+
+			<span class="heirloomPopupBtn icomoon icon-close" onclick="closeHeirPopup()"></span>
+			<span class="heirloomPopupBtn icomoon icon-archive" onclick="toggleHeirlooms(); closeHeirPopup();"></span>
+		</div>
+		<div id="heirloomsPopupHere">
+		
+		</div>
+	</div>
+	<div id="tooltipDiv" class="tooltipExtraNone" style="display: none">
 		<div id="tipTitle"></div>
 		<hr/>
 		<div id="tipText"></div>
@@ -889,9 +970,9 @@
 		<div id="tipCost"></div>
 	</div>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?65"></script>
-	<script type="text/javascript" src="updates.js?65"></script>
-	<script type="text/javascript" src="main.js?65"></script>
+	<script type="text/javascript" src="config.js?66"></script>
+	<script type="text/javascript" src="updates.js?66"></script>
+	<script type="text/javascript" src="main.js?66"></script>
 </body>
 
 </html>

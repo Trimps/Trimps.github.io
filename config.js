@@ -1,5 +1,5 @@
 /*		Trimps
-		Copyright (C) 2015 Zach Hood
+		Copyright (C) 2016 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -16,10 +16,12 @@
 		author's website, you can find a copy at
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
+		
+//Spoilers ahead, proceed with caution
 function newGame () {
 var toReturn = {
 	global: {
-		version: 2.9,
+		version: 3,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -128,6 +130,15 @@ var toReturn = {
 		voidBuff: "",
 		lastVoidMap: 0,
 		voidSeed: Math.floor(Math.random() * 1000000),
+		heirloomSeed: Math.floor(Math.random() * 1000000),
+		heirloomsExtra: [],
+		heirloomsCarried: [],
+		StaffEquipped: {},
+		ShieldEquipped: {},
+		nullifium: 0,
+		maxCarriedHeirlooms: 1,
+		selectedHeirloom: [],
+		lastPortal: -1,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -304,7 +315,7 @@ var toReturn = {
 			},
 			boneAlerts: {
 				enabled: 1,
-				description: "Hide popup confirmation messages when in the bone trader.",
+				description: "Hide popup confirmation messages when in the Bone Trader or Heirlooms menus.",
 				titles: ["Not Popping", "Popping"]
 			},
 			showAlerts: {
@@ -374,6 +385,11 @@ var toReturn = {
 					}
 				}
 			},
+			voidPopups: {
+				enabled: 1,
+				description: "Decide whether or not you want popups on looting an Heirloom.",
+				titles: ["No Heirloom Pop", "Popping Heirlooms"]
+			},
 			pauseGame: {
 				enabled: 0,
 				description: "Pause your game. This will pause all resource gathering, offline progress, and timers.",
@@ -399,7 +415,7 @@ var toReturn = {
 						setTimeout(updatePortalTimer, 1000);
 					}
 				}
-			},
+			},			
 			deleteSave: {
 				enabled: 0,
 				description: "Delete your save and start fresh. Your Trimps will not be happy.",
@@ -982,7 +998,7 @@ var toReturn = {
 			value: function () {
 				return prettify(game.stats.bestHeliumHourThisRun.storedValue) + ", Z:" + game.stats.bestHeliumHourThisRun.atZone;
 			},
-			evaluate: function () {
+			evaluate: function () { //called from portalTime
 				var heHr = game.stats.heliumHour.value();
 				if (heHr > this.storedValue){
 					this.storedValue = heHr;
@@ -1008,6 +1024,27 @@ var toReturn = {
 				return (this.valueTotal > 0);
 			},
 			valueTotal: 0
+		},
+		highestVoidMap: {
+			title: "Highest Void Map Clear",
+			display: function () {
+				return (this.value > 0 || this.valueTotal > 0);
+			},
+			value: 0,
+			valueTotal: 0,
+			noAdd: true,
+			evaluate: function() { //called on completion of void map
+				if (game.global.world > this.value) this.value = game.global.world;
+				if (game.global.world > this.valueTotal) this.valueTotal = game.global.world;
+			}
+		},
+		totalHeirlooms: { //added from createHeirloom to value
+			title: "Heirlooms Found",
+			display: function () {
+				return (this.value > 0 || this.valueTotal > 0);
+			},
+			value: 0,
+			valueTotal: 0
 		}
 		
 	},
@@ -1022,7 +1059,8 @@ var toReturn = {
 				return "Complete Zone " + this.breakpoints[number];
 			},
 			progress: function () {
-				return game.global.highestLevelCleared + " / " + this.breakpoints[this.finished];
+				if (this.breakpoints.length > this.finished) return game.global.highestLevelCleared + " / " + this.breakpoints[this.finished];
+				return game.global.highestLevelCleared + " total";
 			},
 			evaluate: function () { return game.global.highestLevelCleared},
 			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220],
@@ -1037,8 +1075,9 @@ var toReturn = {
 			description: function (number) {
 				return "Reach " + prettify(this.breakpoints[number], null, true) + " displayed damage";
 			},
-			progress: function () {
-				return prettify(this.highest) + " / " + prettify(this.breakpoints[this.finished]);
+			progress: function () {				
+				if (this.breakpoints.length > this.finished) return prettify(this.highest) + " / " + prettify(this.breakpoints[this.finished]);
+				return "Highest is " + prettify(this.highest);
 			},
 			highest: 0,
 			breakpoints: [100, 100000, 1e+11, 1e+17, 1e+23, 1e+29, 1e+35, 1e+41, 1e+47, 1e+53, 1e+60, 1e+67],
@@ -1049,12 +1088,14 @@ var toReturn = {
 		},
 		trimps: {
 			finished: 0,
+			highest: 0,
 			title: "Trimps Owned",
 			description: function (number) {
 				return "Have  " + prettify(this.breakpoints[number]) + " total Trimps";
 			},
 			progress: function () {
-				return prettify(Math.floor(game.resources.trimps.owned)) + " / " + prettify(this.breakpoints[this.finished]);
+				if (this.breakpoints.length > this.finished) return prettify(Math.floor(this.highest)) + " / " + prettify(this.breakpoints[this.finished]);
+				return "Highest is " + prettify(Math.floor(this.highest));
 			},
 			breakpoints: [50, 150, 300, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000],
 			tiers: [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4],
@@ -1085,7 +1126,8 @@ var toReturn = {
 				return (game.global.totalPortals > 0);
 			},
 			progress: function () {
-				return this.evaluate() + " / " + this.breakpoints[this.finished];
+				if (this.breakpoints.length > this.finished) return this.evaluate() + " / " + this.breakpoints[this.finished];
+				return this.evaluate() + " total";
 			},
 			evaluate: function () { return game.global.totalPortals},
 			breakpoints: [1, 3, 10, 20, 50, 100, 200, 500],
@@ -1104,7 +1146,8 @@ var toReturn = {
 				return game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal;
 			},
 			progress: function () {
-				return this.evaluate() + " / " + this.breakpoints[this.finished];
+				if (this.breakpoints.length > this.finished) return this.evaluate() + " / " + this.breakpoints[this.finished];
+				return this.evaluate() + " total";
 			},
 			breakpoints: [30, 70, 130, 200, 400, 777, 1000, 1500],//total zones according to stats
 			tiers: [2, 2, 3, 3, 3, 4, 4, 5],
@@ -1122,7 +1165,8 @@ var toReturn = {
 				return (this.evaluate() > 0);
 			},
 			progress: function () {
-				return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				return prettify(this.evaluate()) + " total";
 			},
 			evaluate: function () {
 				return game.stats.mapsCleared.value + game.stats.mapsCleared.valueTotal;
@@ -1142,7 +1186,8 @@ var toReturn = {
 				return "Collect  " + prettify(number) + " Gem" + s;
 			},
 			progress: function () {
-				return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				return prettify(this.evaluate()) + " total";
 			},
 			evaluate: function () {
 				return game.stats.gemsCollected.value + game.stats.gemsCollected.valueTotal;
@@ -1151,6 +1196,30 @@ var toReturn = {
 			tiers: [1, 2, 3, 4, 5, 6],
 			names: ["What's This For?", "Collector of Shinies", "Dragimp Lover", "Expert of Shinies", "Jeweller", "Gemaster"],
 			icon: "icomoon icon-diamond",
+			newStuff: []
+		},
+		totalHeirlooms: {
+			finished: 0,
+			title: "Heirloom Collection",
+			description: function (number) {
+				var number = this.breakpoints[number];
+				var s = (number > 1) ? "s" : "";
+				return "Collect " + prettify(number) + " Heirloom" + s;
+			},
+			progress: function () {
+				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				return prettify(this.evaluate()) + " total";
+			},
+			evaluate: function () {
+				return game.stats.totalHeirlooms.value + game.stats.totalHeirlooms.valueTotal;
+			},
+			display: function () {
+				return (game.global.totalPortals >= 5);
+			},
+			breakpoints: [1, 10, 40, 100, 500, 1111, 2000],
+			tiers: [2, 2, 3, 3, 4, 5, 6],
+			names: ["Finder", "Gatherer", "Accumulator", "Fancier", "Aficionado", "Devotee", "Connoisseur"],
+			icon: "icomoon icon-archive",
 			newStuff: []
 		},
 		blockTimed: {
@@ -1303,6 +1372,129 @@ var toReturn = {
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},		
+	},
+	
+	heirlooms: { //Basic layout for modifiers. Steps can be set specifically for each modifier, or else default steps will be used
+		//NOTE: currentBonus is the only thing that will persist!
+		values: [10, 20, 30, 50, 150, 300, 800],
+		defaultSteps: [[1, 2, 1], [2, 3, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8]],
+		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal'],
+		rarities:[[7500,2500,-1,-1,-1,-1,-1],[2000,6500,1500,-1,-1,-1,-1],[500,4500,5000,-1,-1,-1,-1],[-1,3200,4300,2500,-1,-1,-1],[-1,1600,3300,5000,100,-1,-1],[-1,820,2400,6500,200,80,-1],[-1,410,1500,7500,400,160,30],[-1,200,600,8000,800,320,80],[-1,-1,-1,7600,1600,640,160]],
+		rarityBreakpoints: [41, 60, 80, 100, 125, 146, 166, 181],
+		Staff: {
+			metalDrop: {
+				name: "Metal Drop Rate",
+				currentBonus: 0,
+			},
+			foodDrop: {
+				name: "Food Drop Rate",
+				currentBonus: 0,
+			},
+			woodDrop: {
+				name: "Wood Drop Rate",
+				currentBonus: 0,
+			},
+			gemsDrop: {
+				name: "Gem Drop Rate",
+				currentBonus: 0,
+			},
+			fragmentsDrop: {
+				name: "Fragment Drop Rate",
+				currentBonus: 0,
+			},
+			FarmerSpeed: {
+				name: "Farmer Efficiency",
+				currentBonus: 0,
+			},
+			LumberjackSpeed: {
+				name: "Lumberjack Efficiency",
+				currentBonus: 0,
+			},
+			MinerSpeed: {
+				name: "Miner Efficiency",
+				currentBonus: 0,
+			},
+			DragimpSpeed: {
+				name: "Dragimp Efficiency",
+				currentBonus: 0,
+			},
+			ExplorerSpeed: {
+				name: "Explorer Efficiency",
+				currentBonus: 0,
+			},
+			ScientistSpeed: {
+				name: "Scientist Efficiency",
+				currentBonus: 0,
+			},
+			empty: {
+				name: "Empty",
+				currentBonus: 0,
+			}
+		},
+		Shield: {
+			playerEfficiency: {
+				name: "Player Efficiency",
+				currentBonus: 0,
+				steps: [[2,4,1],[4,8,1],[8,16,1],[16,32,2],[32,64,4],[64,128,8],[128,256,16]]
+			},
+			trainerEfficiency: {
+				name: "Trainer Efficiency",
+				currentBonus: 0,
+				steps: [[1,5,1],[5,10,1],[10,20,1],[20,40,2],[40,60,2],[60,80,2],[80,100,2]]
+			},
+			storageSize: {
+				name: "Storage Size",
+				currentBonus: 0,
+				steps: [[8,16,4],[16,32,4],[32,64,4],[64,128,4],[128,256,8],[256,512,16],[512,768,16]]
+			},
+			breedSpeed: {
+				name: "Breed Speed",
+				currentBonus: 0,
+				steps: [[1,2,1],[2,5,1],[5,10,1],[10,20,1],[70,100,3],[100,130,3],[130,160,3]]
+			},
+			trimpHealth: {
+				name: "Trimp Health",
+				currentBonus: 0,
+				steps: [[1,2,1],[2,6,1],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5]]
+			},
+			trimpAttack: {
+				name: "Trimp Attack",
+				currentBonus: 0,
+				steps: [[1,2,1],[2,6,1],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5]]
+			},
+			trimpBlock: {
+				name: "Trimp Block",
+				currentBonus: 0,
+				steps: [[1,2,1],[2,4,1],[4,7,1],[7,10,1],[28,40,1],[48,60,1],[68,80,1]]
+			},
+			critDamage: {
+				name: "Crit Damage, additive",
+				currentBonus: 0,
+				steps: [[10,20,5],[20,40,5],[40,60,5],[60,100,5],[100,200,10],[200,300,10],[300,400,10]],
+				filter: function () {
+					return (!game.portal.Relentlessness.locked);
+				}
+			},
+			critChance: {
+				name: "Crit Chance, additive",
+				currentBonus: 0,
+				steps: [[0.2,0.6,0.2],[0.6,1.4,0.2],[1.4,2.6,0.2],[2.6,5,0.2],[5,7.4,0.2],[7.4,9.8,0.2],[9.8,12.2,0.2]],
+				filter: function () {
+					return (!game.portal.Relentlessness.locked);
+				}
+			},
+			voidMaps: {
+				name: "Void Map Drop Chance",
+				currentBonus: 0,
+				steps: [[0.5,1.5,0.5],[2.5,4,0.5],[5,7,0.5],[8,11,0.5],[12,16,0.5],[17,22,0.5],[24,30,0.5]]
+			},
+			empty: {
+				name: "Empty",
+				currentBonus: 0,
+				rarity: 1
+			}
+		}
+	
 	},
 	
 	
@@ -1908,11 +2100,12 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
-				var amt = (game.global.world >= 59) ? 10 : 2;
+				var amt = (game.global.world >= 60) ? 10 : 2;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
 				message("<span class='glyphicon glyphicon-oil'></span> Cthulimp and the map it came from crumble into the darkness, and you find yourself back in your map chamber with an extra " + prettify(amt) + " Helium!", "Story");
-				distributeToChallenges(amt);			
+				distributeToChallenges(amt);		
+				game.stats.highestVoidMap.evaluate();
 			}
 		},
 		Shadimp: {
@@ -2392,7 +2585,7 @@ var toReturn = {
 			},
 			Void: {
 				resourceType: "Any",
-				upgrade: "AutoStorage"
+				upgrade: ["AutoStorage", "Heirloom"]
 			},
 			All: {
 				resourceType: "Metal"
@@ -2466,6 +2659,18 @@ var toReturn = {
 				game.global.autoStorageAvailable = true;
 				document.getElementById("autoStorageBtn").style.display = "block";
 			}	
+		},
+		Heirloom: {
+			world: 6,
+			level: "last",
+			icon: "*archive",
+			title: "Heirloom",
+			filterUpgrade: true,
+			canRunWhenever: true,
+			fire: function () {
+				createHeirloom();
+				message("You found an Heirloom!", "Loot", "*archive");
+			}
 		},
 		Keys: {
 			world: 80,
@@ -3920,7 +4125,16 @@ var toReturn = {
 		Trainer: {
 			locked: 1,
 			owned: 0,
-			tooltip: "Each trainer will increase the base amount your soldiers can block by $modifier$%.",
+			tooltip: function () {
+				var text = "Each trainer will increase the base amount your soldiers can block by ";
+				var heirloomBonus = game.heirlooms.Shield.trainerEfficiency.currentBonus;
+				var modifier = game.jobs.Trainer.modifier;
+				if (heirloomBonus > 0){
+					modifier = calcHeirloomBonus("Shield", "trainerEfficiency", modifier).toFixed(1);
+					return text + modifier + "%. (" + game.jobs.Trainer.modifier + "% increased by " + heirloomBonus + "% thanks to " + game.global.ShieldEquipped.name + ")";
+				}
+				return text + modifier + "%.";
+			},
 			cost: {
 				food: [750, 1.1]
 			},

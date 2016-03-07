@@ -495,7 +495,7 @@ overflow-x: hidden;
     border: 2px solid white;
     background: rgba(121, 121, 123, 0.5);
     color: white;
-    padding: 10px;
+    padding: 0.25vw;
     height: 100%;
     width: 100%;
 	font-size: 1vw;
@@ -513,7 +513,7 @@ overflow-x: hidden;
 }
 
 #battleHeadContainer {
-	margin-bottom: 1vw;
+	margin-bottom: 0.3vw;
 }
 
 #battleHead {
@@ -712,6 +712,25 @@ overflow-x: hidden;
 	z-index: 99999999999999;
 }
 
+#tooltipDiv.tooltipExtraHeirloom{
+	background-color: initial;
+	border: initial;
+}
+
+#tooltipDiv .selectedHeirloomItem{
+	font-size: 1.5vw;
+}
+
+#tooltipDiv.tooltipExtraHeirloom hr{
+	display: none;
+}
+
+#tooltipDiv .heirloomMod{
+	background-color: initial;
+	border: initial;
+	margin: initial;
+}
+
 @media screen and (max-width: 1200px) {
     #tooltipDiv{
 		font-size: 1.1vw;
@@ -746,6 +765,8 @@ overflow-x: hidden;
 .fightBtn{
 	width: 100%;
 	font-size: 1.1vw !important;
+	padding: 0.15vw 0.3vw;
+	display: block;
 }
 
 .shrinkBtnText{
@@ -755,7 +776,6 @@ overflow-x: hidden;
 @media screen and (max-height: 800px) {
     .fightBtn{
 		font-size: .95vw !important;
-		padding: .3vw !important;
 	}
 }
 
@@ -816,7 +836,7 @@ overflow-x: hidden;
 }
 
 .battleSideBtnContainer{
-	margin-top: 5px;
+	margin-top: 0.2vw;
 }
 
 #battleTimer {
@@ -994,7 +1014,7 @@ overflow-x: hidden;
 	background-color: grey;
 }
 
-#statsWrapper, #achievementWrapper{
+#statsWrapper, #achievementWrapper, #heirloomWrapper{
 	background-color: black;
 	width: 100vw;
 	height: 100vh;
@@ -1003,6 +1023,333 @@ overflow-x: hidden;
 	padding-left: 10vw;
 	padding-right: 10vw;
 	font-size: 1.5vw;
+	color: white;
+}
+
+#modReplaceBox, #modUpgradeBox{
+	border: 0.1vw solid #777;
+	font-size: 1.2vw;
+	padding: 0.25vw;
+	padding-top: 0.6vw;
+	height: 5.7vw;
+}
+
+#addCarriedBtn{
+	display: inline-block;
+	width: initial;
+	font-size: 1vw;
+	float: right;
+	padding: 0.1vw 0.2vw;
+	margin: 0;
+}
+
+.heirloomBtnGroup{
+	background-color: #333;
+	border-top: 0.1vw solid #555;
+	font-size: 1.3vw;
+}
+
+.heirBtn{
+	display: inline-block;
+	padding: 0.2vw 0.5vw;
+	margin-top: 0.1vw;
+	margin-bottom: 0.1vw;
+	border: 0.1vw solid #777;
+	cursor: pointer;
+}
+
+.heirBtn.heirloomBtnActive:hover{
+	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #fff;
+    -moz-box-shadow:inset 0px 0px 0px 0.2vw #fff;
+    box-shadow:inset 0px 0px 0px 0.2vw #fff;
+	opacity: 0.5;
+}
+
+#modReplaceBtn, #modUpgradeBtn{
+	padding: 0.25vw;
+	width: 90%;
+	margin-left: 5%;
+	display: block;
+}
+
+.heirloomBtnActive{
+	background-color: #3b0076;
+	color: #DDDDFF;
+}
+
+.heirloomBtnInactive{
+	background-color: #333;
+	color: white;
+}
+
+#modUpgradeCost{
+	margin-bottom: calc(0.4vw - 1px);
+}
+
+#modReplaceSelect{
+	background-color: black;
+	pointer: cursor;
+	border: 0.2vw solid purple;
+	margin-left: -0.2vw;
+	margin-bottom: 0.25vw;
+}
+
+.heirloomMod:hover{
+	background-color: #333;
+}
+
+.heirloomThing{
+	color: white;
+	font-size: 2vw;
+	line-height: 2vw;
+}
+
+.heirloomRare0{
+	color: #888888;
+}
+
+.heirloomRare0 .heirloomMod:hover,.heirloomRare0.rarityBdBox{
+	border: 0.2vw solid #888;
+}
+
+.heirloomRare1{
+	color: #1f7e1f;
+}
+
+.heirloomRare1 .heirloomMod:hover, .heirloomRare1.rarityBdBox{
+	border: 0.2vw solid #1f7e1f;
+}
+
+.heirloomRare2{
+	color: #2727b9;
+}
+
+.heirloomRare2 .heirloomMod:hover, .heirloomRare2.rarityBdBox{
+	border: 0.2vw solid #2727b9;
+}
+
+.heirloomRare3{
+	color: #7e1f7e;
+}
+
+.heirloomRare3 .heirloomMod:hover, .heirloomRare3.rarityBdBox{
+	border: 0.2vw solid #7e1f7e;
+}
+
+.heirloomRare4{
+	color: #e2722e;
+}
+
+.heirloomRare4 .heirloomMod:hover, .heirloomRare4.rarityBdBox{
+	border: 0.2vw solid #e2722e;
+}
+
+.heirloomRare5{
+	color: #b92727;
+}
+
+.heirloomRare5 .heirloomMod:hover, .heirloomRare5.rarityBdBox{
+	border: 0.2vw solid #b92727;
+}
+
+.heirloomRare6{
+	color: #2693ff;
+		text-shadow:
+	 -0.15vw -0.15vw 0.2vw #5000ba,  
+	  0.15vw -0.15vw 0.25vw #5b00d3,
+	 -0.15vw 0.15vw 0.2vw #6600ec,
+	  0.15vw 0.15vw 0.3vw #2f006d;
+}
+
+.heirloomRare6 .heirloomMod:hover, .heirloomRare6.rarityBdBox{
+	border: 0.2vw solid #2693ff;
+}
+
+.heirloomRare6 .heirloomMod{
+	background-color: initial;
+}
+
+#heirRare{
+	background-color: #111;
+	font-size: 1.1vw;
+	text-align: center;
+}
+
+.rarityBdBox{
+	display: inline-block;
+	width: 15%;
+	margin: 0.1vw;
+	
+}
+
+
+#modBreakdown{
+	margin-top: 0.65vw;
+	width: 90%;
+	margin-left: 5%;
+}
+
+.selectedHeirloomIcon{
+	font-size: 3.5vw;
+	text-align: center;
+	line-height: 2vw;
+}
+
+#ShieldEquipped, #StaffEquipped{
+	background-color: #333;
+	display: inline-block;
+	padding: 1vw;
+	width: 4.6vw;
+	height: 4.6vw;
+	font-size: 2.5vw;
+	line-height: 2.5vw;
+	margin-bottom: -0.25vw;
+	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #646473;
+    -moz-box-shadow:inset 0px 0px 0px 0.2vw #646473;
+    box-shadow:inset 0px 0px 0px 0.2vw #646473;
+}
+
+#ShieldEquippedName, #StaffEquippedName{
+	font-size: 1.4vw;
+	line-height: 1.4vw;
+}
+
+.renameHeirloomBtn{
+	background-color: black;
+	color: white;
+	cursor: pointer;
+	border: 1px solid white;
+	padding: 0.25vw;
+	border-radius: 25px;
+	font-size: 1vw;
+	display: inline-block;
+	position: relative;
+	top: -0.4vw;
+}
+
+#renameHeirloomBtn:hover{
+	background-color: #222;
+}
+
+.selectedHeirloomRow{
+	margin-bottom: 0.4vw;
+}
+
+#equippedHeirlooms{
+	font-size: 2vw;
+	margin-bottom: 1vw;
+	background-color: #111;
+	border: 0.3vw solid #555;
+}
+
+#carriedHeirlooms{
+	font-size: 1.3vw;
+	background-color: #111;
+	border: 0.3vw solid #555;
+	margin-bottom: 1vw;
+}
+
+#carriedHeirloomsText{
+	font-size: 1vw;
+	line-height: 1.3vw;
+	display: inline-block;
+}
+
+.heirloomModBtn{
+	border: 1px solid white;
+	cursor: pointer;
+	color: white;
+}
+
+.heirloomMod{
+	cursor: pointer;
+	padding: 0.2vw 0.4vw 0.2vw 0.4vw;
+	border: 0.2vw solid #333;
+	background-color: #222;
+	border-radius: 40px;
+	margin-bottom: 0.3vw;
+	display: inline-block;
+}
+
+.heirloomThing:hover{
+ text-shadow:
+ -0.15vw -0.15vw 0.2vw #aaa,  
+ 0.15vw -0.15vw 0.2vw #aaa,
+ -0.15vw 0.15vw 0.2vw #aaa,
+ 0.15vw 0.15vw 0.2vw #aaa;
+	cursor: pointer;
+}
+
+.iconSelected{
+	border: 1px solid red;
+}
+
+#extraHeirlooms{
+	font-size: 1.3vw;
+	background-color: #111;
+	border: 0.3vw solid #555;
+	margin-bottom: 1vw;
+}
+
+.selectedHeirloomItem{
+	font-size: 2vw;
+	border: 0.3vw solid #555;
+	padding: 0.5vw;
+	padding-left: 2vw;
+	text-align: left;
+	background-color: #111111;
+}
+
+.selectedHeirloomItem.heirloomRare6{
+background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%); 
+background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%); 
+background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%); 
+}
+
+
+
+#heirloomTitleBar{
+	padding: 1vw;
+	background-color: #222;
+	border: 0.3vw solid #555;
+	margin-bottom: 1vw;
+}
+
+#nullifiumContainer{
+	color: #8a008a;
+}
+
+.heirInfo{
+	font-size: 1vw;
+	line-height: 1vw;
+	padding: 0.3vw 0.5vw 0.3vw 0.5vw;
+	border-radius: 50px;
+}
+
+#heirloomHelp{
+	font-size: 1vw;
+	line-height: 1vw;
+	margin-bottom: 0.5vw;
+}
+
+#nullifiumCount{
+	font-weight: bold;
+}
+
+#selectedHeirloomTitle{
+	font-size: 2.3vw;
+	cursor: pointer;
+}
+
+#selectedHeirloomTitle:hover{
+	text-decoration: underline;
+}
+
+#heirloomNameInput{
+	width: 70%;
+}
+
+.heirloomEquipped{
 	color: white;
 }
 
@@ -1057,7 +1404,7 @@ overflow-x: hidden;
 
 #achievementPopup{
 	position: absolute;
-	top: 70%;
+	top: 80%;
 	width: 35%;
 	left: 32.5%;
 	background: rgba(220, 220, 220, 0.95);
@@ -1066,7 +1413,48 @@ overflow-x: hidden;
 	text-align: center;
 	border-radius: 25px;
 	border: 4px outset #536373;
+	z-index: 99999999999999;
 }
+
+#heirloomsPopup{
+	position: absolute;
+	top: 40%;
+	width: 35%;
+	left: 32.5%;
+	font-size: 1.5vw;
+	background-color: #111;
+	border: 0.2vw solid #ccc;
+}
+
+#heirloomsPopupBtns{
+	text-align: center;
+	color: white;
+	background-color: #333;
+	border-bottom: #222;
+}
+
+
+
+#heirloomsPopupHere .selectedHeirloomItem{
+	border: 0 !important;
+}
+
+#heirloomsPopupBtns .icon-archive{
+	color: #8a008a;
+}
+
+#heirloomsPopupBtns .icon-close{
+	color: #6f1f1f;
+	padding-left: 0.2vw;
+}
+
+#heirloomsPopupBtns .icomoon{
+	float: right;
+	margin-right: 0.5vw;
+	cursor: pointer;
+	margin-top: 0.2vw;
+}
+
 
 #achievementHover{
 	width: 100%;
@@ -1182,6 +1570,8 @@ overflow-x: hidden;
 	margin-right: 0.1vw;
 }
 
+
+
 #statsTitle{
 	font-size: 3vw;
 }
@@ -1193,7 +1583,12 @@ overflow-x: hidden;
 
 #portalStory{
 	display: inline-block;
-	font-size: 1.2vw;
+	font-size: 1vw;
+}
+
+.heirloomRecycleWarning{
+	background-color: black;
+	color: red;
 }
 
 .portalThing{
@@ -1304,8 +1699,16 @@ color: #DDDDFF !important;
 	color: #DDDDFF;
 }
 
-#voidMapsBtn{
-	font-size: 1vw !important;
+.planetBreakDescription{
+	font-weight: bold;
+}
+
+.planetBreakDescription .good{
+	color: green;
+}
+
+.planetBreakDescription .bad{
+	color: red;
 }
 
 #voidMapsBtn:hover{
@@ -1324,10 +1727,10 @@ color: #DDDDFF !important;
 .dangerColor, .colorDanger{
 	background-color: #d9534f;
 }
-.infoColor{
+.infoColor, .colorInfo{
 	background-color: #5bc0de;
 }
-.primaryColor{
+.primaryColor, .colorPrimary{
 	background-color: #337ab7;
 	color: white;
 }
@@ -1730,11 +2133,10 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background: -moz-linear-gradient(-45deg,  #2f006d 0%, #30046d 12%, #320370 25%, #3f0a6d 39%, #2f095e 50%, #2e0854 51%, #220535 60%, #25063d 76%, #12031e 92%, #131313 100%);
-background: -webkit-linear-gradient(-45deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
-background: linear-gradient(135deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f006d', endColorstr='#131313',GradientType=1 ); 
-color: #DDDDFF !important;
+	color: #59acff;
+	background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%); 
+	background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%); 
+	background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%); 
 
 }
 .btn-new:hover,
@@ -1743,11 +2145,15 @@ color: #DDDDFF !important;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background: -moz-linear-gradient(-45deg,  #5b00d3 0%, #30046d 12%, #3d0489 25%, #3f0a6d 39%, #2f095e 50%, #480c83 51%, #220535 60%, #5d0f9a 76%, #12031e 92%, #2f006d 100%);
-background: -webkit-linear-gradient(-45deg,  #5b00d3 0%,#30046d 12%,#3d0489 25%,#3f0a6d 39%,#2f095e 50%,#480c83 51%,#220535 60%,#5d0f9a 76%,#12031e 92%,#2f006d 100%);
-background: linear-gradient(135deg,  #5b00d3 0%,#30046d 12%,#3d0489 25%,#3f0a6d 39%,#2f095e 50%,#480c83 51%,#220535 60%,#5d0f9a 76%,#12031e 92%,#2f006d 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5b00d3', endColorstr='#2f006d',GradientType=1 ); 
-color: #DDDDFF !important;
+	color: #2693ff;
+		text-shadow:
+	 -0.15vw -0.15vw 0.2vw #5000ba,  
+	  0.15vw -0.15vw 0.25vw #5b00d3,
+	 -0.15vw 0.15vw 0.2vw #6600ec,
+	  0.15vw 0.15vw 0.3vw #2f006d;
+	background: -moz-linear-gradient(-45deg,  #280021 0%, #000b38 50%, #280021 100%); 
+	background: -webkit-linear-gradient(-45deg,  #280021 0%,#000b38 50%,#280021 100%); 
+	background: linear-gradient(135deg,  #280021 0%,#000b38 50%,#280021 100%); 
 
 }
 .btn-new:active,
@@ -1879,6 +2285,17 @@ sup{
 	display: none;
 	font-size: 0.9vw;
 }
+
+.heirloomsBtnColor{
+	background-color: #673aa7;
+	border: 1px solid #5b3394;
+}
+
+.heirloomsBtnColor:hover{
+	background-color: #59328f;
+	color: white;
+}
+
 
 .cBorderOn{
 	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;

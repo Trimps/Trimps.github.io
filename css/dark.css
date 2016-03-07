@@ -568,6 +568,21 @@ color:#8F8F00
 	  1px 1px 0 #000;
 }
 
+#heirloomsBtn {
+ background-color: #300E61;
+ border: 0;
+ color: #C8C8C8;
+}
+
+#heirloomsPopup{
+	border: 0.2vw solid rgb(0, 43, 59);
+}
+
+#heirloomsBtn:hover {
+ background-color: #5A4080;
+ border: 0;
+}
+
 .portalMk1 {
 	background-color: rgba(0, 128, 0, 0.4);
 }
