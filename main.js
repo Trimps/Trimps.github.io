@@ -3676,7 +3676,7 @@ function startFight() {
 			game.global.difs.attack = 0;
 		}
 		if (game.global.difs.block !== 0) {
-			var blockTemp = (trimpsFighting * game.global.difs.block * ((game.global.difs.trainers * (calculateHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + 1));
+			var blockTemp = (trimpsFighting * game.global.difs.block * ((game.global.difs.trainers * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + 1));
 			if (game.global.formation !== 0){
 				blockTemp *= (game.global.formation == 3) ? 4 : 0.5;
 			}
