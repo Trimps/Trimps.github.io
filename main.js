@@ -2338,7 +2338,7 @@ function displayExtraHeirlooms(){
 	var tempHtml = "";
 	var extraExtraText = game.global.heirloomsExtra.length;
 	if (!extraExtraText) {
-		document.getElementById("extraHeirloomsHere").innerHTML = "You have no extra unequipped Heirlooms";
+		document.getElementById("extraHeirloomsHere").innerHTML = "You have no extra Heirlooms";
 		document.getElementById("extraHeirloomsText").innerHTML = "";
 		return;
 	}
@@ -2347,7 +2347,7 @@ function displayExtraHeirlooms(){
 	}
 	document.getElementById("extraHeirloomsHere").innerHTML = tempHtml;
 	var s = (extraExtraText > 1) ? "s" : "";
-	document.getElementById("extraHeirloomsText").innerHTML = " - " + extraExtraText + " Unequipped Heirloom" + s + ", worth " + recycleAllExtraHeirlooms(true) + " Nu";
+	document.getElementById("extraHeirloomsText").innerHTML = " - " + extraExtraText + " Heirloom" + s + ", recycled for " + recycleAllExtraHeirlooms(true) + " Nu on Portal";
 	
 }
 
