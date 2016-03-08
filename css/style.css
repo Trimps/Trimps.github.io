@@ -1249,7 +1249,7 @@ overflow-x: hidden;
 	margin-bottom: 1vw;
 }
 
-#carriedHeirloomsText{
+#carriedHeirloomsText, #extraHeirloomsText{
 	font-size: 1vw;
 	line-height: 1.3vw;
 	display: inline-block;

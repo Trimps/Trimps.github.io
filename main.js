@@ -1019,7 +1019,8 @@ function activateClicked(){
 	else newText += " <span id='addChallenge'></span>";
 	newText += "<br/>";
 	if (game.global.heirloomsExtra.length){
-		newText += "<div class='heirloomRecycleWarning'>You have " + game.global.heirloomsExtra.length + " extra Heirlooms, which will be recycled for " + prettify(recycleAllExtraHeirlooms(true)) + " Nullifium if you portal now. Make sure you carry any that you want to save!</div>";
+		var s = (game.global.heirloomsExtra.length > 1) ? "s" : "";
+		newText += "<div class='heirloomRecycleWarning'>You have " + game.global.heirloomsExtra.length + " extra Heirloom" + s + ", which will be recycled for " + prettify(recycleAllExtraHeirlooms(true)) + " Nullifium if you portal now. Make sure you carry any that you want to save!</div>";
 	}
 	newText += "<div class='btn btn-info activatePortalBtn' onclick='activatePortal()'>Let's do it.</div>";
 	document.getElementById("portalStory").innerHTML = newText;
@@ -2290,7 +2291,7 @@ function displayCarriedHeirlooms(){
 		tempHtml += generateHeirloomIcon(game.global.heirloomsCarried[x], "Carried", x);
 	}
 	if (!tempHtml) tempHtml += "You are not carrying any Heirlooms";
-	document.getElementById("carriedHeirloomsHere").innerHTML = tempHtml;	
+	document.getElementById("carriedHeirloomsHere").innerHTML = tempHtml;
 }
 
 function getNextCarriedCost(){
@@ -2299,7 +2300,7 @@ function getNextCarriedCost(){
 
 function displayAddCarriedBtn(){
 	var s = (game.global.maxCarriedHeirlooms > 1) ? "s" : "";
-	document.getElementById("carriedHeirloomsText").innerHTML = "You can carry <b>" + game.global.maxCarriedHeirlooms + "</b> Heirloom" + s + " through the Portal.";
+	document.getElementById("carriedHeirloomsText").innerHTML = " - You can carry <b>" + game.global.maxCarriedHeirlooms + "</b> Heirloom" + s + " through the Portal.";
 	var elem = document.getElementById("addCarriedBtn");
 	if (game.global.maxCarriedHeirlooms > game.heirlooms.values.length){
 		elem.style.display = "none";
@@ -2335,11 +2336,19 @@ function toggleHeirloomHelp(){
 
 function displayExtraHeirlooms(){
 	var tempHtml = "";
-	for (var y = 0; y < game.global.heirloomsExtra.length; y++){
+	var extraExtraText = game.global.heirloomsExtra.length;
+	if (!extraExtraText) {
+		document.getElementById("extraHeirloomsHere").innerHTML = "You have no extra Heirlooms";
+		document.getElementById("extraHeirloomsText").innerHTML = "";
+		return;
+	}
+	for (var y = 0; y < extraExtraText; y++){
 		tempHtml += generateHeirloomIcon(game.global.heirloomsExtra[y], "Extra", y);
 	}
-	if (!tempHtml) tempHtml = "You have no extra Heirlooms";
 	document.getElementById("extraHeirloomsHere").innerHTML = tempHtml;
+	var s = (extraExtraText > 1) ? "s" : "";
+	document.getElementById("extraHeirloomsText").innerHTML = " - " + extraExtraText + " Unequipped Heirloom" + s + ", worth " + recycleAllExtraHeirlooms(true) + " Nu";
+	
 }
 
 function selectHeirloom(number, location, elem){
@@ -5188,13 +5197,9 @@ document.addEventListener('keydown', function(e) {
 			if (!game.global.preMapsActive && game.upgrades.Barrier.done && !game.global.lockTooltip && !ctrlPressed) setFormation('3');
 			break;
 		case 13:
-			if (customUp == 1) numTab(5, false);
-			else if (customUp == 2) numTab(5, true);
-			else {
-				var confirmCheck = document.getElementById("confirmTooltipBtn");
-				if (confirmCheck !== null && typeof confirmCheck.onclick == 'function'){
-					confirmCheck.onclick();
-				}
+			var confirmCheck = document.getElementById("confirmTooltipBtn");
+			if (confirmCheck !== null && typeof confirmCheck.onclick == 'function'){
+				confirmCheck.onclick();
 			}
 	}
 }, true);
