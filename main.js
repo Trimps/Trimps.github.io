@@ -2338,7 +2338,7 @@ function displayExtraHeirlooms(){
 	var tempHtml = "";
 	var extraExtraText = game.global.heirloomsExtra.length;
 	if (!extraExtraText) {
-		document.getElementById("extraHeirloomsHere").innerHTML = "You have no extra Heirlooms";
+		document.getElementById("extraHeirloomsHere").innerHTML = "You have no extra unequipped Heirlooms";
 		document.getElementById("extraHeirloomsText").innerHTML = "";
 		return;
 	}
