@@ -2618,22 +2618,11 @@ function getModUpgradeCost(heirloom, modIndex){
 
 function getStepPriceIncrease(heirloom, mod){
 	var modConfig = game.heirlooms[heirloom.type][mod[0]];
+	var priceIncrease = [2, 1.5, 1.25, 1.19, 1.15, 1.12, 1.1]
 	var step = (typeof modConfig.steps !== 'undefined') ? modConfig.steps : game.heirlooms.defaultSteps;
 	step = step[heirloom.rarity];
 	if (mod[1] <= step[1]) return 1;
-	var scale = 1.1;
-	switch(heirloom.rarity){
-		case 0:
-			scale = 2;
-			break;
-		case 1:
-			scale = 1.5;
-			break;
-		case 2: 
-			scale = 1.25;
-			break;
-	}
-	return Math.pow(scale, ((mod[1] - step[1]) / step[2]));
+	return Math.pow(priceIncrease[heirloom.rarity], ((mod[1] - step[1]) / step[2]));
 }
 
 function upgradeMod(confirmed){
@@ -4963,6 +4952,7 @@ function gameLoop(makeUp, now) {
     breed(makeUp);
     battleCoordinator(makeUp);
 	if (game.global.titimpLeft) game.global.titimpLeft -= 0.1;
+	
 }
 
 //Timeouts
