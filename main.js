@@ -355,7 +355,7 @@ function load(saveString, autoLoad) {
 	}
 	if (oldVersion < 2.9){
 		if (game.options.menu.showFullBreed.enabled == 2) game.options.menu.showFullBreed.enabled = 1;
-		if (game.global.totalPortals > 5) message("Heavy use of the portal has created a chance for the Void to seep in to your world. Be alert.", "Story", null, "voidMessage");
+		if (game.global.totalPortals >= 5) message("Heavy use of the portal has created a chance for the Void to seep in to your world. Be alert.", "Story", null, "voidMessage");
 	}
 	if (oldVersion < 3){
 		game.global.heirloomSeed = getRandomIntSeeded(game.global.voidSeed, 0, 1000000);
@@ -474,7 +474,7 @@ function load(saveString, autoLoad) {
 	if (game.resources.gems.owned > 0) fadeIn("gems", 10);
 	if (game.global.lastSkeletimp > 0) updateSkeleBtn();
 	if (game.global.turkimpTimer > 0) document.getElementById("turkimpBuff").style.display = "block";
-	if (game.global.totalPortals > 5) 	document.getElementById("heirloomBtnContainer").style.display = "block";
+	if (game.global.totalPortals >= 5) document.getElementById("heirloomBtnContainer").style.display = "block";
 /* 	for (var storyMsg in game.worldText){
 		if (parseInt(storyMsg.split('w')[1]) > game.global.world) break;
 		message(game.worldText[storyMsg], "Story");

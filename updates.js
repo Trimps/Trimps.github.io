@@ -1195,6 +1195,7 @@ function resetGame(keepPortal) {
 	document.getElementById("voidBuff").innerHTML = "";
 	document.getElementById("voidMapsHere").innerHTML = "";
 	document.getElementById("heirloomWrapper").style.display = "none";
+	document.getElementById("heirloomBtnContainer").style.display = "none";
 	heirloomsShown = false;
 	game.global.selectedHeirloom = [];
 	resetOnePortalRewards();
@@ -1322,6 +1323,8 @@ function resetGame(keepPortal) {
 		for (var heirItem in heirloomStuff){
 			game.global[heirItem] = heirloomStuff[heirItem];
 		}
+		if (game.global.totalPortals == 5) message("Heavy use of the portal has created a chance for the Void to seep in to your world. Be alert.", "Story", null, "voidMessage");
+		if (game.global.totalPortals >= 5) document.getElementById("heirloomBtnContainer").style.display = "block";
 		recalculateHeirloomBonuses();
 	}
 	else {
