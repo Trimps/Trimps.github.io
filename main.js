@@ -2743,7 +2743,8 @@ function createHeirloom(zone){
 	//Heirloom configuration
 	//{name: "", type: "", rarity: #, mods: [[ModName, value, createdStepsFromCap, upgradesPurchased, seed]]}
 	var buildHeirloom = {name: name, type: type, rarity: rarity, mods: []};
-	for (var x = 0; x < slots; x++){
+	var x = 0;
+	for (x; x < slots; x++){
 		var roll = getRandomIntSeeded(game.global.heirloomSeed++, 0, elligible.length);
 		var thisMod = elligible[roll];
 		elligible.splice(roll, 1);
@@ -2751,6 +2752,7 @@ function createHeirloom(zone){
 		steps = getRandomBySteps(steps[rarity]);
 		buildHeirloom.mods.push([thisMod, steps[0], steps[1], 0, getRandomIntSeeded(game.global.heirloomSeed++, 0, 1000)]);
 	}
+	game.global.heirloomSeed += 4 - x;
 	buildHeirloom.mods.sort(function(a, b){
 		a = a[0].toLowerCase();
 		b = b[0].toLowerCase();
