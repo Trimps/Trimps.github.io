@@ -139,6 +139,7 @@ var toReturn = {
 		maxCarriedHeirlooms: 1,
 		selectedHeirloom: [],
 		lastPortal: -1,
+		addonUser: false,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
