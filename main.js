@@ -4444,28 +4444,28 @@ function hideBones() {
 
 function simpleSeconds(what, seconds) {
 		var compatible = ["Farmer", "Lumberjack", "Miner", "Dragimp", "Explorer"];
-		var job;
+		var jobName;
 		switch (what) {
 			case "food": 
-				job = "Farmer";
+				jobName = "Farmer";
 				break;
 			case "wood":
-				job = "Lumberjack";
+				jobName = "Lumberjack";
 				break;
 			case "metal":
-				job = "Miner";
+				jobName = "Miner";
 				break;
 			case "gems":
-				job = "Dragimp";
+				jobName = "Dragimp";
 				break;
 			case "fragments":
-				job = "Explorer";
+				jobName = "Explorer";
 				break;
 			case "science":
-				job = "Scientist";
+				jobName = "Scientist";
 				break;
 		}
-		job = game.jobs[job];
+		var job = game.jobs[jobName];
 		var amt = job.owned * job.modifier * seconds;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
 		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
@@ -4477,7 +4477,7 @@ function simpleSeconds(what, seconds) {
 		if (game.global.challengeActive == "Balance"){
 			amt *= game.challenges.Balance.getGatherMult();
 		}
-		amt = calcHeirloomBonus("Staff", job + "Speed", amt);
+		amt = calcHeirloomBonus("Staff", jobName + "Speed", amt);
 		if (game.global.playerGathering == what){		
 			if (game.global.turkimpTimer > 0 && (what == "food" || what == "metal" || what == "wood")){
 				amt *= 1.5;
