@@ -2659,6 +2659,8 @@ var toReturn = {
 				tooltip('confirm', null, 'update', text, null, 'Auspicious Presence');
 				game.global.autoStorageAvailable = true;
 				document.getElementById("autoStorageBtn").style.display = "block";
+				createHeirloom();
+				message("You found an Heirloom!", "Loot", "*archive");
 			}	
 		},
 		Heirloom: {
