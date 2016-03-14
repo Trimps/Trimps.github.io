@@ -4025,7 +4025,7 @@ function fight(makeUp) {
 	}
 	var attacked = false;
 	var wasAttacked = false;
-    if (game.global.challengeActive == "Slow" || (((game.badGuys[cell.name].fast && game.global.challengeActive != "Nom") || game.global.voidBuff == "dblA") && game.global.challengeActive != "Coordinate")) {
+    if (game.global.challengeActive == "Slow" || (((game.badGuys[cell.name].fast && game.global.challengeActive != "Nom") || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate")) {
         game.global.soldierHealth -= attackAndBlock;
 		wasAttacked = true;
 		var thisKillsTheTrimp = function() {
@@ -4035,7 +4035,7 @@ function fight(makeUp) {
         if (game.global.soldierHealth > 0) {
 			cell.health -= trimpAttack;
 			attacked = true;
-			if (game.global.voidBuff == "dblA"){
+			if (game.global.voidBuff == "doubleAttack"){
 				game.global.soldierHealth -= attackAndBlock;
 				if (game.global.soldierHealth < 0) thisKillsTheTrimp();
 			}
