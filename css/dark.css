@@ -22,6 +22,10 @@
     background-color: #000;
 }
 
+.voidBadge {
+    background-color: rgb(28, 5, 51) !important;
+}
+
 #battleContainer {
     border: 0px;
     color: #C8C8C8
