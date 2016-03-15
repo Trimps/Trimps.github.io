@@ -4007,9 +4007,6 @@ function fight(makeUp) {
 		trimpAttack *= ((game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1);
 		updateAntiStacks();
 	}
-	if (game.global.titimpLeft >= 1){
-		trimpAttack *= 2;
-	}
 	if (!game.global.mapsActive && game.global.mapBonus > 0){
 		trimpAttack *= ((game.global.mapBonus * .2) + 1);
 	}
