@@ -547,7 +547,7 @@ function getPsString(what, rawNum) {
 	//Add Size (challenge)
 	if (game.global.challengeActive == "Size"){
 		currentCalc *= 1.5;
-		textString += "<tr><td class='bdTitle'>Size</td><td class='bdPercent'>+ 50%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Huge (Size)</td><td class='bdPercent'>+ 50%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}	//Add meditate (challenge)
 	if (game.global.challengeActive == "Meditate"){
 		currentCalc *= 1.25;
