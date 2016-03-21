@@ -1293,7 +1293,7 @@ overflow-x: hidden;
 }
 
 .critRow{
-	background-color: black;
+	background-color: black !important;
 	color: white;
 }
 
