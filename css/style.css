@@ -528,9 +528,9 @@ overflow-x: hidden;
 
 #gridRow {
     height: calc(99% - 140px);
+	padding-left: 0;
+	margin-left: 0;
 }
-
-
 
 #settingsRow {
     position: fixed;
@@ -709,7 +709,7 @@ overflow-x: hidden;
     padding: 10px;
     border: 2px solid blue;
     font-size: 0.9vw;
-	z-index: 99999999999999;
+	z-index: 7;
 }
 
 #tooltipDiv.tooltipExtraHeirloom{
@@ -815,6 +815,15 @@ overflow-x: hidden;
 	font-size: .8em;
 }
 
+#determinedBuff{
+	color: orange;
+	padding: 6px 7px 2px 7px;
+}
+
+#momentumIcon{
+	padding-left: 4px;
+}
+
 .autosaving{
 	color: white; 
 	background-color: #5cb85c; 
@@ -846,6 +855,7 @@ overflow-x: hidden;
 
 #battleBtnsColumn{
 	padding-right: 1px;
+	padding-left: 0;
 }
 
 #battleSideTitle {
@@ -1012,6 +1022,10 @@ overflow-x: hidden;
 
 .perkColorOff{
 	background-color: grey;
+}
+
+.portalThing.detailed{
+	font-size: 0.75vw;
 }
 
 #statsWrapper, #achievementWrapper, #heirloomWrapper{
@@ -1182,6 +1196,23 @@ overflow-x: hidden;
 	
 }
 
+#heirloomRarityMisc{
+	margin-top: .25vw;
+	line-height: 0.8em;
+}
+
+#buyHeirloomArea .miscDesc{
+	margin-top: 0;
+}
+
+#heirloomRarityMisc div{
+	padding: 0.2vw 0;
+}
+
+#heirloomRarityMisc .heirloomRare6{
+	background-color: black;
+}
+
 
 #modBreakdown{
 	margin-top: 0.65vw;
@@ -1259,6 +1290,15 @@ overflow-x: hidden;
 	border: 1px solid white;
 	cursor: pointer;
 	color: white;
+}
+
+.critRow{
+	background-color: black;
+	color: white;
+}
+
+.critRow td{
+	border: 1px solid white !important;
 }
 
 .heirloomMod{
@@ -1424,6 +1464,7 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 	font-size: 1.5vw;
 	background-color: #111;
 	border: 0.2vw solid #ccc;
+	z-index: 10;
 }
 
 #heirloomsPopupBtns{
@@ -1748,7 +1789,7 @@ color: #DDDDFF !important;
 	border: 2px solid black;
 	width: 90vw;
 	margin: 5vh 5vw 5vh 5vw;
-	z-index: 1000000;
+	z-index: 5;
 	text-align: center;
 	font-size: 1.3vw;
 	padding: .5vw 2vw;
@@ -1848,7 +1889,8 @@ color: #DDDDFF !important;
 .miscDesc{
 	background-color: #d0d0d0;
 	margin-top: .5vw;
-	margin-bottom: 1.84vw;
+	margin-bottom: 1vw;
+	font-size: 0.9vw;
 }
 
 #boneFlavorRow{
@@ -1966,6 +2008,11 @@ color: #DDDDFF !important;
 .importsTable > tbody > tr {
 	background-color: #d0d0d0;
 	font-size: .75vw;
+}
+
+.importOwned{
+	background-color: green !important;
+	color: white;
 }
 
 #mapBonus{
@@ -2133,11 +2180,10 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-	color: #59acff;
-	background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%); 
-	background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%); 
-	background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%); 
-
+background: -moz-linear-gradient(left,  #000000 0%, #000066 50%, #000000 100%);
+background: -webkit-linear-gradient(left,  #000000 0%,#000066 50%,#000000 100%);
+background: linear-gradient(to right,  #000000 0%,#000066 50%,#000000 100%);
+color: white;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -2145,15 +2191,10 @@ color: #DDDDFF !important;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: #2693ff;
-		text-shadow:
-	 -0.15vw -0.15vw 0.2vw #5000ba,  
-	  0.15vw -0.15vw 0.25vw #5b00d3,
-	 -0.15vw 0.15vw 0.2vw #6600ec,
-	  0.15vw 0.15vw 0.3vw #2f006d;
-	background: -moz-linear-gradient(-45deg,  #280021 0%, #000b38 50%, #280021 100%); 
-	background: -webkit-linear-gradient(-45deg,  #280021 0%,#000b38 50%,#280021 100%); 
-	background: linear-gradient(135deg,  #280021 0%,#000b38 50%,#280021 100%); 
+background: -moz-linear-gradient(left,  #000000 0%, #fff 50%, #000000 100%);
+background: -webkit-linear-gradient(left,  #000000 0%,#fff 50%,#000000 100%);
+background: linear-gradient(to right,  #000000 0%,#fff 50%,#000000 100%);
+color: #000066;
 
 }
 .btn-new:active,
@@ -2307,5 +2348,9 @@ sup{
 
 .queueItemBack{
 	display: inline-block;
+}
+
+#heliumPh.heliumPh{
+	font-size: 0.9em !important;
 }
 

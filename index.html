@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 3.0</title>
+	<title>Trimps 3.1</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?26" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?27" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -149,23 +149,33 @@
 								<b>+ <span id="heliumGainedMisc"></span> Helium </b><br/>
 								Automatically gain helium equal to the amount you earned on your best run
 							</div>
+						</div>
+						<div id="buyHeirloomArea">
+							<div class="boneBtn primaryColor pointer noselect" id="heirloomPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Heirloom for 30 bones. This will be created at a random rarity, and will be just like completing a Void Map at your highest ever Zone reached. Are you sure?', 'purchaseMisc(\'heirloom\')', 30)"> 
+								Buy Heirloom (30 bones)
 							</div>
-							<div id="mapsMisc">
-								<div class="boneBtn primaryColor pointer noselect" id="mapsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Golden Maps for 20 bones. All of your current and future maps will gain +100% loot added to their normal loot roll. Is this what you wanted to do?', 'purchaseMisc(\'maps\')', 20)">
-									Buy Golden Maps (20 bones)
-								</div>
-								<div class="miscDesc" id="goldMapsDesc">
-									All of your current and future maps will gain +100% loot <b>Until your next portal</b>
-								</div>
+							
+							<div class="miscDesc">
+							<div id="heirloomRarityMisc"></div>
+								Get one Heirloom at the chances above, based on highest zone.
+							</div>							
+						</div>
+						<div id="mapsMisc">
+							<div class="boneBtn primaryColor pointer noselect" id="mapsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Golden Maps for 20 bones. All of your current and future maps will gain +100% loot added to their normal loot roll. Is this what you wanted to do?', 'purchaseMisc(\'maps\')', 20)">
+								Buy Golden Maps (20 bones)
 							</div>
-							<div id="trimpsMisc">
-								<div class="boneBtn primaryColor pointer noselect" id="trimpsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Quick Trimps for 20 bones. All of your Trimps will create more Trimps twice as fast until the next time you use the Portal. Is this what you wanted to do?', 'purchaseMisc(\'trimps\')', 20)">
-									Buy Quick Trimps (20 bones)
-								</div>
-								<div class="miscDesc" id="quickTrimpsDesc">
-									All of your Trimps will breed 2x faster <br/><b>Until your next portal</b>
-								</div>
+							<div class="miscDesc" id="goldMapsDesc">
+								All of your current and future maps will gain +100% loot<br/><b>Until your next portal</b>
 							</div>
+						</div>
+						<div id="trimpsMisc">
+							<div class="boneBtn primaryColor pointer noselect" id="trimpsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Quick Trimps for 20 bones. All of your Trimps will create more Trimps twice as fast until the next time you use the Portal. Is this what you wanted to do?', 'purchaseMisc(\'trimps\')', 20)">
+								Buy Quick Trimps (20 bones)
+							</div>
+							<div class="miscDesc" id="quickTrimpsDesc">
+								All of your Trimps will breed 2x faster <br/><b>Until your next portal</b>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -282,6 +292,7 @@
 					<br/>
 					<span class="ownedArea"><span id="heliumOwned">0</span></span>
 					<br/>
+					<span id="heliumPh" class="heliumPh"></span>
 					
 				</div>
 			</div>
@@ -970,9 +981,9 @@
 		<div id="tipCost"></div>
 	</div>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?66"></script>
-	<script type="text/javascript" src="updates.js?66"></script>
-	<script type="text/javascript" src="main.js?66"></script>
+	<script type="text/javascript" src="config.js?67"></script>
+	<script type="text/javascript" src="updates.js?67"></script>
+	<script type="text/javascript" src="main.js?67"></script>
 </body>
 
 </html>

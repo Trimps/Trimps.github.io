@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3,
+		version: 3.1,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -131,6 +131,7 @@ var toReturn = {
 		lastVoidMap: 0,
 		voidSeed: Math.floor(Math.random() * 1000000),
 		heirloomSeed: Math.floor(Math.random() * 1000000),
+		heirloomBoneSeed: Math.floor(Math.random() * 1000000),
 		heirloomsExtra: [],
 		heirloomsCarried: [],
 		StaffEquipped: {},
@@ -187,7 +188,7 @@ var toReturn = {
 			var amt = 0;
 			world = (game.global.mapsActive) ? world.level : game.global.world;
 			var adjWorld = ((world - 1) * 100) + level;
-			amt += 50 * Math.sqrt(world * Math.pow(3.27, world));
+			amt += 50 * Math.sqrt(world) * Math.pow(3.27, world / 2);
 			amt -= 10;
 			if (world == 1){
 				amt *= 0.35;
@@ -212,7 +213,7 @@ var toReturn = {
 			var world = getCurrentMapObject();
 			world = (game.global.mapsActive) ? world.level : game.global.world;
 			var amt = 0;
-			amt += 130 * Math.sqrt(world * Math.pow(3.265, world));
+			amt += 130 * Math.sqrt(world) * Math.pow(3.265, world / 2);
 			amt -= 110;
 			if (world == 1 || world == 2 && level < 10){
 				amt *= 0.6;
@@ -391,6 +392,16 @@ var toReturn = {
 				description: "Decide whether or not you want popups on looting an Heirloom.",
 				titles: ["No Heirloom Pop", "Popping Heirlooms"]
 			},
+			detailedPerks: {
+				enabled: 0,
+				description: "Decide whether or not to show extra information on Perk buttons",
+				titles: ["Minimal Perk Info", "Extra Perk Info"]
+			},
+			alwaysAbandon: {
+				enabled: 0,
+				description: "Decide whether or not to wait for soldiers to die on switching between maps and world. Toggling this on will automatically abandon your soldiers.",
+				titles: ["Wait to Travel", "Auto Abandon"]
+			},
 			pauseGame: {
 				enabled: 0,
 				description: "Pause your game. This will pause all resource gathering, offline progress, and timers.",
@@ -412,7 +423,7 @@ var toReturn = {
 						game.global.time = 0;
 						game.global.lastOnline = now;
 						game.global.start = now;
-						setTimeout(gameTimeout(), (100));
+						setTimeout(gameTimeout, (100));
 						setTimeout(updatePortalTimer, 1000);
 					}
 				}
@@ -669,7 +680,7 @@ var toReturn = {
 			unlockString: "reach Zone 35"
 		},
 		Balance: {
-			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 1.5X health, and all enemies in maps have 2X attack. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant double helium earned for all Blimps slain up to Zone 40. This challenge is repeatable!",
+			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 1.5X health, and all enemies in maps have 2X attack. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant double helium earned for all Blimps slain and Void Maps cleared up to Zone 40. This challenge is repeatable!",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 39);
@@ -914,6 +925,31 @@ var toReturn = {
 			lootMult: 0.15,
 			unlockString: "reach Zone 165"
 		},
+		Watch: {
+			description: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Completing <b>Zone 180</b> with this challenge active will reward you with 2.5X helium earned from any source up to Zone 180.",
+			filter: function () {
+				return (game.global.highestLevelCleared >= 179);
+			},
+			heliumMultiplier: 1.5,
+			heldHelium: 0,
+			heliumThrough: 180,
+			unlockString: "reach Zone 180"
+		},
+		Lead: {
+			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.05% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with 3.5X helium earned from any source up to Zone 180.",
+			filter: function () {
+				return (game.global.highestLevelCleared >= 179);
+			},
+			heliumMultiplier: 2.5,
+			stacks: 0,
+			heldHelium: 0,
+			heliumThrough: 180,
+			unlockString: "reach Zone 180",
+			fireAbandon: true,
+			abandon: function () {
+				if (document.getElementById('determinedBuff')) document.getElementById('determinedBuff').style.display = "none";
+			}
+		}
 	},
 	
 	stats:{
@@ -2299,9 +2335,10 @@ var toReturn = {
 					}
 					game.global.slowDone = true;
 				}
-				else if ((game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165)){
+				else if ((game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165) || ((game.global.challengeActive == "Watch" || game.global.challengeActive == "Lead") && game.global.world >= 180)){
 					var challenge = game.global.challengeActive;
-					var reward = game.challenges[challenge].heldHelium * 2;
+					var reward = (game.challenges[challenge].heliumMultiplier) ? game.challenges[challenge].heliumMultiplier : 2;
+					reward = game.challenges[challenge].heldHelium * reward;
 					message("You have completed the " + challenge + " challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
 					game.resources.helium.owned += reward;
 					game.global.totalHeliumEarned += reward;
@@ -2720,7 +2757,7 @@ var toReturn = {
 				fadeIn("helium", 10);
 				game.resources.helium.owned += 30;
 				game.global.totalHeliumEarned += 30;
-				message("<span class='glyphicon glyphicon-oil'></span>You were able to extract 30 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
+				message("<span class='glyphicon glyphicon-oil'></span> You were able to extract 30 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
 				fadeIn("portalBtn", 10);
 				if (game.global.challengeActive == "Metal"){
 					game.global.challengeActive = "";

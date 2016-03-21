@@ -26,6 +26,10 @@
     background-color: rgb(28, 5, 51) !important;
 }
 
+.trimpBadge{
+    background-color:#574800;
+}
+
 #battleContainer {
     border: 0px;
     color: #C8C8C8
@@ -451,7 +455,7 @@ input, button, select, textarea,
 }
 
 .psColorOrange {
-	color: #7A6500;
+	color: #B9B416;
 }
 
 .StoryMessage {
@@ -551,6 +555,14 @@ color:#8F8F00
 	background-color: #202020 !important;
 }
 
+
+
+.importsTable > tbody > tr{background-color:#202020;}
+
+.importOwned{
+	background-color: #194A19 !important;
+}
+
 #trimpsTimeToFill,
 #foodTimeToFill,
 #woodTimeToFill,
@@ -570,6 +582,10 @@ color:#8F8F00
 	  1px -1px 0 #000,
 	 -1px 1px 0 #000,
 	  1px 1px 0 #000;
+}
+
+#determinedBuff{
+	color: #B9B416;
 }
 
 #heirloomsBtn {

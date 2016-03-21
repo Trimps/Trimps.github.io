@@ -131,7 +131,13 @@ function save(exportThis) {
 			message("For some reason, your game is not saving. Make sure you export and back up your save!", "Notices");
 		}
 	}
-	catch(err){ message("For some reason, your game is not saving. Make sure you export and back up your save!", "Notices"); }
+	catch(err){ 
+		if(e.name == "NS_ERROR_FILE_CORRUPTED") {
+        message("Sorry, it looks like your browser storage has been corrupted. Please clear your storage by going to Tools -> Clear Recent History -> Cookies and set time range to 'Everything'. This will remove the corrupted browser storage across all sites.", "Notices");
+		}
+		else
+		message("For some reason, your game is not saving. Make sure you export and back up your save!", "Notices"); 
+		}
 
 }
 
@@ -360,6 +366,9 @@ function load(saveString, autoLoad) {
 	if (oldVersion < 3){
 		game.global.heirloomSeed = getRandomIntSeeded(game.global.voidSeed, 0, 1000000);
 	}
+	if (oldVersion < 3.1){
+		game.global.heirloomBoneSeed = getRandomIntSeeded(game.global.heirloomSeed, 0, 1000000);
+	}
 	
 	//End compatibility
 	
@@ -450,6 +459,7 @@ function load(saveString, autoLoad) {
 	unlockFormation("all");
 	setFormation();
 	game.global.removingPerks = false;
+	game.global.switchToMaps = false;
 	if (game.global.voidBuff) setVoidBuffTooltip();
 	if (game.upgrades.Gigastation.done >= 1) loadGigastations();
 	if (oldVersion < 2){
@@ -804,7 +814,16 @@ function displayPortalUpgrades(){
 		if (typeof portUpgrade.level === 'undefined') continue;
 		portUpgrade.levelTemp = 0;
 		portUpgrade.heliumSpentTemp = 0;
-		elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing perkColorOff" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span></span></div>';
+		var html = '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing perkColorOff';
+		if (game.options.menu.detailedPerks.enabled == 1) html += " detailed";
+		html += '" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span>';
+		if (game.options.menu.detailedPerks.enabled == 1){ 	
+		if (!portUpgrade.max || portUpgrade.max > portUpgrade.level + portUpgrade.levelTemp) html += "<br/>Price: <span id='" + what + "Price'>" + prettify(getPortalUpgradePrice(what)) + "</span>";
+		else html += "<br/>Price: <span id='" + what + "Price'>Max</span>";
+		html += '<br/>Spent: <span id="' + what + 'Spent">' + prettify(portUpgrade.heliumSpent + portUpgrade.heliumSpentTemp) + '</span>';
+		}
+		html += '</span></div>';
+		elem.innerHTML += html;
 		updatePerkColor(what);
 	}
 }
@@ -1074,6 +1093,8 @@ function removePerk(what) {
 
 function updatePerkLevel(what){
 	var textElem = document.getElementById(what + "Owned");
+	var nextCostElem = document.getElementById(what + "Price");
+	var spentElem = document.getElementById(what + "Spent");
 	var toBuy = game.portal[what];
 	var num = 0;
 	var text = toBuy.level + toBuy.levelTemp;
@@ -1081,6 +1102,10 @@ function updatePerkLevel(what){
 		text += " ("
 		if (toBuy.levelTemp > 0) text += "+";
 		text += toBuy.levelTemp + ")";
+	}
+	if (spentElem !== null){
+		spentElem.innerHTML = prettify(toBuy.heliumSpent + toBuy.heliumSpentTemp);
+		nextCostElem.innerHTML = (!toBuy.max || toBuy.max > toBuy.level + toBuy.levelTemp) ? prettify(getPortalUpgradePrice(what)) : "Max";
 	}
 	textElem.innerHTML = text;
 }
@@ -1338,6 +1363,9 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 		amt *= (1 + toxMult);
 	}
 	if (what != "helium") amt = calcHeirloomBonus("Staff", what + "Drop", amt);
+	//Yes, Lead giving double helium and Watch not reducing helium is on purpose!
+	if (game.global.challengeActive == "Watch" && what != "helium") amt /= 2;
+	if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) amt *= 2;
 	amt = Math.floor(amt);
     addResCheckMax(what, amt);
 	if (game.options.menu.useAverages.enabled){
@@ -1473,6 +1501,8 @@ function gather() {
 			if (game.global.challengeActive == "Balance"){
 				perSec *= game.challenges.Balance.getGatherMult();
 			}
+			if (game.global.challengeActive == "Watch") perSec /= 2;
+			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) perSec*= 2;
 			perSec = calcHeirloomBonus("Staff", job + "Speed", perSec);
 		}
 		if (what && increase == what){
@@ -2701,19 +2731,23 @@ function buildModOptionDdl(type, rarity){
 	document.getElementById("modReplaceSelect").innerHTML = html;
 }
 
-function setHeirRareText(){
-	var rarityBreakpoint = getHeirloomZoneBreakpoint();
+function setHeirRareText(forBones){
+	var rarityBreakpoint = (forBones) ? getHeirloomZoneBreakpoint(game.global.highestLevelCleared + 1) : getHeirloomZoneBreakpoint();
 	var nextAt = "";
-	if (rarityBreakpoint == game.heirlooms.rarityBreakpoints.length) nextAt = "Max Rarity";
-	else nextAt = "Next Rarity Increase at Z" + game.heirlooms.rarityBreakpoints[rarityBreakpoint];
-	var html = "<b>Current Heirloom Drop Rates</b> - " + nextAt + "<br/>";
-	
+	var html = "";
+	if (!forBones){
+		if (rarityBreakpoint == game.heirlooms.rarityBreakpoints.length) nextAt = "Max Rarity";
+		else nextAt = "Next Rarity Increase at Z" + game.heirlooms.rarityBreakpoints[rarityBreakpoint];
+		html = "<b>Current Heirloom Drop Rates</b> - " + nextAt + "<br/>";
+	}
 	var rarities = game.heirlooms.rarities[rarityBreakpoint];	
 	for (var x = 0; x < rarities.length; x++){
 		if (rarities[x] == -1) continue;
-		html += "<div class='rarityBdBox heirloomRare" + x + "'>" + game.heirlooms.rarityNames[x] + "<br/>" + (rarities[x] / 100) + "%</div>";	
+		if (!forBones) html += "<div class='rarityBdBox heirloomRare" + x + "'>" + game.heirlooms.rarityNames[x] + "<br/>" + (rarities[x] / 100) + "%</div>";	
+		else html += "<div class='rarityBdBox heirloomRare" + x + " forBones' title='" + game.heirlooms.rarityNames[x] + "'>" + (rarities[x] / 100) + "%</div>";
 	}
-	document.getElementById("heirRare").innerHTML = html;
+	if (forBones) document.getElementById("heirloomRarityMisc").innerHTML = html;
+	else	document.getElementById("heirRare").innerHTML = html;
 }
 
 function checkSelectedModsFor(what){
@@ -2724,11 +2758,12 @@ function checkSelectedModsFor(what){
 	return false;
 }
 
-function createHeirloom(zone){
+function createHeirloom(zone, fromBones){
 	var slots = [1, 2, 2, 3, 3, 4, 4];
 	var rarityNames = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal'];
 	//Determine Type
-	var type = (getRandomIntSeeded(game.global.heirloomSeed++, 0, 2) == 0) ? "Shield" : "Staff";
+	var seed = (fromBones) ? game.global.heirloomBoneSeed : game.global.heirloomSeed;
+	var type = (getRandomIntSeeded(seed++, 0, 2) == 0) ? "Shield" : "Staff";
 	//Sort through modifiers and build a list of eligible items. Check filters if applicable
 	var elligible = [];
 	for (var item in game.heirlooms[type]){
@@ -2745,14 +2780,14 @@ function createHeirloom(zone){
 	var buildHeirloom = {name: name, type: type, rarity: rarity, mods: []};
 	var x = 0;
 	for (x; x < slots; x++){
-		var roll = getRandomIntSeeded(game.global.heirloomSeed++, 0, elligible.length);
+		var roll = getRandomIntSeeded(seed++, 0, elligible.length);
 		var thisMod = elligible[roll];
 		elligible.splice(roll, 1);
 		var steps = (typeof game.heirlooms[type][thisMod].steps !== 'undefined') ? game.heirlooms[type][thisMod].steps : game.heirlooms.defaultSteps;
 		steps = getRandomBySteps(steps[rarity]);
-		buildHeirloom.mods.push([thisMod, steps[0], steps[1], 0, getRandomIntSeeded(game.global.heirloomSeed++, 0, 1000)]);
+		buildHeirloom.mods.push([thisMod, steps[0], steps[1], 0, getRandomIntSeeded(seed++, 0, 1000)]);
 	}
-	game.global.heirloomSeed += 4 - x;
+	seed += 6 - (x * 2);
 	buildHeirloom.mods.sort(function(a, b){
 		a = a[0].toLowerCase();
 		b = b[0].toLowerCase();
@@ -2769,6 +2804,8 @@ function createHeirloom(zone){
 	game.stats.totalHeirlooms.value++;
 	checkAchieve("totalHeirlooms");
 	if (heirloomsShown) displayExtraHeirlooms();
+	if (fromBones) game.global.heirloomBoneSeed = seed;
+	else game.global.heirloomSeed = seed;
 }
 
 function getRandomBySteps(steps, mod){
@@ -2968,12 +3005,14 @@ function addSpecialToLast(special, array, item) {
     return array;
 }
 
-function addSpecials(maps, countOnly, map) { //countOnly must include map. Only counts upgrades set to spawn on "last".
+function addSpecials(maps, countOnly, map, getPrestiges) { //countOnly must include map. Only counts upgrades set to spawn on "last".
 	var specialCount = 0;
 	var array;
 	var unlocksObj;
 	var world;
 	var max;
+	var prestigeArray = [];
+	if (getPrestiges) map = {location: "All", level: game.global.world, size: 100}
     if (maps) {
         array = game.global.mapGridArray;
         unlocksObj = game.mapUnlocks;
@@ -3039,6 +3078,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
         if (typeof special.canRunOnce === 'undefined' && (special.level == "last") && canLast && (special.last <= (world - 5))) {
 			if (countOnly){
 				specialCount += Math.floor((world - special.last) / 5);
+				if (getPrestiges && special.prestige) prestigeArray.push(item);
 				continue;
 			}
 			if (special.prestige && maps && game.options.menu.mapLoot.enabled == 0) {
@@ -3053,6 +3093,7 @@ function addSpecials(maps, countOnly, map) { //countOnly must include map. Only 
 		if (special.canRunOnce === true && countOnly) {specialCount++; continue;}
         if (!countOnly)  findHomeForSpecial(special, item, array, max);
     }
+	if (getPrestiges) return prestigeArray;
 	if (canLast && prestigeItemsAvailable.length && maps){
 		var bestIndex = 0;
 		var bestZone = game.mapUnlocks[prestigeItemsAvailable[0]].last;
@@ -3120,6 +3161,19 @@ function findHomeForSpecial(special, item, array, max){
 			done = true;
 			break;
 		}
+	}
+}
+
+function dropPrestiges(){
+	var toDrop = addSpecials(true, true, null, true);
+	for (var x = 0; x < toDrop.length; x++){
+		unlockUpgrade(toDrop[x]);
+		var prestigeUnlock = game.mapUnlocks[toDrop[x]];
+		if (game.global.sLevel == 4) {
+			unlockUpgrade(toDrop[x]);
+			prestigeUnlock.last += 10;
+		}
+		else prestigeUnlock.last += 5;
 	}
 }
 
@@ -3259,10 +3313,15 @@ function messageMapCredits() {
 	message("You have " + game.challenges.Mapology.credits + " Map Credit" + s + " left!", "Notices");
 }
 
-function mapsClicked() {
+function mapsClicked(confirmed) {
 	if (game.options.menu.pauseGame.enabled) return;
-    if (game.global.switchToMaps || game.global.switchToWorld) {
-        game.global.soldierHealth = 0;
+	if (game.global.mapsActive && getCurrentMapObject().location == "Void" && !confirmed && !game.global.switchToMaps){
+		tooltip('confirm', null, 'update', 'You are about to abandon this Void Map, which will cause you to lose all current progress in this map. Are you sure?' , 'mapsClicked(true)', 'Abandon Void Map');	
+		return;
+	}	
+    if (game.global.switchToMaps || game.global.switchToWorld || game.options.menu.alwaysAbandon.enabled == 1) {
+        game.global.switchToMaps = true;
+		game.global.soldierHealth = 0;
 		game.resources.trimps.soldiers = 0;
 		var bar = document.getElementById("goodGuyBar");
 		swapClass("percentColor", "percentColorRed", bar);
@@ -3280,7 +3339,8 @@ function mapsClicked() {
 			cell.nomStacks = (cell.nomStacks) ? cell.nomStacks + 1 : 1;
 			if (cell.nomStacks > 100) cell.nomStacks = 100;
 			updateNomStacks(cell.nomStacks);
-			cell.health += (cell.maxHealth * 0.05);
+			if (cell.health > 0) cell.health += (cell.maxHealth * 0.05);
+			else cell.health = 0;
 			if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
 			updateBadBar(cell);
 		}
@@ -3486,7 +3546,18 @@ function battleCoordinator(makeUp) {
 }
 
 function battle(force) {
+	var trimps = game.resources.trimps;
+	var trimpsMax = trimps.realMax();
     if (game.global.fighting) return;
+/* 	{
+		if (!force || game.global.challengeActive == "Nom") return;
+		if (trimps.owned != trimpsMax) return;
+		game.global.soldierHealth = 0;
+		game.global.fighting = false;
+		trimps.soldiers = 0;
+		updateGoodBar();
+		return;
+	} */
     if ((game.global.switchToMaps || game.global.switchToWorld) && game.resources.trimps.soldiers === 0) {
         mapsSwitch();
         return;
@@ -3494,9 +3565,7 @@ function battle(force) {
     if (game.global.preMapsActive) return;
     var pause = (force) ? false : game.global.pauseFight;
     if (!game.global.autoBattle && !force) return;
-    if (pause) return;
-    var trimps = game.resources.trimps;
-	var trimpsMax = trimps.realMax();
+    if (pause) return;  	
     if (trimps.soldiers > 0) {
         startFight();
         return;
@@ -3597,6 +3666,7 @@ function startFight() {
 			if (game.global.mapsActive) cell.attack *= 2;
 			cell.health *= 1.5;
 		}
+		else if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 0)) cell.health *= (1 + (game.challenges.Lead.stacks * 0.04));
         cell.maxHealth = cell.health;
 		
     }
@@ -3649,8 +3719,10 @@ function startFight() {
 			game.global.soldierHealthMax *= game.challenges.Balance.getHealthMult();
 		}
 		game.global.soldierHealth = game.global.soldierHealthMax;
+		if (game.global.challengeActive == "Lead") manageLeadStacks();
     }
 	else {
+		if (game.global.challengeActive == "Lead") manageLeadStacks(!game.global.mapsActive);
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
 			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
@@ -3770,6 +3842,15 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 	if (!isTrimp && game.global.usingShriek) {
 		number *= game.mapUnlocks.roboTrimp.getShriekValue();
 	}
+	if (!isTrimp && game.global.challengeActive == "Watch") {
+		number *= 1.25;
+	}
+	if (game.global.challengeActive == "Lead"){
+		if ((game.global.world % 2) == 1) {
+			if (isTrimp) number *= 1.5;
+		}
+		if (!isTrimp) number *= (1 + (game.challenges.Lead.stacks * 0.04));
+	}
 	if (maxFluct == -1) maxFluct = fluctuation;
 	if (minFluct == -1) minFluct = fluctuation;
 	var min = Math.floor(number * (1 - minFluct));
@@ -3829,6 +3910,30 @@ function nextWorld() {
 		game.challenges.Toxicity.stacks = 0;
 		updateToxicityStacks();
 	}
+	if (game.global.challengeActive == "Watch"){
+		if (game.global.world > 6) dropPrestiges();
+		assignExtraWorkers()
+	}
+	if (game.global.challengeActive == "Lead"){
+		if ((game.global.world % 2) == 0) game.challenges.Lead.stacks = game.challenges.Lead.stacks = 201;
+		manageLeadStacks();
+	}
+}
+
+function assignExtraWorkers(){
+	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed - game.resources.trimps.soldiers);
+	if (freeTrimps < workspaces) workspaces = freeTrimps;
+	if (workspaces <= 0) return;
+	var jobs = ["Farmer", "Lumberjack", "Miner"];
+	if (game.resources.food.owned < (workspaces * 5)) workspaces = Math.floor(game.resources.Food.owned / 5);
+	var split = Math.floor(workspaces / 3);
+	for (var x = 0; x < jobs.length; x++){
+		game.jobs[jobs[x]].owned += split;
+	}
+	split = Math.round(split * 3)
+	game.resources.trimps.employed += split;
+	game.resources.food.owned -= (split * 5);
 }
 
 function distributeToChallenges(amt) {
@@ -3867,7 +3972,8 @@ function fight(makeUp) {
 			cell.nomStacks = (cell.nomStacks) ? cell.nomStacks + 1 : 1;
 			if (cell.nomStacks > 100) cell.nomStacks = 100;
 			updateNomStacks(cell.nomStacks);
-			cell.health += (cell.maxHealth * 0.05);
+			if (cell.health > 0) cell.health += (cell.maxHealth * 0.05);
+			else cell.health = 0;
 			if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
 			updateBadBar(cell);
 		}
@@ -3947,7 +4053,7 @@ function fight(makeUp) {
 				recycleMap(-1, true, true);
 				skip = true;
 			}
-			if (game.global.repeatMap && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1) && !skip){
+			if (game.global.repeatMap && !game.global.switchToMaps && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1) && !skip){
 				if (game.global.mapBonus > 0) document.getElementById("mapsBtn").innerHTML = "Maps (" + game.global.mapBonus + ")";
 				game.global.lastClearedMapCell = -1;
 				buildMapGrid(game.global.currentMapId);
@@ -3997,7 +4103,9 @@ function fight(makeUp) {
 	}
     var attackAndBlock = (cellAttack - game.global.soldierCurrentBlock);
 	if (game.global.brokenPlanet && !game.global.mapsActive){
-		var overpower = (game.global.formation == 3) ? cellAttack * 0.1 : cellAttack * 0.2;
+		var overpower = (game.global.formation == 3) ? 0.1 : 0.2;
+		if (game.global.challengeActive == "Lead") overpower += (game.challenges.Lead.stacks * 0.001);
+		overpower *= cellAttack;
 		if (attackAndBlock < overpower) attackAndBlock = overpower;
 	}
 	if (attackAndBlock < 0) attackAndBlock = 0;
@@ -4073,6 +4181,10 @@ function fight(makeUp) {
 		game.global.soldierHealth -= game.global.soldierHealthMax * 0.05;
 		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
 	}
+	else if (game.global.challengeActive == "Lead" && attacked && cell.health > 0){
+		game.global.soldierHealth -= (game.global.soldierHealthMax * game.challenges.Lead.stacks * 0.0003);
+		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
+	}
 	if (game.global.voidBuff == "bleed" && wasAttacked) {
 		game.global.soldierHealth -= (game.global.soldierHealth * 0.2);
 		if (game.global.soldierHealth < 1) game.global.soldierHealth = 0;
@@ -4095,6 +4207,33 @@ function getPlayerCritDamageMult(){
 	var critMult = (((game.portal.Relentlessness.otherModifier * game.portal.Relentlessness.level) + (game.heirlooms.Shield.critDamage.currentBonus / 100)) + 1);
 	if (game.portal.Relentlessness.level > 0) critMult += 1;
 	return critMult;
+}
+
+function manageLeadStacks(remove){
+	var challenge = game.challenges.Lead;
+	
+	var elem = document.getElementById("leadBuff");
+
+	var determinedBuff = document.getElementById("determinedBuff");
+	if ((game.global.world % 2) == 1){	
+		if (determinedBuff == null) {
+			document.getElementById("goodGuyName").innerHTML += '&nbsp<span class="badge antiBadge" id="determinedBuff" onmouseover="tooltip(\'Determined\', \'customText\', event, \'Your Trimps are determined to succeed. They gain 50% attack and earn double resources from all sources.\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-sun2"></span></span>';
+			determinedBuff = document.getElementById("determinedBuff");
+		}
+		determinedBuff.style.display = "inline";
+	}
+	else if (determinedBuff != null) determinedBuff.style.display = "none";
+	
+	if (challenge.stacks <= 0){
+		return;
+	}
+	if (remove && challenge.stacks) challenge.stacks--;
+	
+	if (elem === null) {
+		document.getElementById("badGuyName").innerHTML += '&nbsp;<span class="badge badBadge" id="leadBuff" onmouseover="tooltip(\'Momentum\', null, event)" onmouseout="tooltip(\'hide\')"><span id="leadStacks">' + challenge.stacks + '</span><span id="momentumIcon" class="icomoon icon-hourglass"></span></span>';
+	}
+	else	document.getElementById("leadStacks").innerHTML = challenge.stacks;
+	swapClass('icon-hourglass', 'icon-hourglass-' + (3 - Math.floor(challenge.stacks / 67)), document.getElementById('momentumIcon'));
 }
 
 function updateToxicityStacks(){
@@ -4371,10 +4510,17 @@ function showBones() {
 	updateImports(0);
 	hidePurchaseBones();
 	boneTemp.bundle = [];
-	if (game.global.totalPortals === 0) 
+	if (game.global.totalPortals == 0) {
 		document.getElementById("buyHeliumArea").style.display = "none";
-	else
-		document.getElementById("buyHeliumArea").style.display = "block";
+		document.getElementById("buyHeirloomArea").style.display = "none";
+	}
+	else {
+		if (game.global.totalPortals >= 5) {
+			document.getElementById("buyHeirloomArea").style.display = "block";
+			setHeirRareText(true);
+		}
+		else document.getElementById("buyHeirloomArea").style.display = "none";
+	}
 	updateImportButton("First, select an Imp", false);
 	if (game.unlocks.goldMaps) {
 		document.getElementById("mapsPurchaseBtn").style.backgroundColor = "grey";
@@ -4412,8 +4558,7 @@ function updateImports(which) {
 		var toRun = (which == 1) ? 'addToBundle' : 'selectImp';
 		toRun += '("' + item + '")';
 		if (game.unlocks.imps[item]){
-			row.style.backgroundColor = "green";
-			row.style.color = "white";
+			row.className = 'importOwned';
 		}
 		else
 		row.setAttribute('onclick', toRun);
@@ -4473,6 +4618,8 @@ function simpleSeconds(what, seconds) {
 			var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
 			amt *= (1 + toxMult);
 		}
+		if (game.global.challengeActive == "Watch") amt /= 2;
+		if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) amt *= 2;
 		if (game.global.challengeActive == "Balance"){
 			amt *= game.challenges.Balance.getGatherMult();
 		}
@@ -4518,6 +4665,8 @@ function addBoost(level, previewOnly) {
 			var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
 			amt *= (1 + toxMult);
 		}
+		if (game.global.challengeActive == "Watch") amt /= 2;
+		if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) amt *= 2;
 		amt = calcHeirloomBonus("Staff", compatible[x] + "Speed", amt);
 		if (typeof storage[x] !== 'undefined'){
 			var tempTotal = amt + resource.owned;
@@ -4672,9 +4821,14 @@ function purchaseMisc(what){
 			buyGoldenMaps();
 			break;
 		case "trimps":
-			if (game.global.b <20 || game.unlocks.quickTrimps) {showPurchaseBones(); return;}
+			if (game.global.b < 20 || game.unlocks.quickTrimps) {showPurchaseBones(); return;}
 			game.global.b -= 20;
 			buyQuickTrimps();
+			break;
+		case "heirloom":
+			if (game.global.b < 30) return;
+			game.global.b -= 30;
+			createHeirloom(game.global.highestLevelCleared + 1, true);
 			break;
 	}
 	updateBones();
@@ -5102,7 +5256,7 @@ function gameTimeout() {
 		game.global.start = now;
 		game.global.time = 0;
 		game.global.lastOnline = now;
-		setTimeout(gameTimeout(), (1000 / game.settings.speed));
+		setTimeout(gameTimeout, (1000 / game.settings.speed));
 		return;
 	}
 	game.global.lastOnline = now;
@@ -5145,6 +5299,8 @@ function updatePortalTimer() {
 	if (game.options.menu.useAverages.enabled && Math.floor(timeSince % 3) == 0) curateAvgs();
 	if (game.resources.helium.owned > 0) game.stats.bestHeliumHourThisRun.evaluate();
 	if (game.global.autoStorage == true) autoStorage();
+	if (game.resources.helium.owned) document.getElementById("heliumPh").innerHTML = prettify(game.stats.heliumHour.value()) + "/hr";
+	//assignExtraWorkers();
 	setTimeout(updatePortalTimer, 1000);
 }
 
@@ -5210,4 +5366,4 @@ displayPerksBtn();
 
 setTimeout(autoSave, 60000);
 costUpdatesTimeout();
-setTimeout(gameTimeout(), (1000 / game.settings.speed));;
+setTimeout(gameTimeout, (1000 / game.settings.speed));
