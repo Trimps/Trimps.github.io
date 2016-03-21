@@ -1494,6 +1494,7 @@ function gather() {
 			if (game.portal.Motivation.level > 0) perSec += (perSec * game.portal.Motivation.level * game.portal.Motivation.modifier);
 			if (game.portal.Meditation.level > 0) perSec *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 			if (game.global.challengeActive == "Meditate") perSec *= 1.25;
+			else if (game.global.challengeActive == "Size") perSec *= 1.5;
 			if (game.global.challengeActive == "Toxicity"){
 				var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
 				perSec *= (1 + toxMult);

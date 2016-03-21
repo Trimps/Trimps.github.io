@@ -544,7 +544,11 @@ function getPsString(what, rawNum) {
 			textString += "<tr><td class='bdTitle'>Meditation</td><td class='bdPercent'>" + (meditation.getBonusPercent(true) * 10) + " minutes (+" + medStrength + "%)</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 		}	
 	}
-	//Add meditate (challenge)
+	//Add Size (challenge)
+	if (game.global.challengeActive == "Size"){
+		currentCalc *= 1.5;
+		textString += "<tr><td class='bdTitle'>Size</td><td class='bdPercent'>+ 50%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}	//Add meditate (challenge)
 	if (game.global.challengeActive == "Meditate"){
 		currentCalc *= 1.25;
 		textString += "<tr><td class='bdTitle'>Meditate</td><td class='bdPercent'>+ 25%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
@@ -1762,6 +1766,7 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
 			if (game.portal.Meditation.level > 0) psText *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 			if (game.global.challengeActive == "Meditate") psText *= 1.25;
+			else if (game.global.challengeActive == "Size") psText *= 1.5;
 			if (game.global.challengeActive == "Toxicity"){
 					var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
 					psText *= (1 + toxMult);
