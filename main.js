@@ -4069,8 +4069,6 @@ function fight(makeUp) {
 				return;
 			}
 			else{
-				game.global.soldierHealth = 0;
-				game.resources.trimps.soldiers = 0;
 				game.global.preMapsActive = true;
 				game.global.mapsActive = false;
 				game.global.lastClearedMapCell = -1;
@@ -4423,7 +4421,7 @@ function setFormation(what) {
 	if (what) {
 		what = parseInt(what, 10);
 		swapClass("formationState", "formationStateDisabled", document.getElementById("formation" + game.global.formation));
-		if (game.global.fighting && game.global.soldierHealth > 0) {
+		if (game.global.soldierHealth > 0) {
 			var health = 1;
 			var block = 1;
 			var attack = 1;
