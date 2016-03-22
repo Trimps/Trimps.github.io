@@ -4069,6 +4069,11 @@ function fight(makeUp) {
 				return;
 			}
 			else{
+				if (game.global.switchToMaps){
+					game.global.soldierHealth = 0;
+					game.resources.trimps.soldiers = 0;
+					updateGoodBar();
+				}
 				game.global.preMapsActive = true;
 				game.global.mapsActive = false;
 				game.global.lastClearedMapCell = -1;
