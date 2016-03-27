@@ -3865,7 +3865,7 @@ var toReturn = {
 			addClass: function () {
 				return "easterEgg easterEgg" + getRandomIntSeeded(game.global.eggSeed + 1, 0, 4);
 			},
-			chance: 0.1,
+			chance: 0.15,
 			fire: function (){}
 		}
 	},

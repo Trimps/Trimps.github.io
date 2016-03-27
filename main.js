@@ -3262,7 +3262,7 @@ function easterEggClicked(){
 		if (roll <= 0.25) reward = "food";
 		else if (roll <= 0.54) reward = "wood";
 		else reward = "metal";
-		var amt = rewardResource(reward, (rewardRoll / 2), game.global.eggLoc);
+		var amt = rewardResource(reward, (rewardRoll / 1.5), game.global.eggLoc);
 		startText += prettify(amt) + " " + reward + "!";
 	}
 	else if (roll <= 0.89){
