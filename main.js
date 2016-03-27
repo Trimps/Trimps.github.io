@@ -3287,7 +3287,7 @@ function easterEggClicked(){
 		distributeToChallenges(amt);
 		startText += prettify(amt) + " helium!";
 	}
-	message(startText, "Loot", "*droplet", "eggMessage easterEgg" + getRandomIntSeeded(game.global.eggSeed, 0, 4));
+	message(startText, "Loot", "*droplet", "eggMessage easterEgg" + getRandomIntSeeded(game.global.eggSeed + 1, 0, 4));
 	game.global.eggLoc = 0;
 }
 
