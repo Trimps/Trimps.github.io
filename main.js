@@ -3738,7 +3738,7 @@ function startFight() {
 			if (game.global.mapsActive) cell.attack *= 2;
 			cell.health *= 1.5;
 		}
-		else if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 0)) cell.health *= (1 + (game.challenges.Lead.stacks * 0.04));
+		else if (game.global.challengeActive == "Lead" && (game.challenges.Lead.stacks > 0)) cell.health *= (1 + (game.challenges.Lead.stacks * 0.04));
         cell.maxHealth = cell.health;
 		
     }
