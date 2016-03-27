@@ -188,6 +188,7 @@ function load(saveString, autoLoad) {
     } 
 	else if (game.global.isBeta) {
 		message("Note: You are playing on the beta/dev version. You will be unable to export your save from this version to the live version, and this server may go down or change without warning. Thank you for helping test!", "Notices");
+		savegame.global.isBeta = true;
 	}
 	else if (savegame.global.isBeta) {
 			message("You can't import a save from the beta version to this version!", "Notices");
@@ -368,6 +369,13 @@ function load(saveString, autoLoad) {
 	}
 	if (oldVersion < 3.1){
 		game.global.heirloomBoneSeed = getRandomIntSeeded(game.global.heirloomSeed, 0, 1000000);
+	}
+	if (oldVersion < 3.11){
+		game.global.eggSeed = getRandomIntSeeded(game.global.heirloomBoneSeed, 0, 1000000);
+		cancelTooltip();
+		noOfflineTooltip = true;
+		tooltip("Eggs", null, 'update');
+		
 	}
 	
 	//End compatibility
@@ -3030,6 +3038,10 @@ function addSpecials(maps, countOnly, map, getPrestiges) { //countOnly must incl
 	var prestigeItemsAvailable = [];
     for (var item in unlocksObj) {
         var special = unlocksObj[item];
+		if (item == "easterEgg"){
+			game.global.eggSeed += 3;
+			if (seededRandom(game.global.eggSeed) >= special.chance) continue;
+		}
 		if (special.brokenPlanet && ((special.brokenPlanet == 1 && !game.global.brokenPlanet) || special.brokenPlanet == -1 && game.global.brokenPlanet)) continue;
 		if (map && game.global.challengeActive == "Frugal" && special.prestige) continue;
 		if (special.startAt < 0) continue;
@@ -3141,7 +3153,9 @@ function findHomeForSpecial(special, item, array, max){
 			}
 		}
 		if (hax !== 0 && level < max) {
-			var addClass = (special.addClass) ? special.addClass : "";
+			var addClass;
+			if (special.addClass) addClass = (typeof special.addClass === 'function') ? special.addClass() : special.addClass;
+			else addClass = "";
 			var prefix = "";
 			var icon = special.icon;
 			if (icon && icon.charAt(0) == "*") {
@@ -3214,10 +3228,67 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			if (maps && map.location == "Void") className += " voidCell";
             cell.className = className;
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
-			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";
-            counter++;
+			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";            
+			if (game.global.gridArray[counter].special == "easterEgg"){
+				cell.onclick = function () { easterEggClicked(); };
+				game.global.eggLoc = counter;
+				cell.className += " eggCell";
+			}
+			counter++;
         }
     }
+}
+
+function easterEggClicked(){
+	if (!game.global.eggLoc) return;
+	var elem = document.getElementById("cell" + game.global.eggLoc);
+	var gridLoc = game.global.gridArray[game.global.eggLoc];
+	elem.innerHTML = "&nbsp;";
+	elem.onclick = "";
+	gridLoc.special = "";
+	gridLoc.text = "";
+	var startText;
+	if (game.global.lastClearedCell == game.global.eggLoc - 1) startText = ["Oh, there seems to be an egg on the ground. You throw it really hard to break it, and find "];
+	else if (game.global.lastClearedCell > game.global.eggLoc) startText = ["You use your amazing sense of hindsight, and send a Trimp to check behind you for eggs. It found one containing ", "You just remembered you wanted to look for treasure. You send a Trimp backwards to check and it found an egg containing "];
+	else startText = ["You see a brightly colored egg off in the distance and send a Trimp to retrieve it for you. Inside is ", "You send a Trimp to sneak forward checking for eggs. After getting turned around multiple times, it found an egg that had ", "Hey there's an egg up there! You send a few Trimps to retrieve it and they bring back "];
+	startText = startText[Math.floor(Math.random() * startText.length)];
+	var roll = seededRandom(game.global.eggSeed - 1);
+	if (game.global.totalPortals < 5){ //Give metal if player doesn't have 5 total portals and VM/Heirloom/Nu was rolled
+		if (roll > 0.84 && (roll <= 0.92 || game.global.totalPortals == 0)) roll = 0.84;
+	}
+	if (roll <= 0.84){
+		var reward = '';
+		var rewardRoll = getRandomIntSeeded(game.global.eggSeed - 2, 1, 6);
+		if (roll <= 0.25) reward = "food";
+		else if (roll <= 0.54) reward = "wood";
+		else reward = "metal";
+		var amt = rewardResource(reward, (rewardRoll / 2), game.global.eggLoc);
+		startText += prettify(amt) + " " + reward + "!";
+	}
+	else if (roll <= 0.89){
+		var amt = Math.round(game.global.world / 4);
+		if (amt <= 0) amt = 1;
+		game.global.nullifium += amt;
+		startText += amt + " Nullifium!";
+	}
+	else if (roll <= 0.91){
+		createHeirloom();
+		startText += "an Heirloom!";
+	}
+	else if (roll <= 0.92){
+		createVoidMap();
+		startText += "a Void Map!";
+	}
+	else{
+		if (game.resources.helium.owned == 0) fadeIn("helium", 10);
+		var amt = (game.global.world >= 59) ? 5 : 1;
+		amt = rewardResource("helium", amt, 99);
+		game.global.totalHeliumEarned += amt;
+		distributeToChallenges(amt);
+		startText += prettify(amt) + " helium!";
+	}
+	message(startText, "Loot", "*droplet", "eggMessage easterEgg" + getRandomIntSeeded(game.global.eggSeed, 0, 4));
+	game.global.eggLoc = 0;
 }
 
 function fightManual() {

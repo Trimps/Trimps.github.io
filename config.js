@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.1,
+		version: 3.11,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -132,6 +132,7 @@ var toReturn = {
 		voidSeed: Math.floor(Math.random() * 1000000),
 		heirloomSeed: Math.floor(Math.random() * 1000000),
 		heirloomBoneSeed: Math.floor(Math.random() * 1000000),
+		eggSeed: Math.floor(Math.random() * 1000000),
 		heirloomsExtra: [],
 		heirloomsCarried: [],
 		StaffEquipped: {},
@@ -141,6 +142,7 @@ var toReturn = {
 		selectedHeirloom: [],
 		lastPortal: -1,
 		addonUser: false,
+		eggLoc: 0,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -3854,6 +3856,17 @@ var toReturn = {
 				var amt = rewardResource("metal", 0.5, level);
 				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes");
 			}
+		},
+		easterEgg: {
+			world: -1,
+			level: [0, 99],
+			title: "Colored Egg",
+			icon: "*droplet",
+			addClass: function () {
+				return "easterEgg easterEgg" + getRandomIntSeeded(game.global.eggSeed, 0, 4);
+			},
+			chance: 0.1,
+			fire: function (){}
 		}
 	},
 	//buildings with percent = true cannot have multiple purchases at a time

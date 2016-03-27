@@ -105,6 +105,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Sweet, thanks.</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
+	}	
+	if (what == "Eggs"){
+		tooltipText = '<span class="eggMessage">It seems as if some sort of animal has placed a bunch of brightly colored eggs in the world. If you happen to see one, you can click on it to send a Trimp to pick it up! According to your scientists, they have a rare chance to contain some neat stuff, but they will not last forever...</span>';
+		game.global.lockTooltip = true;
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>I'll keep an eye out.</div></div>";
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
 	}
 	if (what == "Portal"){
 		tooltipText = "The portal device you found shines green in the lab. Such a familiar shade...";
@@ -154,7 +161,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
-	}
+	}	
 	if (what == "Queue"){
 		tooltipText = "This is a building in your queue, you'll need to click \"Build\" to build it. Clicking an item in the queue will cancel it for a full refund.";
 		costText = "";

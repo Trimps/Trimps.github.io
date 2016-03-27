@@ -1705,6 +1705,37 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 	border: 5px solid black;
 }
 
+.eggMessage{
+	color: #8beab7;
+	background-color: #222;
+	display: block;
+	padding: 2%;
+}
+
+.easterEgg0{
+	color: #83ddd6;
+}
+
+.easterEgg1{
+	color: #f4c7c7;
+}
+
+.easterEgg2{
+	color: #8beab7;
+}
+
+.easterEgg3{
+	color: #f6f297;
+}
+
+.eggCell{
+	cursor: pointer;
+}
+
+.eggCell:hover .easterEgg{
+	color: white;
+}
+
 #turkimpBuff{
 	width: 100%;
 	text-align: center;
