@@ -3863,7 +3863,7 @@ var toReturn = {
 			title: "Colored Egg",
 			icon: "*droplet",
 			addClass: function () {
-				return "easterEgg easterEgg" + getRandomIntSeeded(game.global.eggSeed, 0, 4);
+				return "easterEgg easterEgg" + getRandomIntSeeded(game.global.eggSeed + 1, 0, 4);
 			},
 			chance: 0.1,
 			fire: function (){}
