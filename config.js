@@ -142,7 +142,7 @@ var toReturn = {
 		selectedHeirloom: [],
 		lastPortal: -1,
 		addonUser: false,
-		eggLoc: 0,
+		eggLoc: -1,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -3796,6 +3796,17 @@ var toReturn = {
 				message("You found your first map! Travel to your map chamber to check it out.", "Story");
 			}
 		},
+		easterEgg: {
+			world: -1,
+			level: [0, 99],
+			title: "Colored Egg",
+			icon: "*droplet",
+			addClass: function () {
+				return "easterEgg easterEgg" + getRandomIntSeeded(game.global.eggSeed + 1, 0, 4);
+			},
+			chance: 0.15,
+			fire: function (){}
+		},
 		//Multiples
 		Map: {
 			world: -1,
@@ -3857,17 +3868,6 @@ var toReturn = {
 				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes");
 			}
 		},
-		easterEgg: {
-			world: -1,
-			level: [0, 99],
-			title: "Colored Egg",
-			icon: "*droplet",
-			addClass: function () {
-				return "easterEgg easterEgg" + getRandomIntSeeded(game.global.eggSeed + 1, 0, 4);
-			},
-			chance: 0.15,
-			fire: function (){}
-		}
 	},
 	//buildings with percent = true cannot have multiple purchases at a time
 	buildings: {

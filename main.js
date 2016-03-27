@@ -3240,7 +3240,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 }
 
 function easterEggClicked(){
-	if (!game.global.eggLoc) return;
+	if (game.global.eggLoc == -1) return;
 	var elem = document.getElementById("cell" + game.global.eggLoc);
 	var gridLoc = game.global.gridArray[game.global.eggLoc];
 	elem.innerHTML = "&nbsp;";
@@ -3288,7 +3288,7 @@ function easterEggClicked(){
 		startText += prettify(amt) + " helium!";
 	}
 	message(startText, "Loot", "*droplet", "eggMessage easterEgg" + getRandomIntSeeded(game.global.eggSeed + 1, 0, 4));
-	game.global.eggLoc = 0;
+	game.global.eggLoc = -1;
 }
 
 function fightManual() {
