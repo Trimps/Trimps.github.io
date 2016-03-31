@@ -2781,7 +2781,7 @@ function createHeirloom(zone, fromBones){
 		elligible.push(item);
 	}
 	//Determine type rarity
-	var rarity = getHeirloomRarity(zone);
+	var rarity = getHeirloomRarity(zone, seed++);
 	slots = slots[rarity];
 	var name = rarityNames[rarity] + " " + type;
 	//Heirloom configuration
@@ -2841,11 +2841,11 @@ function getHeirloomZoneBreakpoint(zone){
 	return rarityBreakpoints.length;
 }
 
-function getHeirloomRarity(zone){ //zone is optional, and will override world
+function getHeirloomRarity(zone, seed){ //zone is optional, and will override world
 	var rarities = game.heirlooms.rarities[getHeirloomZoneBreakpoint(zone)];
 	var nextTest = 0;
 	var selectedRarity;
-	var rarityRoll = getRandomIntSeeded(game.global.heirloomSeed++, 0, 10000);
+	var rarityRoll = getRandomIntSeeded(seed, 0, 10000);
 	for (var y = 0; y < rarities.length; y++){
 		if (rarities[y] == -1) continue;
 		nextTest += rarities[y];
