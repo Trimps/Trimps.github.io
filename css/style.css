@@ -2219,9 +2219,9 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background: -moz-linear-gradient(left,  #000000 0%, #000066 50%, #000000 100%);
-background: -webkit-linear-gradient(left,  #000000 0%,#000066 50%,#000000 100%);
-background: linear-gradient(to right,  #000000 0%,#000066 50%,#000000 100%);
+background: -moz-linear-gradient(left,  #000000 0%, #400010 50%, #000000 100%);
+background: -webkit-linear-gradient(left,  #000000 0%,#400010 50%,#000000 100%);
+background: linear-gradient(to right,  #000000 0%,#400010 50%,#000000 100%);
 color: white;
 }
 .btn-new:hover,
@@ -2233,7 +2233,7 @@ color: white;
 background: -moz-linear-gradient(left,  #000000 0%, #fff 50%, #000000 100%);
 background: -webkit-linear-gradient(left,  #000000 0%,#fff 50%,#000000 100%);
 background: linear-gradient(to right,  #000000 0%,#fff 50%,#000000 100%);
-color: #000066;
+color: #400010;
 
 }
 .btn-new:active,
