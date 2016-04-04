@@ -498,7 +498,7 @@ function load(saveString, autoLoad) {
 		if (parseInt(storyMsg.split('w')[1]) > game.global.world) break;
 		message(game.worldText[storyMsg], "Story");
 	} */
-	
+	calculateAchievementBonus();
 	if(game.global.firing)
 		swapClass("fireBtn", "fireBtnFiring", document.getElementById("fireBtn"));
 	else

@@ -2242,7 +2242,7 @@ function toggleSetting(setting, elem){
 			var one = (typeof achievement.finished !== 'number'); //Check for one-off achievement
 			var count = (one) ? achievement.finished.length : achievement.finished;
 			for (var x = 0; x < count; x++){
-				if (!one && !achievement.finished[x]) continue;
+				if (one && !achievement.finished[x]) continue;
 				totalBonus += game.tierValues[achievement.tiers[x]];
 			}	
 		}
