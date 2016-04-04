@@ -1458,7 +1458,7 @@ var toReturn = {
 		oneOffs: {
 			finished: [false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
-			descriptions: ["Clear Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Own 100 of all housing buildings"],
+			descriptions: ["Reach Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Own 100 of all housing buildings"],
 			tiers: [3, 3, 3, 4, 4, 5, 5, 5, 5, 5, 6],
 			description: function (number) {
 				return this.descriptions[number];
