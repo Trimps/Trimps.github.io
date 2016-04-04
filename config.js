@@ -144,6 +144,7 @@ var toReturn = {
 		addonUser: false,
 		eggLoc: -1,
 		researched: false,
+		bonePortalThisRun: false,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,

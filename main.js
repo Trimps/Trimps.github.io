@@ -4029,7 +4029,7 @@ function nextWorld() {
 		if ((game.global.world % 2) == 0) game.challenges.Lead.stacks = game.challenges.Lead.stacks = 201;
 		manageLeadStacks();
 	}
-	if (game.global.world == 30 && game.global.canRespecPerks && countHeliumSpent() <= 60) giveSingleAchieve(0);
+	if (game.global.world == 30 && game.global.canRespecPerks && !game.global.bonePortalThisRun && countHeliumSpent() <= 60) giveSingleAchieve(0);
 	else if (game.global.world == 10 && game.stats.trimpsKilled.value <= 5) giveSingleAchieve(3);
 	else if (game.global.world == 60 && game.stats.trimpsKilled.value <= 1000) giveSingleAchieve(6);
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve(8);
@@ -5023,7 +5023,10 @@ function updateBones() {
 function boostHe(checkOnly) {
 	var level = game.global.highestLevelCleared - 19;
 	var amt = 30;
-	if (!checkOnly) game.global.canRespecPerks = true;
+	if (!checkOnly) {
+		if (!game.global.canRespecPerks) game.global.bonePortalThisRun = true;
+		game.global.canRespecPerks = true;		
+	}
 	if (level <= 0) {
 		if (checkOnly) return amt;
 		game.global.heliumLeftover += amt;
