@@ -104,6 +104,7 @@ function save(exportThis) {
 		delete achievement.tiers;
 		delete achievement.breakpoints;
 		delete achievement.names;
+		delete achievement.descriptions;
 		delete achievement.title;
 		delete achievement.icon;
 		delete achievement.newStuff;
