@@ -4329,7 +4329,7 @@ function fight(makeUp) {
 	}
 	if (game.global.voidBuff == "bleed" && wasAttacked) {
 		game.global.soldierHealth -= (game.global.soldierHealth * 0.2);
-		if (game.global.soldierHealth < 0) thisKillsTheTrimp();
+		if (game.global.soldierHealth < 1) thisKillsTheTrimp();
 	}
 	if (gotCrit) critSpan.innerHTML = "Crit!";
 	document.getElementById("badCrit").innerHTML = (badCrit && wasAttacked) ? "Crit!" : "";
