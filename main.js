@@ -2860,6 +2860,7 @@ function getHeirloomZoneBreakpoint(zone){
 }
 
 function getHeirloomRarity(zone, seed){ //zone is optional, and will override world
+	if (!zone) zone = game.global.world;
 	var rarities = game.heirlooms.rarities[getHeirloomZoneBreakpoint(zone)];
 	var nextTest = 0;
 	var selectedRarity;
@@ -2872,7 +2873,7 @@ function getHeirloomRarity(zone, seed){ //zone is optional, and will override wo
 			break;
 		}
 	}
-	if (zone == 146 && selectedRarity == 1) giveSingleAchieve(9);
+	if (zone >= 146 && selectedRarity == 1) giveSingleAchieve(9);
 	return selectedRarity;
 }
 
