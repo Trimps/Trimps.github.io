@@ -1135,11 +1135,11 @@ overflow-x: hidden;
 }
 
 .heirloomRare2{
-	color: #2727b9;
+	color: #2b2bce;
 }
 
 .heirloomRare2 .heirloomMod:hover, .heirloomRare2.rarityBdBox{
-	border: 0.2vw solid #2727b9;
+	border: 0.2vw solid #2b2bce;
 }
 
 .heirloomRare3{
@@ -1769,6 +1769,14 @@ color: #DDDDFF !important;
 .voidMessage, .voidBadge, .voidCell.cellColorNotBeaten{
 	background-color: #2E0854;
 	color: #DDDDFF;
+}
+
+.reducedSizeSec{
+	font-size: 0.9em !important;
+}
+
+#gemsPs .reducedSizeSec, #fragmentsPs .reducedSizeSec{
+	font-size: 0.85em !important;
 }
 
 .planetBreakDescription{

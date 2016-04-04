@@ -1106,11 +1106,10 @@ function prettify(number, noSup) {
 	else
 	{
 		var exponent = parseFloat(numberTmp).toExponential(2);
-		if (!noSup) exponent = exponent.replace('+','<sup>') + '</sup>';
-		else exponent = exponent.replace('+', '');
+		exponent = exponent.replace('+', '');
 		return exponent;
 	}
-
+	
 	return prettifySub(number) + suffix;
 }
 
@@ -1694,7 +1693,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			toUpdate.owned = parseFloat(toUpdate.owned);
 			if (!(toUpdate.owned > 0)) toUpdate.owned = 0;
 		}
-		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned), true);
+		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned));
 		if (toUpdate.max == -1 || document.getElementById(item + "Max") === null) continue;
 		var newMax = toUpdate.max;
 		if (item != "trimps")
@@ -1805,8 +1804,8 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 		psText = prettify(psText);
 /*		var color = (psText < 0) ? "red" : "green";
 		if (psText == 0) color = "black"; */
-		psText = "+" + psText;
-		psText += "/sec";
+		psText = "+" + psText + "/sec";
+		if (psText.replace('.','').length >= 11) psText = '<span class="reducedSizeSec">' + psText + '</span>';
 		if (trimps && game.unlocks.quickTrimps) {
 			psText += " (x2!)"; 
 		}
@@ -2169,10 +2168,11 @@ function toggleSetting(setting, elem){
 			achievement.newStuff.splice(index, 1);
 		}
 		var location = (forHover) ? "Hover" : "Popup";
-		if (!forHover) displayNumber = achievement.finished;
+		if (!forHover && typeof achievement.finished === 'number') displayNumber = achievement.finished;
 		var color = game.colorsList[achievement.tiers[displayNumber]];
 		var prog = document.getElementById("achievementHoverProgress");
-		if (forHover && !achievement.showAll && displayNumber > achievement.finished) {
+		var one = (typeof achievement.finished !== 'number');
+		if (forHover && ((!one && !achievement.showAll && displayNumber > achievement.finished) || (one && (game.global.highestLevelCleared < achievement.filters[displayNumber] && !achievement.finished[displayNumber])))) {
 			document.getElementById("achievement" + location).style.display = "block";
 			document.getElementById("achievement" + location + "IconContainer").innerHTML = '<span style= "color: ' + color + ';" class="icomoon icon-locked achievementPopupIcon"></span>';
 			document.getElementById("achievement" + location + "Title").innerHTML = "Locked";
@@ -2196,6 +2196,7 @@ function toggleSetting(setting, elem){
 	}
 
 	function checkAchieve(id, evalProperty, doubleChecking, noDisplay) {
+		if (id == "housing" && checkHousing() >= 100) giveSingleAchieve(10);
 		var achievement = game.achievements[id];		
 		if (typeof achievement.evaluate !== 'undefined') evalProperty = achievement.evaluate();
 		if (typeof achievement.highest !== 'undefined') {
@@ -2216,7 +2217,7 @@ function toggleSetting(setting, elem){
 			}
 		}
 		else if (evalProperty != achievement.breakpoints[achievement.finished]) return;
-		if (!noDisplay) displayAchievementPopup(id);
+		if (!noDisplay) displayAchievementPopup(id, false, achievement.finished);
 		achievement.newStuff.push(achievement.finished);
 		achievement.finished++;
 		checkAchieve(id, evalProperty, true, noDisplay);
@@ -2224,11 +2225,24 @@ function toggleSetting(setting, elem){
 		if (trimpAchievementsOpen && !doubleChecking) displayAchievements();
 	}
 	
+	function giveSingleAchieve(index){
+		var achievement = game.achievements.oneOffs;
+		if (achievement.finished[index]) return;
+		displayAchievementPopup("oneOffs", false, index);
+		achievement.newStuff.push(index);
+		achievement.finished[index] = true;
+		calculateAchievementBonus();
+		if (trimpAchievementsOpen) displayAchievements();
+	}
+	
 	function calculateAchievementBonus(){
 		var totalBonus = 0;
 		for (var item in game.achievements){
 			var achievement = game.achievements[item];
-			for (var x = 0; x < achievement.finished; x++){
+			var one = (typeof achievement.finished !== 'number'); //Check for one-off achievement
+			var count = (one) ? achievement.finished.length : achievement.finished;
+			for (var x = 0; x < count; x++){
+				if (!one && !achievement.finished[x]) continue;
 				totalBonus += game.tierValues[achievement.tiers[x]];
 			}	
 		}
@@ -2241,18 +2255,20 @@ function toggleSetting(setting, elem){
 			var achievement = game.achievements[item];
 			if (typeof achievement.display !== 'undefined' && !achievement.display()) continue;
 			var amount = achievement.tiers.length;
+			var one = (typeof achievement.finished !== 'number');
 			var titleClass = 'class="achievementTitle';
-			if (amount > 12 && achievement.finished < 10) amount = 12;
+			if (amount > 12 && (!one && achievement.finished < 10)) amount = 12;
 			titleClass += (amount > 12) ? ' doubleTall"' : '"';
 			htmlString += '<div class="achievementsContainer"><div ' + titleClass + '>' + achievement.title + '</div><span class="littleAchievementWrapper">';
 			var calcAmount = (amount > 12) ? (amount / 2) : amount;
 			width = 7.3;
 			for (var x = 0; x < amount; x++){
+				if (one && achievement.filters[x] == -1 && !achievement.finished[x]) continue;
 				var displayColor = "grey";
 				var borderStyle = "";
 				var tierValue = "<span style='color: black;' class='" + achievement.icon + "'></span>";
-				if (achievement.finished == x) displayColor = "#C5C515"; //Yellow
-				else if (achievement.finished > x) {
+				if ((!one && achievement.finished == x) || (one && !achievement.finished[x] && game.global.highestLevelCleared >= achievement.filters[x])) displayColor = "#C5C515"; //Yellow
+				else if ((one && achievement.finished[x]) || (!one && achievement.finished > x)) {
 					displayColor = "#159515"; //Greenz
 					if (achievement.newStuff.length && achievement.newStuff.indexOf(x) != -1) tierValue = "<span id='" + item + x + "Alert' style='color: yellow;' class='icomoon icon-exclamation-circle'></span>&nbsp;" + tierValue;
 				}
@@ -2306,7 +2322,7 @@ function toggleSetting(setting, elem){
 		document.getElementById("achievement" + location).style.display = "none";
 	}
 	
-	function showAchievementDescription(id, number){
+/* 	function showAchievementDescription(id, number){
 		var elem = document.getElementById(id + "Description");
 		var achievement = game.achievements[id];
 		if (number > achievement.finished) return;
@@ -2315,7 +2331,7 @@ function toggleSetting(setting, elem){
 	
 	function hideAchievementDescription(id){
 		document.getElementById(id + "Description").innerHTML = "";
-	}
+	} */
 
 function swapClass(prefix, newClass, elem) {
 if (elem == null) {

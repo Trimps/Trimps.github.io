@@ -370,14 +370,15 @@ function load(saveString, autoLoad) {
 	if (oldVersion < 3.1){
 		game.global.heirloomBoneSeed = getRandomIntSeeded(game.global.heirloomSeed, 0, 1000000);
 	}
-	if (oldVersion < 3.11){
+	/* if (oldVersion < 3.11){
 		game.global.eggSeed = getRandomIntSeeded(game.global.heirloomBoneSeed, 0, 1000000);
 		cancelTooltip();
 		noOfflineTooltip = true;
-		tooltip("Eggs", null, 'update');
-		
+		tooltip("Eggs", null, 'update');	
+	} */
+	if (oldVersion < 3.2){
+		game.global.researched = true;
 	}
-	
 	//End compatibility
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
@@ -1027,6 +1028,14 @@ function clearPerks(){
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax);
 }
 
+function countHeliumSpent(){
+	var count = 0;
+	for (var item in game.portal){
+		count += game.portal[item].heliumSpent;
+	}
+	return count;
+}
+
 function activateClicked(){	
 	if (game.global.viewingUpgrades){
 		var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
@@ -1470,6 +1479,7 @@ function updateBuildSpeed(){
 }
 
 function setGatherTextAs(what, on) {
+	if (what == "science") game.global.researched = true;
     var trimpTrapText = '(<span id="trimpTrapText">' + prettify(game.buildings.Trap.owned) + '</span>)';
     switch (what) {
     case "food":
@@ -2478,6 +2488,13 @@ function equipHeirloom(){
 		game.heirlooms[heirloom.type][heirloom.mods[item][0]].currentBonus += heirloom.mods[item][1];
 	}
 	populateHeirloomWindow();
+	if (checkLowestHeirloom() >= 5) giveSingleAchieve(5);
+}
+
+function checkLowestHeirloom(){
+	var lowest = game.global.StaffEquipped.rarity;
+	if (lowest > game.global.ShieldEquipped.rarity) lowest = game.global.ShieldEquipped.rarity;
+	return lowest;
 }
 
 function carryHeirloom(){
@@ -2854,6 +2871,7 @@ function getHeirloomRarity(zone, seed){ //zone is optional, and will override wo
 			break;
 		}
 	}
+	if (zone == 146 && selectedRarity == 1) giveSingleAchieve(9);
 	return selectedRarity;
 }
 
@@ -3038,6 +3056,7 @@ function addSpecials(maps, countOnly, map, getPrestiges) { //countOnly must incl
 	var prestigeItemsAvailable = [];
     for (var item in unlocksObj) {
         var special = unlocksObj[item];
+		if (special.locked) continue;
 		if (item == "easterEgg"){
 			game.global.eggSeed += 3;
 			if (seededRandom(game.global.eggSeed) >= special.chance) continue;
@@ -3678,6 +3697,7 @@ function startFight() {
     var cell;
     var cellElem;
 	var badCoord;
+	var instaFight = false;
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
         cell = game.global.mapGridArray[cellNum];
@@ -3721,6 +3741,8 @@ function startFight() {
 	if (game.global.challengeActive == "Balance") updateBalanceStacks();
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
     if (cell.maxHealth == -1) {
+		var overkill = 0;
+		if (cell.health != -1) overkill = cell.health;
         cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
         cell.health = game.global.getEnemyHealth(cell.level, cell.name);
 		if (game.global.challengeActive == "Coordinate") cell.health *= badCoord;
@@ -3740,7 +3762,11 @@ function startFight() {
 		}
 		else if (game.global.challengeActive == "Lead" && (game.challenges.Lead.stacks > 0)) cell.health *= (1 + (game.challenges.Lead.stacks * 0.04));
         cell.maxHealth = cell.health;
-		
+		if (game.portal.Overkill.level) cell.health -= (overkill * game.portal.Overkill.level * 0.005);
+		if (cell.health < 1) {
+			cell.health = 0;
+			instaFight = true;
+		}
     }
 	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
 		updateNomStacks(cell.nomStacks);
@@ -3751,6 +3777,11 @@ function startFight() {
     var trimpsFighting = game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
 		game.global.battleCounter = 0;
+		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
+			if (!cell.killCount) cell.killCount = 1;
+			else cell.killCount++;
+			if (cell.killCount >= 50) giveSingleAchieve(2);
+		}
 		if (game.portal.Anticipation.level){
 			game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
 			if (game.global.antiStacks >= 30) game.global.antiStacks = 30;
@@ -3791,6 +3822,11 @@ function startFight() {
 			game.global.soldierHealthMax *= game.challenges.Balance.getHealthMult();
 		}
 		game.global.soldierHealth = game.global.soldierHealthMax;
+		if (game.global.challengeActive == "Devastation") {
+			if (game.challenges.Devastation.lastOverkill != -1) game.global.soldierHealth -= (game.challenges.Devastation.lastOverkill * 7.5);
+			game.challenges.Devastation.lastOverkill = -1;
+			if (game.global.soldierHealth < 1) game.global.soldierHealth = 0;
+		}
 		if (game.global.challengeActive == "Lead") manageLeadStacks();
     }
 	else {
@@ -3831,7 +3867,8 @@ function startFight() {
 	var soldType = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
 	updateAllBattleNumbers(game.resources.trimps.soldiers < soldType);
     game.global.fighting = true;
-    game.global.lastFightUpdate = new Date();	
+    game.global.lastFightUpdate = new Date();
+	if (instaFight) fight();
 }
 
 function updateAllBattleNumbers (skipNum) {
@@ -3990,6 +4027,29 @@ function nextWorld() {
 		if ((game.global.world % 2) == 0) game.challenges.Lead.stacks = game.challenges.Lead.stacks = 201;
 		manageLeadStacks();
 	}
+	if (game.global.world == 30 && game.global.canRespecPerks && countHeliumSpent() <= 60) giveSingleAchieve(0);
+	else if (game.global.world == 10 && game.stats.trimpsKilled.value <= 5) giveSingleAchieve(3);
+	else if (game.global.world == 60 && game.stats.trimpsKilled.value <= 1000) giveSingleAchieve(6);
+	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve(8);
+	else if (game.global.world == 120 && !game.global.researched) giveSingleAchieve(7);
+}
+
+function checkHousing(getHighest){
+	//returns the lowest number of housing buildings
+	var count = -1;
+	for (var item in game.buildings){
+		var building = game.buildings[item];
+		if (building.increase && building.increase.what == "trimps.max") {
+			if (count == -1) count = building.owned;
+			else if (getHighest){
+				if (count < building.owned) count = building.owned;
+			}
+			else {
+				if (count > building.owned) count = building.owned;
+			}
+		}
+	}
+	return count;
 }
 
 function assignExtraWorkers(){
@@ -4207,14 +4267,18 @@ function fight(makeUp) {
 	}
 	var attacked = false;
 	var wasAttacked = false;
+	var overkill = 0;
+	var impOverkill = 0;
+	var thisKillsTheTrimp = function() {
+		impOverkill -= game.global.soldierHealth;
+		game.global.soldierHealth = 0;
+		gotCrit = false;
+	};
     if (game.global.challengeActive == "Slow" || (((game.badGuys[cell.name].fast && game.global.challengeActive != "Nom") || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate")) {
         game.global.soldierHealth -= attackAndBlock;
 		wasAttacked = true;
-		var thisKillsTheTrimp = function() {
-			game.global.soldierHealth = 0;
-			gotCrit = false;
-		};
         if (game.global.soldierHealth > 0) {
+			if (trimpAttack >= cell.health) overkill = trimpAttack - cell.health;
 			cell.health -= trimpAttack;
 			attacked = true;
 			if (game.global.voidBuff == "doubleAttack"){
@@ -4228,6 +4292,7 @@ function fight(makeUp) {
 		}
     }
 	else {
+		if (trimpAttack >= cell.health) overkill = trimpAttack - cell.health;
         cell.health -= trimpAttack;
 		attacked = true;
         if (cell.health > 0) {
@@ -4239,11 +4304,11 @@ function fight(makeUp) {
 				cell.health = 0;
 				//fight(makeUp); return;
 			}
-        if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
+        if (game.global.soldierHealth < 0) thisKillsTheTrimp();
     }
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && attacked){
 		game.global.soldierHealth -= game.global.soldierHealthMax * (game.global.radioStacks * 0.1);
-		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
+		if (game.global.soldierHealth < 0) thisKillsTheTrimp();
 	}
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && wasAttacked){
 		game.global.radioStacks++;
@@ -4256,15 +4321,15 @@ function fight(makeUp) {
 	}
 	if ((game.global.challengeActive == "Nom" || game.global.challengeActive == "Toxicity") && attacked){
 		game.global.soldierHealth -= game.global.soldierHealthMax * 0.05;
-		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
+		if (game.global.soldierHealth < 0) thisKillsTheTrimp();
 	}
 	else if (game.global.challengeActive == "Lead" && attacked && cell.health > 0){
 		game.global.soldierHealth -= (game.global.soldierHealthMax * game.challenges.Lead.stacks * 0.0003);
-		if (game.global.soldierHealth < 0) game.global.soldierHealth = 0;
+		if (game.global.soldierHealth < 0) thisKillsTheTrimp();
 	}
 	if (game.global.voidBuff == "bleed" && wasAttacked) {
 		game.global.soldierHealth -= (game.global.soldierHealth * 0.2);
-		if (game.global.soldierHealth < 1) game.global.soldierHealth = 0;
+		if (game.global.soldierHealth < 0) thisKillsTheTrimp();
 	}
 	if (gotCrit) critSpan.innerHTML = "Crit!";
 	document.getElementById("badCrit").innerHTML = (badCrit && wasAttacked) ? "Crit!" : "";
@@ -4272,7 +4337,13 @@ function fight(makeUp) {
     if (makeUp) return;
     updateGoodBar();
 	updateBadBar(cell);
-    
+    if (overkill) {
+		var nextCell = (game.global.mapsActive) ? game.global.mapGridArray[cellNum + 1] : game.global.gridArray[cellNum + 1];
+		if (nextCell) nextCell.health = overkill;	
+	}
+	if (game.global.challengeActive == "Devastation" && impOverkill){
+		game.challenges.Devastation.lastOverkill = impOverkill;
+	}
     /*	if (game.jobs.Medic.owned >= 1) setTimeout(heal, 500); */
 }
 
@@ -5377,7 +5448,9 @@ function updatePortalTimer() {
 	if (game.resources.helium.owned > 0) game.stats.bestHeliumHourThisRun.evaluate();
 	if (game.global.autoStorage == true) autoStorage();
 	if (game.resources.helium.owned) document.getElementById("heliumPh").innerHTML = prettify(game.stats.heliumHour.value()) + "/hr";
-	//assignExtraWorkers();
+	if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
+	if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
+	
 	setTimeout(updatePortalTimer, 1000);
 }
 

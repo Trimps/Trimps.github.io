@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.11,
+		version: 3.2,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -143,6 +143,7 @@ var toReturn = {
 		lastPortal: -1,
 		addonUser: false,
 		eggLoc: -1,
+		researched: false,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -446,6 +447,14 @@ var toReturn = {
 	},
 	//portal
 	portal: {
+		Overkill: {
+			level: 0,
+			locked: true,
+			priceBase: 1000000,
+			heliumSpent: 0,
+			tooltip: "You have overcome the otherworldly objective of obtaining Overkill, outstanding! Each level of this perk will allow 0.5% of your overkill damage to harm the next enemy. If this damage kills the next enemy, you will lose no time moving through that cell.",
+			max: 30
+		},
 		Resourceful: {
 			level: 0,
 			locked: true,
@@ -927,6 +936,16 @@ var toReturn = {
 			lootMult: 0.15,
 			unlockString: "reach Zone 165"
 		},
+		Devastation: {
+			description: "Travel to a harsh dimension where Trimps are penalized for the mistakes of previous generations. If your army is killed at any point, any overkill damage will be applied 750% to the next group of Trimps to fight. Completing <b>Imploding Star (Zone 170)</b> will return the world to normal.",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 169);
+			},
+			lastOverkill: -1,
+			unlocks: "Overkill",
+			unlockString: "reach Zone 170"
+		},
 		Watch: {
 			description: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Completing <b>Zone 180</b> with this challenge active will reward you with 2.5X helium earned from any source up to Zone 180.",
 			filter: function () {
@@ -1394,7 +1413,7 @@ var toReturn = {
 				return "<span style='font-size: .8em'>Clear Bionic Wonderland in " + number + " or less from start of run</span>";
 			},
 			display: function () {
-				return (game.global.highestLevelCleared >= 80);
+				return (game.global.highestLevelCleared >= 79);
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
@@ -1411,6 +1430,44 @@ var toReturn = {
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},		
+		starTimed: {
+			finished: 0,
+			title: "Speed: Star",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "<span style='font-size: .8em'>Clear Imploding Star in " + number + " or less from start of run</span>";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 124);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
+			reverse: true,
+			showAll: true,
+			breakpoints: [1680, 1080, 390, 180, 150], //In minutes
+			tiers: [5, 5, 5, 6, 6],
+			names: ["Cosmic Curiosity", "Star Struck", "Space Speeder", "Intense Inertia", "Stellar Striker"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		oneOffs: {
+			finished: [false, false, false, false, false, false, false, false, false, false, false],
+			title: "Feats",
+			descriptions: ["Clear Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Own 100 of all housing buildings"],
+			tiers: [3, 3, 3, 4, 4, 5, 5, 5, 5, 5, 6],
+			description: function (number) {
+				return this.descriptions[number];
+			},
+			filters: [29, 29, -1, 59, -1, 124, 59, 119, 74, -1, 59],
+			icon: "icomoon icon-alarmclock",
+			names: ["Underachiever", "Hoarder", "Needs Block", "Peacekeeper", "Elite Feat", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Realtor"],
+			newStuff: []
+		}
 	},
 	
 	heirlooms: { //Basic layout for modifiers. Steps can be set specifically for each modifier, or else default steps will be used
@@ -1618,7 +1675,6 @@ var toReturn = {
 		w166: "That last Improbability seemed like a nice guy.",
 		w168: "Hopefully spaceships don't rust.",
 		w170: "You reach the top of an incredibly large mountain. You can see at least 50 zones sprawled out before you. About 30 zones away, you can see a gigantic spire. It looks like architecture from your home world. You hope it's not a mirage...",
-		
 		
 		
 	},
@@ -2313,7 +2369,72 @@ var toReturn = {
 				message("Terminatimp Terminated. Findings: " + prettify(amt) + " bars of metal. Hasta la Vista.", "Loot", "*cubes");				
 			}
 		},
+		Autoimp: {
+			location: "Bionic",
+			world: 125,
+			attack: 1.4,
+			health: 1.3,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("metal", .5, level, true);
+				message("Autoimp force quit. Memory dump provides " + prettify(amt) + " bars of metal and no clues. It's a feature!", "Loot", "*cubes");
+			}
+		},
 		//End Bionic Wonderland stuff
+		//Start Imploding Star stuff
+		Neutrimp: {
+			location: "Star",
+			last: true,
+			world: 170,
+			attack: 1.3,
+			health: 2.5,
+			fast: true,
+			loot: function (level) {
+				checkAchieve("starTimed");
+				var amt1 = rewardResource("wood", 1.5, level, true);
+				var amt2 = rewardResource("metal", 1.5, level, true);
+				message("The Neutrimp gasps, shimmers, squeaks, then poofs into a quickly dispersing purple cloud. You spend a few moments trying to make sense of what you've just seen, but look around and find " + prettify(amt1) + " wood and " + prettify(amt2) + " metal instead!", "Loot", "*cogs");
+				if (game.global.challengeActive == "Devastation") {
+					message("You have completed the Devastation challenge! Your world has been returned to normal, and you have unlocked the Overkill perk!", "Notices");
+					game.global.challengeActive = "";
+					game.portal.Overkill.locked = false;
+				}
+			}
+		},
+		Fusimp: {
+			location: "Star",
+			world: 170,
+			attack: 1.4,
+			health: 1.8,
+			fast: true,
+			loot: function (level) {
+				var amt = rewardResource("metal", .5, level, true);
+				message("The Fusimp explodes, leaving behind " + prettify(amt) + " bars of metal and a nice dose of radiation.", "Loot", "*cubes");				
+			}
+		},
+		Hydrogimp: {
+			location: "Star",
+			world: 170,
+			attack: 1.8,
+			health: 2.2,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("food", 1, level, true);
+				message("Before you can blink, the Hydrogimp vaporizes. That's fine though, it left " + prettify(amt) + " food for you!", "Loot", "apple");				
+			}			
+		},
+		Carbimp: {
+			location: "Star",
+			world: 170,
+			attack: 1,
+			health: 4,
+			fast: true,
+			loot: function (level) {
+				var amt = rewardResource("wood", 1, level, true);
+				message("The Carbimp begins to crackle and shrink. Within a few seconds, all that's left is " + prettify(amt) + " wood.", "Loot", "tree-deciduous");				
+			}		
+		},
+		//End Imploding Star stuff
 		Improbability: {
 			locked: 1,
 			location: "World",
@@ -2627,6 +2748,9 @@ var toReturn = {
 				resourceType: "Any",
 				upgrade: ["AutoStorage", "Heirloom"]
 			},
+			Star: {
+				resourceType: "Metal"
+			},
 			All: {
 				resourceType: "Metal"
 			}
@@ -2807,7 +2931,7 @@ var toReturn = {
 					game.global.challengeActive = "";
 					game.global.sLevel = getScientistLevel();
 					game.challenges.Scientist.abandon();					
-					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll receive " + getScientistInfo(game.global.sLevel, true) + " every time you portal. You've unlocked Scientists, and <b>Don't forget that you can click Research on your Science again!</b>", "Notices");
+					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll " + getScientistInfo(game.global.sLevel, true) + " every time you portal. You've unlocked Scientists, and <b>Don't forget that you can click Research on your Science again!</b>", "Notices");
 				}
 				if (game.global.challengeActive == "Trimp"){
 					game.global.challengeActive = "";
@@ -3040,6 +3164,17 @@ var toReturn = {
 			fire: function () {
 				message("You found a map to the Bionic Wonderland. Sounds fun!", "Story");
 				createMap(125, "Bionic Wonderland", "Bionic", 3, 100, 2.6, true);
+			}
+		},
+		ImplodingStar: {
+			startAt: 170,
+			level: [1, 15],
+			icon: 'th-large',
+			canRunOnce: true,
+			title: 'Imploding Star',
+			fire: function () {
+				message("You found a map to an Imploding Star inside of a supercooled dimension. The temperature there is perfect!", "Story");
+				createMap(170, "Imploding Star", "Star", 3, 100, 3.2, true);
 			}
 		},
 		Mansion: {
@@ -3727,6 +3862,7 @@ var toReturn = {
 			fire: function () {
 				game.global.autoCraftModifier += 0.25;
 				document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
+				updateBuildSpeed();
 			}
 		},
 		Anger: {
@@ -3798,6 +3934,7 @@ var toReturn = {
 		},
 		easterEgg: {
 			world: -1,
+			locked: true,
 			level: [0, 99],
 			title: "Colored Egg",
 			icon: "*droplet",
