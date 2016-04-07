@@ -3447,6 +3447,7 @@ function mapsClicked(confirmed) {
     if (game.global.switchToMaps || game.global.switchToWorld || game.options.menu.alwaysAbandon.enabled == 1) {
         game.global.switchToMaps = true;
 		game.global.soldierHealth = 0;
+		game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
 		game.resources.trimps.soldiers = 0;
 		var bar = document.getElementById("goodGuyBar");
 		swapClass("percentColor", "percentColorRed", bar);
@@ -4240,7 +4241,7 @@ function fight(makeUp) {
 				if (game.global.switchToMaps){
 					game.global.soldierHealth = 0;
 					game.resources.trimps.soldiers = 0;
-					updateGoodBar();
+					updateGoodBar();		
 				}
 				game.global.preMapsActive = true;
 				game.global.mapsActive = false;
