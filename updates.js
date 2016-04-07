@@ -2138,7 +2138,7 @@ function toggleSetting(setting, elem, fromPortal){
 	cancelTooltip();
 	if (fromPortal){
 		document.getElementById('ptabInfoText').innerHTML = (menuOption.enabled) ? "Less Info" : "More Info";
-		displayPortalUpgrades();
+		displayPortalUpgrades(true);
 		return;
 	}
 	if (elem != null) elem.onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
