@@ -967,8 +967,8 @@ overflow-x: hidden;
 	height: 100vh;
 	padding: 20px;
 	text-align: center;
-	padding-left: 10vw;
-	padding-right: 10vw;
+	padding-left: 5vw;
+	padding-right: 5vw;
 }
 
 .portalMk1{
@@ -1025,7 +1025,7 @@ overflow-x: hidden;
 }
 
 .portalThing.detailed{
-	font-size: 0.75vw;
+	font-size: 0.72vw;
 }
 
 #statsWrapper, #achievementWrapper, #heirloomWrapper{
@@ -1633,6 +1633,7 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 }
 
 .portalThing{
+	width: 19.3%;
 	font-size: 1.2vw;
 }
 
@@ -2103,7 +2104,7 @@ color: #DDDDFF !important;
 }
 
 #challenges{
-	margin: 1vw;
+	margin: 0 1vw;
 }
 
 #challengeTitle{
@@ -2137,6 +2138,7 @@ color: #DDDDFF !important;
 	background-color: #318696;
 	color: white;
 	font-size: 1.1vw;
+	width: 19.4%;
 }
 
 #extraGridInfo{

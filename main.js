@@ -108,6 +108,7 @@ function save(exportThis) {
 		delete achievement.title;
 		delete achievement.icon;
 		delete achievement.newStuff;
+		delete achievement.filters;
 	}
 	delete saveGame.heirlooms.values;
 	delete saveGame.heirlooms.defaultSteps;
@@ -380,6 +381,10 @@ function load(saveString, autoLoad) {
 	if (oldVersion < 3.2){
 		game.global.researched = true;
 	}
+	if (oldVersion < 3.21){
+		game.achievements.oneOffs.finished.push(false);
+		game.achievements.oneOffs.filters.push(-1);
+	}
 	//End compatibility
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
@@ -434,8 +439,11 @@ function load(saveString, autoLoad) {
 	if (!game.options.menu.pauseGame.enabled) checkOfflineProgress(noOfflineTooltip);
 	if (game.options.menu.darkTheme.enabled != 1) game.options.menu.darkTheme.onToggle();
 	updateLabels();
-	if (game.global.viewingUpgrades) viewPortalUpgrades();
-	if (game.global.respecActive) respecPerks();
+	if (game.global.viewingUpgrades){
+		viewPortalUpgrades();
+		if (game.global.respecActive) respecPerks();
+	}
+	else game.global.respecActive = false;
 	if (game.global.kongBonusMode) activateKongBonus();
 	
 	if (game.global.challengeActive && typeof game.challenges[game.global.challengeActive].onLoad !== 'undefined') game.challenges[game.global.challengeActive].onLoad();
@@ -614,6 +622,7 @@ function portalClicked() {
 	game.global.viewingUpgrades = false;
 	game.global.respecActive = false;
 	game.global.tempHighHelium = game.resources.helium.owned;
+	game.resources.helium.respecMax = game.resources.helium.owned + game.global.heliumLeftover;
 	document.getElementById("wrapper").style.display = "none";
 	var bgColor = "";
 	if (game.global.sLevel == 1) bgColor = "#00b386";
@@ -631,9 +640,13 @@ function portalClicked() {
 	document.getElementById("totalPortals").innerHTML = game.global.totalPortals;
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
 	document.getElementById("activatePortalBtn").innerHTML = "Activate Portal";
-	document.getElementById("respecPortalBtn").style.display = "none";
+		if (game.global.canRespecPerks) {
+		document.getElementById("respecPortalBtn").innerHTML = "Respec";
+		document.getElementById("respecPortalBtn").style.display = "inline-block";
+	}
 	displayChallenges();
 	displayPortalUpgrades();
+	numTab(1, true);
 	game.global.removingPerks = false;
 }
 
@@ -809,32 +822,38 @@ function viewPortalUpgrades() {
 		document.getElementById("respecPortalBtn").style.display = "inline-block";
 	}
 	displayPortalUpgrades();
+	numTab(1, true);
 	if (game.global.challengeActive) document.getElementById("cancelChallengeBtn").style.display = "inline-block";
 }
 
-function displayPortalUpgrades(){
-	numTab(1, true);
+function displayPortalUpgrades(fromTab){
+	document.getElementById('ptabInfoText').innerHTML = (game.options.menu.detailedPerks.enabled) ? "Less Info" : "More Info";
 	toggleRemovePerks(true);
 	var elem = document.getElementById("portalUpgradesHere");
 	elem.innerHTML = "";
-	game.resources.helium.totalSpentTemp = 0;
+	if (!fromTab) game.resources.helium.totalSpentTemp = 0;
 	for (var what in game.portal){
 		if (game.portal[what].locked) continue;
 		var portUpgrade = game.portal[what];
 		if (typeof portUpgrade.level === 'undefined') continue;
-		portUpgrade.levelTemp = 0;
-		portUpgrade.heliumSpentTemp = 0;
+		if (!fromTab){
+			portUpgrade.levelTemp = 0;
+			portUpgrade.heliumSpentTemp = 0;
+		}
 		var html = '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing perkColorOff';
 		if (game.options.menu.detailedPerks.enabled == 1) html += " detailed";
-		html += '" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span>';
-		if (game.options.menu.detailedPerks.enabled == 1){ 	
+		html += '" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span>';
+		if (game.options.menu.detailedPerks.enabled == 1){
+		html += '<span class="thingOwned">&nbsp;<b>(<span id="' + what + 'Owned">' + portUpgrade.level + '</span>)</b>';
 		if (!portUpgrade.max || portUpgrade.max > portUpgrade.level + portUpgrade.levelTemp) html += "<br/>Price: <span id='" + what + "Price'>" + prettify(getPortalUpgradePrice(what)) + "</span>";
 		else html += "<br/>Price: <span id='" + what + "Price'>Max</span>";
 		html += '<br/>Spent: <span id="' + what + 'Spent">' + prettify(portUpgrade.heliumSpent + portUpgrade.heliumSpentTemp) + '</span>';
 		}
+		else html += '<br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span>';
 		html += '</span></div>';
 		elem.innerHTML += html;
 		updatePerkColor(what);
+		updatePerkLevel(what);
 	}
 }
 
@@ -843,7 +862,7 @@ function updatePerkColor(what){
 	if (!elem) return;
 	var perk = game.portal[what];
 	var price = getPortalUpgradePrice(what);
-	var canSpend = (game.global.viewingUpgrades) ? game.resources.helium.respecMax :  (game.resources.helium.owned + game.global.heliumLeftover);
+	var canSpend = game.resources.helium.respecMax;
 	var perkClass = ((canSpend >= game.resources.helium.totalSpentTemp + price) && (!perk.max || (perk.max >= perk.level + perk.levelTemp + game.global.buyAmt))) ? "perkColorOn" : "perkColorOff";
 	swapClass("perkColor", perkClass, elem);
 }
@@ -879,7 +898,9 @@ function activateKongBonus(oldWorld){
 
 	fadeIn("portalWrapper", 10);
 	game.resources.helium.owned = helium;
+	game.resources.helium.respecMax = helium;
 	displayPortalUpgrades();
+	numTab(1, true);
 }
 
 //48 hours = 172800
@@ -998,10 +1019,11 @@ function checkOfflineProgress(noTip){
 
 function respecPerks(){
 	if (!game.global.canRespecPerks) return;
-	if (!game.global.viewingUpgrades) return;
+	//if (!game.global.viewingUpgrades) return;
 	game.global.respecActive = true;
 	displayPortalUpgrades();
-	game.resources.helium.respecMax = game.global.heliumLeftover;
+	numTab(1, true);
+	game.resources.helium.respecMax = (game.global.viewingUpgrades) ? game.global.heliumLeftover : game.global.heliumLeftover + game.resources.helium.owned;
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax);
 	document.getElementById("respecPortalBtn").style.display = "none";
 	document.getElementById("portalStory").innerHTML = "You can only respec once per run. Clicking cancel will not consume this use.";
@@ -1012,7 +1034,7 @@ function respecPerks(){
 
 function clearPerks(){
 	if (!game.global.respecActive) return;
-	game.resources.helium.respecMax = game.global.heliumLeftover;
+	game.resources.helium.respecMax = (game.global.viewingUpgrades) ? game.global.heliumLeftover : game.global.heliumLeftover + game.resources.helium.owned;
 	game.resources.helium.totalSpentTemp = 0;
 	for (var item in game.portal){
 		if (game.portal[item].locked) continue;
@@ -1027,6 +1049,11 @@ function clearPerks(){
 		updatePerkColor(item);
 	}
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax);
+	if (game.global.viewingUpgrades) {
+		document.getElementById("respecPortalBtn").style.display = "none";
+		document.getElementById("activatePortalBtn").innerHTML = "Confirm";
+		document.getElementById("activatePortalBtn").style.display = "inline-block";
+	}	
 }
 
 function countHeliumSpent(){
@@ -1081,7 +1108,8 @@ function buyPortalUpgrade(what){
 	}
 	if (toBuy.max < toBuy.level + toBuy.levelTemp + game.global.buyAmt) return;
 	var price = getPortalUpgradePrice(what);
-	var canSpend = (game.global.viewingUpgrades) ? game.resources.helium.respecMax :  (game.resources.helium.owned + game.global.heliumLeftover);
+	//var canSpend = (game.global.viewingUpgrades) ? game.resources.helium.respecMax :  (game.resources.helium.owned + game.global.heliumLeftover);
+	var canSpend = game.resources.helium.respecMax;
 	if (canSpend >= (game.resources.helium.totalSpentTemp + price)){
 		document.getElementById("ptabRemove").style.display = "table-cell";
 		toBuy.levelTemp += game.global.buyAmt;
@@ -1105,7 +1133,7 @@ function removePerk(what) {
 	game.resources.helium.totalSpentTemp -= refund;
 	updatePerkLevel(what);
 	tooltip(what, "portal", "update");
-	var canSpend = (game.global.viewingUpgrades) ? game.resources.helium.respecMax :  (game.resources.helium.owned + game.global.heliumLeftover);
+	var canSpend = game.resources.helium.respecMax;
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(canSpend - game.resources.helium.totalSpentTemp);
 }
 
@@ -1117,7 +1145,7 @@ function updatePerkLevel(what){
 	var num = 0;
 	var text = toBuy.level + toBuy.levelTemp;
 	if (toBuy.levelTemp){
-		text += " ("
+		text += "&nbsp;("
 		if (toBuy.levelTemp > 0) text += "+";
 		text += toBuy.levelTemp + ")";
 	}
@@ -1168,8 +1196,8 @@ function getPortalUpgradePrice(what, removing){
 	return amt;
 }
 
-function commitPortalUpgrades(){
-	if (!canCommitCarpentry()) return false;
+function commitPortalUpgrades(usingPortal){
+	if (!usingPortal && !canCommitCarpentry()) return false; //And coordinated
 	checkHandleResourcefulRespec();
 	for (var item in game.portal){
 		if (game.portal[item].locked) continue;
@@ -1192,7 +1220,7 @@ function commitPortalUpgrades(){
 	return true;
 }
 
-function canCommitCarpentry(){
+function canCommitCarpentry(){ //Uh, and Coordinated. This checks coordinated too.
 	var newMax = game.resources.trimps.max * game.resources.trimps.maxMod;
 	newMax = Math.floor(newMax * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level + game.portal.Carpentry.levelTemp)));
 	var error = document.getElementById("portalError");
@@ -1228,8 +1256,11 @@ function clearQueue(specific) {
 }
 
 function activatePortal(){
-	if (!commitPortalUpgrades()) return;	
+	var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
+	if (!commitPortalUpgrades(true)) return;	
+	game.global.heliumLeftover = refund;
 	cancelPortal(true);
+	game.resources.helium.respecMax = 0;
 	game.global.totalPortals++;
 	resetGame(true);
 	displayPerksBtn();
@@ -1257,6 +1288,7 @@ function cancelPortal(keep){
 	numTab(game.global.numTab);
 	document.getElementById("ptabRemove").style.display = "none";
 	game.global.removingPerks = false;
+	game.resources.helium.respecMax = 0;
 }
 
 function loadEquipment(oldEquipment){
@@ -3768,6 +3800,7 @@ function startFight() {
 		if (cell.health < 1) {
 			cell.health = 0;
 			instaFight = true;
+			if (!game.global.mapsActive) game.stats.cellsOverkilled.value++;
 		}
     }
 	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
@@ -4031,7 +4064,10 @@ function nextWorld() {
 	}
 	if (game.global.world == 30 && game.global.canRespecPerks && !game.global.bonePortalThisRun && countHeliumSpent() <= 60) giveSingleAchieve(0);
 	else if (game.global.world == 10 && game.stats.trimpsKilled.value <= 5) giveSingleAchieve(3);
-	else if (game.global.world == 60 && game.stats.trimpsKilled.value <= 1000) giveSingleAchieve(6);
+	else if (game.global.world == 60){
+		if (game.stats.trimpsKilled.value <= 1000) giveSingleAchieve(6);
+		if (game.stats.cellsOverkilled.value == 2950) giveSingleAchieve(11);
+	}
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve(8);
 	else if (game.global.world == 120 && !game.global.researched) giveSingleAchieve(7);
 }
@@ -4095,11 +4131,10 @@ function fight(makeUp) {
         cellElem = document.getElementById("cell" + cellNum);
     }
     if (game.global.soldierHealth <= 0) {
-		game.stats.trimpsKilled.value += game.resources.trimps.maxSoldiers;
-        var s = (game.resources.trimps.maxSoldiers > 1) ? "s " : " ";
+		game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
+        var s = (game.resources.trimps.soldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
-		var currentSend = (game.portal.Coordinated.level) ? prettify(game.portal.Coordinated.currentSend) : prettify(game.resources.trimps.maxSoldiers);
-        message(currentSend + " Trimp" + s + "just " + randomText + ".", "Combat");
+        message(game.resources.trimps.soldiers + " Trimp" + s + "just " + randomText + ".", "Combat");
         game.global.fighting = false;
         game.resources.trimps.soldiers = 0;
 		if (game.global.challengeActive == "Nom") {
@@ -4336,9 +4371,6 @@ function fight(makeUp) {
 	if (gotCrit) critSpan.innerHTML = "Crit!";
 	document.getElementById("badCrit").innerHTML = (badCrit && wasAttacked) ? "Crit!" : "";
     if (cell.health <= 0) game.global.battleCounter = 800;
-    if (makeUp) return;
-    updateGoodBar();
-	updateBadBar(cell);
     if (overkill) {
 		var nextCell = (game.global.mapsActive) ? game.global.mapGridArray[cellNum + 1] : game.global.gridArray[cellNum + 1];
 		if (nextCell) nextCell.health = overkill;	
@@ -4346,6 +4378,10 @@ function fight(makeUp) {
 	if (game.global.challengeActive == "Devastation" && impOverkill){
 		game.challenges.Devastation.lastOverkill = impOverkill;
 	}
+    if (makeUp) return;
+    updateGoodBar();
+	updateBadBar(cell);
+
     /*	if (game.jobs.Medic.owned >= 1) setTimeout(heal, 500); */
 }
 

@@ -1283,7 +1283,7 @@ function resetGame(keepPortal) {
 	var heirloomBoneSeed;
 	if (keepPortal){
 		portal = game.portal;
-		helium = game.resources.helium.owned + game.global.heliumLeftover;
+		helium = game.global.heliumLeftover;
 		totalPortals = game.global.totalPortals;
 		b = game.global.b;
 		imps = game.unlocks.imps;
@@ -1610,6 +1610,7 @@ function numTab (what, p) {
 	}
 	
 	if (p) {
+		displayPortalUpgrades(true);
 		updateAllPerkColors();
 	}
 
@@ -2120,7 +2121,7 @@ function displaySettings() {
 	settingsHere.innerHTML = html;
 }
 
-function toggleSetting(setting, elem){
+function toggleSetting(setting, elem, fromPortal){
 	var menuOption = game.options.menu[setting];
 	var toggles = menuOption.titles.length;
 	if (toggles == 2)	menuOption.enabled = (menuOption.enabled) ? 0 : 1;
@@ -2135,6 +2136,11 @@ function toggleSetting(setting, elem){
 	menuElem.className = "settingBtn settingBtn" + menuOption.enabled;
 	if (setting == "deleteSave") return;
 	cancelTooltip();
+	if (fromPortal){
+		document.getElementById('ptabInfoText').innerHTML = (menuOption.enabled) ? "Less Info" : "More Info";
+		displayPortalUpgrades();
+		return;
+	}
 	if (elem != null) elem.onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
 	tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
 }

@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 3.2 (Kongregate Version)</title>
+	<title>Trimps 3.21 (Kongregate Version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?29" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?30" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -875,7 +875,6 @@ var kongregate = parent.kongregateAPI.getAPI();
 				<div id="portalTotalPortals"><span id="totalPortals">0</span> Portals Used</div>
 			</div>
 			<div class="col-xs-3">
-				<div class="inPortalBtn pointer" style="color: #d9534f" id="closePortalBtn" onclick="cancelPortal()"><span class="glyphicon glyphicon-remove"></span></div>
 			</div>
 		</div>
 		<div class="row" id="portalRow">
@@ -897,6 +896,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 						</li>
 						<li role="presentation"  class="tabNotSelected" id="ptab5" onclick="tooltip('Custom', null, 'update', true)">
 							<a id="ptab5Text" href="#">Custom</a>
+						</li>
+						<li role="presentation" class="tabNotSelected pointer" id="ptabInfo" onclick="toggleSetting('detailedPerks', null, true)">
+							<a id="ptabInfoText">More Info</a>
 						</li>
 						<li role="presentation" id="ptabRemove" style="display: none" onclick="toggleRemovePerks()">
 							<a id="ptabRemoveText" href="#">Remove</a>
@@ -1093,9 +1095,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	</div>
 	
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?69"></script>
-	<script type="text/javascript" src="updates.js?69"></script>
-	<script type="text/javascript" src="main.js?69"></script>
+	<script type="text/javascript" src="config.js?70"></script>
+	<script type="text/javascript" src="updates.js?70"></script>
+	<script type="text/javascript" src="main.js?70"></script>
 	<script type="text/javascript">
 		document.body.addEventListener('DOMMouseScroll', onWheel, true);
 		document.body.addEventListener('mousewheel', onWheel, true);

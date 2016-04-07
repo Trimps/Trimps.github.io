@@ -177,6 +177,11 @@
     width: 25%;
     border-color: #5D5D5D;
 }
+
+.portalThing, .challengeThing{
+	width: 20%;
+}
+
 .infoColor{
 	background-color: #33616F;
 }
