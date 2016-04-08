@@ -46,6 +46,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	var tooltipText;
 	var costText = "";
 	var toTip;
+	var noExtraCheck = false;
 	if (isItIn !== null && isItIn != "maps" && isItIn != "customText"){
 		toTip = game[isItIn];
 		toTip = toTip[what];
@@ -83,6 +84,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		renameBtn = what;
 		what = "";
 		swapClass("tooltipExtra", "tooltipExtraHeirloom", elem);
+		noExtraCheck = true;
 	}
 	if (what == "Respec"){
 		tooltipText = "You can respec your perks once per portal. Clicking cancel after clicking this button will not consume your respec.";
@@ -330,30 +332,32 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 		tooltipText = textString;
 	}
-	var tipSplit = tooltipText.split('$');
-	if (typeof tipSplit[1] !== 'undefined'){
-		if (tipSplit[1] == 'incby'){
-			var increase = toTip.increase.by;
-			if (game.portal.Carpentry.level && toTip.increase.what == "trimps.max") increase *= Math.pow(1.1, game.portal.Carpentry.level);
-			tooltipText = tipSplit[0] + prettify(increase) + tipSplit[2];
+	if (!noExtraCheck){
+		var tipSplit = tooltipText.split('$');
+		if (typeof tipSplit[1] !== 'undefined'){
+			if (tipSplit[1] == 'incby'){
+				var increase = toTip.increase.by;
+				if (game.portal.Carpentry.level && toTip.increase.what == "trimps.max") increase *= Math.pow(1.1, game.portal.Carpentry.level);
+				tooltipText = tipSplit[0] + prettify(increase) + tipSplit[2];
+			}
+			else if (isItIn == "jobs" && game.portal.Motivation.level && toTip.increase != "custom"){
+				tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]] * ((game.portal.Motivation.level * 0.05) + 1)) + tipSplit[2];
+			}
+			else
+			tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
 		}
-		else if (isItIn == "jobs" && game.portal.Motivation.level && toTip.increase != "custom"){
-			tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]] * ((game.portal.Motivation.level * 0.05) + 1)) + tipSplit[2];
+		if (isItIn == "buildings" && what.split(' ')[0] == "Warpstation" && game.global.lastWarp) {
+			tooltipText += "<b> You purchased " + game.global.lastWarp + " Warpstations before your last Gigastation (" + game.upgrades.Gigastation.done + ").</b>";
 		}
-		else
-		tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
-	}
-	if (isItIn == "buildings" && what.split(' ')[0] == "Warpstation" && game.global.lastWarp) {
-		tooltipText += "<b> You purchased " + game.global.lastWarp + " Warpstations before your last Gigastation (" + game.upgrades.Gigastation.done + ").</b>";
-	}
-	if (typeof tooltipText.split('~') !== 'undefined') {
-		var percentIncrease = game.upgrades.Gymystic.done;
-		var text = ".";
-		if (percentIncrease > 0){
-			percentIncrease += 4;
-			text = " and increase the base block of all other Gyms by " + percentIncrease + "%.";
+		if (typeof tooltipText.split('~') !== 'undefined') {
+			var percentIncrease = game.upgrades.Gymystic.done;
+			var text = ".";
+			if (percentIncrease > 0){
+				percentIncrease += 4;
+				text = " and increase the base block of all other Gyms by " + percentIncrease + "%.";
+			}
+			tooltipText = tooltipText.replace('~', text);
 		}
-		tooltipText = tooltipText.replace('~', text);
 	}
 	document.getElementById("tipTitle").innerHTML = what;
 	document.getElementById("tipText").innerHTML = tooltipText;
