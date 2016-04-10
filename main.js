@@ -821,8 +821,9 @@ function viewPortalUpgrades() {
 		document.getElementById("respecPortalBtn").innerHTML = "Respec";
 		document.getElementById("respecPortalBtn").style.display = "inline-block";
 	}
-	displayPortalUpgrades();
 	numTab(1, true);
+	displayPortalUpgrades();
+	
 	if (game.global.challengeActive) document.getElementById("cancelChallengeBtn").style.display = "inline-block";
 }
 
