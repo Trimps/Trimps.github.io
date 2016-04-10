@@ -1174,6 +1174,8 @@ function resetGame(keepPortal) {
 		game.options.menu.pauseGame.enabled = 0;
 		game.options.menu.pauseGame.onToggle();
 	}
+	game.resources.trimps.soldiers = 0;
+	game.global.autoBattle = false;
 	document.getElementById("wood").style.visibility = "hidden";
 	document.getElementById("metal").style.visibility = "hidden";
 	document.getElementById("trimps").style.visibility = "hidden";
@@ -1218,12 +1220,6 @@ function resetGame(keepPortal) {
 	document.getElementById("worldName").innerHTML = "Zone";
 	document.getElementById("wrapper").style.background = "url(css/bg2.png) center repeat-x";
 	document.getElementById("tab5Text").innerHTML = "+1";
-	document.getElementById("goodGuyAttack").innerHTML = "";
-	document.getElementById("goodGuyBlock").innerHTML = "";
-	document.getElementById("goodGuyBar").style.width = "0%";
-	document.getElementById("goodGuyHealth").innerHTML = "0";
-	document.getElementById("goodGuyHealthMax").innerHTML = "0";
-	document.getElementById("trimpsFighting").innerHTML = "1";
 	document.getElementById("turkimpBuff").style.display = "none";
 	document.getElementById("statsBtnRow").style.display = "block";
 	document.getElementById("mapsBtn").innerHTML = "Maps";
@@ -1240,6 +1236,7 @@ function resetGame(keepPortal) {
 	document.getElementById("voidMapsHere").innerHTML = "";
 	document.getElementById("heirloomWrapper").style.display = "none";
 	document.getElementById("heirloomBtnContainer").style.display = "none";
+	document.getElementById("goodGuyName").innerHTML = 'Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span>';
 	heirloomsShown = false;
 	game.global.selectedHeirloom = [];
 	resetOnePortalRewards();
@@ -1400,6 +1397,13 @@ function resetGame(keepPortal) {
 	updateRadioStacks();
 	updateAntiStacks();
 	if (keepPortal) checkAchieve("portals");
+	document.getElementById("goodGuyAttack").innerHTML = "";
+	document.getElementById("goodGuyBlock").innerHTML = "";
+	document.getElementById("goodGuyBar").style.width = "0%";
+	document.getElementById("goodGuyHealth").innerHTML = "0";
+	document.getElementById("goodGuyHealthMax").innerHTML = "0";
+	document.getElementById("trimpsFighting").innerHTML = "1";
+	document.getElementById("critSpan").innerHTML = "";
 }
 
 function applyS1(){
