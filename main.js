@@ -2915,6 +2915,8 @@ function getRandomMapValue(what) { //what can be size, difficulty, or loot for n
     var amt = game.mapConfig[what + "Base"];
     var range = game.mapConfig[what + "Range"];
 	var advValue = document.getElementById(what + "AdvMapsRange").value;
+	if (advValue > 9) advValue = 9;
+	else if (advValue < 0) advValue = 0;
 	var min;
 	var max;
 	if (advValue > 0){
