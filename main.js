@@ -3882,6 +3882,7 @@ function startFight() {
 			if (game.global.challengeActive == "Balance"){
 				healthTemp *= game.challenges.Balance.getHealthMult();
 			}
+			healthTemp = calcHeirloomBonus("Shield", "trimpHealth", healthTemp);
 			game.global.soldierHealthMax += healthTemp;
 			game.global.soldierHealth += healthTemp;
 			game.global.difs.health = 0;
@@ -3892,6 +3893,7 @@ function startFight() {
 			if (game.global.formation !== 0){
 				attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
 			}
+			attackTemp = calcHeirloomBonus("Shield", "trimpAttack", attackTemp);
 			game.global.soldierCurrentAttack += attackTemp;
 			game.global.difs.attack = 0;
 		}
@@ -3900,6 +3902,7 @@ function startFight() {
 			if (game.global.formation !== 0){
 				blockTemp *= (game.global.formation == 3) ? 4 : 0.5;
 			}
+			blockTemp = calcHeirloomBonus("Shield", "trimpBlock", blockTemp);
 			game.global.soldierCurrentBlock += blockTemp;
 			game.global.difs.block = 0;
 		}
