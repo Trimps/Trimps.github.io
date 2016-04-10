@@ -4097,7 +4097,7 @@ function assignExtraWorkers(){
 	if (freeTrimps < workspaces) workspaces = freeTrimps;
 	if (workspaces <= 0) return;
 	var jobs = ["Farmer", "Lumberjack", "Miner"];
-	if (game.resources.food.owned < (workspaces * 5)) workspaces = Math.floor(game.resources.Food.owned / 5);
+	if (game.resources.food.owned < (workspaces * 5)) workspaces = Math.floor(game.resources.food.owned / 5);
 	var split = Math.floor(workspaces / 3);
 	for (var x = 0; x < jobs.length; x++){
 		game.jobs[jobs[x]].owned += split;
