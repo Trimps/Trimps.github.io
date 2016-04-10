@@ -645,8 +645,9 @@ function portalClicked() {
 		document.getElementById("respecPortalBtn").style.display = "inline-block";
 	}
 	displayChallenges();
-	displayPortalUpgrades();
 	numTab(1, true);
+	displayPortalUpgrades();
+	
 	game.global.removingPerks = false;
 }
 
