@@ -3737,6 +3737,7 @@ function startFight() {
     var cellElem;
 	var badCoord;
 	var instaFight = false;
+	var madeBadGuy = false;
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
         cell = game.global.mapGridArray[cellNum];
@@ -3807,6 +3808,7 @@ function startFight() {
 			instaFight = true;
 			if (!game.global.mapsActive) game.stats.cellsOverkilled.value++;
 		}
+		madeBadGuy = true;
     }
 	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
 		updateNomStacks(cell.nomStacks);
@@ -3870,7 +3872,8 @@ function startFight() {
 		if (game.global.challengeActive == "Lead") manageLeadStacks();
     }
 	else {
-		if (game.global.challengeActive == "Lead") manageLeadStacks(!game.global.mapsActive);
+		if (game.global.challengeActive == "Lead" && madeBadGuy) manageLeadStacks(!game.global.mapsActive);
+		
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
 			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
