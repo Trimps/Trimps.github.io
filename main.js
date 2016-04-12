@@ -3872,7 +3872,7 @@ function startFight() {
 		if (game.global.challengeActive == "Lead") manageLeadStacks();
     }
 	else {
-		if (game.global.challengeActive == "Lead" && madeBadGuy) manageLeadStacks(!game.global.mapsActive);
+		if (game.global.challengeActive == "Lead") manageLeadStacks(!game.global.mapsActive && madeBadGuy);
 		
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
