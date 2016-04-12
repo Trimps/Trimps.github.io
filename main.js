@@ -2287,10 +2287,12 @@ function createVoidMap() {
 function buffVoidMaps(){
 	for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
 		var map = game.global.mapsOwnedArray[x];
-		if (map.location != "Void" || map.difficulty > 3.5) continue;
+		if (map.location != "Void" || map.difficulty >= 3.5) continue;
 		map.loot += 1;
 		map.difficulty += 2;
 	}
+	refreshMaps();
+	if (game.global.currentMapId === "") clearMapDescription();
 }
 
 function addVoidAlert(){ 
@@ -3527,16 +3529,8 @@ function mapsSwitch(updateOnly, fromRecycle) {
 		document.getElementById("repeatBtn").style.display = "none";
         if (game.global.lookingAtMap && !game.global.currentMapId) selectMap(game.global.lookingAtMap, true);
 		else if (game.global.currentMapId === "") {
-            document.getElementById("selectMapBtn").style.visibility = "hidden";
-            recycleBtn.style.visibility = "hidden";
-            document.getElementById("selectedMapName").innerHTML = "Select a Map!";
-            document.getElementById("mapStatsSize").innerHTML = "";
-			document.getElementById("mapStatsDifficulty").innerHTML = "";
-			document.getElementById("mapStatsLoot").innerHTML = "";
-			document.getElementById("mapStatsItems").innerHTML = "";
-			document.getElementById("mapStatsResource").innerHTML = "";
+			clearMapDescription();
         } else {
-
             selectMap(game.global.currentMapId, true);
             document.getElementById("selectMapBtn").innerHTML = "Continue";
             document.getElementById("selectMapBtn").style.visibility = "visible";
@@ -3572,6 +3566,17 @@ function mapsSwitch(updateOnly, fromRecycle) {
 		document.getElementById("repeatBtn").style.visibility = "hidden";
     }
 	toggleVoidMaps(true);
+}
+
+function clearMapDescription(){
+	document.getElementById("selectMapBtn").style.visibility = "hidden";
+	document.getElementById("recycleMapBtn").style.visibility = "hidden";
+	document.getElementById("selectedMapName").innerHTML = "Select a Map!";
+	document.getElementById("mapStatsSize").innerHTML = "";
+	document.getElementById("mapStatsDifficulty").innerHTML = "";
+	document.getElementById("mapStatsLoot").innerHTML = "";
+	document.getElementById("mapStatsItems").innerHTML = "";
+	document.getElementById("mapStatsResource").innerHTML = "";
 }
 
 function setNonMapBox(){
