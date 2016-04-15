@@ -4181,7 +4181,7 @@ function fight(makeUp) {
 			console.debug(err);
 		}
 		try{
-			if (typeof kongregate !== 'undefined' && !game.global.mapsActive && !game.global.cheater) kongregate.stats.submit("HighestLevel", ((game.global.world * 100) + cell.level));
+			if (typeof kongregate !== 'undefined' && !game.global.mapsActive) kongregate.stats.submit("HighestLevel", ((game.global.world * 100) + cell.level));
 		}
 		catch(err){
 			console.debug(err);
