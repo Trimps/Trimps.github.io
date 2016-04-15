@@ -1729,8 +1729,10 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		}
 		elem.innerHTML = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
 		if (itemA == "Trap") {
-		document.getElementById("trimpTrapText").innerHTML = prettify(toUpdate.owned);
-		document.getElementById("trimpTrapText2").innerHTML = prettify(toUpdate.owned);
+		var trapText1 = document.getElementById("trimpTrapText")
+		if (trapText1) trapText1.innerHTML = prettify(toUpdate.owned);
+		var trapText2 = document.getElementById("trimpTrapText2")
+		if (trapText2) trapText2.innerHTML = prettify(toUpdate.owned);
 		}
 	}
 	//Jobs, check PS here and stuff. Trimps per second is handled by breed() function
