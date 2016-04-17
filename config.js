@@ -105,6 +105,7 @@ var toReturn = {
 		frugalDone: false,
 		lastUnlock: 0,
 		lowestGen: -1,
+		breedBack: -1,
 		titimpLeft: 0,
 		mapBonus: 0,
 		slowDone: false,

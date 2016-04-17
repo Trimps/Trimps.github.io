@@ -2070,7 +2070,8 @@ function breed() {
 	if (trimps.owned >= trimpsMax) trimps.owned = trimpsMax;
 	if (game.portal.Anticipation.level) game.global.lastBreedTime += (1000 / game.settings.speed);
 	if (game.jobs.Geneticist.locked == 0) {
-		if (game.global.lowestGen < 0) game.global.lowestGen = game.jobs.Geneticist.owned;
+		if (game.global.breedBack > 0) game.global.breedBack -= breeding / game.settings.speed;
+		if (game.global.lowestGen == -1) game.global.lowestGen = game.jobs.Geneticist.owned;
 		else if (game.jobs.Geneticist.owned < game.global.lowestGen) game.global.lowestGen = game.jobs.Geneticist.owned;
 	}
 }
@@ -3822,6 +3823,7 @@ function startFight() {
 		activateShriek();
 	}
     var trimpsFighting = game.resources.trimps.maxSoldiers;
+	var soldType = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
 		game.global.battleCounter = 0;
 		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
@@ -3847,9 +3849,10 @@ function startFight() {
 		//Toughness
 		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
 		if (game.global.lowestGen >= 0) {
-			game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
+			if (game.global.breedBack <= 0) game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
 			game.global.lastLowGen = game.global.lowestGen;
-			game.global.lowestGen = -1;
+			if (game.global.breedBack <= 0) game.global.lowestGen = -1;
+			game.global.breedBack = soldType / 2;
 		}
         game.global.soldierCurrentAttack = (game.global.attack * trimpsFighting);
 		//Resilience
@@ -3915,7 +3918,6 @@ function startFight() {
 			game.global.difs.block = 0;
 		}
 	}
-	var soldType = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
 	updateAllBattleNumbers(game.resources.trimps.soldiers < soldType);
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
