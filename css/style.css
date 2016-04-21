@@ -2108,7 +2108,7 @@ color: #DDDDFF !important;
 
 #tab5 a{
 	display: inline-block;
-	width: 50%;
+	width: calc(50% - 0.5px);
 }
 
 #tab5 a:nth-child(2){
