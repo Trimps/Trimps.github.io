@@ -20,6 +20,7 @@
 
 var customUp;
 var tooltipUpdateFunction = "";
+var lastMousePos = [];
 
 //"onmouseover="tooltip('*TOOLTIP_TITLE*', 'customText', event, '*TOOLTIP_TEXT*');" onmouseout="tooltip('hide')""
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
@@ -194,6 +195,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			box.focus();
 		};
 	}
+	if (what == "Max"){
+		tooltipText = "No reason to spend everything in one place. Here you can set the ratio of your resources to spend when using the 'Max' button. Setting this to 0.5 will spend no more than half of your resources per click, etc."
+		costText = "<ul id='buyMaxUl'><li onclick='setMax(1)'>Max</li><li onclick='setMax(0.5)'>0.5</li><li onclick='setMax(0.33)'>0.33</li><li onclick='setMax(0.25)'>0.25</li><li onclick='setMax(0.1)'>0.1</li></ul>";
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+	}
 	if (what == "Export"){
 		if (textString){
 			tooltipText = textString + "<br/><br/><textarea style='width: 100%' rows='5'>" + save(true) + "</textarea>";
@@ -248,26 +256,27 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (isItIn == "jobs"){
 		var buyAmt = game.global.buyAmt;
+		if (buyAmt == "Max") buyAmt = calculateMaxAfford(game.jobs[what], false, false, true);
 		if (game.global.firing){
 			tooltipText = "Fire a " + what + ". Refunds no resources, but frees up some workspace for your Trimps.";
 			costText = "";
 		}
 		else{
 			var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
-			if (workspaces < buyAmt && workspaces > 0) buyAmt = workspaces;
+			if (workspaces < buyAmt) buyAmt = workspaces;
 			costText = getTooltipJobText(what, buyAmt);
 		}
-		if (game.global.buyAmt > 1) what += " X" + buyAmt;
+		if (buyAmt > 1) what += " X " + prettify(buyAmt);
 	}
 	if (isItIn == "buildings"){
 		costText = canAffordBuilding(what, false, true);
-		if (game.global.buyAmt > 1) {
+		if (game.global.buyAmt != 1) {
 			if (game.buildings[what].percent){
 				tooltipText += " <b>You can only purchase 1 " + what + " at a time.</b>";
-				what += " X1";
+				what += " X 1";
 			}
 			else {
-				what += " X" + game.global.buyAmt;
+				what += " X " + prettify((game.global.buyAmt == "Max") ? calculateMaxAfford(game.buildings[what], true) : game.global.buyAmt);
 			}
 		}
 	}
@@ -276,7 +285,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var perkItem = game.portal[what];
 		if (!perkItem.max || perkItem.max > perkItem.level + perkItem.levelTemp) costText = prettify(getPortalUpgradePrice(what)) + resAppend;
 		else costText = "";
-		if (game.global.buyAmt > 1) what += " X" + game.global.buyAmt;
+		if (game.global.buyAmt > 1) what += " X " + game.global.buyAmt;
 		tooltipText += " <b>(You have spent " + prettify(perkItem.heliumSpent + perkItem.heliumSpentTemp) + " Helium on this Perk)</b>";
 	}
 	if (isItIn == "equipment"){
@@ -285,11 +294,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var blockPerShield = game.equipment.Shield.blockCalculated + (game.equipment.Shield.blockCalculated * game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100));
 			tooltipText += " (" + prettify(blockPerShield) + " after Trainers)";
 		}
-		if (game.global.buyAmt > 1) {
-			what += " X" + game.global.buyAmt;
+		if (game.global.buyAmt != 1) {
+			what += " X " + ((game.global.buyAmt == "Max") ? calculateMaxAfford(game.equipment[what], false, true) : game.global.buyAmt);
 		}
 	}
 	if (isItIn == "upgrades"){
+		var mouseOverElem = (lastMousePos[0] && lastMousePos[1]) ? document.elementFromPoint(lastMousePos[0], lastMousePos[1]) : null;
+		if (mouseOverElem && mouseOverElem.id == "upgradesHere"){
+			cancelTooltip();
+			return;
+		}
 		if (typeof tooltipText.split('@')[1] !== 'undefined'){
 			var prestigeCost = "<b>You may not want to do this right away.</b> Your next " + game.upgrades[what].prestiges + " will grant " + getNextPrestigeValue(what) + ".";
 			tooltipText = tooltipText.replace('@', prestigeCost);
@@ -398,6 +412,7 @@ function positionTooltip(elem, event, extraInf){
 		cordx = e.clientX;
 		cordy = e.clientY;
 	}
+	lastMousePos = [cordx, cordy];
 	var bodw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
 		bodh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
 		tiph = Math.max(elem.clientHeight, elem.scrollHeight, elem.offsetHeight),
@@ -483,6 +498,7 @@ function cancelTooltip(){
 	tooltipUpdateFunction = "";
 	document.getElementById("tipCost").innerHTML = "";
 	customUp = 0;
+	lastMousePos = [0, 0];
 }
 
 function unlockTooltip(){
@@ -1377,6 +1393,7 @@ function resetGame(keepPortal) {
 		for (var heirItem in heirloomStuff){
 			game.global[heirItem] = heirloomStuff[heirItem];
 		}
+		if (game.global.totalPortals == 1) game.options.menu.extraMapBtns.enabled = 1;
 		if (game.global.totalPortals == 5) message("Heavy use of the portal has created a chance for the Void to seep in to your world. Be alert.", "Story", null, "voidMessage");
 		if (game.global.totalPortals >= 5) document.getElementById("heirloomBtnContainer").style.display = "block";
 		recalculateHeirloomBonuses();
@@ -1409,6 +1426,8 @@ function resetGame(keepPortal) {
 
 function applyS1(){
 	game.resources.science.owned += 5000;
+	fadeIn("science", 10);
+	document.getElementById("upgradesTitleSpan").innerHTML = "Upgrades";
 	game.resources.wood.owned += 100;
 	game.resources.food.owned += 100;
 	game.buildings.Trap.owned += 10;
@@ -1418,6 +1437,7 @@ function applyS1(){
 }
 
 function applyS2(){
+	game.triggers.upgrades.fire();
 	if (game.global.challengeActive != "Frugal"){
 		var toUnlock = ["Supershield", "Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate"];
 		if (game.global.slowDone){
@@ -1539,10 +1559,15 @@ function getTabClass(displayed){
 	return (displayed) ? "btn btn-success logFlt" : "btn btn-danger logFlt";
 }
 
+function setMax(amount){
+	game.global.maxSplit = amount;
+	cancelTooltip();
+	document.getElementById("tab6Text").innerHTML = (amount != 1) ? game.global.maxSplit : "Max";
+}
 
 function numTab (what, p) {
 	var num = 0;
-	
+	if (what == "6" && game.global.buyAmt == "Max") tooltip('Max', null, 'update');
 	if (what == 5){	
 		unlockTooltip();
 		tooltip('hide');
@@ -1593,14 +1618,15 @@ function numTab (what, p) {
 	else
 	game.global.numTab = what;
 	var tabType = (p) ? "ptab" : "tab";
-	for (var x = 1; x <= 5; x++){
+	var count = (p) ? 5 : 6;
+	for (var x = 1; x <= count; x++){
 		var thisTab = document.getElementById(tabType + x);
 		if(what == x)
 			thisTab.className = thisTab.className.replace("tabNotSelected", "tabSelected");
 		else
 			thisTab.className = thisTab.className.replace("tabSelected", "tabNotSelected");
 
-		if (x == 5) break;
+		if (x == 5) continue;
 		switch (x){
 			case 1:
 				num = 1;
@@ -1614,9 +1640,12 @@ function numTab (what, p) {
 			case 4:
 				num = 100;
 				break;	
+			case 6:
+				num = 'Max';
 		}
 		if (x == what) game.global.buyAmt = num;
 	}
+	document.getElementById("tab6Text").innerHTML = (what == 6 && game.global.maxSplit != 1) ? game.global.maxSplit : "Max";
 	
 	if (p) {
 		displayPortalUpgrades(true);
@@ -1729,10 +1758,10 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		}
 		elem.innerHTML = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
 		if (itemA == "Trap") {
-		var trapText1 = document.getElementById("trimpTrapText")
-		if (trapText1) trapText1.innerHTML = prettify(toUpdate.owned);
-		var trapText2 = document.getElementById("trimpTrapText2")
-		if (trapText2) trapText2.innerHTML = prettify(toUpdate.owned);
+			var trap1 = document.getElementById("trimpTrapText")
+			if (trap1) trap1.innerHTML = prettify(toUpdate.owned);
+			var trap2 = document.getElementById("trimpTrapText2")
+			if (trap2) trap2.innerHTML = prettify(toUpdate.owned);
 		}
 	}
 	//Jobs, check PS here and stuff. Trimps per second is handled by breed() function
@@ -1981,7 +2010,7 @@ function checkButtons(what) {
 		for (var item in game.jobs){
 			if (game.jobs[item].locked == 1) continue;
 			if (workspaces <= 0) updateButtonColor(item, false, true);
-			else updateButtonColor(item,canAffordJob(item, false, workspaces),true);
+			else updateButtonColor(item,canAffordJob(item, false, workspaces, true),true);
 		}
 		return;
 	}
@@ -1999,7 +2028,7 @@ function checkButtons(what) {
 		for (var itemBuild in game.buildings){
 			var thisBuilding = game.buildings[itemBuild];
 			if (thisBuilding.locked == 1) continue;
-			updateButtonColor(itemBuild, canAffordBuilding(itemBuild));
+			updateButtonColor(itemBuild, canAffordBuilding(itemBuild, false, false, false, true));
 		}
 		return;
 	}
@@ -2007,7 +2036,7 @@ function checkButtons(what) {
 		for (var itemEquip in game.equipment){
 			var thisEquipment = game.equipment[itemEquip];
 			if (thisEquipment.locked == 1) continue;
-			updateButtonColor(itemEquip, canAffordBuilding(itemEquip, null, null, true));
+			updateButtonColor(itemEquip, canAffordBuilding(itemEquip, null, null, true, true));
 		}
 		return;
 	}
@@ -2114,8 +2143,10 @@ function displayPerksBtn(){
 function toggleSettingsMenu(){
 	game.options.displayed = !game.options.displayed;
 	var menuElem = document.getElementById("settingsHere");
-	if (menuElem.innerHTML == "") displaySettings();
-	if (game.options.displayed) menuElem.style.display = "block";
+	if (game.options.displayed) {
+		displaySettings();
+		menuElem.style.display = "block";
+	}
 	else
 	menuElem.style.display = "none";
 	
@@ -2127,34 +2158,42 @@ function displaySettings() {
 	var html = "";
 	for (var item in game.options.menu){
 		var optionItem = game.options.menu[item];
+		if (optionItem.locked) continue;
+		if (typeof optionItem.lockUnless === 'function' && !optionItem.lockUnless()) continue;
 		var text = optionItem.titles[optionItem.enabled];
-		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\", this)' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
+		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingsBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\", this)' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
 	}
 	settingsHere.innerHTML = html;
 }
 
-function toggleSetting(setting, elem, fromPortal){
+function toggleSetting(setting, elem, fromPortal, updateOnly){
 	var menuOption = game.options.menu[setting];
 	var toggles = menuOption.titles.length;
-	if (toggles == 2)	menuOption.enabled = (menuOption.enabled) ? 0 : 1;
-	else {
-		menuOption.enabled++;
-		if (menuOption.enabled >= toggles) menuOption.enabled = 0;
+	if (!updateOnly){
+		if (toggles == 2)	menuOption.enabled = (menuOption.enabled) ? 0 : 1;
+		else {
+			menuOption.enabled++;
+			if (menuOption.enabled >= toggles) menuOption.enabled = 0;
+		}
+		if (menuOption.onToggle) menuOption.onToggle();
 	}
-	if (menuOption.onToggle) menuOption.onToggle();
-	var menuElem = document.getElementById("toggle" + setting);
-	menuElem.innerHTML = menuOption.titles[menuOption.enabled];
-	menuElem.className = "";
-	menuElem.className = "settingBtn settingBtn" + menuOption.enabled;
-	if (setting == "deleteSave") return;
-	cancelTooltip();
-	if (fromPortal){
-		document.getElementById('ptabInfoText').innerHTML = (menuOption.enabled) ? "Less Info" : "More Info";
-		displayPortalUpgrades(true);
-		return;
+	var menuElem = [];
+	menuElem[0] = (elem) ? elem : document.getElementById("toggle" + setting);
+	if (typeof menuOption.secondLocation !== 'undefined') menuElem[1] = document.getElementById(menuOption.secondLocation);
+	for (var x = 0; x < menuElem.length; x++){
+		if (menuElem[x] === null) continue;
+		menuElem[x].innerHTML = menuOption.titles[menuOption.enabled];
+		swapClass("settingBtn", "settingBtn" + menuOption.enabled, menuElem[x]);
+		if (setting == "deleteSave") return;
+		cancelTooltip();
+		if (fromPortal){
+			document.getElementById('ptabInfoText').innerHTML = (menuOption.enabled) ? "Less Info" : "More Info";
+			displayPortalUpgrades(true);
+			return;
+		}
+		menuElem[x].onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
 	}
-	if (elem != null) elem.onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
-	tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
+	if (!updateOnly) tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
 }
 	
 	function achievementCompatibilityUnlock() {

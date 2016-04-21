@@ -22,6 +22,10 @@
     background-color: #000;
 }
 
+.cellColorOverkill {
+    background-color:#3E4A19
+}
+
 .voidBadge {
     background-color: rgb(28, 5, 51) !important;
 }
@@ -180,6 +184,26 @@
 
 .portalThing, .challengeThing{
 	width: 20%;
+}
+
+#gridContainer.col-xs-8{
+	padding-right: 0px;
+}
+
+#battleBtnsColumn {
+	padding-right: 0px;
+}
+
+.settingBtntrue:hover, .settingBtn1:hover {
+	color: #fff;
+	background-color: #449d44;
+	border-color: #398439;
+}
+
+.settingBtnfalse:hover, .settingBtn0:hover {
+	color: #fff;
+	background-color: #c9302c;
+	border-color: #ac2925;
 }
 
 .infoColor{

@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 3.21</title>
+	<title>Trimps 3.22</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?30" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?31" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -405,8 +405,11 @@
 								<a id="tab4Text" href="#">+100</a>
 							</li>
 							<li role="presentation" class="tabNotSelected" id="tab5">
-								<a style="display: inline-block; width: 47%" id="tab5Text" href="#"  onclick="numTab(5)">+1</a>
-								<a style="display: inline-block; width: 47%" id="tab5Text2" href="#"  onclick="tooltip('Custom', null, 'update')">Custom</a>
+								<a id="tab5Text" href="#"  onclick="numTab(5)">+1</a>
+								<a id="tab5Text2" href="#"  onclick="tooltip('Custom', null, 'update')">Custom</a>
+							</li>
+							<li role="presentation" class="tabNotSelected" id="tab6" onclick="numTab('6')" onmouseover="tooltip('Buy Max', 'customText', event, 'Switching to this option will spend the majority of your resources with each purchase. <b>Click twice to customize.</b>')" onmouseout="tooltip('hide')" >
+								<a id="tab6Text" href="#">Max</a>
 							</li>
 						</ul>
 					</div>
@@ -617,16 +620,16 @@
 							<div id="grid"></div>
 							<div id="preMaps" style="display: none">
 							<div style="display: none" id="mapsCreateRow" class="row">
-							<div id="mapLevelContainer" class="col-xs-4">
-								Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer noselect incrementBtn" title="Recycle All Below" style="color: red" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
+								<div id="mapLevelContainer" class="col-xs-4">
+									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer noselect incrementBtn" title="Recycle All Below" style="color: red" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
+								</div>
+								<div id="mapCostContainer" class="col-xs-4 lowPad">
+									<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
+								</div>
+								<div id="mapCreateBtn" onclick='buyMap()' class="workBtn primaryColor pointer noselect col-xs-4">
+									Create
+								</div>
 							</div>
-							<div id="mapCostContainer" class="col-xs-4 lowPad">
-								<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
-							</div>
-							<div id="mapCreateBtn" onclick='buyMap()' class="workBtn primaryColor pointer noselect col-xs-4">
-								Create
-							</div>
-						</div>
 							<div id="advMapsRow" class="row">
 								<div id="advLootContainer" class="col-xs-3 advContainer lowPad">
 									<div class="advMapsTitle">
@@ -710,7 +713,7 @@
 								<div id="voidMapsHere" class="niceScroll">
 								</div>
 							</div>
-							<div id="mapGrid" style="display: none;"></div>
+							<div id="mapGrid" class="gridShrunk" style="display: none;"></div>
 							<div id="extraGridInfo" style="display: none;">
 								<div id="extraGridInfoTitle"></div>
 								<div id="extraGridInfoSummary"></div>
@@ -719,6 +722,20 @@
 									<span class="btn btn-info" onclick="restoreGrid()">Continue</span>
 								</div> 
 							</div>
+						</div>
+						<div id="extraMapBtns" class="col-xs-off">
+							<div class="battleSideBtnContainer">
+								<span class="btn settingBtn1 fightBtn" id="togglemapLoot2" onmouseout="tooltip('hide')" onclick="toggleSetting('mapLoot')">
+								</span>
+							</div>									
+							<div class="battleSideBtnContainer">
+								<span class="btn settingBtn1 fightBtn" id="togglerepeatUntil" onmouseout="tooltip('hide')" onclick="toggleSetting('repeatUntil')">
+								</span>
+							</div>								
+							<div class="battleSideBtnContainer">
+								<span class="btn settingBtn1 fightBtn" id="toggleexitTo" onmouseout="tooltip('hide')" onclick="toggleSetting('exitTo')">
+								</span>
+							</div>							
 						</div>
 					</div>
 				</div>
@@ -993,9 +1010,9 @@
 		<div id="tipCost"></div>
 	</div>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?70"></script>
-	<script type="text/javascript" src="updates.js?70"></script>
-	<script type="text/javascript" src="main.js?70"></script>
+	<script type="text/javascript" src="config.js?71"></script>
+	<script type="text/javascript" src="updates.js?71"></script>
+	<script type="text/javascript" src="main.js?71"></script>
 </body>
 
 </html>

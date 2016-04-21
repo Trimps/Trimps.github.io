@@ -34,6 +34,8 @@ overflow-x: hidden;
     color: white;
 }
 
+
+
 .holidaySaleDesc{
 	color: red;
 	font-weight: bold;
@@ -439,7 +441,7 @@ overflow-x: hidden;
 
 .nav-tabs>li>a {
     color: white;
-    font-size: 1.1em;
+    font-size: 1.05em;
     padding: 4px;
 }
 
@@ -458,6 +460,29 @@ overflow-x: hidden;
     width: calc(100% - 10px);
 }
 
+#buyMaxUl{
+	list-style: none;
+	padding: 0;
+}
+
+#buyMaxUl li{
+	display: inline-block;
+	font-size: 1.1vw;
+	width: calc(20% - 2px - 0.2vw);
+	text-align: center;
+	border: 1px solid black;
+	background-color: #000040;
+	color: #d0d0d0;
+	border-radius: 10px;
+	margin: 0.1vw;
+	cursor: pointer;
+}
+
+#buyMaxUl li:hover{
+	color: #000040;
+	background-color: #d0d0d0;;
+}
+
 .titleSpan {}
 
 #buyContainer {
@@ -471,6 +496,7 @@ overflow-x: hidden;
 	background: rgba(121,121,123,0.5);
 	color: white;
 }
+
 
 #buyHere {
     padding: 5px;
@@ -548,12 +574,24 @@ overflow-x: hidden;
 	text-align: center;
 }
 
+.col-xs-off{
+	display: none;
+}
+
+#extraMapBtns {
+	padding-left: 0;
+}
+
+#extraMapBtns div:first-child{
+	margin-top: 0;
+}
+
 .noTitle.title {
 	display: none;
 }
 
 
-.settingBtn {
+.settingsBtn {
     font-size: 1.3vw;
 	border: 1px solid black;
 	cursor: pointer;
@@ -569,7 +607,7 @@ overflow-x: hidden;
 	background-color: #d9534f;
 }
 
-.settingBtn2{
+.settingBtn2, .btn-yellow{
 	background-color: yellow;
 	color: black;
 }
@@ -2069,6 +2107,15 @@ color: #DDDDFF !important;
 	width: 2.2%;
 }
 
+#tab5 a{
+	display: inline-block;
+	width: 50%;
+}
+
+#tab5 a:nth-child(2){
+	margin-left: -4px;
+}
+
 .goldMap{
 	background-color: #998100;
 }
@@ -2221,9 +2268,9 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background: -moz-linear-gradient(left,  #000000 0%, #400010 50%, #000000 100%);
-background: -webkit-linear-gradient(left,  #000000 0%,#400010 50%,#000000 100%);
-background: linear-gradient(to right,  #000000 0%,#400010 50%,#000000 100%);
+background: -moz-linear-gradient(left,  #000000 0%, #501030 50%, #000000 100%);
+background: -webkit-linear-gradient(left,  #000000 0%,#501030 50%,#000000 100%);
+background: linear-gradient(to right,  #000000 0%,#501030 50%,#000000 100%);
 color: white;
 }
 .btn-new:hover,
@@ -2235,7 +2282,7 @@ color: white;
 background: -moz-linear-gradient(left,  #000000 0%, #fff 50%, #000000 100%);
 background: -webkit-linear-gradient(left,  #000000 0%,#fff 50%,#000000 100%);
 background: linear-gradient(to right,  #000000 0%,#fff 50%,#000000 100%);
-color: #400010;
+color: #400030;
 
 }
 .btn-new:active,
@@ -2332,6 +2379,10 @@ input::-webkit-inner-spin-button {
 
 .cellColorCurrent {
 	background: yellow;
+}
+
+.cellColorOverkill {
+	background: #67cf00;
 }
 
 .percentColorBlue {
