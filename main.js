@@ -1948,10 +1948,12 @@ function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob){
 			return 1;
 		}
 		else {
+			if (isBuilding && game.portal.Resourceful.level) price = Math.ceil(price * (Math.pow(1 - game.portal.Resourceful.modifier, game.portal.Resourceful.level)));
 			toBuy = Math.floor(resourcesAvailable / price);
 		}
 		if (mostAfford == -1 || mostAfford > toBuy) mostAfford = toBuy;
 	}
+	if (isBuilding && mostAfford > 1000000000) return 1000000000;
 	if (mostAfford <= 0) return 1;	
 	return mostAfford;
 }
