@@ -327,7 +327,7 @@ var toReturn = {
 			},
 			repeatUntil: {
 				enabled: 0,
-				description: "<b>Repeat Forever</b> will cause the map to continually repeat if Repeat Maps is enabled. <b>Repeat to 10</b> will exit the map after 10 stacks, if the map's level is high enough. <b>Repeat for Items</b> will exit the map once there are no more special items left for that level of map.",
+				description: "<b>Repeat Forever</b> will cause the map to continually repeat if Repeat Maps is enabled. <b>Repeat to 10</b> will exit the map after 10 stacks, if the map's level is high enough. <b>Repeat for Items</b> will exit the map once there are no more special items left for that level of map. <br/><br/><b>This setting only matters if Repeat is on. Toggling Repeat off will still leave the map when it is finished no matter what.</b>",
 				titles: ["Repeat Forever", "Repeat to 10", "Repeat for Items"],
 				locked: true
 			},
