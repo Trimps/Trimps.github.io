@@ -1254,6 +1254,8 @@ function resetGame(keepPortal) {
 	document.getElementById("heirloomBtnContainer").style.display = "none";
 	document.getElementById("goodGuyName").innerHTML = 'Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span>';
 	document.getElementById("autoStorageBtn").style.display = "none";
+	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
+	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));			
 	heirloomsShown = false;
 	game.global.selectedHeirloom = [];
 	resetOnePortalRewards();
