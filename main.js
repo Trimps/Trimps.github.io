@@ -1944,8 +1944,7 @@ function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob){
 			toBuy = Math.floor(log10(((resourcesAvailable / (start * Math.pow(price[1], currentOwned))) * (price[1] - 1)) + 1) / log10(price[1]));
 			//if (itemObj == game.equipment.Shield) console.log(toBuy);
 		}
-		else if (typeof thisCost === 'function') {
-			console.log("function cost, return 1");
+		else if (typeof price === 'function') {
 			return 1;
 		}
 		else {
