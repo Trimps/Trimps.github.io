@@ -441,7 +441,7 @@ overflow-x: hidden;
 
 .nav-tabs>li>a {
     color: white;
-    font-size: 1.05em;
+    font-size: 1vw;
     padding: 4px;
 }
 
