@@ -196,7 +196,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		};
 	}
 	if (what == "Max"){
-		tooltipText = "No reason to spend everything in one place. Here you can set the ratio of your resources to spend when using the 'Max' button. Setting this to 0.5 will spend no more than half of your resources per click, etc."
+		tooltipText = "No reason to spend everything in one place! Here you can set the ratio of your resources to spend when using the 'Max' button. Setting this to 0.5 will spend no more than half of your resources per click, etc."
 		costText = "<ul id='buyMaxUl'><li onclick='setMax(1)'>Max</li><li onclick='setMax(0.5)'>0.5</li><li onclick='setMax(0.33)'>0.33</li><li onclick='setMax(0.25)'>0.25</li><li onclick='setMax(0.1)'>0.1</li></ul>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
