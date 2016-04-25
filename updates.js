@@ -1220,7 +1220,9 @@ function resetGame(keepPortal) {
 	document.getElementById("grid").innerHTML = "";
 	document.getElementById("equipmentHere").innerHTML = "";
 	document.getElementById("queueItemsHere").innerHTML = "";
-	document.getElementById("log").innerHTML = "";
+	var log = document.getElementById("log");
+	log.innerHTML = "";
+	log.scrollTop = log.scrollHeight;
 	document.getElementById("worldNumber").innerHTML = "1";
 	document.getElementById("mapsHere").innerHTML = "";
 	document.getElementById("sciencePs").innerHTML = "+0/sec";

@@ -1513,7 +1513,7 @@ var toReturn = {
 				return this.descriptions[number];
 			},
 			filters: [29, 29, -1, 59, -1, 124, 59, 119, 74, -1, 59, -1],
-			icon: "icomoon icon-alarmclock",
+			icon: "icomoon icon-flag",
 			names: ["Underachiever", "Hoarder", "Needs Block", "Peacekeeper", "Elite Feat", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Realtor", "Gotta Go Fast"],
 			newStuff: []
 		}
