@@ -206,6 +206,12 @@
 	border-color: #ac2925;
 }
 
+.settingBtn2:hover {
+    color: #fff;
+    background-color: #ab7324;
+    border-color: #885b1c;
+}
+
 .infoColor{
 	background-color: #33616F;
 }
