@@ -1150,7 +1150,11 @@ function removePerk(what) {
 		console.log("Trying to set helium spent on perk to " + tempHeliumSpentTemp);
 		return;
 	}
-
+	var tempTotalSpentTemp = game.resources.helium.totalSpentTemp - refund;
+	if (Number.isNaN(tempTotalSpentTemp) || !Number.isFinite(tempTotalSpentTemp)){
+		console.log("Trying to set spent helium to " + tempTotalSpentTemp);
+		return;
+	}
 	toBuy.levelTemp -= game.global.buyAmt;
 	toBuy.heliumSpentTemp -= refund;
 	game.resources.helium.totalSpentTemp -= refund;
@@ -1161,7 +1165,7 @@ function removePerk(what) {
 }
 
 function isNumberBad(number) {
-	return (Number.isNaN(number) || typeof number === 'undefined' || number < 0);
+	return (Number.isNaN(number) || typeof number === 'undefined' || number < 0 || !Number.isFinite(number));
 }
 
 function updatePerkLevel(what){
