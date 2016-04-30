@@ -1150,11 +1150,7 @@ function removePerk(what) {
 		console.log("Trying to set helium spent on perk to " + tempHeliumSpentTemp);
 		return;
 	}
-	var tempTotalSpentTemp = game.resources.helium.totalSpentTemp - refund + game.global.heliumLeftover;
-	if (isNumberBad(tempTotalSpentTemp)){
-		console.log("Trying to set leftover helium to " + tempTotalSpentTemp);
-		return;
-	}
+
 	toBuy.levelTemp -= game.global.buyAmt;
 	toBuy.heliumSpentTemp -= refund;
 	game.resources.helium.totalSpentTemp -= refund;
