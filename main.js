@@ -651,6 +651,7 @@ function portalClicked() {
 	}
 	displayChallenges();
 	numTab(1, true);
+	game.global.buyAmt = 1;
 	displayPortalUpgrades();
 	
 	game.global.removingPerks = false;
