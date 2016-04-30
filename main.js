@@ -828,6 +828,7 @@ function viewPortalUpgrades() {
 		document.getElementById("respecPortalBtn").style.display = "inline-block";
 	}
 	numTab(1, true);
+	game.global.buyAmt = 1;
 	displayPortalUpgrades();
 	
 	if (game.global.challengeActive) document.getElementById("cancelChallengeBtn").style.display = "inline-block";
