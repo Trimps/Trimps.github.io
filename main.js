@@ -1131,10 +1131,30 @@ function buyPortalUpgrade(what){
 }
 
 function removePerk(what) {
+	if (isNumberBad(game.global.buyAmt)){
+		console.log("Buy Amount is " + game.global.buyAmt);
+		return;
+	}
 	var toBuy = game.portal[what];
 	var realTemp = (game.global.respecActive) ? toBuy.levelTemp + toBuy.level : toBuy.levelTemp;
 	if (realTemp < game.global.buyAmt) return;
 	var refund = getPortalUpgradePrice(what, true);
+	//Error Checking
+	var tempLevelTemp = toBuy.level + toBuy.levelTemp - game.global.buyAmt;
+	if (isNumberBad(tempLevelTemp)) {
+		console.log("Trying to set perk level to " + tempLevelTemp);
+		return;
+	}
+	var tempHeliumSpentTemp = toBuy.heliumSpent + toBuy.heliumSpentTemp - refund;
+	if (isNumberBad(tempHeliumSpentTemp)){
+		console.log("Trying to set helium spent on perk to " + tempHeliumSpentTemp);
+		return;
+	}
+	var tempTotalSpentTemp = game.resources.helium.totalSpentTemp - refund + game.global.heliumLeftover;
+	if (isNumberBad(tempTotalSpentTemp)){
+		console.log("Trying to set leftover helium to " + tempTotalSpentTemp);
+		return;
+	}
 	toBuy.levelTemp -= game.global.buyAmt;
 	toBuy.heliumSpentTemp -= refund;
 	game.resources.helium.totalSpentTemp -= refund;
@@ -1142,6 +1162,10 @@ function removePerk(what) {
 	tooltip(what, "portal", "update");
 	var canSpend = game.resources.helium.respecMax;
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(canSpend - game.resources.helium.totalSpentTemp);
+}
+
+function isNumberBad(number) {
+	return (Number.isNaN(number) || typeof number === 'undefined' || number < 0);
 }
 
 function updatePerkLevel(what){
