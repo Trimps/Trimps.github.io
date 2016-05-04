@@ -180,7 +180,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Custom"){
 		customUp = (textString) ? 2 : 1;
-		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 or 200k."
+		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 or 200k. Fractions or percentages such as 1/3 or 20% are evaluated with respect to the number of unemployed trimps."
 		if (textString) tooltipText += " <b>Max of 1,000 for perks</b>";
 		tooltipText += "<br/><br/><input id='customNumberBox' style='width: 50%' value='" + prettify(game.global.lastCustomAmt, true) + "'></input>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='numTab(5, " + textString + ")'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
@@ -1578,28 +1578,40 @@ function numTab (what, p) {
 		var numBox = document.getElementById("customNumberBox");
 		if (numBox){
 			num = numBox.value.toLowerCase();
-			if (num.split('e')[1]){
-				num = num.split('e');
-				num = Math.floor(parseFloat(num[0]) * (Math.pow(10, parseInt(num[1]))));
+			if(num.indexOf('/') > 0) {
+				var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+				num = Math.floor(parseFloat(num.split('/')[0])/parseFloat(num.split('/')[1])*workspaces);
 			}
 			else {
-				var letters = num.replace(/[^a-z]/gi, "");
-				var base = 0;
-				if (letters.length){			
-					var suffices = [
-						'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
-						'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv',
-						'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
-					];
-					for (var x = 0; x < suffices.length; x++){
-						if (suffices[x].toLowerCase() == letters){
-							base = x + 1;
-							break;
-						}
-					}
-					if (base) num = Math.round(parseFloat(num.split(letters)[0]) * Math.pow(1000, base));
+				if(num.indexOf('%') > 0) {
+					var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+					num = Math.floor(parseFloat(num.split('%')[0])/100 * workspaces);
 				}
-				if (!base) num = parseInt(num);
+				else {
+					if (num.split('e')[1]){
+						num = num.split('e');
+						num = Math.floor(parseFloat(num[0]) * (Math.pow(10, parseInt(num[1]))));
+					}
+					else {
+						var letters = num.replace(/[^a-z]/gi, "");
+						var base = 0;
+						if (letters.length){			
+							var suffices = [
+								'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
+								'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv',
+								'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
+							];
+							for (var x = 0; x < suffices.length; x++){
+								if (suffices[x].toLowerCase() == letters){
+									base = x + 1;
+									break;
+								}
+							}
+							if (base) num = Math.round(parseFloat(num.split(letters)[0]) * Math.pow(1000, base));
+						}
+						if (!base) num = parseInt(num);
+					}
+				}
 			}
 		}
 		else num = game.global.lastCustomAmt;
