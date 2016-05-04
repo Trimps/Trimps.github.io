@@ -168,7 +168,7 @@ body {
 }
 
 .titley {
-	top: 0;
+	top: -1px;
   position: relative;
   font-weight: bold;
   font-size: 1.4em;
@@ -188,7 +188,8 @@ body {
     background: rgba(0, 0, 0, 1);
     font-size: 1.12em;
     text-align: center;
-    padding: 3px;
+    padding-top: 3px;
+		height: 32px;
 }
 
 .incrementBtn {
@@ -326,6 +327,7 @@ body {
 #empHide,
 #unempHide {
     font-size: 1.2em;
+		margin-top: 3px;
 }
 
 #logContainer {
@@ -518,17 +520,18 @@ body {
 }
 
 .thing {
-    display: inline-block;
+  display: inline-block;
 	width: 24.2%;
 	margin-left: 0.25%;
 	margin-right: 0.25%;
-    padding: .2vh;
-    text-align: center;
-    background-color: grey;
-    color: white;
-    font-size: .85vw;
-    border: 1px solid white;
+  text-align: center;
+  background-color: grey;
+  color: white;
+  font-size: .85vw;
+  border: 1px solid white;
+	padding-top: 3px;
 }
+
 
 #battleContainer {
     border: 2px solid white;
