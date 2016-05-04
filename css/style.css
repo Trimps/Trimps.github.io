@@ -1,11 +1,16 @@
+/*typeface*/
+@import url(https://fonts.googleapis.com/css?family=Josefin+Sans);
+
 /*Top Row*/
 .badge {
 	background-color: #3b3b3b;
 }
+
 body {
 	background-color: black;
 	overflow-y: hidden;
-overflow-x: hidden;
+  overflow-x: hidden;
+	font-family: 'Josefin Sans', sans-serif;
 }
 .progress-bar {
     -webkit-transition: width .1s ease;
@@ -33,6 +38,8 @@ overflow-x: hidden;
     margin-bottom: 3%;
     color: white;
 }
+
+
 
 .holidaySaleDesc{
 	color: red;
@@ -68,7 +75,7 @@ overflow-x: hidden;
 .shriekStateCooldown{
 	background-color: grey !important;
 }
- 
+
 .shriekStateEnabled{
 	background-color: #5cb85c !important;
  }
@@ -76,15 +83,15 @@ overflow-x: hidden;
 .shriekStateDisabled{
 	background-color: #d9534f !important;
  }
- 
+
  .formationStateEnabled{
 	background-color: #5cb85c !important;
  }
- 
+
  .formationStateDisabled{
 	background-color: grey !important;
  }
- 
+
 .resourceRow{
 	height: 49.9%;
 	padding-right: .25vw;
@@ -154,12 +161,21 @@ overflow-x: hidden;
 }
 
 .title {
-    font-weight: bold;
-    font-size: 1.4em;
+	top: 3px;
+  position: relative;
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.titley {
+	top: 0;
+  position: relative;
+  font-weight: bold;
+  font-size: 1.4em;
 }
 
 #logBtnGroup {
-    height: 2vw;
+  height: 2vw;
 	font-size: 1vw;
 }
 
@@ -205,13 +221,17 @@ overflow-x: hidden;
 }
 
 #science {
-    padding-top: 3.5%;
+    padding-top: 5px;
 }
 
 .collectRow {
     margin-top: 5px;
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.downer {
+	margin-top: 18px;
 }
 
 .collectRow >:first-child {
@@ -279,11 +299,11 @@ overflow-x: hidden;
 }
 
 .bdPercent{
-	
+
 }
 
 .bdNumber{
-	
+
 }
 
 .collectRow {}
@@ -321,20 +341,15 @@ overflow-x: hidden;
 	height: 100%;
 }
 
-
-
 #buyCol {
 	height: 100%;
 	padding-right: .25vw;
 }
 
 .alert {
-    background-color: yellow;
-    color: black;
-	min-width: initial;
-	padding: 2% 5.5%;
-	font-size: 1em;
-	border-radius: 100%;
+	color: yellow;
+	font-size: .8em;
+	margin-right: 4px;
 }
 
 #mapsBtn .alert{
@@ -355,7 +370,7 @@ overflow-x: hidden;
     padding-bottom: 5px;
     padding-top: 5px;
     height: 85px;
-	
+
 }
 
 .queueItem {
@@ -366,7 +381,7 @@ overflow-x: hidden;
     cursor: pointer;
     text-align: center;
     padding: 2px;
-	overflow: hidden; 
+	overflow: hidden;
 	position: relative;
 }
 
@@ -376,10 +391,10 @@ overflow-x: hidden;
 }
 
 #animationDiv{
-	position:absolute; 
-    top:0; 
+	position:absolute;
+    top:0;
 	left: 0;
-    width:100%; 
+    width:100%;
     height: 100%;
     background:#1E90FF;
 	opacity: 0;
@@ -438,9 +453,9 @@ overflow-x: hidden;
 }
 
 .nav-tabs>li>a {
-    color: white;
-    font-size: 1.1em;
-    padding: 4px;
+	color: white;
+    font-size: 1vw;
+	padding: 4px;
 }
 
 #buyHere {
@@ -458,6 +473,29 @@ overflow-x: hidden;
     width: calc(100% - 10px);
 }
 
+#buyMaxUl{
+	list-style: none;
+	padding: 0;
+}
+
+#buyMaxUl li{
+	display: inline-block;
+	font-size: 1.1vw;
+	width: calc(20% - 2px - 0.2vw);
+	text-align: center;
+	border: 1px solid black;
+	background-color: #000040;
+	color: #d0d0d0;
+	border-radius: 10px;
+	margin: 0.1vw;
+	cursor: pointer;
+}
+
+#buyMaxUl li:hover{
+	color: #000040;
+	background-color: #d0d0d0;;
+}
+
 .titleSpan {}
 
 #buyContainer {
@@ -471,6 +509,7 @@ overflow-x: hidden;
 	background: rgba(121,121,123,0.5);
 	color: white;
 }
+
 
 #buyHere {
     padding: 5px;
@@ -508,8 +547,8 @@ overflow-x: hidden;
 }
 
 .innerFightBar{
-	font-size: 1.4vw !important;
-	line-height: 1.4vw !important;
+	font-size: 1.2vw !important;
+	line-height: 1.6vw !important;
 }
 
 #battleHeadContainer {
@@ -543,9 +582,22 @@ overflow-x: hidden;
 
 #settingsTable > tbody > tr > td {
 	width: 9.1% !important;
+	height: 42px;
 	border: 1px solid black;
 	display: table-cell !important;
 	text-align: center;
+}
+
+.col-xs-off{
+	display: none;
+}
+
+#extraMapBtns {
+	padding-left: 0;
+}
+
+#extraMapBtns div:first-child{
+	margin-top: 0;
 }
 
 .noTitle.title {
@@ -553,7 +605,7 @@ overflow-x: hidden;
 }
 
 
-.settingBtn {
+.settingsBtn {
     font-size: 1.3vw;
 	border: 1px solid black;
 	cursor: pointer;
@@ -569,7 +621,7 @@ overflow-x: hidden;
 	background-color: #d9534f;
 }
 
-.settingBtn2{
+.settingBtn2, .btn-yellow{
 	background-color: yellow;
 	color: black;
 }
@@ -595,16 +647,15 @@ overflow-x: hidden;
 }
 
 #numTabs{
-	margin-top: 5px;
+	border-bottom: 2px solid #ddd;
 }
 
 #numTabs > ul > li > a {
     padding: 3px;
 }
 
-#buyTabsUl > li > a {
-	border: 1px solid #ddd;
-	border-radius: 8px 8px 0 0;
+#buyTabs {
+	border-bottom: 2px solid #ddd;
 }
 
 .buyTab{
@@ -665,13 +716,15 @@ overflow-x: hidden;
 
 #grid,
 #mapGrid {
-    width: 100%;
-    height: 100%;
-    color: black;
-    background: rgba(255, 255, 255, 0.25);
-    text-align: left;
+	width: 103.2%;
+	height: 100%;
+	color: black;
+	background: rgba(255, 255, 255, 0.25);
+	text-align: left;
 	list-style: none;
 	padding-left: 0;
+	right: 3.3%;
+	position: relative;
 }
 
 .battleRow{
@@ -825,18 +878,18 @@ overflow-x: hidden;
 }
 
 .autosaving{
-	color: white; 
-	background-color: #5cb85c; 
-	border-radius: 25px; 
+	color: white;
+	background-color: #5cb85c;
+	border-radius: 25px;
 	padding: 0.25em;
 	font-size: .9em;
 }
 
 .notAutosaving{
-	color: white; 
-	background-color: #d9534f; 
+	color: white;
+	background-color: #d9534f;
 	font-size: .9em;
-	border-radius: 25px; 
+	border-radius: 25px;
 	padding: 0.25em;
 }
 
@@ -854,7 +907,6 @@ overflow-x: hidden;
 }
 
 #battleBtnsColumn{
-	padding-right: 1px;
 	padding-left: 0;
 }
 
@@ -864,7 +916,7 @@ overflow-x: hidden;
     background-color: rgba(0, 0, 0, 0.3);
 	padding-top: 5%;
 	padding-bottom: 5%;
-	
+
 }
 
 .brokenUpgrade {
@@ -873,7 +925,6 @@ overflow-x: hidden;
 
 .niceScroll::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
     background-color: #F5F5F5;
 }
 
@@ -883,7 +934,6 @@ overflow-x: hidden;
 }
 
 .niceScroll::-webkit-scrollbar-thumb {
-    border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
     background-color: #555;
 }
@@ -1169,7 +1219,7 @@ overflow-x: hidden;
 .heirloomRare6{
 	color: #2693ff;
 		text-shadow:
-	 -0.15vw -0.15vw 0.2vw #5000ba,  
+	 -0.15vw -0.15vw 0.2vw #5000ba,
 	  0.15vw -0.15vw 0.25vw #5b00d3,
 	 -0.15vw 0.15vw 0.2vw #6600ec,
 	  0.15vw 0.15vw 0.3vw #2f006d;
@@ -1193,7 +1243,7 @@ overflow-x: hidden;
 	display: inline-block;
 	width: 15%;
 	margin: 0.1vw;
-	
+
 }
 
 #heirloomRarityMisc{
@@ -1313,7 +1363,7 @@ overflow-x: hidden;
 
 .heirloomThing:hover{
  text-shadow:
- -0.15vw -0.15vw 0.2vw #aaa,  
+ -0.15vw -0.15vw 0.2vw #aaa,
  0.15vw -0.15vw 0.2vw #aaa,
  -0.15vw 0.15vw 0.2vw #aaa,
  0.15vw 0.15vw 0.2vw #aaa;
@@ -1341,9 +1391,9 @@ overflow-x: hidden;
 }
 
 .selectedHeirloomItem.heirloomRare6{
-background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%); 
-background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%); 
-background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%); 
+background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%);
+background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%);
+background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 }
 
 
@@ -1763,7 +1813,7 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 background: -moz-linear-gradient(-45deg,  #2f006d 0%, #30046d 12%, #320370 25%, #3f0a6d 39%, #2f095e 50%, #2e0854 51%, #220535 60%, #25063d 76%, #12031e 92%, #131313 100%);
 background: -webkit-linear-gradient(-45deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
 background: linear-gradient(135deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f006d', endColorstr='#131313',GradientType=1 ); 
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f006d', endColorstr='#131313',GradientType=1 );
 color: #DDDDFF !important;
 }
 
@@ -1873,7 +1923,7 @@ color: #DDDDFF !important;
 	padding-top: 1vw;
 	padding-bottom: 1vw;
 	color: white;
-} 
+}
 
 .titleCell{
 	text-decoration: underline;
@@ -2069,6 +2119,15 @@ color: #DDDDFF !important;
 	width: 2.2%;
 }
 
+#tab5 a{
+	display: inline-block;
+	width: calc(50% - 0.5px);
+}
+
+#tab5 a:nth-child(2){
+	margin-left: -4px;
+}
+
 .goldMap{
 	background-color: #998100;
 }
@@ -2221,9 +2280,9 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background: -moz-linear-gradient(left,  #000000 0%, #400010 50%, #000000 100%);
-background: -webkit-linear-gradient(left,  #000000 0%,#400010 50%,#000000 100%);
-background: linear-gradient(to right,  #000000 0%,#400010 50%,#000000 100%);
+background: -moz-linear-gradient(left,  #000000 0%, #501030 50%, #000000 100%);
+background: -webkit-linear-gradient(left,  #000000 0%,#501030 50%,#000000 100%);
+background: linear-gradient(to right,  #000000 0%,#501030 50%,#000000 100%);
 color: white;
 }
 .btn-new:hover,
@@ -2235,7 +2294,7 @@ color: white;
 background: -moz-linear-gradient(left,  #000000 0%, #fff 50%, #000000 100%);
 background: -webkit-linear-gradient(left,  #000000 0%,#fff 50%,#000000 100%);
 background: linear-gradient(to right,  #000000 0%,#fff 50%,#000000 100%);
-color: #400010;
+color: #400030;
 
 }
 .btn-new:active,
@@ -2272,13 +2331,13 @@ input::-webkit-inner-spin-button {
 	padding: 0;
 	color: black;
  }
- 
+
  .noTransition {
 	-webkit-transition: none !important;
        -o-transition: none !important;
           transition: none !important;
  }
- 
+
  #miscColumn  span {
 	font-size: 1.2vw !important;
 }
@@ -2334,6 +2393,10 @@ input::-webkit-inner-spin-button {
 	background: yellow;
 }
 
+.cellColorOverkill {
+	background: #67cf00;
+}
+
 .percentColorBlue {
 	background-color: #00B2EE;
 }
@@ -2384,7 +2447,7 @@ sup{
     -moz-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
     box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
 	border: 0;
-	
+
 }
 
 .queueItemBack{
@@ -2395,3 +2458,13 @@ sup{
 	font-size: 0.9em !important;
 }
 
+.btn {
+	border-radius: 0;
+}
+
+#lootBdBtn {
+	position: relative;
+	top: 4px;
+	right: 3px;
+	font-size: 1.3em;
+}

@@ -93,6 +93,8 @@ function save(exportThis) {
 		var settingItem = saveGame.options.menu[itemS];
 		delete settingItem.description;
 		delete settingItem.titles;
+		delete settingItem.locked;
+		delete settingItem.secondLocation;
 	}
 	for (var itemF in saveGame.challenges){
 		var challenge = saveGame.challenges[itemF];
@@ -133,7 +135,7 @@ function save(exportThis) {
 			message("For some reason, your game is not saving. Make sure you export and back up your save!", "Notices");
 		}
 	}
-	catch(err){ 
+	catch(e){ 
 		if(e.name == "NS_ERROR_FILE_CORRUPTED") {
         message("Sorry, it looks like your browser storage has been corrupted. Please clear your storage by going to Tools -> Clear Recent History -> Cookies and set time range to 'Everything'. This will remove the corrupted browser storage across all sites.", "Notices");
 		}
@@ -385,6 +387,10 @@ function load(saveString, autoLoad) {
 		game.achievements.oneOffs.finished.push(false);
 		game.achievements.oneOffs.filters.push(-1);
 	}
+	if (oldVersion < 3.22){
+		if (game.global.totalPortals > 0) game.options.menu.extraMapBtns.enabled = 1;
+	}
+
 	//End compatibility
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
@@ -476,6 +482,9 @@ function load(saveString, autoLoad) {
 	}
 	unlockFormation("all");
 	setFormation();
+	toggleSetting("mapLoot", null, false, true);
+	toggleSetting("repeatUntil", null, false, true);
+	toggleSetting("exitTo", null, false, true);
 	game.global.removingPerks = false;
 	game.global.switchToMaps = false;
 	if (game.global.voidBuff) setVoidBuffTooltip();
@@ -503,10 +512,6 @@ function load(saveString, autoLoad) {
 	if (game.global.lastSkeletimp > 0) updateSkeleBtn();
 	if (game.global.turkimpTimer > 0) document.getElementById("turkimpBuff").style.display = "block";
 	if (game.global.totalPortals >= 5) document.getElementById("heirloomBtnContainer").style.display = "block";
-/* 	for (var storyMsg in game.worldText){
-		if (parseInt(storyMsg.split('w')[1]) > game.global.world) break;
-		message(game.worldText[storyMsg], "Story");
-	} */
 	calculateAchievementBonus();
 	if(game.global.firing)
 		swapClass("fireBtn", "fireBtnFiring", document.getElementById("fireBtn"));
@@ -646,6 +651,7 @@ function portalClicked() {
 	}
 	displayChallenges();
 	numTab(1, true);
+	game.global.buyAmt = 1;
 	displayPortalUpgrades();
 	
 	game.global.removingPerks = false;
@@ -823,6 +829,7 @@ function viewPortalUpgrades() {
 		document.getElementById("respecPortalBtn").style.display = "inline-block";
 	}
 	numTab(1, true);
+	game.global.buyAmt = 1;
 	displayPortalUpgrades();
 	
 	if (game.global.challengeActive) document.getElementById("cancelChallengeBtn").style.display = "inline-block";
@@ -1126,10 +1133,30 @@ function buyPortalUpgrade(what){
 }
 
 function removePerk(what) {
+	if (isNumberBad(game.global.buyAmt)){
+		console.log("Buy Amount is " + game.global.buyAmt);
+		return;
+	}
 	var toBuy = game.portal[what];
 	var realTemp = (game.global.respecActive) ? toBuy.levelTemp + toBuy.level : toBuy.levelTemp;
 	if (realTemp < game.global.buyAmt) return;
 	var refund = getPortalUpgradePrice(what, true);
+	//Error Checking
+	var tempLevelTemp = toBuy.level + toBuy.levelTemp - game.global.buyAmt;
+	if (isNumberBad(tempLevelTemp)) {
+		console.log("Trying to set perk level to " + tempLevelTemp);
+		return;
+	}
+	var tempHeliumSpentTemp = toBuy.heliumSpent + toBuy.heliumSpentTemp - refund;
+	if (isNumberBad(tempHeliumSpentTemp)){
+		console.log("Trying to set helium spent on perk to " + tempHeliumSpentTemp);
+		return;
+	}
+	var tempTotalSpentTemp = game.resources.helium.totalSpentTemp - refund;
+	if (Number.isNaN(tempTotalSpentTemp) || !Number.isFinite(tempTotalSpentTemp)){
+		console.log("Trying to set spent helium to " + tempTotalSpentTemp);
+		return;
+	}
 	toBuy.levelTemp -= game.global.buyAmt;
 	toBuy.heliumSpentTemp -= refund;
 	game.resources.helium.totalSpentTemp -= refund;
@@ -1137,6 +1164,10 @@ function removePerk(what) {
 	tooltip(what, "portal", "update");
 	var canSpend = game.resources.helium.respecMax;
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(canSpend - game.resources.helium.totalSpentTemp);
+}
+
+function isNumberBad(number) {
+	return (Number.isNaN(number) || typeof number === 'undefined' || number < 0 || !Number.isFinite(number));
 }
 
 function updatePerkLevel(what){
@@ -1587,7 +1618,7 @@ function getPlayerModifier(){
 
 function calculateTimeToMax(resource, perSec, toNumber, fromGather) {
 	if (perSec <= 0) return "";
-	var remaining = (toNumber > 0) ? toNumber : calcHeirloomBonus("Shield", "storageSize", ((resource.max * (1 + game.portal.Packrat.modifier * game.portal.Packrat.level)))) - resource.owned;
+	var remaining = (toNumber != null) ? toNumber : calcHeirloomBonus("Shield", "storageSize", ((resource.max * (1 + game.portal.Packrat.modifier * game.portal.Packrat.level)))) - resource.owned;
 	if (remaining <= 0) return "";
 	var toFill = Math.floor(remaining / perSec);
 	var years = Math.floor(toFill / 31536000);
@@ -1669,17 +1700,22 @@ function resolvePow(cost, whatObj, addOwned) {
     return (Math.floor(cost[0] * Math.pow(cost[1], (whatObj[compare] + addOwned))));
 }
 
-//Now with equipment!
-function canAffordBuilding(what, take, buildCostString, isEquipment){
+//Now with equipment! buyAmt
+function canAffordBuilding(what, take, buildCostString, isEquipment, updatingLabel){
 	var costString = "";
 	var toBuy;
 	if (!isEquipment) toBuy = game.buildings[what];
 	else toBuy = game.equipment[what];
+	var purchaseAmt = 1;
+	if (game.global.buyAmt == "Max"){
+		if (!updatingLabel) purchaseAmt = calculateMaxAfford(toBuy, !isEquipment, isEquipment);
+	}
+	else purchaseAmt = game.global.buyAmt;
 	if (typeof toBuy === 'undefined') return false;
 	for (var costItem in toBuy.cost) {
 		var color = "green";
 		var price = 0;
-		price = parseFloat(getBuildingItemPrice(toBuy, costItem, isEquipment));
+		price = parseFloat(getBuildingItemPrice(toBuy, costItem, isEquipment, purchaseAmt));
 		if (isEquipment) price = Math.ceil(price * (Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level)));
 		else if (game.portal.Resourceful.level) price = Math.ceil(price * (Math.pow(1 - game.portal.Resourceful.modifier, game.portal.Resourceful.level)));
 		if (price > game.resources[costItem].owned || !(isFinite(price))) {
@@ -1716,18 +1752,18 @@ function canAffordBuilding(what, take, buildCostString, isEquipment){
 	return true;
 }
 
-function getBuildingItemPrice(toBuy, costItem, isEquipment){
+function getBuildingItemPrice(toBuy, costItem, isEquipment, purchaseAmt){
 	var price = 0;
 	var compare = (isEquipment) ? "level" : "purchased";
 	var thisCost = toBuy.cost[costItem];
 		if (typeof thisCost[1] !== 'undefined'){
-			price =  Math.floor((thisCost[0] * Math.pow(thisCost[1], toBuy[compare])) * ((Math.pow(thisCost[1], game.global.buyAmt) - 1) / (thisCost[1] - 1)));
+			price =  Math.floor((thisCost[0] * Math.pow(thisCost[1], toBuy[compare])) * ((Math.pow(thisCost[1], purchaseAmt) - 1) / (thisCost[1] - 1)));
 		}
 		else if (typeof thisCost === 'function') {
 			price = thisCost();
 		}
 		else {
-			price = thisCost * game.global.buyAmt;
+			price = thisCost * purchaseAmt;
 		}
 	return price;
 }
@@ -1736,15 +1772,16 @@ function buyBuilding(what, confirmed, fromAuto) {
 	if (game.options.menu.pauseGame.enabled) return;
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var toBuy = game.buildings[what];
+	var purchaseAmt = 1;
+	if (!toBuy.percent) purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy, true, false) : game.global.buyAmt;
     if (typeof toBuy === 'undefined') return;
     var canAfford = canAffordBuilding(what);
-	if (what == "Wormhole" && !confirmed && game.options.menu.confirmhole.enabled){
-		tooltip('Confirm Purchase', null, 'update', 'You are about to purchase ' + game.global.buyAmt + ' Wormholes, <b>which cost helium</b>. Make sure you can earn back what you spend!', 'buyBuilding(\'Wormhole\', true)');
-		return;
-	}
 	if (canAfford){
+		if (what == "Wormhole" && !confirmed && game.options.menu.confirmhole.enabled){
+			tooltip('Confirm Purchase', null, 'update', 'You are about to purchase ' + purchaseAmt + ' Wormholes, <b>which cost helium</b>. Make sure you can earn back what you spend!', 'buyBuilding(\'Wormhole\', true)');
+			return;
+		}
 		canAffordBuilding(what, true);
-		var purchaseAmt = (game.buildings[what].percent) ? 1 : game.global.buyAmt; 
 		game.buildings[what].purchased += purchaseAmt;
 		startQueue(what, purchaseAmt);
 	}
@@ -1887,10 +1924,12 @@ function trapThings() {
 function buyJob(what, confirmed, noTip) {
 	if (game.options.menu.pauseGame.enabled) return;
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
+	var purchaseAmt;
 	if (game.global.firing){
 		if (game.jobs[what].owned < 1) return;
-		game.resources.trimps.employed -= (game.jobs[what].owned < game.global.buyAmt) ? game.jobs[what].owned : game.global.buyAmt;
-		game.jobs[what].owned -= game.global.buyAmt;
+		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
+		game.resources.trimps.employed -= (game.jobs[what].owned < purchaseAmt) ? game.jobs[what].owned : purchaseAmt;
+		game.jobs[what].owned -= purchaseAmt;
 		if (game.jobs[what].owned < 0) game.jobs[what].owned = 0;
 		if (game.resources.trimps.employed < 0) game.resources.trimps.employed = 0;
 		return;
@@ -1904,9 +1943,51 @@ function buyJob(what, confirmed, noTip) {
 	if (!noTip) tooltip(what, "jobs", "update");
 }
 
+function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob){
+	if (!itemObj.cost){
+		console.log("no cost");
+		return 1;
+	}
+	var mostAfford = -1;
+	var currentOwned = (itemObj.purchased) ? itemObj.purchased : ((itemObj.level) ? itemObj.level : itemObj.owned);
+	if (!currentOwned) currentOwned = 0;
+	if (isJob && game.global.firing) return Math.floor(currentOwned * game.global.maxSplit);
+	//if (itemObj == game.equipment.Shield) console.log(currentOwned);
+	for (var item in itemObj.cost){
+		var price = itemObj.cost[item];
+		var toBuy;
+		var resource = game.resources[item];
+		var resourcesAvailable = resource.owned;
+		if (game.global.maxSplit != 1) resourcesAvailable = Math.floor(resourcesAvailable * game.global.maxSplit);
+		if (!resource || typeof resourcesAvailable === 'undefined'){
+			console.log("resource " + item + " not found");
+			return 1;
+		}
+		if (typeof price[1] !== 'undefined'){
+			var start = price[0];
+			if (isEquipment && game.portal.Artisanistry.level) start = Math.ceil(start * (Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level)));
+			if (isBuilding && game.portal.Resourceful.level) start = Math.ceil(start * (Math.pow(1 - game.portal.Resourceful.modifier, game.portal.Resourceful.level)));
+			toBuy = Math.floor(log10(((resourcesAvailable / (start * Math.pow(price[1], currentOwned))) * (price[1] - 1)) + 1) / log10(price[1]));
+			//if (itemObj == game.equipment.Shield) console.log(toBuy);
+		}
+		else if (typeof price === 'function') {
+			return 1;
+		}
+		else {
+			if (isBuilding && game.portal.Resourceful.level) price = Math.ceil(price * (Math.pow(1 - game.portal.Resourceful.modifier, game.portal.Resourceful.level)));
+			toBuy = Math.floor(resourcesAvailable / price);
+		}
+		if (mostAfford == -1 || mostAfford > toBuy) mostAfford = toBuy;
+	}
+	if (isBuilding && mostAfford > 1000000000) return 1000000000;
+	if (mostAfford <= 0) return 1;	
+	return mostAfford;
+}
+
 function getTooltipJobText(what, toBuy) {
     var job = game.jobs[what];
 	if (toBuy <= 0) toBuy = game.global.buyAmt;
+	if (toBuy == "Max") toBuy = calculateMaxAfford(job, false, false, true);
 	var fullText = "";
     for (var item in job.cost) {
         var color = (checkJobItem(what, false, item, false, toBuy)) ? "green" : "red";
@@ -1916,9 +1997,16 @@ function getTooltipJobText(what, toBuy) {
     return fullText;
 }
 
-function canAffordJob(what, take, workspaces) {
+function canAffordJob(what, take, workspaces, updatingLabel) {
+	if (workspaces <= 0) return false;
     var trimps = game.resources.trimps;
-	var toBuy = game.global.buyAmt;
+	var toBuy = 1;
+	if (game.global.buyAmt == "Max"){
+		workspaces = Math.floor(workspaces * game.global.maxSplit);
+		if (workspaces <= 0) workspaces++;
+		if (!updatingLabel) toBuy = calculateMaxAfford(game.jobs[what], false, false, true);
+	}
+	else toBuy = game.global.buyAmt;
     if (workspaces >= 0 && workspaces < toBuy) toBuy = workspaces;
     if (trimps.owned - trimps.employed - toBuy < 0) return false;
     var job = game.jobs[what];
@@ -3525,9 +3613,8 @@ function mapsSwitch(updateOnly, fromRecycle) {
 		if (!fromRecycle) resetAdvMaps();
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "block";
-        document.getElementById("mapGrid").style.display = "none";
+        toggleMapGridHtml();
         mapsBtn.innerHTML = "World";
-		document.getElementById("repeatBtn").style.display = "none";
         if (game.global.lookingAtMap && !game.global.currentMapId) selectMap(game.global.lookingAtMap, true);
 		else if (game.global.currentMapId === "") {
 			clearMapDescription();
@@ -3545,28 +3632,37 @@ function mapsSwitch(updateOnly, fromRecycle) {
 			game.global.useShriek = true;
 		}
 		if (currentMapObj.location == "Void") currentMapObj.level = game.global.world;
-		fadeIn("repeatBtn", 10);
-		document.getElementById("battleHeadContainer").style.display = "block";
 		document.getElementById("mapsCreateRow").style.display = "none";
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "none";
-        document.getElementById("mapGrid").style.display = "block";
-		var btnText = "Maps";
-		if (game.global.mapBonus > 0) btnText += " (" + game.global.mapBonus + ")";
-        document.getElementById("mapsBtn").innerHTML = btnText;
-        document.getElementById("worldNumber").innerHTML = "<br/>Lv: " + currentMapObj.level;
-        document.getElementById("worldName").innerHTML = currentMapObj.name;
-		document.getElementById("mapBonus").innerHTML = "";
+        toggleMapGridHtml(true, currentMapObj);
     } else {
 		document.getElementById("battleHeadContainer").style.display = "block";
 		document.getElementById("mapsCreateRow").style.display = "none";
         document.getElementById("grid").style.display = "block";
         document.getElementById("preMaps").style.display = "none";
-        document.getElementById("mapGrid").style.display = "none";
+        toggleMapGridHtml();
 		setNonMapBox();
-		document.getElementById("repeatBtn").style.visibility = "hidden";
+		
     }
 	toggleVoidMaps(true);
+}
+
+function toggleMapGridHtml(on, currentMapObj){
+	var settings = (on) ? ["block", "2", "8", "block"] : ["none", "off", "10", "none"];
+	document.getElementById("mapGrid").style.display = settings[0];
+	if (game.options.menu.extraMapBtns.enabled){
+		swapClass("col-xs", "col-xs-" + settings[1], document.getElementById("extraMapBtns"));
+		swapClass("col-xs", "col-xs-" + settings[2], document.getElementById("gridContainer"));
+	}
+	document.getElementById("repeatBtn").style.display = settings[3];
+	if (!on) return;
+	document.getElementById("mapsBtn").innerHTML = (game.global.mapBonus) ? "Maps (" + game.global.mapBonus + ")" : "Maps";
+	document.getElementById("mapBonus").innerHTML = "";
+	document.getElementById("battleHeadContainer").style.display = "block";
+	if (!currentMapObj) return; 
+	document.getElementById("worldNumber").innerHTML = "<br/>Lv: " + currentMapObj.level;
+	document.getElementById("worldName").innerHTML = currentMapObj.name;
 }
 
 function clearMapDescription(){
@@ -3685,16 +3781,7 @@ function battle(force) {
 	var trimps = game.resources.trimps;
 	var trimpsMax = trimps.realMax();
     if (game.global.fighting) return;
-/* 	{
-		if (!force || game.global.challengeActive == "Nom") return;
-		if (trimps.owned != trimpsMax) return;
-		game.global.soldierHealth = 0;
-		game.global.fighting = false;
-		trimps.soldiers = 0;
-		updateGoodBar();
-		return;
-	} */
-    if ((game.global.switchToMaps || game.global.switchToWorld) && game.resources.trimps.soldiers === 0) {
+    if ((game.global.switchToMaps || game.global.switchToWorld) && trimps.soldiers === 0) {
         mapsSwitch();
         return;
     }
@@ -3803,14 +3890,15 @@ function startFight() {
 			cell.health *= 2;
 		}
 		else if (game.global.challengeActive == "Balance"){
-			if (game.global.mapsActive) cell.attack *= 2;
-			cell.health *= 1.5;
+			cell.attack *= (game.global.mapsActive) ? 2.35 : 1.17;
+			cell.health *= 2;
 		}
 		else if (game.global.challengeActive == "Lead" && (game.challenges.Lead.stacks > 0)) cell.health *= (1 + (game.challenges.Lead.stacks * 0.04));
         cell.maxHealth = cell.health;
 		if (game.portal.Overkill.level) cell.health -= (overkill * game.portal.Overkill.level * 0.005);
 		if (cell.health < 1) {
 			cell.health = 0;
+			cell.overkilled = true;
 			instaFight = true;
 			if (!game.global.mapsActive) game.stats.cellsOverkilled.value++;
 		}
@@ -3846,6 +3934,7 @@ function startFight() {
 		game.global.difs.block = 0;
 		game.global.difs.trainers = game.jobs.Trainer.owned;
         game.global.soldierHealthMax = (game.global.health * trimpsFighting);
+		game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
 		//Toughness
 		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
 		if (game.global.lowestGen >= 0) {
@@ -3917,7 +4006,23 @@ function startFight() {
 			game.global.soldierCurrentBlock += blockTemp;
 			game.global.difs.block = 0;
 		}
+		if (game.resources.trimps.soldiers != soldType && game.global.maxSoldiersAtStart > 0){
+			var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
+			var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
+			var requiredTrimps = (soldType - game.resources.trimps.soldiers);
+			if (freeTrimps >= requiredTrimps) {
+				game.resources.trimps.owned -= requiredTrimps;
+				var oldHealth = game.global.soldierHealthMax;
+				game.global.soldierHealthMax *= newTrimps;
+				game.global.soldierHealth += (game.global.soldierHealthMax - oldHealth);
+				game.global.soldierCurrentAttack *= newTrimps;
+				game.global.soldierCurrentBlock *= newTrimps;
+				game.resources.trimps.soldiers = soldType;
+				game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
+			}
+		}
 	}
+	
 	updateAllBattleNumbers(game.resources.trimps.soldiers < soldType);
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
@@ -3964,7 +4069,6 @@ function updateGoodBar() {
 }
 
 function updateBadBar(cell) {
-/*     var cell = (game.global.mapsActive) ? game.global.mapGridArray[game.global.lastClearedMapCell + 1] : game.global.gridArray[game.global.lastClearedCell + 1]; */
 	document.getElementById("badGuyHealth").innerHTML = prettify(cell.health);
 	if (!game.options.menu.progressBars.enabled) return;
 	var barElem = document.getElementById("badGuyBar");
@@ -4110,18 +4214,17 @@ function checkHousing(getHighest){
 
 function assignExtraWorkers(){
 	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
-	var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed - game.resources.trimps.soldiers);
+	var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
 	if (freeTrimps < workspaces) workspaces = freeTrimps;
 	if (workspaces <= 0) return;
 	var jobs = ["Farmer", "Lumberjack", "Miner"];
-	if (game.resources.food.owned < (workspaces * 5)) workspaces = Math.floor(game.resources.food.owned / 5);
 	var split = Math.floor(workspaces / 3);
+	if (game.resources.food.owned < (split * 30)) split = Math.floor(game.resources.food.owned / 30);
 	for (var x = 0; x < jobs.length; x++){
 		game.jobs[jobs[x]].owned += split;
 	}
-	split = Math.round(split * 3)
-	game.resources.trimps.employed += split;
-	game.resources.food.owned -= (split * 5);
+	game.resources.trimps.employed += Math.round(split * 3);
+	game.resources.food.owned -= (split * 30);
 }
 
 function distributeToChallenges(amt) {
@@ -4193,7 +4296,14 @@ function fight(makeUp) {
 			else game.challenges.Balance.addStack();
 			updateBalanceStacks();
 		}
-        swapClass("cellColor", "cellColorBeaten", cellElem);
+		if (cell.overkilled && game.options.menu.overkillColor.enabled){
+			if (game.options.menu.overkillColor.enabled == 2){
+				var prevCellElem = document.getElementById(((game.global.mapsActive) ? "mapCell" : "cell") + (cellNum - 1));
+				if (prevCellElem) swapClass("cellColor", "cellColorOverkill", prevCellElem);
+			}
+			swapClass("cellColor", "cellColorOverkill", cellElem);
+		}
+		else	swapClass("cellColor", "cellColorBeaten", cellElem);
         if (game.global.mapsActive) game.global.lastClearedMapCell = cellNum;
         else {
 			game.global.lastClearedCell = cellNum;
@@ -4231,16 +4341,17 @@ function fight(makeUp) {
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
 			game.stats.mapsCleared.value++;
 			checkAchieve("totalMaps");
-			if (currentMapObj.level >= (game.global.world - game.portal.Siphonology.level) && game.global.mapBonus < 10){
-				game.global.mapBonus += 1;
-			}
+			var shouldRepeat = (game.global.repeatMap);
+			if ((currentMapObj.level >= (game.global.world - game.portal.Siphonology.level)) && game.global.mapBonus < 10) game.global.mapBonus += 1;
+			if (game.options.menu.repeatUntil.enabled == 1 && game.global.mapBonus == 10) shouldRepeat = false;
+			if (game.options.menu.repeatUntil.enabled == 2 && addSpecials(true, true, getCurrentMapObject()) == 0) shouldRepeat = false;
 			var skip = false;
 			if (currentMapObj.location == "Void") {
 				currentMapObj.noRecycle = false;
 				recycleMap(-1, true, true);
 				skip = true;
 			}
-			if (game.global.repeatMap && !game.global.switchToMaps && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1) && !skip){
+			if (shouldRepeat && !game.global.switchToMaps && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1) && !skip){
 				if (game.global.mapBonus > 0) document.getElementById("mapsBtn").innerHTML = "Maps (" + game.global.mapBonus + ")";
 				game.global.lastClearedMapCell = -1;
 				buildMapGrid(game.global.currentMapId);
@@ -4260,7 +4371,7 @@ function fight(makeUp) {
 					game.resources.trimps.soldiers = 0;
 					updateGoodBar();		
 				}
-				game.global.preMapsActive = true;
+				game.global.preMapsActive = (game.options.menu.exitTo.enabled) ? false : true;
 				game.global.mapsActive = false;
 				game.global.lastClearedMapCell = -1;
 				game.global.currentMapId = "";
@@ -4399,8 +4510,6 @@ function fight(makeUp) {
     if (makeUp) return;
     updateGoodBar();
 	updateBadBar(cell);
-
-    /*	if (game.jobs.Medic.owned >= 1) setTimeout(heal, 500); */
 }
 
 function getPlayerCritChance(){ //returns decimal: 1 = 100%
@@ -4524,23 +4633,17 @@ function updateBalanceStacks(){
 	else elem.style.display = "none";
 }
 
-/* function heal() {
-	var medics = game.jobs.Medic;
-	if (game.global.soldierHealth > 0)
-	game.global.soldierHealth += (medics.owned * medics.modifier);
-	if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
-	updateGoodBar();
-} */
-
 function buyEquipment(what, confirmed, noTip) {
 	if (game.options.menu.pauseGame.enabled) return;
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var toBuy = game.equipment[what];
+	var purchaseAmt = 1;
+	if (!toBuy.percent) purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy, false, true) : game.global.buyAmt;
 	if (typeof toBuy === 'undefined') return;
 	var canAfford = canAffordBuilding(what, null, null, true);
 	if (canAfford) {
 		canAffordBuilding(what, true, null, true);
-		levelEquipment(what);
+		levelEquipment(what, purchaseAmt);
 	}
 	if (!noTip) tooltip(what, "equipment", "update");	
 }
@@ -5304,8 +5407,6 @@ function getMinutesThisPortal(){
 }
 
 function gameLoop(makeUp, now) {
-/*	if (now < game.global.lastOfflineProgress) return;
-	game.global.lastOnline = now; get4432*/
     gather(makeUp);
     craftBuildings();
 	if (game.global.trapBuildToggled && game.global.trapBuildAllowed && game.global.buildingsQueue.length === 0) autoTrap();

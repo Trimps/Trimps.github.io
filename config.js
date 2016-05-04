@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.21,
+		version: 3.22,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -146,6 +146,8 @@ var toReturn = {
 		eggLoc: -1,
 		researched: false,
 		bonePortalThisRun: false,
+		maxSplit: 1,
+		maxSoldiersAtStart: -1,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -209,7 +211,7 @@ var toReturn = {
 				amt = (amt * 0.4) + ((amt * 0.9) * (level / 100));
 				amt *= Math.pow(1.15, world - 59);
 			}	
-			
+			if (world < 60) amt *= 0.85;
 			if (world > 6 && game.global.mapsActive) amt *= 1.1;	
 			amt *= game.badGuys[name].attack;
 			return Math.floor(amt);
@@ -230,6 +232,8 @@ var toReturn = {
 				amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
 				amt *= Math.pow(1.1, world - 59);
 			}
+			if (world < 60) amt *= 0.75;
+			
 			if (world > 5 && game.global.mapsActive) amt *= 1.1;
 			amt *= game.badGuys[name].health;
 			return Math.floor(amt);
@@ -317,8 +321,21 @@ var toReturn = {
 			},
 			mapLoot: {
 				enabled: 0,
-				description: "Toggle between receiving all equipment for one tier, or receiving all available tiers of the same equipment first when running maps. Tier first will cause maps to drop Shield II -> Dagger II -> Boots II etc before continuing to tier III. Equip first is the older method, where all available Shields drop before any Daggers. Tier first is recommended for most situations.",
-				titles: ["Tier First", "Equip First"]
+				description: "<p>Choose which upgrades you want first if it has been a while since you last ran maps.</p><p><b>Tier first</b> will cause maps to drop all items for the lowest tier before moving to the next. (Greatsword II -> Breastplate II -> Shield III)</p><p><b>Equip first</b> will start from Shield and drop all available Shield prestiges before continuing to Dagger and so on. (Shield III -> Shield IV -> Dagger III)</p>",
+				titles: ["Tier First", "Equip First"],
+				secondLocation: "togglemapLoot2",
+			},
+			repeatUntil: {
+				enabled: 0,
+				description: "<b>Repeat Forever</b> will cause the map to continually repeat if Repeat Maps is enabled. <b>Repeat to 10</b> will exit the map after 10 stacks, if the map's level is high enough. <b>Repeat for Items</b> will exit the map once there are no more special items left for that level of map. <br/><br/><b>This setting only matters if Repeat is on. Toggling Repeat off will still leave the map when it is finished no matter what.</b>",
+				titles: ["Repeat Forever", "Repeat to 10", "Repeat for Items"],
+				locked: true
+			},
+			exitTo: {
+				enabled: 0,
+				description: "Choose whether to go to the Maps Screen or World after completing a map.",
+				titles: ["Exit to Maps", "Exit to World"],
+				locked: true
 			},
 			boneAlerts: {
 				enabled: 1,
@@ -406,6 +423,28 @@ var toReturn = {
 				enabled: 0,
 				description: "Decide whether or not to wait for soldiers to die on switching between maps and world. Toggling this on will automatically abandon your soldiers.",
 				titles: ["Wait to Travel", "Auto Abandon"]
+			},
+			extraMapBtns: {
+				enabled: 0,
+				description: "Toggle the button menu to the right of the map grid",
+				titles: ["Less Map Buttons", "Extra Map Buttons"],
+				onToggle: function () {
+					if (!game.global.mapsActive) return;
+					var setTo = (this.enabled) ? ["8", "2"] : ["10", "off"];
+					swapClass("col-xs", "col-xs-" + setTo[0], document.getElementById("gridContainer"));
+					swapClass("col-xs", "col-xs-" + setTo[1], document.getElementById("extraMapBtns"));				
+				},
+				lockUnless: function () {
+					return (game.global.totalPortals > 0)
+				},
+			},
+			overkillColor: {
+				enabled: 1,
+				description: "Choose if you would like to see a different cell color for cells that you overkilled. Toggle between off, showing both cells involved in the overkill, or just showing the 1 cell that was skipped.",
+				titles: ["No Overcolors", "1 Overkill Cell", "2 Overkill Cells"],
+				lockUnless: function () {
+					return (!game.portal.Overkill.locked)
+				},
 			},
 			pauseGame: {
 				enabled: 0,
@@ -692,8 +731,8 @@ var toReturn = {
 			unlocks: "Carpentry",
 			unlockString: "reach Zone 35"
 		},
-		Balance: {
-			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 1.5X health, and all enemies in maps have 2X attack. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant double helium earned for all Blimps slain and Void Maps cleared up to Zone 40. This challenge is repeatable!",
+		Balance: { 
+			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 100% more health, enemies in world deal 17% more damage, and enemies in maps deal 135% more damage. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant double helium earned for all Blimps slain and Void Maps cleared up to Zone 40. This challenge is repeatable!",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 39);
@@ -1474,7 +1513,7 @@ var toReturn = {
 				return this.descriptions[number];
 			},
 			filters: [29, 29, -1, 59, -1, 124, 59, 119, 74, -1, 59, -1],
-			icon: "icomoon icon-alarmclock",
+			icon: "icomoon icon-flag",
 			names: ["Underachiever", "Hoarder", "Needs Block", "Peacekeeper", "Elite Feat", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Realtor", "Gotta Go Fast"],
 			newStuff: []
 		}
@@ -2891,9 +2930,9 @@ var toReturn = {
 				message("Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'", "Story");
 				game.global.portalActive = true;
 				fadeIn("helium", 10);
-				game.resources.helium.owned += 30;
-				game.global.totalHeliumEarned += 30;
-				message("<span class='glyphicon glyphicon-oil'></span> You were able to extract 30 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
+				game.resources.helium.owned += 45;
+				game.global.totalHeliumEarned += 45;
+				message("<span class='glyphicon glyphicon-oil'></span> You were able to extract 45 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
 				fadeIn("portalBtn", 10);
 				if (game.global.challengeActive == "Metal"){
 					game.global.challengeActive = "";
@@ -3136,7 +3175,7 @@ var toReturn = {
 			canRunOnce: true,
 			fire: function () {
 				message("You just made a map to The Block!", "Notices");
-				createMap(11, "The Block", "Block", 2, 100, 1.101, true, true); 
+				createMap(11, "The Block", "Block", 2, 100, 1.3, true, true); 
 			}
 		},
 		TheWall: {
@@ -4023,7 +4062,11 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 5,
-			tooltip: "Each Trap allows you to catch one thing.",
+			tooltip: function () {
+				var catchAmt = (game.portal.Bait.level + 1);
+				var s = (catchAmt > 1) ? "s" : "";
+				return "Each Trap allows you to catch " + prettify(catchAmt) + " thing" + s + ".";
+			},
 			cost: {
 				food: 10,
 				wood: 10

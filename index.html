@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  
-	<title>Trimps 3.21</title>
+
+	<title>Trimps 3.22</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?30" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?31" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -42,13 +42,13 @@
 	<noscript>
 	<div id="checkJavascript" style="position: absolute; height: 100%; width: 100%; font-size: 2vw; padding: 10%; color: white; background-color: black; z-index: 1000000;">
 		For some reason, your browser is having trouble loading this game. This game runs on javascript, and if you have an addon such as noscript, you may need to tell it to allow scripts from http://trimps.github.io, which is where this game is hosted.<br/><br/>
-		If you are not using any addons that might interfere with javascript, try using the latest versions of Chrome or Firefox. 
+		If you are not using any addons that might interfere with javascript, try using the latest versions of Chrome or Firefox.
 	</div>
 	</noscript>
 	<div id="boneWrapper" style="display: none">
 		<div id="boneWrapper0">
 			<div class="row">
-				<div class="col-xs-2">			
+				<div class="col-xs-2">
 				</div>
 				<div class="col-xs-8">
 					<div id="boneTitleContainer">
@@ -126,10 +126,10 @@
 					<div class="boneBuyDesc">Exotic Imp-orts will be unlocked permanently once purchased, and will stick around through portals. Each has a 3% chance to spawn per square and better loot than normal enemies. Collect them all!</div>
 					<div class="importsPreview">
 						<div class="importLocation">Spawns in World</div>
-						<table class="table importsTable" id="importsTableWorld0">						
+						<table class="table importsTable" id="importsTableWorld0">
 						</table>
 						<div class="importLocation table-hover">Spawns in Maps</div>
-						<table class="table importsTable" id="importsTableMaps0">					
+						<table class="table importsTable" id="importsTableMaps0">
 						</table>
 					</div>
 					<div id="purchaseContainerImports">
@@ -142,7 +142,7 @@
 					<div class="boneBuyTitle">Other Goodies</div>
 						<div class="boostSpacer">
 						<div id="buyHeliumArea">
-							<div class="boneBtn primaryColor pointer noselect" id="heliumPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Instant Portal for 100 bones. Your new helium will appear in the View Perks menu at the bottom of the screen. Is this what you wanted to do?', 'purchaseMisc(\'helium\')', 100)"> 
+							<div class="boneBtn primaryColor pointer noselect" id="heliumPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Instant Portal for 100 bones. Your new helium will appear in the View Perks menu at the bottom of the screen. Is this what you wanted to do?', 'purchaseMisc(\'helium\')', 100)">
 								Buy Portal (100 bones)
 							</div>
 							<div class="miscDesc">
@@ -151,14 +151,14 @@
 							</div>
 						</div>
 						<div id="buyHeirloomArea">
-							<div class="boneBtn primaryColor pointer noselect" id="heirloomPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Heirloom for 30 bones. This will be created at a random rarity, and will be just like completing a Void Map at your highest ever Zone reached. Are you sure?', 'purchaseMisc(\'heirloom\')', 30)"> 
+							<div class="boneBtn primaryColor pointer noselect" id="heirloomPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Heirloom for 30 bones. This will be created at a random rarity, and will be just like completing a Void Map at your highest ever Zone reached. Are you sure?', 'purchaseMisc(\'heirloom\')', 30)">
 								Buy Heirloom (30 bones)
 							</div>
-							
+
 							<div class="miscDesc">
 							<div id="heirloomRarityMisc"></div>
 								Get one Heirloom at the chances above, based on highest zone.
-							</div>							
+							</div>
 						</div>
 						<div id="mapsMisc">
 							<div class="boneBtn primaryColor pointer noselect" id="mapsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Golden Maps for 20 bones. All of your current and future maps will gain +100% loot added to their normal loot roll. Is this what you wanted to do?', 'purchaseMisc(\'maps\')', 20)">
@@ -256,11 +256,11 @@
 					</div>
 					<div class="col-xs-6 maxH">
 						<div id="science" class="playerGather" style="visibility: hidden;">
-							<span class="title">Science</span>
+							<span class="titley">Science</span>
 							<br/>
 							<span class="ownedArea"><span id="scienceOwned">0</span></span>
 							<br/>
-							<div class="row collectRow">
+							<div class="row collectRow downer">
 								<div class="col-xs-6">
 									<div id="scienceCollectBtn" class="workBtn pointer noselect" onclick="setGather('science')">Research</div>
 								</div>
@@ -293,7 +293,7 @@
 					<span class="ownedArea"><span id="heliumOwned">0</span></span>
 					<br/>
 					<span id="heliumPh" class="heliumPh"></span>
-					
+
 				</div>
 			</div>
 			<div class="col-xs-2" id="trimpsColumn">
@@ -306,7 +306,7 @@
 						</div>
 						<div class="col-xs-6">
 							<div class="maxCenter">
-								<span id="trimpTitle" class="title">???</span>													
+								<span id="trimpTitle" class="title">???</span>
 							</div>
 						</div>
 					</div>
@@ -314,7 +314,7 @@
 					<br/>
 					<div class="progress resProgress">
 						<div class="progress-bar percentColorBlue" id="trimpsBar" role="progressbar"><span id="trimpsTimeToFill"></span></div>
-						
+
 					</div>
 					<div id="unempHide" style="visibility: hidden">
 						<span id="trimpsUnemployed">0</span> breeding
@@ -379,14 +379,14 @@
 						<span id='noQueue'>Nothing in queue...</span><div id="queueItemsHere"></div>
 					</div>
 				</div>
-				<div id="outerBuyContainer">	
+				<div id="outerBuyContainer">
 					<div id="buyTabs">
 				<ul id="buyTabsUl" class="nav nav-tabs nav-justified">
 					<li role="presentation" id="allTab" onclick="filterTabs('all')" class="tabNotSelected buyTab"><a id="allA" href="#">All</a></li>
 					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="tabNotSelected buyTab"><a id="buildingsA" href="#"><span id="buildingsAlert" class="alert badge"></span>Buildings</a></li>
 					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="tabNotSelected buyTab"><a id="jobsA" href="#"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
 					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="tabNotSelected buyTab"><a id="upgradesA" href="#"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
-					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA" href="#"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>				
+					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA" href="#"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>
 				</ul>
 				</div>
 
@@ -405,8 +405,11 @@
 								<a id="tab4Text" href="#">+100</a>
 							</li>
 							<li role="presentation" class="tabNotSelected" id="tab5">
-								<a style="display: inline-block; width: 47%" id="tab5Text" href="#"  onclick="numTab(5)">+1</a>
-								<a style="display: inline-block; width: 47%" id="tab5Text2" href="#"  onclick="tooltip('Custom', null, 'update')">Custom</a>
+								<a id="tab5Text" href="#"  onclick="numTab(5)">+1</a>
+								<a id="tab5Text2" href="#"  onclick="tooltip('Custom', null, 'update')">Custom</a>
+							</li>
+							<li role="presentation" class="tabNotSelected" id="tab6" onclick="numTab('6')" onmouseover="tooltip('Buy Max', 'customText', event, 'Switching to this option will spend the majority of your resources with each purchase. <b>Click twice to customize.</b>')" onmouseout="tooltip('hide')" >
+								<a id="tab6Text" href="#">Max</a>
 							</li>
 						</ul>
 					</div>
@@ -475,11 +478,11 @@
 										</div>
 										<div class="col-xs-2 lowPad">&nbsp;</div>
 										<div class="col-xs-3 lowPad">&nbsp;</div>
-										<div class="col-xs-3" style="padding-left: 5px">				
+										<div class="col-xs-3" style="padding-left: 5px">
 										</div>
 									</div>
 								</div>
-							
+
 								<div class="buyBox" id="equipmentHere"></div>
 							</div>
 						</div>
@@ -511,12 +514,12 @@
 											<div class="col-xs-3 noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('2')" id="formation2" onmouseover="tooltip('Dominance Formation', 'customText', event, 'Trimps gain 4x attack but lose half of their health and block. (Hotkeys: D or 3)')" onmouseout="tooltip('hide')">
 													D
-												</div>										
+												</div>
 											</div>
 											<div class="col-xs-3 noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('3')" id="formation3" onmouseover="tooltip('Barrier Formation', 'customText', event, 'Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack. (Hotkeys: B or 4)')" onmouseout="tooltip('hide')">
 													B
-												</div>											
+												</div>
 											</div>
 										</div>
 									</div>
@@ -567,7 +570,7 @@
 								</div>
 							</div>
 						</div>
-						
+
 					</div>
 					<div class="row" id="gridRow">
 						<div class="col-xs-2" id="battleBtnsColumn">
@@ -617,16 +620,16 @@
 							<div id="grid"></div>
 							<div id="preMaps" style="display: none">
 							<div style="display: none" id="mapsCreateRow" class="row">
-							<div id="mapLevelContainer" class="col-xs-4">
-								Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer noselect incrementBtn" title="Recycle All Below" style="color: red" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
+								<div id="mapLevelContainer" class="col-xs-4">
+									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer noselect incrementBtn" title="Recycle All Below" style="color: red" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
+								</div>
+								<div id="mapCostContainer" class="col-xs-4 lowPad">
+									<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
+								</div>
+								<div id="mapCreateBtn" onclick='buyMap()' class="workBtn primaryColor pointer noselect col-xs-4">
+									Create
+								</div>
 							</div>
-							<div id="mapCostContainer" class="col-xs-4 lowPad">
-								<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
-							</div>
-							<div id="mapCreateBtn" onclick='buyMap()' class="workBtn primaryColor pointer noselect col-xs-4">
-								Create
-							</div>
-						</div>
 							<div id="advMapsRow" class="row">
 								<div id="advLootContainer" class="col-xs-3 advContainer lowPad">
 									<div class="advMapsTitle">
@@ -664,7 +667,7 @@
 								</div>
 							</div>
 							<div id="heirRare" style="display: none">
-								
+
 							</div>
 								<div id="selectedMapContainer" class="row">
 									<div id="selectedMapCol" class="col-xs-3 lowPad">
@@ -703,21 +706,35 @@
 										<div class="mapStatsValue" id="mapStatsLoot"></div>
 									</div>
 
-									
+
 								</div>
 								<div id="mapsHere" class="niceScroll">
 								</div>
 								<div id="voidMapsHere" class="niceScroll">
 								</div>
 							</div>
-							<div id="mapGrid" style="display: none;"></div>
+							<div id="mapGrid" class="gridShrunk" style="display: none;"></div>
 							<div id="extraGridInfo" style="display: none;">
 								<div id="extraGridInfoTitle"></div>
 								<div id="extraGridInfoSummary"></div>
 								<div id="extraGridInfoSub"></div>
 								<div id="extraGridInfoBtns">
 									<span class="btn btn-info" onclick="restoreGrid()">Continue</span>
-								</div> 
+								</div>
+							</div>
+						</div>
+						<div id="extraMapBtns" class="col-xs-off">
+							<div class="battleSideBtnContainer">
+								<span class="btn settingBtn1 fightBtn" id="togglemapLoot2" onmouseout="tooltip('hide')" onclick="toggleSetting('mapLoot')">
+								</span>
+							</div>
+							<div class="battleSideBtnContainer">
+								<span class="btn settingBtn1 fightBtn" id="togglerepeatUntil" onmouseout="tooltip('hide')" onclick="toggleSetting('repeatUntil')">
+								</span>
+							</div>
+							<div class="battleSideBtnContainer">
+								<span class="btn settingBtn1 fightBtn" id="toggleexitTo" onmouseout="tooltip('hide')" onclick="toggleSetting('exitTo')">
+								</span>
 							</div>
 						</div>
 					</div>
@@ -746,10 +763,10 @@
 						<div>Settings</div>
 					</td>
 					<td class="btn" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">
-						
+
 					</td>
 					<td class="btn btn-new" onclick="window.open('updates.html', '_blank')">
-							V <span id="versionNumber"></span> | What's New 
+							V <span id="versionNumber"></span> | What's New
 					</td>
 					<td id="portalTimer">
 						&nbsp;
@@ -774,7 +791,7 @@
 			<div class="col-xs-3">
 			</div>
 		</div>
-		
+
 		<div class="row" id="portalRow">
 			<div id="perkCol" class="col-xs-6">
 			<div id="portalStory"></div>
@@ -806,7 +823,7 @@
 				<div style="text-align: center">
 					<div class="btn btn-warning inPortalBtnSm" style="display: none" id="clearPerksBtn" onclick="clearPerks()">Clear All Perks</div>
 				</div>
-				
+
 				<div id="portalUpgradesHere"></div>
 			</div>
 			<div id="challengeCol" class="col-xs-6">
@@ -823,11 +840,11 @@
 						<span id="flagMustRestart" style="display: none;"><b>If you abandon this challenge, the portal will become unstable and the world will restart (you'll keep permanent bonuses like helium)</b></span>
 
 						<div id="specificChallengeDescription">
-							
+
 						</div>
 					</div>
 					<div id="challengesHere">
-					
+
 					</div>
 				</div>
 			</div>
@@ -888,10 +905,10 @@
 		<div class="row" id="statsRow">
 			<div class="col-xs-4" id="statCol1">
 			</div>
-			<div class="col-xs-4" id="statCol2">		
+			<div class="col-xs-4" id="statCol2">
 			</div>
 			<div class="col-xs-4" id="statCol3">
-			</div>			
+			</div>
 		</div>
 		<div class="btn btn-danger inPortalBtn" id="closeStatsBtn" onclick="toggleStats()">Close</div> <br/> <br/><br/>
 		<div id="helpContainer">
@@ -954,7 +971,7 @@
 							<div id="modUpgradeCost"></div>
 							<div id="modUpgradeBtn" class="heirloomBtnActive heirBtn noselect" onclick="upgradeMod()">Upgrade</div>
 						</div>
-					</div>			
+					</div>
 				</div>
 			</div>
 		</div>
@@ -962,7 +979,7 @@
 	<div id="achievementPopup" style="display: none">
 		<span class="achievementBtns">
 			<span class="achievementBtnGo icomoon icon-newspaper-o" onclick="toggleAchievementWindow()"></span>
-			<span class="achievementBtnClose icomoon icon-close" onclick="closeAchievementPopup()"></span>	
+			<span class="achievementBtnClose icomoon icon-close" onclick="closeAchievementPopup()"></span>
 		</span>
 		<div class="row">
 			<div id="achievementPopupIconContainer" class="col-xs-3 lowPad">
@@ -982,7 +999,7 @@
 			<span class="heirloomPopupBtn icomoon icon-archive" onclick="toggleHeirlooms(); closeHeirPopup();"></span>
 		</div>
 		<div id="heirloomsPopupHere">
-		
+
 		</div>
 	</div>
 	<div id="tooltipDiv" class="tooltipExtraNone" style="display: none">
@@ -993,9 +1010,9 @@
 		<div id="tipCost"></div>
 	</div>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?70"></script>
-	<script type="text/javascript" src="updates.js?70"></script>
-	<script type="text/javascript" src="main.js?70"></script>
+	<script type="text/javascript" src="config.js?71"></script>
+	<script type="text/javascript" src="updates.js?71"></script>
+	<script type="text/javascript" src="main.js?71"></script>
 </body>
 
 </html>
