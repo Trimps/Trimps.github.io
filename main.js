@@ -2553,6 +2553,7 @@ function selectHeirloom(number, location, elem){
 function recycleHeirloom(confirmed){
 	var heirloom = getSelectedHeirloom();
 	var value = Math.floor(game.heirlooms.values[heirloom.rarity] / 2);
+	if (game.global.selectedHeirloom[0] == -1 || game.global.selectedHeirloom[1] == "heirloomsCarried") return;
 	if (!confirmed) {
 		tooltip('confirm', null, 'update', 'You are about to recycle ' + heirloom.name + ' for ' + prettify(value) + ' Nullifium. Are you sure?' , 'recycleHeirloom(true)', 'Recycle Heirloom');
 		return;
