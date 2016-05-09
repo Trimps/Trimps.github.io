@@ -25,7 +25,6 @@ var lastMousePos = [];
 //"onmouseover="tooltip('*TOOLTIP_TITLE*', 'customText', event, '*TOOLTIP_TEXT*');" onmouseout="tooltip('hide')""
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
 function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide) { //Now 20% less menacing. Work in progress.
-
 	checkAlert(what, isItIn);
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
@@ -180,9 +179,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Custom"){
 		customUp = (textString) ? 2 : 1;
-		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 or 200k."
+		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 and 200k to select that large number, or fractions such as 1/2 and 50% to select that fraction of your available workspaces."
 		if (textString) tooltipText += " <b>Max of 1,000 for perks</b>";
-		tooltipText += "<br/><br/><input id='customNumberBox' style='width: 50%' value='" + prettify(game.global.lastCustomAmt, true) + "'></input>";
+		tooltipText += "<br/><br/><input id='customNumberBox' style='width: 50%' value='" + ((!isNaN(game.global.lastCustomExact)) ? prettify(game.global.lastCustomExact, true) : game.global.lastCustomExact) + "'></input>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='numTab(5, " + textString + ")'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
@@ -232,13 +231,32 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Import"){
 		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea id='importBox' style='width: 100%' rows='5'></textarea>";
-		costText="<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); load(true);'>Import</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); load(true);'>Import</div>"
+		if (playFabId != -1) costText += "<div class='btn btn-primary' onclick='loadFromPlayFab()'>Import From PlayFab</div>";
+		costText += "<div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 		ondisplay = function () {
 			document.getElementById('importBox').focus();
 		}
+	}
+	if (what == "PlayFab Login"){
+		var tipHtml = getPlayFabLoginHTML();
+		tooltipText = tipHtml[0];
+		costText = tipHtml[1];
+		game.global.lockTooltip = true;
+		elem.style.top = "15%";
+		elem.style.left = "25%";
+		swapClass('tooltipExtra', 'tooltipExtraLg', elem);
+
+	}
+	if (what == "PlayFab Conflict"){
+		tooltipText = "It looks like your save stored at PlayFab is further along than the save on your computer.<br/><b>Your save on PlayFab has earned " + prettify(textString) + " total Helium, defeated Zone " + attachFunction + ", and cleared " + prettify(numCheck) + " total Zones. The save on your computer only has " + prettify(game.global.totalHeliumEarned) + " total Helium, has defeated Zone " + game.global.highestLevelCleared + ", and cleared " + prettify(game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal) + " total Zones.</b><br/>Would you like to Download your save from PlayFab, Overwrite your online save with this one, or Cancel and do nothing?";
+		costText = "<span class='btn btn-primary' onclick='playFabFinishLogin(true)'>Download From PlayFab</span><span class='btn btn-warning' onclick='playFabFinishLogin(false)'>Overwrite PlayFab Save</span><span class='btn btn-danger' onclick='cancelPlayFab();'>Cancel</span>";
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
 	}
 	if (what == "Fire Trimps"){
 		if (!game.global.firing)
@@ -637,7 +655,7 @@ function getZoneStats(event, update) {
 	if ((game.global.mapsActive || game.global.preMapsActive) && game.global.currentMapId){
 		var map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
 		textString += "<tr><td class='bdTitle bdZoneTitle' colspan='3'>" + map.name + ", Level " + map.level + ", Cell " + (game.global.lastClearedMapCell + 2) + "</td></tr>";
-		textString += '<tr><td><span class="' + getMapIcon(map) + '"></span> ' + getMapIcon(map, true) + '</td><td><span class="icomoon icon-gift2"></span>' + Math.floor(map.loot * 100) + '%</span> <span class="icomoon icon-cube2"></span>' + map.size + ' <span class="icon icon-warning"></span>' + Math.floor(map.difficulty * 100) + '%</td><td>Items: ' + addSpecials(true, true, map) + '</td></tr>';
+		textString += '<tr><td><span class="' + getMapIcon(map) + '"></span> ' + getMapIcon(map, true) + '</td><td><span class="icomoon icon-gift2"></span>' + Math.floor(map.loot * 100) + '%</span> <span class="icomoon icon-cube2"></span>' + map.size + ' <span class="icon icon-warning"></span>' + Math.floor(map.difficulty * 100) + '%</td><td>' + ((map.location == "Void") ? '&nbsp' : ('Items: ' + addSpecials(true, true, map))) + '</td></tr>';
 		textString += "<tr><td colspan='3'>You have been on this map for " + formatMinutesForDescriptions((new Date().getTime() - game.global.mapStarted) / 1000 / 60) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
@@ -1256,6 +1274,7 @@ function resetGame(keepPortal) {
 	document.getElementById("heirloomBtnContainer").style.display = "none";
 	document.getElementById("goodGuyName").innerHTML = 'Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span>';
 	document.getElementById("autoStorageBtn").style.display = "none";
+	document.getElementById("repeatVoidsContainer").style.display = "none";
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));			
 	heirloomsShown = false;
@@ -1303,6 +1322,7 @@ function resetGame(keepPortal) {
 	var autoPrestiges;
 	var autoUpgrades;
 	var heirloomBoneSeed;
+	var voidMaxLevel; 
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -1340,6 +1360,7 @@ function resetGame(keepPortal) {
 		autoPrestiges = game.global.autoPrestiges;
 		autoUpgrades = game.global.autoUpgrades;
 		heirloomBoneSeed = game.global.heirloomBoneSeed;
+		voidMaxLevel = game.global.voidMaxLevel;
 	}
 	game = null;
 	game = newGame();
@@ -1401,10 +1422,18 @@ function resetGame(keepPortal) {
 		if (game.global.totalPortals == 5) message("Heavy use of the portal has created a chance for the Void to seep in to your world. Be alert.", "Story", null, "voidMessage");
 		if (game.global.totalPortals >= 5) document.getElementById("heirloomBtnContainer").style.display = "block";
 		recalculateHeirloomBonuses();
+		if (lastPortal < voidMaxLevel) {
+			voidMaxLevel = Math.floor(voidMaxLevel * 0.95);
+			if (voidMaxLevel < lastPortal) voidMaxLevel = lastPortal;
+		}
+		game.global.voidMaxLevel = voidMaxLevel;
 	}
 	else {
 		game.options.menu.darkTheme.enabled = 0;
 		game.options.menu.darkTheme.restore();
+		game.options.menu.usePlayFab.enabled = 0;
+		toggleSetting("usePlayFab", null, false, true);
+		playFabId = -1;
 	}
 	numTab(1);
 	pauseFight(true);
@@ -1572,13 +1601,32 @@ function setMax(amount){
 function numTab (what, p) {
 	var num = 0;
 	if (what == "6" && game.global.buyAmt == "Max") tooltip('Max', null, 'update');
-	if (what == 5){	
+	if (what == 5){
+		
 		unlockTooltip();
 		tooltip('hide');
 		var numBox = document.getElementById("customNumberBox");
 		if (numBox){
 			num = numBox.value.toLowerCase();
-			if (num.split('e')[1]){
+			game.global.lastCustomExact = num;
+			if (num.split('%')[1] == ""){
+				num = num.split('%');
+				num[0] = parseFloat(num[0]);
+				if (num[0] <= 100 && num[0] >= 0){
+					var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed
+					num = Math.floor(workspaces * (num[0] / 100));
+				}
+				else num = 1;
+			}
+			else if (num.split('/')[1]){
+				num = num.split('/');
+				num[0] = parseFloat(num[0]);
+				num[1] = parseFloat(num[1]);
+				var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+				num = Math.floor(workspaces * (num[0] / num[1]));
+				if (num < 0 || num > workspaces) num = 1;
+			}
+			else if (num.split('e')[1]){
 				num = num.split('e');
 				num = Math.floor(parseFloat(num[0]) * (Math.pow(10, parseInt(num[1]))));
 			}
@@ -2172,6 +2220,16 @@ function displaySettings() {
 
 function toggleSetting(setting, elem, fromPortal, updateOnly){
 	var menuOption = game.options.menu[setting];
+	if (setting == "usePlayFab" && !updateOnly){
+		if (menuOption.enabled == 0){
+			authenticated = enablePlayFab();
+			if (!authenticated) return;
+		}
+		else {
+			game.global.playFabLoginType = -1;
+			playFabId = -1;
+		}
+	}
 	var toggles = menuOption.titles.length;
 	if (!updateOnly){
 		if (toggles == 2)	menuOption.enabled = (menuOption.enabled) ? 0 : 1;
@@ -2181,6 +2239,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		}
 		if (menuOption.onToggle) menuOption.onToggle();
 	}
+	else if (setting == "usePlayFab") menuOption.onToggle();
 	var menuElem = [];
 	menuElem[0] = (elem) ? elem : document.getElementById("toggle" + setting);
 	if (typeof menuOption.secondLocation !== 'undefined') menuElem[1] = document.getElementById(menuOption.secondLocation);
@@ -2189,7 +2248,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		menuElem[x].innerHTML = menuOption.titles[menuOption.enabled];
 		swapClass("settingBtn", "settingBtn" + menuOption.enabled, menuElem[x]);
 		if (setting == "deleteSave") return;
-		cancelTooltip();
+		if (!updateOnly) cancelTooltip();
 		if (fromPortal){
 			document.getElementById('ptabInfoText').innerHTML = (menuOption.enabled) ? "Less Info" : "More Info";
 			displayPortalUpgrades(true);

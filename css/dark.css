@@ -202,7 +202,7 @@
 
 .settingBtnfalse:hover, .settingBtn0:hover {
 	color: #fff;
-	background-color: #c9302c;
+	background-color: #D64541 ;
 	border-color: #ac2925;
 }
 
@@ -239,6 +239,10 @@
 .tabSelected,
 .perkColorOff {
 	background: #3F3F3F;
+}
+
+.perkColorMaxed {
+	background: #2F2F3F;
 }
 
 .thingColorFiringJob,
@@ -662,4 +666,13 @@ color:#8F8F00
 
 .activatePortalBtn {
     text-shadow:none;
+}
+
+#toggleusePlayFab.settingBtn0 {
+   background-color:#0A0A8C;
+}
+#toggleusePlayFab.settingBtn0:hover {
+   color:#fff;
+   border-color:#1D1D86;
+   background-color:#5050F9;
 }

@@ -1062,6 +1062,10 @@ overflow-x: hidden;
 	background-color: grey;
 }
 
+.perkColorMaxed{
+	background-color: #696980;
+}
+
 .portalThing.detailed{
 	font-size: 0.72vw;
 }
@@ -1849,6 +1853,10 @@ color: #DDDDFF !important;
 .infoColor, .colorInfo{
 	background-color: #5bc0de;
 }
+.warningColor, .colorWarning{
+	background-color: yellow;
+	color: black;
+}
 .primaryColor, .colorPrimary{
 	background-color: #337ab7;
 	color: white;
@@ -2268,9 +2276,9 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background: -moz-linear-gradient(left,  #000000 0%, #501030 50%, #000000 100%);
-background: -webkit-linear-gradient(left,  #000000 0%,#501030 50%,#000000 100%);
-background: linear-gradient(to right,  #000000 0%,#501030 50%,#000000 100%);
+background: -moz-linear-gradient(left,  #000000 0%, #004000 50%, #000000 100%);
+background: -webkit-linear-gradient(left,  #000000 0%,#004000 50%,#000000 100%);
+background: linear-gradient(to right,  #000000 0%,#004000 50%,#000000 100%);
 color: white;
 }
 .btn-new:hover,
@@ -2282,7 +2290,7 @@ color: white;
 background: -moz-linear-gradient(left,  #000000 0%, #fff 50%, #000000 100%);
 background: -webkit-linear-gradient(left,  #000000 0%,#fff 50%,#000000 100%);
 background: linear-gradient(to right,  #000000 0%,#fff 50%,#000000 100%);
-color: #400030;
+color: #004000;
 
 }
 .btn-new:active,
@@ -2446,3 +2454,46 @@ sup{
 	font-size: 0.9em !important;
 }
 
+.playFabRow div:nth-child(2){
+	border-left: 1px solid black;
+}
+
+#playFabLoginError{
+	color: red;
+	font-size: 1.1em;
+	text-align: center;
+}
+
+.inactiveBtn{
+	border: 1px solid black;
+	background-color: #333333;
+	color: white;
+	width: 100%;
+	text-align: center;
+	border-radius: 10px;
+	display: inline-block;
+}
+
+#toggleusePlayFab.settingBtn0{
+	background-color: #00008c;
+}
+
+#tooltipDiv.tooltipExtraLg{
+	width: 50%;
+}
+
+#playFabLoginInfo{
+	padding-left: 0;
+}
+
+#playFabIndicator{
+	font-size: 1.2em;
+}
+
+.iconStateGood{
+	color: green;
+}
+
+.iconStateBad{
+	color: red;
+}

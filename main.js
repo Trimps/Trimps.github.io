@@ -142,20 +142,31 @@ function save(exportThis) {
 		else
 		message("For some reason, your game is not saving. Make sure you export and back up your save!", "Notices"); 
 		}
+		
+	if (game.options.menu.usePlayFab.enabled == 1 && playFabId){
+		saveToPlayFab(saveString);
+	}
 
 }
 
 
 
-function load(saveString, autoLoad) {
+function load(saveString, autoLoad, fromPf) {
     var savegame;
 	var oldVersion = 0;
-    if (saveString) {
-        savegame = JSON.parse(LZString.decompressFromBase64(document.getElementById("importBox").value.replace(/(\r\n|\n|\r|\s)/gm,"")));
+	var fromImport = false;
+	if (saveString === true) fromImport = true
+    if (saveString) {	
+        savegame = JSON.parse(LZString.decompressFromBase64(((fromImport) ? document.getElementById("importBox").value.replace(/(\r\n|\n|\r|\s)/gm,"") : saveString)));
         tooltip('hide');
 		if (!savegame) {
 			message("It looks like your import code isn't working properly. Please make sure that your export code is saved in a text file compatible with all of the characters. If you believe this code should be working, you can Email it to Trimpsgame@gmail.com and I will do my best to restore it for you!", "Notices");
-			return;
+			return false;
+		}
+		else if (fromImport){
+			game.options.menu.usePlayFab.enabled = 0;
+			toggleSetting("usePlayFab", null, false, true);
+			playFabId = -1;
 		}
     } else  {
 		var unparsedSave;
@@ -166,37 +177,41 @@ function load(saveString, autoLoad) {
 			message("Your browser is preventing Trimps from accessing localStorage, and you will not be able to save or load your progress. Please check your browser settings to ensure that 3rd party cookies are not disabled, and that you're not using any addons that might interrupt storage! <br/><br/> AutoSave has been disabled to prevent damage to your save. If you previously had a save file, it should still be waiting for you once you fix your browser settings.", "Notices");
 			game.options.menu.autoSave.enabled = 0;
 			game.options.menu.autoSave.onToggle();
-			return;
+			return false;
 		}
         if (unparsedSave !== null) savegame = JSON.parse(LZString.decompressFromBase64(unparsedSave));
 		else {
 			tooltip("Welcome", null, "update");
-			return;
+			return false;
 		}
     }
 	if (typeof savegame === 'undefined' || savegame === null || typeof savegame.global === 'undefined') {
 		tooltip("Welcome", null, "update");
-		return;
+		return false;
 	}
 	oldVersion = savegame.global.version;
+	if (savegame.global.isBeta && !game.global.isBeta){
+		message("You can't import a save from the beta version to this version!", "Notices");
+		return false;
+	}
+	if (oldVersion > game.global.version) {
+		message("Your save file is from a newer version of Trimps (v" + oldVersion + ") than what your computer is running (v" + game.global.version + "). Refresh or restart your browser!", "Notices");
+		return false;
+	}
 	resetGame();
 		
     if (game.global.killSavesBelow > oldVersion) {
 		if (savegame.global.version == 0.07){
 			game.global.kongBonusMode = true;
 			activateKongBonus(savegame.global.world);
-			return;
+			return false;
 		}
         message("I'm so terribly sorry, but your previous save game (version " + savegame.global.version + ") does not work in the new version. This should be the last reset!", "Notices");
-        return;
+        return false;
     } 
 	else if (game.global.isBeta) {
 		message("Note: You are playing on the beta/dev version. You will be unable to export your save from this version to the live version, and this server may go down or change without warning. Thank you for helping test!", "Notices");
 		savegame.global.isBeta = true;
-	}
-	else if (savegame.global.isBeta) {
-			message("You can't import a save from the beta version to this version!", "Notices");
-			return;
 	}
 	savegame.global.version = game.global.version;
     
@@ -390,6 +405,10 @@ function load(saveString, autoLoad) {
 	if (oldVersion < 3.22){
 		if (game.global.totalPortals > 0) game.options.menu.extraMapBtns.enabled = 1;
 	}
+	if (oldVersion < 3.23){
+		game.global.autoPrestiges = (game.global.autoPrestiges === true) ? 1 : 0;
+		game.global.voidMaxLevel = game.global.highestLevelCleared;
+	}
 
 	//End compatibility
 	
@@ -435,6 +454,15 @@ function load(saveString, autoLoad) {
 	toggleAutoTrap(true);
     setGather(game.global.playerGathering);
     numTab(1);
+	if (!fromPf && game.options.menu.usePlayFab.enabled == 1) {
+		game.options.menu.usePlayFab.enabled = 0;
+		toggleSetting("usePlayFab", null, false, true);
+		if (!enablePlayFab()) noOfflineTooltip = true;
+	}
+	if (fromPf){
+		game.options.menu.usePlayFab.enabled = 1;
+		toggleSetting("usePlayFab", null, false, true);
+	}
 	if (game.global.portalActive) {fadeIn("portalBtn", 10); fadeIn("helium", 10);}
 	else if (game.resources.helium.owned > 0) fadeIn("helium", 10);
 	if (game.jobs.Explorer.locked === 0) fadeIn("fragmentsPs", 10);
@@ -466,10 +494,11 @@ function load(saveString, autoLoad) {
 	game.options.menu.barOutlines.onToggle();
 	game.options.menu.progressBars.onToggle();
 	game.options.menu.autoSave.onToggle();
+
 	displayPerksBtn();
 	
 	fireMode(true);
-	
+
 	if (game.global.sLevel >= 4){
 		document.getElementById("autoUpgradeBtn").style.display = "block";
 		document.getElementById("autoPrestigeBtn").style.display = "block";
@@ -485,10 +514,13 @@ function load(saveString, autoLoad) {
 	toggleSetting("mapLoot", null, false, true);
 	toggleSetting("repeatUntil", null, false, true);
 	toggleSetting("exitTo", null, false, true);
+	toggleSetting("repeatVoids", null, false, true);
 	game.global.removingPerks = false;
 	game.global.switchToMaps = false;
+
 	if (game.global.voidBuff) setVoidBuffTooltip();
 	if (game.upgrades.Gigastation.done >= 1) loadGigastations();
+
 	if (oldVersion < 2){
 		if (game.global.world == 59){
 			game.global.gridArray[99].name = "Improbability";
@@ -522,6 +554,8 @@ function load(saveString, autoLoad) {
 		swapClass("psColor", "psColorOrange", document.getElementById("trimpsPs"));
 	else
 		swapClass("psColor", "psColorWhite", document.getElementById("trimpsPs"));
+	
+	return true;
 }
 
 function loadGigastations() {
@@ -870,9 +904,19 @@ function updatePerkColor(what){
 	var elem = document.getElementById(what);
 	if (!elem) return;
 	var perk = game.portal[what];
-	var price = getPortalUpgradePrice(what);
-	var canSpend = game.resources.helium.respecMax;
-	var perkClass = ((canSpend >= game.resources.helium.totalSpentTemp + price) && (!perk.max || (perk.max >= perk.level + perk.levelTemp + game.global.buyAmt))) ? "perkColorOn" : "perkColorOff";
+	var perkClass;
+	if (game.global.removingPerks){
+		var removableLevel = (game.global.respecActive) ? (perk.level + perk.levelTemp) : perk.levelTemp;
+		perkClass = (removableLevel > 0) ? "perkColorOn" : "perkColorOff";
+	}
+	else
+	{
+		var price = getPortalUpgradePrice(what);
+		var canSpend = game.resources.helium.respecMax;
+		if (perk.max && (perk.max <= perk.level + perk.levelTemp + game.global.buyAmt)) perkClass = "perkColorMaxed";
+		else
+		perkClass = ((canSpend >= game.resources.helium.totalSpentTemp + price)) ? "perkColorOn" : "perkColorOff";
+	}
 	swapClass("perkColor", perkClass, elem);
 }
 
@@ -1139,10 +1183,11 @@ function removePerk(what) {
 	}
 	var toBuy = game.portal[what];
 	var realTemp = (game.global.respecActive) ? toBuy.levelTemp + toBuy.level : toBuy.levelTemp;
-	if (realTemp < game.global.buyAmt) return;
-	var refund = getPortalUpgradePrice(what, true);
+	var removeAmt = game.global.buyAmt;
+	if (realTemp < removeAmt) removeAmt = realTemp;
+	var refund = getPortalUpgradePrice(what, true, removeAmt);
 	//Error Checking
-	var tempLevelTemp = toBuy.level + toBuy.levelTemp - game.global.buyAmt;
+	var tempLevelTemp = toBuy.level + toBuy.levelTemp - removeAmt;
 	if (isNumberBad(tempLevelTemp)) {
 		console.log("Trying to set perk level to " + tempLevelTemp);
 		return;
@@ -1157,7 +1202,7 @@ function removePerk(what) {
 		console.log("Trying to set spent helium to " + tempTotalSpentTemp);
 		return;
 	}
-	toBuy.levelTemp -= game.global.buyAmt;
+	toBuy.levelTemp -= removeAmt;
 	toBuy.heliumSpentTemp -= refund;
 	game.resources.helium.totalSpentTemp -= refund;
 	updatePerkLevel(what);
@@ -1201,7 +1246,7 @@ function toggleRemovePerks(noUpdate){
 		perkElem.style.background = "rgba(214, 29, 29, 0.75)";
 		perkTextElem.style.color = "white";
 	}
-	
+	updateAllPerkColors();
 }
 
 function unlockMapStuff(){
@@ -1210,20 +1255,22 @@ function unlockMapStuff(){
 	fadeIn("mapsBtn", 10);
 }
 
-function getPortalUpgradePrice(what, removing){
+function getPortalUpgradePrice(what, removing, removeAmt){
 	var toCheck = game.portal[what];
 	var tempLevel;
 	var nextLevel;
+	var toAmt;
 	if (!removing){	
+		toAmt = game.global.buyAmt;
 		tempLevel = toCheck.level + toCheck.levelTemp;
-		nextLevel = tempLevel + game.global.buyAmt;
+		nextLevel = tempLevel + toAmt;
 	}
 	else if (removing) {
-		tempLevel = toCheck.level + toCheck.levelTemp - game.global.buyAmt;
-		nextLevel = toCheck.level + toCheck.levelTemp;
+		toAmt = removeAmt;
+		tempLevel = toCheck.level + toCheck.levelTemp - removeAmt;
 	}
 	var amt = 0;
-	for (var x = 0; x < game.global.buyAmt; x++){
+	for (var x = 0; x < toAmt; x++){
 		amt += Math.ceil(((tempLevel + x) / 2) + toCheck.priceBase * Math.pow(1.3, tempLevel + x));
 	}
 	return amt;
@@ -2316,9 +2363,16 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
 function checkVoidMap() {
 	if (game.global.totalPortals < 5) return;
 	var dif = game.global.lastVoidMap;	
-	var max = game.global.highestLevelCleared;
-	if (game.global.lastPortal != -1 && ((game.global.highestLevelCleared - game.global.lastPortal) < 25)) {
-		max = game.global.lastPortal;
+	var max = game.global.voidMaxLevel;
+	if (game.global.lastPortal != -1){
+			if (game.global.voidMaxLevel < game.global.world){
+				game.global.voidMaxLevel = game.global.world;
+				if ((game.global.lastPortal + 25) < game.global.world) 
+					game.global.voidMaxLevel = game.global.highestLevelCleared;
+			}
+		if ((max - game.global.lastPortal) < 25) {
+			max = game.global.lastPortal;
+		}
 	}
 	var min = (max > 80) ? (1000 + ((max - 80) * 13)) : 1000;
 	min *= (1 - (game.heirlooms.Shield.voidMaps.currentBonus / 100));
@@ -2552,8 +2606,8 @@ function selectHeirloom(number, location, elem){
 
 function recycleHeirloom(confirmed){
 	var heirloom = getSelectedHeirloom();
-	var value = Math.floor(game.heirlooms.values[heirloom.rarity] / 2);
 	if (game.global.selectedHeirloom[0] == -1 || game.global.selectedHeirloom[1] == "heirloomsCarried") return;
+	var value = Math.floor(game.heirlooms.values[heirloom.rarity] / 2);
 	if (!confirmed) {
 		tooltip('confirm', null, 'update', 'You are about to recycle ' + heirloom.name + ' for ' + prettify(value) + ' Nullifium. Are you sure?' , 'recycleHeirloom(true)', 'Recycle Heirloom');
 		return;
@@ -3632,7 +3686,11 @@ function mapsSwitch(updateOnly, fromRecycle) {
 			disableShriek();
 			game.global.useShriek = true;
 		}
-		if (currentMapObj.location == "Void") currentMapObj.level = game.global.world;
+		if (currentMapObj.location == "Void"){
+			currentMapObj.level = game.global.world;
+			document.getElementById("repeatVoidsContainer").style.display = "block";
+		}
+			else document.getElementById("repeatVoidsContainer").style.display = "none";
 		document.getElementById("mapsCreateRow").style.display = "none";
         document.getElementById("grid").style.display = "none";
         document.getElementById("preMaps").style.display = "none";
@@ -3721,7 +3779,7 @@ function selectMap(mapId, force) {
 	document.getElementById("mapStatsSize").innerHTML = (Math.floor(map.size));
 	document.getElementById("mapStatsDifficulty").innerHTML = Math.floor(map.difficulty * 100) + "%";
 	document.getElementById("mapStatsLoot").innerHTML = Math.floor(map.loot * 100) + "%";
-	document.getElementById("mapStatsItems").innerHTML = addSpecials(true, true, map);
+	document.getElementById("mapStatsItems").innerHTML = (map.location == "Void") ? "&nbsp;" : addSpecials(true, true, map);
 	document.getElementById("mapStatsResource").innerHTML = game.mapConfig.locations[map.location].resourceType;
 	if (typeof game.global.mapsOwnedArray[getMapIndex(game.global.lookingAtMap)] !== 'undefined') {
 		var prevSelected = document.getElementById(game.global.lookingAtMap);
@@ -4152,6 +4210,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 function nextWorld() {
 	if (game.global.world > game.global.highestLevelCleared){
 		game.global.highestLevelCleared = game.global.world;
+		game.global.voidMaxLevel = game.global.world;
 	}
     game.global.world++;
     document.getElementById("worldNumber").innerHTML = game.global.world;
@@ -4242,11 +4301,13 @@ function fight(makeUp) {
     var cell;
     var cellElem;
 	var currentMapObj;
+	var isVoid = false;
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
         cell = game.global.mapGridArray[cellNum];
         cellElem = document.getElementById("mapCell" + cellNum);
 		currentMapObj = getCurrentMapObject();
+		if (currentMapObj.location == "Void") isVoid = true;
     } else {
         cellNum = game.global.lastClearedCell + 1;
         cell = game.global.gridArray[cellNum];
@@ -4337,6 +4398,7 @@ function fight(makeUp) {
         } else if (cell.special !== "") {
             unlockEquipment(cell.special);
         }
+		var doNextVoid = false;
 		if (typeof unlock !== 'undefined' && typeof unlock.message !== 'undefined' && !noMessage) message(cell.text + " " + unlock.message, "Unlocks");
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
@@ -4347,9 +4409,13 @@ function fight(makeUp) {
 			if (game.options.menu.repeatUntil.enabled == 1 && game.global.mapBonus == 10) shouldRepeat = false;
 			if (game.options.menu.repeatUntil.enabled == 2 && addSpecials(true, true, getCurrentMapObject()) == 0) shouldRepeat = false;
 			var skip = false;
-			if (currentMapObj.location == "Void") {
+			if (isVoid) {
 				currentMapObj.noRecycle = false;
 				recycleMap(-1, true, true);
+				if (game.options.menu.repeatVoids.enabled == 1){
+					//repeat void maps
+					if (game.global.totalVoidMaps > 0) doNextVoid = getNextVoidId();
+				}
 				skip = true;
 			}
 			if (shouldRepeat && !game.global.switchToMaps && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1) && !skip){
@@ -4380,6 +4446,13 @@ function fight(makeUp) {
 				game.global.fighting = false;
 				game.global.switchToMaps = false;
 				mapsSwitch(true);
+				if (doNextVoid !== false){
+					game.global.lookingAtMap = doNextVoid;
+					runMap();
+				}
+				else if (isVoid && game.global.preMapsActive && game.global.totalVoidMaps > 0) {
+					toggleVoidMaps();
+				}
 				return;
 			}
 		}
@@ -4511,6 +4584,13 @@ function fight(makeUp) {
     if (makeUp) return;
     updateGoodBar();
 	updateBadBar(cell);
+}
+
+function getNextVoidId(){
+	for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
+		 if (game.global.mapsOwnedArray[x].location == "Void") return game.global.mapsOwnedArray[x].id;
+	}
+	return false;
 }
 
 function getPlayerCritChance(){ //returns decimal: 1 = 100%
@@ -5512,47 +5592,447 @@ function toggleAutoUpgrades(noChange){
 		swapClass("color", "colorSuccess", elem);
 		document.getElementById("autoPrestigeBtn").style.display = "block";
 		elem.innerHTML = "AutoUpgrade On";
-		autoUpgrades();
+
 	}
 	else {
 		swapClass("color", "colorDanger", elem);
-		game.global.autoPrestiges = false;
+		game.global.autoPrestiges = 0;
 		toggleAutoPrestiges(true);
 		document.getElementById("autoPrestigeBtn").style.display = "none";
 		elem.innerHTML = "AutoUpgrade Off";
 	}
 }
 
+var lastAutoPrestigeToggle = -1;
 function toggleAutoPrestiges(noChange){
-	if (!noChange) game.global.autoPrestiges = !game.global.autoPrestiges;
-	var elem = document.getElementById("autoPrestigeBtn");
-	if (game.global.autoPrestiges) {
-		swapClass("color", "colorSuccess", elem);
-		elem.innerHTML = "AutoPrestige On";
+	var autoPrestigeToggles = ["AutoPrestige Off", "AutoPrestige All", "Weapons Only", "Weapons First"];
+	if (!noChange) {
+		game.global.autoPrestiges++;
+		if (game.global.autoPrestiges >= autoPrestigeToggles.length) game.global.autoPrestiges = 0;
+		lastAutoPrestigeToggle = new Date().getTime();
 	}
-	else {
+	var elem = document.getElementById("autoPrestigeBtn");
+	if (game.global.autoPrestiges == 0) {
 		swapClass("color", "colorDanger", elem);
-		elem.innerHTML = "AutoPrestige Off";
+	}
+	else if (game.global.autoPrestiges == 1){
+		swapClass("color", "colorSuccess", elem);	
+	}
+	else swapClass("color", "colorWarning", elem);
+	elem.innerHTML = autoPrestigeToggles[game.global.autoPrestiges];
+}
+
+function autoUpgrades(noWeps) {
+	if (!game.global.autoUpgrades) return;
+	if (game.options.menu.pauseGame.enabled == 1) return;
+	var timerCheck = (lastAutoPrestigeToggle == -1 || (new Date().getTime() - lastAutoPrestigeToggle >= 2000));
+	if (timerCheck) lastAutoPrestigeToggle = -1;
+	var equipmentAvailable = {armor: [], weapons: []}
+	for (var item in game.upgrades){
+		var upgradeObj = game.upgrades[item];
+		if (upgradeObj.locked || item == "Shieldblock" || item == "Gigastation") continue;
+		if (upgradeObj.prestiges){
+			if (game.global.autoPrestiges == 0) continue;
+			var type = (typeof game.equipment[upgradeObj.prestiges].health === 'undefined') ? "weapons" : "armor";
+			equipmentAvailable[type].push(item);
+			continue;
+		}
+		if (autoBuyUpgrade(item)) return;
+	}
+	if (game.global.autoPrestiges != 0 && timerCheck) autoPrestiges(equipmentAvailable);
+}
+
+function autoPrestiges(equipmentAvailable) {
+	var cheapestWeapon = getCheapestPrestigeUpgrade(equipmentAvailable.weapons);
+	if (game.global.autoPrestiges == 2) { //Weapons Only
+		if (cheapestWeapon[0])	autoBuyUpgrade(cheapestWeapon[0]);
+		return;
+	}
+	var cheapestArmor = getCheapestPrestigeUpgrade(equipmentAvailable.armor);
+	if (!cheapestWeapon[0]) {
+		if (cheapestArmor[0])
+		autoBuyUpgrade(cheapestArmor[0]);
+		return;
+	}
+	else if (!cheapestArmor[0]){
+		autoBuyUpgrade(cheapestWeapon[0]);
+		return;
+	}
+	var toBuy;
+	if (game.global.autoPrestiges == 1) //All
+		toBuy = (cheapestWeapon[1] < cheapestArmor[1]) ? cheapestWeapon[0] : cheapestArmor[0];
+	else if (game.global.autoPrestiges == 3) //Weapons First
+		toBuy = (cheapestWeapon[1] < (cheapestArmor[1] * 20)) ? cheapestWeapon[0] : cheapestArmor[0];
+	if (!toBuy) return;
+	var bought = autoBuyUpgrade(toBuy);
+	if (toBuy == "Supershield" && !bought && game.global.autoPrestiges == 1) autoBuyUpgrade(cheapestWeapon[0]);
+}
+
+function getCheapestPrestigeUpgrade(upgradeArray) {
+	var cheapest = [false, -1]; //0 is name, 1 is cost
+	for (var x = 0; x < upgradeArray.length; x++) {
+		var upgradeObj = game.upgrades[upgradeArray[x]];
+		if (!upgradeObj || upgradeObj.locked) continue;
+		var res = (typeof upgradeObj.cost.resources.metal !== 'undefined') ? 'metal' : 'wood';
+		var thisCost = upgradeObj.cost.resources[res];
+		if (res == "wood" && upgradeArray.length > 1 && game.resources.wood.owned < thisCost) continue;
+		//No point calculating Artisanistry, as the price reduction will not change which is cheapest
+		if (cheapest[1] == -1 || thisCost < cheapest[1]) cheapest = [upgradeArray[x], thisCost];
+	}
+	return cheapest;
+}
+
+function autoBuyUpgrade(item){
+	var purchase = buyUpgrade(item, false, true);
+	if (!purchase) return false;
+	if (game.upgrades[item].locked){
+		game.upgrades[item].alert = false;
+		if (countAlertsIn("upgrades") <= 0) document.getElementById("upgradesAlert").innerHTML = "";
+	}
+	return true;	
+}
+
+//PlayFab Stuff
+
+var playFabId = -1;
+
+function enablePlayFab(){
+	var loggedIn = (playFabId != -1);
+	PlayFab.settings.titleId = "9186";
+	if (!loggedIn){
+		loggedIn = tryPlayFabAutoLogin();
+	}
+	if (playFabId == -1) {
+		tooltip("PlayFab Login", null, "update");
+		return false;
+	}
+	return true;
+}
+
+function tryPlayFabAutoLogin(){
+	var type = game.global.playFabLoginType;
+	//-1 = not set, 1 = Kongregate, 2 = PlayFab
+	if (type == -1) return false;
+	if (type == 1){
+		playFabLoginWithKongregate();
+		return true;
+	}
+	if (type == 2){
+		var info = readPlayFabInfo();
+		if (!info) return false;
+		playFabLoginWithPlayFab(info[0], info[1], (type == 2));
+		game.global.playFabLoginType = type;
+		return true;
+	}
+	return false;
+}
+
+
+function getPlayFabLoginHTML(){
+	var tipHtml = [];
+	tipHtml[0] = "<div id='playFabLoginError'></div><div class='row playFabRow'>";
+	if (typeof kongregate !== 'undefined'){
+		var userId = (kongregate && kongregate.services && kongregate.services.getUserId) ? kongregate.services.getUserId() : 0;
+		tipHtml[0] += "<div id='playFabKongregateContainer' class='col-xs-6'><b>Login With Kongregate</b><br/>"
+		if (userId > 0){
+			tipHtml[0] += "<div id='playFabKongLoggedIn'>Click the button below to link a PlayFab account to your Kongregate account and begin or resume backing up your save online!<br/><br/><div class='alignCenter'><span class='btn btn-sm btn-primary' onclick='playFabLoginWithKongregate()'>Connect Kongregate<br/>To PlayFab</span></div></div>";	
+		}
+		else 
+			tipHtml[0] += "<div id='playFabKongNotLoggedIn'>You are playing from Kongregate, but not logged in.<span class='inactiveBtn''>Must Be Logged In</span></div>";
+		tipHtml[0] += "</div>";
+	}
+	else
+	tipHtml[0] += "<div id='playFabLoginContainer' class='col-xs-6'><b id='playFabLoginTitle'>Login to PlayFab</b><br/><span id='playFabEmailHidden' style='display: none'>Your Email<br/><span style='font-size: 0.8em'>(For recovery, not required)</span><br/><input type='text' id='registerEmail' /></span>PlayFab Username<br/><input type='text' id='loginUserName' /><br/>Password <span style='font-size: 0.8em'>(6-30 Chars)</span><br/><input type='password' id='loginPassword' /><br/><div id='playFabConfirmPasswordHidden' style='display: none'>Confirm Password<br/><input type='password' id='confirmPassword' /><br/></div>Remember Account Info<br/><input type='checkbox' id='rememberInfo' /><br/><div id='playFabLoginBtn' class='btn btn-sm btn-info' onclick='playFabLoginWithPlayFab()'>Login</div><div id='playFabRegisterBtn' class='btn btn-sm btn-info' style='display: none' onclick='playFabRegisterPlayFabUser()'>Register</div><div id='playFabSwitchRegisterBtn' onclick='switchFormToRegister()' class='btn btn-sm btn-primary'>Register Playfab Account<br/></div></div>"
+	tipHtml[0] += "<div id='playFabLoginInfo' class='col-xs-6'><ul><li>While connected to PlayFab, every time the game saves or auto-saves your file will also be sent to PlayFab's servers.</li><li>Data will be cleared from PlayFab's servers after 3 months of inactivity, this is not a permanent save!</li><li><b>This feature is in beta and will be refined by feedback over the next few patches. It is recommended to still manually export your save for ultimate safety.</b></li></ul>"
+	tipHtml[1] = "<div class='btn btn-sm btn-danger' onclick='cancelTooltip()'>Cancel</div>";
+	return tipHtml;
+}
+
+function switchFormToRegister(){
+	var title = document.getElementById("playFabLoginTitle");
+	var emailInput = document.getElementById("playFabEmailHidden");
+	var loginBtn = document.getElementById("playFabLoginBtn");
+	var registerBtn = document.getElementById("playFabRegisterBtn");
+	var switchBtn = document.getElementById("playFabSwitchRegisterBtn");
+	var confirmPasswordBtn = document.getElementById("playFabConfirmPasswordHidden");
+	if (emailInput != null) emailInput.style.display = "block";
+	if (loginBtn != null) loginBtn.style.display = "none";
+	if (registerBtn != null) registerBtn.style.display = "inline-block";
+	if (switchBtn != null) switchBtn.style.display = "none";
+	if (confirmPasswordBtn != null) confirmPasswordBtn.style.display = "block";
+	if (title != null) title.innerHTML = "Register a PlayFab Account";
+}
+
+function playFabRegisterPlayFabUser(){
+	var error = document.getElementById("playFabLoginError");
+	if (typeof PlayFab === 'undefined' || typeof PlayFab.ClientApi === 'undefined'){
+		error.innerHTML = "Unable to Initialize the PlayFab API. Please check to make sure third-party scripts are enabled for Trimps, and that PlayFab is not blocked.";
+		return;
+	}
+	var saveLogin = false;
+	var nameElem = document.getElementById("loginUserName");
+	var passElem = document.getElementById("loginPassword");
+	var emailElem = document.getElementById("registerEmail");
+	var rememberElem = document.getElementById("rememberInfo");
+	var confirmPasswordElem = document.getElementById("confirmPassword");
+	if (rememberElem && rememberElem.checked == true) saveLogin = true;
+	if (nameElem == null || passElem == null || emailElem == null || rememberElem == null || confirmPasswordElem == null){
+		//Elements required to register are missing, rebuild login screen
+		tooltip("PlayFab Login", null, "update");
+		return;
+	}
+	if (confirmPasswordElem.value != passElem.value){
+		error.innerHTML = "Passwords do not match!";
+		return;
+	}
+	var requestData = {
+		TitleId: "9186",
+		Username: nameElem.value,
+		Password: passElem.value,
+		RequireBothUsernameAndEmail: false
+	}
+	if (emailElem.value) {
+		requestData.Email = emailElem.value;
+		requestData.RequireBothUsernameAndEmail = true;
+	}
+	try {
+		PlayFab.ClientApi.RegisterPlayFabUser(requestData, playFabLoginCallback);
+		if (saveLogin) {
+			storePlayFabInfo(username, pass); 
+			game.global.playFabLoginType = 2;
+		}
+		else game.global.playFabLoginType = -1;
+	}
+	catch (e){
+		error.innerHTML = "Unable to send registration request to PlayFab.";
 	}
 }
 
-function autoUpgrades() {
-	if (game.global.autoUpgrades == true) setTimeout(autoUpgrades, 1000);
-	else return;
-	if (game.options.menu.pauseGame.enabled == 1) return;
-	for (var item in game.upgrades){
-		if (item == "Shieldblock" || item == "Gigastation") continue;
-		if (!game.global.autoPrestiges && game.upgrades[item].prestiges) continue;
-		if (!game.upgrades[item].locked){
-			var purchase = buyUpgrade(item, false, true);
-			if (!purchase) continue;
-			if (game.upgrades[item].locked){
-				game.upgrades[item].alert = false;
-				if (countAlertsIn("upgrades") <= 0) document.getElementById("upgradesAlert").innerHTML = "";
-			}	
+function playFabLoginWithPlayFab(username, pass){
+	var error = document.getElementById("playFabLoginError");
+	if (typeof PlayFab === 'undefined' || typeof PlayFab.ClientApi === 'undefined'){
+		error.innerHTML = "Unable to Initialize the PlayFab API. Please check to make sure third-party scripts are enabled for Trimps, and that PlayFab is not blocked.";
+		return;
+	}
+	var saveLogin = false;
+	if (!username || !pass){
+		var nameElem = document.getElementById("loginUserName");
+		var passElem = document.getElementById("loginPassword");
+		var rememberElem = document.getElementById("rememberInfo");
+		if (rememberElem && rememberElem.checked == true) saveLogin = true;
+		if (nameElem == null || passElem == null){
+			//Elements required to login are missing, rebuild login screen
+			tooltip("PlayFab Login", null, "update");
 			return;
 		}
+		else{
+			username = nameElem.value;
+			pass = passElem.value;
+		}
 	}
+	var requestData = {
+		TitleId: "9186",
+		Username: username,
+		Password: pass
+	}
+	try {
+		PlayFab.ClientApi.LoginWithPlayFab(requestData, playFabLoginCallback);
+		if (saveLogin) {
+			storePlayFabInfo(username, pass); 
+			game.global.playFabLoginType = 2;
+		}
+		else game.global.playFabLoginType = -1;
+	}
+	catch (e){
+		error.innerHTML = "Unable to send login request to PlayFab.";
+	}
+}
+
+
+
+function playFabLoginWithKongregate(){
+	var error = document.getElementById("playFabLoginError");
+	if (typeof PlayFab === 'undefined' || typeof PlayFab.ClientApi === 'undefined'){
+		error.innerHTML = "Unable to Initialize the PlayFab API. Please check to make sure third-party scripts are enabled for Trimps, and that PlayFab is not blocked.";
+		return;
+	}
+	if (typeof kongregate === 'undefined'){
+		console.log("something went wrong... Kongregate defined but not defined?");
+		//This should really never get to this function if Kongregate isn't defined
+		return;
+	}
+	var userId = kongregate.services.getUserId();
+	if (userId == 0){
+		error.innerHTML = "You must be logged in to Kongregate to do that.";
+		//Should never be able to get here either, unless they log out after opening the tooltip and before clicking connect.
+		return;
+	}
+	var authTicket = kongregate.services.getGameAuthToken();
+	var requestData = {
+		TitleId: "9186",
+		KongregateId: userId,
+		AuthTicket: authTicket,
+		CreateAccount: true
+	}
+	try {
+		PlayFab.ClientApi.LoginWithKongregate(requestData, playFabLoginCallback);
+		game.global.playFabLoginType = 1;
+	}
+	catch (e){
+		error.innerHTML = "Unable to send login request to PlayFab.";
+		//Not sure if this will ever trigger, better safe
+	}
+}
+
+function playFabLoginCallback(data, error){
+	if (error){
+		var errorElem = document.getElementById("playFabLoginError");
+		if (errorElem != null && error.errorMessage){
+			errorElem.style.display = "block";
+			errorElem.innerHTML = error.errorMessage;
+		}
+		return;
+	}
+	if (data){
+		playFabId = data.data.PlayFabId;
+		cancelTooltip();
+		playFabSaveCheck();
+	}
+}
+
+function cancelPlayFab(){
+	cancelTooltip();
+	playFabId = -1;
+	game.global.playFabLoginType = -1;
+}
+
+function playFabSaveCheck(){
+	if (playFabId == -1) return false;
+	if (typeof PlayFab === 'undefined' || typeof PlayFab.ClientApi === 'undefined'){
+		//Should never get this far without the api
+		console.log(error);
+		return;
+	}
+	var requestData = {
+		Keys: ["totalHeliumEarned", "highestLevelCleared", "totalZones"],
+		PlayFabId: playFabId
+	}
+	try {
+		PlayFab.ClientApi.GetUserData(requestData, playFabSaveCheckCallback);
+	}
+	catch (e){console.log(e);}
+}
+
+function playFabSaveCheckCallback(data, error){
+	if (error){
+		console.log("error checking existing PlayFab data");
+		console.log(error);
+		return;
+	}
+	if (data){
+		var playFabHelium = (data.data.Data.totalHeliumEarned) ? parseFloat(data.data.Data.totalHeliumEarned.Value) : 0;
+		var playFabHighestZone = (data.data.Data.highestLevelCleared) ? parseFloat(data.data.Data.highestLevelCleared.Value) : 0;
+		var playFabTotalZones = (data.data.Data.totalZones) ? parseFloat(data.data.Data.totalZones.Value) : 0;
+		if (playFabHelium > parseFloat(game.global.totalHeliumEarned) || playFabHighestZone > parseFloat(game.global.highestLevelCleared) || (playFabTotalZones > (game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal))){
+			tooltip("PlayFab Conflict", null, "update", playFabHelium, playFabHighestZone, playFabTotalZones);
+			return;
+		}
+		playFabFinishLogin(false);
+	}
+}
+
+function playFabFinishLogin(downloadFirst){
+	if (downloadFirst){
+		loadFromPlayFab();
+		return;
+	}
+	cancelTooltip();
+	game.options.menu.usePlayFab.enabled = 1;
+	toggleSetting("usePlayFab", null, false, true);
+}
+
+function saveToPlayFab(saveString){
+	if (!playFabId || typeof PlayFab === 'undefined' || typeof PlayFab.ClientApi === 'undefined') return false;
+	var requestData = {
+		TitleId: "9186",
+		Data: {
+			saveString: saveString,
+			totalHeliumEarned: game.global.totalHeliumEarned,
+			highestLevelCleared: game.global.highestLevelCleared,
+			totalZones: (game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal)
+		}
+	}
+	try{
+		PlayFab.ClientApi.UpdateUserData(requestData, saveToPlayFabCallback);
+	}
+	catch(e){console.log(e);}
+	
+}
+
+function saveToPlayFabCallback(data, error){
+	if (error){
+		message("Unable to back up your save to PlayFab! Double check your internet connection, and don't forget to back up your save manually.", "Notices");
+		swapClass("iconState", "iconStateBad", document.getElementById('playFabIndicator'));
+		console.log(error);
+		return false;
+	}
+	if (data){
+		swapClass("iconState", "iconStateGood", document.getElementById('playFabIndicator'));
+		return true;
+	}
+}
+
+function loadFromPlayFab(){
+	if (!playFabId || typeof PlayFab === 'undefined' || typeof PlayFab.ClientApi === 'undefined') return false;
+	var requestData = {
+		Keys: ["saveString"],
+		PlayFabId: playFabId
+	}
+	try{
+		PlayFab.ClientApi.GetUserData(requestData, loadFromPlayFabCallback);
+	}
+	catch(e){console.log(e);}
+}
+
+function loadFromPlayFabCallback(data, error){
+	if (error){
+		console.log(error);
+		return;
+	}
+	if (data){
+		var id = playFabId;
+		console.log("got data, loading");
+		if (load(data.data.Data.saveString.Value, false, true)){
+			console.log("we good");
+			playFabId = id;
+			playFabFinishLogin();
+			return;
+		}
+		console.log("this is bad");
+		game.options.menu.usePlayFab.enabled = 0;
+		toggleSetting("usePlayFab", null, false, true);
+		playFabId = -1;
+	}
+}
+
+function storePlayFabInfo(name, pass){
+	try{
+		localStorage.setItem("playFabName", name);
+		localStorage.setItem("playFabPass", pass);
+	}
+	catch(e){console.log(e)}
+	return false;
+}
+
+function readPlayFabInfo(){	
+	var info = [false, false];
+	try {
+		info[0] = localStorage.getItem("playFabName");
+		info[1] = localStorage.getItem("playFabPass");
+	}
+	catch (e) {console.log(e)}
+	if (info[0] && info[1]) return info;
+	return false;
 }
 
 
@@ -5611,7 +6091,7 @@ function updatePortalTimer() {
 	if (game.resources.helium.owned) document.getElementById("heliumPh").innerHTML = prettify(game.stats.heliumHour.value()) + "/hr";
 	if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
 	if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
-	
+	if (game.global.sLevel = 4) autoUpgrades();
 	setTimeout(updatePortalTimer, 1000);
 }
 

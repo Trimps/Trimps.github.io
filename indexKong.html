@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 3.22 (Kongregate Version)</title>
+	<title>Trimps 3.23 (Kongregate Version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?31" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?32" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -838,7 +838,11 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<div class="battleSideBtnContainer">
 								<span class="btn settingBtn1 fightBtn" id="toggleexitTo" onmouseout="tooltip('hide')" onclick="toggleSetting('exitTo')">
 								</span>
-							</div>							
+							</div>		
+							<div class="battleSideBtnContainer" id="repeatVoidsContainer">
+								<span class="btn settingBtn1 fightBtn" id="togglerepeatVoids" onmouseout="tooltip('hide')" onclick="toggleSetting('repeatVoids')">
+								</span>
+							</div>									
 						</div>
 					</div>
 				</div>
@@ -848,7 +852,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 			<table id="settingsTable">
 				<tr>
 					<td class="btn btn-info" onclick="save()">
-						Save <span id="saveIndicator"></span>
+						Save <span id="saveIndicator"></span><span id="playFabIndicator"></span>
 					</td>
 					<td class="btn btn-info" onclick="tooltip('Export', null, 'update')">
 						<div>Export</div>
@@ -1110,11 +1114,11 @@ var kongregate = parent.kongregateAPI.getAPI();
 		<hr/>
 		<div id="tipCost"></div>
 	</div>
-	
+	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?71"></script>
-	<script type="text/javascript" src="updates.js?71"></script>
-	<script type="text/javascript" src="main.js?71"></script>
+	<script type="text/javascript" src="config.js?72"></script>
+	<script type="text/javascript" src="updates.js?72"></script>
+	<script type="text/javascript" src="main.js?72"></script>
 	<script type="text/javascript">
 		document.body.addEventListener('DOMMouseScroll', onWheel, true);
 		document.body.addEventListener('mousewheel', onWheel, true);

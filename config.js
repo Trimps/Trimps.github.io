@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.22,
+		version: 3.23,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -123,7 +123,7 @@ var toReturn = {
 		useShriek: false,
 		usingShriek: false,
 		autoUpgrades: false,
-		autoPrestiges: false,
+		autoPrestiges: 0,
 		autoStorage: false,
 		autoStorageAvailable: false,
 		totalVoidMaps: 0,
@@ -148,6 +148,9 @@ var toReturn = {
 		bonePortalThisRun: false,
 		maxSplit: 1,
 		maxSoldiersAtStart: -1,
+		playFabLoginType: -1,
+		lastCustomExact: 1,
+		voidMaxLevel: -1,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -252,6 +255,16 @@ var toReturn = {
 					else elem.innerHTML = "<span class='notAutosaving'>(Not AutoSaving)</span>";
 				}
 			},
+			usePlayFab: {
+				enabled: 0,
+				description: "<b>Beta:</b> Whenever the game saves, also back up a copy online with PlayFab. While using this setting, you will be asked if you want to download your online save if it is ever ahead of the version on your computer. You can also manually import your save from PlayFab through the Import menu.",
+				titles: ["Not Saving Online", "Saving with PlayFab"],
+				onToggle: function () {
+					var indicatorElem = document.getElementById("playFabIndicator");
+					if (this.enabled == 1) indicatorElem.className = "icomoon icon-wifi iconStateGood";
+					else indicatorElem.className = "";
+				}
+			},
 			standardNotation: {
 				enabled: 1,
 				description: "Swap between standard and exponential number formatting",
@@ -335,6 +348,12 @@ var toReturn = {
 				enabled: 0,
 				description: "Choose whether to go to the Maps Screen or World after completing a map.",
 				titles: ["Exit to Maps", "Exit to World"],
+				locked: true
+			},
+			repeatVoids: {
+				enabled: 0,
+				description: "Decide if you want to continue running the rest of your Void Maps after finishing one.",
+				titles: ["One Void Map", "Finish All Voids"],
 				locked: true
 			},
 			boneAlerts: {
