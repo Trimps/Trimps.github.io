@@ -5676,19 +5676,28 @@ function autoPrestiges(equipmentAvailable) {
 	if (!toBuy) return;
 	var bought = autoBuyUpgrade(toBuy);
 	if (toBuy == "Supershield" && !bought && game.global.autoPrestiges == 1) autoBuyUpgrade(cheapestWeapon[0]);
+	else if (cheapestArmor[0] == "Supershield" && !bought && game.global.autoPrestiges == 1) autoBuyUpgrade(cheapestArmor[0]);
 }
 
 function getCheapestPrestigeUpgrade(upgradeArray) {
 	var cheapest = [false, -1]; //0 is name, 1 is cost
+	var shieldCheck = false;
+	var shieldCost = -1;
+	var artMult = (game.portal.Artisanistry.level) ? Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level) : -1;
 	for (var x = 0; x < upgradeArray.length; x++) {
 		var upgradeObj = game.upgrades[upgradeArray[x]];
 		if (!upgradeObj || upgradeObj.locked) continue;
 		var res = (typeof upgradeObj.cost.resources.metal !== 'undefined') ? 'metal' : 'wood';
 		var thisCost = upgradeObj.cost.resources[res];
-		if (res == "wood" && upgradeArray.length > 1 && game.resources.wood.owned < thisCost) continue;
-		//No point calculating Artisanistry, as the price reduction will not change which is cheapest
+		if  (artMult != -1) thisCost *= artMult;
+		if (res == "wood" && upgradeArray.length > 1 && game.resources.wood.owned < thisCost)	continue;
+		else if (res == "wood") {
+			shieldCheck = true;
+			shieldCost = thisCost;
+		}	
 		if (cheapest[1] == -1 || thisCost < cheapest[1]) cheapest = [upgradeArray[x], thisCost];
 	}
+	if (cheapest[0] && cheapest[0] != 'Supershield' && shieldCheck && shieldCost != -1 && game.resources.metal.owned < cheapest[1]) cheapest = ['Supershield', shieldCost];
 	return cheapest;
 }
 
