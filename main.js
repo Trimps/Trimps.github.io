@@ -5863,7 +5863,7 @@ function playFabLoginWithKongregate(){
 	}
 	var userId = (kongregate && kongregate.services && kongregate.services.getUserId) ? kongregate.services.getUserId() : 0;
 	if (userId == 0){
-		error.innerHTML = "You must be logged in to Kongregate to do that.";
+		if (error) error.innerHTML = "You must be logged in to Kongregate to do that.";
 		//Should never be able to get here either, unless they log out after opening the tooltip and before clicking connect.
 		return;
 	}
