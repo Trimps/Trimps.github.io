@@ -6091,7 +6091,7 @@ function updatePortalTimer() {
 	if (game.resources.helium.owned) document.getElementById("heliumPh").innerHTML = prettify(game.stats.heliumHour.value()) + "/hr";
 	if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
 	if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
-	if (game.global.sLevel = 4) autoUpgrades();
+	if (game.global.sLevel == 4) autoUpgrades();
 	setTimeout(updatePortalTimer, 1000);
 }
 
