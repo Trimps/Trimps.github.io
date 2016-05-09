@@ -417,6 +417,7 @@ function load(saveString, autoLoad, fromPf) {
 		else if (game.global.highestLevelCleared < 90) game.global.sLevel = 2;
 		else game.global.sLevel = 3;
 	}
+	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
@@ -1150,6 +1151,10 @@ function activateClicked(){
 
 function buyPortalUpgrade(what){
 	if (!game.global.kongBonusMode && !game.global.portalActive && !game.global.respecActive && !game.global.viewingUpgrades) return;
+	if (isNaN(game.global.buyAmt)) {
+		numTab(1);
+		return;
+	}
 	var enableButton = function () {
 		if (game.global.viewingUpgrades) {
 			document.getElementById("respecPortalBtn").style.display = "none";
