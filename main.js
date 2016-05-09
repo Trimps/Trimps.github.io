@@ -411,10 +411,10 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	//End compatibility
 	//temp bug fix
-	if (game.global.sLevel == 4 && game.global.highestLevelCleared < 110){
-		if (game.global.highestLevelCleared < 40) game.global.sLevel = 0;
-		else if (game.global.highestLevelCleared < 50) game.global.sLevel = 1;
-		else if (game.global.highestLevelCleared < 90) game.global.sLevel = 2;
+	if (game.global.sLevel == 4 && game.global.highestLevelCleared < 109){
+		if (game.global.highestLevelCleared < 39) game.global.sLevel = 0;
+		else if (game.global.highestLevelCleared < 49) game.global.sLevel = 1;
+		else if (game.global.highestLevelCleared < 89) game.global.sLevel = 2;
 		else game.global.sLevel = 3;
 	}
 	
