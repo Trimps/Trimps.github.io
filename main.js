@@ -409,9 +409,14 @@ function load(saveString, autoLoad, fromPf) {
 		game.global.autoPrestiges = (game.global.autoPrestiges === true) ? 1 : 0;
 		game.global.voidMaxLevel = game.global.highestLevelCleared;
 	}
-
 	//End compatibility
-	
+	//temp bug fix
+	if (game.global.sLevel == 4 && game.global.highestLevelCleared < 110){
+		if (game.global.highestLevelCleared < 40) game.global.sLevel = 0;
+		else if (game.global.highestLevelCleared < 50) game.global.sLevel = 1;
+		else if (game.global.highestLevelCleared < 90) game.global.sLevel = 2;
+		else game.global.sLevel = 3;
+	}
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
         document.getElementById("battleContainer").style.visibility = "visible";
