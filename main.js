@@ -5720,10 +5720,10 @@ function enablePlayFab(){
 	var loggedIn = (playFabId != -1);
 	PlayFab.settings.titleId = "9186";
 	if (!loggedIn){
+		tooltip("PlayFab Login", null, "update");
 		loggedIn = tryPlayFabAutoLogin();
 	}
 	if (playFabId == -1) {
-		tooltip("PlayFab Login", null, "update");
 		return false;
 	}
 	return true;
@@ -5882,7 +5882,7 @@ function playFabLoginWithKongregate(attempt){
 	}
 	var userId = (kongregate && kongregate.services && kongregate.services.getUserId) ? kongregate.services.getUserId() : 0;
 	if (userId == 0){
-			if (!error) tooltip("PlayFab Login", null, "update");;
+			if (!error) tooltip("PlayFab Login", null, "update");
 			if (error) error.innerHTML = "You must be logged in to Kongregate to do that.";
 			if (kongregate && (typeof kongregate.services === 'undefined' || typeof kongregate.services.getUserId === 'undefined')) {
 				if (!attempt) attempt = 2;
