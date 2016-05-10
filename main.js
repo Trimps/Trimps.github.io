@@ -5887,11 +5887,11 @@ function playFabLoginWithKongregate(attempt){
 			if (kongregate && (typeof kongregate.services === 'undefined' || typeof kongregate.services.getUserId === 'undefined')) {
 				if (!attempt) attempt = 2;
 				else attempt++;
-				if (attempt < 4) {
-					if (error) error.innerHTML += "&nbsp;<span style='color: green'>Attempting to Connect again, attempt: " + attempt + "/3</span>";
+				if (attempt < 6) {
+					if (error) error.innerHTML += "&nbsp;<span style='color: green'>Attempting to Connect again, attempt: " + attempt + "/5</span>";
 					setTimeout(function() {
 						playFabLoginWithKongregate(attempt);
-					}, 5000)
+					}, 1500)
 				}
 			}
 		return;
