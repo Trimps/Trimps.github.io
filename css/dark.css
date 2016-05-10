@@ -7,6 +7,11 @@
 .NoticesMessage {
     color: #AD2A2A;
 }
+
+#playFabLoginError{
+	color: #AD2A2A;
+}
+
 #battleSideTitle {
     border: 1px solid #212121
 }
