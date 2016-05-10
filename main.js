@@ -5884,6 +5884,7 @@ function playFabLoginWithKongregate(attempt){
 	if (userId == 0){
 		if (error){
 			error.innerHTML = "You must be logged in to Kongregate to do that.";
+			console.log("userid is 0", kongregate, kongregate.services, kongregate.getUserId, attempt);
 			if (kongregate && (!kongregate.services || !kongregate.services.getUserId)) {
 				if (!attempt) attempt = 2;
 				else attempt++;
