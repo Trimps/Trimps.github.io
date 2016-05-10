@@ -409,14 +409,15 @@ function load(saveString, autoLoad, fromPf) {
 		game.global.autoPrestiges = (game.global.autoPrestiges === true) ? 1 : 0;
 		game.global.voidMaxLevel = game.global.highestLevelCleared;
 	}
-	//End compatibility
-	//temp bug fix
-	if (game.global.sLevel == 4 && game.global.highestLevelCleared < 109){
-		if (game.global.highestLevelCleared < 39) game.global.sLevel = 0;
-		else if (game.global.highestLevelCleared < 49) game.global.sLevel = 1;
-		else if (game.global.highestLevelCleared < 89) game.global.sLevel = 2;
-		else game.global.sLevel = 3;
+	if (oldVersion < 3.231){ //Can be removed in a few patches, covering bug that existed for about 1 hour on 5/8.
+		if (game.global.sLevel == 4 && game.global.highestLevelCleared < 109){
+			if (game.global.highestLevelCleared < 39) game.global.sLevel = 0;
+			else if (game.global.highestLevelCleared < 49) game.global.sLevel = 1;
+			else if (game.global.highestLevelCleared < 89) game.global.sLevel = 2;
+			else game.global.sLevel = 3;
+		}	
 	}
+	//End compatibility
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
@@ -5868,8 +5869,7 @@ function playFabLoginWithPlayFab(username, pass){
 }
 
 
-
-function playFabLoginWithKongregate(){
+function playFabLoginWithKongregate(attempt){
 	var error = document.getElementById("playFabLoginError");
 	if (typeof PlayFab === 'undefined' || typeof PlayFab.ClientApi === 'undefined'){
 		error.innerHTML = "Unable to Initialize the PlayFab API. Please check to make sure third-party scripts are enabled for Trimps, and that PlayFab is not blocked.";
@@ -5882,8 +5882,19 @@ function playFabLoginWithKongregate(){
 	}
 	var userId = (kongregate && kongregate.services && kongregate.services.getUserId) ? kongregate.services.getUserId() : 0;
 	if (userId == 0){
-		if (error) error.innerHTML = "You must be logged in to Kongregate to do that.";
-		//Should never be able to get here either, unless they log out after opening the tooltip and before clicking connect.
+		if (error){
+			error.innerHTML = "You must be logged in to Kongregate to do that.";
+			if (kongregate && (!kongregate.services || !kongregate.services.getUserId)) {
+				if (!attempt) attempt = 2;
+				else attempt++;
+				if (attempt < 4) {
+					error.innerHTML += "<span style='color: green'>Attempting to Connect again, attempt: " + attempt + "/3</span>";
+					setTimeout(function() {
+						playFabLoginWithKongregate(attempt);
+					}, 5000)
+				}
+			}
+		}
 		return;
 	}
 	var authTicket = kongregate.services.getGameAuthToken();

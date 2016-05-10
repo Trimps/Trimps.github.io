@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.23,
+		version: 3.231,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
