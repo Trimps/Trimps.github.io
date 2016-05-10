@@ -77,6 +77,12 @@
     background-color: #441817;
 }
 
+.warningColor,
+.colorWarning {
+    color: #C8C8C8;
+    background-color: #574800;
+}
+
 .btn-info,
 .btn-warning,
 .btn-primary,
