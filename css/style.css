@@ -1719,7 +1719,7 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 .StoryMessage {
 	color: #00FFFF;
 }
-#saveGame{
+#saveGame, .greenText{
 	color: #7CFC00;
 }
 

@@ -1,7 +1,7 @@
 #innerWrapper{
 	background: black !important;
 }
-#saveGame {
+#saveGame, .greenText {
     color: #64A823
 }
 .NoticesMessage {
