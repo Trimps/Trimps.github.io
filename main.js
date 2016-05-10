@@ -5893,6 +5893,7 @@ function playFabLoginWithKongregate(attempt){
 						playFabLoginWithKongregate(attempt);
 					}, 1500)
 				}
+				else if (error) error.innerHTML += " Unable to connect after 5 tries.";
 			}
 		return;
 	}
