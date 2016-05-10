@@ -5882,9 +5882,8 @@ function playFabLoginWithKongregate(attempt){
 	}
 	var userId = (kongregate && kongregate.services && kongregate.services.getUserId) ? kongregate.services.getUserId() : 0;
 	if (userId == 0){
-			console.log(error, attempt, kongregate, kongregate.services, kongregate.services.getUserId);
 			if (error) error.innerHTML = "You must be logged in to Kongregate to do that.";
-			if (kongregate && (!kongregate.services || !kongregate.services.getUserId)) {
+			if (kongregate && (typeof kongregate.services === 'undefined' || typeof kongregate.services.getUserId === 'undefined')) {
 				if (!attempt) attempt = 2;
 				else attempt++;
 				if (attempt < 4) {
