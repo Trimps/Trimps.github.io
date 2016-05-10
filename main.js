@@ -919,7 +919,7 @@ function updatePerkColor(what){
 	{
 		var price = getPortalUpgradePrice(what);
 		var canSpend = game.resources.helium.respecMax;
-		if (perk.max && (perk.max <= perk.level + perk.levelTemp + game.global.buyAmt)) perkClass = "perkColorMaxed";
+		if (perk.max && (perk.max < perk.level + perk.levelTemp + game.global.buyAmt)) perkClass = "perkColorMaxed";
 		else
 		perkClass = ((canSpend >= game.resources.helium.totalSpentTemp + price)) ? "perkColorOn" : "perkColorOff";
 	}
