@@ -5882,12 +5882,13 @@ function playFabLoginWithKongregate(attempt){
 	}
 	var userId = (kongregate && kongregate.services && kongregate.services.getUserId) ? kongregate.services.getUserId() : 0;
 	if (userId == 0){
-			if (error) error.innerHTML = "You must be logged in to Kongregate to do that.";
+			if (!error) tooltip("PlayFab Login", null, "update");;
+			error.innerHTML = "You must be logged in to Kongregate to do that.";
 			if (kongregate && (typeof kongregate.services === 'undefined' || typeof kongregate.services.getUserId === 'undefined')) {
 				if (!attempt) attempt = 2;
 				else attempt++;
 				if (attempt < 4) {
-					if (error) error.innerHTML += "<span style='color: green'>Attempting to Connect again, attempt: " + attempt + "/3</span>";
+					error.innerHTML += "<span style='color: green'>Attempting to Connect again, attempt: " + attempt + "/3</span>";
 					setTimeout(function() {
 						playFabLoginWithKongregate(attempt);
 					}, 5000)
