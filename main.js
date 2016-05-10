@@ -5888,7 +5888,7 @@ function playFabLoginWithKongregate(attempt){
 				if (!attempt) attempt = 2;
 				else attempt++;
 				if (attempt < 6) {
-					if (error) error.innerHTML += "&nbsp;<span class='saveGame'>Attempting to Connect again, attempt: " + attempt + "/5</span>";
+					if (error) error.innerHTML += "&nbsp;<span class='greenText'>Attempting to Connect again, attempt: " + attempt + "/5</span>";
 					setTimeout(function() {
 						playFabLoginWithKongregate(attempt);
 					}, 1500)
