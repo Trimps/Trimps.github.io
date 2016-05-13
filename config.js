@@ -2448,6 +2448,17 @@ var toReturn = {
 				message("Autoimp force quit. Memory dump provides " + prettify(amt) + " bars of metal and no clues. It's a feature!", "Loot", "*cubes");
 			}
 		},
+		Artimp: {
+			location: "Bionic",
+			world: 125,
+			attack: 1.3,
+			health: 1.5,
+			fast: false,
+			loot: function (level) {
+				var amt = rewardResource("metal", 0.3, level, true);
+				message("The Artimp wordlessly sputters, whirrs, beeps, then drops a few perfect cubes of metal on the ground. Cubic art is your favorite!", "Loot", "*cubes");
+			}
+		},
 		//End Bionic Wonderland stuff
 		//Start Imploding Star stuff
 		Neutrimp: {
