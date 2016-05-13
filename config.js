@@ -2456,7 +2456,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", 0.3, level, true);
-				message("The Artimp wordlessly sputters, whirrs, beeps, then drops a few perfect cubes of metal on the ground. Cubic art is your favorite!", "Loot", "*cubes");
+				message("The Artimp wordlessly sputters, whirrs, beeps, then drops " + amt + " perfect cubes of metal on the ground. Cubic art is your favorite!", "Loot", "*cubes");
 			}
 		},
 		//End Bionic Wonderland stuff
