@@ -193,6 +193,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			catch (e) { box.select(); }
 			box.focus();
 		};
+		noExtraCheck = true;
 	}
 	if (what == "Max"){
 		tooltipText = "No reason to spend everything in one place! Here you can set the ratio of your resources to spend when using the 'Max' button. Setting this to 0.5 will spend no more than half of your resources per click, etc."
