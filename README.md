@@ -8,7 +8,7 @@ order to obtain loot and unlock upgrades to further their advancement as a
 society of conquest and discovery.
 
 The game can be played on
-[Kongregate](http://www.kongregate.com/games/GreenSatellite/trimps) or on it's
+[Kongregate](http://www.kongregate.com/games/GreenSatellite/trimps) or on its
 own [website](http://trimps.github.io/).
 
 ## Guides
