@@ -257,6 +257,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "AutoUpgrade"){
 		tooltipText = "Your scientists can finally handle some upgrades on their own! Toggling this on will cause most upgrades to be purchased automatically. Does not include equipment prestiges or upgrades that would trigger a confirmation popup.";
 	}
+	if (what == "Recycle All"){
+		tooltipText = "Recycle all maps below the selected level.";
+	}
 	if (what == "PlayFab Login"){
 		var tipHtml = getPlayFabLoginHTML();
 		tooltipText = tipHtml[0];

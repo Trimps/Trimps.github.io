@@ -621,7 +621,7 @@
 							<div id="preMaps" style="display: none">
 							<div style="display: none" id="mapsCreateRow" class="row">
 								<div id="mapLevelContainer" class="col-xs-4">
-									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer noselect incrementBtn" title="Recycle All Below" style="color: red" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
+									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer noselect incrementBtn" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" style="color: red" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
 								</div>
 								<div id="mapCostContainer" class="col-xs-4 lowPad">
 									<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
