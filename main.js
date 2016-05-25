@@ -4009,10 +4009,12 @@ function startFight() {
 	var badCoord;
 	var instaFight = false;
 	var madeBadGuy = false;
+	var map = false;
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
         cell = game.global.mapGridArray[cellNum];
         cellElem = document.getElementById("mapCell" + cellNum);
+		map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
     } else {
         cellNum = game.global.lastClearedCell + 1;
         cell = game.global.gridArray[cellNum];
@@ -4056,7 +4058,10 @@ function startFight() {
 	document.getElementById("badGuyName").innerHTML = badName;
 	if (cell.corrupted)
 		setCorruptionTooltip(cell.corrupted);
-	else 
+	else if (map && map.location == "Void" && game.global.world >= 181){
+		setVoidCorruptionIcon();
+	}
+	else
 		document.getElementById('corruptionBuff').innerHTML = "";
 	if (game.global.challengeActive == "Balance") updateBalanceStacks();
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
@@ -4069,12 +4074,10 @@ function startFight() {
 		if (cell.corrupted == "corruptTough") cell.health *= 5;
 		if (game.global.challengeActive == "Coordinate") cell.health *= badCoord;
         if (game.global.mapsActive) {
-			var map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
             var difficulty = map.difficulty;
             cell.attack *= difficulty;
             cell.health *= difficulty;
 			if (map.location == "Void" && game.global.world >= 181){
-				setVoidCorruptionIcon();
 				cell.attack *= (getCorruptScale("attack") / 2).toFixed(1);
 				cell.health *= (getCorruptScale("health") / 2).toFixed(1);
 			}
