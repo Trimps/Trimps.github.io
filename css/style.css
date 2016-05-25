@@ -1759,6 +1759,13 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 	padding: 2%;
 }
 
+.corruptedBadGuyName{
+	background-color: #2f006d;
+	color: white;
+	font-weight: bold;
+	padding: 0px 0.2vw;
+}
+
 .easterEgg0{
 	color: #83ddd6;
 }
@@ -2280,10 +2287,9 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background: -moz-linear-gradient(left,  #000000 0%, #004000 50%, #000000 100%);
-background: -webkit-linear-gradient(left,  #000000 0%,#004000 50%,#000000 100%);
-background: linear-gradient(to right,  #000000 0%,#004000 50%,#000000 100%);
-color: white;
+transition: background 1s ease, color 1.5s ease-in-out;
+background: linear-gradient(to left, #387e7b, #2f006d);
+color: #fff;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -2291,10 +2297,8 @@ color: white;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background: -moz-linear-gradient(left,  #000000 0%, #fff 50%, #000000 100%);
-background: -webkit-linear-gradient(left,  #000000 0%,#fff 50%,#000000 100%);
-background: linear-gradient(to right,  #000000 0%,#fff 50%,#000000 100%);
-color: #004000;
+background: #2f006d;
+color: #48a19e;
 
 }
 .btn-new:active,
@@ -2502,3 +2506,8 @@ sup{
 .iconStateBad{
 	color: red;
 }
+
+.statContainer{
+	margin-bottom: 1vh;
+}
+

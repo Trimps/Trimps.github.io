@@ -125,8 +125,17 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "The Improbability"){
 		tooltipText = "<span class='planetBreakMessage'>That shouldn't have happened. There should have been a Blimp there. Something is growing unstable.</span>";
+		if (!game.global.autoUpgradesAvailable) tooltipText += "<br/><br/><span class='planetBreakMessage'><b>Your Trimps seem to understand that they'll need to help out more, and you realize how to permanently use them to automate upgrades!<b></span><br/>";
 		costText = "<span class='planetBreakDescription'><span class='bad'>Trimp breed speed reduced by a factor of 10. 20% of enemy damage can now penetrate your block.</span><span class='good'> You have unlocked a new upgrade to learn a Formation. Helium harvested per zone is increased by a factor of 5. Equipment cost is dramatically cheaper. You have access to the 'Trimp' challenge!<span></span>";
 		costText += "<hr/><div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>I'll be fine</div><div class='btn btn-danger' onclick='cancelTooltip(); message(\"Sorry\", \"Notices\")'>I'm Scared</div></div>"
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+	}
+	if (what == "Corruption"){
+		tooltipText = "<span class='planetBreakMessage'>You can now see a giant spire only about 20 zones ahead of you. Menacing plumes of some sort of goopy gas boil out of the spire and appear to be tainting the land even further. It looks to you like the zones are permanently damaged, poor planet. You know that if you want to reach the spire, you'll have to deal with the goo.</span><br/>";
+		costText = "<span class='planetBreakDescription'><span class='bad'>From now on as you press further through zones, more and more corrupted cells of higher and higher difficulty will begin to spawn. Improbabilities and Void Maps are now more difficult.</span> <span class='good'>Improbabilities and Void Maps now drop 2x helium. Each corrupted cell will drop 15% of that zone's helium reward.</span></span>";
+		costText += "<hr/><div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Bring it on</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1143,7 +1152,10 @@ function prettify(number, noSup) {
 	var suffix;
 	if ((base <= suffices.length && base > 0) && game.options.menu.standardNotation.enabled)
 	{
-		suffix = suffices[base-1];
+		if (game.options.menu.standardNotation.enabled == 2) 
+			suffix = "e" + ((base) * 3);
+		else
+			suffix = suffices[base-1];
 	}
 	else
 	{
@@ -1279,11 +1291,13 @@ function resetGame(keepPortal) {
 	document.getElementById("goodGuyName").innerHTML = 'Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span>';
 	document.getElementById("autoStorageBtn").style.display = "none";
 	document.getElementById("repeatVoidsContainer").style.display = "none";
+	document.getElementById('corruptionBuff').innerHTML = "";
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));			
 	heirloomsShown = false;
 	game.global.selectedHeirloom = [];
 	resetOnePortalRewards();
+	playFabLoginErrors = 0;
 	
 	setFormation("0");
 	hideFormations();
@@ -1326,7 +1340,10 @@ function resetGame(keepPortal) {
 	var autoPrestiges;
 	var autoUpgrades;
 	var heirloomBoneSeed;
-	var voidMaxLevel; 
+	var voidMaxLevel;
+	var autoUpgradesAvailable;
+	var rememberInfo;
+	var playFabLoginType;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -1341,6 +1358,7 @@ function resetGame(keepPortal) {
 		frugal = game.global.frugalDone;
 		slow = game.global.slowDone;
 		autoStorage = game.global.autoStorageAvailable;
+		autoUpgradesAvailable = game.global.autoUpgradesAvailable;
 		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
 		if (game.stats.bestHeliumHour.valueTotal < game.stats.heliumHour.value(true)){
 			game.stats.bestHeliumHour.valueTotal = game.stats.heliumHour.value(true);
@@ -1365,6 +1383,8 @@ function resetGame(keepPortal) {
 		autoUpgrades = game.global.autoUpgrades;
 		heirloomBoneSeed = game.global.heirloomBoneSeed;
 		voidMaxLevel = game.global.voidMaxLevel;
+		playFabLoginType = game.global.playFabLoginType;
+		rememberInfo = game.global.rememberInfo;
 	}
 	game = null;
 	game = newGame();
@@ -1394,6 +1414,9 @@ function resetGame(keepPortal) {
 		game.global.autoStorage = autoStorageActive;
 		game.global.autoPrestiges = autoPrestiges;
 		game.global.autoUpgrades = autoUpgrades;
+		game.global.autoUpgradesAvailable = autoUpgradesAvailable;
+		game.global.playFabLoginType = playFabLoginType;
+		game.global.rememberInfo = rememberInfo;
 		game.global.heirloomBoneSeed = heirloomBoneSeed;
 		for (var statItem in stats){
 			statItem = stats[statItem];
@@ -1407,7 +1430,8 @@ function resetGame(keepPortal) {
 		if (sLevel >= 1) applyS1();
 		if (sLevel >= 2) applyS2();
 		if (sLevel >= 3) applyS3();
-		if (sLevel >= 4) document.getElementById("autoUpgradeBtn").style.display = "block";
+		if (sLevel >= 4) game.buildings.Warpstation.craftTime = 0;
+		if (game.global.autoUpgradesAvailable) document.getElementById("autoUpgradeBtn").style.display = "block";
 		if (game.global.autoStorageAvailable) {
 			document.getElementById("autoStorageBtn").style.display = "block";
 			toggleAutoStorage(true);
@@ -1519,7 +1543,7 @@ function message(messageString, type, lootIcon, extraClass) {
 	if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span> " + messageString;
 	if (type == "Loot" && lootIcon) messageString = "<span class='" + prefix + lootIcon + "'></span> " + messageString;
 	var addId = "";
-	if (messageString == "Game Saved!") {
+	if (messageString == "Game Saved!" || extraClass == 'save') {
 		addId = " id='saveGame'";
 		if (document.getElementById('saveGame') !== null){
 			log.removeChild(document.getElementById('saveGame'));

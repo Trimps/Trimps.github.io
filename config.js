@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.231,
+		version: 3.3,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -123,6 +123,7 @@ var toReturn = {
 		useShriek: false,
 		usingShriek: false,
 		autoUpgrades: false,
+		autoUpgradesAvailable: false,
 		autoPrestiges: 0,
 		autoStorage: false,
 		autoStorageAvailable: false,
@@ -151,6 +152,7 @@ var toReturn = {
 		playFabLoginType: -1,
 		lastCustomExact: 1,
 		voidMaxLevel: -1,
+		rememberInfo: false,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -193,7 +195,7 @@ var toReturn = {
 			block: 0,
 			trainers: 0
 		},
-		getEnemyAttack: function (level, name) {
+		getEnemyAttack: function (level, name, corrupt) {
 			var world = getCurrentMapObject();
 			var amt = 0;
 			world = (game.global.mapsActive) ? world.level : game.global.world;
@@ -215,11 +217,14 @@ var toReturn = {
 				amt *= Math.pow(1.15, world - 59);
 			}	
 			if (world < 60) amt *= 0.85;
-			if (world > 6 && game.global.mapsActive) amt *= 1.1;	
-			amt *= game.badGuys[name].attack;
+			if (world > 6 && game.global.mapsActive) amt *= 1.1;
+			if (!corrupt)
+				amt *= game.badGuys[name].attack;
+			else 
+				amt *= getCorruptScale("attack");
 			return Math.floor(amt);
 		},
-		getEnemyHealth: function (level, name) {
+		getEnemyHealth: function (level, name, corrupt) {
 			var world = getCurrentMapObject();
 			world = (game.global.mapsActive) ? world.level : game.global.world;
 			var amt = 0;
@@ -235,10 +240,12 @@ var toReturn = {
 				amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
 				amt *= Math.pow(1.1, world - 59);
 			}
-			if (world < 60) amt *= 0.75;
-			
+			if (world < 60) amt *= 0.75;		
 			if (world > 5 && game.global.mapsActive) amt *= 1.1;
-			amt *= game.badGuys[name].health;
+			if (!corrupt)
+				amt *= game.badGuys[name].health;
+			else
+				amt *= getCorruptScale("health");
 			return Math.floor(amt);
 		}
 	},
@@ -267,8 +274,8 @@ var toReturn = {
 			},
 			standardNotation: {
 				enabled: 1,
-				description: "Swap between standard and exponential number formatting",
-				titles: ["Exponential Formatting", "Standard Formatting"],
+				description: "Swap between standard formatting (12.7M, 540B), engineering notation (12.7e6, 540e9), or scientific notation (1.27e7, 5.40e11).",
+				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation"],
 			},
 			tooltips: {
 				enabled: 1,
@@ -811,7 +818,10 @@ var toReturn = {
 					unlockUpgrade("Speedscience");
 				}
 				message("You can research science again!", "Notices");
-				if (game.global.sLevel == 4) document.getElementById("autoUpgradeBtn").style.display = "block";
+				if (game.global.sLevel == 4) {
+					game.buildings.Warpstation.craftTime = 0;
+					if (game.global.autoUpgrades) document.getElementById("autoPrestigeBtn").style.display = "block";
+				}
 			},
 			start: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
@@ -1543,8 +1553,8 @@ var toReturn = {
 		values: [10, 20, 30, 50, 150, 300, 800],
 		defaultSteps: [[1, 2, 1], [2, 3, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8]],
 		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal'],
-		rarities:[[7500,2500,-1,-1,-1,-1,-1],[2000,6500,1500,-1,-1,-1,-1],[500,4500,5000,-1,-1,-1,-1],[-1,3200,4300,2500,-1,-1,-1],[-1,1600,3300,5000,100,-1,-1],[-1,820,2400,6500,200,80,-1],[-1,410,1500,7500,400,160,30],[-1,200,600,8000,800,320,80],[-1,-1,-1,7600,1600,640,160]],
-		rarityBreakpoints: [41, 60, 80, 100, 125, 146, 166, 181],
+		rarities:[[7500,2500,-1,-1,-1,-1,-1],[2000,6500,1500,-1,-1,-1,-1],[500,4500,5000,-1,-1,-1,-1],[-1,3200,4300,2500,-1,-1,-1],[-1,1600,3300,5000,100,-1,-1],[-1,820,2400,6500,200,80,-1],[-1,410,1500,7500,400,160,30],[-1,200,600,8000,800,320,80],[-1,-1,-1,7600,1600,640,160], [-1,-1,-1,3500,5000,1200, 300]],
+		rarityBreakpoints: [41, 60, 80, 100, 125, 146, 166, 181, 201],
 		Staff: {
 			metalDrop: {
 				name: "Metal Drop Rate",
@@ -1743,8 +1753,19 @@ var toReturn = {
 		w166: "That last Improbability seemed like a nice guy.",
 		w168: "Hopefully spaceships don't rust.",
 		w170: "You reach the top of an incredibly large mountain. You can see at least 50 zones sprawled out before you. About 30 zones away, you can see a gigantic spire. It looks like architecture from your home world. You hope it's not a mirage...",
-		
-		
+		w172: "Something smells purple. That's probably not good.",
+		w174: "Strange smells continue to swell around you. Judging by changes in wind direction, the smells are coming from the spire. You still can't describe it other than purple.",
+		w175: "Your Trimps seem happy. They're not used to having a purpose, and having one seems to positively affect them! You call a Trimp over and ask him how he's doing, then you remember that he can't talk.",
+		w178: "You're still not quite sure what that smell is. You feel slightly more powerful, and you fear that your enemies may feel the same way.",
+		w180: "After clearing out the previous zone, you decide to take a day hike to the top of another gigantic mountain to try to find more info about the smell. As you reach the top, your jaw drops. Clear as day, a healthy amount of purple goo is pouring into the atmosphere from the top of the spire. You can see the zones in front of you beginning to change. This really can't be good.",
+		w182: "Well, there's not really much doubt about it anymore. Some sort of intelligence is intentionally making life more difficult for you and your Trimps. You take this as a sign that you're pretty important, why else would something risk destroying an entire planet to stop you? Your parents would be so proud.",
+		w184: "The corruption seems to be more pronounced the closer you get to the Spire. Looks like there's 3 of em now.",
+		w185: "You have trouble putting in to words exactly what the Corruption does to the creatures on this planet. They seem to be stripped of all natural abilities and given powers that you didn't know could exist in the primary dimension.",
+		w187: "None of these corrupted enemies seem to have eyes, so you decide to see if you can get away with flipping one off. As it reacts by roaring and stomping around in a rage, you realize that these things are powerful enough not to need eyes to observe the world. What <i>are</i> these?!",
+		w190: "You awaken from your sleep in a cold sweat to a frantic and terrified noise from the back of the cave where you were sleeping. With urgency, you run to the source of the noise to make sure your Trimps are okay. As you reach the back, you see a handful of Trimps trying to use a small and very angry Snimp as a musical instrument. You put some sand in your ears and go back to sleep.",
+		w193: "The corruption continues to thicken as you near the Spire. You're beginning to grow accustomed to the smell of corruption, and really don't mind it anymore. It reminds you of blueberries. Evil blueberries.",
+		w198: "You're so close to the source of corruption that you can taste it, and it doesn't taste good.",
+		w200: "The spire seems to be locked, and you are not sure what to do about the corruption. You have a feeling that you may have gotten here sooner than you were meant to, and that if you came back in a few weeks you would be able to get in. Until then, you decide to press on in an attempt to become more powerful."
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over", "swam the river Styx", "turned in to jerky", "forgot to put armor on", "croaked", "flatlined", "won't follow you to battle again", "died. Lame", "lagged out", "imp-loded"],
@@ -2264,6 +2285,7 @@ var toReturn = {
 			loot: function (level) {
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 				var amt = (game.global.world >= 60) ? 10 : 2;
+				if (game.global.world >= 181) amt *= 2;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
 				message("<span class='glyphicon glyphicon-oil'></span> Cthulimp and the map it came from crumble into the darkness, and you find yourself back in your map chamber with an extra " + prettify(amt) + " Helium!", "Story");
