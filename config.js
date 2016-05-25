@@ -2546,7 +2546,8 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				if (!game.global.brokenPlanet) planetBreaker();
-				var amt = rewardResource("helium", 5, level);
+				var amt = (game.global.world >= 181) ? 10 : 5;
+				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
 				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story");				
 				distributeToChallenges(amt);
