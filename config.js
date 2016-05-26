@@ -792,6 +792,7 @@ var toReturn = {
 				if (formatText) return this.balanceStacks + "%";
 				return ((this.balanceStacks * 0.01) + 1);
 			},
+			fireAbandon: true,
 			heldHelium: 0,
 			heliumThrough: 40,
 			unlockString: "reach Zone 40"
