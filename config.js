@@ -472,6 +472,14 @@ var toReturn = {
 					return (!game.portal.Overkill.locked)
 				},
 			},
+			forceQueue: {
+				enabled: 0,
+				description: "Choose whether or not to force instant-craft buildings to use the queue. Currently applies only to Warpstation.",
+				titles: ["Not Forcing Queue", "Forcing Queue"],
+				lockUnless: function () {
+					return (game.global.sLevel == 4);
+				}
+			},
 			pauseGame: {
 				enabled: 0,
 				description: "Pause your game. This will pause all resource gathering, offline progress, and timers.",
@@ -4315,6 +4323,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 1200,
+			origTime: 1200,
 			tooltip: "Create a gigantic Warpstation, capable of housing tons of Trimps and instantly transporting them back to the home planet when needed. Supports $incby$ Trimps.",
 			cost: {
 				gems: [100000000000000, 1.4],

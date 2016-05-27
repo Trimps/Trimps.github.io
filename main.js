@@ -58,6 +58,7 @@ function save(exportThis) {
 		delete saveGame.buildings.Barn.increase;
 		delete saveGame.buildings.Forge.increase;
 		delete saveGame.buildings.Shed.increase;
+		delete saveGame.buildings.origTime;
     }
     for (var itemB in saveGame.upgrades) {
         delete saveGame.upgrades[itemB].tooltip;
@@ -1843,13 +1844,21 @@ function buyBuilding(what, confirmed, fromAuto) {
 		}
 		canAffordBuilding(what, true);
 		game.buildings[what].purchased += purchaseAmt;
-		if (game.buildings[what].craftTime == 0) {
+		if (getCraftTime(game.buildings[what]) == 0) {
 			for (var x = 0; x < purchaseAmt; x++) buildBuilding(what);
 		}
 		else
 		startQueue(what, purchaseAmt);
 	}
 	if (!fromAuto) tooltip(what, "buildings", "update");	
+}
+
+function getCraftTime(buildingObj){
+	var time = buildingObj.craftTime;
+	if (time == 0 && game.options.menu.forceQueue.enabled == 1) {
+		return buildingObj.origTime;
+	}
+	return time;
 }
 
 function refundQueueItem(what) {
@@ -1895,7 +1904,7 @@ function craftBuildings(makeUp) {
     if (!makeUp) {
         speedElem.innerHTML = prettify(Math.floor(modifier * 100)) + "%";
         game.global.timeLeftOnCraft -= ((1 / game.settings.speed) * modifier);
-		var percent = 1 - (game.global.timeLeftOnCraft / game.buildings[game.global.crafting].craftTime);
+		var percent = 1 - (game.global.timeLeftOnCraft / getCraftTime(game.buildings[game.global.crafting]));
         
 		var timeLeft = (game.global.timeLeftOnCraft / modifier).toFixed(1);
 		if (timeLeft < 0.1) timeLeft = 0.1;
@@ -1942,7 +1951,7 @@ function buildBuilding(what) {
 function setNewCraftItem() {
     var queueItem = game.global.buildingsQueue[0].split('.')[0];
     game.global.crafting = queueItem;
-    game.global.timeLeftOnCraft = game.buildings[queueItem].craftTime;
+    game.global.timeLeftOnCraft = getCraftTime(game.buildings[queueItem]);
 	var elem = document.getElementById("queueItemsHere").firstChild;
 	var timeLeft = (game.global.timeLeftOnCraft / (game.global.autoCraftModifier + getPlayerModifier())).toFixed(1);
 	
