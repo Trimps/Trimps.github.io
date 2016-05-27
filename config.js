@@ -474,7 +474,7 @@ var toReturn = {
 			},
 			forceQueue: {
 				enabled: 0,
-				description: "Choose whether or not to force instant-craft buildings to use the queue. Currently applies only to Warpstation.",
+				description: "Choose whether or not to force instant-craft buildings to use the queue. Currently applies only to Warpstation. May be useful for double checking prices before building!",
 				titles: ["Not Forcing Queue", "Forcing Queue"],
 				lockUnless: function () {
 					return (game.global.sLevel == 4);
