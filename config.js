@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.3,
+		version: 3.4,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -153,6 +153,8 @@ var toReturn = {
 		lastCustomExact: 1,
 		voidMaxLevel: -1,
 		rememberInfo: false,
+		spireActive: false,
+		spireDeaths: 0,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -480,6 +482,14 @@ var toReturn = {
 					return (game.global.sLevel == 4);
 				}
 			},
+			mapsOnSpire: {
+				enabled: 1,
+				description: "Choose whether you would like the game to pause combat by sending you to maps when you reach the spire.",
+				titles: ["Keep Fighting", "Pause on Spire"],
+				lockUnless: function () {
+					return (game.global.highestLevelCleared >= 199);
+				}				
+			},
 			pauseGame: {
 				enabled: 0,
 				description: "Pause your game. This will pause all resource gathering, offline progress, and timers.",
@@ -489,6 +499,7 @@ var toReturn = {
 					if (this.enabled) {
 						this.timeAtPause = new Date().getTime();
 						if (game.options.menu.autoSave.enabled == 1) save();
+						swapClass("timer", "timerPaused", document.getElementById("portalTimer"));
 					}
 					else if (this.timeAtPause) {
 						var now = new Date().getTime();
@@ -503,6 +514,7 @@ var toReturn = {
 						game.global.start = now;
 						setTimeout(gameTimeout, (100));
 						setTimeout(updatePortalTimer, 1000);
+						swapClass("timer", "timerNotPaused", document.getElementById("portalTimer"));
 					}
 				}
 			},			
@@ -522,6 +534,56 @@ var toReturn = {
 	},
 	//portal
 	portal: {
+		Looting_II: {
+			level: 0,
+			locked: true,
+			priceBase: 100000,
+			heliumSpent: 0,
+			tooltip: "Increases all loot gained by 0.25% per level. The price for this perk increases additively, and each level will cost exactly 10000 more than the previous level.",
+			additive: true,
+			additiveInc: 10000,
+			modifier: 0.0025
+		},
+		Carpentry_II: {
+			level: 0,
+			locked: true,
+			priceBase: 100000,
+			heliumSpent: 0,
+			tooltip: "Increases housing space by 0.25% per level. This multiplies on top of Carpentry I, but the bonus stacks additively. The price for this perk also increases additively, and each level will cost exactly 10000 more than the previous level.",
+			additive: true,
+			additiveInc: 10000,
+			modifier: 0.0025
+		},
+		Motivation_II: {
+			level: 0,
+			locked: true,
+			priceBase: 50000,
+			heliumSpent: 0,
+			tooltip: "Increases Trimp gather speed by 1% per level. The price for this perk increases additively, and each level will cost exactly 1000 more than the previous level.",
+			additive: true,
+			additiveInc: 1000,
+			modifier: 0.01
+		},
+		Power_II: {
+			level: 0,
+			locked: true,
+			priceBase: 20000,
+			heliumSpent: 0,
+			tooltip: "Increases damage by 1% per level. The price for this perk increases additively, and each level will cost exactly 500 more than the previous level.",
+			additive: true,
+			additiveInc: 500,
+			modifier: 0.01
+		},		
+		Toughness_II: {
+			level: 0,
+			locked: true,
+			priceBase: 20000,
+			heliumSpent: 0,
+			tooltip: "Increases health by 1% per level. The price for this perk increases additively, and each level will cost exactly 500 more than the previous level.",
+			additive: true,
+			additiveInc: 500,
+			modifier: 0.01
+		},
 		Overkill: {
 			level: 0,
 			locked: true,
@@ -1733,7 +1795,7 @@ var toReturn = {
 		w90: "You decide to ask your scientists to come up with an extravagant machine that can scan your brain for old memories to see if there's anything helpful up there. They seem excited about a new project and quickly get to work.",
 		w92: "You hear a huge explosion from the science lab and realize that the brain scan machine will probably never be finished.",
 		w95: "Need some motivation? You can do it! Maybe.",
-		w100: "You stop dead in your tracks. You remember who you came here with, and you remember that you are not happy with Captain Druopitee for sending you here. You know he landed with you. You know the ship is still here. He's here.",
+		w100: "You stop dead in your tracks. You remember who you came here with, and you remember that you are not happy with Captain Druopitee for bringing you here. You know he landed with you. You know the ship is still here. He's here.",
 		w105: "You call a meeting with all of your Trimps to explain the situation. After giving an extremely long, epic, and motivational speech but hearing no reaction from the crowd, you remember that your Trimps cannot understand you. Will you ever learn?",
 		w106: "How long have you been trapped on this planet? Months? Decades? Travelling through time sure screws up your chronological perception.",
 		w109: "Though you have no idea which direction your home planet is, you still believe the ship's GPS could get you home. Maybe Druopitee has the keys. You really want to find him.",
@@ -1774,7 +1836,6 @@ var toReturn = {
 		w190: "You awaken from your sleep in a cold sweat to a frantic and terrified noise from the back of the cave where you were sleeping. With urgency, you run to the source of the noise to make sure your Trimps are okay. As you reach the back, you see a handful of Trimps trying to use a small and very angry Snimp as a musical instrument. You put some sand in your ears and go back to sleep.",
 		w193: "The corruption continues to thicken as you near the Spire. You're beginning to grow accustomed to the smell of corruption, and really don't mind it anymore. It reminds you of blueberries. Evil blueberries.",
 		w198: "You're so close to the source of corruption that you can taste it, and it doesn't taste good.",
-		w200: "The spire seems to be locked, and you are not sure what to do about the corruption. You have a feeling that you may have gotten here sooner than you were meant to, and that if you came back in a few weeks you would be able to get in. Until then, you decide to press on in an attempt to become more powerful."
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over", "swam the river Styx", "turned in to jerky", "forgot to put armor on", "croaked", "flatlined", "won't follow you to battle again", "died. Lame", "lagged out", "imp-loded"],
@@ -1806,7 +1867,8 @@ var toReturn = {
 			realMax: function () {
 				var num = this.max;
 				num *= this.maxMod;
-				if (game.portal.Carpentry.level > 0) num = num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level));	
+				if (game.portal.Carpentry.level > 0) num = num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level));
+				if (game.portal.Carpentry_II.level > 0) num *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
 				return Math.floor(num);
 			},
 			working: 0,
@@ -2554,6 +2616,7 @@ var toReturn = {
 			health: 6,
 			fast: true,
 			loot: function (level) {
+				if (game.global.spireActive) return;
 				if (!game.global.brokenPlanet) planetBreaker();
 				var amt = (game.global.world >= 181) ? 10 : 5;
 				amt = rewardResource("helium", amt, level);
@@ -2645,6 +2708,7 @@ var toReturn = {
 				game.unlocks.impCount.Tauntimp++;
 				game.unlocks.impCount.TauntimpAdded += amt;
 				if (game.portal.Carpentry.level) amt *= Math.pow((1 + game.portal.Carpentry.modifier), game.portal.Carpentry.level);
+				if (game.portal.Carpentry_II.level > 0) amt *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
 				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic");
 				
 			}
@@ -4080,6 +4144,7 @@ var toReturn = {
 				game.resources.trimps.max += amt;
 				game.global.totalGifts += amt;
 				if (game.portal.Carpentry.level) amt *= Math.pow((1 + game.portal.Carpentry.modifier), game.portal.Carpentry.level);
+				if (game.portal.Carpentry_II.level > 0) amt *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
 				message("You have cleared enough land to support " + prettify(amt) + " more Trimps!", "Loot", "gift");
 			}
 		},
@@ -4116,6 +4181,19 @@ var toReturn = {
 				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes");
 			}
 		},
+		spireMetals: {
+			world: 200,
+			level: [1,4],
+			repeat: 4,
+			fire: function (level) {
+				if (!game.global.spireActive) return;
+				var amt = rewardResource("metal", 5, level);
+				message("There sure is a lot of metal just tossed around in this Spire! You just found " + prettify(amt) + " more!", "Loot", "*safe", "spireMetals");
+			},
+			title: "Spire Metal",
+			icon: "*safe",
+			addClass: "spireMetals"
+		}
 	},
 	//buildings with percent = true cannot have multiple purchases at a time
 	buildings: {

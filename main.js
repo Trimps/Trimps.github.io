@@ -89,6 +89,7 @@ function save(exportThis) {
 		delete portal.priceBase;
 		delete portal.tooltip;
 		delete portal.otherModifier;
+		delete portal.additiveInc;
 	}
 	for (var itemS in saveGame.options.menu){
 		var settingItem = saveGame.options.menu[itemS];
@@ -483,6 +484,7 @@ function load(saveString, autoLoad, fromPf) {
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
 	if (!game.options.menu.pauseGame.enabled) checkOfflineProgress(noOfflineTooltip);
+	else document.getElementById("portalTimer").className = "timerPaused";
 	if (game.options.menu.darkTheme.enabled != 1) game.options.menu.darkTheme.onToggle();
 	updateLabels();
 	if (game.global.viewingUpgrades){
@@ -864,7 +866,7 @@ function viewPortalUpgrades() {
 	document.getElementById("portalTitle").innerHTML = "View Perks";
 	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(parseInt(game.global.heliumLeftover, 10)) + '</span> Helium Left Over';
 	document.getElementById("portalStory").innerHTML = "These are all of your perks! You can reset them once per run.";
-	document.getElementById("totalHeliumEarned").innerHTML = prettify(parseInt(game.global.totalHeliumEarned, 10));
+	document.getElementById("totalHeliumEarned").innerHTML = prettify(game.global.totalHeliumEarned);
 	document.getElementById("totalPortals").innerHTML = game.global.totalPortals;
 	document.getElementById("cancelPortalBtn").innerHTML = "Cancel";
 	document.getElementById("activatePortalBtn").style.display = "none";
@@ -895,14 +897,15 @@ function displayPortalUpgrades(fromTab){
 		}
 		var html = '<div onmouseover="tooltip(\'' + what + '\',\'portal\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer portalThing thing perkColorOff';
 		if (game.options.menu.detailedPerks.enabled == 1) html += " detailed";
-		html += '" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what + '</span>';
+		if (portUpgrade.additive) html += " additive";
+		html += '" id="' + what + '" onclick="buyPortalUpgrade(\'' + what + '\')"><span class="thingName">' + what.replace('_', ' ') + '</span>';
 		if (game.options.menu.detailedPerks.enabled == 1){
 		html += '<span class="thingOwned">&nbsp;<b>(<span id="' + what + 'Owned">' + portUpgrade.level + '</span>)</b>';
 		if (!portUpgrade.max || portUpgrade.max > portUpgrade.level + portUpgrade.levelTemp) html += "<br/>Price: <span id='" + what + "Price'>" + prettify(getPortalUpgradePrice(what)) + "</span>";
 		else html += "<br/>Price: <span id='" + what + "Price'>Max</span>";
 		html += '<br/>Spent: <span id="' + what + 'Spent">' + prettify(portUpgrade.heliumSpent + portUpgrade.heliumSpentTemp) + '</span>';
 		}
-		else html += '<br/><span class="thingOwned">Level: <span id="' + what + 'Owned">' + portUpgrade.level + '</span>';
+		else html += '<br/><span class="thingOwned">Lv:&nbsp;<span id="' + what + 'Owned">' + portUpgrade.level + '</span>';
 		html += '</span></div>';
 		elem.innerHTML += html;
 		updatePerkColor(what);
@@ -989,6 +992,7 @@ function checkOfflineProgress(noTip){
 		var resource = game.resources[resName];
 		var amt = job.owned * job.modifier;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		if (game.portal.Motivation_II.level > 0) amt *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
 		if (game.portal.Meditation.level > 0) {
 			var toAlter;
 			var originalAmt = amt;
@@ -1276,18 +1280,33 @@ function getPortalUpgradePrice(what, removing, removeAmt){
 	var toAmt;
 	if (!removing){	
 		toAmt = game.global.buyAmt;
-		tempLevel = toCheck.level + toCheck.levelTemp;
 		nextLevel = tempLevel + toAmt;
 	}
-	else if (removing) {
-		toAmt = removeAmt;
-		tempLevel = toCheck.level + toCheck.levelTemp - removeAmt;
-	}
+	tempLevel = toCheck.level + toCheck.levelTemp;
 	var amt = 0;
-	for (var x = 0; x < toAmt; x++){
-		amt += Math.ceil(((tempLevel + x) / 2) + toCheck.priceBase * Math.pow(1.3, tempLevel + x));
+	if (toCheck.additive){
+		if (removing)
+			nextLevel = tempLevel - removeAmt;
+		else 
+			nextLevel = tempLevel + toAmt;
+		amt = getAdditivePrice(nextLevel, toCheck) - getAdditivePrice(tempLevel, toCheck);
+		if (removing) amt = Math.abs(amt);
+	}
+	else {
+		if (removing){
+			toAmt = removeAmt;
+			tempLevel -= removeAmt;			
+		}
+		if (toAmt > 1000) return Infinity;
+		for (var x = 0; x < toAmt; x++){
+			amt += Math.ceil(((tempLevel + x) / 2) + toCheck.priceBase * Math.pow(1.3, tempLevel + x));
+		}
 	}
 	return amt;
+}
+
+function getAdditivePrice(atLevel, portalUpgrade){
+	return (((atLevel - 1) * atLevel) / 2 * portalUpgrade.additiveInc) + (portalUpgrade.priceBase * atLevel);
 }
 
 function commitPortalUpgrades(usingPortal){
@@ -1317,6 +1336,7 @@ function commitPortalUpgrades(usingPortal){
 function canCommitCarpentry(){ //Uh, and Coordinated. This checks coordinated too.
 	var newMax = game.resources.trimps.max * game.resources.trimps.maxMod;
 	newMax = Math.floor(newMax * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level + game.portal.Carpentry.levelTemp)));
+	if (typeof game.portal.Carpentry_II.levelTemp !== 'undefined') newMax = Math.floor(newMax * (1 + (game.portal.Carpentry_II.modifier * (game.portal.Carpentry_II.level + game.portal.Carpentry_II.levelTemp))));
 	var error = document.getElementById("portalError");
 	error.innerHTML = "";
 	var good = true;
@@ -1501,6 +1521,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 	}
 	//Add Looting
 	if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
+	if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
 	if (game.unlocks.impCount.Magnimp && what != "helium") amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
 	if (game.global.challengeActive == "Toxicity"){
 		var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
@@ -1637,6 +1658,7 @@ function gather() {
         if (game.jobs[job].owned > 0){
 			perSec = (game.jobs[job].owned * game.jobs[job].modifier);
 			if (game.portal.Motivation.level > 0) perSec += (perSec * game.portal.Motivation.level * game.portal.Motivation.modifier);
+			if (game.portal.Motivation_II.level > 0) perSec *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
 			if (game.portal.Meditation.level > 0) perSec *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 			if (game.global.challengeActive == "Meditate") perSec *= 1.25;
 			else if (game.global.challengeActive == "Size") perSec *= 1.5;
@@ -2406,6 +2428,7 @@ function checkVoidMap() {
 			max = game.global.lastPortal;
 		}
 	}
+	if (max > 200) max = 200;
 	var min = (max > 80) ? (1000 + ((max - 80) * 13)) : 1000;
 	min *= (1 - (game.heirlooms.Shield.voidMaps.currentBonus / 100));
 	var chance = (Math.floor((game.global.lastVoidMap - min) / 10) / 50000);
@@ -2473,7 +2496,7 @@ function buffVoidMaps(){
 function addVoidAlert(){ 
 	var alert = document.getElementById('voidAlert')
 	if (alert !== null) return;
-	document.getElementById('mapsBtn').innerHTML += ' <span id="voidAlert" class="alert badge">!</span>';
+	document.getElementById('mapsBtn').innerHTML += ' <span id="voidAlert" class="alert badge">' + game.global.totalVoidMaps + '</span>';
 }
 
 function setVoidBuffTooltip(){
@@ -2544,6 +2567,7 @@ function populateHeirloomWindow(){
 	displayCarriedHeirlooms();
 	displayExtraHeirlooms();
 	document.getElementById("nullifiumCount").innerHTML = prettify(game.global.nullifium);
+	document.getElementById("recycleAllHeirloomsBtn").style.display = (game.global.heirloomsExtra.length) ? "inline-block" : "none";
 }
 
 function displayCarriedHeirlooms(){
@@ -2658,6 +2682,17 @@ function recycleAllExtraHeirlooms(valueOnly){
 	if (valueOnly) return value;
 	game.global.nullifium += value;
 	game.global.heirloomsExtra = [];
+}
+
+function recycleAllHeirloomsClicked(confirmed){
+	if (!confirmed){
+		var s = (game.global.heirloomsExtra.length == 1) ? "" : "s";
+		var messageString = "You have " + game.global.heirloomsExtra.length + " extra Heirloom" + s + ", which will be recycled for " + prettify(recycleAllExtraHeirlooms(true)) + " Nullifium. Are you sure?";
+		tooltip("confirm", null, "update", messageString, "recycleAllHeirloomsClicked(true)", "Recycle All Heirlooms");
+		return;
+	}
+	recycleAllExtraHeirlooms();
+	populateHeirloomWindow();
 }
 
 function recalculateHeirloomBonuses(){
@@ -3163,9 +3198,9 @@ function buildMapGrid(mapId) {
 }
 
 function getMapIndex(mapId) {
-        for (var x = 0; x < game.global.mapsOwnedArray.length; x++) {
-            if (game.global.mapsOwnedArray[x].id == mapId) return x;
-        }
+	for (var x = 0; x < game.global.mapsOwnedArray.length; x++) {
+		if (game.global.mapsOwnedArray[x].id == mapId) return x;
+	}
 }
 
 var canSkeletimp = false;
@@ -3524,6 +3559,7 @@ function dropPrestiges(){
 
 function drawGrid(maps) { //maps t or f. This function overwrites the current grid, be carefulz
     var grid = (maps) ? document.getElementById("mapGrid") : document.getElementById("grid");
+	if (!maps && game.global.spireActive) grid.className = "spire";
 	var map;
     grid.innerHTML = "";
     var cols = 10;
@@ -3557,6 +3593,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			var className = "battleCell cellColorNotBeaten"
 			if (maps && map.location == "Void") className += " voidCell";
 			if (!maps && game.global.gridArray[counter].corrupted) className += " voidCell";
+			else if (!maps && game.global.world == 200 && game.global.spireActive) className += " spireCell";
             cell.className = className;
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
 			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";            
@@ -3723,13 +3760,17 @@ function mapsClicked(confirmed) {
 		return;
 	}	
     if (game.global.switchToMaps || game.global.switchToWorld || game.options.menu.alwaysAbandon.enabled == 1) {
+		if (game.global.spireActive && !game.global.mapsActive && game.global.fighting) deadInSpire();
         game.global.switchToMaps = true;
 		game.global.soldierHealth = 0;
 		game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
 		game.resources.trimps.soldiers = 0;
+		
 		var bar = document.getElementById("goodGuyBar");
 		swapClass("percentColor", "percentColorRed", bar);
 		bar.style.width = "0%";
+		var healthElem = document.getElementById("goodGuyHealth");
+		if (healthElem != null) healthElem.innerHTML = 0;
 		if (game.global.challengeActive == "Nom") {
 			var cell;
 			var cellNum;
@@ -3848,7 +3889,9 @@ function toggleMapGridHtml(on, currentMapObj){
 	document.getElementById("mapBonus").innerHTML = "";
 	document.getElementById("battleHeadContainer").style.display = "block";
 	if (!currentMapObj) return; 
-	document.getElementById("worldNumber").innerHTML = "<br/>Lv: " + currentMapObj.level;
+	var worldNumElem = document.getElementById("worldNumber");
+	worldNumElem.style.display = 'inline';
+	worldNumElem.innerHTML = "<br/>Lv: " + currentMapObj.level;
 	document.getElementById("worldName").innerHTML = currentMapObj.name;
 }
 
@@ -3865,11 +3908,13 @@ function clearMapDescription(){
 
 function setNonMapBox(){
 	document.getElementById("mapsBtn").innerHTML = "Maps";
+	var worldNumElem = document.getElementById("worldNumber");
+	worldNumElem.style.display = (game.global.spireActive) ? 'none' : 'inline';
 	document.getElementById("worldNumber").innerHTML = game.global.world;
 	var mapBonus = document.getElementById("mapBonus");
 	if (game.global.mapBonus > 0) mapBonus.innerHTML = prettify(game.global.mapBonus * 20) + "% Map Bonus";
 	else mapBonus.innerHTML = "";
-	document.getElementById("worldName").innerHTML = "Zone";
+	document.getElementById("worldName").innerHTML = (game.global.spireActive) ? "Spire" : "Zone";
 }
 
 
@@ -4051,6 +4096,8 @@ function startFight() {
 	if (cell.corrupted) {
 		badName = "<span class='corruptedBadGuyName'>Corrupt " + cell.name + "</span>";
 	}
+	else if (cell.name == "Improbability" && game.global.spireActive)
+		badName = "Druopitee";
 	else
 		badName = cell.name;
 	if (game.global.challengeActive == "Coordinate"){
@@ -4077,8 +4124,16 @@ function startFight() {
     if (cell.maxHealth == -1) {
 		var overkill = 0;
 		if (cell.health != -1) overkill = cell.health;
-        cell.attack = game.global.getEnemyAttack(cell.level, cell.name, cell.corrupted);
-        cell.health = game.global.getEnemyHealth(cell.level, cell.name, cell.corrupted);
+		if (game.global.spireActive && game.global.world == 200 && !game.global.mapsActive){
+			cell.attack = getSpireStats(cell.level, cell.name, "attack");
+			cell.health = getSpireStats(cell.level, cell.name, "health");
+			cell.origAttack = game.global.getEnemyAttack(cell.level, cell.name, cell.corrupted);
+			cell.origHealth = game.global.getEnemyHealth(cell.level, cell.name, cell.corrupted);
+		}
+		else {
+			cell.attack = game.global.getEnemyAttack(cell.level, cell.name, cell.corrupted);
+			cell.health = game.global.getEnemyHealth(cell.level, cell.name, cell.corrupted);
+		}
 		if (cell.corrupted == "corruptStrong") cell.attack *= 2;
 		if (cell.corrupted == "corruptTough") cell.health *= 5;
 		if (game.global.challengeActive == "Coordinate") cell.health *= badCoord;
@@ -4104,8 +4159,14 @@ function startFight() {
 		if (cell.name == 'Improbability'){
 			if (game.global.roboTrimpLevel && game.global.useShriek) activateShriek();
 			if (game.global.world >= 181) {
-				cell.health *= getCorruptScale("health");
-				cell.attack *= getCorruptScale("attack");
+				if (game.global.spireActive) {
+					cell.origHealth *= getCorruptScale("health");
+					cell.origAttack *= getCorruptScale("attack");
+				}
+				else {
+					cell.health *= getCorruptScale("health");
+					cell.attack *= getCorruptScale("attack");
+				}
 			}
 		}
         cell.maxHealth = cell.health;
@@ -4148,6 +4209,7 @@ function startFight() {
 		game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
 		//Toughness
 		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
+		if (game.portal.Toughness_II.level > 0) game.global.soldierHealthMax *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
 		if (game.global.lowestGen >= 0) {
 			if (game.global.breedBack <= 0) game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
 			game.global.lastLowGen = game.global.lowestGen;
@@ -4159,7 +4221,8 @@ function startFight() {
 		if (game.portal.Resilience.level > 0) game.global.soldierHealthMax *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
 		//Power
 		if (game.portal.Power.level > 0) game.global.soldierCurrentAttack += (game.global.soldierCurrentAttack * game.portal.Power.level * game.portal.Power.modifier);
-        game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + game.global.block) * trimpsFighting);
+        if (game.portal.Power_II.level > 0) game.global.soldierCurrentAttack *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
+		game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + game.global.block) * trimpsFighting);
 		game.global.soldierHealthMax = calcHeirloomBonus("Shield", "trimpHealth", game.global.soldierHealthMax);
 		game.global.soldierCurrentAttack = calcHeirloomBonus("Shield", "trimpAttack", game.global.soldierCurrentAttack);
 		game.global.soldierCurrentBlock = calcHeirloomBonus("Shield", "trimpBlock", game.global.soldierCurrentBlock);
@@ -4185,6 +4248,7 @@ function startFight() {
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
 			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
+			if (game.portal.Toughness_II.level) healthTemp *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
 			if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.global.lastLowGen);
 			if (game.portal.Resilience.level > 0) healthTemp *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
 			if (game.global.formation !== 0){
@@ -4201,6 +4265,7 @@ function startFight() {
 		}
 		if (game.global.difs.attack !== 0) {
 			var attackTemp = trimpsFighting * game.global.difs.attack * ((game.portal.Power.modifier * game.portal.Power.level) + 1);
+			if (game.portal.Power_II.level) attackTemp *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
 			if (game.global.formation !== 0){
 				attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
 			}
@@ -4371,6 +4436,7 @@ function nextWorld() {
     game.global.lastClearedCell = -1;
     game.global.gridArray = [];
     document.getElementById("grid").innerHTML = "";
+	if (game.global.world == 200) startSpire();
     buildGrid();
     drawGrid();
 	if (game.worldText["w" + game.global.world]) message(game.worldText["w" + game.global.world], "Story");
@@ -4405,6 +4471,122 @@ function nextWorld() {
 	}
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve(8);
 	else if (game.global.world == 120 && !game.global.researched) giveSingleAchieve(7);
+}
+
+function startSpire(confirmed){
+	if (!confirmed){
+		game.global.spireActive = true;
+		setNonMapBox();
+		if (game.options.menu.mapsOnSpire.enabled){
+			game.global.fighting = false;
+			mapsSwitch();
+		}
+		cancelTooltip();
+		tooltip("Spire", null, 'update');
+		return;
+	}
+	cancelTooltip();
+}
+
+function getSpireStats(cellNum, name, what){
+	var base = (what == "attack") ? 9.4e+62 : 8e+60;
+	var mod = (what == "attack") ? 1.17 : 1.14;
+	base *= Math.pow(mod, cellNum);
+	base *= game.badGuys[name][what];
+	return base;
+}
+
+function deadInSpire(){
+	game.global.spireDeaths++;
+	if (game.global.spireDeaths >= 10) {
+		game.global.spireActive = false;
+		message("You're not yet ready. Maybe you'll be of use in the next lifetime.", "Story");
+		endSpire();
+		return;
+	}
+	var s = (game.global.spireDeaths > 1) ? "s" : "";
+	message(game.global.spireDeaths + " group" + s + " of Trimps have perished in the Spire.", "Notices");
+}
+
+function endSpire(){
+	var cell = game.global.gridArray[game.global.lastClearedCell + 1];
+	if (!cell) return;
+	cell.health = cell.origHealth;
+	cell.attack = cell.origAttack;
+	cell.maxHealth = cell.origHealth;
+	document.getElementById('grid').className = "";
+	if (game.global.lastClearedCell == 98) {
+		var elem = document.getElementById("badGuyName");
+		elem.innerHTML = elem.innerHTML.replace("Druopitee", "Improbability");
+	}
+	var spireMetal = document.getElementsByClassName('spireMetals');
+	for (var x = 0; x < spireMetal.length; x++){
+		spireMetal[x].style.visibility = 'hidden';
+	}
+	setNonMapBox();
+}
+
+//Big storyline spoilers in the function below, be careful if you care
+
+function giveSpireReward(level){ 
+	var amt = 0;
+	switch(level){
+		case 10:
+			message("The voice booms again, and sounds as if it is coming from the walls themselves.<br/><br/><span class='spirePoem'>It has been forever, yet now we meet,<br/>I'm not surprised you don't remember me.<br/>I believe it is I who you currently seek,<br/>Lifetimes ago I was Druopitee.</span><br/>You're glad you remembered his name correctly! You feel tougher as memories begin to flood back, and <b>unlocked Toughness II</b>!", "Story");
+			game.portal.Toughness_II.locked = false;
+			break;
+		case 20:
+			message("<span class='spirePoem'>On our planet you and I studied time,<br/>We realized Warp Speed could affect that line.<br/>I took our work in a ship of my own design,<br/>To test the effects of our new paradigm.</span><br/>Oh yeah. That's where you knew him from! Wait doesn't he owe you some money? You feel fair taking a vial of <b>40 Nullifium</b> from a research table.", "Story");
+			game.global.nullifium += 40;
+			break;
+		case 30:
+			message("<span class='spirePoem'>My tests made other dimensions appear,<br/>I found this planet in one and flew here.<br/>There were hordes of enemies, if that wasn't clear,<br/>The finding was huge but the threat severe.</span><br/>Ah, so you're in a different dimension than your friends and family, comforting. Your desire to go home some day causes strength to flow through you, and you <b>unlocked Power II</b>!", "Story");
+			game.portal.Power_II.locked = false;
+			break;
+		case 40: 
+			amt = giveHeliumReward(15);
+			message("<span class='spirePoem'>To stay safe, I built many large towers.<br/>I'd climb up, and I'd peer out for hours.<br/>I searched for lifetimes, my mind became devoured,<br/>then one day I found a way to gain power.</span><br/>Dammit Druopitee. This is all going to end up being his fault, isn't it? You help yourself to a container filled with " + prettify(amt) + " Helium, and figure he'll owe you a lot more than that once you hear some more.", "Story");
+			break;
+		case 50: 
+			message("<span class='spirePoem'>After many lifetimes of observation,<br/>I had finally found my salvation.<br/>An airborne chemical to cause great mutation,<br/>the Corruption was my new creation.</span><br/>Yup, totally his fault. Your desire to stop him is so strong that you've <b>unlocked Motivation II</b>!", "Story");
+			game.portal.Motivation_II.locked = false;
+			break;
+		case 60: 
+			game.global.nullifium += 60;
+			message("<span class='spirePoem'>I pumped Corruption up from my spires,<br/>I watched as it spread outward like wildfires.<br/>They now bowed to me, their brains freshly rewired,<br/>I had almost all that I desired.</span><br/>You feel like anyone willing to pump something called 'Corruption' into a planet's atmosphere probably qualifies as a supervillian. You feel no remorse taking another vial filled with <b>60 Nullifium</b>!", "Story");
+			break;
+		case 70:
+			message("<span class='spirePoem'>But Trimps, who in numbers are tough as stone,<br/>weren't changed and I couldn't control them alone.<br/>So I got in my ship and I went to our home,<br/>I brought you here to the native Trimp Zones.</span><br/>You don't remember that, but are pretty sure you weren't OK with it. Kidnapping definitely justifies taking this research <b>Heirloom</b> you just found. ", "Story");
+			createHeirloom();
+			break;
+		case 80:
+			message("<span class='spirePoem'>You disliked my plan and had to be forced,<br/>so I wiped your mind and plotted your course.<br/>I came up with plans for equipment and resorts,<br/>I wrote all I knew and left you reports.</span><br/> Oh HE wrote those? Now that you think about it, you can see a lot of ways the designs could be improved, and <b>unlocked Carpentry II</b>!", "Story");
+			game.portal.Carpentry_II.locked = false;
+			break;
+		case 90:
+			message("<span class='spirePoem'>Your Trimps grew strong while I watched and waited,<br/>Their loyalty can not be debated.<br/>You knew not of my plan, yet participated,<br/>Now bow to me or be terminated.</span>Yeah you don't really feel too much like bowing and probably won't be doing that. You did find <b>5 Skeletimp Bones</b> which you feel no qualms about keeping for yourself.", "Story");
+			game.global.b += 5;
+			break;
+		case 100:		
+			amt = giveHeliumReward(100);
+			game.portal.Looting_II.locked = false;
+			message("Druopitee collapses to the floor. You were hoping he'd be a little more sane, but whatever. You shut down the corruption device and hope the planet will repair itself soon, then you rummage through his stuff and find keys, surely for the ship! You also find a massive stockpile of <b>" + prettify(amt) + " Helium</b>. Your skills at salvaging things from this Spire have helped you <b>unlock Looting II</b>. You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption in to the planet. Maybe the statues would be bigger if you stayed and helped out?", "Story");
+			game.global.spireActive = false;
+			setNonMapBox();
+			break;
+		default:
+			amt = 0.5;
+			amt *= Math.pow(1.01, level);
+			amt = giveHeliumReward(amt);
+			message("You found " + prettify(amt) + " helium!", "Loot", "oil");
+	}
+}
+
+function giveHeliumReward(mod){
+	var amt = rewardResource("helium", mod, 99)
+	game.global.totalHeliumEarned += amt;
+	distributeToChallenges(amt);
+	return amt;
 }
 
 function checkHousing(getHighest){
@@ -4471,6 +4653,7 @@ function fight(makeUp) {
         var s = (game.resources.trimps.soldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
         message(game.resources.trimps.soldiers + " Trimp" + s + "just " + randomText + ".", "Combat");
+		if (game.global.spireActive && !game.global.mapsActive) deadInSpire();
         game.global.fighting = false;
         game.resources.trimps.soldiers = 0;
 		if (game.global.challengeActive == "Nom") {
@@ -4493,7 +4676,7 @@ function fight(makeUp) {
 		var killedText = "You " + randomText + aAn + cell.name;
 		if (game.global.challengeActive == "Coordinate") killedText += " group";
 		killedText += "!";
-        message(killedText, "Combat");
+        if (!game.global.spireActive || cellNum != 99 || game.global.mapsActive) message(killedText, "Combat");
         try{
 			if (typeof ga !== 'undefined' && cell.level % 10 === 0 && !game.global.mapsActive) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
 			}
@@ -4555,6 +4738,9 @@ function fight(makeUp) {
 		var doNextVoid = false;
 		if (typeof unlock !== 'undefined' && typeof unlock.message !== 'undefined' && !noMessage) message(cell.text + " " + unlock.message, "Unlocks");
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
+		if (!game.global.mapsActive && game.global.spireActive && game.global.world == 200) {
+			giveSpireReward(cell.level);
+		}
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
 			game.stats.mapsCleared.value++;
 			checkAchieve("totalMaps");
@@ -5168,6 +5354,7 @@ function simpleSeconds(what, seconds) {
 		var job = game.jobs[jobName];
 		var amt = job.owned * job.modifier * seconds;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		if (game.portal.Motivation_II.level > 0) amt *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
 		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		if (game.global.challengeActive == "Toxicity"){
@@ -5200,6 +5387,7 @@ function scaleToCurrentMap(amt) {
 		amt = Math.round(amt * map.loot);
 		if (game.unlocks.impCount.Magnimp) amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
 		if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
+		if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
 		return amt;
 }
 
@@ -5215,6 +5403,7 @@ function addBoost(level, previewOnly) {
 		var resource = game.resources[job.increase];
 		var amt = job.owned * job.modifier * add;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
+		if (game.portal.Motivation_II.level > 0) amt *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
 		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		if (game.global.challengeActive == "Toxicity"){
@@ -5560,7 +5749,11 @@ function givePumpkimpLoot(){
 	seconds++;
 	var amt = simpleSeconds(item, seconds);
 	if (game.global.mapsActive) amt = scaleToCurrentMap(amt);
-	else if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
+	else{
+		if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
+		if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
+	} 
+	
 	addResCheckMax(item, amt);
 	var messageNumber = Math.floor(Math.random() * success.length);
 	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", "pumpkimp");		
@@ -5932,26 +6125,87 @@ function getPlayFabLoginHTML(){
 	if (game.global.rememberInfo) {
 		info = readPlayFabInfo();
 	}
-		tipHtml[0] += "<div id='playFabLoginContainer' class='col-xs-6'><b id='playFabLoginTitle'>Login to PlayFab</b><br/><span id='playFabEmailHidden' style='display: none'>Your Email<br/><span style='font-size: 0.8em'>(For recovery, not required)</span><br/><input type='text' id='registerEmail' /></span>PlayFab Username<br/><input type='text' id='loginUserName' " + ((info) ? "value='" + info[0] + "'" : "") + "/><br/>Password <span style='font-size: 0.8em'>(6-30 Chars)</span><br/><input type='password' id='loginPassword'" + ((info) ? " value='" + info[1] + "'" : "") + "/><br/><div id='playFabConfirmPasswordHidden' style='display: none'>Confirm Password<br/><input type='password' id='confirmPassword' /><br/></div>Remember Account Info<br/><input type='checkbox' id='rememberInfo' " + ((info) ? "checked='true'" : "") + "/><br/><div id='playFabLoginBtn' class='btn btn-sm btn-info' onclick='playFabLoginWithPlayFab()'>Login</div><div id='playFabRegisterBtn' class='btn btn-sm btn-info' style='display: none' onclick='playFabRegisterPlayFabUser()'>Register</div><div id='playFabSwitchRegisterBtn' onclick='switchFormToRegister()' class='btn btn-sm btn-primary'>Register Playfab Account<br/></div></div>"
+		tipHtml[0] += "<div id='playFabLoginContainer' class='col-xs-6'><b id='playFabLoginTitle'>Login to PlayFab</b><br/><span id='playFabEmailHidden' style='display: none'>Your Email<br/><span id='emailNotice' style='font-size: 0.8em'>(For recovery, not required)<br/></span><input type='text' id='registerEmail' /></span><span id='usernameBox'>PlayFab Username<br/><input type='text' id='loginUserName' " + ((info) ? "value='" + info[0] + "'" : "") + "/></span><span id='playFabPasswordBox'><br/>Password <span style='font-size: 0.8em'>(6-30 Chars)</span><br/><input type='password' id='loginPassword'" + ((info) ? " value='" + info[1] + "'" : "") + "/></span><br/><div id='playFabConfirmPasswordHidden' style='display: none'>Confirm Password<br/><input type='password' id='confirmPassword' /><br/></div><span id='rememberInfoBox'>Remember Account Info<br/><input type='checkbox' id='rememberInfo' " + ((info) ? "checked='true'" : "") + "/><br/></span><div id='playFabLoginBtn' class='btn btn-sm btn-info' onclick='playFabLoginWithPlayFab()'>Login</div><div id='playFabRegisterBtn' class='btn btn-sm btn-info' style='display: none' onclick='playFabRegisterPlayFabUser()'>Register</div><span style='display: none' id='playFabRecoverBtns'><div class='btn btn-sm btn-info' onclick='playFabRecoverInfo(false)' style='display: none'>Get Username</div><div class='btn btn-sm btn-primary' onclick='playFabRecoverInfo(true)'>Send Password Reset Email</div></span><div id='playFabSwitchRegisterBtn' onclick='switchForm(true)' class='btn btn-sm btn-primary'>Register Playfab Account</div><div id='playFabSwitchRecoveryBtn' onclick='switchForm(false)' class='btn btn-sm btn-warning'>Recover Account Info</div></div>"
 	}
 	tipHtml[0] += "<div id='playFabLoginInfo' class='col-xs-6'><ul><li>While connected to PlayFab, every time the game saves or auto-saves your file will also be sent to PlayFab's servers.</li><li>Data will be cleared from PlayFab's servers after 3 months of inactivity, this is not a permanent save!</li><li><b>This feature is in beta and will be refined by feedback over the next few patches. It is recommended to still manually export your save for ultimate safety.</b></li></ul>"
 	tipHtml[1] = "<div class='btn btn-sm btn-danger' onclick='cancelTooltip()'>Cancel</div>";
 	return tipHtml;
 }
 
-function switchFormToRegister(){
+function switchForm(register){ //true for register, false for recovery
 	var title = document.getElementById("playFabLoginTitle");
 	var emailInput = document.getElementById("playFabEmailHidden");
 	var loginBtn = document.getElementById("playFabLoginBtn");
 	var registerBtn = document.getElementById("playFabRegisterBtn");
+	var recoverBtn = document.getElementById("playFabRecoverBtns");
 	var switchBtn = document.getElementById("playFabSwitchRegisterBtn");
+	var passBox = document.getElementById("playFabPasswordBox");
+	var nameBox = document.getElementById("usernameBox");
+	var rememberBox = document.getElementById("rememberInfoBox");
+	var emailNotice = document.getElementById("emailNotice");
+	var switchRecoveryBtn = document.getElementById("playFabSwitchRecoveryBtn");
 	var confirmPasswordBtn = document.getElementById("playFabConfirmPasswordHidden");
 	if (emailInput != null) emailInput.style.display = "block";
 	if (loginBtn != null) loginBtn.style.display = "none";
-	if (registerBtn != null) registerBtn.style.display = "inline-block";
+	if (registerBtn != null && register) registerBtn.style.display = "inline-block";
+	else if (recoverBtn != null && !register) recoverBtn.style.display = "inline-block";
+	if (nameBox != null && !register) nameBox.style.display = "none";
+	if (emailNotice != null && !register) emailNotice.style.display = "none";
 	if (switchBtn != null) switchBtn.style.display = "none";
-	if (confirmPasswordBtn != null) confirmPasswordBtn.style.display = "block";
-	if (title != null) title.innerHTML = "Register a PlayFab Account";
+	if (passBox != null && !register) passBox.style.display = "none";
+	if (rememberBox != null && !register) rememberBox.style.display = "none";
+	if (switchRecoveryBtn != null) switchRecoveryBtn.style.display = "none";
+	if (confirmPasswordBtn != null && register) confirmPasswordBtn.style.display = "block";
+	if (title != null) title.innerHTML = (register) ? "Register a PlayFab Account" : "Recover PlayFab Account Info - <i>Must have provided Email during registration</i>";
+}
+
+function playFabRecoverInfo(needsPassword){
+	var error = document.getElementById("playFabLoginError");
+	var emailElem = document.getElementById("registerEmail");
+	var requestData = {
+			TitleId: "9186",
+			Email: emailElem.value
+		}
+	if (needsPassword){
+		try {
+			PlayFab.ClientApi.SendAccountRecoveryEmail(requestData, playFabRecoverCallback);
+		}
+		catch (e) {
+			if (error != null) error.innerHTML = e.errorMessage;
+		}
+		return;
+	}
+	try {
+		PlayFab.ClientApi.GetAccountInfo(requestData, playFabRecoverCallback);
+	}
+	catch (e) {
+		console.log(e);
+		if (error != null) error.innerHTML = e.errorMessage;
+	}
+}
+
+function playFabRecoverCallback(data, error){
+	var errorElem = document.getElementById("playFabLoginError");
+	console.log(data, error);
+	if (errorElem == null) return;
+	if (error) {
+		errorElem.innerHTML = error.errorMessage;
+		return;
+	}
+	if (data.Username) {
+		errorElem.innerHTML = "<span style='color: green'>Username is " + data.Username + "</span>";
+		return;
+	}
+	if (data.status == "OK") errorElem.innerHTML = "<span style='color: green'>Recovery Email Sent!</span>";
+	
+}
+
+function switchFormToRecovery(){
+	var title = document.getElementById("playFabLoginTitle");
+	if (title != null) 
+	var emailInput = document.getElementById("playFabEmailHidden");
+	if (emailInput != null) emailInput.style.display = block;
+	
 }
 
 function playFabRegisterPlayFabUser(){
@@ -6305,8 +6559,8 @@ function updatePortalTimer() {
 		timeString += (thisTime.length < 2) ? "0" + thisTime : thisTime;
 		if (x != 3) timeString += ":";
 	}
-	if (game.options.menu.pauseGame.enabled) timeString = "<span style='color: red; font-size: 0.9em;'>" + timeString + " (PAUSED)</span>";
-	document.getElementById("portalTimer").innerHTML = timeString;
+	if (game.options.menu.pauseGame.enabled) timeString = timeString + "&nbsp;(PAUSED)";
+	document.getElementById("portalTime").innerHTML = timeString;
 	checkAchieve("totalGems");
 	if (trimpStatsDisplayed) displayAllStats();
 	if (game.options.menu.useAverages.enabled && Math.floor(timeSince % 3) == 0) curateAvgs();

@@ -256,6 +256,10 @@
 	background: #2F2F3F;
 }
 
+.portalThing.additive.perkColorOff {
+	background-color:#283628
+	}
+
 .thingColorFiringJob,
 .fireBtnFiring {
 	background: #441817;
@@ -293,8 +297,12 @@
 	color: black !important;
 }
 
-.cellColorNotBeaten {
+.cellColorNotBeaten, .postSpire ul li.cellColorNotBeaten {
 	background: #5D5D5D;
+}
+
+.spire ul li.spireCell.cellColorNotBeaten{
+	background-color: #625D7D;
 }
 
 .brokenUpgrade {
@@ -420,7 +428,6 @@ input, button, select, textarea{
 #grid,
 #mapGrid,
 .workBtn,
-.btn-new,
 #queueRow,
 #noQueue,
 #outerBuyContainer,

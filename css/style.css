@@ -7,6 +7,10 @@ body {
 	overflow-y: hidden;
 overflow-x: hidden;
 }
+.spire ul li.spireCell.cellColorNotBeaten{
+	background-color: #928DAD;
+}
+
 .progress-bar {
     -webkit-transition: width .1s ease;
     transition: width .1s ease;
@@ -90,6 +94,10 @@ overflow-x: hidden;
 .resourceRow{
 	height: 49.9%;
 	padding-right: .25vw;
+}
+
+.nav > li {
+	cursor: pointer;
 }
 
 #resourceColumn {
@@ -194,7 +202,15 @@ overflow-x: hidden;
 	font-size: .6vw;
 }
 
+#portalTimer{
+	cursor: pointer;
+}
 
+#portalTimer.timerPaused{
+	color: red;
+  animation: blinker 2.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;  
+}
+@keyframes blinker { to { background-color: red; color: white; } }
 
 .lowPad {
 	padding-left: 5px;
@@ -1026,10 +1042,7 @@ overflow-x: hidden;
 }
 
 .portalMk5{
-	background: -webkit-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: -o-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: -moz-repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
-	background: repeating-radial-gradient(#01785a 10%, #256e9b 10%, #17394f 10%, #11222e 20%);
+	background: transparent repeating-radial-gradient(rgba(1,120,90,0.95) 10%, rgba(37,110,155,0.95) 10%, rgba(23,57,79,0.95) 10%, rgba(17,34,46,0.95) 20%)  repeat scroll 0% 0%;
 }
 
 .portalMkPreview{
@@ -1070,6 +1083,18 @@ overflow-x: hidden;
 	font-size: 0.72vw;
 }
 
+.portalThing .thingOwned{
+	font-size: 0.9em;
+}
+
+.portalThing.additive.perkColorOn{
+	background-color: #004010;
+}
+
+.portalThing.additive.perkColorOff{
+	background-color: #809080
+}
+
 #statsWrapper, #achievementWrapper, #heirloomWrapper{
 	background-color: black;
 	width: 100vw;
@@ -1090,10 +1115,10 @@ overflow-x: hidden;
 	height: 5.7vw;
 }
 
-#addCarriedBtn{
+#addCarriedBtn, #recycleAllHeirloomsBtn{
 	display: inline-block;
 	width: initial;
-	font-size: 1vw;
+	font-size: 0.9vw;
 	float: right;
 	padding: 0.1vw 0.2vw;
 	margin: 0;
@@ -1360,6 +1385,11 @@ overflow-x: hidden;
  -0.15vw 0.15vw 0.2vw #aaa,
  0.15vw 0.15vw 0.2vw #aaa;
 	cursor: pointer;
+}
+
+.spireMetals{
+	color: #f2b600;
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 
 .iconSelected{
@@ -2287,9 +2317,8 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-transition: background 1s ease, color 1.5s ease-in-out;
-background: linear-gradient(to left, #387e7b, #2f006d);
-color: #fff;
+background-color: #a7a7a7;
+color: #3b0a6b;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -2297,9 +2326,8 @@ color: #fff;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background: #2f006d;
-color: #48a19e;
-
+background-color: #2E0854;
+color: #a7a7a7;
 }
 .btn-new:active,
 .btn-new.active,
@@ -2511,3 +2539,9 @@ sup{
 	margin-bottom: 1vh;
 }
 
+.spirePoem {
+	font-style: italic;
+	font-weight: bold;
+	display: block;
+	text-align: center;
+}

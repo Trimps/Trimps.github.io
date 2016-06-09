@@ -140,6 +140,15 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
+	if (what == "Spire"){
+		tooltipText = "<span class='planetBreakMessage'>The Spire looms menacingly above you, and you take in a deep breath of corruption. You take a look back at your Trimps to help gather some courage, and you push the door open. You slowly walk inside and are greeted by an incredibly loud, deep, human voice.<br/><br/><b>Do you know what you face? If you are defeated ten times in this place, you shall be removed from this space. If you succeed, then you shall see the light of knowledge that you seek.</b><span>";
+		tooltipText += "<br/><hr/><span class='planetBreakDescription'><span class='bad'>This zone is considerably more difficult than the previous and next zones. If 10 groups of Trimps die in combat while in the spire, the world will return to normal.</span> <span class='good'>Each cell gives more and more helium, and every 10th cell gives a larger reward.</span>";
+		if (game.options.menu.mapsOnSpire.enabled) tooltipText += "<br/><hr/>You were moved to Maps to protect your limited chances at the spire. You can disable this in settings!";
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='startSpire(true)'>Bring it on</div></div>";
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+	}
 	if (what == "MagnetoShriek"){
 		var shriekValue = ((1 - game.mapUnlocks.roboTrimp.getShriekValue()) * 100).toFixed(1);
 		tooltipText = "Your pet RoboTrimp seems to be gifted at distorting the magnetic field around certain bad guys, especially Improbabilities. You can activate this ability once every 5 zones in order to tell your RoboTrimp to reduce the attack damage of the next Improbability by " + shriekValue + "%. This must be reactivated each time it comes off cooldown.";
@@ -189,7 +198,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "Custom"){
 		customUp = (textString) ? 2 : 1;
 		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 and 200k to select that large number, or fractions such as 1/2 and 50% to select that fraction of your available workspaces."
-		if (textString) tooltipText += " <b>Max of 1,000 for perks</b>";
+		if (textString) tooltipText += " <b>Max of 1,000 for most perks</b>";
 		tooltipText += "<br/><br/><input id='customNumberBox' style='width: 50%' value='" + ((!isNaN(game.global.lastCustomExact)) ? prettify(game.global.lastCustomExact, true) : game.global.lastCustomExact) + "'></input>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='numTab(5, " + textString + ")'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
@@ -324,6 +333,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else costText = "";
 		if (game.global.buyAmt > 1) what += " X " + game.global.buyAmt;
 		tooltipText += " <b>(You have spent " + prettify(perkItem.heliumSpent + perkItem.heliumSpentTemp) + " Helium on this Perk)</b>";
+		what = what.replace("_", " ");
 	}
 	if (isItIn == "equipment"){
 		costText = canAffordBuilding(what, false, true, true);
@@ -389,10 +399,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			if (tipSplit[1] == 'incby'){
 				var increase = toTip.increase.by;
 				if (game.portal.Carpentry.level && toTip.increase.what == "trimps.max") increase *= Math.pow(1.1, game.portal.Carpentry.level);
+				if (game.portal.Carpentry_II.level && toTip.increase.what == "trimps.max") increase *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
 				tooltipText = tipSplit[0] + prettify(increase) + tipSplit[2];
 			}
-			else if (isItIn == "jobs" && game.portal.Motivation.level && toTip.increase != "custom"){
-				tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]] * ((game.portal.Motivation.level * 0.05) + 1)) + tipSplit[2];
+			else if (isItIn == "jobs" && toTip.increase != "custom"){
+				var newValue = toTip[tipSplit[1]];
+				if (game.portal.Motivation.level > 0) newValue *= (1 + (game.portal.Motivation.level * 0.05));
+				if (game.portal.Motivation_II.level > 0) newValue *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.level.modifier));
+				tooltipText += tooltipText = tipSplit[0] + prettify(newValue) + tipSplit[2];
 			}
 			else
 			tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
@@ -598,6 +612,12 @@ function getPsString(what, rawNum) {
 		currentCalc  *= (motivationStrength + 1);
 		motivationStrength = prettify(motivationStrength * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Motivation</td><td class='bdPercent'>+ " + motivationStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}	
+	if (game.portal.Motivation_II.level > 0){
+		var motivationStrength = (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier);
+		currentCalc  *= (motivationStrength + 1);
+		motivationStrength = prettify(motivationStrength * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Motivation_II</td><td class='bdPercent'>+ " + motivationStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Meditation
 	if (game.portal.Meditation.level > 0){
@@ -676,6 +696,7 @@ function getZoneStats(event, update) {
 		textString += "<tr><td class='bdTitle bdZoneTitle' colspan='3'>" + map.name + ", Level " + map.level + ", Cell " + (game.global.lastClearedMapCell + 2) + "</td></tr>";
 		textString += '<tr><td><span class="' + getMapIcon(map) + '"></span> ' + getMapIcon(map, true) + '</td><td><span class="icomoon icon-gift2"></span>' + Math.floor(map.loot * 100) + '%</span> <span class="icomoon icon-cube2"></span>' + map.size + ' <span class="icon icon-warning"></span>' + Math.floor(map.difficulty * 100) + '%</td><td>' + ((map.location == "Void") ? '&nbsp' : ('Items: ' + addSpecials(true, true, map))) + '</td></tr>';
 		textString += "<tr><td colspan='3'>You have been on this map for " + formatMinutesForDescriptions((new Date().getTime() - game.global.mapStarted) / 1000 / 60) + "</td></tr>";
+		if (map.location == "Void") textString += "<tr><td colspan='3'>You have " + game.global.totalVoidMaps + " Void Maps.</td></tr>";
 	}
 	textString += "</tbody></table>";
 	if (update) {
@@ -824,6 +845,13 @@ function getBattleStatBd(what) {
 		PerkStrength = prettify(PerkStrength * 100) + "%";
 		textString += "<tr><td class='bdTitle'>" + perk + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	perk = perk + "_II";
+	if (game.portal[perk] && game.portal[perk].level > 0){
+		var PerkStrength = (game.portal[perk].level * game.portal[perk].modifier);
+		currentCalc  *= (PerkStrength + 1);
+		PerkStrength = prettify(PerkStrength * 100) + "%";
+		textString += "<tr><td class='bdTitle'>" + perk + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+	}	
 	//Add resilience
 	if (what == "health" && game.portal.Resilience.level > 0){
 		var resStrength = Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
@@ -930,6 +958,13 @@ function getMaxTrimps() {
 		currentCalc = Math.floor(currentCalc);
 		carpentryStrength = prettify((carpentryStrength - 1) * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Carpentry</td><td class='bdPercent'>+ " + carpentryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}	
+	if (game.portal.Carpentry_II.level > 0){
+		var carpentryStrength = game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level;
+		currentCalc  *= (1 + carpentryStrength);
+		currentCalc = Math.floor(currentCalc);
+		carpentryStrength = prettify(carpentryStrength * 100) + "%";
+		textString += "<tr><td class='bdTitle'>Carpentry_II</td><td class='bdPercent'>+ " + carpentryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Size Challenge
 	if (game.global.challengeActive == "Size"){
@@ -1072,6 +1107,11 @@ function getLootBd(what) {
 		amt = (1 + (game.portal.Looting.level * game.portal.Looting.modifier));
 		currentCalc *= amt;
 		textString += "<tr><td class='bdTitle'>Looting (perk)</td><td>+ 5%</td><td>" + game.portal.Looting.level + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.portal.Looting_II.level){
+		amt = (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
+		currentCalc *= amt;
+		textString += "<tr><td class='bdTitle'>Looting_II (perk)</td><td>+ " + prettify(game.portal.Looting_II.modifier * 100) + "%</td><td>" + game.portal.Looting_II.level + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.unlocks.impCount.Magnimp){
 	
@@ -1298,6 +1338,8 @@ function resetGame(keepPortal) {
 	document.getElementById("autoStorageBtn").style.display = "none";
 	document.getElementById("repeatVoidsContainer").style.display = "none";
 	document.getElementById('corruptionBuff').innerHTML = "";
+	document.getElementById("portalTimer").className = "timerNotPaused";
+	document.getElementById("grid").className = "";
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));			
 	heirloomsShown = false;
@@ -1685,9 +1727,9 @@ function numTab (what, p) {
 			}
 		}
 		else num = game.global.lastCustomAmt;
-		if (p && num > 1000){
+/* 		if (p && num > 1000){
 			return;
-		}
+		} */
 		if (num > 0) {
 			var text = "+" + prettify(num);
 			document.getElementById("tab5Text").innerHTML = text;
@@ -1896,7 +1938,8 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			var increase = jobObj.increase;
 			psText = (jobObj.owned * jobObj.modifier);
 			//portal Motivation
-			if (game.portal.Motivation.level) psText += (game.portal.Motivation.level * game.portal.Motivation.modifier * psText);
+			if (game.portal.Motivation.level) psText *= (1 + (game.portal.Motivation.level * game.portal.Motivation.modifier));
+			if (game.portal.Motivation_II.level) psText *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
 			if (game.portal.Meditation.level > 0) psText *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 			if (game.global.challengeActive == "Meditate") psText *= 1.25;
 			else if (game.global.challengeActive == "Size") psText *= 1.5;
@@ -2282,7 +2325,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		menuElem[x].innerHTML = menuOption.titles[menuOption.enabled];
 		swapClass("settingBtn", "settingBtn" + menuOption.enabled, menuElem[x]);
 		if (setting == "deleteSave") return;
-		if (!updateOnly) cancelTooltip();
+		if (!updateOnly && elem) cancelTooltip();
 		if (fromPortal){
 			document.getElementById('ptabInfoText').innerHTML = (menuOption.enabled) ? "Less Info" : "More Info";
 			displayPortalUpgrades(true);
@@ -2290,7 +2333,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		}
 		menuElem[x].onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
 	}
-	if (!updateOnly) tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
+	if (!updateOnly && elem) tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
 }
 	
 	function achievementCompatibilityUnlock() {
