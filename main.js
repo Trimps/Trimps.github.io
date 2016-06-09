@@ -2495,7 +2495,10 @@ function buffVoidMaps(){
 
 function addVoidAlert(){ 
 	var alert = document.getElementById('voidAlert')
-	if (alert !== null) return;
+	if (alert !== null) {
+		alert.innerHTML = game.global.totalVoidMaps;
+		return;
+	}
 	document.getElementById('mapsBtn').innerHTML += ' <span id="voidAlert" class="alert badge">' + game.global.totalVoidMaps + '</span>';
 }
 
