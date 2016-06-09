@@ -4569,6 +4569,7 @@ function giveSpireReward(level){
 		case 90:
 			message("<span class='spirePoem'>Your Trimps grew strong while I watched and waited,<br/>Their loyalty can not be debated.<br/>You knew not of my plan, yet participated,<br/>Now bow to me or be terminated.</span>Yeah you don't really feel too much like bowing and probably won't be doing that. You did find <b>5 Skeletimp Bones</b> which you feel no qualms about keeping for yourself.", "Story");
 			game.global.b += 5;
+			updateSkeleBtn();
 			break;
 		case 100:		
 			amt = giveHeliumReward(100);
