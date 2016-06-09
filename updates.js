@@ -405,8 +405,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			else if (isItIn == "jobs" && toTip.increase != "custom"){
 				var newValue = toTip[tipSplit[1]];
 				if (game.portal.Motivation.level > 0) newValue *= (1 + (game.portal.Motivation.level * 0.05));
-				if (game.portal.Motivation_II.level > 0) newValue *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.level.modifier));
-				tooltipText += tooltipText = tipSplit[0] + prettify(newValue) + tipSplit[2];
+				if (game.portal.Motivation_II.level > 0) newValue *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
+				tooltipText = tipSplit[0] + prettify(newValue) + tipSplit[2];
 			}
 			else
 			tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
