@@ -1098,7 +1098,7 @@ var toReturn = {
 			unlockString: "reach Zone 180"
 		},
 		Lead: {
-			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.05% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with 3.5X helium earned from any source up to Zone 180.",
+			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with 3.5X helium earned from any source up to Zone 180.",
 			filter: function () {
 				return (game.global.highestLevelCleared >= 179);
 			},
