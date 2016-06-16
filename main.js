@@ -4853,7 +4853,7 @@ function fight(makeUp) {
 	var wasAttacked = false;
 	var badDodge = false;
 	if (cell.corrupted == "corruptDodge"){
-		if (Math.floor(Math.random() * 3) == 0) badDodge = true;
+		if (Math.random() < 0.3) badDodge = true;
 	}
 	var overkill = 0;
 	var impOverkill = 0;
