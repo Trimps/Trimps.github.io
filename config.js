@@ -3726,7 +3726,6 @@ var toReturn = {
 			addClass: "brokenUpgrade",
 			title: "The Galaxy will be your Ocean",
 			icon: "*rocket4",
-			title: "New Ship",
 			fire: function () {
 				unlockBuilding("Warpstation");
 			}
