@@ -2366,6 +2366,7 @@ function getMapMinMax(what, value){
 }
 
 function buyMap() {
+	if (game.options.menu.pauseGame.enabled == 1) return;
 	var cost = updateMapCost(true);
 	var newLevel = parseInt(document.getElementById("mapLevelInput").value, 10);
 	if (!newLevel || newLevel <= 5 || newLevel > game.global.world || isNaN(newLevel) || isNaN(cost)) {
@@ -3061,7 +3062,7 @@ function createHeirloom(zone, fromBones){
 		var thisMod = elligible[roll];
 		elligible.splice(roll, 1);
 		var steps = (typeof game.heirlooms[type][thisMod].steps !== 'undefined') ? game.heirlooms[type][thisMod].steps : game.heirlooms.defaultSteps;
-		steps = getRandomBySteps(steps[rarity]);
+		steps = getRandomBySteps(steps[rarity], null, fromBones);
 		buildHeirloom.mods.push([thisMod, steps[0], steps[1], 0, getRandomIntSeeded(seed++, 0, 1000)]);
 	}
 	seed += 6 - (x * 2);
@@ -3085,13 +3086,13 @@ function createHeirloom(zone, fromBones){
 	else game.global.heirloomSeed = seed;
 }
 
-function getRandomBySteps(steps, mod){
+function getRandomBySteps(steps, mod, fromBones){
 		var seed;
 		if (mod && typeof mod[4] !== 'undefined'){
 			seed = mod[4]++;
 		}
 		else {
-			seed = game.global.heirloomSeed++;
+			seed = (fromBones) ? game.global.heirloomBoneSeed : game.global.heirloomSeed++;
 		}
 		var possible = ((steps[1] - steps[0]) / steps[2]);
 		var roll = getRandomIntSeeded(seed, 0, possible + 1);
