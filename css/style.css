@@ -38,7 +38,16 @@ overflow-x: hidden;
     color: white;
 }
 
+.GACustomInput{
+	width: 33%;
+	margin: 0 0.15%;
+}
 
+#GATargetError{
+	text-align: center;
+	color: red;
+	font-size: 1.2em;
+}
 
 .holidaySaleDesc{
 	color: red;
@@ -533,6 +542,43 @@ overflow-x: hidden;
     border: 1px solid white;
 }
 
+#GeneticistassistContainer{
+	display: inline-block;
+	width: 48.9%;
+	border: 0;
+	padding: 0;
+	background-color: rgba(0,0,102,1);
+}
+
+#GeneticistassistContainer div{
+	width: 50%;
+	margin: 0; 
+}
+
+#GeneticistassistContainer #Geneticist{
+	border-right: 0;
+}
+
+#GeneticistassistContainer #Geneticistassist{
+	border-left: 0;
+}
+
+#Geneticistassist.stateDisabled{
+	background: rgba(128,128,128,1);
+}
+
+#Geneticistassist.stateHappy{
+	background: rgba(0,0,0,0);
+}
+
+#Geneticistassist.stateHiring{
+	background: rgba(0,166,41,0.4);
+}
+
+#Geneticistassist.stateFiring{
+	background: rgba(140,35,0,0.4);
+}
+
 #battleContainer {
     border: 2px solid white;
     background: rgba(121, 121, 123, 0.5);
@@ -643,9 +689,42 @@ overflow-x: hidden;
 	font-size: 1vw;
 }
 
+#settingTitleBar{
+	text-align: center;
+	padding-top: 1.5vw;
+	margin-bottom: 1.5vw;
+}
+
 #settingsHere{
 	margin-bottom: 2vw;
-	margin-top: 2vw;
+}
+
+#searchSettingsTitle{
+	font-size: 1.5vw;
+	margin: 0 3vw;
+}
+
+#searchSettings{
+	color: black;
+	font-size: 1.5vw;
+	line-height: 1.5vw;
+	width: 30%;
+}
+
+#settingSearchResults{
+	height: 5.2vw;
+}
+
+#settingsTabs{
+	margin-top: 0.75vw;
+}
+
+.settingTypeBtn{
+	font-size: 1.5vw;
+	line-height: 1.5vw;
+	margin-top: 0.4vw;
+	margin-bottom: 0.5vw;
+	margin-right: 0;
 }
 
 #numTabs{
@@ -1019,7 +1098,7 @@ overflow-x: hidden;
 	color: black;
 	width: 100vw;
 	height: 100vh;
-	padding: 20px;
+	padding: 0.6%;
 	text-align: center;
 	padding-left: 5vw;
 	padding-right: 5vw;
@@ -1045,6 +1124,10 @@ overflow-x: hidden;
 	background: transparent repeating-radial-gradient(rgba(1,120,90,0.95) 10%, rgba(37,110,155,0.95) 10%, rgba(23,57,79,0.95) 10%, rgba(17,34,46,0.95) 20%)  repeat scroll 0% 0%;
 }
 
+.portalMk6{
+	background: transparent radial-gradient(rgba(0,0,128,0.7), rgba(48,0,97,0.7), rgba(0,0,90,0.7));
+}
+
 .portalMkPreview{
 	background-color: black;
 	color: white !important;
@@ -1058,13 +1141,48 @@ overflow-x: hidden;
  .portalMk5 #portalHelium,
  .portalMk5 #portalTotalHelium,
  .portalMk5 #portalTotalPortals,
- .portalMk5 #challengeTitle{
+ .portalMk5 .challengeTitle{
+  color: white !important;
+}
+
+.portalMk6 #portalStory,
+ .portalMk6 #challengeDescriptionPre,
+ .portalMk6 #challengeName,
+ .portalMk6 #portalTitle,
+ .portalMk6 #portalError,
+ .portalMk6 #portalHelium,
+ .portalMk6 #portalTotalHelium,
+ .portalMk6 #portalTotalPortals,
+ .portalMk6 .challengeTitle{
   color: white !important;
 }
 
 .portalMk5 #flagMustRestart{
 	color: #C55B5B;
 
+}
+
+#titleRow{
+	height: 6.5vw;
+	margin-bottom: 0.5vw;
+}
+
+.titleCol{
+	display: inline-block;
+	width: 35%;
+	padding: 0 1%;
+	position: absolute;
+	top: 0.5vw;
+}
+
+#titleCol1{
+	left: 22%;
+}
+
+#titleCol2{
+	position: absolute;
+	left: 47%;
+	
 }
 
 .perkColorOn{
@@ -1080,7 +1198,7 @@ overflow-x: hidden;
 }
 
 .portalThing.detailed{
-	font-size: 0.72vw;
+	font-size: 0.96vw;
 }
 
 .portalThing .thingOwned{
@@ -1696,7 +1814,15 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 
 #portalStory{
 	display: inline-block;
-	font-size: 1vw;
+	font-size: 1.25vw;
+}
+
+#challengeDescriptionPre{
+	font-size: 1.25vw;
+}
+
+#perkCol, #challengeCol{
+	padding: 0 1%;
 }
 
 .heirloomRecycleWarning{
@@ -1715,8 +1841,9 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 
 #portalTitle{
 	width: 100%;
-	font-size: 3.5vw;
+	font-size: 3.3vw;
 	text-align: center;
+	margin-top: 0.9vw;
 }
 
 #portalHelium{
@@ -1888,7 +2015,7 @@ color: #DDDDFF !important;
 .successColor, .colorSuccess{
 	background-color: #5cb85c;
 }
-.dangerColor, .colorDanger{
+.dangerColor, .colorDanger, .stateDanger{
 	background-color: #d9534f;
 }
 .infoColor, .colorInfo{
@@ -1949,6 +2076,20 @@ color: #DDDDFF !important;
 
 .bundleBtn{
 	font-size: .8em;
+}
+
+.boneBtnStateOff{
+	background-color: grey;
+	color: white;
+}
+
+.boneBtnStateOn{
+	background-color: #337ab7;
+	color: white;
+}
+
+.boneBtnStateTeal{
+	background-color: #318696;
 }
 
 .kredImg{
@@ -2194,7 +2335,7 @@ color: #DDDDFF !important;
 
 #specificChallengeDescription{
 	min-height: 10vw;
-	margin: 1vw;
+	margin: 0.5vw;
 	color: #318696;
 	background-color: #d0d0d0;
 }
@@ -2203,14 +2344,15 @@ color: #DDDDFF !important;
 	margin: 0 1vw;
 }
 
-#challengeTitle{
+.challengeTitle{
 	text-align: center;
-	font-size: 1.1vw;
+	font-size: 1.3vw;
+	font-weight: bold;
 }
 
 #challengeDescription{
 	font-size: 1vw;
-	height: 20vw;
+	height: 22.5vw;
 }
 
 #portalTabs{
@@ -2317,8 +2459,8 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background-color: #a7a7a7;
-color: #3b0a6b;
+background-color: #00424d;
+color: white;
 }
 .btn-new:hover,
 .btn-new:focus,
@@ -2326,8 +2468,8 @@ color: #3b0a6b;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background-color: #2E0854;
-color: #a7a7a7;
+background-color: #380e3d;
+color: white;
 }
 .btn-new:active,
 .btn-new.active,

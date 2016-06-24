@@ -94,8 +94,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "That Turkimp was delicious, and you have leftovers. If you set yourself to gather Food, Wood, or Metal while this buff is active, you can share with your workers to increase their gather speed by 50%";
 		costText = "";
 	}
+	if (what == "Geneticistassist"){
+		tooltipText = "I'm your Geneticistassist! I'll hire and fire Geneticists until your total breed time is as close as possible to the target time you choose. I will fire a Farmer, Lumberjack, or Miner at random if there aren't enough workspaces, I will never spend more than 1% of your food on a Geneticist, and you can customize my target time options in Settings. I have uploaded myself to your portal and will never leave you.";
+		costText = "";
+	}
 	if (what == "Welcome"){
-		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear. Please make sure you regularly back up your save file by using the 'Export' button in the bar below and saving that somewhere safe. I recommend using Chrome or Firefox. <br/><br/> Thank you for playing, and I hope you enjoy the game!";
+		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear! Please make sure you regularly back up your save file by using the 'Export' button in the bar below and saving that somewhere safe. <br/><br/><b>Chrome and Firefox are currently the only fully supported browsers.</b><br/><br/><b>You can back up your save online by clicking 'Settings' below, then clicking the One Blue Setting.</b>";
 		game.global.lockTooltip = true;
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Start</div></div>";
 		elem.style.left = "33.75%";
@@ -123,6 +127,15 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast.";
 		costText = "";
 	}
+	if (what == "Customize Targets"){
+		var steps = game.global.GeneticistassistSteps;
+		tooltipText = "<div id='GATargetError'></div><div>Customize the target thresholds for your Geneticistassist! Use a number between 0.5 and 60 seconds for all 3 boxes. Each box corresponds to a Geneticistassist toggle threshold.</div><div style='width: 100%'><input class='GACustomInput' id='target1' value='" + steps[1] + "'/><input class='GACustomInput' id='target2' value='" + steps[2] + "'/><input class='GACustomInput' id='target3' value='" + steps[3] + "'/>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='customizeGATargets();'>Confirm</div> <div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div>"
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+		
+	}
 	if (what == "The Improbability"){
 		tooltipText = "<span class='planetBreakMessage'>That shouldn't have happened. There should have been a Blimp there. Something is growing unstable.</span>";
 		if (!game.global.autoUpgradesAvailable) tooltipText += "<br/><br/><span class='planetBreakMessage'><b>Your Trimps seem to understand that they'll need to help out more, and you realize how to permanently use them to automate upgrades!<b></span><br/>";
@@ -145,6 +158,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText += "<br/><hr/><span class='planetBreakDescription'><span class='bad'>This zone is considerably more difficult than the previous and next zones. If 10 groups of Trimps die in combat while in the spire, the world will return to normal.</span> <span class='good'>Each cell gives more and more helium, and every 10th cell gives a larger reward.</span>";
 		if (game.options.menu.mapsOnSpire.enabled) tooltipText += "<br/><hr/>You were moved to Maps to protect your limited chances at the spire. You can disable this in settings!";
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='startSpire(true)'>Bring it on</div></div>";
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+	}
+	if (what == "The Geneticistassist"){
+		tooltipText = "Greetings, friend! I'm your new robotic pal <b>The Geneticistassist</b> and I am here to assist you with your Geneticists. I will hang out in your Jobs tab, and will appear every run after Geneticists are unlocked. You can customize me in Settings under 'General'!";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Thanks, Geneticistassist!</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1392,6 +1412,9 @@ function resetGame(keepPortal) {
 	var autoUpgradesAvailable;
 	var rememberInfo;
 	var playFabLoginType;
+	var GeneticistassistSetting;
+	var Geneticistassist
+	var GeneticistassistSteps;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -1433,6 +1456,9 @@ function resetGame(keepPortal) {
 		voidMaxLevel = game.global.voidMaxLevel;
 		playFabLoginType = game.global.playFabLoginType;
 		rememberInfo = game.global.rememberInfo;
+		GeneticistassistSetting = game.global.GeneticistassistSetting;
+		Geneticistassist = game.global.Geneticistassist;
+		GeneticistassistSteps = game.global.GeneticistassistSteps;
 	}
 	game = null;
 	game = newGame();
@@ -1466,6 +1492,9 @@ function resetGame(keepPortal) {
 		game.global.playFabLoginType = playFabLoginType;
 		game.global.rememberInfo = rememberInfo;
 		game.global.heirloomBoneSeed = heirloomBoneSeed;
+		game.global.GeneticistassistSetting = GeneticistassistSetting;
+		game.global.Geneticistassist = Geneticistassist;
+		game.global.GeneticistassistSteps = GeneticistassistSteps;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined' && !statItem.noAdd) statItem.valueTotal += statItem.value;
@@ -1479,6 +1508,7 @@ function resetGame(keepPortal) {
 		if (sLevel >= 2) applyS2();
 		if (sLevel >= 3) applyS3();
 		if (sLevel >= 4) game.buildings.Warpstation.craftTime = 0;
+		if (sLevel >= 5) applyS5();
 		if (game.global.autoUpgradesAvailable) document.getElementById("autoUpgradeBtn").style.display = "block";
 		if (game.global.autoStorageAvailable) {
 			document.getElementById("autoStorageBtn").style.display = "block";
@@ -1574,6 +1604,19 @@ function applyS3(){
 	game.global.playerModifier = 2;
 	game.resources.trimps.owned = game.resources.trimps.realMax();
 	if (document.getElementById("trimps").style.visibility == "hidden") fadeIn("trimps", 10);
+}
+//4.39Qi 
+function applyS5(){
+	game.global.playerModifier = 10;
+	game.buildings.Barn.owned = 50;
+	game.buildings.Barn.purchased = 50;
+	game.resources.food.max = 562949953421312000;
+	game.buildings.Shed.owned = 50;
+	game.buildings.Shed.purchased = 50;
+	game.resources.wood.max = 562949953421312000;
+	game.buildings.Forge.owned = 50;
+	game.buildings.Forge.purchased = 50;
+	game.resources.metal.max = 562949953421312000;
 }
 
 
@@ -1678,7 +1721,6 @@ function numTab (what, p) {
 	var num = 0;
 	if (what == "6" && game.global.buyAmt == "Max") tooltip('Max', null, 'update');
 	if (what == 5){
-		
 		unlockTooltip();
 		tooltip('hide');
 		var numBox = document.getElementById("customNumberBox");
@@ -1727,9 +1769,6 @@ function numTab (what, p) {
 			}
 		}
 		else num = game.global.lastCustomAmt;
-/* 		if (p && num > 1000){
-			return;
-		} */
 		if (num > 0) {
 			var text = "+" + prettify(num);
 			document.getElementById("tab5Text").innerHTML = text;
@@ -1738,6 +1777,12 @@ function numTab (what, p) {
 			game.global.lastCustomAmt = num;
 		}
 		else {
+			if (numBox.value == "pants" && game.global.sLevel >= 4) {
+				//Dedicated to Sleeves, who would be upset if I never added a pants easter egg.
+				pantsMode = true;
+				message("Get a leg up with PANTS! Until your next trou... browser refresh, you can enable the useless but stylish PANTS ONLY AutoPrestige setting! Denim-ite!", "Notices");
+				return;
+			}
 			message("Please use a number greater than 0!", "Notices");
 			return;
 		}
@@ -1753,7 +1798,6 @@ function numTab (what, p) {
 			thisTab.className = thisTab.className.replace("tabNotSelected", "tabSelected");
 		else
 			thisTab.className = thisTab.className.replace("tabSelected", "tabNotSelected");
-
 		if (x == 5) continue;
 		switch (x){
 			case 1:
@@ -1774,13 +1818,10 @@ function numTab (what, p) {
 		if (x == what) game.global.buyAmt = num;
 	}
 	document.getElementById("tab6Text").innerHTML = (what == 6 && game.global.maxSplit != 1) ? game.global.maxSplit : "Max";
-	
 	if (p) {
 		displayPortalUpgrades(true);
 		updateAllPerkColors();
 	}
-
-
 }
 
 //Buildings Specific
@@ -2024,7 +2065,10 @@ function unlockJob(what) {
 	elem.innerHTML = "";
 	for (var item in game.jobs){
 		if (game.jobs[item].locked == 1) continue;
-		drawJob(item, elem);
+		if (item == "Geneticist" && game.global.Geneticistassist) 
+			drawGeneticistassist(elem);
+		else
+			drawJob(item, elem);
 		if (game.jobs[item].alert && game.options.menu.showAlerts.enabled){
 			document.getElementById("jobsAlert").innerHTML = "!";
 			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
@@ -2035,6 +2079,12 @@ function unlockJob(what) {
 function drawJob(what, where){
 	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
 }
+
+function drawGeneticistassist(where){
+	where.innerHTML += '<div id="GeneticistassistContainer" class="thing"><div onmouseover="tooltip(\'Geneticist\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="Geneticist" onclick="buyJob(\'Geneticist\')"><span class="thingName"><span id="GeneticistAlert" class="alert badge"></span>Geneticist</span><br/><span class="thingOwned" id="GeneticistOwned">0</span></div><div onmouseover="tooltip(\'Geneticistassist\',null,event)" onmouseout="tooltip(\'hide\')" class="thing noselect stateHappy pointer jobThing" id="Geneticistassist" onclick="toggleGeneticistassist()">Geneticistassist<span id="GAIndicator"></span><br/><span id="GeneticistassistSetting">&nbsp;</span></div></div>';
+	toggleGeneticistassist(true);
+}
+
 function refreshMaps(){
 	document.getElementById("mapsHere").innerHTML = "";
 	document.getElementById("voidMapsHere").innerHTML = "";
@@ -2045,7 +2095,9 @@ function refreshMaps(){
 
 function getUniqueColor(item){
 	if (item.location && game.mapConfig.locations[item.location].upgrade){
-			var upgrade = game.mapUnlocks[game.mapConfig.locations[item.location].upgrade];
+			var upgrade = game.mapConfig.locations[item.location].upgrade;
+			upgrade = (typeof upgrade === 'object') ? upgrade[0] : upgrade;
+			upgrade = game.mapUnlocks[upgrade];			
 			if (upgrade.specialFilter){ 
 				if (!upgrade.specialFilter(item.level)) return " noRecycleDone";
 				if (upgrade.specialFilter(item.level) && typeof upgrade.canRunOnce === 'undefined') return " noRecycle";
@@ -2273,8 +2325,10 @@ function toggleSettingsMenu(){
 	game.options.displayed = !game.options.displayed;
 	var menuElem = document.getElementById("settingsHere");
 	if (game.options.displayed) {
-		displaySettings();
+		var searchElem = document.getElementById('searchSettings');
 		menuElem.style.display = "block";
+		toggleSettingSection(true);
+		settingTab("General");
 	}
 	else
 	menuElem.style.display = "none";
@@ -2282,20 +2336,81 @@ function toggleSettingsMenu(){
 	
 }
 
-function displaySettings() {
-	var settingsHere = document.getElementById("settingsHere");
+function displayAllSettings() {
+	var settingsHere = document.getElementById("allSettingsHere");
 	var html = "";
 	for (var item in game.options.menu){
 		var optionItem = game.options.menu[item];
 		if (optionItem.locked) continue;
 		if (typeof optionItem.lockUnless === 'function' && !optionItem.lockUnless()) continue;
-		var text = optionItem.titles[optionItem.enabled];
-		html += "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingsBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\", this)' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
+		html += getSettingHtml(optionItem, item);
 	}
 	settingsHere.innerHTML = html;
 }
 
+function toggleSettingSection(toSearch){
+	document.getElementById('searchSettingsWindow').style.display = (toSearch) ? "block" : "none";
+	document.getElementById('allSettings').style.display = (toSearch) ? "none" : "block";
+	document.getElementById(((toSearch) ? 'allSettingsHere' : 'settingSearchResults')).innerHTML = '';
+	if (!toSearch) displayAllSettings();
+	else searchSettings(document.getElementById('searchSettings'));
+}
+
+function settingTab(what){
+	var elem = document.getElementById('searchSettings');
+	elem.value = what;
+	searchSettings(elem);
+	clearSettingTabs();
+	var tabElem = document.getElementById(what + "Tab");
+	if (tabElem) swapClass('tab', 'tabSelected', tabElem);
+}
+
+function clearSettingTabs(){
+	var elems = document.getElementsByClassName('settingTab');
+	for (var x = 0; x < elems.length; x++){
+		swapClass('tab', 'tabNotSelected', elems[x])
+	}
+}
+
+function searchSettings(elem){
+	var search = elem.value.toLowerCase();
+	var resultsElem = document.getElementById('settingSearchResults');
+	if (search.length < 2) {
+		resultsElem.innerHTML = "";
+		return;
+	}
+	var results = [];
+	for (var optionName in game.options.menu){
+		var optionObject = game.options.menu[optionName];
+		if (optionObject.locked) continue;
+		if (typeof optionObject.lockUnless === 'function' && !optionObject.lockUnless()) continue;
+		if (optionObject.extraTags && optionObject.extraTags.search(search) != -1) results.push(optionName);
+		else if (optionObject.description.toLowerCase().search(search) != -1) results.push(optionName);
+		
+	}
+	var text = "";
+	if (results.length > 10) {
+		resultsElem.innerHTML = "";
+		return;
+	}
+	clearSettingTabs();
+	for (var x = 0; x < results.length; x++){
+		text += getSettingHtml(game.options.menu[results[x]], results[x]);
+	}
+	resultsElem.innerHTML = text;
+}
+
+function getSettingHtml(optionItem, item){		
+	var text = optionItem.titles[optionItem.enabled];
+	return "<div class='optionContainer'><div id='toggle" + item + "' class='noselect settingsBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\", this)' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
+}
+
 function toggleSetting(setting, elem, fromPortal, updateOnly){
+	if (setting == "GeneticistassistTarget") {
+		tooltip('Customize Targets', null, 'update');
+		return;
+	}
+	if (setting == "pauseGame" && game.options.menu.disablePause.enabled == 0) return;
 	var menuOption = game.options.menu[setting];
 	if (setting == "usePlayFab" && !updateOnly){
 		if (menuOption.enabled == 0){
@@ -2536,6 +2651,7 @@ if (elem == null) {
 	return;
 	}
   var className = elem.className;
+  if (typeof className.split('newClass')[1] !== 'undefined') return;
   className = className.split(prefix);
   if(typeof className[1] === 'undefined') {
 	  console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class.");

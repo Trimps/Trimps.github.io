@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 3.4</title>
+	<title>Trimps 3.5</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?35" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?36" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -76,10 +76,10 @@
 					<div class="boostSpacer">
 					<div class="boneBuyDesc">Instantly earn the next 12 or 36 hours worth of resources! If you don't have enough storage, storage will be purchased (and the cost deducted) automatically.</div>
 					<div id="boostSelectContainer">
-						<div id="boost0" class="thingSmall pointer noselect" onclick="selectBoost(0)">
+						<div id="boost0" class="thingSmall pointer noselect boneBtnStateTeal" onclick="selectBoost(0)">
 							12 hours
 						</div>
-						<div id="boost1" class="thingSmall pointer noselect" onclick="selectBoost(1)">
+						<div id="boost1" class="thingSmall pointer noselect boneBtnStateOff" onclick="selectBoost(1)">
 							36 hours
 						</div>
 					</div>
@@ -112,10 +112,10 @@
 					</div>
 					</div>
 					<div id="purchaseContainerBoost">
-						<div class="boneBtn primaryColor pointer noselect buyBoostBtn" id="boostPurchaseBtn0" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase 12 hours of instant production for 20 bones. Is this what you wanted to do?', 'purchaseBoost(0)', 20)">
+						<div class="boneBtn boneBtnStateOn pointer noselect buyBoostBtn" id="boostPurchaseBtn0" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase 12 hours of instant production for 20 bones. Is this what you wanted to do?', 'purchaseBoost(0)', 20)">
 							Buy 12 Hours (20 bones)
 						</div>
-						<div class="boneBtn primaryColor pointer noselect buyBoostBtn" id="boostPurchaseBtn1" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase 36 hours of instant production for 40 bones. Is this what you wanted to do?', 'purchaseBoost(1)', 40)">
+						<div class="boneBtn boneBtnStateOn pointer noselect buyBoostBtn" id="boostPurchaseBtn1" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase 36 hours of instant production for 40 bones. Is this what you wanted to do?', 'purchaseBoost(1)', 40)">
 							Buy 36 Hours (40 bones)
 						</div>
 					</div>
@@ -133,7 +133,7 @@
 						</table>
 					</div>
 					<div id="purchaseContainerImports">
-						<div class="boneBtn primaryColor pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new bad guy will begin spawning in your next Zone or Map at about an average of 3 spawns per 100 squares. Is this what you wanted to do?', 'purchaseImport()', 50)"></div>
+						<div class="boneBtn boneBtnStateOff pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new bad guy will begin spawning in your next Zone or Map at about an average of 3 spawns per 100 squares. Is this what you wanted to do?', 'purchaseImport()', 50)"></div>
 					</div>
 				</div>
 
@@ -142,7 +142,7 @@
 					<div class="boneBuyTitle">Other Goodies</div>
 						<div class="boostSpacer">
 						<div id="buyHeliumArea">
-							<div class="boneBtn primaryColor pointer noselect" id="heliumPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Instant Portal for 100 bones. Your new helium will appear in the View Perks menu at the bottom of the screen. Is this what you wanted to do?', 'purchaseMisc(\'helium\')', 100)"> 
+							<div class="boneBtn boneBtnStateOn pointer noselect" id="heliumPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Instant Portal for 100 bones. Your new helium will appear in the View Perks menu at the bottom of the screen. Is this what you wanted to do?', 'purchaseMisc(\'helium\')', 100)"> 
 								Buy Portal (100 bones)
 							</div>
 							<div class="miscDesc">
@@ -151,17 +151,17 @@
 							</div>
 						</div>
 						<div id="buyHeirloomArea">
-							<div class="boneBtn primaryColor pointer noselect" id="heirloomPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Heirloom for 30 bones. This will be created at a random rarity, and will be just like completing a Void Map at your highest ever Zone reached. Are you sure?', 'purchaseMisc(\'heirloom\')', 30)"> 
+							<div class="boneBtn boneBtnStateOn pointer noselect" id="heirloomPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Heirloom for 30 bones. This will be created at a random rarity, and will be just like completing a Void Map at your highest ever Zone reached. Are you sure?', 'purchaseMisc(\'heirloom\')', 30)"> 
 								Buy Heirloom (30 bones)
 							</div>
 							
 							<div class="miscDesc">
 							<div id="heirloomRarityMisc"></div>
-								Get one Heirloom at the chances above, based on highest zone.
+								Get&nbsp;one&nbsp;Heirloom&nbsp;at&nbsp;the&nbsp;chances&nbsp;above,&nbsp;based&nbsp;on&nbsp;highest&nbsp;zone
 							</div>							
 						</div>
 						<div id="mapsMisc">
-							<div class="boneBtn primaryColor pointer noselect" id="mapsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Golden Maps for 20 bones. All of your current and future maps will gain +100% loot added to their normal loot roll. Is this what you wanted to do?', 'purchaseMisc(\'maps\')', 20)">
+							<div class="boneBtn boneBtnStateOn pointer noselect" id="mapsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Golden Maps for 20 bones. All of your current and future maps will gain +100% loot added to their normal loot roll. Is this what you wanted to do?', 'purchaseMisc(\'maps\')', 20)">
 								Buy Golden Maps (20 bones)
 							</div>
 							<div class="miscDesc" id="goldMapsDesc">
@@ -169,7 +169,7 @@
 							</div>
 						</div>
 						<div id="trimpsMisc">
-							<div class="boneBtn primaryColor pointer noselect" id="trimpsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Quick Trimps for 20 bones. All of your Trimps will create more Trimps twice as fast until the next time you use the Portal. Is this what you wanted to do?', 'purchaseMisc(\'trimps\')', 20)">
+							<div class="boneBtn boneBtnStateOn pointer noselect" id="trimpsPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase Quick Trimps for 20 bones. All of your Trimps will create more Trimps twice as fast until the next time you use the Portal. Is this what you wanted to do?', 'purchaseMisc(\'trimps\')', 20)">
 								Buy Quick Trimps (20 bones)
 							</div>
 							<div class="miscDesc" id="quickTrimpsDesc">
@@ -777,27 +777,52 @@
 					</td>
 				</tr>
 			</table>
-			<div id="settingsHere" style="display: none"></div>
+			<div id="settingsHere" style="display: none">
+				<div id='searchSettingsWindow'>
+					<div id='settingTitleBar'>
+						<div class='noselect optionContainer settingsBtn tealColor settingTypeBtn' onclick='toggleSettingSection(false)'>Browse All</div>
+						<span id='searchSettingsTitle'>Choose A Category Below, Or Search For A Setting/Keyword:</span>&nbsp;
+						<input id='searchSettings' onkeyup='searchSettings(this)' /><br/>
+						<div id='settingsTabs'>
+							<ul class="nav nav-tabs nav-justified">
+								<li role="presentation" id='GeneralTab' onclick="settingTab('General')" class="tabNotSelected settingTab"><a>General</a></li>
+								<li role="presentation"  id='QOLTab' onclick="settingTab('QOL')" class="tabNotSelected settingTab"><a>Quality of Life</a></li>
+								<li role="presentation"  id='AlertsTab' onclick="settingTab('Alerts')" class="tabNotSelected settingTab"><a>Pop-ups and Alerts</a></li>
+								<li role="presentation"  id='LayoutTab' onclick="settingTab('Layout')" class="tabNotSelected settingTab"><a>Layout</a></li>
+								<li role="presentation"  id='OtherTab' onclick="settingTab('Other')" class="tabNotSelected settingTab"><a>Other</a></li>
+							</ul>
+						</div>
+					</div>					
+					<div id='settingSearchResults'></div>
+				</div>
+				<div id="allSettings" style="display: none">
+					<div class='noselect optionContainer settingsBtn tealColor' onclick='toggleSettingSection(true)'>Back to Search</div>
+					<div id="allSettingsHere"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 	</div>
 
 	<div id="portalWrapper" style="display: none" class="portalMk0">
-		<div class="row">
-			<div class="col-xs-3"></div>
-			<div class="col-xs-6">
-				<div id="portalTitle"></div>
-				<div id="portalError" style="display: none"></div>
-				<div id="portalHelium"><span id="portalHeliumOwned">0</span> Helium Canisters</div>
-				<div id="portalTotalHelium"><span id="totalHeliumEarned">0</span> Earned All Time</div>
-				<div id="portalTotalPortals"><span id="totalPortals">0</span> Portals Used</div>
+		<div id='titleRow'>
+			<div id='titleCol1' class='titleCol'>
+				<div>
+					<div id="portalTitle"></div>
+					<div id="portalError" style="display: none"></div>
+				</div>
 			</div>
-			<div class="col-xs-3">
+			<div id='titleCol2' class='titleCol'>
+				<div>
+					<div id="portalHelium"><span id="portalHeliumOwned">0</span> Helium Canisters</div>
+					<div id="portalTotalHelium"><span id="totalHeliumEarned">0</span> Earned All Time</div>
+					<div id="portalTotalPortals"><span id="totalPortals">0</span> Portals Used</div>		
+				</div>
 			</div>
 		</div>
-		
 		<div class="row" id="portalRow">
-			<div id="perkCol" class="col-xs-6">
+			<div id="perkCol" class="col-xs-7">
+			<div class="challengeTitle">Perks</div>
 			<div id="portalStory"></div>
 				<div id="pnumTabs" class="numTabs">
 					<ul class="nav nav-tabs nav-justified" id="portalTabs">
@@ -830,7 +855,7 @@
 				
 				<div id="portalUpgradesHere"></div>
 			</div>
-			<div id="challengeCol" class="col-xs-6">
+			<div id="challengeCol" class="col-xs-5">
 				<div id="viewChallenge" style="display: none">
 					<span id="viewChallengeText">You do not currently have an active challenge.</span>
 				<br/><br/>
@@ -838,7 +863,7 @@
 
 				</div>
 				<div id="challenges"  style="display: none">
-					<div id="challengeTitle">Challenges</div>
+					<div class="challengeTitle">Challenges</div>
 					<div id="challengeDescription">
 						<span id="challengeDescriptionPre">You can also choose to activate a challenge before using your portal. The first time you complete a challenge, you'll earn a permanent reward. You can abandon or view an active challenge at any time by clicking the "View Perks" button.</span>
 						<span id="flagMustRestart" style="display: none;"><b>If you abandon this challenge, the portal will become unstable and the world will restart (you'll keep permanent bonuses like helium)</b></span>
@@ -1015,9 +1040,9 @@
 	</div>
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?75"></script>
-	<script type="text/javascript" src="updates.js?75"></script>
-	<script type="text/javascript" src="main.js?75"></script>
+	<script type="text/javascript" src="config.js?76"></script>
+	<script type="text/javascript" src="updates.js?76"></script>
+	<script type="text/javascript" src="main.js?76"></script>
 </body>
 
 </html>

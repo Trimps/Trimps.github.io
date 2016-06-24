@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.4,
+		version: 3.5,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -155,6 +155,9 @@ var toReturn = {
 		rememberInfo: false,
 		spireActive: false,
 		spireDeaths: 0,
+		Geneticistassist: false,
+		GeneticistassistSetting: -1,
+		GeneticistassistSteps: [-1, 1, 10, 30],
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -222,8 +225,9 @@ var toReturn = {
 			if (world > 6 && game.global.mapsActive) amt *= 1.1;
 			if (!corrupt)
 				amt *= game.badGuys[name].attack;
-			else 
+			else {
 				amt *= getCorruptScale("attack");
+			}
 			return Math.floor(amt);
 		},
 		getEnemyHealth: function (level, name, corrupt) {
@@ -256,6 +260,7 @@ var toReturn = {
 		menu: {
 			autoSave: {
 				enabled: 1,
+				extraTags: "popular general",
 				description: "Automatically save the game once per minute",
 				titles: ["Not Saving", "Auto Saving"],
 				onToggle: function () {
@@ -266,6 +271,7 @@ var toReturn = {
 			},
 			usePlayFab: {
 				enabled: 0,
+				extraTags: "popular general cloud",
 				description: "<b>Beta:</b> Whenever the game saves, also back up a copy online with PlayFab. While using this setting, you will be asked if you want to download your online save if it is ever ahead of the version on your computer. You can also manually import your save from PlayFab through the Import menu.",
 				titles: ["Not Saving Online", "Saving with PlayFab"],
 				onToggle: function () {
@@ -276,26 +282,31 @@ var toReturn = {
 			},
 			standardNotation: {
 				enabled: 1,
+				extraTags: "layout",
 				description: "Swap between standard formatting (12.7M, 540B), engineering notation (12.7e6, 540e9), or scientific notation (1.27e7, 5.40e11).",
 				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation"],
 			},
 			tooltips: {
 				enabled: 1,
+				extraTags: "alerts",
 				description: "Hide button tooltips unless shift is held.",
 				titles: ["Shift for Tooltips", "Showing Tooltips"]
 			},
 			tooltipPosition: {
 				enabled: 0,
-				description: "Toggle between top and right of mouse tooltip positioning, and centered above or below positioning for the tooltips.",
+				extraTags: "alerts layout",
+				description: "Toggle the position of your tooltips between top right, centered above or centered below the mouse.",
 				titles: ["Top Right Tips", "Center Bottom Tips", "Center Top Tips"]
 			},
 			queueAnimation: {
 				enabled: 1,
+				extraTags: "layout animation performance",
 				description: "Toggle on or off the building queue blue color animation.",
-				titles: ["No Animation", "Animation"]
+				titles: ["No Queue Animation", "Queue Animation"]
 			},
 			barOutlines: {
 				enabled: 1,
+				extraTags: "layout",
 				description: "Toggle on or off a black bar at the end of all progress bars. Can help discern where the progress bar ends.",
 				titles: ["No Outline", "Outline"],
 				onToggle: function () {
@@ -308,11 +319,13 @@ var toReturn = {
 			},
 			menuFormatting: {
 				enabled: 1,
+				extraTags: "layout",
 				description: "Toggle on or off large number formatting for jobs and buildings on the left menu. This turns 1000000 in to 1M.",
 				titles: ["No Menu Formatting", "Formatting Menu"]
 			},
 			progressBars: {
 				enabled: 1,
+				extraTags: "other layout",
 				description: "Toggle progress bars to on, off, or performance. Performance and off will reduce CPU usage.",
 				titles: ["No Progress Bars", "Progress Bars", "Performance Bars"],
 				onToggle: function () {
@@ -328,21 +341,25 @@ var toReturn = {
 			},
 			confirmhole: {
 				enabled: 1,
-				description: "Toggles on or off the confirmation pop-up on scary purchases like Wormholes.",
+				extraTags: "alerts",
+				description: "Toggles on or off the confirmation popup on scary purchases like Wormholes.",
 				titles: ["Not Confirming", "Confirming"],
 			},
 			lockOnUnlock: {
 				enabled: 0,
+				extraTags: "qol",
 				description: "Enables/disables the locking of buildings, jobs, upgrades, and equipment for 1 second after unlocking something new. Useful to prevent accidental purchases.",
 				titles: ["Not Locking", "Locking"],
 			},
 			achievementPopups: {
 				enabled: 1,
+				extraTags: "alerts",
 				description: "Decide whether or not you want popups on completing an achievement.",
-				titles: ["Not Popping", "Popping"]
+				titles: ["No Achieve Popup", "Popup Achievements"]
 			},
 			mapLoot: {
 				enabled: 0,
+				extraTags: "qol",
 				description: "<p>Choose which upgrades you want first if it has been a while since you last ran maps.</p><p><b>Tier first</b> will cause maps to drop all items for the lowest tier before moving to the next. (Greatsword II -> Breastplate II -> Shield III)</p><p><b>Equip first</b> will start from Shield and drop all available Shield prestiges before continuing to Dagger and so on. (Shield III -> Shield IV -> Dagger III)</p>",
 				titles: ["Tier First", "Equip First"],
 				secondLocation: "togglemapLoot2",
@@ -367,20 +384,24 @@ var toReturn = {
 			},
 			boneAlerts: {
 				enabled: 1,
+				extraTags: "alerts",
 				description: "Hide popup confirmation messages when in the Bone Trader or Heirlooms menus.",
-				titles: ["Not Popping", "Popping"]
+				titles: ["Not Confirming Bones", "Confirming Bones"]
 			},
 			showAlerts: {
 				enabled: 1,
+				extraTags: "alerts",
 				description: "Toggle on or off the display of yellow alert icons when unlocking something new.",
 				titles: ["Not Alerting", "Alerting"]
 			},
 			showFullBreed: {
 				enabled: 0,
+				extraTags: "popular general",
 				description: "Display time to breed a full group of soldiers next to the current breed timer.",
 				titles: ["Less Breed Timer", "More Breed Timer"]
 			},
 			darkTheme: {
+				extraTags: "general",
 				enabled: 1,
 				description: "Toggle between the default Trimps theme, a custom dark theme made by u/Grabarz19, and the default theme with a black background.",
 				titles: ["Black Background", "Default Theme", "Dark Theme"],
@@ -415,11 +436,13 @@ var toReturn = {
 			},
 			fadeIns: {
 				enabled: 1,
+				extraTags: "layout performance animation",
 				description: "Toggle on or off the fade in effect on elements.",
 				titles: ["Not Fading", "Fading"]
 			},
 			extraStats: {
 				enabled: 0,
+				extraTags: "layout",
 				description: "Toggle on or off adding extra information to map items.",
 				titles: ["Standard Maps", "Extra Info"],
 				onToggle: function () {
@@ -427,8 +450,9 @@ var toReturn = {
 				}
 			},
 			useAverages: {
+				extraTags: "popular general",
 				enabled: 0,
-				description: "<b>Experimental, may be jumpy.</b> Toggle on or off whether or not loot from maps and the world should be counted in the loot breakdown and tooltip calculations. Calculates the average of the last two minutes of loot. If you want to clear the last 2 minutes, try toggling it off and on again.",
+				description: "Toggle whether or not loot from maps and the world should be counted in the loot breakdown and tooltip calculations. Calculates the average of the last two minutes of loot. If you want to clear the last 2 minutes, try toggling it off and on again.",
 				titles: ["Not Averaging", "Averaging"],
 				onToggle: function () {
 					for (var item in game.global.lootAvgs){
@@ -438,21 +462,25 @@ var toReturn = {
 				}
 			},
 			voidPopups: {
+				extraTags: "alerts",
 				enabled: 1,
 				description: "Decide whether or not you want popups on looting an Heirloom.",
 				titles: ["No Heirloom Pop", "Popping Heirlooms"]
 			},
 			detailedPerks: {
+				extraTags: "qol",
 				enabled: 0,
 				description: "Decide whether or not to show extra information on Perk buttons",
 				titles: ["Minimal Perk Info", "Extra Perk Info"]
 			},
 			alwaysAbandon: {
+				extraTags: "general",
 				enabled: 0,
 				description: "Decide whether or not to wait for soldiers to die on switching between maps and world. Toggling this on will automatically abandon your soldiers.",
 				titles: ["Wait to Travel", "Auto Abandon"]
 			},
 			extraMapBtns: {
+				extraTags: "layout",
 				enabled: 0,
 				description: "Toggle the button menu to the right of the map grid",
 				titles: ["Less Map Buttons", "Extra Map Buttons"],
@@ -466,8 +494,18 @@ var toReturn = {
 					return (game.global.totalPortals > 0)
 				},
 			},
+			GeneticistassistTarget: {
+				enabled: 0,
+				extraTags: "popular general",
+				description: "Customize your three available Geneticistassist targets.",
+				titles: ["Geneticistassist Targets"],
+				lockUnless: function () {
+					return (game.global.Geneticistassist);
+				}
+			},
 			overkillColor: {
 				enabled: 1,
+				extraTags: "layout",
 				description: "Choose if you would like to see a different cell color for cells that you overkilled. Toggle between off, showing both cells involved in the overkill, or just showing the 1 cell that was skipped.",
 				titles: ["No Overcolors", "1 Overkill Cell", "2 Overkill Cells"],
 				lockUnless: function () {
@@ -476,22 +514,25 @@ var toReturn = {
 			},
 			forceQueue: {
 				enabled: 0,
+				extraTags: "qol",
 				description: "Choose whether or not to force instant-craft buildings to use the queue. Currently applies only to Warpstation. May be useful for double checking prices before building!",
 				titles: ["Not Forcing Queue", "Forcing Queue"],
 				lockUnless: function () {
-					return (game.global.sLevel == 4);
+					return (game.global.sLevel >= 4);
 				}
 			},
 			mapsOnSpire: {
 				enabled: 1,
+				extraTags: "other",
 				description: "Choose whether you would like the game to pause combat by sending you to maps when you reach the spire.",
-				titles: ["Keep Fighting", "Pause on Spire"],
+				titles: ["Keep Fighting", "Map at Spire"],
 				lockUnless: function () {
 					return (game.global.highestLevelCleared >= 199);
 				}				
 			},
 			pauseGame: {
 				enabled: 0,
+				extraTags: "other",
 				description: "Pause your game. This will pause all resource gathering, offline progress, and timers.",
 				titles: ["Not Paused", "Paused"],
 				timeAtPause: 0,
@@ -516,10 +557,18 @@ var toReturn = {
 						setTimeout(updatePortalTimer, 1000);
 						swapClass("timer", "timerNotPaused", document.getElementById("portalTimer"));
 					}
-				}
-			},			
+				},
+				locked: true
+			},
+			disablePause: {
+				enabled: 1,
+				extraTags: "other",
+				description: "You can pause the game by clicking the run timer in the bottom right of the screen. This setting allows you to remove that ability!",
+				titles: ["Disable Pausing", "Enable Pausing"]
+			},
 			deleteSave: {
 				enabled: 0,
+				extraTags: "reset hard wipe clear other",
 				description: "Delete your save and start fresh. Your Trimps will not be happy.",
 				titles: ["Delete Save"],
 				onToggle: function () {
@@ -868,7 +917,10 @@ var toReturn = {
 			unlockString: "reach Zone 40"
 		},
 		Scientist: {
-			description: "Attempt modifying the portal to harvest resources when travelling. Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists. Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal.",
+			get description (){ 
+				var is5 = (game.global.highestLevelCleared >= 124 && game.global.sLevel >= 4);
+				return "Attempt modifying the portal to " + ((is5) ? "retain positive qualities from previous dimensions" : "harvest resources when travelling") + ". Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists" + ((is5) ? " and <b style='color: maroon'>all enemy damage will be 10X higher</b>" : "") + ". Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal."
+			},
 			completed: false,
 			heldBooks: 0,
 			filter: function (fromCheck) {
@@ -878,8 +930,11 @@ var toReturn = {
 					if (game.global.highestLevelCleared > 69 && game.global.prisonClear) return (game.global.highestLevelCleared >= 89);
 					else return true;
 				}
-				else if (game.global.sLevel >= 3){
+				else if (game.global.sLevel == 3){
 					 return (game.global.highestLevelCleared >= 109);
+				}
+				else if (game.global.sLevel >= 4){
+					return (game.global.highestLevelCleared >= 129);
 				}
 			},
 			abandon: function () {
@@ -889,7 +944,7 @@ var toReturn = {
 					unlockUpgrade("Speedscience");
 				}
 				message("You can research science again!", "Notices");
-				if (game.global.sLevel == 4) {
+				if (game.global.sLevel >= 4) {
 					game.buildings.Warpstation.craftTime = 0;
 					if (game.global.autoUpgrades) document.getElementById("autoPrestigeBtn").style.display = "block";
 				}
@@ -897,6 +952,8 @@ var toReturn = {
 			start: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
 				game.resources.science.owned = getScientistInfo(getScientistLevel());
+				game.global.autoUpgrades = false;
+				toggleAutoUpgrades(true);
 			},
 			onLoad: function () {
 				document.getElementById("scienceCollectBtn").style.display = "none";
@@ -906,7 +963,8 @@ var toReturn = {
 				if (game.global.sLevel == 0) return "reach Zone 40";
 				else if (game.global.sLevel == 1) return "reach Zone 50";
 				else if (game.global.sLevel == 2) return "reach Zone 90";
-				else if (game.global.sLevel >= 3) return "reach Zone 110";
+				else if (game.global.sLevel == 3) return "reach Zone 110";
+				else if (game.global.sLevel >= 4) return "reach Zone 130";
 			}
 		},
 		Meditate: {
@@ -951,7 +1009,7 @@ var toReturn = {
 			unlockString: "reach Zone 70"
 		},
 		Electricity: {
-			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with double helium for all Blimps and Improbabilities killed up to but not including Zone 80. This is repeatable!",
+			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with 2.5X helium for all Blimps and Improbabilities killed up to but not including Zone 80. This is repeatable!",
 			completed: false,
 			hasKey: false,
 			filter: function () {
@@ -1111,6 +1169,16 @@ var toReturn = {
 			abandon: function () {
 				if (document.getElementById('determinedBuff')) document.getElementById('determinedBuff').style.display = "none";
 			}
+		},
+		Corrupted: {
+			description: "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60 instead of Z181. The Corruption in this dimension grants helium, but 50% less than normal. Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to Zone 190, and will instantly transport you back to your normal dimension.",
+			filter: function () {
+				return (game.global.highestLevelCleared >= 189);
+			},
+			heliumMultiplier: 1,
+			heldHelium: 0,
+			heliumThrough: 190,
+			unlockString: "reach Zone 190"
 		}
 	},
 	
@@ -2458,14 +2526,15 @@ var toReturn = {
 			loot: function (level) {
 				checkAchieve("prisonTimed");
 				if (game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") {
-					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium, and you may repeat the challenge.", "Notices");
+					var reward = Math.floor(game.challenges.Electricity.heldHelium * 1.5);
+					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
 					else if (game.global.challengeActive == "Mapocalypse") {
 						message("You have completed the Mapocalypse challenge! You have unlocked the 'Siphonology' Perk, and have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium.", "Notices");
 						game.portal.Siphonology.locked = false;
 						game.challenges.Mapocalypse.abandon();
 					}
-					game.resources.helium.owned += game.challenges.Electricity.heldHelium;
-					game.global.totalHeliumEarned += game.challenges.Electricity.heldHelium;
+					game.resources.helium.owned += reward;
+					game.global.totalHeliumEarned += reward;
 					game.challenges.Electricity.heldHelium = 0;
 					game.global.challengeActive = "";
 					game.global.radioStacks = 0;
@@ -2632,7 +2701,7 @@ var toReturn = {
 					}
 					game.global.slowDone = true;
 				}
-				else if ((game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165) || ((game.global.challengeActive == "Watch" || game.global.challengeActive == "Lead") && game.global.world >= 180)){
+				else if ((game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165) || ((game.global.challengeActive == "Watch" || game.global.challengeActive == "Lead") && game.global.world >= 180) || (game.global.challengeActive == "Corrupted" && game.global.world >= 190)){
 					var challenge = game.global.challengeActive;
 					var reward = (game.challenges[challenge].heliumMultiplier) ? game.challenges[challenge].heliumMultiplier : 2;
 					reward = game.challenges[challenge].heldHelium * reward;
@@ -2917,7 +2986,7 @@ var toReturn = {
 			},
 			Bionic: {
 				resourceType: "Any",
-				upgrade: "roboTrimp"
+				upgrade: ["roboTrimp", "Geneticistassist"]
 			},
 			Void: {
 				resourceType: "Any",
@@ -2980,6 +3049,22 @@ var toReturn = {
 						message("<span class='icomoon icon-chain'></span> Hey look, another baby RoboTrimp! You decide to add him to your collection. You now deal " + Math.floor(values[0]) + "% extra damage thanks to your pets, and MagnetoShriek now removes " + Math.floor(values[1]) + "% of an Improbability's attack", "Notices");					
 					}
 				}
+			}
+		},
+		Geneticistassist: {
+			world: 170,
+			level: 79,
+			icon: "*clipboard",
+			title: "Geneticistassist",
+			canRunOnce: true,
+			filterUpgrade: true,
+			specialFilter: function (){
+				return (!game.global.Geneticistassist);
+			},
+			fire: function () {
+				tooltip('The Geneticistassist', null, 'update');
+				game.global.Geneticistassist = true;
+				unlockJob("Geneticist");
 			}
 		},
 		AutoStorage: {
@@ -5541,4 +5626,4 @@ var toReturn = {
 };
 return toReturn;
 }
-var game = newGame();
+var game = newGame();;

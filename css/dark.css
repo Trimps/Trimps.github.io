@@ -175,7 +175,7 @@
     border: 1px solid #212121
 }
 
-.dangerColor, .colorDanger {
+.dangerColor, .colorDanger, .stateDanger {
     background-color: #441817;
 }
 .successColor, .colorSuccess {
@@ -191,6 +191,14 @@
     margin-top: -1px;
     width: 25%;
     border-color: #5D5D5D;
+}
+
+#GeneticistassistContainer {
+     width: 50%;
+}
+
+#Geneticistassist.stateDisabled {
+    background-color:#441817;
 }
 
 .portalThing, .challengeThing{
@@ -356,6 +364,14 @@
 
 .primaryColor {
 	background-color: #183854;
+}
+
+.boneBtnStateOn{
+	background-color: #183854;
+}
+
+#searchSettings{
+	color: white;
 }
 
 .table-striped > tbody > tr:nth-of-type(2n) {
