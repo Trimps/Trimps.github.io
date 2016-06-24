@@ -2432,6 +2432,11 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		if (menuOption.onToggle) menuOption.onToggle();
 	}
 	else if (setting == "usePlayFab") menuOption.onToggle();
+	if (fromPortal){
+		document.getElementById('ptabInfoText').innerHTML = (menuOption.enabled) ? "Less Info" : "More Info";
+		displayPortalUpgrades(true);
+		return;
+	}
 	var menuElem = [];
 	menuElem[0] = (elem) ? elem : document.getElementById("toggle" + setting);
 	if (typeof menuOption.secondLocation !== 'undefined') menuElem[1] = document.getElementById(menuOption.secondLocation);
@@ -2441,11 +2446,6 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		swapClass("settingBtn", "settingBtn" + menuOption.enabled, menuElem[x]);
 		if (setting == "deleteSave") return;
 		if (!updateOnly && elem) cancelTooltip();
-		if (fromPortal){
-			document.getElementById('ptabInfoText').innerHTML = (menuOption.enabled) ? "Less Info" : "More Info";
-			displayPortalUpgrades(true);
-			return;
-		}
 		menuElem[x].onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
 	}
 	if (!updateOnly && elem) tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
