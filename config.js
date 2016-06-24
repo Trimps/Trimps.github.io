@@ -877,7 +877,7 @@ var toReturn = {
 			unlockString: "reach Zone 35"
 		},
 		Balance: { 
-			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 100% more health, enemies in world deal 17% more damage, and enemies in maps deal 135% more damage. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant double helium earned for all Blimps slain and Void Maps cleared up to Zone 40. This challenge is repeatable!",
+			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 100% more health, enemies in world deal 17% more damage, and enemies in maps deal 135% more damage. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant an additional 100% of all helium earned up to that point. This challenge is repeatable!",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 39);
@@ -1009,7 +1009,7 @@ var toReturn = {
 			unlockString: "reach Zone 70"
 		},
 		Electricity: {
-			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with 2.5X helium for all Blimps and Improbabilities killed up to but not including Zone 80. This is repeatable!",
+			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with an additional 150% of all helium earned up to but not including Zone 80. This is repeatable!",
 			completed: false,
 			hasKey: false,
 			filter: function () {
@@ -1072,7 +1072,7 @@ var toReturn = {
 			unlockString: "reach Zone 120"
 		},
 		Crushed: {
-			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with double helium earned up to but not including Z125. This challenge is repeatable.",
+			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with an additional 100% of all helium earned up to but not including Z125. This challenge is repeatable.",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 124);
@@ -1095,7 +1095,7 @@ var toReturn = {
 			unlockString: "reach Zone 130"
 		},
 		Nom: {
-			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with triple helium for all Blimps and Improbabilities killed. This is repeatable!",
+			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with an additional 200% of all helium earned up to that point. This is repeatable!",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 144);
@@ -1122,7 +1122,7 @@ var toReturn = {
 			unlockString: "reach Zone 150"
 		},
 		Toxicity: {
-			description: "Travel to a dimension rich in helium, but also rich in toxic bad guys. All bad guys have 5x attack and 2x health. Each time you attack a bad guy, your Trimps lose 5% of their health, and toxins are released into the air which reduce the breeding speed of your Trimps by 0.3% (of the current amount), but also increase all loot found by 0.15%, stacking up to 1500 times. These stacks will reset when you clear a zone. Completing <b>Zone 165</b> with this challenge active will reward you with triple helium for all Blimps and Improbabilities killed. This is repeatable!",
+			description: "Travel to a dimension rich in helium, but also rich in toxic bad guys. All bad guys have 5x attack and 2x health. Each time you attack a bad guy, your Trimps lose 5% of their health, and toxins are released into the air which reduce the breeding speed of your Trimps by 0.3% (of the current amount), but also increase all loot found by 0.15%, stacking up to 1500 times. These stacks will reset when you clear a zone. Completing <b>Zone 165</b> with this challenge active will reward you with an additional 200% of all helium earned up to that point. This is repeatable!",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 164);
@@ -1146,7 +1146,7 @@ var toReturn = {
 			unlockString: "reach Zone 170"
 		},
 		Watch: {
-			description: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Completing <b>Zone 180</b> with this challenge active will reward you with 2.5X helium earned from any source up to Zone 180.",
+			description: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 150% of all helium earned up to that point.",
 			filter: function () {
 				return (game.global.highestLevelCleared >= 179);
 			},
@@ -1156,7 +1156,7 @@ var toReturn = {
 			unlockString: "reach Zone 180"
 		},
 		Lead: {
-			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with 3.5X helium earned from any source up to Zone 180.",
+			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 250% of all helium earned up to that point.",
 			filter: function () {
 				return (game.global.highestLevelCleared >= 179);
 			},
@@ -1171,7 +1171,7 @@ var toReturn = {
 			}
 		},
 		Corrupted: {
-			description: "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60 instead of Z181. The Corruption in this dimension grants helium, but 50% less than normal. Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to Zone 190, and will instantly transport you back to your normal dimension.",
+			description: "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60 instead of Z181. The Corruption in this dimension grants helium, but 50% less than normal. Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension.",
 			filter: function () {
 				return (game.global.highestLevelCleared >= 189);
 			},
