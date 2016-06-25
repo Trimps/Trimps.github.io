@@ -2074,6 +2074,7 @@ function freeWorkspace(){
 }
 
 function removeGeneticist(){
+	if (game.jobs.Geneticist.owned <= 0) return;
 	game.resources.trimps.employed--;
 	game.jobs.Geneticist.owned--;
 }
