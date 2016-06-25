@@ -2044,6 +2044,8 @@ function buyJob(what, confirmed, noTip) {
 
 function addGeneticist(){
 	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var owned = game.resources.trimps.owned - game.resources.trimps.employed;
+	if (owned < 1) return;
 	if (workspaces <= 0) {
 		//try to free up a workspace if possible
 		if (!freeWorkspace()) return;
@@ -2380,6 +2382,10 @@ function customizeGATargets(){
 			break;
 		}
 		var val = parseFloat(elem.value);
+		if (toKeep.indexOf(val) != -1) {
+			error = val + " cannot be used twice. Please choose unique numbers!";
+			break;
+		}
 		if (isNumberBad(val)){
 			error = elem.value + " seconds would be really difficult to target. Could you pick a slightly more... numerical number?";
 			break;
