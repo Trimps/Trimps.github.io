@@ -809,13 +809,13 @@ function getScientistInfo(number, reward){
 			return (reward) ? "start with 5 Barns, 5 Sheds, 5 Forges, and T2 Equipment unlocked" : 8000;
 		}
 		case 3: {
-			return (reward) ? "start with full Trimps and double Efficiency" : 1500;
+			return (reward) ? "start with full Trimps and 200% player efficiency" : 1500;
 		}
 		case 4: {
 			return (reward) ? "earn two levels of each prestige upgrade per map, unlock AutoPrestiges, and your Warpstations will build instantly, skipping the queue" : 70;
 		}
 		case 5: {
-			return (reward) ? "permanently increase all helium found by 0.5% to the power of your current world number, and you'll start with 10X efficiency, and 50 Barns, Sheds, and Forges" : 1500;
+			return (reward) ? "permanently increase all helium found by 0.5% to the power of your current zone number. You'll also start with 1000% player efficiency and 50 Barns, Sheds, and Forges" : 1500;
 		}
 	}
 }
