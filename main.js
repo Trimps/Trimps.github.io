@@ -1230,7 +1230,7 @@ function removePerk(what) {
 }
 
 function isNumberBad(number) {
-	return (Number.isNaN(number) || typeof number === 'undefined' || number < 0 || !Number.isFinite(number));
+	return (isNaN(number) || typeof number === 'undefined' || number < 0 || !Number.isFinite(number));
 }
 
 function updatePerkLevel(what){
