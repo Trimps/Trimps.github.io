@@ -1225,12 +1225,7 @@ function getLootBd(what) {
 			if (game.global.voidBuff) {
 				currentCalc *= 2;
 				textString += "<tr><td class='bdTitle'>Void Map</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
-			}			
-			if (game.global.voidBuff) {
-				currentCalc *= 2;
-				textString += "<tr><td class='bdTitle'>Spire Bonus</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
-			}
-			
+			}					
 			
 	}
 	if (game.global.mapsActive && what != "Helium") {
