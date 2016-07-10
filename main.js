@@ -217,8 +217,17 @@ function load(saveString, autoLoad, fromPf) {
 		savegame.global.isBeta = true;
 	}
 	savegame.global.version = game.global.version;
-    
-	
+	//Compatibility to new message filter config. Separated from other compatibility as it needs to go in to effect before game has the old booleans copied over it.
+	if (oldVersion < 3.51){
+		if (!savegame.portal.Siphonology.locked) addNewSetting("siphonologyMapLevel");
+		addNewSetting("timestamps");
+		var oldMsg = savegame.global.messages;
+		savegame.global.messages = game.global.messages;
+		for (var item in oldMsg){
+			savegame.global.messages.enabled = oldMsg[item];
+		}
+	}
+	//Load global
 	if (typeof savegame.global !== 'undefined') {
         for (var item in game.global) {
             if (item == "time" || item == "start" || item == "lastFightUpdate" || item == "prestige") continue;
@@ -231,6 +240,7 @@ function load(saveString, autoLoad, fromPf) {
             }
         }
     }
+	//Load the rest of the game.categories
     for (var a in game) { //global, resources, jobs, buildings, upgrades, triggers, equipment, settings, options
         if (a == "global") continue;
         if (a == "badGuys") continue;
@@ -416,6 +426,7 @@ function load(saveString, autoLoad, fromPf) {
 		if (game.global.highestLevelCleared >= 59) game.global.autoUpgradesAvailable = true;
 		if (game.global.sLevel >= 4) game.buildings.Warpstation.craftTime = 0;
 	}
+
 	//End compatibility
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
@@ -424,6 +435,7 @@ function load(saveString, autoLoad, fromPf) {
 		fadeIn("equipmentTab", 10);
 		fadeIn("equipmentTitleDiv", 10);
         drawGrid();
+		if (game.global.world == 200 && !game.global.spireActive) clearSpireMetals();
         document.getElementById('metal').style.visibility = "visible";
         for (var x = 0; x <= game.global.lastClearedCell; x++) {
             swapClass("cellColor", "cellColorBeaten", document.getElementById("cell" + x));
@@ -496,6 +508,7 @@ function load(saveString, autoLoad, fromPf) {
 	if (game.global.challengeActive == "Balance"){
 		updateBalanceStacks();
 	}
+	if (game.global.spireActive) handleExitSpireBtn();
 	game.options.displayed = false;
 	game.options.menu.barOutlines.onToggle();
 	game.options.menu.progressBars.onToggle();
@@ -1216,7 +1229,7 @@ function removePerk(what) {
 		return;
 	}
 	var tempTotalSpentTemp = game.resources.helium.totalSpentTemp - refund;
-	if (Number.isNaN(tempTotalSpentTemp) || !Number.isFinite(tempTotalSpentTemp)){
+	if (isNaN(tempTotalSpentTemp) || !isFinite(tempTotalSpentTemp)){
 		console.log("Trying to set spent helium to " + tempTotalSpentTemp);
 		return;
 	}
@@ -1230,7 +1243,7 @@ function removePerk(what) {
 }
 
 function isNumberBad(number) {
-	return (isNaN(number) || typeof number === 'undefined' || number < 0 || !Number.isFinite(number));
+	return (isNaN(number) || typeof number === 'undefined' || number < 0 || !isFinite(number));
 }
 
 function updatePerkLevel(what){
@@ -1377,6 +1390,7 @@ function activatePortal(){
 	game.resources.helium.respecMax = 0;
 	game.global.totalPortals++;
 	resetGame(true);
+	if (game.global.totalPortals == 1) addNewSetting('extraMapBtns');
 	displayPerksBtn();
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
@@ -1454,7 +1468,7 @@ function scaleLootLevel(level, mapLevel) {
     return level;
 }
 
-function rewardResource(what, baseAmt, level, checkMapLootScale){
+function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage){
     var map;
 	var world;
 	var cell = level;
@@ -1534,6 +1548,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale){
 	if (what == "helium" && game.global.sLevel >= 5){
 		amt *= Math.pow(1.005, game.global.world);
 	}
+	if (givePercentage > 0) amt *= givePercentage;
 	amt = Math.floor(amt);
     addResCheckMax(what, amt);
 	if (game.options.menu.useAverages.enabled){
@@ -2560,7 +2575,7 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
         loot: (lootOverride) ? lootOverride : lootg,
 		noRecycle: setNoRecycle ? true : false
     });
-    if (!messageOverride) message("You just made " + mapName[0] + "!", "Loot", "th-large");
+    if (!messageOverride) message("You just made " + mapName[0] + "!", "Loot", "th-large", null, 'secondary');
     unlockMap(game.global.mapsOwnedArray.length - 1);
 }
 
@@ -2627,7 +2642,7 @@ function createVoidMap() {
 		voidBuff: voidSpecials[prefixNum]
 	});
 	game.global.totalVoidMaps++;
-	message("A chill runs down your spine, and the bad guy quickly frosts over. A purple glow radiates from the ground in front of you, and a Void Map appears.", "Loot", "th-large", "voidMessage");
+	message("A chill runs down your spine, and the bad guy quickly frosts over. A purple glow radiates from the ground in front of you, and a Void Map appears.", "Loot", "th-large", "voidMessage", 'secondary');
 	addVoidAlert();
 	unlockMap(game.global.mapsOwnedArray.length - 1);
 }
@@ -3477,20 +3492,14 @@ function getCorruptScale(type){
 }
 
 function corruptedReward(){
-	var amt = 0.15;
-	if (game.global.challengeActive == "Corrupted"){
-		if (game.global.world >= 181) amt = .75;
-		else if (game.global.world >= 60) amt = 0.375;
-	}
-	else {
-		//no challenge
-		if (game.global.world >= 181) amt = 1.5;
-		else if (game.global.world >= 60) amt = 0.75;
-	}
-	amt = rewardResource("helium", amt, 99);
+	var amt = 1;
+	var percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
+	if (game.global.world >= 181) amt = 10;
+	else if (game.global.world >= 60) amt = 5;
+	amt = rewardResource("helium", amt, 99, false, percentage);
 	game.global.totalHeliumEarned += amt;
 	distributeToChallenges(amt);
-	return "The corruption quickly swirls into the air and dissipates. You see " + prettify(amt) + " canisters of Helium left on the ground and pick them up. Useful!";
+	return "The corruption quickly swirls into the air and dissipates. <span class='helium'>You see " + prettify(amt) + " canisters of Helium left on the ground and pick them up. Useful!</span>";
 }
 
 function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
@@ -3985,6 +3994,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
     }
 	
 	var currentMapObj;
+	if (game.global.spireActive) handleExitSpireBtn();
 	if (game.global.currentMapId !== "") currentMapObj = getCurrentMapObject();
 	var mapsBtn = document.getElementById("mapsBtn");
 	var recycleBtn = document.getElementById("recycleMapBtn");
@@ -4084,7 +4094,7 @@ function setNonMapBox(){
 
 
 function resetAdvMaps() {
-	document.getElementById("mapLevelInput").value = game.global.world;
+	document.getElementById("mapLevelInput").value = (game.options.menu.siphonologyMapLevel.enabled) ? game.global.world - game.portal.Siphonology.level : game.global.world;
 	var inputs = ["loot", "difficulty", "size"];
 	for (var x = 0; x < inputs.length; x++){
 		var thisVal = (game.global.sessionMapValues[inputs[x]]) ? game.global.sessionMapValues[inputs[x]] : 0;
@@ -4603,6 +4613,7 @@ function nextWorld() {
 	if (game.global.world > game.global.highestLevelCleared){
 		game.global.highestLevelCleared = game.global.world;
 		game.global.voidMaxLevel = game.global.world;
+		if (game.global.world == 199) addNewSetting('mapsOnSpire');
 	}
     game.global.world++;
     document.getElementById("worldNumber").innerHTML = game.global.world;
@@ -4663,6 +4674,11 @@ function startSpire(confirmed){
 	cancelTooltip();
 }
 
+function handleExitSpireBtn(){
+	var display = (game.global.spireActive && !game.global.mapsActive && !game.global.preMapsActive) ? "block" : "none";
+	document.getElementById('exitSpireBtnContainer').style.display = display;
+}
+
 function getSpireStats(cellNum, name, what){
 	var base = (what == "attack") ? 9.4e+62 : 8e+60;
 	var mod = (what == "attack") ? 1.17 : 1.14;
@@ -4674,7 +4690,6 @@ function getSpireStats(cellNum, name, what){
 function deadInSpire(){
 	game.global.spireDeaths++;
 	if (game.global.spireDeaths >= 10) {
-		game.global.spireActive = false;
 		message("You're not yet ready. Maybe you'll be of use in the next lifetime.", "Story");
 		endSpire();
 		return;
@@ -4683,7 +4698,8 @@ function deadInSpire(){
 	message(game.global.spireDeaths + " group" + s + " of Trimps have perished in the Spire.", "Notices");
 }
 
-function endSpire(){
+function endSpire(cancelEarly){
+	game.global.spireActive = false;
 	var cell = game.global.gridArray[game.global.lastClearedCell + 1];
 	if (!cell) return;
 	cell.health = cell.origHealth;
@@ -4694,11 +4710,16 @@ function endSpire(){
 		var elem = document.getElementById("badGuyName");
 		elem.innerHTML = elem.innerHTML.replace("Druopitee", "Improbability");
 	}
+	clearSpireMetals();
+	setNonMapBox();
+	handleExitSpireBtn();
+}
+
+function clearSpireMetals(){
 	var spireMetal = document.getElementsByClassName('spireMetals');
 	for (var x = 0; x < spireMetal.length; x++){
 		spireMetal[x].style.visibility = 'hidden';
-	}
-	setNonMapBox();
+	}	
 }
 
 //Big storyline spoilers in the function below, be careful if you care
@@ -4747,14 +4768,16 @@ function giveSpireReward(level){
 			amt = giveHeliumReward(100);
 			game.portal.Looting_II.locked = false;
 			message("Druopitee collapses to the floor. You were hoping he'd be a little more sane, but whatever. You shut down the corruption device and hope the planet will repair itself soon, then you rummage through his stuff and find keys, surely for the ship! You also find a massive stockpile of <b>" + prettify(amt) + " Helium</b>. Your skills at salvaging things from this Spire have helped you <b>unlock Looting II</b>. You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption in to the planet. Maybe the statues would be bigger if you stayed and helped out?", "Story");
+			checkAchieve("spireTimed");
 			game.global.spireActive = false;
 			setNonMapBox();
+			handleExitSpireBtn();
 			break;
 		default:
 			amt = 0.5;
 			amt *= Math.pow(1.01, level);
 			amt = giveHeliumReward(amt);
-			message("You found " + prettify(amt) + " helium!", "Loot", "oil");
+			message("You found " + prettify(amt) + " helium!", "Loot", "oil", "helium", "helium");
 	}
 }
 
@@ -4830,7 +4853,7 @@ function fight(makeUp) {
 		game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
         var s = (game.resources.trimps.soldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
-        message(game.resources.trimps.soldiers + " Trimp" + s + "just " + randomText + ".", "Combat");
+        message(game.resources.trimps.soldiers + " Trimp" + s + "just " + randomText + ".", "Combat", null, null, 'trimp');
 		if (game.global.spireActive && !game.global.mapsActive) deadInSpire();
         game.global.fighting = false;
         game.resources.trimps.soldiers = 0;
@@ -4854,7 +4877,7 @@ function fight(makeUp) {
 		var killedText = "You " + randomText + aAn + cell.name;
 		if (game.global.challengeActive == "Coordinate") killedText += " group";
 		killedText += "!";
-        if (!game.global.spireActive || cellNum != 99 || game.global.mapsActive) message(killedText, "Combat");
+        if (!game.global.spireActive || cellNum != 99 || game.global.mapsActive) message(killedText, "Combat", null, null, 'enemy');
         try{
 			if (typeof ga !== 'undefined' && cell.level % 10 === 0 && !game.global.mapsActive) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
 			}
@@ -4901,7 +4924,7 @@ function fight(makeUp) {
 					if (typeof game.upgrades[cell.special].prestige && game.global.sLevel >= 4 && game.global.challengeActive != "Mapology"){
 						unlock.fire(cell.level);
 						game.mapUnlocks[cell.special].last += 5;
-						message(cell.text + " " + unlock.message.replace("a book", "two books"), "Unlocks");
+						message(unlock.message.replace("a book", "two books"), "Unlocks", null, null, 'repeated', cell.text);
 						noMessage = true;
 					}
 				}
@@ -4912,9 +4935,9 @@ function fight(makeUp) {
         } else if (cell.special !== "") {
             unlockEquipment(cell.special);
         }
-		if (cell.corrupted && game.global.world >= 20) message(corruptedReward(), "Loot", "oil", "voidMessage");
+		if (cell.corrupted && game.global.world >= 20) message(corruptedReward(), "Loot", "oil", "voidMessage", "helium");
 		var doNextVoid = false;
-		if (typeof unlock !== 'undefined' && typeof unlock.message !== 'undefined' && !noMessage) message(cell.text + " " + unlock.message, "Unlocks");
+		if (typeof unlock !== 'undefined' && typeof unlock.message !== 'undefined' && !noMessage) message(unlock.message, "Unlocks", null, null, ((unlock.world > 0) ? 'unique' : 'repeated'), cell.text);
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
 		if (!game.global.mapsActive && game.global.spireActive && game.global.world == 200) {
 			giveSpireReward(cell.level);
@@ -5541,7 +5564,7 @@ function simpleSeconds(what, seconds) {
 			if (game.global.turkimpTimer > 0 && (what == "food" || what == "metal" || what == "wood")){
 				amt *= 1.5;
 			}
-			amt += getPlayerModifier();
+			amt += getPlayerModifier() * seconds;
 		}
 		return amt;
 }
@@ -5947,7 +5970,7 @@ function activateTurkimpPowers() {
 	"Ah, Turkimp. Nature's version of a Chickimp with a weirder head. Sure is tasty! You eat your fill and save some for later."
 	];
 	var roll = Math.floor(Math.random() * possibilities.length);
-	message(possibilities[roll], "Loot", "*spoon-knife", "turkimp");
+	message(possibilities[roll], "Loot", "*spoon-knife", "turkimp", "secondary");
 	
 }
 
@@ -6303,7 +6326,7 @@ function getPlayFabLoginHTML(){
 	}
 		tipHtml[0] += "<div id='playFabLoginContainer' class='col-xs-6'><b id='playFabLoginTitle'>Login to PlayFab</b><br/><span id='playFabEmailHidden' style='display: none'>Your Email<br/><span id='emailNotice' style='font-size: 0.8em'>(For recovery, not required)<br/></span><input type='text' id='registerEmail' /></span><span id='usernameBox'>PlayFab Username<br/><input type='text' id='loginUserName' " + ((info) ? "value='" + info[0] + "'" : "") + "/></span><span id='playFabPasswordBox'><br/>Password <span style='font-size: 0.8em'>(6-30 Chars)</span><br/><input type='password' id='loginPassword'" + ((info) ? " value='" + info[1] + "'" : "") + "/></span><br/><div id='playFabConfirmPasswordHidden' style='display: none'>Confirm Password<br/><input type='password' id='confirmPassword' /><br/></div><span id='rememberInfoBox'>Remember Account Info<br/><input type='checkbox' id='rememberInfo' " + ((info) ? "checked='true'" : "") + "/><br/></span><div id='playFabLoginBtn' class='btn btn-sm btn-info' onclick='playFabLoginWithPlayFab()'>Login</div><div id='playFabRegisterBtn' class='btn btn-sm btn-info' style='display: none' onclick='playFabRegisterPlayFabUser()'>Register</div><span style='display: none' id='playFabRecoverBtns'><div class='btn btn-sm btn-info' onclick='playFabRecoverInfo(false)' style='display: none'>Get Username</div><div class='btn btn-sm btn-primary' onclick='playFabRecoverInfo(true)'>Send Password Reset Email</div></span><div id='playFabSwitchRegisterBtn' onclick='switchForm(true)' class='btn btn-sm btn-primary'>Register Playfab Account</div><div id='playFabSwitchRecoveryBtn' onclick='switchForm(false)' class='btn btn-sm btn-warning'>Recover Account Info</div></div>"
 	}
-	tipHtml[0] += "<div id='playFabLoginInfo' class='col-xs-6'><ul><li>While connected to PlayFab, every time the game saves or auto-saves your file will also be sent to PlayFab's servers.</li><li>Data will be cleared from PlayFab's servers after 3 months of inactivity, this is not a permanent save!</li><li><b>This feature is in beta and will be refined by feedback over the next few patches. It is recommended to still manually export your save for ultimate safety.</b></li></ul>"
+	tipHtml[0] += "<div id='playFabLoginInfo' class='col-xs-6'><ul><li>While connected to PlayFab, every time the game saves or auto-saves your file will also be sent to PlayFab's servers.</li><li>Data will be cleared from PlayFab's servers after 3 months of inactivity, this is not a permanent save!</li></ul>"
 	tipHtml[1] = "<div class='btn btn-sm btn-danger' onclick='cancelTooltip()'>Cancel</div>";
 	return tipHtml;
 }
@@ -6718,7 +6741,7 @@ function gameTimeout() {
 }
 
 
-function updatePortalTimer() {
+function updatePortalTimer(justGetTime) {
 	if (game.global.portalTime < 0) return;
 	var timeSince = new Date().getTime() - game.global.portalTime;
 	if (game.options.menu.pauseGame.enabled) timeSince -= new Date().getTime() - game.options.menu.pauseGame.timeAtPause;
@@ -6735,6 +6758,7 @@ function updatePortalTimer() {
 		timeString += (thisTime.length < 2) ? "0" + thisTime : thisTime;
 		if (x != 3) timeString += ":";
 	}
+	if (justGetTime) return timeString;
 	if (game.options.menu.pauseGame.enabled) timeString = timeString + "&nbsp;(PAUSED)";
 	document.getElementById("portalTime").innerHTML = timeString;
 	checkAchieve("totalGems");

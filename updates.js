@@ -99,9 +99,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Welcome"){
-		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear! Please make sure you regularly back up your save file by using the 'Export' button in the bar below and saving that somewhere safe. <br/><br/><b>Chrome and Firefox are currently the only fully supported browsers.</b><br/><br/><b>You can back up your save online by clicking 'Settings' below, then clicking the One Blue Setting.</b>";
+		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear! Please make sure you regularly back up your save file by either using the 'Export' button in the bar below or the 'Online Saving' option under 'Settings'.<br/><br/><b>Chrome and Firefox are currently the only fully supported browsers.</b><br/><br/><b>Would you like to enable online saving before you start?</b>";
 		game.global.lockTooltip = true;
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Start</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip(); toggleSetting(\"usePlayFab\");'>Enable Online Saving</div><div class='btn btn-danger' onclick='cancelTooltip()'>Don't Enable</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
@@ -136,6 +136,28 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 		
 	}
+	if (what == "Message Config"){
+		tooltipText = "<div id='messageConfigMessage'>Here you can finely tune your message settings, to see only what you want from each category. Mouse over the name of a filter for more info.</div>";
+		var msgs = game.global.messages;
+		var toCheck = ["Loot", "Unlocks", "Combat"];
+		tooltipText += "<div class='row'>";
+		for (var x = 0; x < toCheck.length; x++){
+			var name = toCheck[x];
+			tooltipText += "<div class='col-xs-4'><span class='messageConfigTitle'>" + toCheck[x] + "</span><br/>";
+			for (var item in msgs[name]){
+				if (item == 'enabled') continue;
+				tooltipText += "<span class='messageConfigContainer'><span class='messageCheckboxHolder'><input id='" + name + item + "'" + ((msgs[name][item]) ? " checked='true'" : "") + "' type='checkbox' /></span><span onmouseover='messageConfigHover(\"" + name + item + "\", event)' onmouseout='tooltip(\"hide\")' class='messageNameHolder'> - " + item.charAt(0).toUpperCase() + item.substr(1) + "</span></span><br/>"; 
+			}
+			tooltipText += "</div>";
+		}
+		tooltipText += "</div>";
+		
+		game.global.lockTooltip = true;
+		elem.style.top = "25%";
+		elem.style.left = "25%";
+		swapClass('tooltipExtra', 'tooltipExtraLg', elem);
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip();configMessages();'>Confirm</div> <div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div>"
+	}
 	if (what == "The Improbability"){
 		tooltipText = "<span class='planetBreakMessage'>That shouldn't have happened. There should have been a Blimp there. Something is growing unstable.</span>";
 		if (!game.global.autoUpgradesAvailable) tooltipText += "<br/><br/><span class='planetBreakMessage'><b>Your Trimps seem to understand that they'll need to help out more, and you realize how to permanently use them to automate upgrades!<b></span><br/>";
@@ -161,6 +183,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
+	}
+	if (what == "Exit Spire"){
+		tooltipText = "This will exit the spire, and you will be unable to re-enter until your next portal. Are you sure?";
+		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='cancelTooltip(); endSpire()'>Exit Spire</div><div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";		
 	}
 	if (what == "The Geneticistassist"){
 		tooltipText = "Greetings, friend! I'm your new robotic pal <b>The Geneticistassist</b> and I am here to assist you with your Geneticists. I will hang out in your Jobs tab, and will appear every run after Geneticists are unlocked. You can customize me in Settings under 'General'!";
@@ -560,6 +589,61 @@ function addTooltipPricing(toTip, what, isItIn) {
 	}
 	costText = costText.slice(0, -2);
 	return costText;
+}
+
+function configMessages(){
+	var toCheck = ["Loot", "Unlocks", "Combat"];
+	for (var x = 0; x < toCheck.length; x++){
+		var name = toCheck[x];
+		for (var item in game.global.messages[name]){
+			if (item == "enabled") continue;
+			var checkbox = document.getElementById(name + item);
+			if (checkbox == null) continue;
+			game.global.messages[name][item] = checkbox.checked;
+		}
+	}
+}
+
+function messageConfigHover(what, event){
+	var text = "";
+	var title = "";
+	switch(what){
+		case 'Lootprimary':
+			text = "Log the common loot items: Food, Wood, and Metal.";
+			title = "Primary";
+			break;
+		case 'Lootsecondary':
+			text = "Log the less common loot items: Gems, Fragments, Territory Bonus, and others.";
+			title = "Secondary";
+			break;
+		case 'Lootexotic':
+			text = "Log the rewards granted by Exotic Imports.";
+			title = "Exotic";
+			break;
+		case 'Loothelium':
+			text = "Log Helium rewards.";
+			title = "Helium";
+			break;
+		case 'Unlocksrepeated':
+			text = "Log all unlocks that drop more than once per run, such as Speedfarming or Coordination.";
+			title = "Repeated";
+			break;
+		case 'Unlocksunique':
+			text = "Log all unlocks that only drop once per portal, such as Gyms or Miners.";
+			title = "Unique";
+			break;
+		case 'Combattrimp':
+			text = "Log all combat messages involving your Trimps.";
+			title = "Trimp";
+			break;
+		case 'Combatenemy':
+			text = "Log all combat messages involving the enemy.";
+			title = "Enemy";
+			break;
+		default: return;
+	}
+	document.getElementById('messageConfigMessage').innerHTML = "<b>" + title + "</b> - " + text;
+	tooltip(title, 'customText', event, text);
 }
 
 // Correct function to call to cancel the current tooltip
@@ -1056,6 +1140,7 @@ function getLootBd(what) {
     }
 	var textString = '	<div><ul id="lootBdTabs" class="nav nav-tabs nav-justified"><li role="presentation" onclick="getLootBd(\'Food/Wood/Metal\')"><a href="#">Food/Wood/Metal</a></li>';
 	if (game.global.mapsUnlocked) textString += '<li role="presentation" onclick="getLootBd(\'Fragments\')"><a href="#">Fragments</a></li><li role="presentation" onclick="getLootBd(\'Gems\')"><a href="#">Gems</a></li>';
+	if (game.global.world >= 20) textString += '<li role="presentation" onclick="getLootBd(\'Helium\')"><a href="#">Helium</a></li>';
 	textString += '</ul></div>';
 	textString +=  "<table class='bdTableSm table table-striped'><tbody><tr><td style='font-weight: bold; font-size: 1.1em'>" + what + "</td><td>Base</td><td>Amount</td><td>Line Total</td><td>Total</td></tr>";
 	var currentCalc = 0;
@@ -1110,8 +1195,45 @@ function getLootBd(what) {
 			currentCalc = amt;
 			textString += "<tr><td class='bdTitle'>Base</td><td></td><td></td><td>" + prettify(amt) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 			break;
+		case "Helium":
+			var level = scaleLootLevel(99);
+			level = Math.round((level - 1900) / 100);
+			level *= 1.35;			
+			if (level < 0) level = 0;
+			var baseAmt = 0;
+			if (game.global.world < 59) baseAmt = 1;
+			else if (game.global.world < 181) baseAmt = 5;
+			else baseAmt = 10;
+			var amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
+			amt += Math.round(baseAmt * level);
+			amt /= baseAmt;
+			currentCalc = amt;
+			textString += "<tr><td class='bdTitle'>Base</td><td></td><td></td><td>" + prettify(amt) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+			if (baseAmt >= 5){
+				currentCalc *= 5;
+				textString += "<tr><td class='bdTitle'>Improbability Bonus</td><td></td><td></td><td>X 5</td><td>" + prettify(currentCalc) + "</td></tr>";
+			}
+			if (baseAmt >= 10){
+				currentCalc *= 2;
+				textString += "<tr><td class='bdTitle'>Z181 Bonus</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
+			}
+			if (game.global.sLevel >= 5){
+				amt = Math.pow(1.005, game.global.world);
+				currentCalc *= amt;
+				textString += "<tr><td class='bdTitle'>Scientist V</td><td></td><td></td><td>X " + prettify(amt) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+			}
+			if (game.global.voidBuff) {
+				currentCalc *= 2;
+				textString += "<tr><td class='bdTitle'>Void Map</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
+			}			
+			if (game.global.voidBuff) {
+				currentCalc *= 2;
+				textString += "<tr><td class='bdTitle'>Spire Bonus</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
+			}
+			
+			
 	}
-	if (game.global.mapsActive) {
+	if (game.global.mapsActive && what != "Helium") {
 		if (world < game.global.world){
 			//-20% loot compounding for each level below world
 			amt = Math.pow(0.8, (game.global.world - world));
@@ -1133,7 +1255,7 @@ function getLootBd(what) {
 		currentCalc *= amt;
 		textString += "<tr><td class='bdTitle'>Looting_II (perk)</td><td>+ " + prettify(game.portal.Looting_II.modifier * 100) + "%</td><td>" + game.portal.Looting_II.level + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
-	if (game.unlocks.impCount.Magnimp){
+	if (game.unlocks.impCount.Magnimp && what != "Helium"){
 	
 		amt = Math.pow(1.003, game.unlocks.impCount.Magnimp);
 		currentCalc = Math.floor(currentCalc * amt);
@@ -1146,7 +1268,7 @@ function getLootBd(what) {
 		toxMult = (toxMult * 100).toFixed(1) + "%";
 		textString += "<tr><td class='bdTitle'>Tweaky (Toxicity)</td><td>+" + game.challenges.Toxicity.lootMult + "%</td><td>" + game.challenges.Toxicity.stacks + "</td><td>+ " + toxMult + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
-	if (game.global.challengeActive == "Watch"){
+	if (game.global.challengeActive == "Watch" && what != "Helium"){
 		currentCalc /= 2;
 		textString += "<tr style='color: red'><td class='bdTitle'>Sleepy (Watch)</td><td></td><td></td><td class='bdPercent'>50%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}	
@@ -1185,7 +1307,11 @@ function getLootBd(what) {
 			textString += "<tr><td class='bdTitle'>Heirloom (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
 			heirloomBonus = 0;
 		}
-	}	
+	}
+	if (what == "Helium" && (game.global.world >= 181 || (game.global.challengeActive == 'Corrupted' && game.global.world >= 60))){
+		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
+		textString += "<tr class='corruptedCalcRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td></td><td></td><td>" + prettify(currentCalc * (corrVal / 100)) + "</td></tr>";
+	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getLootBd('" + what + "')", what + " Loot Breakdown", "Refresh", true);
@@ -1360,6 +1486,7 @@ function resetGame(keepPortal) {
 	document.getElementById('corruptionBuff').innerHTML = "";
 	document.getElementById("portalTimer").className = "timerNotPaused";
 	document.getElementById("grid").className = "";
+	document.getElementById('exitSpireBtnContainer').style.display = "none";
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));			
 	heirloomsShown = false;
@@ -1553,6 +1680,7 @@ function resetGame(keepPortal) {
 	cancelPortal();
 	updateRadioStacks();
 	updateAntiStacks();
+	setNonMapBox();
 	if (keepPortal) checkAchieve("portals");
 	document.getElementById("goodGuyAttack").innerHTML = "";
 	document.getElementById("goodGuyBlock").innerHTML = "";
@@ -1620,19 +1748,12 @@ function applyS5(){
 }
 
 
-function message(messageString, type, lootIcon, extraClass) {
+function message(messageString, type, lootIcon, extraClass, extraTag, htmlPrefix) {
+	if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !game.global.messages[type][extraTag]) return;
 	var log = document.getElementById("log");
 	var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
-	var displayType = (game.global.messages[type]) ? "block" : "none";
+	var displayType = (game.global.messages[type].enabled) ? "block" : "none";
 	var prefix = "";
-	if (lootIcon && lootIcon.charAt(0) == "*") {
-		lootIcon = lootIcon.replace("*", "");
-		prefix =  "icomoon icon-";
-	}
-	else prefix = "glyphicon glyphicon-";
-	if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span> " + messageString;
-	if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span> " + messageString;
-	if (type == "Loot" && lootIcon) messageString = "<span class='" + prefix + lootIcon + "'></span> " + messageString;
 	var addId = "";
 	if (messageString == "Game Saved!" || extraClass == 'save') {
 		addId = " id='saveGame'";
@@ -1640,12 +1761,37 @@ function message(messageString, type, lootIcon, extraClass) {
 			log.removeChild(document.getElementById('saveGame'));
 		}
 	}
-	if (type == "Notices"){
-		messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
+	if (game.options.menu.timestamps.enabled){
+		messageString = ((game.options.menu.timestamps.enabled == 1) ? getCurrentTime() : updatePortalTimer(true)) + " " + messageString;
 	}
+	if (!htmlPrefix){
+		if (lootIcon && lootIcon.charAt(0) == "*") {
+			lootIcon = lootIcon.replace("*", "");
+			prefix =  "icomoon icon-";
+		}
+		else prefix = "glyphicon glyphicon-";
+		if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span> " + messageString;
+		if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span> " + messageString;
+		if (type == "Loot" && lootIcon) messageString = "<span class='" + prefix + lootIcon + "'></span> " + messageString;
+		if (type == "Notices"){
+			messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
+		}
+	}
+	else messageString = htmlPrefix + " " + messageString;
 	log.innerHTML += "<span" + addId + " class='" + type + "Message message" +  " " + extraClass + "' style='display: " + displayType + "'>" + messageString + "</span>";
 	if (needsScroll) log.scrollTop = log.scrollHeight;
 	if (type != "Story") trimMessages(type);
+}
+
+function getCurrentTime(){
+	var date = new Date();
+	var seconds = date.getSeconds();
+	var minutes = date.getMinutes();
+	var hours = date.getHours();
+	if (seconds <= 9) seconds = "0" + seconds;
+	if (minutes <= 9) minutes = "0" + minutes;
+	if (hours <= 9) hours = "0" + hours;
+	return hours + ":" + minutes + ":" + seconds;
 }
 
 function nodeToArray(nodeList){
@@ -1666,10 +1812,10 @@ function trimMessages(what){
 
 function filterMessage(what, updateOnly){ //send true for updateOnly
 	var log = document.getElementById("log");
-	var displayed = game.global.messages[what];
+	var displayed = game.global.messages[what].enabled;
 	if (!updateOnly){
 		displayed = (displayed) ? false : true;
-		game.global.messages[what] = displayed;
+		game.global.messages[what].enabled = displayed;
 	}
 	var toChange = document.getElementsByClassName(what + "Message");
 	var btnText = (displayed) ? what : what + " off";
@@ -2320,7 +2466,7 @@ function displayPerksBtn(){
 	}
 }
 
-
+var hasNewSetting = false;
 function toggleSettingsMenu(){
 	game.options.displayed = !game.options.displayed;
 	var menuElem = document.getElementById("settingsHere");
@@ -2328,12 +2474,36 @@ function toggleSettingsMenu(){
 		var searchElem = document.getElementById('searchSettings');
 		menuElem.style.display = "block";
 		toggleSettingSection(true);
-		settingTab("General");
+		settingTab(((hasNewSetting) ? "New" : "General"));
+		return;
 	}
-	else
 	menuElem.style.display = "none";
-	
-	
+	if (hasNewSetting) clearNewSettings();
+}
+
+function addNewSetting(name){
+	game.options.menu[name].isNew = true;
+	hasNewSetting = true;
+	toggleSettingAlert();
+}
+
+function clearNewSettings(){
+	for (var item in game.options.menu){
+		if (game.options.menu[item].isNew) game.options.menu[item].isNew = false;
+	}
+	hasNewSetting = false;
+	toggleSettingAlert();
+	document.getElementById('NewTab').style.display = 'none';
+}
+
+function toggleSettingAlert(){
+	var elem = document.getElementById('settingsAlert');
+	if (elem == null) {
+		if (hasNewSetting) document.getElementById('settingsText').innerHTML += ' <span class="alert" id="settingsAlert">!</span>';
+		return;
+	}
+	if (hasNewSetting) elem.style.display = 'inline-block';
+	else elem.style.display = 'none';
 }
 
 function displayAllSettings() {
@@ -2363,6 +2533,7 @@ function settingTab(what){
 	clearSettingTabs();
 	var tabElem = document.getElementById(what + "Tab");
 	if (tabElem) swapClass('tab', 'tabSelected', tabElem);
+	if (what == "New") document.getElementById('NewTab').style.display = "table-cell";
 }
 
 function clearSettingTabs(){
@@ -2383,10 +2554,15 @@ function searchSettings(elem){
 	for (var optionName in game.options.menu){
 		var optionObject = game.options.menu[optionName];
 		if (optionObject.locked) continue;
+		if (search == "new"){
+			if (!optionObject.isNew) continue;
+			results.push(optionName);
+			console.log(results);
+			continue;
+		}
 		if (typeof optionObject.lockUnless === 'function' && !optionObject.lockUnless()) continue;
 		if (optionObject.extraTags && optionObject.extraTags.search(search) != -1) results.push(optionName);
-		else if (optionObject.description.toLowerCase().search(search) != -1) results.push(optionName);
-		
+		else if (optionObject.description.toLowerCase().search(search) != -1) results.push(optionName);	
 	}
 	var text = "";
 	if (results.length > 10) {
@@ -2585,7 +2761,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 					if (achievement.newStuff.length && achievement.newStuff.indexOf(x) != -1) tierValue = "<span id='" + item + x + "Alert' style='color: yellow;' class='icomoon icon-exclamation-circle'></span>&nbsp;" + tierValue;
 				}
 				else tierValue = "&nbsp;";
-				borderStyle = "border: 0.2vw solid " + game.colorsList[achievement.tiers[x]] + ";";
+				borderStyle = "border-color: " + game.colorsList[achievement.tiers[x]] + ";";
 				htmlString += '<div onmouseover="displayAchievementPopup(\'' + item + '\', true, ' + x + ')" class="achievementContainer" style="background-color: ' + displayColor + '; width: ' + width + '%;' + borderStyle + '">' + tierValue + '</div>';
 			}
 			htmlString += '</span><div id="' + item + 'Description" class="achievementDescription")"></div></div>';		

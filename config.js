@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.5,
+		version: 3.51,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -182,11 +182,29 @@ var toReturn = {
 			upgrades: false
 		},
 		messages: {
-			Story: true,
-			Loot: true,
-			Unlocks: true,
-			Combat: true,
-			Notices: true
+			Story: {
+				enabled: true
+			},
+			Loot: {
+				enabled: true,
+				primary: true,
+				secondary: true,
+				exotic: true,
+				helium: true
+			},
+			Unlocks: {
+				enabled: true,
+				repeated: true,
+				unique: true
+			},
+			Combat: {
+				enabled: true,
+				trimp: true,
+				enemy: true
+			},
+			Notices: {
+				enabled: true
+			}
 		},
 		prestige: {
 			attack: 13,
@@ -272,7 +290,7 @@ var toReturn = {
 			usePlayFab: {
 				enabled: 0,
 				extraTags: "popular general cloud",
-				description: "<b>Beta:</b> Whenever the game saves, also back up a copy online with PlayFab. While using this setting, you will be asked if you want to download your online save if it is ever ahead of the version on your computer. You can also manually import your save from PlayFab through the Import menu.",
+				description: "Whenever the game saves, also back up a copy online with PlayFab. While using this setting, you will be asked if you want to download your online save if it is ever ahead of the version on your computer. You can also manually import your save from PlayFab through the Import menu.",
 				titles: ["Not Saving Online", "Saving with PlayFab"],
 				onToggle: function () {
 					var indicatorElem = document.getElementById("playFabIndicator");
@@ -529,6 +547,21 @@ var toReturn = {
 				lockUnless: function () {
 					return (game.global.highestLevelCleared >= 199);
 				}				
+			},
+			siphonologyMapLevel: {
+				enabled: 0,
+				extraTags: "qol",
+				description: "When entering the Maps screen, by default the Level Selector starts at your current world number. Toggling this setting on will force this number to default to your minimum Siphonology level instead.",
+				titles: ["Use World Number", "Use Siphonology Level"],
+				lockUnless: function () {
+					return (!game.portal.Siphonology.locked)
+				}
+			},
+			timestamps: {
+				enabled: 0,
+				extraTags: "qol",
+				description: "Choose whether or not to display timestamps in the message log. <b>Local Timestamps</b> will log the current time according to your computer, <b>Run Timestamps</b> will log how long it has been since your run started. Note that toggling this setting will not add or remove timestamps from previous messages, but will add or remove them to or from any new ones.",
+				titles: ["No Timestamps", "Local Timestamps", "Run Timestamps"]
 			},
 			pauseGame: {
 				enabled: 0,
@@ -945,7 +978,10 @@ var toReturn = {
 				}
 				message("You can research science again!", "Notices");
 				if (game.global.sLevel >= 4) {
-					game.buildings.Warpstation.craftTime = 0;
+					if (game.buildings.Warpstation.craftTime > 0){
+						game.buildings.Warpstation.craftTime = 0;
+						addNewSetting('forceQueue');
+					}
 					if (game.global.autoUpgrades) document.getElementById("autoPrestigeBtn").style.display = "block";
 				}
 			},
@@ -1324,8 +1360,8 @@ var toReturn = {
 		
 	},
 	
-	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20],
-	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545"], //handwritten hex colors make the best hex colors
+	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40],
+	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5"], //handwritten hex colors make the best hex colors
 	achievements: {
 		zones: {
 			finished: 0,
@@ -1669,6 +1705,31 @@ var toReturn = {
 			breakpoints: [1680, 1080, 390, 180, 150], //In minutes
 			tiers: [5, 5, 5, 6, 6],
 			names: ["Cosmic Curiosity", "Star Struck", "Space Speeder", "Intense Inertia", "Stellar Striker"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		spireTimed: {
+			finished: 0,
+			title: "Speed: Spire",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "<span style='font-size: .8em'>Clear The Spire in " + number + " or less from start of run</span>";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 169);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
+			reverse: true,
+			showAll: true,
+			breakpoints: [1300, 900, 500, 200, 175],
+			tiers: [6, 6, 6, 7, 7],
+			names: ["Spire Trialer", "Spire Rider", "Spire Strider", "Spire Glider", "Spire Flier"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
@@ -2246,7 +2307,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				var amt = rewardResource("food", 0.5, level, true);
-				message("That Chickimp dropped " + prettify(amt) + " food!", "Loot", "apple");
+				message("That Chickimp dropped " + prettify(amt) + " food!", "Loot", "apple", null, 'primary');
 			}
 		},
 		Hippopotamimp: {
@@ -2268,7 +2329,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("wood", 0.5, level, true);
-				message("That Grimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous");
+				message("That Grimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous", null, 'primary');
 			}
 		},
 		Seirimp: {
@@ -2278,7 +2339,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", 0.5, level, true);
-				message("That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot", "*cubes");
+				message("That Seirimp dropped " + prettify(amt) + " metal! Neat-O.", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		Slagimp: {
@@ -2288,7 +2349,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				var amt = rewardResource("gems", 0.3, level, true);
-				message("That Slagimp fell over, and " + prettify(amt) + " gems popped out! How about that?!", "Loot", "*diamond"); 
+				message("That Slagimp fell over, and " + prettify(amt) + " gems popped out! How about that?!", "Loot", "*diamond", null, 'secondary'); 
 			}
 		},
 		Moltimp: {
@@ -2298,7 +2359,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", 0.2, level, true);
-				message("The Moltimp thanked you for the combat, and handed you " + prettify(amt) + " bars of metal! Then he died.", "Loot", "*cubes");
+				message("The Moltimp thanked you for the combat, and handed you " + prettify(amt) + " bars of metal! Then he died.", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		Golimp: {
@@ -2311,17 +2372,20 @@ var toReturn = {
 				var amt;
 				var res;
 				var icon;
+				var tag;
 				if (random === 0) {
 					amt = rewardResource("fragments", 1, level, true);
 					res = "fragments";
 					icon = "th";
+					tag = "secondary";
 				}
 				else {
 					amt = rewardResource("metal", 0.3, level, true);
 					res = "bars of metal";
 					icon = "*cubes";
+					tag = "primary";
 				}
-				message("The Golimp fell to pieces! You manage to grab " + prettify(amt) + " " + res + " before it begins pulling itself together.", "Loot", icon);
+				message("The Golimp fell to pieces! You manage to grab " + prettify(amt) + " " + res + " before it begins pulling itself together.", "Loot", icon, null, tag);
 			}
 		},
 		Lavimp: {
@@ -2361,7 +2425,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				var amt = rewardResource("wood", 0.35, level, true);
-				message("The Entimp is no more. You manage to salvage " + prettify(amt) + " logs of wood from his trunk!", "Loot", "tree-deciduous");
+				message("The Entimp is no more. You manage to salvage " + prettify(amt) + " logs of wood from his trunk!", "Loot", "tree-deciduous", null, 'primary');
 			}
 		},
 		Squirrimp: {
@@ -2371,7 +2435,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("food", 0.35, level, true);
-				message("Time for some stew! You scored " + prettify(amt) + " food from that Squirrimp!", "Loot", "apple");
+				message("Time for some stew! You scored " + prettify(amt) + " food from that Squirrimp!", "Loot", "apple", null, 'primary');
 			}			
 		},
 		Gravelimp: {
@@ -2381,7 +2445,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", 0.35, level, true);
-				message("You sift through the Gravelimp, and manage to find " + prettify(amt) + " bars of metal! Good on you!", "Loot", "*cubes");
+				message("You sift through the Gravelimp, and manage to find " + prettify(amt) + " bars of metal! Good on you!", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		Blimp: {
@@ -2395,12 +2459,12 @@ var toReturn = {
 				var amt = rewardResource("food", 2, level);
 				rewardResource("wood", 2, level);
 				rewardResource("metal", 2, level);
-				message("That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot", "piggy-bank");
+				message("That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot", "piggy-bank", null, 'primary');
 				if (game.global.world >= 21 && (game.global.totalPortals >= 1 || game.global.portalActive)){
 					if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 					amt = rewardResource("helium", 1, level);
 					game.global.totalHeliumEarned += amt;
-					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Story");
+					message("You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Loot", "oil", "helium", "helium");
 					distributeToChallenges(amt);
 					if (game.global.world >= 40 && game.global.challengeActive == "Balance") {
 						var reward = game.challenges.Balance.heldHelium;
@@ -2427,7 +2491,14 @@ var toReturn = {
 				if (game.global.world >= 181) amt *= 2;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
-				message("<span class='glyphicon glyphicon-oil'></span> Cthulimp and the map it came from crumble into the darkness, and you find yourself back in your map chamber with an extra " + prettify(amt) + " Helium!", "Story");
+				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";
+				if (game.options.menu.repeatVoids.enabled && game.global.totalVoidMaps > 1){
+					msg += "the next Void map";
+				}
+				else {
+					msg += ((game.options.menu.exitTo.enabled) ? "the world " : "your map chamber");
+				}
+				message(msg + " with an extra " + prettify(amt) + " Helium!", "Loot", "oil", "helium", "helium");
 				distributeToChallenges(amt);		
 				game.stats.highestVoidMap.evaluate();
 			}
@@ -2465,7 +2536,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 0.35, level, false);
-				message("That Dragimp dropped " + prettify(amt) + " gems!", "Loot", "*diamond");
+				message("That Dragimp dropped " + prettify(amt) + " gems!", "Loot", "*diamond", null, 'secondary');
 			}
 		},
 		Mitschimp: {
@@ -2478,7 +2549,7 @@ var toReturn = {
 			loot: function (level) {
 				checkAchieve("blockTimed");
 				var amt = rewardResource("wood", 2, level, true);
-				message("Mitschimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous");
+				message("Mitschimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous", null, 'primary');
 			}
 		},
 		Brickimp: {
@@ -2502,7 +2573,7 @@ var toReturn = {
 			loot: function (level) {
 				checkAchieve("doomTimed");
 				var amt = rewardResource("metal", 2, level, true);
-				message("Indianimp dropped " + prettify(amt) + " metal!", "Loot", "*cubes");
+				message("Indianimp dropped " + prettify(amt) + " metal!", "Loot", "*cubes", null, 'primary');
 				if (game.global.challengeActive == "Trapper"){
 					game.global.challengeActive = "";
 					game.challenges.Trapper.abandon();
@@ -2530,6 +2601,7 @@ var toReturn = {
 					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
 					else if (game.global.challengeActive == "Mapocalypse") {
 						message("You have completed the Mapocalypse challenge! You have unlocked the 'Siphonology' Perk, and have been rewarded with " + prettify(game.challenges.Electricity.heldHelium) + " Helium.", "Notices");
+						if (game.portal.Siphonology.locked) addNewSetting('siphonologyMapLevel');
 						game.portal.Siphonology.locked = false;
 						game.challenges.Mapocalypse.abandon();
 					}
@@ -2554,7 +2626,7 @@ var toReturn = {
 				checkAchieve("bionicTimed");
 				var amt1 = rewardResource("wood", 1, level, true);
 				var amt2 = rewardResource("food", 1, level, true);
-				message("Robotrimp discombobulated. Loot inspection reveals: " + prettify(amt1) + " wood and " + prettify(amt2) + " food. Splendiferous.", "Loot", "*cogs");
+				message("Robotrimp discombobulated. Loot inspection reveals: " + prettify(amt1) + " wood and " + prettify(amt2) + " food. Splendiferous.", "Loot", "*cogs", null, 'primary');
 				if (game.global.challengeActive == "Crushed") {
 					var heliumAdded = game.challenges.Crushed.heldHelium;
 					message("You have completed the Crushed challenge! You have been rewarded with " + prettify(heliumAdded) + " Helium.", "Notices");
@@ -2574,7 +2646,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", .25, level, true);
-				message("Mechimp disengaged. Reward encountered: " + prettify(amt) + " bars of metal. Huzzah.", "Loot", "*cubes");
+				message("Mechimp disengaged. Reward encountered: " + prettify(amt) + " bars of metal. Huzzah.", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		Destructimp: {
@@ -2585,7 +2657,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", .25, level, true);
-				message("Destructimp shorted out. Salvage results: " + prettify(amt) + " bars of metal. Acceptable.", "Loot", "*cubes");				
+				message("Destructimp shorted out. Salvage results: " + prettify(amt) + " bars of metal. Acceptable.", "Loot", "*cubes", null, 'primary');				
 			}
 		},
 		Terminatimp: {
@@ -2596,7 +2668,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", .25, level, true);
-				message("Terminatimp Terminated. Findings: " + prettify(amt) + " bars of metal. Hasta la Vista.", "Loot", "*cubes");				
+				message("Terminatimp Terminated. Findings: " + prettify(amt) + " bars of metal. Hasta la Vista.", "Loot", "*cubes", null, 'primary');				
 			}
 		},
 		Autoimp: {
@@ -2607,7 +2679,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", .5, level, true);
-				message("Autoimp force quit. Memory dump provides " + prettify(amt) + " bars of metal and no clues. It's a feature!", "Loot", "*cubes");
+				message("Autoimp force quit. Memory dump provides " + prettify(amt) + " bars of metal and no clues. It's a feature!", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		Artimp: {
@@ -2618,7 +2690,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("metal", 0.3, level, true);
-				message("The Artimp wordlessly sputters, whirrs, beeps, then drops " + prettify(amt) + " perfect cubes of metal on the ground. Cubist art is your favorite!", "Loot", "*cubes");
+				message("The Artimp wordlessly sputters, whirrs, beeps, then drops " + prettify(amt) + " perfect cubes of metal on the ground. Cubist art is your favorite!", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		//End Bionic Wonderland stuff
@@ -2634,11 +2706,12 @@ var toReturn = {
 				checkAchieve("starTimed");
 				var amt1 = rewardResource("wood", 1.5, level, true);
 				var amt2 = rewardResource("metal", 1.5, level, true);
-				message("The Neutrimp gasps, shimmers, squeaks, then poofs into a quickly dispersing purple cloud. You spend a few moments trying to make sense of what you've just seen, but look around and find " + prettify(amt1) + " wood and " + prettify(amt2) + " metal instead!", "Loot", "*cogs");
+				message("The Neutrimp gasps, shimmers, squeaks, then poofs into a quickly dispersing purple cloud. You spend a few moments trying to make sense of what you've just seen, but look around and find " + prettify(amt1) + " wood and " + prettify(amt2) + " metal instead!", "Loot", "*cogs", null, 'primary');
 				if (game.global.challengeActive == "Devastation") {
 					message("You have completed the Devastation challenge! Your world has been returned to normal, and you have unlocked the Overkill perk!", "Notices");
 					game.global.challengeActive = "";
 					game.portal.Overkill.locked = false;
+					addNewSetting('overkillColor');
 				}
 			}
 		},
@@ -2650,7 +2723,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				var amt = rewardResource("metal", .5, level, true);
-				message("The Fusimp explodes, leaving behind " + prettify(amt) + " bars of metal and a nice dose of radiation.", "Loot", "*cubes");				
+				message("The Fusimp explodes, leaving behind " + prettify(amt) + " bars of metal and a nice dose of radiation.", "Loot", "*cubes", null, 'primary');				
 			}
 		},
 		Hydrogimp: {
@@ -2661,7 +2734,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("food", 1, level, true);
-				message("Before you can blink, the Hydrogimp vaporizes. That's fine though, it left " + prettify(amt) + " food for you!", "Loot", "apple");				
+				message("Before you can blink, the Hydrogimp vaporizes. That's fine though, it left " + prettify(amt) + " food for you!", "Loot", "apple", null, 'primary');				
 			}			
 		},
 		Carbimp: {
@@ -2672,7 +2745,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				var amt = rewardResource("wood", 1, level, true);
-				message("The Carbimp begins to crackle and shrink. Within a few seconds, all that's left is " + prettify(amt) + " wood.", "Loot", "tree-deciduous");				
+				message("The Carbimp begins to crackle and shrink. Within a few seconds, all that's left is " + prettify(amt) + " wood.", "Loot", "tree-deciduous", null, 'primary');				
 			}		
 		},
 		//End Imploding Star stuff
@@ -2690,7 +2763,7 @@ var toReturn = {
 				var amt = (game.global.world >= 181) ? 10 : 5;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
-				message("<span class='glyphicon glyphicon-oil'></span> You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Story");				
+				message("You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Loot", "oil", 'helium', 'helium');				
 				distributeToChallenges(amt);
 				if (game.global.challengeActive == "Slow" && game.global.world == 120){
 					message("You have completed the Slow challenge! You have found the patterns for the Gambeson and the Arbalest!", "Notices");
@@ -2730,7 +2803,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("gems", 3, level, true);
-				message("That Goblimp dropped " + prettify(amt) + " gems! What a bro!", "Loot", "*diamond", "exotic");
+				message("That Goblimp dropped " + prettify(amt) + " gems! What a bro!", "Loot", "*diamond", "exotic", 'exotic');
 				game.unlocks.impCount.Goblimp++;
 			}
 		},
@@ -2745,7 +2818,7 @@ var toReturn = {
 			loot: function (level) {
 				if (game.resources.gems.owned == 0) 	fadeIn("gems", 10);
 				var amt = rewardResource("gems", 7.5, level);
-				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "*diamond", "exotic");
+				message("That Feyimp gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "*diamond", "exotic", "exotic");
 				game.unlocks.impCount.Feyimp++;
 			}
 		},
@@ -2759,7 +2832,7 @@ var toReturn = {
 			dropDesc: "Drops Fragments",
 			loot: function (level) {
 				var amt = rewardResource("fragments", 1, level, true);
-				message("You stole " + prettify(amt) + " fragments from that Flutimp! It really didn't look like she needed them though, don't feel bad.", "Loot", "th", "exotic");
+				message("You stole " + prettify(amt) + " fragments from that Flutimp! It really didn't look like she needed them though, don't feel bad.", "Loot", "th", "exotic", "exotic");
 				game.unlocks.impCount.Flutimp++;
 			}
 		},
@@ -2778,7 +2851,7 @@ var toReturn = {
 				game.unlocks.impCount.TauntimpAdded += amt;
 				if (game.portal.Carpentry.level) amt *= Math.pow((1 + game.portal.Carpentry.modifier), game.portal.Carpentry.level);
 				if (game.portal.Carpentry_II.level > 0) amt *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
-				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic");
+				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic", "exotic");
 				
 			}
 		},
@@ -2800,7 +2873,7 @@ var toReturn = {
 				game.jobs.Explorer.modifier *= 1.003;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Whipimp);
 				amt = (amt - 1) * 100;
-				message("Seeing the Whipimps fall is causing all of your Trimps to work " + amt.toFixed(2) + "% harder!", "Loot", "star", "exotic");			
+				message("Seeing the Whipimps fall is causing all of your Trimps to work " + amt.toFixed(2) + "% harder!", "Loot", "star", "exotic", "exotic");			
 			}
 		},
 		Venimp: {
@@ -2816,7 +2889,7 @@ var toReturn = {
 				game.resources.trimps.potency *= 1.003;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Venimp);
 				amt = (amt - 1) * 100;
-				message("The ground up Venimp now increases your Trimps' breed speed by " + amt.toFixed(2) + "%!", "Loot", "glass", "exotic");			
+				message("The ground up Venimp now increases your Trimps' breed speed by " + amt.toFixed(2) + "%!", "Loot", "glass", "exotic", "exotic");			
 			}
 		},
 		Jestimp: {
@@ -2836,7 +2909,7 @@ var toReturn = {
 				var amt = simpleSeconds(item, 45);
 				amt = scaleToCurrentMap(amt);
 				addResCheckMax(item, amt);
-				message("That Jestimp gave you " + prettify(amt) + " " + item + "!", "Loot", "*dice", "exotic");
+				message("That Jestimp gave you " + prettify(amt) + " " + item + "!", "Loot", "*dice", "exotic", "exotic");
 				game.unlocks.impCount.Jestimp++;
 			}
 		},
@@ -2856,7 +2929,7 @@ var toReturn = {
 				}
 				else timeRemaining = 30;
 				game.global.titimpLeft = timeRemaining;
-				message("That Titimp made your Trimps super strong!", "Loot", "*hammer", "exotic");
+				message("That Titimp made your Trimps super strong!", "Loot", "*hammer", "exotic", "exotic");
 			}		
 		},
 		Chronoimp: {
@@ -2882,7 +2955,7 @@ var toReturn = {
 					else if (x == (elligible.length - 2)) cMessage += ", and ";
 					else cMessage += ", ";
 				}
-				message(cMessage, "Loot", "hourglass", "exotic");
+				message(cMessage, "Loot", "hourglass", "exotic", "exotic");
 				game.unlocks.impCount.Chronoimp++;				
 			}		
 		},
@@ -2898,7 +2971,7 @@ var toReturn = {
 				game.unlocks.impCount.Magnimp++;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Magnimp);
 				amt = (amt - 1) * 100;
-				message("You killed a Magnimp! The strong magnetic forces now increase your loot by " + amt.toFixed(2) + "%!", "Loot", "magnet", "exotic");
+				message("You killed a Magnimp! The strong magnetic forces now increase your loot by " + amt.toFixed(2) + "%!", "Loot", "magnet", "exotic", "exotic");
 			}		
 		},
 		Skeletimp: {
@@ -2909,7 +2982,7 @@ var toReturn = {
 			health: 2,
 			fast: false,
 			loot: function () {
-				message("Your Trimps managed to pull 1 perfectly preserved bone from that Skeletimp!", "Loot", "italic");
+				message("Your Trimps managed to pull 1 perfectly preserved bone from that Skeletimp!", "Loot", "italic", null, "secondary");
 				game.global.b++;
 				game.global.lastSkeletimp = new Date().getTime();
 				updateSkeleBtn();
@@ -2923,7 +2996,7 @@ var toReturn = {
 			health: 2.5,
 			fast: false,
 			loot: function () {
-				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic");
+				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic", null, "secondary");
 				game.global.b += 2;
 				game.global.lastSkeletimp  = new Date().getTime();
 				updateSkeleBtn();
@@ -3065,6 +3138,7 @@ var toReturn = {
 				tooltip('The Geneticistassist', null, 'update');
 				game.global.Geneticistassist = true;
 				unlockJob("Geneticist");
+				addNewSetting("GeneticistassistTarget");
 			}
 		},
 		AutoStorage: {
@@ -3083,7 +3157,7 @@ var toReturn = {
 				game.global.autoStorageAvailable = true;
 				document.getElementById("autoStorageBtn").style.display = "block";
 				createHeirloom();
-				message("You found an Heirloom!", "Loot", "*archive");
+				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
 			}	
 		},
 		Heirloom: {
@@ -3095,7 +3169,7 @@ var toReturn = {
 			canRunWhenever: true,
 			fire: function () {
 				createHeirloom();
-				message("You found an Heirloom!", "Loot", "*archive");
+				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
 			}
 		},
 		Keys: {
@@ -3385,7 +3459,7 @@ var toReturn = {
 			startAt: 11,
 			canRunOnce: true,
 			fire: function () {
-				message("You just made a map to The Block!", "Notices");
+				message("You just made a map to The Block!", "Story");
 				createMap(11, "The Block", "Block", 2, 100, 1.3, true, true); 
 			}
 		},
@@ -3398,7 +3472,7 @@ var toReturn = {
 			startAt: 15,
 			canRunOnce: true,
 			fire: function () {
-				message("You just made a map to The Wall!", "Loot", "th-large");
+				message("You just made a map to The Wall!", "Story");
 				createMap(15, "The Wall", "Wall", 2, 100, 1.5, true, true); 
 			}
 		},
@@ -3603,7 +3677,7 @@ var toReturn = {
 			repeat: 5,
 			fire: function (level) {
 				var amt = rewardResource("gems", 0.5, level, true);
-				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "*diamond");
+				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "*diamond", null, "secondary");
 			}
 		},
 		//This one is for depths maps
@@ -3616,7 +3690,7 @@ var toReturn = {
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("gems", 0.5, level, true);
-				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "*diamond");
+				message("You found " + prettify(amt) + " gems! Terrific!", "Loot", "*diamond", null, "secondary");
 			}
 		},
 		Any: {
@@ -3650,7 +3724,7 @@ var toReturn = {
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("metal", 0.5, level, true);
-				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes");
+				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes", null, "primary");
 			}
 		},
 		Food: {
@@ -3662,7 +3736,7 @@ var toReturn = {
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("food", 0.5, level, true);
-				message("That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot", "apple");
+				message("That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot", "apple", null, "primary");
 			}
 		},
 		Wood: {
@@ -3674,7 +3748,7 @@ var toReturn = {
 			filter: true,
 			fire: function (level) {
 				var amt = rewardResource("wood", 0.5, level, true);
-				message("You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot", "tree-deciduous");
+				message("You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot", "tree-deciduous", null, "primary");
 			}
 		}
 	},
@@ -4170,13 +4244,13 @@ var toReturn = {
 			}
 		},
 		Doom: {
-			message: "There is something strange about this map. It doesn't seem to reflect any light at all, just pure darkness.",
 			world: 33,
 			level: [15, 50],
 			icon: "th-large",
 			title: "Too dark to see",
 			fire: function () {
 				createMap(33, "Trimple Of Doom", "Doom", 3, 100, 1.8, true); 
+				message("There is something strange about this map. It doesn't seem to reflect any light at all, just pure darkness.", "Story");
 			}
 		},
 		FirstMap: {
@@ -4213,7 +4287,7 @@ var toReturn = {
 			title: "Map Fragments",
 			fire: function() {
 				var amt = rewardResource("fragments");
-				message("You found " + prettify(amt) + " map fragments!", "Loot", "th");
+				message("You found " + prettify(amt) + " map fragments!", "Loot", "th", null, "secondary");
 			}
 		},
 		//portal Trumps
@@ -4229,7 +4303,7 @@ var toReturn = {
 				game.global.totalGifts += amt;
 				if (game.portal.Carpentry.level) amt *= Math.pow((1 + game.portal.Carpentry.modifier), game.portal.Carpentry.level);
 				if (game.portal.Carpentry_II.level > 0) amt *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
-				message("You have cleared enough land to support " + prettify(amt) + " more Trimps!", "Loot", "gift");
+				message("You have cleared enough land to support " + prettify(amt) + " more Trimps!", "Loot", "gift", null, "secondary");
 			}
 		},
 		fruit: {
@@ -4240,7 +4314,7 @@ var toReturn = {
 			repeat: 9,
 			fire: function (level) {
 				var amt = rewardResource("food", 0.5, level);
-				message("That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot", "apple");
+				message("That guy just left " + prettify(amt) + " food on the ground! Sweet!", "Loot", "apple", null, 'primary');
 			}
 		},
 		groundLumber: {
@@ -4251,7 +4325,7 @@ var toReturn = {
 			repeat: 8,
 			fire: function (level) {
 				var amt = rewardResource("wood", 0.5, level);
-				message("You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot", "tree-deciduous");
+				message("You just found " + prettify(amt) + " wood! That's pretty neat!", "Loot", "tree-deciduous", null, 'primary');
 			}
 		},
 		freeMetals: {
@@ -4262,7 +4336,7 @@ var toReturn = {
 			repeat: 6,
 			fire: function (level) {
 				var amt = rewardResource("metal", 0.5, level);
-				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes");
+				message("You just found " + prettify(amt) + " bars of metal! Convenient!", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		spireMetals: {
@@ -4271,8 +4345,8 @@ var toReturn = {
 			repeat: 4,
 			fire: function (level) {
 				if (!game.global.spireActive) return;
-				var amt = rewardResource("metal", 5, level);
-				message("There sure is a lot of metal just tossed around in this Spire! You just found " + prettify(amt) + " more!", "Loot", "*safe", "spireMetals");
+				var amt = rewardResource("metal", 25, level);
+				message("There sure is a lot of metal just tossed around in this Spire! You just found " + prettify(amt) + " more!", "Loot", "*safe", "spireMetals", "primary");
 			},
 			title: "Spire Metal",
 			icon: "*safe",

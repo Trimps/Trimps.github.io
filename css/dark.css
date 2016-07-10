@@ -101,7 +101,7 @@
     vertical-align: top
 }
 .exotic {
-    color: #8B4D8F !important;
+    color: #d078d6 !important;
     background: #202020 none repeat scroll 0% 0%
 }
 #food {
@@ -532,7 +532,11 @@ input, button, select, textarea,
 }
 
 .StoryMessage {
-	color: #007A7A;
+	color: #00bdbd;
+}
+
+.helium{
+	color: #00aaff;
 }
 
 #fireBtn{

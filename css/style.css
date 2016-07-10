@@ -364,6 +364,10 @@ overflow-x: hidden;
 	border-radius: 100%;
 }
 
+#settingsAlert.alert{
+	background-color: #d9534f;
+}
+
 #mapsBtn .alert{
 	background-color: #2E0854;
 	color: #DDDDFF;
@@ -1486,6 +1490,27 @@ overflow-x: hidden;
 	border: 1px solid white !important;
 }
 
+#logBtnGroup div{
+	width: 24%;
+}
+
+#logConfigBtn{
+	text-align: center;
+}
+
+#logConfigHolder{
+	width: 5% !important;
+}
+
+.corruptedCalcRow{
+	background-color: #2E0854 !important;
+	color: #DDDDFF !important;
+}
+
+.corruptedCalcRow td{
+	border: 1px solid white !important;
+}
+
 .heirloomMod{
 	cursor: pointer;
 	padding: 0.2vw 0.4vw 0.2vw 0.4vw;
@@ -1604,7 +1629,6 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 }
 
 .achievementContainer{
-	border: 1px solid white;
 	margin: 0.5%;
 	display: inline-block;
 	color: black;
@@ -1612,6 +1636,9 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 	line-height: 1.45vw;
 	text-align: center;
 	padding-top: 0.15vw;
+	border-style: solid;
+	border-width: 0.1vw;
+	border-left-width: 1vw;
 }
 
 .achievementTitle{
@@ -1620,16 +1647,20 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 	background-color: white;
 	text-align: center;
 	display: inline-block;
-	font-size: 1.2vw;
+	font-size: 1.1vw;
 	color: black;
-	line-height: 1.6vw;
+	line-height: 1.4vw;
 	display: inline-block;
 	vertical-align: top;
 	margin-top: 0.4vw;
 }
 
+.helium{
+	color: #00bfff;
+}
+
 .doubleTall{
-	line-height: 4.15vw;
+	line-height: 3.75vw;
 }
 
 #achievementPopup{
@@ -2184,6 +2215,26 @@ color: #DDDDFF !important;
 	font-size: .9em;
 }
 
+.messageCheckboxHolder input{
+	width: 1vw;
+	height: 1vw;
+	margin: 0;
+}
+
+.messageConfigTitle{
+	font-size: 2vw;
+	font-weight: bold;
+}
+
+.messageNameHolder{
+	font-size: 1.3vw;
+}
+
+#messageConfigMessage{
+	height: 3vw;
+	font-size: 1.2vw;
+}
+
 .thingSmall{
 	display: inline-block;
 	font-size: 1.3em;
@@ -2459,17 +2510,18 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background-color: #00424d;
-color: white;
+background-color: #35a5a5;
+color: #000;
 }
+
 .btn-new:hover,
 .btn-new:focus,
 .btn-new.focus,
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background-color: #380e3d;
-color: white;
+background-color: #000;
+color: #35a5a5;
 }
 .btn-new:active,
 .btn-new.active,
@@ -2553,6 +2605,14 @@ input::-webkit-inner-spin-button {
 
 .tabNotSelected {
 	background: rgba(255,255,255,0.25);
+}
+
+#NewTab.tabNotSelected {
+	background: rgba(255,255,0,0.5);
+}
+
+#NewTab.tabSelected {
+	background: rgba(64,64,0,0.75);
 }
 
 #buyTabs > ul > .tabSelected a {
