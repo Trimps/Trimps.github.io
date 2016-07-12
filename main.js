@@ -458,7 +458,7 @@ function load(saveString, autoLoad, fromPf) {
         unlockMap(itemC);
     }
 	for (var messageBool in game.global.messages){
-		if (!game.global.messages[messageBool]){
+		if (!game.global.messages[messageBool].enabled){
 			filterMessage(messageBool, true);
 		}
 	}
