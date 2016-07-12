@@ -1803,7 +1803,7 @@ function trimMessages(what){
 			log.removeChild(toChange[count]);
 		}
 	}
-}
+} 
 
 function filterMessage(what, updateOnly){ //send true for updateOnly
 	var log = document.getElementById("log");
