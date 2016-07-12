@@ -1815,6 +1815,7 @@ function filterMessage(what, updateOnly){ //send true for updateOnly
 	var toChange = document.getElementsByClassName(what + "Message");
 	var btnText = (displayed) ? what : what + " off";
 	var btnElem = document.getElementById(what + "Filter");
+	if (btnElem == null) return;
 	btnElem.innerHTML = btnText;
 	btnElem.className = "";
 	btnElem.className = getTabClass(displayed);
