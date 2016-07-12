@@ -219,7 +219,7 @@ function load(saveString, autoLoad, fromPf) {
 	savegame.global.version = game.global.version;
 	//Compatibility to new message filter config. Separated from other compatibility as it needs to go in to effect before game has the old booleans copied over it.
 	if (oldVersion < 3.51){
-		if (!savegame.portal.Siphonology.locked) addNewSetting("siphonologyMapLevel");
+		if (savegame.portal.Siphonology && !savegame.portal.Siphonology.locked) addNewSetting("siphonologyMapLevel");
 		addNewSetting("timestamps");
 		var oldMsg = savegame.global.messages;
 		savegame.global.messages = game.global.messages;
