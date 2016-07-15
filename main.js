@@ -4868,7 +4868,7 @@ function fight(makeUp) {
 		}
         return;
     }
-    if (cell.health <= 0) {
+    if (cell.health <= 0 || !isFinite(cell.health)) {
 		game.stats.battlesWon.value++;
 		if (game.global.usingShriek) disableShriek();
 		randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
