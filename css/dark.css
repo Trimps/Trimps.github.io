@@ -193,6 +193,33 @@
     border-color: #5D5D5D;
 }
 
+/* Small Buttons */
+
+#buyHere.buttonSizeSmall div .buyBox .thing{
+	width: 19.8%;
+	margin-left: -1px;
+    margin-right: 0px;
+    margin-top: -1px;
+}
+
+#buyHere.buttonSizeSmall div .buyBox #GeneticistassistContainer{
+	width: 39.5%;
+}
+
+/* Tiny Buttons */
+
+#buyHere.buttonSizeTiny div .buyBox .thing{
+	width: 16.6666666%;
+	margin-left: -1px;
+    margin-right: 0px;
+    margin-top: -1px;
+}
+
+#buyHere.buttonSizeTiny div .buyBox #GeneticistassistContainer{
+	width: 33.2333333%;
+}
+
+
 #GeneticistassistContainer {
      width: 50%;
 }
@@ -372,6 +399,11 @@
 
 #searchSettings{
 	color: white;
+}
+
+.thingColorGoldenUpgrade {
+background-color:#574800;
+color: white !important;
 }
 
 .table-striped > tbody > tr:nth-of-type(2n) {

@@ -554,9 +554,56 @@ overflow-x: hidden;
 	background-color: rgba(0,0,102,1);
 }
 
+/* Small Buttons */
+
+#buyHere.buttonSizeSmall div .buyBox .thing{
+	width: 19.5%;
+	font-size: .68vw;
+	margin-left: 0.15%;
+	margin-right: 0.15%;
+}
+
+#buyHere.buttonSizeSmall div .buyBox #GeneticistassistContainer{
+	width: 39.3%;
+}
+
+/* Tiny Buttons */
+
+#buyHere.buttonSizeTiny div .buyBox .thing{
+	width: 16.4666666%;
+	font-size: .58vw;
+	margin-left: 0.1%;
+	margin-right: 0.1%;
+}
+
+#buyHere.buttonSizeTiny div .buyBox #GeneticistassistContainer{
+	width: 33.1333333%;
+}
+
+
+.noBotMarg{
+	margin-bottom: 0;
+}
+
+
+#disableOnUnlockCheck{
+	height: 1vw;
+	width: 1vw;
+	line-height: 1vw;
+	margin: 0;
+}
+
+#GADisableCheck{
+	font-size: 1vw;
+	line-height: 1vw;
+	height: 1vw;
+	width: 100%;
+	margin-top: 0.5vw;
+}
+
 #GeneticistassistContainer div{
-	width: 50%;
-	margin: 0; 
+	width: 50% !important;
+	margin: 0 !important; 
 }
 
 #GeneticistassistContainer #Geneticist{
@@ -1615,11 +1662,15 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 }
 
 #achievementsHere{
-	margin-top: 2%;
 	overflow-y:  auto;
 	height: calc(98% - 9.5vw);
 	background: rgba(60, 60, 60, 0.4);
 	text-align: center;
+}
+
+#achievementGoldenBonusContainer{
+	font-size: 0.65em;
+	color: #ffd700;
 }
 
 .littleAchievementWrapper{
@@ -1737,7 +1788,7 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 }
 
 #achievementTopRow{
-	height: 8.5vw;
+	height: 10vw;
 }
 
 #achievementMainButtons{
@@ -2577,6 +2628,11 @@ input::-webkit-inner-spin-button {
 
 .mapElementNotSelected {
 	border: 1px solid white;
+}
+
+.thingColorGoldenUpgrade {
+	background: #ffd700;
+	color: black !important;
 }
 
 .thingColorCanAfford {

@@ -54,7 +54,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else {
 			tooltipText = toTip.tooltip;
 			if (typeof tooltipText === 'function') tooltipText = tooltipText();
-			costText = addTooltipPricing(toTip, what, isItIn);
+			if (typeof toTip.cost !== 'undefined') costText = addTooltipPricing(toTip, what, isItIn);
 		}
 	}
 	if (what == "Confirm Purchase"){
@@ -129,7 +129,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Customize Targets"){
 		var steps = game.global.GeneticistassistSteps;
-		tooltipText = "<div id='GATargetError'></div><div>Customize the target thresholds for your Geneticistassist! Use a number between 0.5 and 60 seconds for all 3 boxes. Each box corresponds to a Geneticistassist toggle threshold.</div><div style='width: 100%'><input class='GACustomInput' id='target1' value='" + steps[1] + "'/><input class='GACustomInput' id='target2' value='" + steps[2] + "'/><input class='GACustomInput' id='target3' value='" + steps[3] + "'/>";
+		tooltipText = "<div id='GATargetError'></div><div>Customize the target thresholds for your Geneticistassist! Use a number between 0.5 and 60 seconds for all 3 boxes. Each box corresponds to a Geneticistassist toggle threshold.</div><div style='width: 100%'><input class='GACustomInput' id='target1' value='" + steps[1] + "'/><input class='GACustomInput' id='target2' value='" + steps[2] + "'/><input class='GACustomInput' id='target3' value='" + steps[3] + "'/><hr class='noBotMarg'/><div id='GADisableCheck'><input type='checkbox'" + ((game.options.menu.GeneticistassistTarget.disableOnUnlock) ? " checked='true'" : "") + "' id='disableOnUnlockCheck' /> Start disabled when unlocked each run</div></div>";
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='customizeGATargets();'>Confirm</div> <div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div>"
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
@@ -167,6 +167,15 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
+	if (isItIn == "goldenUpgrades"){
+		var upgrade = game.goldenUpgrades[what];
+		var timesPurchased = upgrade.purchasedAt.length
+		var s = (timesPurchased == 1) ? "" : "s";
+		tooltipText += " <b>You can only choose one of these three Golden Upgrades. Choose wisely...</b><br/><br/> Each time Golden Upgrades are unlocked, they will increase in strength. You are currently gaining " + prettify(upgrade.currentBonus * 100) + "% from purchasing this upgrade " + timesPurchased + " time" + s + " since your last portal.";
+		costText = "Free";
+		if (getAvailableGoldenUpgrades() > 1) costText += " (" + getAvailableGoldenUpgrades() + " remaining)";
+		what = "Golden " + what + " (Tier " + romanNumeral(game.global.goldenUpgrades + 1) + ")";
+	}
 	if (what == "Corruption"){
 		tooltipText = "<span class='planetBreakMessage'>You can now see a giant spire only about 20 zones ahead of you. Menacing plumes of some sort of goopy gas boil out of the spire and appear to be tainting the land even further. It looks to you like the zones are permanently damaged, poor planet. You know that if you want to reach the spire, you'll have to deal with the goo.</span><br/>";
 		costText = "<span class='planetBreakDescription'><span class='bad'>From now on as you press further through zones, more and more corrupted cells of higher and higher difficulty will begin to spawn. Improbabilities and Void Maps are now more difficult.</span> <span class='good'>Improbabilities and Void Maps now drop 2x helium. Each corrupted cell will drop 15% of that zone's helium reward.</span></span>";
@@ -177,7 +186,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Spire"){
 		tooltipText = "<span class='planetBreakMessage'>The Spire looms menacingly above you, and you take in a deep breath of corruption. You take a look back at your Trimps to help gather some courage, and you push the door open. You slowly walk inside and are greeted by an incredibly loud, deep, human voice.<br/><br/><b>Do you know what you face? If you are defeated ten times in this place, you shall be removed from this space. If you succeed, then you shall see the light of knowledge that you seek.</b><span>";
-		tooltipText += "<br/><hr/><span class='planetBreakDescription'><span class='bad'>This zone is considerably more difficult than the previous and next zones. If 10 groups of Trimps die in combat while in the spire, the world will return to normal.</span> <span class='good'>Each cell gives more and more helium, and every 10th cell gives a larger reward.</span>";
+		tooltipText += "<br/><hr/><span class='planetBreakDescription'><span class='bad'>This zone is considerably more difficult than the previous and next zones. If 10 groups of Trimps die in combat while in the spire, the world will return to normal.</span> <span class='good'>Each cell gives more and more helium. Every 10th cell gives a larger reward, and increases all loot gained until your next portal by 2% (including helium).</span>";
 		if (game.options.menu.mapsOnSpire.enabled) tooltipText += "<br/><hr/>You were moved to Maps to protect your limited chances at the spire. You can disable this in settings!";
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='startSpire(true)'>Bring it on</div></div>";
 		game.global.lockTooltip = true;
@@ -1021,6 +1030,12 @@ function getBattleStatBd(what) {
 		heirloomBonus = prettify(heirloomBonus) + '%';
 		textString += "<tr><td class='bdTitle'>Heirloom (Shield)</td><td></td><td></td><td>+ " + heirloomBonus + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	//Add golden battle
+	if (what != "block" && game.goldenUpgrades.Battle.currentBonus > 0){
+		amt = game.goldenUpgrades.Battle.currentBonus;
+		currentCalc *= 1 + amt;
+		textString += "<tr><td class='bdTitle'>Golden Battle</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	var critChance = getPlayerCritChance();
 	if (what == "attack" && critChance){
 		var critMult = getPlayerCritDamageMult();
@@ -1222,6 +1237,11 @@ function getLootBd(what) {
 				currentCalc *= amt;
 				textString += "<tr><td class='bdTitle'>Scientist V</td><td></td><td></td><td>X " + prettify(amt) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 			}
+			if (game.goldenUpgrades.Helium.currentBonus > 0){
+				amt = game.goldenUpgrades.Helium.currentBonus;
+				currentCalc *= 1 + amt;
+				textString += "<tr><td class='bdTitle'>Golden Helium</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+			}
 			if (game.global.voidBuff) {
 				currentCalc *= 2;
 				textString += "<tr><td class='bdTitle'>Void Map</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
@@ -1302,6 +1322,11 @@ function getLootBd(what) {
 			textString += "<tr><td class='bdTitle'>Heirloom (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
 			heirloomBonus = 0;
 		}
+	}
+	if (game.global.spireRows > 0){
+		amt = game.global.spireRows * 0.02;
+		currentCalc *= (1 + amt);
+		textString += "<tr><td class='bdTitle'>Spire Rows</td><td>+ 2%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (what == "Helium" && (game.global.world >= 181 || (game.global.challengeActive == 'Corrupted' && game.global.world >= 60))){
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
@@ -1485,6 +1510,7 @@ function resetGame(keepPortal) {
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));			
 	heirloomsShown = false;
+	goldenUpgradesShown = false;
 	game.global.selectedHeirloom = [];
 	resetOnePortalRewards();
 	playFabLoginErrors = 0;
@@ -1614,7 +1640,7 @@ function resetGame(keepPortal) {
 		game.global.playFabLoginType = playFabLoginType;
 		game.global.rememberInfo = rememberInfo;
 		game.global.heirloomBoneSeed = heirloomBoneSeed;
-		game.global.GeneticistassistSetting = GeneticistassistSetting;
+		game.global.GeneticistassistSetting = (game.options.menu.GeneticistassistTarget.disableOnUnlock) ? -1 : GeneticistassistSetting;
 		game.global.Geneticistassist = Geneticistassist;
 		game.global.GeneticistassistSteps = GeneticistassistSteps;
 		for (var statItem in stats){
@@ -1676,6 +1702,7 @@ function resetGame(keepPortal) {
 	updateRadioStacks();
 	updateAntiStacks();
 	setNonMapBox();
+	game.options.menu.tinyButtons.onToggle();
 	if (keepPortal) checkAchieve("portals");
 	document.getElementById("goodGuyAttack").innerHTML = "";
 	document.getElementById("goodGuyBlock").innerHTML = "";
@@ -2207,8 +2234,9 @@ function unlockJob(what) {
 	elem.innerHTML = "";
 	for (var item in game.jobs){
 		if (game.jobs[item].locked == 1) continue;
-		if (item == "Geneticist" && game.global.Geneticistassist) 
+		if (item == "Geneticist" && game.global.Geneticistassist){
 			drawGeneticistassist(elem);
+		}
 		else
 			drawJob(item, elem);
 		if (game.jobs[item].alert && game.options.menu.showAlerts.enabled){
@@ -2293,6 +2321,7 @@ function unlockUpgrade(what, displayOnly) {
 	if (!displayOnly) game.global.lastUnlock = new Date().getTime();
 	var elem = document.getElementById("upgradesHere");
 	elem.innerHTML = "";
+	if (getAvailableGoldenUpgrades() >= 1) displayGoldenUpgrades(true);
 	var upgrade = game.upgrades[what];
 	upgrade.locked = 0;
 	if (upgrade.prestiges){
@@ -2553,7 +2582,6 @@ function searchSettings(elem){
 		if (search == "new"){
 			if (!optionObject.isNew) continue;
 			results.push(optionName);
-			console.log(results);
 			continue;
 		}
 		if (typeof optionObject.lockUnless === 'function' && !optionObject.lockUnless()) continue;
@@ -2680,7 +2708,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 	}
 
 	function checkAchieve(id, evalProperty, doubleChecking, noDisplay) {
-		if (id == "housing" && checkHousing() >= 100) giveSingleAchieve(10);
+		if (id == "housing" && checkHousing() >= 100) giveSingleAchieve(18);
 		var achievement = game.achievements[id];		
 		if (typeof achievement.evaluate !== 'undefined') evalProperty = achievement.evaluate();
 		if (typeof achievement.highest !== 'undefined') {
@@ -2775,22 +2803,41 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		if (trimpAchievementHelpOn) toggleAchievementHelp();
 		if (!trimpAchievementsOpen) return;
 		displayAchievements();
-		var fluff = {
-			supreme: [", your achievements are beyond mortal comprehension", ", Trimps far and wide tell stories of your achievement", ", you have achieved achievement", ", everything you touch turns to achievement"],
-			high: [", thanks to your bounty of achievements", ", must be all those achievements", ", you are one with the achievements", " and you water your achievements daily"],
-			mid: [", your achievement game shows promise", " on your path to achievement", ", thanks to your achievements"],
-			low: [", better get some more achievements", ", you'd do fine with a few more achievements", " but you wish you had a few more achievements"]
-		};
-		var percent = game.global.achievementBonus;
-		var fluffLevel;
-		if (percent < 15) fluffLevel = "low";
-		else if (percent < 150) fluffLevel = "mid";
-		else if (percent < 400) fluffLevel = "high";
-		else fluffLevel = "supreme";
+		var fluff = [
+			[", better get some more achievements", ", you'd do fine with a few more achievements", " but you wish you had a few more achievements"],
+			[", your achievement game shows promise", " on your path to achievement", ", thanks to your achievements"],
+			[", thanks to your bounty of achievements", ", must be all those achievements", ", you are one with the achievements", " and you water your achievements daily"],
+			[", your Trimps are mighty impressed", ", your achievements are mind blowing", ". You wake up, achieve, then sleep", ", you have achievement in your blood"],
+			[", your achievements are beyond mortal comprehension", ", Trimps far and wide tell stories of your achievement", ", you have achieved achievement", ", everything you touch turns to achievement"],
+			[", your achievements have achieved achievement.", ", news of your achievement spreads throughout the galaxy", ", achievements bend to your will", ", your achievements transcend reality"]
+		];
+		var fluffLevel = getAchievementStrengthLevel();		
 		fluff = fluff[fluffLevel];
 		fluff = fluff[Math.floor(Math.random() * fluff.length)]
 		document.getElementById("achievementFluff").innerHTML = fluff;
-		document.getElementById("achievementTotalPercent").innerHTML = percent;
+		document.getElementById("achievementTotalPercent").innerHTML = game.global.achievementBonus;
+		setGoldenBonusAchievementText();
+	}
+	
+	function setGoldenBonusAchievementText(){
+		var elem = document.getElementById('achievementGoldenBonusContainer');
+		var tier = getAchievementStrengthLevel();
+		var tiers = [15, 150, 400, 650, 1000];
+		var freq = getGoldenFrequency(tier);
+		if (freq <= 0) return false;
+		var html = "You will find one Golden Upgrade every " + freq + " zones.";
+		if (tier < tiers.length) html += " Frequency increases at " + tiers[tier] + "% bonus damage.";
+		elem.innerHTML = html;
+	}
+	
+	function getAchievementStrengthLevel(){
+		var percent = game.global.achievementBonus;
+		if (percent < 15) return 0;
+		else if (percent < 100) return 1;
+		else if (percent < 300) return 2;
+		else if (percent < 600) return 3;
+		else if (percent < 1000) return 4;
+		return 5;
 	}
 	
 	var trimpAchievementHelpOn = false;

@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.51,
+		version: 3.6,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -158,6 +158,9 @@ var toReturn = {
 		Geneticistassist: false,
 		GeneticistassistSetting: -1,
 		GeneticistassistSteps: [-1, 1, 10, 30],
+		spireRows: 0,
+		goldenUpgrades: 0,
+		voidDeaths: 0,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -312,7 +315,7 @@ var toReturn = {
 			},
 			tooltipPosition: {
 				enabled: 0,
-				extraTags: "alerts layout",
+				extraTags: "alerts",
 				description: "Toggle the position of your tooltips between top right, centered above or centered below the mouse.",
 				titles: ["Top Right Tips", "Center Bottom Tips", "Center Top Tips"]
 			},
@@ -514,6 +517,7 @@ var toReturn = {
 			},
 			GeneticistassistTarget: {
 				enabled: 0,
+				disableOnUnlock: false,
 				extraTags: "popular general",
 				description: "Customize your three available Geneticistassist targets.",
 				titles: ["Geneticistassist Targets"],
@@ -562,6 +566,16 @@ var toReturn = {
 				extraTags: "qol",
 				description: "Choose whether or not to display timestamps in the message log. <b>Local Timestamps</b> will log the current time according to your computer, <b>Run Timestamps</b> will log how long it has been since your run started. Note that toggling this setting will not add or remove timestamps from previous messages, but will add or remove them to or from any new ones.",
 				titles: ["No Timestamps", "Local Timestamps", "Run Timestamps"]
+			},
+			tinyButtons: {
+				enabled: 0,
+				extraTags: "layout",
+				description: "Shrink the buttons in the menu where you purchase Buildings, Upgrades, Jobs, and Equipment. <b>Large Buttons</b> is default and fits 4 buttons per row. <b>Small Buttons</b> shrinks the size to fit 5 per row, and <b>Tiny Buttons</b> fits 6 per row. Small and Tiny may not be readable on small screens.",
+				titles: ["Large Buttons", "Small Buttons", "Tiny Buttons"],
+				onToggle: function () {
+					var classNames = ["buttonSizeLarge", "buttonSizeSmall", "buttonSizeTiny"];
+					swapClass("buttonSize", classNames[this.enabled], document.getElementById('buyHere'));
+				}
 			},
 			pauseGame: {
 				enabled: 0,
@@ -1113,6 +1127,7 @@ var toReturn = {
 			filter: function () {
 				return (game.global.highestLevelCleared >= 124);
 			},
+			critsTaken: 0,
 			fireAbandon: true,
 			abandon: function () {
 				document.getElementById("badCrit").innerHTML = "";
@@ -1163,10 +1178,11 @@ var toReturn = {
 			filter: function () {
 				return (game.global.highestLevelCleared >= 164);
 			},
+			highestStacks: 0,
 			heldHelium: 0,
 			heliumThrough: 165,
 			stacks: 0,
-			maxStacks: 1500,
+			maxStacks: 1500, //Changing this breaks the feat spaghetti
 			stackMult: 0.997,
 			lootMult: 0.15,
 			unlockString: "reach Zone 165"
@@ -1189,7 +1205,8 @@ var toReturn = {
 			heliumMultiplier: 1.5,
 			heldHelium: 0,
 			heliumThrough: 180,
-			unlockString: "reach Zone 180"
+			unlockString: "reach Zone 180",
+			enteredMap: false
 		},
 		Lead: {
 			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 250% of all helium earned up to that point.",
@@ -1214,6 +1231,7 @@ var toReturn = {
 			heliumMultiplier: 1,
 			heldHelium: 0,
 			heliumThrough: 190,
+			hiredGenes: false,
 			unlockString: "reach Zone 190"
 		}
 	},
@@ -1246,6 +1264,14 @@ var toReturn = {
 			display: function () {
 				return ((this.value + this.valueTotal) > 0)
 			}
+		},
+		trimpsFired: {
+			title: "Trimps Fired",
+			value: 0,
+			valueTotal: 0,
+			//This stat was added in 3.6 and the numbers will look bad for a few months.
+			//Open maybe 10/21/16ish
+			display: function () {return false;}
 		},
 		highestLevel: {
 			title: "Highest Zone",
@@ -1340,6 +1366,14 @@ var toReturn = {
 				if (game.global.world > this.value) this.value = game.global.world;
 				if (game.global.world > this.valueTotal) this.valueTotal = game.global.world;
 			}
+		},
+		goldenUpgrades: {
+			title: "Golden Upgrades",
+			display: function () {
+				return (this.value > 0 || this.valueTotal > 0);
+			},
+			value: 0,
+			valueTotal: 0
 		},
 		totalHeirlooms: { //added from createHeirloom to value
 			title: "Heirlooms Found",
@@ -1734,16 +1768,17 @@ var toReturn = {
 			newStuff: []
 		},
 		oneOffs: {
-			finished: [false, false, false, false, false, false, false, false, false, false, false, false],
+			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare
+			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
-			descriptions: ["Reach Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60"],
-			tiers: [3, 3, 3, 4, 4, 5, 5, 5, 5, 5, 6, 6],
+			descriptions: ["Reach Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over 250k total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Reach Z60 without hiring a single Trimp", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering any maps", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths"],
+			tiers: [3, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7],
 			description: function (number) {
 				return this.descriptions[number];
 			},
-			filters: [29, 29, -1, 59, -1, 124, 59, 119, 74, -1, 59, -1],
+			filters: [29, 29, -1, 59, -1, 124, 59, 119, 74, -1, -1, 59, 59, 59, 124, 144, 59, 164, 59, -1, 179, 179, 189, 199],
 			icon: "icomoon icon-flag",
-			names: ["Underachiever", "Hoarder", "Needs Block", "Peacekeeper", "Elite Feat", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Realtor", "Gotta Go Fast"],
+			names: ["Underachiever", "Hoarder", "Needs Block", "Peacekeeper", "Elite Feat", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Holey", "Shaggy", "One-Hit Wonder", "Survivor", "Thick Skinned", "Great Host", "Unemployment", "Trimp is Poison", "Realtor", "Gotta Go Fast", "Grindless", "Unsatisfied Customer", "Organic Trimps", "Invincible"],
 			newStuff: []
 		}
 	},
@@ -2634,6 +2669,7 @@ var toReturn = {
 					game.global.totalHeliumEarned += heliumAdded;
 					game.challenges.Crushed.heldHelium = 0;
 					game.global.challengeActive = "";
+					if (game.challenges.Crushed.critsTaken == 0) giveSingleAchieve(14);
 					game.challenges.Crushed.abandon();
 				}
 			}
@@ -2776,6 +2812,10 @@ var toReturn = {
 				}
 				else if ((game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165) || ((game.global.challengeActive == "Watch" || game.global.challengeActive == "Lead") && game.global.world >= 180) || (game.global.challengeActive == "Corrupted" && game.global.world >= 190)){
 					var challenge = game.global.challengeActive;
+					if (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap) giveSingleAchieve(20);
+					if (game.global.challengeActive == "Lead" && game.upgrades.Gigastation.done <= 1) giveSingleAchieve(21);
+					if (game.global.challengeActive == "Corrupted" && !game.challenges.Corrupted.hiredGenes) giveSingleAchieve(22);
+					if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400) giveSingleAchieve(17);
 					var reward = (game.challenges[challenge].heliumMultiplier) ? game.challenges[challenge].heliumMultiplier : 2;
 					reward = game.challenges[challenge].heldHelium * reward;
 					message("You have completed the " + challenge + " challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
@@ -3169,6 +3209,7 @@ var toReturn = {
 			canRunWhenever: true,
 			fire: function () {
 				createHeirloom();
+				if (game.global.voidDeaths == 0 && game.global.voidBuff == "bleed") giveSingleAchieve(13);
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
 			}
 		},
@@ -4708,6 +4749,39 @@ var toReturn = {
 			},
 			increase: "custom",
 			modifier: 1
+		}
+	},
+	
+	goldenUpgrades: {
+		Helium: {
+			tooltip: function() {
+				return "Increase helium gain by " + prettify(game.goldenUpgrades.Helium.nextAmt() * 100) + "%.";
+			},
+			nextAmt: function() {
+				return 0.01 * (game.global.goldenUpgrades + 1);
+			},
+			currentBonus: 0,
+			purchasedAt: []
+		},
+		Battle: {
+			tooltip: function() {
+				return "Increase Trimp attack and health by " + prettify(game.goldenUpgrades.Battle.nextAmt() * 100) + "%.";
+			},
+			nextAmt: function() {
+				return 0.03 * (game.global.goldenUpgrades + 1);
+			},
+			currentBonus: 0,
+			purchasedAt: []
+		},
+		Void: {
+			tooltip: function() {
+				return "Decrease the minimum amount of enemies between Void Map drops by " + prettify(game.goldenUpgrades.Void.nextAmt() * 100) + "%.";
+			},
+			nextAmt: function() {
+				return 0.02 * (game.global.goldenUpgrades + 1);
+			},
+			currentBonus: 0,
+			purchasedAt: []
 		}
 	},
 	
