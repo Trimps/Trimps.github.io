@@ -519,8 +519,8 @@ var toReturn = {
 				enabled: 0,
 				disableOnUnlock: false,
 				extraTags: "popular general",
-				description: "Customize your three available Geneticistassist targets.",
-				titles: ["Geneticistassist Targets"],
+				description: "Customize your three available Geneticistassist targets, and decide whether or not Geneticistassist should start automatically when unlocked each run.",
+				titles: ["Geneticistassist Settings"],
 				lockUnless: function () {
 					return (game.global.Geneticistassist);
 				}
