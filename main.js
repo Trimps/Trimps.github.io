@@ -4859,7 +4859,7 @@ function removeGoldenUpgrades() {
 
 function getAvailableGoldenUpgrades(){
 	var tier = getAchievementStrengthLevel();
-	if (tier == 0) return;
+	if (tier == 0) return 0;
 	return Math.floor(game.global.world / getGoldenFrequency(tier)) - game.global.goldenUpgrades;
 }
 
