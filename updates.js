@@ -2828,8 +2828,8 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 			elem.innerHTML = "";
 			return false;
 		}
-		var html = "You will find one Golden Upgrade every " + freq + " zones.";
-		if (tier < tiers.length) html += " Frequency increases at&nbsp;" + tiers[tier] + "%&nbsp;bonus&nbsp;damage.";
+		var html = "You&nbsp;will&nbsp;find&nbsp;one&nbsp;Golden&nbsp;Upgrade&nbsp;every&nbsp;" + freq + "&nbsp;zones.";
+		if (tier < tiers.length) html += "&nbsp;Frequency&nbsp;increases&nbsp;at&nbsp;" + tiers[tier] + "%&nbsp;bonus&nbsp;damage.";
 		elem.innerHTML = html;
 	}
 	
