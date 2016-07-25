@@ -1789,6 +1789,7 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 
 #achievementTopRow{
 	height: 10vw;
+	overflow: hidden;
 }
 
 #achievementMainButtons{
