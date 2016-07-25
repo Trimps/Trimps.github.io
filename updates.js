@@ -2829,7 +2829,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 			return false;
 		}
 		var html = "You will find one Golden Upgrade every " + freq + " zones.";
-		if (tier < tiers.length) html += " Frequency increases at " + tiers[tier] + "% bonus damage.";
+		if (tier < tiers.length) html += " Frequency increases at&nbsp;" + tiers[tier] + "%&nbsp;bonus&nbsp;damage.";
 		elem.innerHTML = html;
 	}
 	
