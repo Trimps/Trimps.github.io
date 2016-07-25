@@ -4846,7 +4846,9 @@ function displayGoldenUpgrades(redraw) {
 	var html = "";
 	for (var item in game.goldenUpgrades){
 		var upgrade = game.goldenUpgrades[item];
-		html += '<div onmouseover="tooltip(\'' + item + '\', \'goldenUpgrades\', event)" onmouseout="tooltip(\'hide\')" class="thingColorGoldenUpgrade thing noselect pointer upgradeThing" id="' + item + 'Golden" onclick="buyGoldenUpgrade(\'' + item + '\'); cancelTooltip();"><span class="thingName">Golden ' + item + ' ' + romanNumeral(game.global.goldenUpgrades + 1) + '</span><br/><span class="thingOwned" id="golden' + item + 'Owned">' + upgrade.purchasedAt.length + '</span></div>';
+		if (item == "Void" && game.global.totalPortals < 5) continue;
+		var color = (item == "Void" && ((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()) >= 0.60)) ? "thingColorCanNotAfford" : "thingColorGoldenUpgrade";
+		html += '<div onmouseover="tooltip(\'' + item + '\', \'goldenUpgrades\', event)" onmouseout="tooltip(\'hide\')" class="' + color + ' thing noselect pointer upgradeThing" id="' + item + 'Golden" onclick="buyGoldenUpgrade(\'' + item + '\'); cancelTooltip();"><span class="thingName">Golden ' + item + ' ' + romanNumeral(game.global.goldenUpgrades + 1) + '</span><br/><span class="thingOwned" id="golden' + item + 'Owned">' + upgrade.purchasedAt.length + '</span></div>';
 	}
 	var elem = document.getElementById('upgradesHere');	
 	elem.innerHTML =  html + elem.innerHTML;
@@ -4878,6 +4880,7 @@ function getGoldenFrequency(fluffTier){
 function buyGoldenUpgrade(what) {
 	var totalAvailable = getAvailableGoldenUpgrades();
 	if (totalAvailable <= 0) return false;
+	if (what == "Void" && ((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()) >= 0.60)) return;
 	var upgrade = game.goldenUpgrades[what];
 	upgrade.currentBonus += upgrade.nextAmt();
 	upgrade.purchasedAt.push(game.global.goldenUpgrades);

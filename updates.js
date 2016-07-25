@@ -172,6 +172,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var timesPurchased = upgrade.purchasedAt.length
 		var s = (timesPurchased == 1) ? "" : "s";
 		tooltipText += " <b>You can only choose one of these three Golden Upgrades. Choose wisely...</b><br/><br/> Each time Golden Upgrades are unlocked, they will increase in strength. You are currently gaining " + prettify(upgrade.currentBonus * 100) + "% from purchasing this upgrade " + timesPurchased + " time" + s + " since your last portal.";
+		if (what == "Void" && ((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()) >= 0.60)) tooltipText += "<br/><b class='red'>This upgrade would put you over 60% increased Void Map chance, which would destabilize the universe. You don't want to destabilize the universe, do you?</b>";
 		costText = "Free";
 		if (getAvailableGoldenUpgrades() > 1) costText += " (" + getAvailableGoldenUpgrades() + " remaining)";
 		what = "Golden " + what + " (Tier " + romanNumeral(game.global.goldenUpgrades + 1) + ")";
