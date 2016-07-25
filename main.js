@@ -530,7 +530,8 @@ function load(saveString, autoLoad, fromPf) {
 	displayPerksBtn();
 	displayGoldenUpgrades();
 	//3.6 bug fix
-	if (getAvailableGoldenUpgrades() <= 0) {
+	if (getAchievementStrengthLevel() <= 0) {
+		console.log(getAchievementStrengthLevel());
 		game.global.goldenUpgrades = 0;
 		for (var item in game.goldenUpgrades){
 			game.goldenUpgrades[item].currentBonus = 0;
@@ -591,7 +592,6 @@ function load(saveString, autoLoad, fromPf) {
 		swapClass("psColor", "psColorOrange", document.getElementById("trimpsPs"));
 	else
 		swapClass("psColor", "psColorWhite", document.getElementById("trimpsPs"));
-	
 	return true;
 }
 
