@@ -2824,7 +2824,10 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		var tier = getAchievementStrengthLevel();
 		var tiers = [15, 100, 300, 600, 1000];
 		var freq = getGoldenFrequency(tier);
-		if (freq <= 0) return false;
+		if (tier <= 0) {
+			elem.innerHTML = "";
+			return false;
+		}
 		var html = "You will find one Golden Upgrade every " + freq + " zones.";
 		if (tier < tiers.length) html += " Frequency increases at " + tiers[tier] + "% bonus damage.";
 		elem.innerHTML = html;
