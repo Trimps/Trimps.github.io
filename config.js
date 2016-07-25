@@ -2814,7 +2814,7 @@ var toReturn = {
 					var challenge = game.global.challengeActive;
 					if (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap) giveSingleAchieve(20);
 					if (game.global.challengeActive == "Lead" && game.upgrades.Gigastation.done <= 1) giveSingleAchieve(21);
-					if (game.global.challengeActive == "Corrupted" && !game.challenges.Corrupted.hiredGenes) giveSingleAchieve(22);
+					if (game.global.challengeActive == "Corrupted" && !game.challenges.Corrupted.hiredGenes && game.jobs.Geneticist.owned == 0) giveSingleAchieve(22);
 					if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400) giveSingleAchieve(17);
 					var reward = (game.challenges[challenge].heliumMultiplier) ? game.challenges[challenge].heliumMultiplier : 2;
 					reward = game.challenges[challenge].heldHelium * reward;

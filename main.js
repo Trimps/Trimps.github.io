@@ -2073,6 +2073,7 @@ function buyJob(what, confirmed, noTip) {
 }
 
 function addGeneticist(){
+	if (game.global.challengeActive == "Corrupted" && what == "Geneticist") game.challenges.Corrupted.hiredGenes = true;
 	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
 	var owned = game.resources.trimps.owned - game.resources.trimps.employed;
 	if (owned < 1) return;
