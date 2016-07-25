@@ -528,6 +528,13 @@ function load(saveString, autoLoad, fromPf) {
 
 	displayPerksBtn();
 	displayGoldenUpgrades();
+	//3.6 bug fix
+	if (getAvailableGoldenUpgrades() <= 0) {
+		game.global.goldenUpgrades = 0;
+		for (var item in game.goldenUpgrades){
+			game.goldenUpgrades[item].currentBonus = 0;
+		}
+	}
 	fireMode(true);
 
 	if (game.global.autoUpgradesAvailable){
