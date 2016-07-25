@@ -2822,7 +2822,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 	function setGoldenBonusAchievementText(){
 		var elem = document.getElementById('achievementGoldenBonusContainer');
 		var tier = getAchievementStrengthLevel();
-		var tiers = [15, 150, 400, 650, 1000];
+		var tiers = [15, 100, 300, 600, 1000];
 		var freq = getGoldenFrequency(tier);
 		if (freq <= 0) return false;
 		var html = "You will find one Golden Upgrade every " + freq + " zones.";
