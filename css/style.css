@@ -23,7 +23,7 @@ overflow-x: hidden;
 
 #topRow {
     /*height: 285px;*/
-    height: 18.2vw;
+    height: 18vw;
     margin-bottom: 10px;
 }
 
@@ -1788,7 +1788,7 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 }
 
 #achievementTopRow{
-	height: 10vw;
+	height: 10.3vw;
 }
 
 #achievementMainButtons{
