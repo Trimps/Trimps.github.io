@@ -2561,8 +2561,8 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background-color: #35a5a5;
-color: #000;
+background-color: black;
+color: #ffd700;
 }
 
 .btn-new:hover,
@@ -2571,8 +2571,8 @@ color: #000;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background-color: #000;
-color: #35a5a5;
+background-color: #ffd700;
+color: black;
 }
 .btn-new:active,
 .btn-new.active,
