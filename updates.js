@@ -1291,7 +1291,12 @@ function getLootBd(what) {
 	if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)){
 		currentCalc *= 2;
 		textString += "<tr><td class='bdTitle'>Determined (Lead)</td><td></td><td></td><td class='bdPercent'>+ 100%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
-	}	
+	}
+	if (game.global.spireRows > 0){
+		amt = game.global.spireRows * 0.02;
+		currentCalc *= (1 + amt);
+		textString += "<tr><td class='bdTitle'>Spire Rows</td><td>+ 2%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
 	var heirloomBonus = 0;
 	if (what == "Food/Wood/Metal"){
 		heirloomBonus = calcHeirloomBonus("Staff", "foodDrop", 0, true);
@@ -1324,11 +1329,7 @@ function getLootBd(what) {
 			heirloomBonus = 0;
 		}
 	}
-	if (game.global.spireRows > 0){
-		amt = game.global.spireRows * 0.02;
-		currentCalc *= (1 + amt);
-		textString += "<tr><td class='bdTitle'>Spire Rows</td><td>+ 2%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
-	}
+
 	if (what == "Helium" && (game.global.world >= 181 || (game.global.challengeActive == 'Corrupted' && game.global.world >= 60))){
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
 		textString += "<tr class='corruptedCalcRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td></td><td></td><td>" + prettify(currentCalc * (corrVal / 100)) + "</td></tr>";
