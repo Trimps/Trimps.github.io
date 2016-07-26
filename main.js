@@ -531,7 +531,6 @@ function load(saveString, autoLoad, fromPf) {
 	displayGoldenUpgrades();
 	//3.6 bug fix
 	if (getAchievementStrengthLevel() <= 0) {
-		console.log(getAchievementStrengthLevel());
 		game.global.goldenUpgrades = 0;
 		for (var item in game.goldenUpgrades){
 			game.goldenUpgrades[item].currentBonus = 0;
@@ -4848,7 +4847,7 @@ function displayGoldenUpgrades(redraw) {
 		var upgrade = game.goldenUpgrades[item];
 		if (item == "Void" && game.global.totalPortals < 5) continue;
 		var color = (item == "Void" && ((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()) >= 0.60)) ? "thingColorCanNotAfford" : "thingColorGoldenUpgrade";
-		html += '<div onmouseover="tooltip(\'' + item + '\', \'goldenUpgrades\', event)" onmouseout="tooltip(\'hide\')" class="' + color + ' thing noselect pointer upgradeThing" id="' + item + 'Golden" onclick="buyGoldenUpgrade(\'' + item + '\'); cancelTooltip();"><span class="thingName">Golden ' + item + ' ' + romanNumeral(game.global.goldenUpgrades + 1) + '</span><br/><span class="thingOwned" id="golden' + item + 'Owned">' + upgrade.purchasedAt.length + '</span></div>';
+		html += '<div onmouseover="tooltip(\'' + item + '\', \'goldenUpgrades\', event)" onmouseout="tooltip(\'hide\')" class="' + color + ' thing goldenUpgradeThing noselect pointer upgradeThing" id="' + item + 'Golden" onclick="buyGoldenUpgrade(\'' + item + '\'); cancelTooltip();"><span class="thingName">Golden ' + item + ' ' + romanNumeral(game.global.goldenUpgrades + 1) + '</span><br/><span class="thingOwned" id="golden' + item + 'Owned">' + upgrade.purchasedAt.length + '</span></div>';
 	}
 	var elem = document.getElementById('upgradesHere');	
 	elem.innerHTML =  html + elem.innerHTML;
@@ -4858,7 +4857,7 @@ function displayGoldenUpgrades(redraw) {
 
 function removeGoldenUpgrades() {
 	if (!goldenUpgradesShown) return false;
-	var elems = document.getElementsByClassName('thingColorGoldenUpgrade');
+	var elems = document.getElementsByClassName('goldenUpgradeThing');
 	var parent = document.getElementById('upgradesHere');
 	for (var x = elems.length - 1; x >= 0; x--){
 		parent.removeChild(elems[x]);
