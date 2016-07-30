@@ -5186,7 +5186,10 @@ function fight(makeUp) {
 		}
     }
 	else {
-		if (trimpAttack >= cell.health) overkill = trimpAttack - cell.health;
+		if (trimpAttack >= cell.health){
+			overkill = trimpAttack - cell.health;
+			if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
+		}
         cell.health -= trimpAttack;
 		attacked = true;
         if (cell.health > 0) {
