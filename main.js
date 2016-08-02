@@ -4707,7 +4707,7 @@ function nextWorld() {
 		//Without Hiring Anything
 		var jobCount = 0; 
 		for (var job in game.jobs) jobCount += game.jobs[job].owned; //Dragimp adds 1
-		if (jobCount == 1 && game.stats.trimpsFired.value == 0) giveSingleAchieve(16);
+		if (jobCount <= 1 && game.stats.trimpsFired.value == 0) giveSingleAchieve(16);
 	}
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve(8);
 	else if (game.global.world == 120 && !game.global.researched) giveSingleAchieve(7);
