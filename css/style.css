@@ -83,7 +83,7 @@ overflow-x: hidden;
 .shriekStateCooldown{
 	background-color: grey !important;
 }
-
+ 
 .shriekStateEnabled{
 	background-color: #5cb85c !important;
  }
@@ -91,15 +91,15 @@ overflow-x: hidden;
 .shriekStateDisabled{
 	background-color: #d9534f !important;
  }
-
+ 
  .formationStateEnabled{
 	background-color: #5cb85c !important;
  }
-
+ 
  .formationStateDisabled{
 	background-color: grey !important;
  }
-
+ 
 .resourceRow{
 	height: 49.9%;
 	padding-right: .25vw;
