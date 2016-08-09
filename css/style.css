@@ -205,6 +205,7 @@ overflow-x: hidden;
 
 #scienceCollectBtn{
 	font-size: 1em;
+	padding: 5px;
 }
 
 .portalBtn{
@@ -231,9 +232,9 @@ overflow-x: hidden;
 	padding-right: 0;
 }
 
-#science {
+/*#science {
     padding-top: 3.5%;
-}
+}*/
 
 .collectRow {
     margin-top: 5px;
@@ -2803,4 +2804,12 @@ sup{
 	font-weight: bold;
 	display: block;
 	text-align: center;
+}
+
+.progress {
+	border-radius: 0;
+}
+
+#science > .row.collectRow {
+	margin-top: 23px;
 }
