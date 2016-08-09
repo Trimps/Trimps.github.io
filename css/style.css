@@ -2820,3 +2820,8 @@ sup{
 #badGuyRow {
 	padding-bottom: 3px;
 }
+
+.glyphicon-cog:before {
+    position: relative;
+    right: 3px;
+	}
