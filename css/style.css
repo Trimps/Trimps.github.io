@@ -83,7 +83,7 @@ overflow-x: hidden;
 .shriekStateCooldown{
 	background-color: grey !important;
 }
- 
+
 .shriekStateEnabled{
 	background-color: #5cb85c !important;
  }
@@ -91,15 +91,15 @@ overflow-x: hidden;
 .shriekStateDisabled{
 	background-color: #d9534f !important;
  }
- 
+
  .formationStateEnabled{
 	background-color: #5cb85c !important;
  }
- 
+
  .formationStateDisabled{
 	background-color: grey !important;
  }
- 
+
 .resourceRow{
 	height: 49.9%;
 	padding-right: .25vw;
@@ -205,6 +205,7 @@ overflow-x: hidden;
 
 #scienceCollectBtn{
 	font-size: 1em;
+	padding: 5px;
 }
 
 .portalBtn{
@@ -217,7 +218,7 @@ overflow-x: hidden;
 
 #portalTimer.timerPaused{
 	color: red;
-  animation: blinker 2.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;  
+  animation: blinker 2.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;
 }
 @keyframes blinker { to { background-color: red; color: white; } }
 
@@ -231,9 +232,9 @@ overflow-x: hidden;
 	padding-right: 0;
 }
 
-#science {
+/*#science {
     padding-top: 3.5%;
-}
+}*/
 
 .collectRow {
     margin-top: 5px;
@@ -306,11 +307,11 @@ overflow-x: hidden;
 }
 
 .bdPercent{
-	
+
 }
 
 .bdNumber{
-	
+
 }
 
 .collectRow {}
@@ -386,7 +387,7 @@ overflow-x: hidden;
     padding-bottom: 5px;
     padding-top: 5px;
     height: 85px;
-	
+
 }
 
 .queueItem {
@@ -397,7 +398,7 @@ overflow-x: hidden;
     cursor: pointer;
     text-align: center;
     padding: 2px;
-	overflow: hidden; 
+	overflow: hidden;
 	position: relative;
 }
 
@@ -407,10 +408,10 @@ overflow-x: hidden;
 }
 
 #animationDiv{
-	position:absolute; 
-    top:0; 
+	position:absolute;
+    top:0;
 	left: 0;
-    width:100%; 
+    width:100%;
     height: 100%;
     background:#1E90FF;
 	opacity: 0;
@@ -517,6 +518,7 @@ overflow-x: hidden;
 #buyContainer {
 	overflow-y: auto;
 	height: calc(99vh - 20vw - 195px);
+	border-top: 1px solid white;
 }
 
 #outerBuyContainer{
@@ -603,7 +605,7 @@ overflow-x: hidden;
 
 #GeneticistassistContainer div{
 	width: 50% !important;
-	margin: 0 !important; 
+	margin: 0 !important;
 }
 
 #GeneticistassistContainer #Geneticist{
@@ -778,17 +780,12 @@ overflow-x: hidden;
 	margin-right: 0;
 }
 
-#numTabs{
-	margin-top: 5px;
-}
-
 #numTabs > ul > li > a {
     padding: 3px;
 }
 
 #buyTabsUl > li > a {
 	border: 1px solid #ddd;
-	border-radius: 8px 8px 0 0;
 }
 
 .buyTab{
@@ -1009,18 +1006,18 @@ overflow-x: hidden;
 }
 
 .autosaving{
-	color: white; 
-	background-color: #5cb85c; 
-	border-radius: 25px; 
+	color: white;
+	background-color: #5cb85c;
+	border-radius: 25px;
 	padding: 0.25em;
 	font-size: .9em;
 }
 
 .notAutosaving{
-	color: white; 
-	background-color: #d9534f; 
+	color: white;
+	background-color: #d9534f;
 	font-size: .9em;
-	border-radius: 25px; 
+	border-radius: 25px;
 	padding: 0.25em;
 }
 
@@ -1039,7 +1036,7 @@ overflow-x: hidden;
 
 #battleBtnsColumn{
 	padding-right: 1px;
-	padding-left: 0;
+  padding-left: 12px;
 }
 
 #battleSideTitle {
@@ -1048,7 +1045,7 @@ overflow-x: hidden;
     background-color: rgba(0, 0, 0, 0.3);
 	padding-top: 5%;
 	padding-bottom: 5%;
-	
+
 }
 
 .brokenUpgrade {
@@ -1057,7 +1054,6 @@ overflow-x: hidden;
 
 .niceScroll::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
     background-color: #F5F5F5;
 }
 
@@ -1067,7 +1063,6 @@ overflow-x: hidden;
 }
 
 .niceScroll::-webkit-scrollbar-thumb {
-    border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
     background-color: #555;
 }
@@ -1233,7 +1228,7 @@ overflow-x: hidden;
 #titleCol2{
 	position: absolute;
 	left: 47%;
-	
+
 }
 
 .perkColorOn{
@@ -1405,7 +1400,7 @@ overflow-x: hidden;
 .heirloomRare6{
 	color: #2693ff;
 		text-shadow:
-	 -0.15vw -0.15vw 0.2vw #5000ba,  
+	 -0.15vw -0.15vw 0.2vw #5000ba,
 	  0.15vw -0.15vw 0.25vw #5b00d3,
 	 -0.15vw 0.15vw 0.2vw #6600ec,
 	  0.15vw 0.15vw 0.3vw #2f006d;
@@ -1429,7 +1424,7 @@ overflow-x: hidden;
 	display: inline-block;
 	width: 15%;
 	margin: 0.1vw;
-	
+
 }
 
 #heirloomRarityMisc{
@@ -1570,7 +1565,7 @@ overflow-x: hidden;
 
 .heirloomThing:hover{
  text-shadow:
- -0.15vw -0.15vw 0.2vw #aaa,  
+ -0.15vw -0.15vw 0.2vw #aaa,
  0.15vw -0.15vw 0.2vw #aaa,
  -0.15vw 0.15vw 0.2vw #aaa,
  0.15vw 0.15vw 0.2vw #aaa;
@@ -1603,9 +1598,9 @@ overflow-x: hidden;
 }
 
 .selectedHeirloomItem.heirloomRare6{
-background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%); 
-background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%); 
-background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%); 
+background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%);
+background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%);
+background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 }
 
 
@@ -2056,7 +2051,7 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 background: -moz-linear-gradient(-45deg,  #2f006d 0%, #30046d 12%, #320370 25%, #3f0a6d 39%, #2f095e 50%, #2e0854 51%, #220535 60%, #25063d 76%, #12031e 92%, #131313 100%);
 background: -webkit-linear-gradient(-45deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
 background: linear-gradient(135deg,  #2f006d 0%,#30046d 12%,#320370 25%,#3f0a6d 39%,#2f095e 50%,#2e0854 51%,#220535 60%,#25063d 76%,#12031e 92%,#131313 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f006d', endColorstr='#131313',GradientType=1 ); 
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f006d', endColorstr='#131313',GradientType=1 );
 color: #DDDDFF !important;
 }
 
@@ -2184,7 +2179,7 @@ color: #DDDDFF !important;
 	padding-top: 1vw;
 	padding-bottom: 1vw;
 	color: white;
-} 
+}
 
 .titleCell{
 	text-decoration: underline;
@@ -2609,13 +2604,13 @@ input::-webkit-inner-spin-button {
 	padding: 0;
 	color: black;
  }
- 
+
  .noTransition {
 	-webkit-transition: none !important;
        -o-transition: none !important;
           transition: none !important;
  }
- 
+
  #miscColumn  span {
 	font-size: 1.2vw !important;
 }
@@ -2738,7 +2733,7 @@ sup{
     -moz-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
     box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
 	border: 0;
-	
+
 }
 
 .queueItemBack{
@@ -2803,4 +2798,39 @@ sup{
 	font-weight: bold;
 	display: block;
 	text-align: center;
+}
+
+.progress {
+	border-radius: 0;
+}
+
+#science > .row.collectRow {
+	margin-top: 23px;
+}
+
+@media (min-width: 768px) {
+  .nav-tabs.nav-justified > li > a {
+	  border-radius: 0;
+  }
+}
+
+#buyTabsUl > .tabSelected {
+	border-bottom: 1px solid white;
+}
+
+#badGuyRow {
+	padding-bottom: 3px;
+}
+
+.glyphicon-cog:before {
+    position: relative;
+    right: 3px;
+	}
+
+.nav-tabs.nav-justified > li > a {
+	border-bottom: 0;
+}
+
+.nav-tabs > li > a:hover {
+    border-color: transparent #eee #ddd;
 }
