@@ -83,7 +83,7 @@ overflow-x: hidden;
 .shriekStateCooldown{
 	background-color: grey !important;
 }
- 
+
 .shriekStateEnabled{
 	background-color: #5cb85c !important;
  }
@@ -91,15 +91,15 @@ overflow-x: hidden;
 .shriekStateDisabled{
 	background-color: #d9534f !important;
  }
- 
+
  .formationStateEnabled{
 	background-color: #5cb85c !important;
  }
- 
+
  .formationStateDisabled{
 	background-color: grey !important;
  }
- 
+
 .resourceRow{
 	height: 49.9%;
 	padding-right: .25vw;
@@ -779,17 +779,12 @@ overflow-x: hidden;
 	margin-right: 0;
 }
 
-#numTabs{
-	margin-top: 5px;
-}
-
 #numTabs > ul > li > a {
     padding: 3px;
 }
 
 #buyTabsUl > li > a {
 	border: 1px solid #ddd;
-	border-radius: 8px 8px 0 0;
 }
 
 .buyTab{
@@ -2814,4 +2809,14 @@ sup{
 
 #badGuyCol > div > div.row {
 	margin-top: 3px;
+}
+
+@media (min-width: 768px) {
+  .nav-tabs.nav-justified > li > a {
+	  border-radius: 0;
+  }
+}
+
+#buyTabsUl > .tabSelected {
+	border-bottom: 1px solid white;
 }
