@@ -518,6 +518,7 @@ overflow-x: hidden;
 #buyContainer {
 	overflow-y: auto;
 	height: calc(99vh - 20vw - 195px);
+	border-top: 1px solid white;
 }
 
 #outerBuyContainer{
@@ -1035,7 +1036,7 @@ overflow-x: hidden;
 
 #battleBtnsColumn{
 	padding-right: 1px;
-	padding-left: 0;
+  padding-left: 12px;
 }
 
 #battleSideTitle {
@@ -2825,3 +2826,11 @@ sup{
     position: relative;
     right: 3px;
 	}
+
+.nav-tabs.nav-justified > li > a {
+	border-bottom: 0;
+}
+
+.nav-tabs > li > a:hover {
+    border-color: transparent #eee #ddd;
+}
