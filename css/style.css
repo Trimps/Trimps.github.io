@@ -2811,3 +2811,7 @@ sup{
 #science > .row.collectRow {
 	margin-top: 23px;
 }
+
+#badGuyCol > div > div.row {
+	margin-top: 3px;
+}
