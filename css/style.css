@@ -2807,10 +2807,6 @@ sup{
 	margin-top: 23px;
 }
 
-#badGuyCol > div > div.row {
-	margin-top: 3px;
-}
-
 @media (min-width: 768px) {
   .nav-tabs.nav-justified > li > a {
 	  border-radius: 0;
@@ -2819,4 +2815,8 @@ sup{
 
 #buyTabsUl > .tabSelected {
 	border-bottom: 1px solid white;
+}
+
+#badGuyRow {
+	padding-bottom: 3px;
 }
