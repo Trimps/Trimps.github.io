@@ -1261,7 +1261,7 @@ function getLootBd(what) {
 			if (level < 0) level = 0;
 			var baseAmt = 0;
 			if (game.global.world < 59) baseAmt = 1;
-			else if (game.global.world < 181) baseAmt = 5;
+			else if (game.global.world < getCorruptionStart(true)) baseAmt = 5;
 			else baseAmt = 10;
 			var amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
 			amt += Math.round(baseAmt * level);
@@ -1274,7 +1274,7 @@ function getLootBd(what) {
 			}
 			if (baseAmt >= 10){
 				currentCalc *= 2;
-				textString += "<tr><td class='bdTitle'>Z181 Bonus</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
+				textString += "<tr><td class='bdTitle'>Corruption Bonus</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
 			}
 			if (game.global.sLevel >= 5){
 				amt = Math.pow(1.005, game.global.world);

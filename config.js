@@ -2713,7 +2713,7 @@ var toReturn = {
 			loot: function (level) {
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 				var amt = (game.global.world >= 60) ? 10 : 2;
-				if (game.global.world >= 181) amt *= 2;
+				if (game.global.world >= getCorruptionStart(true)) amt *= 2;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";
@@ -2986,7 +2986,7 @@ var toReturn = {
 			loot: function (level) {
 				if (game.global.spireActive) return;
 				if (!game.global.brokenPlanet) planetBreaker();
-				var amt = (game.global.world >= 181) ? 10 : 5;
+				var amt = (game.global.world >= getCorruptionStart(true)) ? 10 : 5;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
 				message("You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Loot", "oil", 'helium', 'helium');				
