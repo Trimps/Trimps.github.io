@@ -27,6 +27,84 @@ overflow-x: hidden;
     margin-bottom: 10px;
 }
 
+#talentsContainer, #talentsHere{
+	width: 100%;
+}
+
+.essenceMessage{
+	background-color: black;
+	color: #59b300;
+}
+
+
+.noMarg{
+	margin-left: 0;
+	margin-right: 0;
+}
+
+
+.talentItem{
+	display: inline-block;
+	width: 20%;
+	text-align: center;
+	border: 1px solid white;
+	padding: 2% 0%;
+	cursor: pointer;
+}
+
+#talentsTitle{
+	text-align: center;
+	font-size: 2vw;
+}
+
+#talentsCost{
+	text-align: center;
+	font-size: 1.5vw;
+}
+
+#talentRespecBtn{
+	text-align: center;
+	border: 1px solid white;
+	padding: 0.5vw 0;
+}
+
+.talentIcon{
+	font-size: 1.1vw;
+}
+
+.talentIcon .icomoon{
+	font-size: 1.15vw;
+	line-height: 1.15vw;
+}
+
+.talentName{
+	font-size: 0.7vw;
+}
+
+.talentPurchased{
+	background-color: #5cb85c;
+	color: white;
+}
+
+.talentNotPurchased{
+	background-color: black;
+	color: white;
+}
+
+.talentRow{
+	border: 1px solid white;
+}
+
+.talentRowLocked .talentNotPurchased{
+	background-color: grey;
+	color: white;
+}
+
+.talentRowUnlocked .talentNotPurchased.talentReqNeeded{
+	background-color: #d9534f;
+	color: white;
+}
+
 .playerGather {
     font-size: 1.1vw;
     text-align: center;
@@ -614,10 +692,6 @@ overflow-x: hidden;
 	border-left: 0;
 }
 
-#Geneticistassist.stateDisabled{
-	background: rgba(128,128,128,1);
-}
-
 #Geneticistassist.stateHappy{
 	background: rgba(0,0,0,0);
 }
@@ -716,12 +790,25 @@ overflow-x: hidden;
 	background-color: #5cb85c;
 }
 
+.settingBtntrue:hover, .settingBtn1:hover{
+	background-color: #449d44;
+}
+
 .settingBtnfalse, .settingBtn0{
 	background-color: #d9534f;
 }
 
+.settingBtnfalse:hover, .settingBtn0:hover{
+	background-color: #d43f3a;
+}
+
 .settingBtn2, .btn-yellow{
 	background-color: yellow;
+	color: black;
+}
+
+.settingBtn2:hover, .btn-yellow{
+	background-color: #e6e600;
 	color: black;
 }
 
@@ -732,6 +819,16 @@ overflow-x: hidden;
 	margin-right: 2vw;
 	margin-bottom: 1vw;
 	width: 15.5vw;
+}
+
+#talentsEssenceTotal{
+	line-height: 1em;
+	font-size: 0.8em;
+}
+
+.optionContainer.settingFit12{
+	margin-left: 0.58vw;
+	margin-right: 0.58vw;
 }
 
 .optionItemDescription{
@@ -2101,6 +2198,28 @@ color: #DDDDFF !important;
 .dangerColor, .colorDanger, .stateDanger{
 	background-color: #d9534f;
 }
+
+.autoUpgradeBtn.colorSuccess:hover {
+	background-color: #449d44;
+}
+
+.autoUpgradeBtn.colorDanger:hover, #talentRespecBtn.colorDanger:hover {
+	background-color: #d43f3a;
+}
+
+.workColorOff{
+	background-color: black;
+}
+
+.workColorTurkimp{
+	background-color: rgba(102,51,0,0.7);
+}
+
+.workColorOn{
+background-color: rgba(255,255,255,0.25);
+	
+}
+
 .infoColor, .colorInfo{
 	background-color: #5bc0de;
 }
@@ -2108,6 +2227,11 @@ color: #DDDDFF !important;
 	background-color: yellow;
 	color: black;
 }
+
+.autoUpgradeBtn.colorWarning:hover{
+	background-color: #cccc00;
+}
+
 .primaryColor, .colorPrimary{
 	background-color: #337ab7;
 	color: white;
@@ -2117,6 +2241,10 @@ color: #DDDDFF !important;
 }
 .tealColor{
 	background-color: #318696 !important;
+	color: white;
+}
+.tealColor:hover{
+	background-color: #2b7583 !important;
 	color: white;
 }
 #boneWrapper{
@@ -2562,8 +2690,8 @@ color: #DDDDFF !important;
 }
 
 .btn-new {
-background-color: black;
-color: #ffd700;
+background: linear-gradient(45deg, #0e2b16 0%,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#1f102b 76%,#1e1f38 87%,#1b1b1b 100%);
+color: #66cc00;
 }
 
 .btn-new:hover,
@@ -2572,8 +2700,8 @@ color: #ffd700;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background-color: #ffd700;
-color: black;
+background: linear-gradient(45deg, #275635 0%,#4f4f4f 46%,#494949 50%,#3f3f3f 53%,#2b1b47 76%,#242542 87%,#565656 100%);
+color: white;
 }
 .btn-new:active,
 .btn-new.active,
@@ -2774,6 +2902,10 @@ sup{
 	background-color: #00008c;
 }
 
+#toggleusePlayFab.settingBtn0:hover{
+	background-color: #00005a;
+}
+
 #tooltipDiv.tooltipExtraLg{
 	width: 50%;
 }
@@ -2803,4 +2935,8 @@ sup{
 	font-weight: bold;
 	display: block;
 	text-align: center;
+}
+
+.col-xs-3.fifth{
+	width: 20% !important;
 }

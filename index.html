@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 3.6</title>
+	<title>Trimps 3.7</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?39" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?40" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -200,7 +200,7 @@
 							</div>
 							<div class="row collectRow">
 								<div class="col-xs-6">
-									<div id="foodCollectBtn" class="workBtn pointer noselect" onclick="setGather('food')">Gather</div>
+									<div id="foodCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('food')">Gather</div>
 								</div>
 								<div class="col-xs-6">
 									<span class="psText pointer noselect" id="foodPs" onclick="getPsString('food')">+0/sec</span>
@@ -223,7 +223,7 @@
 
 							<div class="row collectRow">
 								<div class="col-xs-6">
-									<div id="woodCollectBtn" class="workBtn pointer noselect" onclick="setGather('wood')">Chop</div>
+									<div id="woodCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('wood')">Chop</div>
 								</div>
 								<div class="col-xs-6">
 									<span class="psText pointer noselect" id="woodPs" onclick="getPsString('wood')">+0/sec</span>
@@ -246,7 +246,7 @@
 							</div>
 							<div class="row collectRow">
 								<div class="col-xs-6">
-									<div id="metalCollectBtn" class="workBtn pointer noselect" onclick="setGather('metal')">Mine</div>
+									<div id="metalCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('metal')">Mine</div>
 								</div>
 								<div class="col-xs-6">
 									<span class="psText pointer noselect" id="metalPs" onclick="getPsString('metal')">+0/sec</span>
@@ -262,7 +262,7 @@
 							<br/>
 							<div class="row collectRow">
 								<div class="col-xs-6">
-									<div id="scienceCollectBtn" class="workBtn pointer noselect" onclick="setGather('science')">Research</div>
+									<div id="scienceCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('science')">Research</div>
 								</div>
 								<div class="col-xs-6">
 									<span class="psText pointer noselect" id="sciencePs" onclick="getPsString('science')">+0/sec</span>
@@ -325,7 +325,7 @@
 						<span id="trimpsEmployed">0</span>/<span id="maxEmployed">0</span> employed
 					</div>
 					<div id="trapArea">
-						<div id="trimpsCollectBtn" class="workBtn pointer noSelect" onclick="setGather('trimps')">Check&nbsp;Traps&nbsp;(<span id="trimpTrapText">1</span>)</div>
+						<div id="trimpsCollectBtn" class="workBtn workColorOff pointer noSelect" onclick="setGather('trimps')">Check&nbsp;Traps&nbsp;(<span id="trimpTrapText">1</span>)</div>
 						<div id="trimpsCollecting" class="collecting" style="display: none">Trapping (<span id="trimpTrapText2">1</span>)</div>
 						<div class="progress" id="trappingProgress">
 							<div class="progress-bar" id="trappingBar" role="progressbar"></div>
@@ -372,7 +372,7 @@
 							<div id="autoTrapBtn" style="display: none" onclick="toggleAutoTrap()" class="pointer noselect colorDanger autoUpgradeBtn">AutoTraps Off</div>
 						</div>
 						<div class="col-xs-3">
-							<div id="buildingsCollectBtn" onclick="setGather('buildings')" class="workBtn pointer noselect">Build</div>
+							<div id="buildingsCollectBtn" onclick="setGather('buildings')" class="workBtn workColorOff pointer noselect">Build</div>
 						</div>
 					</div>
 					<div class="queue niceScroll" id="buildingsQueue">
@@ -386,7 +386,8 @@
 					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="tabNotSelected buyTab"><a id="buildingsA"><span id="buildingsAlert" class="alert badge"></span>Buildings</a></li>
 					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="tabNotSelected buyTab"><a id="jobsA"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
 					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="tabNotSelected buyTab"><a id="upgradesA"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
-					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>				
+					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>		
+					<li role="presentation" id="talentsTab"  style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
 				</ul>
 				</div>
 
@@ -478,12 +479,29 @@
 										</div>
 										<div class="col-xs-2 lowPad">&nbsp;</div>
 										<div class="col-xs-3 lowPad">&nbsp;</div>
-										<div class="col-xs-3" style="padding-left: 5px">				
+										<div class="col-xs-3" style="padding-left: 5px">
 										</div>
 									</div>
 								</div>
 							
 								<div class="buyBox" id="equipmentHere"></div>
+							</div>
+							<div id="talentsContainer" style="display: none">
+								<div class='row noMarg'>
+									<div class='col-xs-3'></div>
+									<div class='col-xs-6 lowPad'>
+										<div id="talentsTitle">
+											<span id='essenceOwned'>0</span> Dark Essence
+										</div>
+									</div>
+									<div class='col-xs-3'>
+										<div class='pointer noselect colorDanger' onclick='respecTalents()' id='talentRespecBtn'>Respec (20 bones)</div>
+									</div>
+								</div>
+								<div id="talentsCost">Your next mastery costs <span id='talentsNextCost'>0</span>. Next tier in <span id='talentsNeeded'>0</span>.</div>
+								<div id="talentsHere">
+								
+								</div>
 							</div>
 						</div>
 					</div>
@@ -501,24 +519,29 @@
 									</div>
 									<div class="col-xs-3" style="padding-left: 5px;">
 										<div class="row" style="padding-right: 15px;">
-											<div class="col-xs-3 noPad">
+											<div class="col-xs-3 fifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('0')" id="formation0" onmouseover="tooltip('No Formation', 'customText', event, 'Clear your formations, return to normal stats, and derp around the battlefield. (Hotkeys: X or 1)')" onmouseout="tooltip('hide')">
 													X
 												</div>
 											</div>
-											<div class="col-xs-3 noPad">
+											<div class="col-xs-3 fifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('1')" id="formation1" onmouseover="tooltip('Heap Formation', 'customText', event, 'Trimps gain 4x health but lose half of their attack and block. (Hotkeys: H or 2)')" onmouseout="tooltip('hide')">
 													H
 												</div>
 											</div>
-											<div class="col-xs-3 noPad">
+											<div class="col-xs-3 fifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('2')" id="formation2" onmouseover="tooltip('Dominance Formation', 'customText', event, 'Trimps gain 4x attack but lose half of their health and block. (Hotkeys: D or 3)')" onmouseout="tooltip('hide')">
 													D
 												</div>										
 											</div>
-											<div class="col-xs-3 noPad">
+											<div class="col-xs-3 fifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('3')" id="formation3" onmouseover="tooltip('Barrier Formation', 'customText', event, 'Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack. (Hotkeys: B or 4)')" onmouseout="tooltip('hide')">
 													B
+												</div>											
+											</div>
+											<div class="col-xs-3 fifth noPad">
+												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('4')" id="formation4" onmouseover="tooltip('Scryer Formation', 'customText', event, 'Trimps lose half of their attack, health and block but gain 2x resources from loot (not including Helium) and have a chance to find Dark Essence above Z180. This formation must be active for the entire fight to receive any bonus. (Hotkeys: S or 5)')" onmouseout="tooltip('hide')">
+													S
 												</div>											
 											</div>
 										</div>
@@ -627,7 +650,7 @@
 							<div id="preMaps" style="display: none">
 							<div style="display: none" id="mapsCreateRow" class="row">
 								<div id="mapLevelContainer" class="col-xs-4">
-									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer noselect incrementBtn" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" style="color: red" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
+									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span><span class="pointer iconStateBad noselect incrementBtn" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" onclick="recycleBelow(false)"><span class="glyphicon glyphicon-remove-circle"></span></span>
 								</div>
 								<div id="mapCostContainer" class="col-xs-4 lowPad">
 									<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
@@ -1049,9 +1072,9 @@
 	</div>
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?78"></script>
-	<script type="text/javascript" src="updates.js?78"></script>
-	<script type="text/javascript" src="main.js?78"></script>
+	<script type="text/javascript" src="config.js?79"></script>
+	<script type="text/javascript" src="updates.js?79"></script>
+	<script type="text/javascript" src="main.js?79"></script>
 </body>
 
 </html>

@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.6,
+		version: 3.7,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -161,6 +161,9 @@ var toReturn = {
 		spireRows: 0,
 		goldenUpgrades: 0,
 		voidDeaths: 0,
+		essence: 0,
+		spentEssence: 0,
+		skeleSeed: Math.floor(Math.random() * 1000000),
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -193,7 +196,8 @@ var toReturn = {
 				primary: true,
 				secondary: true,
 				exotic: true,
-				helium: true
+				helium: true,
+				essence: true
 			},
 			Unlocks: {
 				enabled: true,
@@ -577,6 +581,18 @@ var toReturn = {
 					swapClass("buttonSize", classNames[this.enabled], document.getElementById('buyHere'));
 				}
 			},
+			masteryTab: {
+				enabled: 1,
+				extraTags: "layout alerts",
+				description: "Choose what you would like to see on your Mastery Tab! <b>No Mastery Info</b> will keep the tab clean and static. <b>Alert Mastery</b> will show an alert on the tab as soon as a new Mastery becomes affordable. <b>Show Essence</b> will always show your total amount of unspent essence on the tab.",
+				titles: ["No Mastery Info", "Alert Mastery", "Show Essence"],
+				lockUnless: function () {
+					return (game.global.highestLevelCleared >= 180)
+				},
+				onToggle: function () {
+					updateTalentNumbers();
+				}
+			},
 			pauseGame: {
 				enabled: 0,
 				extraTags: "other",
@@ -628,6 +644,181 @@ var toReturn = {
 			}
 		}
 	},
+	talents: {
+		bionic: {
+			description: "Automatically pick up each level of Bionic Wonderland as you pass that zone, as long as you already have any available ones before that zone.",
+			name: "Bionic Magnet",
+			tier: 1,
+			purchased: false,
+			icon: "magnet"
+		},
+		portal: {
+			description: "Unlock Portal immediately after clearing Z20.",
+			name: "Portal Generator",
+			tier: 1,
+			purchased: false,
+			icon: "eye-open",
+		},
+		bounty: {
+			description: "Unlock Bounty immediately after clearing Z15.",
+			name: "Bounty Hunter",
+			tier: 1,
+			purchased: false,
+			icon: "th-large",
+		},
+		housing: {
+			description: "Unlock Mansion, Hotel, and Resort automatically when passing the zone they drop at.",
+			name: "Home Detector I",
+			tier: 1,
+			purchased: false,
+			icon: "home",
+		},
+		turkimp: {
+			description: "Increases the bonus time from each Turkimp by 5 minutes, and increases the time cap by 10 minutes.",
+			name: "Turkimp Tamer I",
+			tier: 1,
+			purchased: false,
+			icon: "*spoon-knife"
+		},
+		voidPower: {
+			description: "Your Trimps gain 15% attack and health inside Void Maps.",
+			name: "Void Power I",
+			tier: 2,
+			purchased: false,
+			icon: "*heart5"
+		},
+		foreman: {
+			description: "Summon 5000 foremen to aid in construction.",
+			name: "Foremany I",
+			tier: 2,
+			purchased: false,
+			onPurchase: function () {
+				game.global.autoCraftModifier += 1250;
+				updateForemenCount();
+			},
+			onRespec: function () {
+				game.global.autoCraftModifier -= 1250;
+				updateForemenCount();
+			},
+			icon: "user",
+		},
+		headstart: {
+			description: "Corruption begins 5 levels earlier, at zone 176.",
+			name: "Headstart I",
+			tier: 2,
+			purchased: false,
+			icon: "road"
+		},
+		housing2: {
+			description: "Unlock Gateway, Wormhole, and Collector automatically when passing the zone they drop at.",
+			name: "Home Detector II",
+			tier: 2,
+			purchased: false,
+			icon: "home",
+			requires: "housing"
+		},
+		turkimp2: {
+			description: "Increase the chance of finding a Turkimp by 33%.",
+			name: "Turkimp Tamer II",
+			tier: 2,
+			purchased: false,
+			requires: "turkimp",
+			icon: "*spoon-knife"
+		},
+		voidPower2: {
+			description: "Your Trimps gain an additional 20% attack and health inside Void Maps.",
+			name: "Void Power II",
+			tier: 3,
+			purchased: false,
+			icon: "*heart5",
+			requires: "voidPower"
+		},
+		foreman2: {
+			description: "Summon 15000 additional foremen to aid in construction.",
+			name: "Foremany II",
+			tier: 3,
+			purchased: false,
+			onPurchase: function () {
+				game.global.autoCraftModifier += 3750;
+				updateForemenCount();
+			},
+			onRespec: function () {
+				game.global.autoCraftModifier -= 3750;
+				updateForemenCount();
+			},
+			icon: "user",
+			requires: "foreman"
+		},
+		headstart2: {
+			description: "Corruption begins an additional 10 levels earlier, at zone 166.",
+			name: "Headstart II",
+			tier: 3,
+			purchased: false,
+			icon: "road",
+			requires: "headstart"
+		},
+		skeletimp: {
+			description: "Double the chance for a Megaskeletimp to appear instead of a Skeletimp.",
+			name: "King of Bones I",
+			tier: 3,
+			purchased: false,
+			icon: "italic",
+		},
+		mapLoot: {
+			description: "Reduces the starting point of the Low Map Level Loot Penalty by 1 level. This allows you to earn the same amount of loot by doing a map at your current world number, or at your current world number minus 1.",
+			name: "Map Reducer",
+			tier: 3,
+			purchased: false,
+			icon: "*gift2"
+		},
+		hyperspeed: {
+			description: "Reduce the time in between fights and attacks by 100ms.",
+			name: "Hyperspeed",
+			tier: 4,
+			purchased: false,
+			icon: "fast-forward"
+		},
+		blacksmith: {
+			get description () {
+				return "Each cleared zone up to Z" + Math.floor(game.global.highestLevelCleared / 2) + " (half of your highest zone reached) will drop all available equipment prestiges from maps.";
+			},
+			name: "Blacksmithery",
+			tier: 4,
+			purchased: false,
+			icon: "*hammer2"
+		},
+		headstart3: {
+			description: "Corruption begins an additional 15 levels earlier, at zone 151.",
+			name: "Headstart III",
+			tier: 4,
+			purchased: false,
+			icon: "road",
+			requires: "headstart2"
+		},
+		skeletimp2: {
+			description: "Reduce the minimum time between Skeletimp spawns by an additional 10 minutes",
+			name: "King of Bones II",
+			tier: 4,
+			purchased: false,
+			icon: "italic",
+			requires: "skeletimp"
+		},
+		turkimp3: {
+			description: "Increase the bonus resources gained while Well Fed from a Turkimp by 25%, from 50% to 75%.",
+			name: "Turkimp Tamer III",
+			tier: 4,
+			purchased: false,
+			requires: "turkimp2",
+			icon: "*spoon-knife"
+		},
+
+
+
+
+		
+		
+
+	},
 	//portal
 	portal: {
 		Looting_II: {
@@ -635,7 +826,7 @@ var toReturn = {
 			locked: true,
 			priceBase: 100000,
 			heliumSpent: 0,
-			tooltip: "Increases all loot gained by 0.25% per level. The price for this perk increases additively, and each level will cost exactly 10000 more than the previous level.",
+			tooltip: "Apply your skills at salvaging things from the Spire to increase all loot gained by 0.25% per level. The price for this perk increases additively, and each level will cost exactly 10000 more than the previous level.",
 			additive: true,
 			additiveInc: 10000,
 			modifier: 0.0025
@@ -645,7 +836,7 @@ var toReturn = {
 			locked: true,
 			priceBase: 100000,
 			heliumSpent: 0,
-			tooltip: "Increases housing space by 0.25% per level. This multiplies on top of Carpentry I, but the bonus stacks additively. The price for this perk also increases additively, and each level will cost exactly 10000 more than the previous level.",
+			tooltip: "You've learned to look more objectively at the no longer mysterious building designs, allowing you to increase housing space by 0.25% per level. This multiplies on top of Carpentry I, but the bonus stacks additively. The price for this perk also increases additively, and each level will cost exactly 10000 more than the previous level.",
 			additive: true,
 			additiveInc: 10000,
 			modifier: 0.0025
@@ -655,7 +846,7 @@ var toReturn = {
 			locked: true,
 			priceBase: 50000,
 			heliumSpent: 0,
-			tooltip: "Increases Trimp gather speed by 1% per level. The price for this perk increases additively, and each level will cost exactly 1000 more than the previous level.",
+			tooltip: "Corruption and impending doom are great motivators to work a bit harder! Increases Trimp gather speed by 1% per level. The price for this perk increases additively, and each level will cost exactly 1000 more than the previous level.",
 			additive: true,
 			additiveInc: 1000,
 			modifier: 0.01
@@ -665,7 +856,7 @@ var toReturn = {
 			locked: true,
 			priceBase: 20000,
 			heliumSpent: 0,
-			tooltip: "Increases damage by 1% per level. The price for this perk increases additively, and each level will cost exactly 500 more than the previous level.",
+			tooltip: "You find strength in the desire to some day return home. Anger your Trimps by making them listen to you talk about it all the time, increasing their damage by 1% per level. The price for this perk increases additively, and each level will cost exactly 500 more than the previous level.",
 			additive: true,
 			additiveInc: 500,
 			modifier: 0.01
@@ -675,7 +866,7 @@ var toReturn = {
 			locked: true,
 			priceBase: 20000,
 			heliumSpent: 0,
-			tooltip: "Increases health by 1% per level. The price for this perk increases additively, and each level will cost exactly 500 more than the previous level.",
+			tooltip: "You feel more grounded as you remember where you came from. Spread your toughness to your Trimps, increasing health by 1% per level. The price for this perk increases additively, and each level will cost exactly 500 more than the previous level.",
 			additive: true,
 			additiveInc: 500,
 			modifier: 0.01
@@ -1224,7 +1415,7 @@ var toReturn = {
 			}
 		},
 		Corrupted: {
-			description: "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60 instead of Z181. The Corruption in this dimension grants helium, but 50% less than normal. Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension.",
+			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + getCorruptionStart(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension."},
 			filter: function () {
 				return (game.global.highestLevelCleared >= 189);
 			},
@@ -1235,7 +1426,6 @@ var toReturn = {
 			unlockString: "reach Zone 190"
 		}
 	},
-	
 	stats:{
 		trimpsKilled: {
 			title: "Dead Trimps",
@@ -3129,7 +3319,8 @@ var toReturn = {
 			canRunWhenever: true,
 			filterUpgrade: true,
 			specialFilter: function (world) {
-				return (((world - 125) / 15).toFixed(2) == game.global.bionicOwned)
+				var tier = ((world - 125) / 15).toFixed(2);
+				return (tier == game.global.bionicOwned || tier == game.global.roboTrimpLevel);
 			},
 			getShriekValue: function () {
 				var level = game.global.roboTrimpLevel;
@@ -3137,15 +3328,20 @@ var toReturn = {
 				if (level == 1) return 0.85;
 				return (0.85 * Math.pow(0.90, level - 1));
 			},
-			fire: function () {
+			createMap: function(tier) {
+				game.global.bionicOwned++;
+				message("You found a map to an even more advanced version of the Bionic Wonderland! Looks scary...", "Story");
+				var roman = romanNumeral(tier + 1);
+				createMap(((tier * 15) + 125), "Bionic Wonderland " + roman, "Bionic", 3, 100, 2.6, true);
+			},
+			fire: function (fromTalent) {
 				var level = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
 				var bionicTier = parseInt(((level - 125) / 15));
 				if (bionicTier == game.global.bionicOwned) {
-					game.global.bionicOwned++;
-					message("You found a map to an even more advanced version of the Bionic Wonderland! Looks scary...", "Story");
-					var roman = romanNumeral(bionicTier + 2);
-					createMap((level + 15), "Bionic Wonderland " + roman, "Bionic", 3, 100, 2.6, true);
+					this.createMap(bionicTier + 1);
 				}
+				if (fromTalent === true) return;
+				console.log(bionicTier, game.global.roboTrimpLevel);
 				if (bionicTier == game.global.roboTrimpLevel) {
 					if (game.global.roboTrimpLevel == 0){
 						cancelTooltip();
@@ -3209,7 +3405,7 @@ var toReturn = {
 			canRunWhenever: true,
 			fire: function () {
 				createHeirloom();
-				if (game.global.voidDeaths == 0 && game.global.voidBuff == "bleed") giveSingleAchieve(13);
+				if (game.global.world >= 60 && game.global.voidDeaths == 0 && game.global.voidBuff == "bleed") giveSingleAchieve(13);
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
 			}
 		},
@@ -3253,6 +3449,7 @@ var toReturn = {
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
+				if (!this.canRunOnce) return;
 				message("Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'", "Story");
 				game.global.portalActive = true;
 				fadeIn("helium", 10);
@@ -3326,6 +3523,7 @@ var toReturn = {
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
+				if (!this.canRunOnce) return;
 				unlockUpgrade("Bounty");
 			}
 		},
@@ -3561,6 +3759,7 @@ var toReturn = {
 			title: "Mansion",
 			canRunOnce: true,
 			fire: function () {
+				if (!this.canRunOnce) return;
 				unlockBuilding("Mansion");
 			}
 		},
@@ -3573,6 +3772,7 @@ var toReturn = {
 			title: "The Trimps' Guide to Cheap Hotel Construction",
 			canRunOnce: true,
 			fire: function () {
+				if (!this.canRunOnce) return;
 				unlockBuilding("Hotel");
 			}
 		},
@@ -3645,6 +3845,7 @@ var toReturn = {
 			title: "Time for a vacation",
 			canRunOnce: true,
 			fire: function () {
+				if (!this.canRunOnce) return;
 				unlockBuilding("Resort");
 			}
 		},
@@ -3657,6 +3858,7 @@ var toReturn = {
 			title: "Transgalactic Gateway",
 			canRunOnce: true,
 			fire: function () {
+				if (!this.canRunOnce) return;
 				unlockBuilding("Gateway");
 			}
 		},
@@ -3669,6 +3871,7 @@ var toReturn = {
 			title: "Inter-Dimensional Hole-Maker",
 			canRunOnce: true,
 			fire: function () {
+				if (!this.canRunOnce) return;
 				unlockBuilding("Wormhole");
 			}
 		},
@@ -3681,6 +3884,7 @@ var toReturn = {
 			title: "Collector",
 			canRunOnce: true,
 			fire: function () {
+				if (!this.canRunOnce) return;
 				unlockBuilding("Collector");
 			}
 		},
@@ -4235,8 +4439,7 @@ var toReturn = {
 			title: "Foreman",
 			fire: function () {
 				game.global.autoCraftModifier += 0.25;
-				document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
-				updateBuildSpeed();
+				updateForemenCount();
 			}
 		},
 		Anger: {

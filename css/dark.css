@@ -39,6 +39,30 @@
     background-color:#574800;
 }
 
+.talentItem {
+    border-color: #5d5d5d;
+	    margin-left: -1px;
+    margin-top: -1px;
+    margin-bottom: 0px;
+    margin-right: 0px;
+}
+
+.talentRowLocked .talentNotPurchased {
+    background-color: #3F3F3F;
+}
+
+.talentPurchased {
+    background-color: #194A19;
+}
+
+.talentRowUnlocked .talentNotPurchased.talentReqNeeded {
+    background-color: #441817;
+}
+
+.talentItem {
+    width: calc(20% + 1px);
+}
+
 #battleContainer {
     border: 0px;
     color: #C8C8C8
@@ -189,7 +213,7 @@
     margin-left: -1px;
     margin-right: 0px;
     margin-top: -1px;
-    width: 25%;
+    width: calc(25% + 1px);
     border-color: #5D5D5D;
 }
 
@@ -401,9 +425,40 @@
 	color: white;
 }
 
+.workBtn.workColorOff:hover {
+ background-color: #202020;
+}
+
+.workBtn.primaryColor:hover {
+ background-color: #286090;
+ color: #fff;
+}
+
+#achievementMainClose:hover,
+#heirloomsPopupBtns .icon-close:hover,
+.achievementBtnClose:hover {
+ color: #c9302c;
+}
+
+#achievementHelp:hover {
+ color: #5050F9;
+}
+
+#heirloomsPopupBtns .icon-archive:hover {
+ color: #d531d5;
+}
+
+.achievementBtnGo:hover {
+ color: #40c840;
+}
+
+#searchSettings:hover {
+ border-color: #838383;
+}
+
 .thingColorGoldenUpgrade {
 background-color:#574800;
-color: white !important;
+color: #C8C8C8 !important;
 }
 
 .table-striped > tbody > tr:nth-of-type(2n) {
@@ -457,8 +512,41 @@ input, button, select, textarea{
 	border-color: #5D5D5D;
 }
 
+.autoUpgradeBtn {
+ border-color: #5D5D5D;
+}
+
+.autoUpgradeBtn.colorSuccess:hover {
+ background-color: #449d44;
+ color: #fff;
+}
+
+.autoUpgradeBtn.colorDanger:hover {
+ background-color: #c9302c;
+ color: #fff;
+}
+
 #queueItemsHere > :nth-child(1) {
 	border-color:#574800;
+}
+
+#mapLevelInput {
+ border-color: #838383;
+}
+
+.incrementBtn {
+ border-color: #5D5D5D;
+ background-color: black;
+ color: #C8C8C8;
+}
+
+.incrementBtn:hover {
+ background-color: #202020;
+}
+
+.autoUpgradeBtn.colorWarning:hover {
+ background-color: #ab7324;
+ color: #fff;
 }
 
 #tooltipDiv {
@@ -519,13 +607,14 @@ input, button, select, textarea,
 .progress > div > span,
 .voidMessage,
 .voidBadge,
-.voidCell {
+#heirloomsPopupBtns {
 	color: #C8C8C8;
 }
 
 
 .voidMessage, .voidBadge, .voidCell.cellColorNotBeaten{
 	background-color: rgb(28, 5, 51);
+	color: #C8C8C8;
 }
 
 #voidMapsBtn:hover { background-color:#390E65;}
@@ -745,4 +834,69 @@ color:#8F8F00
    color:#fff;
    border-color:#1D1D86;
    background-color:#5050F9;
+}
+
+.iconStateBad {
+    color: #AD2A2A;
+}
+
+#talentRespecBtn {
+    border-color: #5D5D5D;
+}
+
+#talentRespecBtn.colorDanger:hover {
+    background-color: #c9302c;
+    color: #fff;
+}
+.fireBtnFiring:hover {
+    background-color: #c9302c;
+    color: #fff;
+}
+
+.fireBtnNotFiring:hover {
+    background-color: #202020;
+}
+
+.thingColorFiringJob.thing.jobThing:hover {
+    background-color: #612221;
+}
+
+/* Delete below if hated */
+.thing.thingColorCanAfford:hover {
+ background-color: #202020;
+}
+
+.thing.thingColorGoldenUpgrade:hover {
+ background-color: #685700;
+}
+.talentRowUnlocked .talentItem.talentNotPurchased:hover:not(.talentReqNeeded):hover {
+ background-color: #202020;
+}
+
+#buyBox {
+    background: white !important;
+}
+.mapElementNotSelected.mapThing:hover {
+ background-color: #565656;
+}
+
+.noRecycle.mapElementNotSelected.mapThing:hover {
+ background-color:#226322 !important;
+}
+
+.noRecycleDone.mapElementNotSelected.mapThing:hover {
+ background-color:#612221 !important;
+}
+
+.goldMap.mapElementNotSelected.mapThing:hover {
+ background-color:#776200 !important;
+}
+.workBtn.infoColor:hover {
+    background-color: #447f91;
+    color: white;
+}
+
+.workBtn.dangerColor:hover {
+    background-color: #672523;
+    color: #fff;
 }
