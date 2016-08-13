@@ -4498,6 +4498,7 @@ function startFight() {
 			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
 			if (game.portal.Toughness_II.level) healthTemp *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
 			if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.global.lastLowGen);
+			if (game.goldenUpgrades.Battle.currentBonus > 0) healthTemp *= game.goldenUpgrades.Battle.currentBonus + 1;
 			if (game.portal.Resilience.level > 0) healthTemp *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
 			if (game.global.formation !== 0){
 				healthTemp *= (game.global.formation == 1) ? 4 : 0.5;
@@ -4744,7 +4745,7 @@ function updateTalentNumbers(){
 	var countElem = document.getElementById('talentsEssenceTotal');
 	//Check setting elements, update
 	if (alertElem == null || countElem == null) return;
-		alertElem.innerHTML = (game.options.menu.masteryTab.enabled == 1 && nextCost < game.global.essence) ? "!" : "";
+		alertElem.innerHTML = (game.options.menu.masteryTab.enabled == 1 && nextCost <= game.global.essence) ? "!" : "";
 		countElem.innerHTML = (game.options.menu.masteryTab.enabled == 2) ? " (" + prettify(game.global.essence) + ")" : "";
 }
 
