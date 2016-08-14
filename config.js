@@ -780,7 +780,7 @@ var toReturn = {
 		},
 		blacksmith: {
 			get description () {
-				return "Each cleared zone up to Z" + Math.floor(game.global.highestLevelCleared / 2) + " (half of your highest zone reached) will drop all available equipment prestiges from maps.";
+				return "Each cleared zone through Z" + Math.floor((game.global.highestLevelCleared + 1) / 2) + " (half of your highest zone reached) will drop all available equipment prestiges from maps.";
 			},
 			name: "Blacksmithery",
 			tier: 4,

@@ -4696,7 +4696,7 @@ function updateForemenCount(){
 }
 
 function tryScry(){
-	var roll = getRandomIntSeeded(game.global.voidSeed++, 0, 100);
+	var roll = getRandomIntSeeded(game.global.voidSeed, 0, 100);
 	if (roll != 50) return;
 	var reward = calculateScryingReward();
 	if (reward <= 0) return;
@@ -4856,7 +4856,7 @@ function nextWorld() {
 		if ((game.global.world % 2) == 0) game.challenges.Lead.stacks = game.challenges.Lead.stacks = 201;
 		manageLeadStacks();
 	}
-	if (game.talents.blacksmith.purchased && (game.global.world < (game.global.highestLevelCleared / 2))) dropPrestiges();
+	if (game.talents.blacksmith.purchased && (game.global.world <= Math.floor((game.global.highestLevelCleared + 1) / 2))) dropPrestiges();
 	if (game.talents.bionic.purchased){
 		var bTier = ((game.global.world - 126) / 15);
 		if (bTier % 1 === 0 && bTier == game.global.bionicOwned) {
@@ -5211,6 +5211,7 @@ function fight(makeUp) {
     }
     if (cell.health <= 0 || !isFinite(cell.health)) {
 		game.stats.battlesWon.value++;
+		if (!game.global.mapsActive) game.global.voidSeed++;
 		if (game.global.formation == 4 && !game.global.mapsActive && !game.global.waitToScry) tryScry();
 		if (game.global.challengeActive == "Nom" && cell.nomStacks == 100) giveSingleAchieve(15);
 		if (game.global.usingShriek) disableShriek();
