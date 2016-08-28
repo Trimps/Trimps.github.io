@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.7,
+		version: 3.71,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -164,6 +164,7 @@ var toReturn = {
 		essence: 0,
 		spentEssence: 0,
 		skeleSeed: Math.floor(Math.random() * 1000000),
+		decayDone: false,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -297,7 +298,7 @@ var toReturn = {
 			usePlayFab: {
 				enabled: 0,
 				extraTags: "popular general cloud",
-				description: "Whenever the game saves, also back up a copy online with PlayFab. While using this setting, you will be asked if you want to download your online save if it is ever ahead of the version on your computer. You can also manually import your save from PlayFab through the Import menu.",
+				description: "When the game saves, every 30 minutes also back up a copy online with PlayFab. While using this setting, you will be asked if you want to download your online save if it is ever ahead of the version on your computer. You can also manually import your save from PlayFab through the Import menu.",
 				titles: ["Not Saving Online", "Saving with PlayFab"],
 				onToggle: function () {
 					var indicatorElem = document.getElementById("playFabIndicator");
@@ -602,7 +603,7 @@ var toReturn = {
 				onToggle: function () {
 					if (this.enabled) {
 						this.timeAtPause = new Date().getTime();
-						if (game.options.menu.autoSave.enabled == 1) save();
+						if (game.options.menu.autoSave.enabled == 1) save(false, true);
 						swapClass("timer", "timerPaused", document.getElementById("portalTimer"));
 					}
 					else if (this.timeAtPause) {
@@ -1217,6 +1218,19 @@ var toReturn = {
 			unlocks: "Meditation",
 			unlockString: "reach Zone 45"
 		},
+		Decay: {
+			description: "Tweak the portal to bring you to an alternate reality, where added chaos will help you learn to create a peaceful place. You will gain 10x loot, 10x gathering (excluding helium), and 5x Trimp attack, but a stack of Decay will accumulate every second. Each stack of Decay reduces loot, gathering, and Trimp attack by 0.5% of the current amount. These stacks reset each time a Blimp is killed and cap at 999. Completing <b>Zone 55</b> with this challenge active will allow you to select the Gardens biome when creating maps, and all future Gardens maps created will gain +25% loot.",
+			completed: false,
+			abandon: function () {
+				updateDecayStacks();
+			},
+			fireAbandon: true,
+			stacks: 0,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 54);
+			},
+			unlockString: "reach Zone 55",
+		},
 		Trimp: {
 			description: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination, but completing <b>'The Block' (11)</b> will teach you how to keep your Trimps alive for much longer.",
 			completed: false,
@@ -1712,25 +1726,26 @@ var toReturn = {
 			icon: "icomoon icon-map4",
 			newStuff: []
 		},
-		totalGems: {
+		totalHelium: {
 			finished: 0,
-			title: "Gem Collection",
+			title: "Helium Collection",
 			description: function (number) {
-				var number = this.breakpoints[number];
-				var s = (number > 1) ? "s" : "";
-				return "Collect  " + prettify(number) + " Gem" + s;
+				return "Gather " + prettify(this.breakpoints[number]) + " total Helium";
 			},
-			progress: function () {
+			progress: function (){
 				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
 				return prettify(this.evaluate()) + " total";
 			},
 			evaluate: function () {
-				return game.stats.gemsCollected.value + game.stats.gemsCollected.valueTotal;
+				return game.global.totalHeliumEarned;
 			},
-			breakpoints: [1, 1e+9, 1e+21, 1e+30, 1e+39, 1e+48],//total gems according to statistics
-			tiers: [1, 2, 3, 4, 5, 6],
-			names: ["What's This For?", "Collector of Shinies", "Dragimp Lover", "Expert of Shinies", "Jeweller", "Gemaster"],
-			icon: "icomoon icon-diamond",
+			display: function () {
+				return (game.global.totalHeliumEarned > 0);
+			},
+			breakpoints: [100, 10e2, 10e3, 10e4, 10e5, 10e6, 10e7, 10e8],
+			tiers: [1, 2, 3, 4, 5, 6, 6, 7],
+			names: ["Cool", "Crisp", "Chilly", "Frosty", "Frigid", "Frozen", "Gelid", "Glacial"],
+			icon: "glyphicon glyphicon-oil",
 			newStuff: []
 		},
 		totalHeirlooms: {
@@ -1755,6 +1770,27 @@ var toReturn = {
 			tiers: [2, 2, 3, 3, 4, 5, 6],
 			names: ["Finder", "Gatherer", "Accumulator", "Fancier", "Aficionado", "Devotee", "Connoisseur"],
 			icon: "icomoon icon-archive",
+			newStuff: []
+		},
+		totalGems: {
+			finished: 0,
+			title: "Gem Collection",
+			description: function (number) {
+				var number = this.breakpoints[number];
+				var s = (number > 1) ? "s" : "";
+				return "Collect  " + prettify(number) + " Gem" + s;
+			},
+			progress: function () {
+				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				return prettify(this.evaluate()) + " total";
+			},
+			evaluate: function () {
+				return game.stats.gemsCollected.value + game.stats.gemsCollected.valueTotal;
+			},
+			breakpoints: [1, 1e+9, 1e+21, 1e+30, 1e+39, 1e+48],//total gems according to statistics
+			tiers: [1, 2, 3, 4, 5, 6],
+			names: ["What's This For?", "Collector of Shinies", "Dragimp Lover", "Expert of Shinies", "Jeweller", "Gemaster"],
+			icon: "icomoon icon-diamond",
 			newStuff: []
 		},
 		blockTimed: {
@@ -3319,8 +3355,8 @@ var toReturn = {
 			canRunWhenever: true,
 			filterUpgrade: true,
 			specialFilter: function (world) {
-				var tier = ((world - 125) / 15).toFixed(2);
-				return (tier == game.global.bionicOwned || tier == game.global.roboTrimpLevel);
+				var tier = Math.floor((world - 125) / 15);
+				return ((game.global.bionicOwned == tier + 1) || (game.global.roboTrimpLevel == tier));
 			},
 			getShriekValue: function () {
 				var level = game.global.roboTrimpLevel;
@@ -3336,13 +3372,12 @@ var toReturn = {
 			},
 			fire: function (fromTalent) {
 				var level = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
-				var bionicTier = parseInt(((level - 125) / 15));
+				var bionicTier = parseInt(((level - 125) / 15)) + 1;
 				if (bionicTier == game.global.bionicOwned) {
-					this.createMap(bionicTier + 1);
+					this.createMap(bionicTier);
 				}
 				if (fromTalent === true) return;
-				console.log(bionicTier, game.global.roboTrimpLevel);
-				if (bionicTier == game.global.roboTrimpLevel) {
+				if (bionicTier - 1 == game.global.roboTrimpLevel) {
 					if (game.global.roboTrimpLevel == 0){
 						cancelTooltip();
 						var text = "There seems to be a small RoboTrimp that you appear to have orphaned. You decide to take him with you, since you're pretty good at training stuff. He deals <b>20%</b> extra damage for you, and has a special ability. You can learn more about the special ability by hovering over the new <span class='icomoon icon-chain'></span> icon by your soldiers.<br/><br/>You also found a map to a more powerful version of the Bionic Wonderland. You would bet there's another RoboTrimp who needs 'rescuing' in there.";
@@ -3736,6 +3771,7 @@ var toReturn = {
 			title: "Bionic Wonderland",
 			fire: function () {
 				message("You found a map to the Bionic Wonderland. Sounds fun!", "Story");
+				game.global.bionicOwned++;
 				createMap(125, "Bionic Wonderland", "Bionic", 3, 100, 2.6, true);
 			}
 		},

@@ -35,7 +35,8 @@ function autoSave() {
     setTimeout(autoSave, 60000);
 }
 
-function save(exportThis) {
+var lastOnlineSave = -1800000;
+function save(exportThis, fromManual) {
     var saveString = JSON.stringify(game);
     var saveGame = JSON.parse(saveString);
     delete saveGame.worldUnlocks;
@@ -155,6 +156,10 @@ function save(exportThis) {
 		}
 		
 	if (game.options.menu.usePlayFab.enabled == 1 && playFabId){
+		var timeSinceSave = performance.now() - lastOnlineSave;
+		if (timeSinceSave < 1800000 && !fromManual){
+			return;
+		}
 		saveToPlayFab(saveString);
 	}
 
@@ -448,6 +453,9 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 3.7){
 		game.global.messages.Loot.essence = true;
 		if (game.global.highestLevelCleared >= 180) addNewSetting('masteryTab');
+	}
+	if (oldVersion < 3.71){
+		checkAchieve("totalHelium");
 	}
 
 	//End compatibility
@@ -784,6 +792,7 @@ function displayChallenges() {
 			else if (thisFail) name = "Scientist II";
 			else done = true;			
 		}
+		else if (what == "Decay") done = game.global.decayDone;
 		else if (what == "Frugal") done = game.global.frugalDone;
 		else if (what == "Slow") done = game.global.slowDone;
 		done = (done) ? "finishedChallenge" : "";
@@ -1576,6 +1585,10 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 		amt *= (1 + toxMult);
 	}
 	if (what != "helium") {
+		if (game.global.challengeActive == "Decay"){
+			amt *= 10;
+			amt *= Math.pow(0.995, game.challenges.Decay.stacks);
+		}
 		amt = calcHeirloomBonus("Staff", what + "Drop", amt);
 		if (game.global.formation == 4 && !game.global.waitToScry) amt *= 2;
 	}
@@ -1592,6 +1605,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	if (game.options.menu.useAverages.enabled){
 		addAvg(what, amt);
 	}
+	if (what == "helium") checkAchieve("totalHelium");
     return amt;
 };
 
@@ -1723,6 +1737,10 @@ function gather() {
 			}
 			if (game.global.challengeActive == "Balance"){
 				perSec *= game.challenges.Balance.getGatherMult();
+			}
+			if (game.global.challengeActive == "Decay"){
+				perSec *= 10;
+				perSec *= Math.pow(0.995, game.challenges.Decay.stacks);
 			}
 			if (game.global.challengeActive == "Watch") perSec /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) perSec*= 2;
@@ -2620,7 +2638,7 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
 	if (nameOverride) mapName[0] = nameOverride;
 	var mapDifficulty = (difficultyOverride) ? difficultyOverride : getRandomMapValue("difficulty");
 	if (game.global.challengeActive == "Mapocalypse") mapDifficulty = parseFloat(mapDifficulty) + game.challenges.Mapocalypse.difficultyIncrease;
-    game.global.mapsOwnedArray.push({
+    var newMap = {
         id: "map" + game.global.totalMapsEarned,
         name: mapName[0],
 		location: (locationOverride) ? locationOverride : mapName[1],
@@ -2630,7 +2648,11 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
         size: (sizeOverride) ? sizeOverride : Math.floor(getRandomMapValue("size")),
         loot: (lootOverride) ? lootOverride : lootg,
 		noRecycle: setNoRecycle ? true : false
-    });
+    };
+	if (newMap.location == 'Plentiful' && game.global.decayDone){
+		newMap.loot += .25;
+	}
+	game.global.mapsOwnedArray.push(newMap);
     if (!messageOverride) message("You just made " + mapName[0] + "!", "Loot", "th-large", null, 'secondary');
     unlockMap(game.global.mapsOwnedArray.length - 1);
 }
@@ -3577,7 +3599,7 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
 		badGuysArray.push(item);
 		}
 	}
-	if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (getRandomIntSeeded(game.global.skeleSeed, 0, 100) < ((game.talents.skeletimp.purchased) ? 20 : 10)) ? "Megaskeletimp" : "Skeletimp";} 
+	if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (getRandomIntSeeded(game.global.skeleSeed++, 0, 100) < ((game.talents.skeletimp.purchased) ? 20 : 10)) ? "Megaskeletimp" : "Skeletimp";} 
 	if (imports.length && !force && (Math.floor(Math.random() * 100) < (imports.length * 3))) return imports[Math.floor(Math.random() * imports.length)];
 	if (!mapSuffix && !force) {
 		var chance = .35 * (1 / (100 - 1 - (3 * imports.length)));
@@ -4101,6 +4123,8 @@ function mapsSwitch(updateOnly, fromRecycle) {
         document.getElementById("preMaps").style.display = "none";
         toggleMapGridHtml(true, currentMapObj);
     } else {
+		if (game.global.lastClearedCell == 98 && game.global.useShriek && !game.global.usingShriek)
+			activateShriek();
 		document.getElementById("battleHeadContainer").style.display = "block";
 		document.getElementById("mapsCreateRow").style.display = "none";
         document.getElementById("grid").style.display = "block";
@@ -4162,7 +4186,10 @@ function resetAdvMaps() {
 		document.getElementById(inputs[x] + "AdvMapsRange").value = thisVal;
 		adjustMap(inputs[x], thisVal);
 	}
-	document.getElementById("biomeAdvMapsSelect").value = (game.global.sessionMapValues.biome) ? game.global.sessionMapValues.biome : "Random";
+	var elem = document.getElementById("biomeAdvMapsSelect");
+	
+	if (game.global.decayDone && document.getElementById('gardenOption') === null) elem.innerHTML += "<option id='gardenOption' value='Plentiful'>Gardens</option>";
+	elem.value = (game.global.sessionMapValues.biome) ? game.global.sessionMapValues.biome : "Random";
 	updateMapCost();
 }
 
@@ -4630,6 +4657,10 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 		else if (game.portal.Range.level > 0){
 			minFluct = fluctuation - (.02 * game.portal.Range.level);
 		}
+		if (game.global.challengeActive == "Decay"){
+			number *= 5;
+			number *= Math.pow(0.995, game.challenges.Decay.stacks);
+		}
 		if (game.global.roboTrimpLevel > 0){
 			number *= ((0.2 * game.global.roboTrimpLevel) + 1);
 		}
@@ -4697,7 +4728,7 @@ function updateForemenCount(){
 
 function tryScry(){
 	var roll = getRandomIntSeeded(game.global.voidSeed, 0, 100);
-	if (roll != 50) return;
+	if (roll < 50 || roll > 52) return;
 	var reward = calculateScryingReward();
 	if (reward <= 0) return;
 	game.global.essence += reward;
@@ -4708,7 +4739,8 @@ function tryScry(){
 function calculateScryingReward(){
 	var scryableLevels = game.global.world - 180;
 	if (scryableLevels <= 0) return 0;
-	return Math.floor(1 * Math.pow(1.11613, scryableLevels));
+	var num = Math.floor((1 * Math.pow(1.11613, scryableLevels)) / 3);
+	return (num < 1) ? 1 : num;
 }
 
 function displayTalents(){
@@ -4735,10 +4767,16 @@ function updateTalentNumbers(){
 	var mainEssenceElem = document.getElementById('essenceOwned')
 	var nextCostElem = document.getElementById('talentsNextCost')
 	var talentsNeededElem = document.getElementById('talentsNeeded');
+	var talentsCostElem = document.getElementById('talentsCost');
 	//Check primary elements, update
 	if (mainEssenceElem == null || nextCostElem == null || talentsNeededElem == null) return;
 		var nextCost = getNextTalentCost();
 		mainEssenceElem.innerHTML = prettify(game.global.essence);
+		if (nextCost == -1){
+			talentsCostElem.style.display = 'none';
+			return;
+		}
+		talentsCostElem.style.display = "block";
 		nextCostElem.innerHTML = prettify(nextCost);
 		talentsNeededElem.innerHTML = getHighestTalentTier(true);
 	var alertElem = document.getElementById('talentsAlert');
@@ -4809,7 +4847,9 @@ function countPurchasedTalents(){
 }
 
 function getNextTalentCost(){
-	return Math.floor(10 * Math.pow(3, countPurchasedTalents()));
+	var count = countPurchasedTalents();
+	if (count == 20) return -1;
+	return Math.floor(10 * Math.pow(3, count));
 }
 
 function nextWorld() {
@@ -4856,11 +4896,22 @@ function nextWorld() {
 		if ((game.global.world % 2) == 0) game.challenges.Lead.stacks = game.challenges.Lead.stacks = 201;
 		manageLeadStacks();
 	}
+	if (game.global.challengeActive == "Decay"){
+		game.challenges.Decay.stacks = 0;
+		if (game.global.world == 56){
+			game.challenges.Decay.completed = true;
+			game.global.decayDone = true;
+			game.global.challengeActive = "";
+			game.challenges.Decay.abandon();
+			message("You have completed the Decay challenge! All stats have been returned to normal, and you can now create more powerful Gardens maps at will!", "Notices")
+		}
+	}
 	if (game.talents.blacksmith.purchased && (game.global.world <= Math.floor((game.global.highestLevelCleared + 1) / 2))) dropPrestiges();
 	if (game.talents.bionic.purchased){
 		var bTier = ((game.global.world - 126) / 15);
+		game.mapUnlocks.BionicWonderland.canRunOnce = false;
 		if (bTier % 1 === 0 && bTier == game.global.bionicOwned) {
-			game.mapUnlocks.roboTrimp.createMap(bTier + 1);
+			game.mapUnlocks.roboTrimp.createMap(bTier);
 			refreshMaps();
 		}
 	}
@@ -5073,6 +5124,7 @@ var goldenUpgradesShown = false;
 function displayGoldenUpgrades(redraw) {
 	if (goldenUpgradesShown && !redraw) return false;
 	if (getAvailableGoldenUpgrades() <= 0) return false;
+	if (!goldenUpgradesShown) game.global.lastUnlock = new Date().getTime();
 	var html = "";
 	for (var item in game.goldenUpgrades){
 		var upgrade = game.goldenUpgrades[item];
@@ -5108,6 +5160,7 @@ function getGoldenFrequency(fluffTier){
 }
 
 function buyGoldenUpgrade(what) {
+	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var totalAvailable = getAvailableGoldenUpgrades();
 	if (totalAvailable <= 0) return false;
 	if (what == "Void" && ((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()) >= 0.60)) return;
@@ -5222,12 +5275,6 @@ function fight(makeUp) {
 		if (game.global.challengeActive == "Coordinate") killedText += " group";
 		killedText += "!";
         if (!game.global.spireActive || cellNum != 99 || game.global.mapsActive) message(killedText, "Combat", null, null, 'enemy');
-        try{
-			if (typeof ga !== 'undefined' && cell.level % 10 === 0 && !game.global.mapsActive) ga('send', 'event', 'Killed Bad Guy', 'W: ' + game.global.world + ' L:' + cell.level);
-			}
-		catch(err){
-			console.debug(err);
-		}
 		try{
 			if (typeof kongregate !== 'undefined' && !game.global.mapsActive) kongregate.stats.submit("HighestLevel", ((game.global.world * 100) + cell.level));
 		}
@@ -5321,7 +5368,7 @@ function fight(makeUp) {
 				if (game.global.switchToMaps){
 					game.global.soldierHealth = 0;
 					game.resources.trimps.soldiers = 0;
-					updateGoodBar();		
+					updateGoodBar();
 				}
 				game.global.preMapsActive = (game.options.menu.exitTo.enabled) ? false : true;
 				game.global.mapsActive = false;
@@ -5924,6 +5971,10 @@ function simpleSeconds(what, seconds) {
 		if (game.global.challengeActive == "Balance"){
 			amt *= game.challenges.Balance.getGatherMult();
 		}
+		if (game.global.challengeActive == "Decay"){
+			amt *= 10;
+			amt *= Math.pow(0.995, game.challenges.Decay.stacks);
+		}
 		amt = calcHeirloomBonus("Staff", jobName + "Speed", amt);
 		if (game.global.playerGathering == what){		
 			if (game.global.turkimpTimer > 0 && (what == "food" || what == "metal" || what == "wood")){
@@ -6411,15 +6462,7 @@ function getMinutesThisPortal(){
 	return Math.round(timeSince / 60);
 }
 
-function gameLoop(makeUp, now) {
-    gather(makeUp);
-    craftBuildings();
-	if (game.global.trapBuildToggled && game.global.trapBuildAllowed && game.global.buildingsQueue.length === 0) autoTrap();
-    breed(makeUp);
-    battleCoordinator(makeUp);
-	if (game.global.titimpLeft) game.global.titimpLeft -= 0.1;
-	
-}
+
 
 //Timeouts
 function costUpdatesTimeout() {
@@ -6694,7 +6737,7 @@ function getPlayFabLoginHTML(){
 	}
 		tipHtml[0] += "<div id='playFabLoginContainer' class='col-xs-6'><b id='playFabLoginTitle'>Login to PlayFab</b><br/><span id='playFabEmailHidden' style='display: none'>Your Email<br/><span id='emailNotice' style='font-size: 0.8em'>(For recovery, not required)<br/></span><input type='text' id='registerEmail' /></span><span id='usernameBox'>PlayFab Username<br/><input type='text' id='loginUserName' " + ((info) ? "value='" + info[0] + "'" : "") + "/></span><span id='playFabPasswordBox'><br/>Password <span style='font-size: 0.8em'>(6-30 Chars)</span><br/><input type='password' id='loginPassword'" + ((info) ? " value='" + info[1] + "'" : "") + "/></span><br/><div id='playFabConfirmPasswordHidden' style='display: none'>Confirm Password<br/><input type='password' id='confirmPassword' /><br/></div><span id='rememberInfoBox'>Remember Account Info<br/><input type='checkbox' id='rememberInfo' " + ((info) ? "checked='true'" : "") + "/><br/></span><div id='playFabLoginBtn' class='btn btn-sm btn-info' onclick='playFabLoginWithPlayFab()'>Login</div><div id='playFabRegisterBtn' class='btn btn-sm btn-info' style='display: none' onclick='playFabRegisterPlayFabUser()'>Register</div><span style='display: none' id='playFabRecoverBtns'><div class='btn btn-sm btn-info' onclick='playFabRecoverInfo(false)' style='display: none'>Get Username</div><div class='btn btn-sm btn-primary' onclick='playFabRecoverInfo(true)'>Send Password Reset Email</div></span><div id='playFabSwitchRegisterBtn' onclick='switchForm(true)' class='btn btn-sm btn-primary'>Register Playfab Account</div><div id='playFabSwitchRecoveryBtn' onclick='switchForm(false)' class='btn btn-sm btn-warning'>Recover Account Info</div></div>"
 	}
-	tipHtml[0] += "<div id='playFabLoginInfo' class='col-xs-6'><ul><li>While connected to PlayFab, every time the game saves or auto-saves your file will also be sent to PlayFab's servers.</li><li>Data will be cleared from PlayFab's servers after 3 months of inactivity, this is not a permanent save!</li></ul>"
+	tipHtml[0] += "<div id='playFabLoginInfo' class='col-xs-6'><ul><li>While connected to PlayFab, every time you manually save and <b>once per 30 minutes when auto-saving</b>, your file will also be sent to PlayFab's servers.</li><li>Data will be cleared from PlayFab's servers after 3 months of inactivity, this is not a permanent save!</li></ul>"
 	tipHtml[1] = "<div class='btn btn-sm btn-danger' onclick='cancelTooltip()'>Cancel</div>";
 	return tipHtml;
 }
@@ -7014,6 +7057,8 @@ function saveToPlayFabCallback(data, error){
 	}
 	if (data){
 		swapClass("iconState", "iconStateGood", document.getElementById('playFabIndicator'));
+		lastOnlineSave = performance.now();
+		message("Game saved and backed up to PlayFab! Next automatic online save in 30 minutes.", "Notices", null, "save");
 		return true;
 	}
 }
@@ -7080,6 +7125,20 @@ function readPlayFabInfo(){
 	return false;
 }
 
+var loops = 0;
+function gameLoop(makeUp, now) {
+    gather(makeUp);
+    craftBuildings();
+	if (game.global.trapBuildToggled && game.global.trapBuildAllowed && game.global.buildingsQueue.length === 0) autoTrap();
+    breed(makeUp);
+    battleCoordinator(makeUp);
+	if (game.global.titimpLeft) game.global.titimpLeft -= 0.1;
+	loops++;
+	if (loops % 10 == 0){
+		if (game.global.challengeActive == "Decay") updateDecayStacks(true);
+	}
+}
+
 
 function gameTimeout() {
 	if (game.options.menu.pauseGame.enabled) return;
@@ -7128,16 +7187,18 @@ function updatePortalTimer(justGetTime) {
 	}
 	if (justGetTime) return timeString;
 	if (game.options.menu.pauseGame.enabled) timeString = timeString + "&nbsp;(PAUSED)";
+	else {
+		checkAchieve("totalGems");
+		if (trimpStatsDisplayed) displayAllStats();
+		if (game.options.menu.useAverages.enabled && Math.floor(timeSince % 3) == 0) curateAvgs();
+		if (game.resources.helium.owned > 0) game.stats.bestHeliumHourThisRun.evaluate();
+		if (game.global.autoStorage == true) autoStorage();
+		if (game.resources.helium.owned) document.getElementById("heliumPh").innerHTML = prettify(game.stats.heliumHour.value()) + "/hr";
+		if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
+		if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
+		if (game.global.autoUpgradesAvailable) autoUpgrades();
+	}
 	document.getElementById("portalTime").innerHTML = timeString;
-	checkAchieve("totalGems");
-	if (trimpStatsDisplayed) displayAllStats();
-	if (game.options.menu.useAverages.enabled && Math.floor(timeSince % 3) == 0) curateAvgs();
-	if (game.resources.helium.owned > 0) game.stats.bestHeliumHourThisRun.evaluate();
-	if (game.global.autoStorage == true) autoStorage();
-	if (game.resources.helium.owned) document.getElementById("heliumPh").innerHTML = prettify(game.stats.heliumHour.value()) + "/hr";
-	if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
-	if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
-	if (game.global.autoUpgradesAvailable) autoUpgrades();
 	setTimeout(updatePortalTimer, 1000);
 }
 

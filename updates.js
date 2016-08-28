@@ -77,6 +77,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
+	if (what == "Decay"){
+		var decayedAmt = ((1 - Math.pow(0.995, game.challenges.Decay.stacks)) * 100).toFixed(2);
+		tooltipText = "Things are quickly becoming tougher. Gathering, looting, and Trimp attack are reduced by " + decayedAmt + "%.";
+		costText = "";
+	}
 	if (what == "Heirloom"){
 		//attachFunction == location, numCheck == index
 		tooltipText = displaySelectedHeirloom(false, 0, true, numCheck, attachFunction)
@@ -797,7 +802,14 @@ function getPsString(what, rawNum) {
 	if (game.global.challengeActive == "Balance"){
 		currentCalc *= game.challenges.Balance.getGatherMult();
 		textString += "<tr><td class='bdTitle'>Strength (Balance)</td><td class='bdPercent'>+ " + game.challenges.Balance.getGatherMult(true) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
-	}	
+	}
+	if (game.global.challengeActive == "Decay"){
+		currentCalc *= 10;
+		textString += "<tr><td class='bdTitle'>Sanity (Decay)</td><td class='bdPercent'>x 10</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		var stackStr = Math.pow(0.995, game.challenges.Decay.stacks);
+		currentCalc *= stackStr;
+		textString += "<tr style='color: red'><td class='bdTitle'>Decay</td><td class='bdPercent'>x " + stackStr.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	if (game.global.challengeActive == "Watch"){
 		currentCalc /= 2;
 		textString += "<tr style='color: red'><td class='bdTitle'>Sleepy (Watch)</td><td class='bdPercent'>50%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
@@ -1069,6 +1081,13 @@ function getBattleStatBd(what) {
 		heirloomBonus = prettify(heirloomBonus) + '%';
 		textString += "<tr><td class='bdTitle'>Heirloom (Shield)</td><td></td><td></td><td>+ " + heirloomBonus + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	if (game.global.challengeActive == "Decay" && what == "attack"){
+		currentCalc *= 5;
+		textString += "<tr><td class='bdTitle'>Sanity (Decay)</td><td></td><td></td><td class='bdPercent'>x 5</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		var stackStr = Math.pow(0.995, game.challenges.Decay.stacks);
+		currentCalc *= stackStr;
+		textString += "<tr style='color: red'><td class='bdTitle'>Decay</td><td>x 0.995</td><td>" + game.challenges.Decay.stacks + "</td><td class='bdPercent'>x " + stackStr.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	//Add golden battle
 	if (what != "block" && game.goldenUpgrades.Battle.currentBonus > 0){
 		amt = game.goldenUpgrades.Battle.currentBonus;
@@ -1330,6 +1349,13 @@ function getLootBd(what) {
 		currentCalc *= (1 + toxMult);
 		toxMult = (toxMult * 100).toFixed(1) + "%";
 		textString += "<tr><td class='bdTitle'>Tweaky (Toxicity)</td><td>+" + game.challenges.Toxicity.lootMult + "%</td><td>" + game.challenges.Toxicity.stacks + "</td><td>+ " + toxMult + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.challengeActive == "Decay" && what != "Helium"){
+		currentCalc *= 10;
+		textString += "<tr><td class='bdTitle'>Sanity (Decay)</td><td></td><td></td><td class='bdPercent'>x 10</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		var stackStr = Math.pow(0.995, game.challenges.Decay.stacks);
+		currentCalc *= stackStr;
+		textString += "<tr style='color: red'><td class='bdTitle'>Decay</td><td>x 0.995</td><td>" + game.challenges.Decay.stacks + "</td><td class='bdPercent'>x " + stackStr.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.global.challengeActive == "Watch" && what != "Helium"){
 		currentCalc /= 2;
@@ -1619,6 +1645,7 @@ function resetGame(keepPortal) {
 	var essence;
 	var spentEssence;
 	var talents;
+	var decayDone;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -1634,6 +1661,7 @@ function resetGame(keepPortal) {
 		slow = game.global.slowDone;
 		autoStorage = game.global.autoStorageAvailable;
 		autoUpgradesAvailable = game.global.autoUpgradesAvailable;
+		decayDone = game.global.decayDone;
 		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
 		if (game.stats.bestHeliumHour.valueTotal < game.stats.heliumHour.value(true)){
 			game.stats.bestHeliumHour.valueTotal = game.stats.heliumHour.value(true);
@@ -1705,6 +1733,7 @@ function resetGame(keepPortal) {
 		game.global.essence = essence;
 		game.global.spentEssence = spentEssence;
 		game.talents = talents;
+		game.global.decayDone = decayDone;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined' && !statItem.noAdd) statItem.valueTotal += statItem.value;
@@ -1762,6 +1791,7 @@ function resetGame(keepPortal) {
 	resetAdvMaps();
 	cancelPortal();
 	updateRadioStacks();
+	updateDecayStacks();
 	updateAntiStacks();
 	setNonMapBox();
 	initTalents();
@@ -2226,6 +2256,9 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			if (game.global.challengeActive == "Balance"){
 				psText *= game.challenges.Balance.getGatherMult();
 			}
+			if (game.global.challengeActive == "Decay"){
+				psText *= 10 * (Math.pow(0.995, game.challenges.Decay.stacks));
+			}
 			if (game.global.challengeActive == "Watch") psText /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) psText *= 2;
 			psText = calcHeirloomBonus("Staff", jobName + "Speed", psText);
@@ -2455,7 +2488,7 @@ function checkButtons(what) {
 				updateButtonColor(itemA, (canAffordTwoLevel(game.upgrades[itemA]) && canAffordCoordinationTrimps()));
 			else
 				updateButtonColor(itemA, canAffordTwoLevel(game.upgrades[itemA]));
-		}
+		}		
 		return;
 	}
 	if (what == "buildings"){
@@ -2908,7 +2941,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 			[", thanks to your bounty of achievements", ", must be all those achievements", ", you are one with the achievements", " and you water your achievements daily"],
 			[", your Trimps are mighty impressed", ", your achievements are mind blowing", ". You wake up, achieve, then sleep", ", you have achievement in your blood"],
 			[", your achievements are beyond mortal comprehension", ", Trimps far and wide tell stories of your achievement", ", you have achieved achievement", ", everything you touch turns to achievement"],
-			[", your achievements have achieved achievement.", ", news of your achievement spreads throughout the galaxy", ", achievements bend to your will", ", your achievements transcend reality"]
+			[", your achievements have achieved achievement", ", news of your achievement spreads throughout the galaxy", ", achievements bend to your will", ", your achievements transcend reality"]
 		];
 		var fluffLevel = getAchievementStrengthLevel();		
 		fluff = fluff[fluffLevel];
@@ -2965,6 +2998,23 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 	function hideAchievementDescription(id){
 		document.getElementById(id + "Description").innerHTML = "";
 	} */
+	
+function updateDecayStacks(addStack){
+	var elem = document.getElementById('decayStacks');
+	if (game.global.challengeActive != "Decay"){
+		if (elem == null) return;
+		elem.style.display = "none";
+		return;
+	}
+	if (addStack && game.challenges.Decay.stacks < 999) game.challenges.Decay.stacks++;
+	if (elem == null){
+		document.getElementById('debuffSpan').innerHTML += "<span id='decayStacks' onmouseout='tooltip(\"hide\")' class='badge antiBadge'><span id='decayStackCount'></span> <span class='glyphicon glyphicon-cloud'></span></span>";
+		elem = document.getElementById('decayStacks');
+	}
+	var amt = ((1 - Math.pow(0.995, game.challenges.Decay.stacks)) * 100).toFixed(2);
+	elem.setAttribute('onmouseover', 'tooltip("Decay", null, event)');
+	document.getElementById('decayStackCount').innerHTML = game.challenges.Decay.stacks;
+}
 
 function swapClass(prefix, newClass, elem) {
 if (elem == null) {

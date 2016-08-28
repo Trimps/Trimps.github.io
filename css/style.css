@@ -66,6 +66,7 @@ overflow-x: hidden;
 	text-align: center;
 	border: 1px solid white;
 	padding: 0.5vw 0;
+	font-size: 0.95vw;
 }
 
 .talentIcon{
@@ -2690,8 +2691,8 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-background: linear-gradient(45deg, #0e2b16 0%,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#1f102b 76%,#1e1f38 87%,#1b1b1b 100%);
-color: #66cc00;
+background: linear-gradient(45deg, #0e0b46 0%,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#20199e 76%,#1e1f38 87%,#1b1b1b 100%);
+color: #bfbfff;
 }
 
 .btn-new:hover,
@@ -2700,7 +2701,7 @@ color: #66cc00;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background: linear-gradient(45deg, #275635 0%,#4f4f4f 46%,#494949 50%,#3f3f3f 53%,#2b1b47 76%,#242542 87%,#565656 100%);
+background: linear-gradient(45deg, #273655 0%,#4f4f4f 46%,#494949 50%,#3f3f3f 53%,#374c78 76%,#242542 87%,#565656 100%);
 color: white;
 }
 .btn-new:active,
