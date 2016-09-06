@@ -5988,9 +5988,12 @@ function simpleSeconds(what, seconds) {
 function scaleToCurrentMap(amt) {
     var map = getCurrentMapObject();
 	var world = map.level;
-		if (world < game.global.world){
+	var compare = game.global.world;
+	if (game.talents.mapLoot.purchased)
+		compare--;
+		if (world < compare){
 			//-20% loot compounding for each level below world
-			amt *= Math.pow(0.8, (game.global.world - world));
+			amt *= Math.pow(0.8, (compare - world));
 		}
 		//Add map loot bonus
 		amt = Math.round(amt * map.loot);

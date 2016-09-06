@@ -2519,6 +2519,14 @@ background-color: rgba(255,255,255,0.25);
 	font-size: .8em;
 }
 
+#blockDiv{
+	width: 28.33333333%;
+}
+
+#damageDiv{
+	width: 55%;
+}
+
 #critSpan, #badCrit{
 	font-weight: bold;
 	color: yellow;
