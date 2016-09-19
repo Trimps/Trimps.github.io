@@ -1622,7 +1622,7 @@ var toReturn = {
 			finished: 0,
 			title: "Trimp Damage",
 			description: function (number) {
-				return "Reach " + prettify(this.breakpoints[number], null, true) + " displayed damage";
+				return "Reach " + prettify(this.breakpoints[number]) + " displayed damage";
 			},
 			progress: function () {				
 				if (this.breakpoints.length > this.finished) return prettify(this.highest) + " / " + prettify(this.breakpoints[this.finished]);
