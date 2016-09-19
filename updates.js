@@ -295,7 +295,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		customUp = (textString) ? 2 : 1;
 		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 and 200k to select that large number, or fractions such as 1/2 and 50% to select that fraction of your available workspaces."
 		if (textString) tooltipText += " <b>Max of 1,000 for most perks</b>";
-		tooltipText += "<br/><br/><input id='customNumberBox' style='width: 50%' value='" + ((!isNaN(game.global.lastCustomExact)) ? prettify(game.global.lastCustomExact, true) : game.global.lastCustomExact) + "'></input>";
+		tooltipText += "<br/><br/><input id='customNumberBox' style='width: 50%' value='" + ((!isNaN(game.global.lastCustomExact)) ? prettify(game.global.lastCustomExact) : game.global.lastCustomExact) + "'></input>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='numTab(5, " + textString + ")'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
@@ -1422,7 +1422,7 @@ function swapNotation(updateOnly){
 	if (game.global.fighting) updateAllBattleNumbers();
 }
 
-function prettify(number, noSup) {
+function prettify(number) {
 	var numberTmp = number;
 	number = Math.round(number * 1000000) / 1000000;
 	if (!isFinite(number)) return "<span class='icomoon icon-infinity'></span>";
