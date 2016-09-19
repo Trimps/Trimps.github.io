@@ -1428,6 +1428,7 @@ function prettify(number) {
 	if (!isFinite(number)) return "<span class='icomoon icon-infinity'></span>";
 	if (number >= 1000 && number < 10000) return Math.floor(number);
 	if (number === 0) return prettifySub(0);
+	if (number < 0) return "-" + prettify(-number);
 
 	var base = Math.floor(Math.log(number)/Math.log(1000));
 	if (base <= 0) return prettifySub(number);
