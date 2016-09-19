@@ -1440,13 +1440,10 @@ function prettify(number) {
 		'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
 	];
 	var suffix;
-	if ((base <= suffices.length && base > 0) && game.options.menu.standardNotation.enabled)
-	{
-		if (game.options.menu.standardNotation.enabled == 2) 
-			suffix = "e" + ((base) * 3);
-		else
-			suffix = suffices[base-1];
-	}
+	if (game.options.menu.standardNotation.enabled == 2)
+		suffix = "e" + ((base) * 3);
+	else if (game.options.menu.standardNotation.enabled && base <= suffices.length)
+		suffix = suffices[base-1];
 	else
 	{
 		var exponent = parseFloat(numberTmp).toExponential(2);
