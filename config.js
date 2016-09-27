@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.71,
+		version: 3.8,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -165,6 +165,9 @@ var toReturn = {
 		spentEssence: 0,
 		skeleSeed: Math.floor(Math.random() * 1000000),
 		decayDone: false,
+		dailyChallenge: {},
+		recentDailies: [],
+		dailyHelium: 0,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -1068,6 +1071,22 @@ var toReturn = {
 	},
 
 	challenges: {
+		Daily: {
+			get description(){
+				return (isSaving) ? "" : getDailyChallenge(0);
+			},
+			filter: function () {
+				return (game.global.highestLevelCleared >= 99);
+			},
+			start: function () {
+				startDaily();
+			},
+			abandon: function () {
+				abandonDaily();
+			},
+			fireAbandon: true,
+			unlockString: "reach Zone 100"
+		},
 		Discipline: {
 			description: "Tweak the portal to bring you back to a universe where Trimps are less disciplined, in order to teach you how to be a better Trimp trainer. Your Trimps' minimum damage will be drastically lower, but their high end damage will be considerably higher. Completing The Dimension Of Anger will cause Trimp damage to return to normal.",
 			filter: function () {
@@ -1587,6 +1606,14 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		},
+		dailyBonusHelium: {
+			title: "Daily Challenge Helium",
+			display: function () {
+				return (this.value >0 || this.valueTotal > 0);
+			},
+			value: 0,
+			valueTotal: 0
+		},
 		cellsOverkilled: {
 			title: "World Cells Overkilled",
 			display: function () {
@@ -1597,7 +1624,7 @@ var toReturn = {
 		}
 		
 	},
-	
+	//Total 1335.2% after adding daily bonus helium
 	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40],
 	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5"], //handwritten hex colors make the best hex colors
 	achievements: {
@@ -1791,6 +1818,26 @@ var toReturn = {
 			tiers: [1, 2, 3, 4, 5, 6],
 			names: ["What's This For?", "Collector of Shinies", "Dragimp Lover", "Expert of Shinies", "Jeweller", "Gemaster"],
 			icon: "icomoon icon-diamond",
+			newStuff: []
+		},
+		dailyHelium: {
+			finished: 0,
+			title: "Daily Bonus",
+			description: function (number) {
+				var number = this.breakpoints[number];
+				return "Earn " + prettify(number) + " Helium from the Daily Challenge";
+			},
+			evaluate: function () {
+				return game.stats.dailyBonusHelium.value + game.stats.dailyBonusHelium.valueTotal;
+			},
+			progress: function () {
+				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				return prettify(this.evaluate()) + " total";
+			},
+			breakpoints: [5e5, 1e6, 5e6, 2.5e7, 2e9],
+			tiers: [3, 4, 5, 6, 7],
+			names: ["Daytermined", "Daydicated", "Daystiny", "Daylighted", "Daystroyer"],
+			icon: "icomoon icon-sun",
 			newStuff: []
 		},
 		blockTimed: {
@@ -2257,9 +2304,9 @@ var toReturn = {
 			realMax: function () {
 				var num = this.max;
 				num *= this.maxMod;
-				if (game.portal.Carpentry.level > 0) num = num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level));
-				if (game.portal.Carpentry_II.level > 0) num *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
-				return Math.floor(num);
+				if (game.portal.Carpentry.level > 0) num = Math.floor(num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level)));
+				if (game.portal.Carpentry_II.level > 0) num = Math.floor(num * (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level)));
+				return num;
 			},
 			working: 0,
 			speed: 5,
@@ -5144,6 +5191,7 @@ var toReturn = {
 			fire: function () {
 				game.global.trapBuildAllowed = true;
 				fadeIn("autoTrapBtn", 10);
+				toggleAutoTrap(true);
 			}
 		},
 		Shieldblock: { //11

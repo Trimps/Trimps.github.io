@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 3.71</title>
+	<title>Trimps 3.8</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?41" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?42" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -203,7 +203,7 @@
 									<div id="foodCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('food')">Gather</div>
 								</div>
 								<div class="col-xs-6">
-									<span class="psText pointer noselect" id="foodPs" onclick="getPsString('food')">+0/sec</span>
+									<span class="psText sizeSecRegular pointer noselect" id="foodPs" onclick="getPsString('food')">+0/sec</span>
 								</div>
 							</div>
 						</div>
@@ -226,7 +226,7 @@
 									<div id="woodCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('wood')">Chop</div>
 								</div>
 								<div class="col-xs-6">
-									<span class="psText pointer noselect" id="woodPs" onclick="getPsString('wood')">+0/sec</span>
+									<span class="psText sizeSecRegular pointer noselect" id="woodPs" onclick="getPsString('wood')">+0/sec</span>
 								</div>
 							</div>
 						</div>
@@ -249,7 +249,7 @@
 									<div id="metalCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('metal')">Mine</div>
 								</div>
 								<div class="col-xs-6">
-									<span class="psText pointer noselect" id="metalPs" onclick="getPsString('metal')">+0/sec</span>
+									<span class="psText sizeSecRegular pointer noselect" id="metalPs" onclick="getPsString('metal')">+0/sec</span>
 								</div>
 							</div>
 						</div>
@@ -265,7 +265,7 @@
 									<div id="scienceCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('science')">Research</div>
 								</div>
 								<div class="col-xs-6">
-									<span class="psText pointer noselect" id="sciencePs" onclick="getPsString('science')">+0/sec</span>
+									<span class="psText sizeSecRegular pointer noselect" id="sciencePs" onclick="getPsString('science')">+0/sec</span>
 								</div>
 							</div>
 						</div>
@@ -278,14 +278,14 @@
 					<br/>
 					<span class="ownedArea"><span id="fragmentsOwned">0</span></span>
 					<br/>
-					<span class="psText pointer noselect" id="fragmentsPs" style="display: none" onclick="getPsString('fragments')">+0/sec</span>
+					<span class="psText sizeSecRegular pointer noselect" id="fragmentsPs" style="display: none" onclick="getPsString('fragments')">+0/sec</span>
 				</div>
 				<div id="gems" class="playerGather playerGatherSm" style="visibility: hidden;">
 					<span class="title">Gems</span>
 					<br/>
 					<span class="ownedArea"><span id="gemsOwned">0</span></span>
 					<br/>
-					<span class="psText pointer noselect" id="gemsPs" style="display: none" onclick="getPsString('gems')">+0/sec</span>
+					<span class="psText sizeSecRegular pointer noselect" id="gemsPs" style="display: none" onclick="getPsString('gems')">+0/sec</span>
 				</div>
 				<div id="helium" class="playerGather playerGatherSm" style="display: none">
 					<span class="title">Helium</span>
@@ -318,7 +318,7 @@
 					</div>
 					<div id="unempHide" style="visibility: hidden">
 						<span id="trimpsUnemployed">0</span> breeding
-						<br/><span id="trimpsPs" class="pointer noselect bdHover psColorWhite" onclick="getTrimpPs()">+0/sec</span>
+						<br/><span id="trimpsPs" class="pointer sizeSecRegular noselect bdHover psColorWhite" onclick="getTrimpPs()">+0/sec</span>
 						<br/>
 					</div>
 					<div id="empHide" style="visibility: hidden">
@@ -638,6 +638,11 @@
 									<span id="boneBtnText">Bone Trader</span>
 								</span>
 							</div>							
+							<div class="battleSideBtnContainer" style="display: none" id="finishDailyBtnContainer">
+								<span class="btn btn-success fightBtn" id="finishDailyBtn" onclick="tooltip('Finish Daily', null, 'update')">
+									Finish Daily
+								</span>
+							</div>
 							<div class="battleSideBtnContainer" style="display: none" id="exitSpireBtnContainer">
 								<span class="btn btn-danger fightBtn" id="exitSpireBtn" onclick="tooltip('Exit Spire', null, 'update')">
 									Exit Spire
@@ -895,7 +900,7 @@
 				<div id="challenges"  style="display: none">
 					<div class="challengeTitle">Challenges</div>
 					<div id="challengeDescription">
-						<span id="challengeDescriptionPre">You can also choose to activate a challenge before using your portal. The first time you complete a challenge, you'll earn a permanent reward. You can abandon or view an active challenge at any time by clicking the "View Perks" button.</span>
+						<span id="challengeDescriptionPre">You can also choose to activate a challenge before using your portal. Completing a challenge will earn you a permanent reward. You can abandon or view an active challenge at any time by clicking the "View Perks" button.</span>
 						<span id="flagMustRestart" style="display: none;"><b>If you abandon this challenge, the portal will become unstable and the world will restart (you'll keep permanent bonuses like helium)</b></span>
 
 						<div id="specificChallengeDescription">
@@ -1072,9 +1077,9 @@
 	</div>
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?80"></script>
-	<script type="text/javascript" src="updates.js?80"></script>
-	<script type="text/javascript" src="main.js?80"></script>
+	<script type="text/javascript" src="config.js?81"></script>
+	<script type="text/javascript" src="updates.js?81"></script>
+	<script type="text/javascript" src="main.js?81"></script>
 </body>
 
 </html>

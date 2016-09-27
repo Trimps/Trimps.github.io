@@ -530,6 +530,11 @@ overflow-x: hidden;
 	font-size: 1.3vw;
 }
 
+#viewChallengeText ul{
+	overflow-y: auto;
+	max-height: 22vw;
+}
+
 .nextChallenge {
 	background-color: black !important;
 	color: white;
@@ -1076,7 +1081,9 @@ overflow-x: hidden;
 }
 
 .battleStatsTitle {
+	overflow: auto;
     font-size: 1.1em;
+	max-height: 1.55em;
 }
 
 .badBadge {
@@ -1998,6 +2005,13 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 	font-size: 1.25vw;
 }
 
+.dailyTopRow{
+	background-color: black;
+	color: white;
+	padding: 0;
+	margin: 0;
+}
+
 #challengeDescriptionPre{
 	font-size: 1.25vw;
 }
@@ -2163,11 +2177,11 @@ color: #DDDDFF !important;
 	color: #DDDDFF;
 }
 
-.reducedSizeSec{
-	font-size: 0.9em !important;
+.sizeSecReduced{
+	font-size: 1.1em !important;
 }
 
-#gemsPs .reducedSizeSec, #fragmentsPs .reducedSizeSec{
+#gemsPs .sizeSecReduced, #fragmentsPs .sizeSecReduced{
 	font-size: 0.85em !important;
 }
 
@@ -2200,7 +2214,7 @@ color: #DDDDFF !important;
 	background-color: #d9534f;
 }
 
-.autoUpgradeBtn.colorSuccess:hover {
+.autoUpgradeBtn.colorSuccess:hover, .dailyTop.colorSuccess:hover {
 	background-color: #449d44;
 }
 
@@ -2237,7 +2251,7 @@ background-color: rgba(255,255,255,0.25);
 	background-color: #337ab7;
 	color: white;
 }
-.greyColor{
+.greyColor, .colorGrey{
 	background-color: grey;
 }
 .tealColor{
@@ -2575,6 +2589,8 @@ background-color: rgba(255,255,255,0.25);
 
 #specificChallengeDescription{
 	min-height: 10vw;
+	overflow-y: auto;
+	max-height: 14.3vw;
 	margin: 0.5vw;
 	color: #318696;
 	background-color: #d0d0d0;
@@ -2617,6 +2633,10 @@ background-color: rgba(255,255,255,0.25);
 	color: white;
 	font-size: 1.1vw;
 	width: 19.4%;
+}
+
+#challengeDaily{
+	background-color: #b38600;
 }
 
 #extraGridInfo{
@@ -2699,8 +2719,8 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-background: linear-gradient(45deg, #0e0b46 0%,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#20199e 76%,#1e1f38 87%,#1b1b1b 100%);
-color: #bfbfff;
+background: linear-gradient(to left, #760d00 , #a98200);
+color: white;
 }
 
 .btn-new:hover,
@@ -2709,7 +2729,7 @@ color: #bfbfff;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background: linear-gradient(45deg, #273655 0%,#4f4f4f 46%,#494949 50%,#3f3f3f 53%,#374c78 76%,#242542 87%,#565656 100%);
+background: linear-gradient(to left, #f5bd00 , #a91200);
 color: white;
 }
 .btn-new:active,

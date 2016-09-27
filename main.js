@@ -36,9 +36,12 @@ function autoSave() {
 }
 
 var lastOnlineSave = -1800000;
+var isSaving = false;
 function save(exportThis, fromManual) {
+	isSaving = true;
     var saveString = JSON.stringify(game);
     var saveGame = JSON.parse(saveString);
+	isSaving = false;
     delete saveGame.worldUnlocks;
     delete saveGame.badGuys;
     delete saveGame.mapConfig;
@@ -102,8 +105,8 @@ function save(exportThis, fromManual) {
 	}
 	for (var itemF in saveGame.challenges){
 		var challenge = saveGame.challenges[itemF];
-		delete challenge.description;
 		delete challenge.unlockString;
+		delete challenge.description;
 	}
 	for (var itemG in saveGame.achievements){
 		var achievement = saveGame.achievements[itemG];
@@ -751,7 +754,7 @@ function displayChallenges() {
 	game.global.selectedChallenge = "";
 	var challengesHere = document.getElementById("challengesHere");
 	document.getElementById("specificChallengeDescription").innerHTML = "<br/><br/><br/>Click a challenge below to learn more about and/or run it!";
-	challengesHere.innerHTML = '<div class="noselect pointer challengeThing thing" id="challenge0" onclick="selectChallenge(0)"><span class="thingName">None</span></div>';
+	var challengeHTML = '<div class="noselect pointer challengeThing thing" id="challenge0" onclick="selectChallenge(0)"><span class="thingName">None</span></div>';
 	var firstFail = false;
 	var extraClass = "";
 	for (var what in game.challenges){
@@ -759,7 +762,7 @@ function displayChallenges() {
 		var name = "";
 		var challenge = game.challenges[what];
 		if (!challenge.filter(true)) {
-			if (firstFail) continue;
+			if (firstFail || what == "Daily") continue;
 			firstFail = true;
 			thisFail = true;
 		}
@@ -798,15 +801,18 @@ function displayChallenges() {
 		done = (done) ? "finishedChallenge" : "";
 		if (thisFail) done = "nextChallenge";
 		if (!name) name = what;
-		challengesHere.innerHTML += '<div class="noselect pointer challengeThing thing ' + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + name + '</span></div>';
+		challengeHTML += '<div class="noselect pointer challengeThing thing ' + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + name + '</span></div>';
 	}
+	challengesHere.innerHTML = challengeHTML;
 	if (challengeCount > 0) document.getElementById("challenges").style.display = "block";
 	document.getElementById("flagMustRestart").style.display = "none";
+	
 }
 
 function selectChallenge(what) {
 	displayChallenges();
 	document.getElementById("challenge" + what).className += " cBorderOn";
+	document.getElementById('activatePortalBtn').style.display = 'inline-block';
 	var addChallenge = document.getElementById("addChallenge");
 	if (what === 0){
 		game.global.selectedChallenge = "";
@@ -815,7 +821,6 @@ function selectChallenge(what) {
 		if (addChallenge !== null) addChallenge.innerHTML = "";
 		return;
 	}
-
 	if (!game.challenges[what].filter()){
 		var unlockString = (typeof game.challenges[what].unlockString === 'function') ? game.challenges[what].unlockString() : game.challenges[what].unlockString;
 		document.getElementById("specificChallengeDescription").innerHTML = "You will unlock this challenge once you " + unlockString;
@@ -841,6 +846,8 @@ function selectChallenge(what) {
 	document.getElementById("flagMustRestart").style.display = (what == "Scientist") ? "inline" : "none";
 	
 	if (addChallenge !== null) addChallenge.innerHTML = "You have the <b>" + what + " Challenge</b> active.";
+	
+	if (what == "Daily") updateDailyClock();
 }
 
 function getScientistLevel() {
@@ -873,6 +880,10 @@ function getScientistInfo(number, reward){
 }
 
 function confirmAbandonChallenge(){
+	if (game.global.challengeActive == "Daily"){
+		tooltip("Finish Daily", null, 'update');
+		return;
+	}
 	var text = "Are you sure you want to abandon this challenge?";
 	if (game.global.challengeActive == 'Scientist') text += " <b>Abandoning this challenge will cause the portal to become unstable and start you from the beginning of this run. (You'll keep your permanent rewards like helium and perks)</b>"; 
 	tooltip('confirm', null, 'update', text, 'abandonChallenge()', 'Abandon Challenge');
@@ -890,7 +901,8 @@ function abandonChallenge(restart){
 		if (restart) game.global.selectedChallenge = "Scientist";
 		resetGame(true);
 	}
-	message("Your challenge has been abandoned.", "Notices");
+	if (challengeName != "Daily")
+		message("Your challenge has been abandoned.", "Notices");
 }
 
 function viewPortalUpgrades() {
@@ -901,13 +913,18 @@ function viewPortalUpgrades() {
 	document.getElementById("viewChallenge").style.display = "block";
 	var challengeText = "";
 	if (game.global.challengeActive){
-		var description = game.challenges[game.global.challengeActive].description;
+		var description;
+		if (game.global.challengeActive == "Daily")
+			description = getCurrentDailyDescription();
+		else
+			description = game.challenges[game.global.challengeActive].description;
 		if (game.global.challengeActive == "Scientist"){
 			var sciLevel = getScientistLevel();
 			description = description.replace('_', getScientistInfo(sciLevel));
 			description = description.replace('*', getScientistInfo(sciLevel, true));
 		}
-		challengeText = "You have the " + game.global.challengeActive + " challenge active. \"" + description + "\"";
+		challengeText = "You have the " + game.global.challengeActive + " challenge active. ";
+		challengeText += (game.global.challengeActive == "Daily") ? description : "\"" + description + "\"";
 	}
 	else
 		challengeText = "You don't have an active challenge.";
@@ -930,7 +947,18 @@ function viewPortalUpgrades() {
 	game.global.buyAmt = 1;
 	displayPortalUpgrades();
 	
-	if (game.global.challengeActive) document.getElementById("cancelChallengeBtn").style.display = "inline-block";
+	if (game.global.challengeActive){
+		var abandonElem = document.getElementById("cancelChallengeBtn");
+		abandonElem.style.display = "inline-block";
+		if (game.global.challengeActive == "Daily") {
+			swapClass('btn-', 'btn-success', abandonElem);
+			abandonElem.innerHTML = "Finish Daily";
+		}
+		else{
+			abandonElem.innerHTML = "Abandon Challenge";
+			swapClass('btn-', 'btn-warning', abandonElem);
+		}
+	}
 }
 
 function displayPortalUpgrades(fromTab){
@@ -1200,6 +1228,7 @@ function activateClicked(){
 	else newText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades you've earned, such as Helium, Perks, Bones, and Exotic Imports. Who knows where or when it will send you.";
 	if (game.global.selectedChallenge) newText += " <span id='addChallenge'>You have the <b>" + game.global.selectedChallenge + " Challenge</b> active.</span>";
 	else newText += " <span id='addChallenge'></span>";
+	if (game.global.challengeActive == "Daily") newText += "<br/><span style='color: red;'><i>You still have the Daily challenge active! If you portal right now, your reward will be applied at the beginning of your next run. Alternatively, click 'Finish Daily' in the World or inside 'View Perks' to get the bonus now.</i></span>";
 	newText += "<br/>";
 	if (game.global.heirloomsExtra.length){
 		var s = (game.global.heirloomsExtra.length > 1) ? "s" : "";
@@ -1422,6 +1451,20 @@ function clearQueue(specific) {
 }
 
 function activatePortal(){
+	if (game.global.selectedChallenge == "Daily"){
+		if (getDailyChallenge(readingDaily, false, true) !== nextDaily) {
+			document.getElementById("portalStory").innerHTML = "<span style='color: red'>The daily challenge has changed since you looked at it. The challenge description has been refreshed, click Activate Portal to run it!</span>";
+			getDailyChallenge();
+			return;
+			}
+	}
+	if (game.global.challengeActive == "Daily"){
+		var dailyReward = abandonDaily();
+		if (!isNumberBad(dailyReward)) {
+		game.resources.helium.respecMax += dailyReward;
+		game.global.tempHighHelium += dailyReward;
+		}
+	}
 	var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
 	if (!commitPortalUpgrades(true)) return;	
 	game.global.heliumLeftover = refund;
@@ -1591,6 +1634,14 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 		}
 		amt = calcHeirloomBonus("Staff", what + "Drop", amt);
 		if (game.global.formation == 4 && !game.global.waitToScry) amt *= 2;
+		if (game.global.challengeActive == "Daily"){
+			if (typeof game.global.dailyChallenge.famine !== 'undefined' && what != "fragments"){
+				amt *= dailyModifiers.famine.getMult(game.global.dailyChallenge.famine.strength);
+			}
+			if (typeof game.global.dailyChallenge.karma !== 'undefined'){
+				amt *= dailyModifiers.karma.getMult(game.global.dailyChallenge.karma.strength, game.global.dailyChallenge.karma.stacks);
+			}
+		}
 	}
 	//Yes, Lead giving double helium and Watch not reducing helium is on purpose!
 	if (game.global.challengeActive == "Watch" && what != "helium") amt /= 2;
@@ -1741,6 +1792,12 @@ function gather() {
 			if (game.global.challengeActive == "Decay"){
 				perSec *= 10;
 				perSec *= Math.pow(0.995, game.challenges.Decay.stacks);
+			}
+			if (game.global.challengeActive == "Daily"){
+				if (typeof game.global.dailyChallenge.dedication !== 'undefined')
+					perSec *= dailyModifiers.dedication.getMult(game.global.dailyChallenge.dedication.strength);
+				if (typeof game.global.dailyChallenge.famine !== 'undefined' && increase != "fragments" && increase != "science")
+					perSec *= dailyModifiers.famine.getMult(game.global.dailyChallenge.famine.strength);
 			}
 			if (game.global.challengeActive == "Watch") perSec /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) perSec*= 2;
@@ -2329,6 +2386,14 @@ function breed() {
 	if (game.jobs.Geneticist.owned > 0) potencyMod *= Math.pow(.98, game.jobs.Geneticist.owned);
 	//Quick Trimps
 	if (game.unlocks.quickTrimps) potencyMod *= 2;
+	if (game.global.challengeActive == "Daily"){
+		if (typeof game.global.dailyChallenge.dysfunctional !== 'undefined'){
+			potencyMod *= dailyModifiers.dysfunctional.getMult(game.global.dailyChallenge.dysfunctional.strength);
+		}
+		if (typeof game.global.dailyChallenge.toxic !== 'undefined'){
+			potencyMod *= dailyModifiers.toxic.getMult(game.global.dailyChallenge.toxic.strength, game.global.dailyChallenge.toxic.stacks);
+		}
+	}
 	if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
 		potencyMod *= Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
 	}
@@ -2686,7 +2751,7 @@ function checkVoidMap() {
 
 function seededRandom(seed){
 	var x = Math.sin(seed++) * 10000;
-	return (x - Math.floor(x));
+	return parseFloat((x - Math.floor(x)).toFixed(7));
 }
 
 function getRandomIntSeeded(seed, minIncl, maxExcl) {
@@ -4078,6 +4143,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
 	
 	var currentMapObj;
 	if (game.global.spireActive) handleExitSpireBtn();
+	handleFinishDailyBtn();
 	if (game.global.currentMapId !== "") currentMapObj = getCurrentMapObject();
 	var mapsBtn = document.getElementById("mapsBtn");
 	var recycleBtn = document.getElementById("recycleMapBtn");
@@ -4402,6 +4468,14 @@ function startFight() {
 		}
 		if (cell.corrupted == "corruptStrong") cell.attack *= 2;
 		if (cell.corrupted == "corruptTough") cell.health *= 5;
+		if (game.global.challengeActive == "Daily"){
+			if (typeof game.global.dailyChallenge.badHealth !== 'undefined'){
+				cell.health *= dailyModifiers.badHealth.getMult(game.global.dailyChallenge.badHealth.strength);
+			}
+			if (typeof game.global.dailyChallenge.badMapHealth !== 'undefined' && game.global.mapsActive){
+				cell.health *= dailyModifiers.badMapHealth.getMult(game.global.dailyChallenge.badMapHealth.strength);
+			}
+		}
 		if (game.global.challengeActive == "Coordinate") cell.health *= badCoord;
         if (game.global.mapsActive) {
             var difficulty = map.difficulty;
@@ -4468,6 +4542,16 @@ function startFight() {
 		if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")) {
 			game.global.radioStacks = 0;
 			updateRadioStacks();
+		}
+		if (game.global.challengeActive == "Daily"){
+			if (typeof game.global.dailyChallenge.plague !== 'undefined'){
+				game.global.dailyChallenge.plague.stacks = 0;
+				updateDailyStacks('plague');	
+			}
+			if (typeof game.global.dailyChallenge.weakness !== 'undefined'){
+				game.global.dailyChallenge.weakness.stacks = 0;
+				updateDailyStacks('weakness');	
+			}
 		}
 		game.global.difs.attack = 0;
 		game.global.difs.health = 0;
@@ -4674,6 +4758,25 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 			var vpAmt = (game.talents.voidPower2.purchased) ? 35 : 15;
 			number *= ((vpAmt / 100) + 1);
 		}
+		if (game.global.challengeActive == "Daily"){
+			if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
+				if (minFluct == -1) minFluct = fluctuation;
+				minFluct += dailyModifiers.minDamage.getMult(game.global.dailyChallenge.minDamage.strength);
+			}
+			if (typeof game.global.dailyChallenge.maxDamage !== 'undefined'){
+				if (maxFluct == -1) maxFluct = fluctuation;
+				maxFluct += dailyModifiers.maxDamage.getMult(game.global.dailyChallenge.maxDamage.strength);
+			}
+			if (typeof game.global.dailyChallenge.weakness !== 'undefined'){
+				number *= dailyModifiers.weakness.getMult(game.global.dailyChallenge.weakness.strength, game.global.dailyChallenge.weakness.stacks);
+			}
+			if (typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((game.global.world % 2) == 1)){
+					number *= dailyModifiers.oddTrimpNerf.getMult(game.global.dailyChallenge.oddTrimpNerf.strength);
+			}
+			if (typeof game.global.dailyChallenge.evenTrimpBuff !== 'undefined' && ((game.global.world % 2) == 0)){
+					number *= dailyModifiers.evenTrimpBuff.getMult(game.global.dailyChallenge.evenTrimpBuff.strength);
+			}
+		}
 	}
 	else {
 		//Situational bad guy damage increases
@@ -4699,6 +4802,14 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 			}
 			else if (game.global.challengeActive == "Corrupted"){
 				number *= 3;
+			}
+			if (game.global.challengeActive == "Daily"){
+				if (typeof game.global.dailyChallenge.badStrength !== 'undefined'){
+					number *= dailyModifiers.badStrength.getMult(game.global.dailyChallenge.badStrength.strength);
+				}
+				if (typeof game.global.dailyChallenge.badMapStrength !== 'undefined' && game.global.mapsActive){
+					number *= dailyModifiers.badMapStrength.getMult(game.global.dailyChallenge.badMapStrength.strength);
+				}
 			}
 		}
 		if (game.global.usingShriek) {
@@ -4904,6 +5015,16 @@ function nextWorld() {
 			game.global.challengeActive = "";
 			game.challenges.Decay.abandon();
 			message("You have completed the Decay challenge! All stats have been returned to normal, and you can now create more powerful Gardens maps at will!", "Notices")
+		}
+	}
+	if (game.global.challengeActive == "Daily"){
+		if (typeof game.global.dailyChallenge.toxic !== 'undefined'){
+			game.global.dailyChallenge.toxic.stacks = 0;
+			updateDailyStacks('toxic');
+		}
+		if (typeof game.global.dailyChallenge.karma !== 'undefined'){
+			game.global.dailyChallenge.karma.stacks = 0;
+			updateDailyStacks('karma');
 		}
 	}
 	if (game.talents.blacksmith.purchased && (game.global.world <= Math.floor((game.global.highestLevelCleared + 1) / 2))) dropPrestiges();
@@ -5224,6 +5345,546 @@ function distributeToChallenges(amt) {
 	if (game.global.world <= challengeObj.heliumThrough) challengeObj.heldHelium += amt;
 }
 
+var dailyModifiers = {
+	minDamage: {
+            description: function (str) {
+                return "Trimp min damage reduced by " + prettify(this.getMult(str) * 100) + "%.";
+            },
+            getMult: function (str) {
+                return 0.1 + ((str - 1) * 0.01);
+            },
+            getWeight: function (str) {
+				return (1 / ((1.2 + (1 - this.getMult(str))) / 2 / 1.1)) - 1;    
+            },
+            minMaxStep: [41, 90, 1],
+            chance: 1
+        },
+        maxDamage: {
+            description: function (str) {
+                return "Trimp max damage increased by " + prettify(this.getMult(str) * 100) + "%.";
+            },
+            getMult: function (str) {
+                return str;
+            },
+            getWeight: function (str) {
+                return (1 - ((1.2 + (1 + str)) / 2 / 1.1));
+            },
+            minMaxStep: [1, 5, 0.25],
+            chance: 1
+        },
+		plague: { //Half of electricity
+			description: function (str) {
+                return "Enemies stack a debuff with each attack, damaging Trimps for " + prettify(this.getMult(str, 1) * 100) + "% of total health per turn per stack, resets on Trimp death."
+            },
+            getMult: function (str, stacks) {
+                return 0.01 * str * stacks;
+			},
+			getWeight: function (str) {
+				var count = (str < 2) ? 15 : ((str < 3) ? 11 : ((str < 4) ? 9 : ((str < 5) ? 8 : ((str < 7) ? 7 : ((str < 10) ? 6 : (str < 17) ? 5 : 4)))));
+				return ((10 / 8) + 6 - ((0.2 * count)/2) + ((((500 * count + 400) / count) / 500)-1) - ((10 - str) / 8)) / 1.75;
+			},
+			minMaxStep: [1, 10, 1],
+			chance: 0.6,
+			icon: "*bug2",
+			stackDesc: function (str, stacks) {
+				return "Your Trimps are taking " + prettify(this.getMult(str, stacks) * 100) + "% damage after each attack.";
+			}
+        },
+		weakness: {
+			description: function (str) {
+				return "Enemies stack a debuff with each attack, reducing Trimp attack by " + prettify(100 - this.getMult(str, 1) * 100) + "% per stack. Stacks cap at 9 and reset on Trimp death.";
+			},
+			getMult: function (str, stacks) {
+				return 1 - (0.01 * str * stacks);
+			},
+			getWeight: function (str) {
+				return str / 4;
+			},
+			minMaxStep: [1, 10, 1],
+			chance: 0.6,
+			icon: "fire",
+			stackDesc: function (str, stacks) {
+				return "Your Trimps have " + prettify(100 - this.getMult(str, stacks) * 100) + "% less attack.";
+			}
+		},
+		large: {
+            description: function (str) {
+                return "All housing can store " + prettify(100 - this.getMult(str) * 100) + "% fewer Trimps";
+            },
+            getMult: function(str) {
+                return 1 - (0.01 * str);
+            },
+            getWeight: function (str) {
+                return (1 / this.getMult(str) - 1) * 2;
+            },
+            start: function (str) {
+                game.resources.trimps.maxMod = this.getMult(str);
+            },
+            abandon: function (str) {
+                game.resources.trimps.maxMod = 1;
+            },
+            minMaxStep: [10, 60, 1],
+            chance: 1
+        },
+		dedication: {
+			description: function (str) {
+				return "Gain " + prettify((this.getMult(str) * 100) - 100) + "% more resources from gathering";
+			},
+			getMult: function(str) {
+				return 1 + (0.1 * str);
+			},
+			getWeight: function (str) {
+				return 0.075 * str * -1;
+			},
+			minMaxStep: [5, 40, 1],
+			chance: 0.75
+		},
+		famine: {
+            description: function (str) {
+                return "Gain " + prettify(100 - (this.getMult(str) * 100)) + "% less Metal, Food, Wood, and Gems from all sources";
+            },
+            getMult: function (str) {
+                return 1 - (0.01 * str);
+            },
+            getWeight: function (str) {
+                return (1 / this.getMult(str) - 1) / 2;
+            },
+            minMaxStep: [40, 80, 1],
+            chance: 2
+        },
+		badStrength: {
+			description: function (str) {
+				return "Enemy attack increased by " + prettify((this.getMult(str) * 100) - 100) + "%.";
+			},
+			getMult: function (str) {
+				return 1 + (0.2 * str);
+			},
+			getWeight: function (str){
+				return 0.1 * str;
+			},
+			minMaxStep: [5, 15, 1],
+			chance: 1
+		},
+		badHealth: {
+			description: function (str) {
+				return "Enemy health increased by " + prettify((this.getMult(str) * 100) - 100) + "%.";
+			},
+			getMult: function (str) {
+				return 1 + (0.2 * str);
+			},
+			getWeight: function (str){
+				return 0.2 * str;
+			},
+			minMaxStep: [3, 15, 1],
+			chance: 1
+		},
+		badMapStrength: {
+            description: function (str) {
+                return "Enemy attack in maps increased by " + prettify((this.getMult(str) * 100) - 100) + "%.";
+            },
+            getMult: function (str) {
+                return 1 + (0.3 * str);
+            },
+            getWeight: function (str){
+                return (0.1 * (1 + 1/3)) * str;
+            },
+            minMaxStep: [3, 15, 1],
+            chance: 1
+        },
+        badMapHealth: {
+            description: function (str) {
+                return "Enemy health in maps increased by " + prettify((this.getMult(str) * 100) - 100) + "%.";
+            },
+            getMult: function (str) {
+                return 1 + (0.3 * str);
+            },
+            getWeight: function (str){
+                return (0.3 * str) * (5 / 8);
+            },
+            minMaxStep: [3, 10, 1],
+            chance: 1
+        },
+		crits: {
+            description: function (str) {
+                return "Enemies have a 25% chance to crit for " + prettify(this.getMult(str) * 100) + "% of normal damage";
+            },
+            getMult: function (str) {
+                return 1 + (0.5 * str);
+            },
+            getWeight: function (str) {
+                return 0.15 * this.getMult(str);
+            },
+            minMaxStep: [1, 24, 1],
+            chance: 0.75
+        },
+        bogged: {
+            description: function (str) {
+                return "Your Trimps lose " + prettify(this.getMult(str) * 100) + "% of their health after each attack.";
+            },
+            getMult: function (str) {
+                return 0.01 * str;
+            },
+            getWeight: function (str) {
+                var count = Math.ceil(1 / this.getMult(str));
+                return (6 - ((0.2 * (count > 60 ? 60 : count) / 2)) + ((((500 * count + 400) / count) / 500)-1)) / 1.5;
+            },
+            minMaxStep: [1, 5, 1],
+            chance: 0.75
+        },
+		dysfunctional: {
+            description: function (str) {
+                return "Your Trimps breed " + prettify(100 - (this.getMult(str) * 100)) + "% slower";
+            },
+            getMult: function (str) {
+                return 1 - (str * 0.05);
+            },
+            getWeight: function (str){
+                return ((1 / this.getMult(str))-1)/6;
+            },
+            minMaxStep: [10, 18, 1],
+            chance: 1
+        },
+		oddTrimpNerf: {
+            description: function (str) {
+                return "Trimps have " + prettify(100 - (this.getMult(str) * 100)) + "% less attack on odd numbered zones";
+            },
+            getMult: function (str) {
+                return 1 - (str * 0.02);
+            },
+            getWeight: function (str){
+                return (1 / this.getMult(str) - 1) / 1.5;
+            },
+            minMaxStep: [15, 40, 1],
+            chance: 1
+        },
+        evenTrimpBuff: {
+            description: function (str) {
+                return "Trimps have " + prettify((this.getMult(str) * 100) - 100) + "% more attack on even numbered zones";
+            },
+            getMult: function (str) {
+                return 1 + (str * 0.2);
+            },
+            getWeight: function (str){
+                return (this.getMult(str) - 1) * -1;
+            },
+            minMaxStep: [1, 10, 1],
+            chance: 1
+        },
+		karma: {
+			description: function (str) {
+				return 'Gain a stack after killing an enemy, increasing all non Helium loot by ' + prettify((this.getMult(str, 1) * 100) - 100) + '%. Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a zone.';
+			},
+			stackDesc: function (str, stacks){				
+				return "Your Trimps are finding " + prettify((this.getMult(str, stacks) * 100) - 100) + "% more loot!";
+			},
+			getMaxStacks: function (str) {
+				return Math.floor((str % 9) * 25) + 300;
+			},
+			getMult: function (str, stacks) {
+				var realStrength = Math.ceil(str / 9);
+				return 1 + (0.0015 * realStrength * stacks);
+			},
+			getWeight: function (str){
+				return (this.getMult(str, this.getMaxStacks(str)) - 1) / -2;
+			},
+			icon: "*arrow-up",
+			minMaxStep: [1, 45, 1],
+			chance: 1
+		},
+		toxic: {
+			description: function (str) {
+				return "Gain a stack after killing an enemy, reducing breed speed by " + prettify(100 - (this.getMult(str, 1) * 100)) + '% (compounding). Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a zone.';
+			},
+			stackDesc: function (str, stacks){				
+				return "Your Trimps are breeding " + prettify(100 - (this.getMult(str, stacks) * 100)) + "% slower.";
+			},
+			getMaxStacks: function (str) {
+				return Math.floor((str % 9) * 25) + 300;
+			},
+			getMult: function (str, stacks) {
+				var realStrength = Math.ceil(str / 9);
+				return Math.pow((1 - 0.001 * realStrength), stacks);
+			},
+			getWeight: function (str){
+				return (1 / this.getMult(str, this.getMaxStacks(str)) - 1) / 6;			
+			},
+			icon: "*radioactive",
+			minMaxStep: [1, 45, 1],
+			chance: 1
+		}
+	};
+	
+function getCurrentDailyDescription(){
+	var daily = game.global.dailyChallenge;
+	if (!daily) return "";
+	var returnText = "<ul style='text-align: left'>";
+	for (var item in daily){
+		if (item == 'seed') continue;
+		returnText += "<li>" + dailyModifiers[item].description(daily[item].strength) + "</li>";
+	}
+	returnText += "<li><b>Challenge has no end point, and grants an <b>additional</b> "  + prettify(getDailyHeliumValue(countDailyWeight())) + "% of all helium earned to that point.</b></li></ul>";
+	return returnText;
+}
+
+function testAllWeights(){
+	for (var item in dailyModifiers){
+		console.log(item, dailyModifiers[item].getWeight(dailyModifiers[item].minMaxStep[0]), dailyModifiers[item].getWeight(dailyModifiers[item].minMaxStep[1])); 
+	}
+}
+	
+function startDaily(){
+	for (var item in game.global.dailyChallenge){
+		if (item == "seed") continue;
+		if (typeof dailyModifiers[item].start !== 'undefined') dailyModifiers[item].start(game.global.dailyChallenge[item].strength, game.global.dailyChallenge[item].stacks);
+	}
+	game.global.recentDailies.push(game.global.dailyChallenge.seed);
+	handleFinishDailyBtn();
+}
+
+function countDailyWeight(dailyObj){
+	var weight = 0;
+	if (!dailyObj) dailyObj = game.global.dailyChallenge;
+	for (var item in dailyObj){
+		if (item == "seed") continue;
+		weight += dailyModifiers[item].getWeight(dailyObj[item].strength);
+	}
+	return weight;
+}
+
+function getDailyHeliumValue(weight){
+	//min 2, max 6
+	var value = 75 * weight + 20;
+	if (value < 100) value = 100;
+	else if (value > 500) value = 500;
+	return value;	
+}
+
+function handleFinishDailyBtn(){
+	var display = (game.global.challengeActive == "Daily" && !game.global.mapsActive && !game.global.preMapsActive) ? "block" : "none";
+	document.getElementById('finishDailyBtnContainer').style.display = display;
+}
+
+function abandonDaily(){
+	for (var item in game.global.dailyChallenge){
+		if (item == "seed") continue;
+		if (typeof dailyModifiers[item].abandon !== 'undefined') dailyModifiers[item].abandon(game.global.dailyChallenge[item].strength, game.global.dailyChallenge[item].stacks);
+		if (typeof dailyModifiers[item].icon !== 'undefined'){
+			var stackElem = document.getElementById(item + 'DailyStacks');
+			if (stackElem != null) stackElem.style.display = 'none';
+		}
+	}
+	var value = getDailyHeliumValue(countDailyWeight()) / 100;
+	var reward = 0;
+	if (game.resources.helium.owned > 0) reward = Math.floor(game.resources.helium.owned * value);
+	if (!isNumberBad(reward)){
+		game.resources.helium.owned += reward;
+		game.global.totalHeliumEarned += reward;
+		game.global.dailyHelium += reward;
+		game.stats.dailyBonusHelium.value += reward;
+		checkAchieve('dailyHelium');
+	}
+	else console.log('attempted to give ' + reward + ' as daily challenge reward.');
+	message("You have completed the Daily challenge! You have been rewarded with " + prettify(reward) + " extra Helium!", "Notices");
+	game.global.dailyChallenge = {};
+	handleFinishDailyBtn();
+	return reward;
+}
+
+function checkCompleteDailies(){
+	var currentCompleteObj = game.global.recentDailies;
+	var newCompleteObj = [];
+	var yesterday = getDailyTimeString(-1);
+	var today = getDailyTimeString(0);
+	if (currentCompleteObj.indexOf(yesterday) != -1) newCompleteObj.push(yesterday);
+	if (currentCompleteObj.indexOf(today) != -1) newCompleteObj.push(today);
+	game.global.recentDailies = newCompleteObj;
+}
+	
+function updateDailyStacks(what){
+	var elem = document.getElementById(what + "DailyStacks");
+	if (game.global.dailyChallenge[what].stacks == 0){
+		if (elem == null) return;
+		else elem.style.display = "none";
+		return;
+	}
+	if (elem == null){
+		var html = "<span id='" + what + "DailyStacks' class='badge antiBadge' onmouseover='tooltip(\"" + what + "\", \"dailyStack\", event)' onmouseout='tooltip(\"hide\")'><span id='" + what + "DailyStacksCount'>" + game.global.dailyChallenge[what].stacks + "</span>";
+		var icon = (dailyModifiers[what].icon.charAt(0) == "*") ? "icomoon icon-" + dailyModifiers[what].icon.substr(1) : "glyphicon glyphicon-" + dailyModifiers[what].icon;
+		html += "<span class='" + icon + "'></span></span>";
+		document.getElementById('debuffSpan').innerHTML += html;	
+		return;
+	}
+	else document.getElementById(what + "DailyStacksCount").innerHTML = game.global.dailyChallenge[what].stacks;
+	elem.style.display = "inline-block";
+}
+
+function updateDailyClock(justTime){
+	var elem = document.getElementById('dailyResetTimer');
+	if (elem == null && !justTime) return;
+	var now = new Date();
+	var secondsRemaining = 59 - now.getUTCSeconds();
+	var minutesRemaining = 59 - now.getUTCMinutes();
+	var hoursRemaining = 23 - now.getUTCHours();
+	if (secondsRemaining <= 9) secondsRemaining = "0" + secondsRemaining;
+	if (minutesRemaining <= 9) minutesRemaining = "0" + minutesRemaining;
+	if (hoursRemaining <= 9) hoursRemaining = "0" + hoursRemaining;
+	var timeRemaining = hoursRemaining + ":" + minutesRemaining + ":" + secondsRemaining;
+	if (justTime) return timeRemaining;
+	elem.innerHTML = timeRemaining;
+}
+
+function getDailyTimeString(add, makePretty){
+	var today = new Date();
+	if (!add) add = 0;
+	today.setDate(today.getDate() + add + lastAdd);
+	var year = today.getUTCFullYear();
+	var month = today.getUTCMonth() + 1; //For some reason January is month 0? Why u do dis?
+	if (month < 10) month = "0" + month;
+	var day = today.getUTCDate();
+	if (day < 10) day = "0" + day;
+	if (makePretty) return year + "-" + month + "-" + day;
+	var seedStr = String(year) + String(month) + String(day);
+	seedStr = parseInt(seedStr);
+	return seedStr;
+}
+
+function getDailyTopText(add){
+	readingDaily = add;
+	var yesterdayDone = (game.global.recentDailies.indexOf(getDailyTimeString(-1)) != -1);
+	var todayDone = (game.global.recentDailies.indexOf(getDailyTimeString()) != -1);
+	var returnText = "<div class='row dailyTopRow'><div onmouseover='tooltip(\"Switch Daily\", null, event)' onmouseout='cancelTooltip()' onclick='getDailyChallenge(" + ((add == -1) ? 0 : -1) + ")' class='col-xs-4 noselect lowPad pointer dailyTop " ;
+	if ((add == -1 && todayDone) || (!add && yesterdayDone)){
+		returnText += 'colorGrey';
+	}
+	else returnText += 'colorSuccess';
+	returnText += "'>Go To " + ((add == -1) ? "Today" : "Yesterday") + "</span>";
+	returnText += "</div><div class='col-xs-4 dailyTop lowPad'>Changes in <span id='dailyResetTimer'>00:00:00</span></div><div class='col-xs-4 lowPad dailyTop'>" + ((add == -1) ? getDailyTimeString(-1, true) : getDailyTimeString(0, true)) + "</div></div>";
+	if ((add == -1 && yesterdayDone) || (!add && todayDone)){
+		returnText += "<br/><br/>You have already attempted this Daily Challenge!";
+		return [returnText, false];
+	}
+	return [returnText, true];
+
+}
+
+var nextDaily = "";
+var lastAdd = 0; //testing only
+var readingDaily = 0;
+function getDailyChallenge(add, objectOnly, textOnly){
+	checkCompleteDailies();
+	var now = new Date().getTime();
+	var dateSeed  = getDailyTimeString(add);
+	var returnText = getDailyTopText(add);
+	if (!returnText[1]){
+		if (document.getElementById('specificChallengeDescription') != null) document.getElementById('specificChallengeDescription').innerHTML = returnText[0];
+		updateDailyClock();
+		document.getElementById('activatePortalBtn').style.display = 'none';
+		return returnText[0];
+	}
+	else document.getElementById('activatePortalBtn').style.display = 'inline-block';
+	returnText = returnText[0];
+	returnText += "<ul style='text-align: left'>";
+	var seedStr = getRandomIntSeeded(dateSeed + 2, 1, 1e9);
+	var weightTarget = getRandomIntSeeded(seedStr++, 20, 51) / 10;
+	//Build a list of all modifiers to choose from
+	var modifierList = [];
+	var totalChance = 0;
+	var dailyObject = {};
+	
+	for (var item in dailyModifiers){
+		modifierList.push(item);
+		totalChance += dailyModifiers[item].chance;
+	}
+	var chanceMod = 1000 / totalChance;
+	var currentWeight = 0;
+	var maxLoops = modifierList.length;
+	var sizeCount = [0,0,0];// < 0.3, < 1, >= 1
+	var sizeTarget = [getRandomIntSeeded(seedStr++, 0, 2), getRandomIntSeeded(seedStr++, 1, 5), getRandomIntSeeded(seedStr++, 2, 6)]
+	if (weightTarget < 2.75) {
+		sizeTarget[2] = 0; sizeTarget[0] += 2;
+	}
+	mainLoop: 
+	for (var x = 0; x < maxLoops; x++){
+		var maxZLoops = modifierList.length;
+		var firstChoice = [];
+		modLoop: 
+		for (var z = 0; z < maxZLoops; z++){
+			var roll = getRandomIntSeeded(seedStr++, 0, 1000);
+			var selectedIndex;
+			var checkedTotal = 0;
+			lookupLoop:
+			for (var y = 0; y < modifierList.length; y++){
+				checkedTotal += dailyModifiers[modifierList[y]].chance * chanceMod;
+				if ((roll < checkedTotal) || y == modifierList.length - 1){
+					totalChance -= dailyModifiers[modifierList[y]].chance;
+					chanceMod = 1000 / totalChance;
+					selectedIndex = y;
+					break lookupLoop;
+				}
+			}
+			var selectedMod = modifierList[selectedIndex];
+			var modObj = dailyModifiers[selectedMod];
+			var str = modObj.minMaxStep[0] + (getRandomIntSeeded(seedStr++, 0, Math.floor(((modObj.minMaxStep[1] + modObj.minMaxStep[2]) * (1 / modObj.minMaxStep[2]))) - modObj.minMaxStep[0]) * modObj.minMaxStep[2]);
+			var modWeight = modObj.getWeight(str);
+			var modSize = (modWeight < 0.85) ? 0 : ((modWeight < 1.85) ? 1 : 2);
+			if ((modWeight + currentWeight > weightTarget + 1) ) continue;
+			if (everythingInArrayGreaterEqual(sizeTarget, sizeCount)){
+				//use it and stuff
+			}
+			else if (sizeCount[modSize] >= sizeTarget[modSize] && z != maxZLoops - 1){
+				if (!firstChoice.length) firstChoice = [selectedMod, str, selectedIndex, modSize, modWeight];
+				continue modLoop;
+			}
+			else if (z == maxZLoops - 1 && firstChoice.length){
+				selectedMod = firstChoice[0];
+				modObj = dailyModifiers[selectedMod];
+				selectedIndex = firstChoice[2];
+				str = firstChoice[1];
+				modSize = firstChoice[3];
+				modWeight = firstChoice[4];
+			}
+			
+			//It's been officially selected by this point
+			sizeCount[modSize]++;
+			returnText += "<li>" + modObj.description(str) + "</li>";
+			dailyObject[modifierList[selectedIndex]] = {strength: str, stacks: 0};
+			//console.log(selectedMod + "(strength: " + str + ", weight: " + modObj.getWeight(str) + "): " + modObj.description(str));
+			currentWeight += modWeight;
+			if (x > 0 && (currentWeight > weightTarget || (currentWeight >= weightTarget - 0.5 && currentWeight <= weightTarget + 0.5))){
+				break mainLoop;
+			}
+			modifierList.splice(selectedIndex, 1);
+			break modLoop;
+		}
+
+	}
+	dailyObject.seed = dateSeed;
+	if (objectOnly) return dailyObject;
+	if (countDailyWeight(dailyObject) != currentWeight) console.log('mismatch, objectCount = ' + countDailyWeight(dailyObject) + ", current = " + currentWeight);
+	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(currentWeight)) + "%</b></u> of all helium earned to that point. <b>Can only be run once!</b> Reward does not count toward Bone Portals or affect best He/Hr stat.";	
+	if (textOnly) return returnText;
+	nextDaily = returnText;
+	if (document.getElementById('specificChallengeDescription') != null) document.getElementById('specificChallengeDescription').innerHTML = returnText;
+	updateDailyClock();
+/* 	console.log("");
+	console.log("Attempted challenge with weight of " + weightTarget + ", built challenge with weight of " + currentWeight);
+	console.log("Target max for small, medium, large mods were: ", sizeTarget[0], sizeTarget[1], sizeTarget[2]);
+	console.log("Actually made for small, medium large: ", sizeCount[0], sizeCount[1], sizeCount[2]);
+	console.log("");
+	console.log("Took " + (new Date().getTime() - now) + "ms");
+	console.log("");
+	console.log(""); */
+	return returnText;
+}
+
+function everythingInArrayGreaterEqual(smaller, bigger){
+	if (bigger.length < smaller.length) return false;
+	for (var x = 0; x < smaller.length; x++){
+		if (smaller[x] > bigger[x]) return false;
+	}
+	return true;
+}
+
 function fight(makeUp) {
 	var randomText;
     var cellNum;
@@ -5285,6 +5946,20 @@ function fight(makeUp) {
 			if (game.global.mapsActive) game.challenges.Balance.removeStack();
 			else game.challenges.Balance.addStack();
 			updateBalanceStacks();
+		}
+		if (game.global.challengeActive == "Daily"){
+			if (typeof game.global.dailyChallenge.karma !== 'undefined'){
+				game.global.dailyChallenge.karma.stacks++;
+				var maxStack = dailyModifiers.karma.getMaxStacks(game.global.dailyChallenge.karma.strength);
+				if (game.global.dailyChallenge.karma.stacks >= maxStack) game.global.dailyChallenge.karma.stacks = maxStack;
+				updateDailyStacks('karma');
+			}
+			if (typeof game.global.dailyChallenge.toxic !== 'undefined'){
+				game.global.dailyChallenge.toxic.stacks++;
+				var maxStack = dailyModifiers.toxic.getMaxStacks(game.global.dailyChallenge.toxic.strength);
+				if (game.global.dailyChallenge.toxic.stacks >= maxStack) game.global.dailyChallenge.toxic.stacks = maxStack;
+				updateDailyStacks('toxic');
+			}
 		}
 		if (cell.overkilled && game.options.menu.overkillColor.enabled){
 			if (game.options.menu.overkillColor.enabled == 2){
@@ -5411,6 +6086,14 @@ function fight(makeUp) {
 			badCrit = true;
 		}
 	}
+	if (game.global.challengeActive == "Daily"){
+		if (typeof game.global.dailyChallenge.crits !== 'undefined'){
+			if (Math.floor(Math.random() * 4) == 0){
+				cellAttack *= dailyModifiers.crits.getMult(game.global.dailyChallenge.crits.strength);
+				badCrit = true;
+			}
+		}
+	}
     var attackAndBlock = (cellAttack - game.global.soldierCurrentBlock);
 	if (game.global.brokenPlanet && !game.global.mapsActive){
 		var overpower = (game.global.formation == 3) ? 0.1 : 0.2;
@@ -5490,6 +6173,31 @@ function fight(makeUp) {
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && wasAttacked){
 		game.global.radioStacks++;
 		updateRadioStacks();
+	}
+	if (game.global.challengeActive == "Daily"){
+		if (typeof game.global.dailyChallenge.plague !== 'undefined'){
+			if (attacked){
+				game.global.soldierHealth -= game.global.soldierHealthMax * dailyModifiers.plague.getMult(game.global.dailyChallenge.plague.strength, game.global.dailyChallenge.plague.stacks);
+				if (game.global.soldierHealth < 0) thisKillsTheTrimp();
+			}
+			if (wasAttacked) {
+				game.global.dailyChallenge.plague.stacks++;
+				updateDailyStacks('plague');
+			}		
+		}
+		if (typeof game.global.dailyChallenge.bogged !== 'undefined'){
+			if (attacked){
+				game.global.soldierHealth -= game.global.soldierHealthMax * dailyModifiers.bogged.getMult(game.global.dailyChallenge.bogged.strength);
+				if (game.global.soldierHealth < 0) thisKillsTheTrimp();
+			}
+		}
+		if (typeof game.global.dailyChallenge.weakness !== 'undefined'){
+			if (wasAttacked) {
+				game.global.dailyChallenge.weakness.stacks++;
+				if (game.global.dailyChallenge.weakness.stacks >= 9) game.global.dailyChallenge.weakness.stacks = 9;
+				updateDailyStacks('weakness');
+			}
+		}
 	}
 	if (game.global.challengeActive == "Toxicity" && attacked) {
 		var tox = game.challenges.Toxicity;
@@ -5970,6 +6678,14 @@ function simpleSeconds(what, seconds) {
 		if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) amt *= 2;
 		if (game.global.challengeActive == "Balance"){
 			amt *= game.challenges.Balance.getGatherMult();
+		}
+		if (game.global.challengeActive == "Daily"){
+			if (typeof game.global.dailyChallenge.famine !== 'undefined' && what != "fragments" && what != "science"){
+				amt *= dailyModifiers.famine.getMult(game.global.dailyChallenge.famine.strength);
+			}
+			if (typeof game.global.dailyChallenge.dedication !== 'undefined'){
+				amt *= dailyModifiers.dedication.getMult(game.global.dailyChallenge.dedication.strength);
+			}
 		}
 		if (game.global.challengeActive == "Decay"){
 			amt *= 10;
@@ -7200,6 +7916,7 @@ function updatePortalTimer(justGetTime) {
 		if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
 		if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
 		if (game.global.autoUpgradesAvailable) autoUpgrades();
+		if (game.global.selectedChallenge == "Daily") updateDailyClock();
 	}
 	document.getElementById("portalTime").innerHTML = timeString;
 	setTimeout(updatePortalTimer, 1000);
