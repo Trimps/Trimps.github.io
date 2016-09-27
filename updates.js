@@ -1261,10 +1261,11 @@ function getMaxTrimps() {
 		textString += "<tr style='color: red'><td class='bdTitle'>Huge</td><td class='bdPercent'>X 0.5</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.global.challengeActive == "Daily"){
-		if (typeof game.global.dailyChallenge.large !== 'undefined');
-		var mult = dailyModifiers.large.getMult(game.global.dailyChallenge.large.strength);
-		currentCalc = Math.floor(currentCalc * mult);
-		textString += "<tr style='color: red'><td class='bdTitle'>Large (Daily)</td><td class='bdPercent'>X " + mult.toFixed(2) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		if (typeof game.global.dailyChallenge.large !== 'undefined'){
+			var mult = dailyModifiers.large.getMult(game.global.dailyChallenge.large.strength);
+			currentCalc = Math.floor(currentCalc * mult);
+			textString += "<tr style='color: red'><td class='bdTitle'>Large (Daily)</td><td class='bdPercent'>X " + mult.toFixed(2) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		}
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
