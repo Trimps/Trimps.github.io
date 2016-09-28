@@ -5519,7 +5519,7 @@ var dailyModifiers = {
         },
         bogged: {
             description: function (str) {
-                return "Your Trimps lose " + prettify(this.getMult(str) * 100) + "% of their health after each attack.";
+                return "Your Trimps lose " + prettify(this.getMult(str) * 100) + "% of their max health after each attack.";
             },
             getMult: function (str) {
                 return 0.01 * str;
