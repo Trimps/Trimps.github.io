@@ -905,6 +905,12 @@ function abandonChallenge(restart){
 		message("Your challenge has been abandoned.", "Notices");
 }
 
+function formatDailySeedDate(){
+	if (!game.global.dailyChallenge.seed) return "";
+	var seed = String(game.global.dailyChallenge.seed);
+	return seed.substr(0, 4) + '-' + seed.substr(4, 2) + '-' + seed.substr(6);
+}
+
 function viewPortalUpgrades() {
 	if (game.global.totalPortals == 0) return;
 	cancelTooltip();
@@ -923,8 +929,8 @@ function viewPortalUpgrades() {
 			description = description.replace('_', getScientistInfo(sciLevel));
 			description = description.replace('*', getScientistInfo(sciLevel, true));
 		}
-		challengeText = "You have the " + game.global.challengeActive + " challenge active. ";
-		challengeText += (game.global.challengeActive == "Daily") ? description : "\"" + description + "\"";
+		challengeText = "You have the ";
+		challengeText += (game.global.challengeActive == "Daily") ? formatDailySeedDate() + " " + game.global.challengeActive + " challenge active. " + description : game.global.challengeActive + " challenge active. \"" + description + "\"";
 	}
 	else
 		challengeText = "You don't have an active challenge.";
@@ -5622,7 +5628,7 @@ function getCurrentDailyDescription(){
 		if (item == 'seed') continue;
 		returnText += "<li>" + dailyModifiers[item].description(daily[item].strength) + "</li>";
 	}
-	returnText += "<li><b>Challenge has no end point, and grants an <b>additional</b> "  + prettify(getDailyHeliumValue(countDailyWeight())) + "% of all helium earned to that point.</b></li></ul>";
+	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(countDailyWeight())) + "%</b></u> of all helium earned before finishing.";
 	return returnText;
 }
 
@@ -5861,7 +5867,7 @@ function getDailyChallenge(add, objectOnly, textOnly){
 	dailyObject.seed = dateSeed;
 	if (objectOnly) return dailyObject;
 	if (countDailyWeight(dailyObject) != currentWeight) console.log('mismatch, objectCount = ' + countDailyWeight(dailyObject) + ", current = " + currentWeight);
-	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(currentWeight)) + "%</b></u> of all helium earned to that point. <b>Can only be run once!</b> Reward does not count toward Bone Portals or affect best He/Hr stat.";	
+	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(currentWeight)) + "%</b></u> of all helium earned before finishing. <b>Can only be run once!</b> Reward does not count toward Bone Portals or affect best He/Hr stat.";	
 	if (textOnly) return returnText;
 	nextDaily = returnText;
 	if (document.getElementById('specificChallengeDescription') != null) document.getElementById('specificChallengeDescription').innerHTML = returnText;
