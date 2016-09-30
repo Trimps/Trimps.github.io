@@ -6670,6 +6670,7 @@ function simpleSeconds(what, seconds) {
 		if (game.portal.Motivation_II.level > 0) amt *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
 		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
+		else if (game.global.challengeActive == "Size") amt *= 1.5;
 		if (game.global.challengeActive == "Toxicity"){
 			var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
 			amt *= (1 + toxMult);
@@ -6716,7 +6717,7 @@ function scaleToCurrentMap(amt) {
 		if (game.unlocks.impCount.Magnimp) amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
 		if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
 		if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
-		if (game.global.formation == 4) amt *= 2;
+		if (game.global.formation == 4 && !game.global.waitToScry) amt *= 2;
 		return amt;
 }
 
