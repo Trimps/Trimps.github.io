@@ -7351,6 +7351,10 @@ function autoPrestiges(equipmentAvailable) {
 		if (cheapestWeapon[0])	autoBuyUpgrade(cheapestWeapon[0]);
 		return;
 	}
+	if (game.global.autoPrestiges == 4){ // Pants only
+		if (equipmentAvailable.armor.indexOf("Pantastic") != -1) autoBuyUpgrade("Pantastic");
+		return;
+	}
 	var cheapestArmor = getCheapestPrestigeUpgrade(equipmentAvailable.armor);
 	if (!cheapestWeapon[0]) {
 		if (cheapestArmor[0])
@@ -7366,10 +7370,6 @@ function autoPrestiges(equipmentAvailable) {
 		toBuy = (cheapestWeapon[1] < cheapestArmor[1]) ? cheapestWeapon[0] : cheapestArmor[0];
 	else if (game.global.autoPrestiges == 3) //Weapons First
 		toBuy = (cheapestWeapon[1] < (cheapestArmor[1] * 20)) ? cheapestWeapon[0] : cheapestArmor[0];
-	else if (game.global.autoPrestiges == 4){
-		if (equipmentAvailable.armor.indexOf("Pantastic") != -1) toBuy = "Pantastic";
-		else return;
-	}
 	if (!toBuy) return;
 	var bought = autoBuyUpgrade(toBuy);
 	if (toBuy == "Supershield" && !bought && game.global.autoPrestiges == 1) autoBuyUpgrade(cheapestWeapon[0]);
