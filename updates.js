@@ -528,7 +528,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			tooltipText = tipSplit[0] + prettify(toTip[tipSplit[1]]) + tipSplit[2];
 		}
 		if (isItIn == "buildings" && what.split(' ')[0] == "Warpstation" && game.global.lastWarp) {
-			tooltipText += "<b> You purchased " + game.global.lastWarp + " Warpstations before your last Gigastation (" + game.upgrades.Gigastation.done + ").</b>";
+			tooltipText += "<b> You had " + game.global.lastWarp + " Warpstations when you purchased your last Gigastation (" + game.upgrades.Gigastation.done + ").</b>";
 		}
 		if (typeof tooltipText.split('~') !== 'undefined') {
 			var percentIncrease = game.upgrades.Gymystic.done;
@@ -2282,7 +2282,7 @@ function addQueueItem(what) {
 
 function updateSkeleBtn(){
 	document.getElementById("boneBtnContainer").style.display = "block";
-	document.getElementById("boneBtnText").innerHTML = "Trade " + prettify(game.global.b) + " Bones";
+	document.getElementById("boneBtnText").innerHTML = "Trade " + prettify(game.global.b) + " Bone" + (game.global.b == 1 ? "" : "s");
 }
 
 //

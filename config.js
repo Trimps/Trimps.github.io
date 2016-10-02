@@ -2181,14 +2181,14 @@ var toReturn = {
 	
 	
 	worldText: {
-		w2: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However the world is large, and there are many more zones to explore. Chop chop.",
+		w2: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However, the world is large, and there are many more zones to explore. Chop chop.",
 		w3: "By your orders, your scientists have begun to try and figure out how large this planet is.",
 		w4: "You order your Trimps to search the area for the keys to your ship, but nobody finds anything. Bummer.",
 		w5: "Do you see that thing at the end of this zone? It's huge! It's terrifying! You've never seen anything like it before, but you know that it is a Blimp. How did you know that? Stop knowing things and go kill it.",
 		w6: "You step over the corpse of the Blimp as it rapidly deflates, and one of your Trimps chuckles at the sound produced. You all cross the sulfuric river to the next zone, and can feel the presence of an ancient knowledge. Better explore.",
 		w7: "Slow and steady wins the race. Unless you're racing someone who is actually trying.",
-		w8: "Your settlement is getting crowded, there's Trimps in the streets and you're taking heat. You feel a sudden strong desire to create a map, though you're not quite sure how that would help.",
-		w9: "You can't shake the feeling that you've been here before. Deja Vu?",
+		w8: "Your settlement is getting crowded, there's Trimps in the streets, and you're taking heat. You feel a sudden strong desire to create a map, though you're not quite sure how that would help.",
+		w9: "You can't shake the feeling that you've been here before. Déjà-vu?",
 		w10: "Looks like another Blimp up ahead. Hard to tell from far away, but it looks like it has more heads than the last one.",
 		w11: "You're unstoppable as long as nothing stops you. Unfortunately, it seems like something really wants to stop you.",
 		w12: "Did you see that green light flash by? Weird. Oh well.",
@@ -5161,7 +5161,7 @@ var toReturn = {
 		Blockmaster: { //4
 			locked: 1,
 			allowed: 0,
-			tooltip: "This book will increase the block gained from each Gym by 1.5x",
+			tooltip: "This book will increase the block gained from each Gym by 50%.",
 			done: 0,
 			cost: {
 				resources: {
