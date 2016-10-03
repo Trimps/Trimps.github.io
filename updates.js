@@ -1624,12 +1624,13 @@ function romanNumeral(number){
 }
 
 function prettifySub(number){
+	number = parseFloat(number);
 	var floor = Math.floor(number);
 	if (number === floor) // number is an integer, just show it as-is
 		return number;
 	var precision = 3 - floor.toString().length; // use the right number of digits
 
-	return parseFloat(number).toFixed(3 - floor.toString().length);
+	return number.toFixed(3 - floor.toString().length);
 }
 
 function resetGame(keepPortal) {
