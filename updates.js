@@ -1028,7 +1028,7 @@ function getBattleStatBd(what) {
 					if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
 						var addMin = dailyModifiers.minDamage.getMult(game.global.dailyChallenge.minDamage.strength);
 						minFluct += addMin;
-						textString += "<tr style='color: red'><td class='bdTitle'>Minimalist (Daily)</td><td class='bdPercentSm'>-" + prettify(addMin * 100) + "% Min</td><td></td><td></td><td class='bdNumberSm'></td><td>+" + prettify(minFluct * 100) + "%</td><td>+" + prettify(maxFluct * 100) + "%</td></tr>";
+						textString += "<tr style='color: red'><td class='bdTitle'>Minimalist (Daily)</td><td class='bdPercentSm'>-" + prettify(addMin * 100) + "% Min</td><td></td><td></td><td class='bdNumberSm'></td><td>-" + prettify(minFluct * 100) + "%</td><td>+" + prettify(maxFluct * 100) + "%</td></tr>";
 					}
 				//MaxDamageDaily
 					if (typeof game.global.dailyChallenge.maxDamage !== 'undefined'){
