@@ -5367,7 +5367,7 @@ var dailyModifiers = {
         },
         maxDamage: {
             description: function (str) {
-                return "Trimp max damage increased by " + prettify(this.getMult(str) * 100) + "%.";
+                return "Trimp max damage increased by " + prettify(this.getMult(str) * 100) + "% (additive).";
             },
             getMult: function (str) {
                 return str;
