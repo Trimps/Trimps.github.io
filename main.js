@@ -4822,6 +4822,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 			number *= game.mapUnlocks.roboTrimp.getShriekValue();
 		}
 	}
+	if (minFluct > 1) minFluct = 1;
 	if (maxFluct == -1) maxFluct = fluctuation;
 	if (minFluct == -1) minFluct = fluctuation;
 	var min = Math.floor(number * (1 - minFluct));

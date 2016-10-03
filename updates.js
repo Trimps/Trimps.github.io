@@ -1028,13 +1028,14 @@ function getBattleStatBd(what) {
 					if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
 						var addMin = dailyModifiers.minDamage.getMult(game.global.dailyChallenge.minDamage.strength);
 						minFluct += addMin;
+						if (minFluct > 1) minFluct = 1;
 						textString += "<tr style='color: red'><td class='bdTitle'>Minimalist (Daily)</td><td class='bdPercentSm'>-" + prettify(addMin * 100) + "% Min</td><td></td><td></td><td class='bdNumberSm'></td><td>-" + prettify(minFluct * 100) + "%</td><td>+" + prettify(maxFluct * 100) + "%</td></tr>";
 					}
 				//MaxDamageDaily
 					if (typeof game.global.dailyChallenge.maxDamage !== 'undefined'){
 						var addMax = dailyModifiers.maxDamage.getMult(game.global.dailyChallenge.maxDamage.strength);
 						maxFluct += addMax;
-						textString += "<tr><td class='bdTitle'>Prodigal (Daily)</td><td class='bdPercentSm'>+" + prettify(addMax * 100) + "% Max</td><td></td><td></td><td class='bdNumberSm'></td><td>+" + prettify(minFluct * 100) + "%</td><td>+" + prettify(maxFluct * 100) + "%</td></tr>";
+						textString += "<tr><td class='bdTitle'>Prodigal (Daily)</td><td class='bdPercentSm'>+" + prettify(addMax * 100) + "% Max</td><td></td><td></td><td class='bdNumberSm'></td><td>-" + prettify(minFluct * 100) + "%</td><td>+" + prettify(maxFluct * 100) + "%</td></tr>";
 					}
 			}
 		}
