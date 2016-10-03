@@ -1550,7 +1550,6 @@ function swapNotation(updateOnly){
 
 function prettify(number) {
 	var numberTmp = number;
-	number = Math.round(number * 1000000) / 1000000;
 	if (!isFinite(number)) return "<span class='icomoon icon-infinity'></span>";
 	if (number >= 1000 && number < 10000) return Math.floor(number);
 	if (number === 0) return prettifySub(0);
@@ -1624,12 +1623,11 @@ function romanNumeral(number){
 }
 
 function prettifySub(number){
-	number = parseFloat(number.toFixed(3));
-	if (number >= 1000) number = 999;
-	number = number.toString();
-	var hasDecimal = number.split('.');
-	if (typeof hasDecimal[1] === 'undefined' || hasDecimal[0].length >= 3) return number.substring(0, 3);
-	return number.substring(0, 4);	
+	var floor = Math.floor(number);
+	if (number === floor) // number is an integer, just show it as-is
+		return number;
+	var precision = 3 - floor.toString().length; // use the right number of digits
+	return number.toFixed(3 - floor.toString().length);
 }
 
 function resetGame(keepPortal) {
@@ -3218,22 +3216,3 @@ if (elem == null) {
   	className = className[0] + newClass;
   elem.className = className;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
