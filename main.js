@@ -5355,7 +5355,7 @@ function distributeToChallenges(amt) {
 var dailyModifiers = {
 	minDamage: {
             description: function (str) {
-                return "Trimp min damage reduced by " + prettify(this.getMult(str) * 100) + "%.";
+                return "Trimp min damage reduced by " + prettify(this.getMult(str) * 100) + "% (additive).";
             },
             getMult: function (str) {
                 return 0.1 + ((str - 1) * 0.01);
@@ -5368,7 +5368,7 @@ var dailyModifiers = {
         },
         maxDamage: {
             description: function (str) {
-                return "Trimp max damage increased by " + prettify(this.getMult(str) * 100) + "%.";
+                return "Trimp max damage increased by " + prettify(this.getMult(str) * 100) + "% (additive).";
             },
             getMult: function (str) {
                 return str;
