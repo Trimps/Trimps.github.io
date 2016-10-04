@@ -775,7 +775,7 @@ function displayChallenges() {
 				if (game.global.sLevel == 5) done = true;
 			}
 			else if (game.global.sLevel >= 3 && game.global.highestLevelCleared >= 109) {
-				if (game.global.highestLevelCleared < 129 && game.global.sLevel == 4) {
+				if (game.global.highestLevelCleared < 124 && game.global.sLevel == 4) {
 					firstFail = false;
 					thisFail = false;
 				}
