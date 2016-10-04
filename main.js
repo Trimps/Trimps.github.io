@@ -775,6 +775,10 @@ function displayChallenges() {
 				if (game.global.sLevel == 5) done = true;
 			}
 			else if (game.global.sLevel >= 3 && game.global.highestLevelCleared >= 109) {
+				if (game.global.highestLevelCleared < 129 && game.global.sLevel == 4) {
+					firstFail = false;
+					thisFail = false;
+				}
 				name = (thisFail) ? "Scientist V" : "Scientist IV";
 				if (game.global.sLevel == 4) done = true;
 			}
@@ -3626,7 +3630,7 @@ function setCorruptionTooltip(which){
 			elem.innerHTML = "";
 			return;
 	}
-	text += " It will also drop 15% of the helium you would normally get from this zone.";
+	text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from this zone.";
 	elem.innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + title + '\', \'customText\', event, \'' + text + '\')" onmouseout="tooltip(\'hide\')"><span class="' + icon + '"></span></span>';
 }
 
