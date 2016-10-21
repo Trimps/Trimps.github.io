@@ -460,6 +460,11 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 3.71){
 		checkAchieve("totalHelium");
 	}
+	if (oldVersion < 3.81){
+		for (var x = 0; x < game.global.gridArray.length; x++){
+			if (game.global.gridArray[x].corrupted) game.global.gridArray[x].mutation = "Corruption";
+		}
+	}
 
 	//End compatibility
 	
@@ -1924,16 +1929,19 @@ function resolvePow(cost, whatObj, addOwned) {
 }
 
 //Now with equipment! buyAmt
-function canAffordBuilding(what, take, buildCostString, isEquipment, updatingLabel){
+function canAffordBuilding(what, take, buildCostString, isEquipment, updatingLabel, forceAmt){
 	var costString = "";
 	var toBuy;
 	if (!isEquipment) toBuy = game.buildings[what];
 	else toBuy = game.equipment[what];
 	var purchaseAmt = 1;
-	if (game.global.buyAmt == "Max"){
-		if (!updatingLabel) purchaseAmt = calculateMaxAfford(toBuy, !isEquipment, isEquipment);
+	if (forceAmt) purchaseAmt = forceAmt;
+	else {
+		if (game.global.buyAmt == "Max"){
+			if (!updatingLabel) purchaseAmt = calculateMaxAfford(toBuy, !isEquipment, isEquipment);
+		}
+		else purchaseAmt = game.global.buyAmt;
 	}
-	else purchaseAmt = game.global.buyAmt;
 	if (typeof toBuy === 'undefined') return false;
 	for (var costItem in toBuy.cost) {
 		var color = "green";
@@ -1987,20 +1995,22 @@ function getBuildingItemPrice(toBuy, costItem, isEquipment, purchaseAmt){
 	return price;
 }
 
-function buyBuilding(what, confirmed, fromAuto) {
+function buyBuilding(what, confirmed, fromAuto, forceAmt) {
+	console.log(forceAmt);
 	if (game.options.menu.pauseGame.enabled) return;
 	if (!confirmed && game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var toBuy = game.buildings[what];
 	var purchaseAmt = 1;
-	if (!toBuy.percent) purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy, true, false) : game.global.buyAmt;
+	if (forceAmt) purchaseAmt = Math.min(forceAmt, calculateMaxAfford(toBuy, true, false, false, true));
+	else if (!toBuy.percent) purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy, true, false) : game.global.buyAmt;
     if (typeof toBuy === 'undefined') return;
-    var canAfford = canAffordBuilding(what);
+    var canAfford = ((forceAmt) ? canAffordBuilding(what, false, false, false, false, purchaseAmt) : canAffordBuilding(what));
 	if (canAfford){
 		if (what == "Wormhole" && !confirmed && game.options.menu.confirmhole.enabled){
 			tooltip('Confirm Purchase', null, 'update', 'You are about to purchase ' + purchaseAmt + ' Wormholes, <b>which cost helium</b>. Make sure you can earn back what you spend!', 'buyBuilding(\'Wormhole\', true)');
 			return;
 		}
-		canAffordBuilding(what, true);
+		((forceAmt) ? canAffordBuilding(what, true, false, false, false, purchaseAmt) : canAffordBuilding(what, true));
 		game.buildings[what].purchased += purchaseAmt;
 		if (getCraftTime(game.buildings[what]) == 0) {
 			for (var x = 0; x < purchaseAmt; x++) buildBuilding(what);
@@ -2219,7 +2229,7 @@ function removeGeneticist(){
 	game.jobs.Geneticist.owned--;
 }
 
-function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob){
+function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob, forceMax){ //don't use forceMax for jobs until you fix that second return
 	if (!itemObj.cost){
 		console.log("no cost");
 		return 1;
@@ -2234,7 +2244,7 @@ function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob){
 		var toBuy;
 		var resource = game.resources[item];
 		var resourcesAvailable = resource.owned;
-		if (game.global.maxSplit != 1) resourcesAvailable = Math.floor(resourcesAvailable * game.global.maxSplit);
+		if (game.global.maxSplit != 1 && !forceMax) resourcesAvailable = Math.floor(resourcesAvailable * game.global.maxSplit);
 		if (!resource || typeof resourcesAvailable === 'undefined'){
 			console.log("resource " + item + " not found");
 			return 1;
@@ -2334,7 +2344,7 @@ function canAffordCoordinationTrimps(){
 	return (game.resources.trimps.realMax() >= (compare * 3))
 }
 
-function buyUpgrade(what, confirmed, noTip) {
+function buyUpgrade(what, confirmed, noTip, heldCtrl) {
 	if (game.options.menu.pauseGame.enabled) return;
 	if (!confirmed && !noTip && game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
     if (what == "Coordination") {
@@ -2345,15 +2355,15 @@ function buyUpgrade(what, confirmed, noTip) {
     var canAfford = canAffordTwoLevel(upgrade);
     if (!canAfford) return false;
 	if (what == "Gigastation" && !confirmed && game.options.menu.confirmhole.enabled){
-		tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a Gigastation, <b>which is not a renewable upgrade</b>. Make sure you have purchased all of the Warpstations you can afford first!', 'buyUpgrade(\'Gigastation\', true)');
+		tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a Gigastation, <b>which is not a renewable upgrade</b>. Make sure you have purchased all of the Warpstations you can afford first!', 'buyUpgrade(\'Gigastation\', true, false, ' + ctrlPressed + ')');
 		return;
 	}
 	if (what == "Shieldblock" && !confirmed && game.options.menu.confirmhole.enabled && game.global.highestLevelCleared >= 30){
 		tooltip('Confirm Purchase', null, 'update', 'You are about to modify your Shield, causing it to block instead of grant health until your next portal. Are you sure?', 'buyUpgrade(\'Shieldblock\', true)');
 		return;
-	}	
+	}
 	canAfford = canAffordTwoLevel(upgrade, true);
-    upgrade.fire();
+    upgrade.fire(heldCtrl);
 	upgrade.done++;
 	if (upgrade.prestiges){
 		var resName = (what == "Supershield") ? "wood" : "metal";
@@ -2693,6 +2703,7 @@ function buyMap() {
 		}
 		game.resources.fragments.owned -= cost;	
 		createMap(newLevel);
+		if (!game.global.currentMapId) selectMap(game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1].id);
 		return 1;
 	}
 	else message("You can't afford this map! You need " + prettify(cost) + " fragments.", "Notices");
@@ -3465,9 +3476,10 @@ function getRandomMapValue(what) { //what can be size, difficulty, or loot for n
 		max = amt + range;
 		game.global.sessionMapValues[what] = 0;
     }
-	var x = (Math.random() * (max - min) + min);
-    x = x.toFixed(3);
-    return x;
+	min *= 100;
+	max *= 100;
+	var x = Math.floor(Math.random() * (max + 1 - min)) + min;
+	return (x / 100).toFixed(3)
 }
 
 function getRandomMapName() {
@@ -3525,8 +3537,115 @@ function getMapIndex(mapId) {
 	}
 }
 
-var canSkeletimp = false;
+var mutations = {
+	Corruption: {
+		start: function (ignoreCorrupted){
+			var start = (game.talents.headstart.purchased) ? ((game.talents.headstart2.purchased) ? ((game.talents.headstart3.purchased) ? 151 : 166) : 176) : 181;
+			if (ignoreCorrupted) return start;
+			return (game.global.challengeActive == "Corrupted") ? 60 : start;
+		},
+		active: function (){
+			return (game.global.world >= this.start());
+		},
+		pattern: function (currentArray) {
+		   var possible = Math.floor((game.global.world - this.start()) / 3) + 2;
+		   if (possible > 80) possible = 80;
+		   var spread = (Math.floor(possible / 6) + 1) * 10;
+		   if (spread > 100) spread = 100;
+		   var addCorrupteds = getAmountInRange(spread, possible);
+		   for (var a = 0; a < addCorrupteds.length; a++){
+			if (currentArray[addCorrupteds[a]] != "") continue;
+			currentArray[addCorrupteds[a]] = "Corruption";
+		   }
+		   return currentArray;
+		  },
+		attack: function (cellNum, name) {
+			return game.global.getEnemyAttack(cellNum, name, true) * this.statScale(3);
+		},
+		health: function (cellNum, name) {
+			return game.global.getEnemyHealth(cellNum, name, true) * this.statScale(10);
+		},
+		statScale: function (base){
+			var startPoint = (game.global.challengeActive == "Corrupted") ? 1 : 150;
+			var scales = Math.floor((game.global.world - startPoint) / 6);
+			base *= Math.pow(1.05, scales);
+			return base;			
+		},
+		reward: function (effect) {
+			if (game.global.world < 20) return;
+			var percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
+			var amt = rewardResource("helium", ((game.global.world >= this.start(true)) ? 10 : 5), 99, false, percentage);
+			game.global.totalHeliumEarned += amt;
+			distributeToChallenges(amt);
+			var text = "The corruption quickly swirls into the air and dissipates. <span class='helium'>You see " + prettify(amt) + " canisters of Helium left on the ground and pick them up. Useful!</span>";
+			message(text, "Loot", "oil", "voidMessage", "helium");			
+		},
+		tooltip: function (effectName) {
+			var text = "All corrupted enemies currently deal " + prettify(this.statScale(3)) + "X attack and have " + prettify(this.statScale(10)) + "X health. In addition, ";
+			text += mutationEffects[effectName].text;
+			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from this zone.";
+			return text;
+		},
+		effects: ['corruptDbl', 'corruptBleed', 'corruptStrong', 'corruptTough', 'corruptDodge'],
+		namePrefix: 'Corrupt'
+	},
+	Pumpkimp: {
+		active: function (){
+			return (getRandomIntSeeded(game.global.mutationSeed++, 0, 20) == 10);
+		},
+		pattern: function(currentArray) {
+			var loc = getRandomIntSeeded(game.global.mutationSeed++, 0, 4);
+			var design = [1,2,3,4,5,10,11,12,13,14,15,16,20,21,25,26,30,32,33,34,36,40,41,42,44,45,46,50,51,52,53,54,55,56,60,61,63,65,66,71,72,73,74,75,82,83,84,93];
+			for (var x = 0; x < 100 - loc; x++){
+				if (currentArray[x + loc] == "" && design.indexOf(x) != -1) currentArray[x + loc] = "Pumpkimp";
+			}
+            return currentArray;
+        },
+		effects: ['none'],
+		namePrefix: 'Hallowed'
+	}
 
+}
+
+var mutationEffects = {
+	corruptDbl: {
+		icon: 'icomoon icon-pushpin',
+		text: 'this bad guy attacks twice - once before you, and once again after you.',
+		title: 'Corrupted Stamina'
+	},
+	corruptCrit: {
+		icon: 'icomoon icon-heart6',
+		text: 'this bad guy has a 25% chance to crit you for 400% extra damage.',
+		title: 'Corrupted Precision'
+	},
+	corruptBleed: {
+		icon: "icomoon icon-drop",
+		text: 'every time this bad guy attacks, you will lose an additional 20% of your <b>current</b> health.',
+		title: 'Corrupted Sharpness'
+	},
+	corruptStrong: {
+		icon: 'icomoon icon-hammer',
+		text: 'this bad guy has an additional 2x attack.',
+		title: 'Corrupted Strength'
+	},
+	corruptTough: {
+		icon: 'icomoon icon-shield2',
+		text: 'this bad guy has an additional 5x health.',
+		title: 'Corrupted Toughness'
+	},
+	corruptDodge: {
+		icon: 'icomoon icon-air',
+		text: 'this bad guy has a 30% chance to dodge your attacks.',
+		title: 'Corrupted Agility'
+	},
+	none: {
+		icon: '',
+		text: '',
+		title: ''
+	}
+}
+
+var canSkeletimp = false;
 function buildGrid() {
     var world = game.global.world;
     var array = [];
@@ -3543,13 +3662,13 @@ function buildGrid() {
 	if (game.talents.skeletimp2.purchased) skeleMin -= 600000
 	if ((new Date().getTime() - game.global.lastSkeletimp) >= skeleMin) canSkeletimp = true;
 	var corrupteds = [];
-	var corruptedStart = getCorruptionStart();
-	if (game.global.world >= corruptedStart){
-		var possible = Math.floor((game.global.world - corruptedStart) / 3) + 2;
-		if (possible > 80) possible = 80;
-		var spread = (Math.floor(possible / 6) + 1) * 10;
-		if (spread > 100) spread = 100;
-		corrupteds = getAmountInRange(spread, possible);
+	for (var w = 0; w < 100; w++){
+		corrupteds.push("");
+	}
+	for (var item in mutations){
+		if (mutations[item].active()){
+			corrupteds = mutations[item].pattern(corrupteds);
+		}
 	}
     for (var i = 0; i < 100; i++) {
         var newCell = {
@@ -3559,13 +3678,20 @@ function buildGrid() {
             attack: -1,
             special: "",
             text: "",
-            name: getRandomBadGuy(null, i + 1, 100, world, imports)
+            name: getRandomBadGuy(null, i + 1, 100, world, imports, corrupteds[i])
         };
-		if (corrupteds.length && corrupteds.indexOf(i) != -1) newCell.corrupted = getRandomCorruption();
+		if (corrupteds[i] != "") {
+			newCell.mutation = corrupteds[i];
+			newCell.corrupted = getSeededRandomFromArray(game.global.mutationSeed++, mutations[corrupteds[i]].effects);
+		}
 		array.push(newCell);
     }
     game.global.gridArray = array;
     addSpecials();
+}
+
+function getSeededRandomFromArray(seed, array){
+	return array[getRandomIntSeeded(seed, 0, array.length)];
 }
 
 function getAmountInRange(maxRange, toKeep)
@@ -3576,7 +3702,7 @@ function getAmountInRange(maxRange, toKeep)
 	}
     for (var x = Math.floor(toShuffle.length / 2); x < maxRange; x++)
     {
-        var random = getRandomIntSeeded(game.global.voidSeed++, 0, maxRange);
+        var random = getRandomIntSeeded(game.global.mutationSeed++, 0, maxRange);
         var hold = toShuffle[x];
         toShuffle[x] = toShuffle[random];
         toShuffle[random] = hold;
@@ -3584,78 +3710,19 @@ function getAmountInRange(maxRange, toKeep)
     return toShuffle.slice(0, toKeep);
 }
 
-function getRandomCorruption(){
-	var possibilities = ['corruptDbl', 'corruptBleed', 'corruptStrong', 'corruptTough', 'corruptDodge', 'corruptCrit'];
-	return possibilities[getRandomIntSeeded(game.global.voidSeed++, 0, possibilities.length - 1)];
-}
-
-function setCorruptionTooltip(which){
-	var icon;
-	var text = "All corrupted enemies currently deal " + prettify(getCorruptScale("attack")) + "X attack and have " + prettify(getCorruptScale("health")) + "X health. In addition, ";
-	var title;
-	var stackCount = "";
+function setMutationTooltip(which, mutation){
 	var elem = document.getElementById('corruptionBuff');
-	switch(which){
-		case 'corruptDbl':
-			icon = 'icomoon icon-pushpin';
-			text += 'this bad guy attacks twice - once before you, and once again after you.';
-			title = 'Corrupted Stamina';
-			break;
-		case 'corruptCrit':
-			icon = 'icomoon icon-heart6';
-			text += 'this bad guy has a 25% chance to crit you for 400% extra damage.';
-			title = 'Corrupted Precision';
-			break;
-		case 'corruptBleed':
-			icon = "icomoon icon-drop";
-			text += 'every time this bad guy attacks, you will lose an additional 20% of your <b>current</b> health.';
-			title = 'Corrupted Sharpness';
-			break;
-		case 'corruptStrong':
-			icon = 'icomoon icon-hammer';
-			text += 'this bad guy has an additional 2x attack.';
-			title = 'Corrupted Strength';
-			break;
-		case 'corruptTough':
-			icon = 'icomoon icon-shield2';
-			text += 'this bad guy has an additional 5x health.';
-			title = 'Corrupted Toughness';
-			break;
-		case 'corruptDodge':
-			icon = 'icomoon icon-air';
-			text += 'this bad guy has a 30% chance to dodge your attacks.';
-			title = 'Corrupted Agility';
-			break;
-		default:
-			elem.innerHTML = "";
-			return;
-	}
-	text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from this zone.";
-	elem.innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + title + '\', \'customText\', event, \'' + text + '\')" onmouseout="tooltip(\'hide\')"><span class="' + icon + '"></span></span>';
+	var effect = mutationEffects[which];
+	if (typeof mutations[mutation].tooltip === 'undefined') return;
+	elem.innerHTML = '<span class="badge badBadge ' + mutation + '" onmouseover="tooltip(\'' + effect.title + '\', \'customText\', event, \'' + mutations[mutation].tooltip(which) + '\')" onmouseout="tooltip(\'hide\')"><span class="' + effect.icon + '"></span></span>';
 }
 
 function setVoidCorruptionIcon(){
-	var text = "This Void Map has become unstable due to Corruption. Enemy attack increased by " + (getCorruptScale("attack") / 2).toFixed(1) + "X, and health increased by " + (getCorruptScale("health") / 2).toFixed(1) + "X. Helium at the end of the map is doubled!";
+	var text = "This Void Map has become unstable due to Corruption. Enemy attack increased by " + (mutations.Corruption.statScale(3) / 2).toFixed(1) + "X, and health increased by " + (mutations.Corruption.statScale(10) / 2).toFixed(1) + "X. Helium at the end of the map is doubled!";
 	document.getElementById('corruptionBuff').innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'Void Corruption\', \'customText\', event, \'' + text + '\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-plus"></span></span>&nbsp;';
 }
 
-function getCorruptScale(type){
-	var base = (type == "attack") ? 3 : 10;
-	var startPoint = (game.global.challengeActive == "Corrupted") ? 1 : 150;
-	var scales = Math.floor((game.global.world - startPoint) / 6);
-	base *= Math.pow(1.05, scales);
-	return base;
-}
-
-function corruptedReward(){
-	var percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
-	var amt = rewardResource("helium", ((game.global.world >= getCorruptionStart(true)) ? 10 : 5), 99, false, percentage);
-	game.global.totalHeliumEarned += amt;
-	distributeToChallenges(amt);
-	return "The corruption quickly swirls into the air and dissipates. <span class='helium'>You see " + prettify(amt) + " canisters of Helium left on the ground and pick them up. Useful!</span>";
-}
-
-function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
+function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation) {
 	var selected;
 	var force = false;
     var badGuysArray = [];
@@ -3670,8 +3737,8 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
 			force = true;
 			break;
 		}
-		if (!badGuy.last && (badGuy.location == "All" || badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && (typeof badGuy.world === 'undefined' || game.global.world >= game.badGuys[item].world)){
-		badGuysArray.push(item);
+		if (!badGuy.last && (typeof badGuy.world === 'undefined' || game.global.world >= game.badGuys[item].world) && (badGuy.location == "All" || (mapSuffix && (badGuy.location == "Maps" || badGuy.location == mapSuffix)) || (!mapSuffix && badGuy.location == "World"))){
+			badGuysArray.push(item);
 		}
 	}
 	if (!mapSuffix && canSkeletimp && !force && (Math.floor(Math.random() * 100) < 5)) {canSkeletimp = false; return (getRandomIntSeeded(game.global.skeleSeed++, 0, 100) < ((game.talents.skeletimp.purchased) ? 20 : 10)) ? "Megaskeletimp" : "Skeletimp";} 
@@ -3685,6 +3752,10 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports) {
 		if (roll < chance) {
 			return "Turkimp";
 		}
+	}
+	//Halloween
+	if (!mapSuffix && !force && mutation == 'Pumpkimp'){
+		if (Math.floor(Math.random() * 10) < 5) return "Pumpkimp";
 	}
     if (!force) selected = badGuysArray[Math.floor(Math.random() * badGuysArray.length)];
 	return selected;
@@ -3923,13 +3994,14 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			cell.style.paddingBottom = ((100 / cols) / 19) + "vh";
 			cell.style.fontSize = ((cols / 14) + 1) + "vh";
 			var className = "battleCell cellColorNotBeaten"
+			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
-			if (!maps && game.global.gridArray[counter].corrupted) className += " voidCell";
+			if (!maps && game.global.gridArray[counter].mutation) className += " " + game.global.gridArray[counter].mutation;
 			else if (!maps && game.global.world == 200 && game.global.spireActive) className += " spireCell";
             cell.className = className;
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
 			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";            
-			if (game.global.gridArray[counter].special == "easterEgg"){
+			if (!maps && game.global.gridArray[counter].special == "easterEgg"){
 				cell.onclick = function () { easterEggClicked(); };
 				game.global.eggLoc = counter;
 				cell.className += " eggCell";
@@ -4434,8 +4506,8 @@ function startFight() {
     }
     swapClass("cellColor", "cellColorCurrent", cellElem);
 	var badName;
-	if (cell.corrupted) {
-		badName = "<span class='corruptedBadGuyName'>Corrupt " + cell.name + "</span>";
+	if (cell.mutation) {
+		badName = "<span class='badNameMutation " + cell.mutation + "'>" + mutations[cell.mutation].namePrefix + " " + cell.name + "</span>";
 	}
 	else if (cell.name == "Improbability" && game.global.spireActive)
 		badName = "Druopitee";
@@ -4447,15 +4519,15 @@ function startFight() {
 	}
 	if (game.global.brokenPlanet && !game.global.mapsActive)
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Pierce\', \'customText\', event, \'20% of the damage from this Bad Guy pierces through block\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-tint"></span></span>';	
-	if (game.global.challengeActive == "Slow" || ((game.badGuys[cell.name].fast || cell.corrupted) && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom"))
+	if (game.global.challengeActive == "Slow" || ((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom"))
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Fast\', \'customText\', event, \'This Bad Guy is fast and attacks first\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-forward"></span></span>';
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")){
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Electric\', \'customText\', event, \'This Bad Guy is electric and stacks a debuff on your Trimps\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-power-cord"></span></span>';
 	}
 	document.getElementById("badGuyName").innerHTML = badName;
-	var corruptionStart = getCorruptionStart(true);
-	if (cell.corrupted)
-		setCorruptionTooltip(cell.corrupted);
+	var corruptionStart = mutations.Corruption.start(true);
+	if (cell.mutation)
+		setMutationTooltip(cell.corrupted, cell.mutation);
 	else if (map && map.location == "Void" && game.global.world >= corruptionStart){
 		setVoidCorruptionIcon();
 	}
@@ -4466,15 +4538,20 @@ function startFight() {
     if (cell.maxHealth == -1) {
 		var overkill = 0;
 		if (cell.health != -1) overkill = cell.health;
+		if (cell.mutation && typeof mutations[cell.mutation].attack !== 'undefined')
+			cell.attack = mutations[cell.mutation].attack(cell.level, cell.name);
+		else
+			cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
+		if (cell.mutation && typeof mutations[cell.mutation].health !== 'undefined')
+			cell.health = mutations[cell.mutation].health(cell.level, cell.name);
+		else
+			cell.health = game.global.getEnemyHealth(cell.level, cell.name);
 		if (game.global.spireActive && game.global.world == 200 && !game.global.mapsActive){
+			cell.origAttack = cell.attack;
+			cell.origHealth = cell.health;
 			cell.attack = getSpireStats(cell.level, cell.name, "attack");
 			cell.health = getSpireStats(cell.level, cell.name, "health");
-			cell.origAttack = game.global.getEnemyAttack(cell.level, cell.name, cell.corrupted);
-			cell.origHealth = game.global.getEnemyHealth(cell.level, cell.name, cell.corrupted);
-		}
-		else {
-			cell.attack = game.global.getEnemyAttack(cell.level, cell.name, cell.corrupted);
-			cell.health = game.global.getEnemyHealth(cell.level, cell.name, cell.corrupted);
+			
 		}
 		if (cell.corrupted == "corruptStrong") cell.attack *= 2;
 		if (cell.corrupted == "corruptTough") cell.health *= 5;
@@ -4492,8 +4569,8 @@ function startFight() {
             cell.attack *= difficulty;
             cell.health *= difficulty;
 			if (map.location == "Void" && game.global.world >= corruptionStart){
-				cell.attack *= (getCorruptScale("attack") / 2).toFixed(1);
-				cell.health *= (getCorruptScale("health") / 2).toFixed(1);
+				cell.attack *= (mutations.Corruption.statScale(3) / 2).toFixed(1);
+				cell.health *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
 			}
         }
 		if (game.global.challengeActive == "Meditate") cell.health *= 2;
@@ -4510,12 +4587,12 @@ function startFight() {
 			if (game.global.roboTrimpLevel && game.global.useShriek) activateShriek();
 			if (game.global.world >= corruptionStart) {
 				if (game.global.spireActive) {
-					cell.origHealth *= getCorruptScale("health");
-					cell.origAttack *= getCorruptScale("attack");
+					cell.origHealth *= mutations.Corruption.statScale(10);
+					cell.origAttack *= mutations.Corruption.statScale(3);
 				}
 				else {
-					cell.health *= getCorruptScale("health");
-					cell.attack *= getCorruptScale("attack");
+					cell.health *= mutations.Corruption.statScale(10);
+					cell.attack *= mutations.Corruption.statScale(3);
 				}
 			}
 		}
@@ -4786,6 +4863,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 			if (typeof game.global.dailyChallenge.evenTrimpBuff !== 'undefined' && ((game.global.world % 2) == 0)){
 					number *= dailyModifiers.evenTrimpBuff.getMult(game.global.dailyChallenge.evenTrimpBuff.strength);
 			}
+			if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
+				number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
+			}
 		}
 	}
 	else {
@@ -4819,6 +4899,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				}
 				if (typeof game.global.dailyChallenge.badMapStrength !== 'undefined' && game.global.mapsActive){
 					number *= dailyModifiers.badMapStrength.getMult(game.global.dailyChallenge.badMapStrength.strength);
+				}
+				if (typeof game.global.dailyChallenge.bloodthirst !== 'undefined'){
+					number *= dailyModifiers.bloodthirst.getMult(game.global.dailyChallenge.bloodthirst.strength, game.global.dailyChallenge.bloodthirst.stacks)
 				}
 			}
 		}
@@ -5060,7 +5143,7 @@ function nextWorld() {
 		game.mapUnlocks.Bounty.canRunOnce = false;
 		refreshMaps();
 	}
-	if (game.global.world == getCorruptionStart(true)){
+	if (game.global.world == mutations.Corruption.start(true)){
 		tooltip("Corruption", null, 'update');
 	}
 	if (game.global.world == 30 && game.global.canRespecPerks && !game.global.bonePortalThisRun && countHeliumSpent() <= 60) giveSingleAchieve(0);
@@ -5077,12 +5160,6 @@ function nextWorld() {
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve(8);
 	else if (game.global.world == 120 && !game.global.researched) giveSingleAchieve(7);
 	displayGoldenUpgrades();
-}
-
-function getCorruptionStart(ignoreCorrupted){
-	var start = (game.talents.headstart.purchased) ? ((game.talents.headstart2.purchased) ? ((game.talents.headstart3.purchased) ? 151 : 166) : 176) : 181;
-	if (ignoreCorrupted) return start;
-	return (game.global.challengeActive == "Corrupted") ? 60 : start;
 }
 
 function autoUnlockHousing(){
@@ -5622,6 +5699,102 @@ var dailyModifiers = {
 			icon: "*radioactive",
 			minMaxStep: [1, 45, 1],
 			chance: 1
+		},
+		bloodthirst: {
+			description: function (str) {
+				return "Enemies gain a stack of Bloodthirst whenever Trimps die. Every " + this.getFreq(str) + " stacks, enemies will heal to full and gain an additive 50% attack. Stacks cap at " + this.getMaxStacks(str) + " and reset after killing an enemy.";
+			},
+			stackDesc: function (str, stacks) {
+				var freq = this.getFreq(str);
+				var max = this.getMaxStacks(str);
+				var text = "This bad guy";
+				if (stacks < max) {
+					var next = (freq - (stacks % freq));
+					text += " will heal to full and gain attack in " + next + " stack" + ((next == 1) ? "" : "s") + ", " + ((stacks >= freq) ? "" : " and") + " gains 1 stack whenever Trimps die";
+				}
+				if (stacks >= freq){
+					if (stacks < max) text += ", and";
+					text += " currently has " + prettify((this.getMult(str, stacks) * 100) - 100) + "% more attack";
+				}
+				text += ".";
+				return text;
+			},
+			getMaxStacks: function (str) {
+				return (this.getFreq(str) * (2 + Math.floor(str / 2)));
+			},
+			getFreq: function(str){
+				return 10 - str;
+			},
+			getMult: function (str, stacks){
+				var count = Math.floor(stacks / this.getFreq(str));
+				return 1 + (0.5 * count);
+			},
+			getWeight: function (str) {
+				return 0.5 + (0.25 * Math.floor(str / 2));
+			},
+			minMaxStep: [1, 7, 1],
+			chance: 1,
+			icon: "*flask",
+			iconOnEnemy: true
+		},
+		explosive: {
+			description: function (str) {
+				var text = "Enemies instantly deal " + prettify(this.getMult(str) * 100) + "% of their attack damage when killed";
+				if (str > 15) {
+					text += " unless your block is as high as your maximum health";
+				}
+				text += ".";
+				return text;
+			},
+			getMult: function (str) {
+				return str;
+			},
+			getWeight: function (str) {
+				var mult = this.getMult(str);
+				if (str <= 15){
+					return (3/20 * mult) + (1/4);
+				}
+				else {
+					return (1/14 * mult) - (1/7);
+				}
+			},
+			minMaxStep: [5, 30, 1],
+			chance: 1
+		},
+		slippery: {
+			description: function (str) {
+				return "Enemies have a " + prettify(this.getMult(str) * 100) + "% chance to dodge your attacks on " + ((str <= 15) ? "odd" : "even") + " zones.";
+			},
+			getMult: function (str){
+				if (str > 15) str -= 15;
+				return 0.02 * str;
+			},
+			getWeight: function (str) {
+				return (1 / (1 - this.getMult(str)) - 1) * 10 / 1.5;
+			},
+			minMaxStep: [1, 30, 1],
+			chance: 1
+		},
+		rampage: {
+			description: function (str) {
+				return "Gain a stack after killing an enemy, increasing Trimp attack by " + prettify((this.getMult(str, 1) * 100) - 100) + '% (additive). Stacks cap at ' + this.getMaxStacks(str) + ', and reset when your Trimps die.';
+			},
+			stackDesc: function (str, stacks){             
+				return "Your Trimps are dealing " + prettify((this.getMult(str, stacks) * 100) - 100) + "% more damage.";
+			},
+			getMaxStacks: function (str) {
+				return Math.floor((str % 10 + 1) * 10);
+			},
+			getMult: function (str, stacks) {
+				var realStrength = Math.ceil(str / 10);
+				return 1 + (0.01 * realStrength * stacks);
+			},
+			getWeight: function (str){
+				return (1 - this.getMult(str, 1)) * this.getMaxStacks(str);
+			},
+			icon: "*fire",
+			minMaxStep: [1, 40, 1],
+			chance: 1
 		}
 	};
 	
@@ -5722,7 +5895,8 @@ function updateDailyStacks(what){
 		var html = "<span id='" + what + "DailyStacks' class='badge antiBadge' onmouseover='tooltip(\"" + what + "\", \"dailyStack\", event)' onmouseout='tooltip(\"hide\")'><span id='" + what + "DailyStacksCount'>" + game.global.dailyChallenge[what].stacks + "</span>";
 		var icon = (dailyModifiers[what].icon.charAt(0) == "*") ? "icomoon icon-" + dailyModifiers[what].icon.substr(1) : "glyphicon glyphicon-" + dailyModifiers[what].icon;
 		html += "<span class='" + icon + "'></span></span>";
-		document.getElementById('debuffSpan').innerHTML += html;	
+		var target = (dailyModifiers[what].iconOnEnemy) ? document.getElementById('badDebuffSpan') : document.getElementById('debuffSpan');
+		target.innerHTML += html;	
 		return;
 	}
 	else document.getElementById(what + "DailyStacksCount").innerHTML = game.global.dailyChallenge[what].stacks;
@@ -5763,12 +5937,14 @@ function getDailyTopText(add){
 	readingDaily = add;
 	var yesterdayDone = (game.global.recentDailies.indexOf(getDailyTimeString(-1)) != -1);
 	var todayDone = (game.global.recentDailies.indexOf(getDailyTimeString()) != -1);
+	//var returnText = "<div class='row dailyTopRow'><div onmouseover='tooltip(\"Switch Daily\", null, event)' onmouseout='cancelTooltip()' onclick='lastAdd++;getDailyChallenge()' class='col-xs-4 noselect lowPad pointer dailyTop " ;
 	var returnText = "<div class='row dailyTopRow'><div onmouseover='tooltip(\"Switch Daily\", null, event)' onmouseout='cancelTooltip()' onclick='getDailyChallenge(" + ((add == -1) ? 0 : -1) + ")' class='col-xs-4 noselect lowPad pointer dailyTop " ;
 	if ((add == -1 && todayDone) || (!add && yesterdayDone)){
 		returnText += 'colorGrey';
 	}
 	else returnText += 'colorSuccess';
 	returnText += "'>Go To " + ((add == -1) ? "Today" : "Yesterday") + "</span>";
+	//returnText += "'>Go To Tomorrow</span>";
 	returnText += "</div><div class='col-xs-4 dailyTop lowPad'>Changes in <span id='dailyResetTimer'>00:00:00</span></div><div class='col-xs-4 lowPad dailyTop'>" + ((add == -1) ? getDailyTimeString(-1, true) : getDailyTimeString(0, true)) + "</div></div>";
 	if ((add == -1 && yesterdayDone) || (!add && todayDone)){
 		returnText += "<br/><br/>You have already attempted this Daily Challenge!";
@@ -5796,6 +5972,7 @@ function getDailyChallenge(add, objectOnly, textOnly){
 	returnText = returnText[0];
 	returnText += "<ul style='text-align: left'>";
 	var seedStr = getRandomIntSeeded(dateSeed + 2, 1, 1e9);
+	//seedStr = getRandomIntSeeded(seedStr, 1, 1e9);
 	var weightTarget = getRandomIntSeeded(seedStr++, 20, 51) / 10;
 	//Build a list of all modifiers to choose from
 	var modifierList = [];
@@ -5917,6 +6094,23 @@ function fight(makeUp) {
     if (game.global.soldierHealth <= 0) {
 		if (isVoid) game.global.voidDeaths++;
 		game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
+		if (game.global.challengeActive == "Daily"){
+			if (typeof game.global.dailyChallenge.bloodthirst !== 'undefined'){
+				game.global.dailyChallenge.bloodthirst.stacks++;
+				var maxStacks = dailyModifiers.bloodthirst.getMaxStacks(game.global.dailyChallenge.bloodthirst.strength);
+				if (game.global.dailyChallenge.bloodthirst.stacks > maxStacks) {
+					game.global.dailyChallenge.bloodthirst.stacks = maxStacks;
+				}
+				else if (game.global.dailyChallenge.bloodthirst.stacks % dailyModifiers.bloodthirst.getFreq(game.global.dailyChallenge.bloodthirst.strength) == 0){
+					cell.health = cell.maxHealth;
+				}
+				updateDailyStacks('bloodthirst');
+			}
+			if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
+				game.global.dailyChallenge.rampage.stacks = 0;
+				updateDailyStacks('rampage');
+			}
+		}
         var s = (game.resources.trimps.soldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
         message(game.resources.trimps.soldiers + " Trimp" + s + "just " + randomText + ".", "Combat", null, null, 'trimp');
@@ -5970,6 +6164,16 @@ function fight(makeUp) {
 				var maxStack = dailyModifiers.toxic.getMaxStacks(game.global.dailyChallenge.toxic.strength);
 				if (game.global.dailyChallenge.toxic.stacks >= maxStack) game.global.dailyChallenge.toxic.stacks = maxStack;
 				updateDailyStacks('toxic');
+			}			
+			if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
+				game.global.dailyChallenge.rampage.stacks++;
+				var maxStack = dailyModifiers.rampage.getMaxStacks(game.global.dailyChallenge.rampage.strength);
+				if (game.global.dailyChallenge.rampage.stacks >= maxStack) game.global.dailyChallenge.rampage.stacks = maxStack;
+				updateDailyStacks('rampage');
+			}
+			if (typeof game.global.dailyChallenge.bloodthirst !== 'undefined'){
+				game.global.dailyChallenge.bloodthirst.stacks = 0;
+				updateDailyStacks('bloodthirst');
 			}
 		}
 		if (cell.overkilled && game.options.menu.overkillColor.enabled){
@@ -6012,7 +6216,7 @@ function fight(makeUp) {
         } else if (cell.special !== "") {
             unlockEquipment(cell.special);
         }
-		if (cell.corrupted && game.global.world >= 20) message(corruptedReward(), "Loot", "oil", "voidMessage", "helium");
+		if (cell.mutation && typeof mutations[cell.mutation].reward !== 'undefined') mutations[cell.mutation].reward(cell.corrupted);
 		var doNextVoid = false;
 		if (typeof unlock !== 'undefined' && typeof unlock.message !== 'undefined' && !noMessage) message(unlock.message, "Unlocks", null, null, ((unlock.world > 0) ? 'unique' : 'repeated'), cell.text);
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
@@ -6130,6 +6334,12 @@ function fight(makeUp) {
 	if (cell.corrupted == "corruptDodge"){
 		if (Math.random() < 0.3) badDodge = true;
 	}
+	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.slippery !== 'undefined'){
+		var slipStr = game.global.dailyChallenge.slippery.strength;
+		if ((slipStr > 15 && game.global.world % 2 == 0) || (slipStr <= 15 && game.global.world % 2 == 1)){
+			if (Math.random() < dailyModifiers.slippery.getMult(slipStr)) badDodge = true;
+		}
+	}
 	var overkill = 0;
 	var impOverkill = 0;
 	var thisKillsTheTrimp = function() {
@@ -6137,7 +6347,7 @@ function fight(makeUp) {
 		game.global.soldierHealth = 0;
 		gotCrit = false;
 	};
-    if (trimpAttack > 0 && (game.global.challengeActive == "Slow" || ((((game.badGuys[cell.name].fast || cell.corrupted) && game.global.challengeActive != "Nom") || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate"))) {
+    if (trimpAttack > 0 && (game.global.challengeActive == "Slow" || ((((game.badGuys[cell.name].fast || cell.mutation == "Corrupted") && game.global.challengeActive != "Nom") || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate"))) {
         game.global.soldierHealth -= attackAndBlock;
 		wasAttacked = true;
         if (game.global.soldierHealth > 0) {
@@ -6242,6 +6452,12 @@ function fight(makeUp) {
 	}
 	if (game.global.challengeActive == "Devastation" && impOverkill){
 		game.challenges.Devastation.lastOverkill = impOverkill;
+	}
+	if (cell.health <= 0 && typeof game.global.dailyChallenge.explosive !== 'undefined'){
+		if (game.global.dailyChallenge.explosive.strength <= 15 || game.global.soldierHealthMax > game.global.soldierCurrentBlock){
+			game.global.soldierHealth -= cellAttack * dailyModifiers.explosive.getMult(game.global.dailyChallenge.explosive.strength);
+			if (game.global.soldierHealth <= 0) thisKillsTheTrimp();
+		}
 	}
     if (makeUp) return;
     updateGoodBar();
@@ -6713,7 +6929,7 @@ function simpleSeconds(what, seconds) {
 		return amt;
 }
 
-function scaleToCurrentMap(amt) {
+function scaleToCurrentMap(amt, ignoreBonuses) {
     var map = getCurrentMapObject();
 	var world = map.level;
 	var compare = game.global.world;
@@ -6725,6 +6941,7 @@ function scaleToCurrentMap(amt) {
 		}
 		//Add map loot bonus
 		amt = Math.round(amt * map.loot);
+		if (ignoreBonuses) return amt;
 		if (game.unlocks.impCount.Magnimp) amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
 		if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
 		if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
@@ -7086,15 +7303,15 @@ function givePumpkimpLoot(){
 		message(failures[failNumber], "Loot", "*magic-wand", "pumpkimp");
 		return;
 	}
-	var seconds = Math.floor(Math.random() * 4);
-	seconds++;
+	var lootStrength = (game.global.mapsActive) ? 3 : 20;
+	var minRoll = (game.global.mapsActive) ? 1 : 30;
+	var seconds = Math.floor(Math.random() * lootStrength) + minRoll;
+	var lootRoll = Math.floor(Math.random() * lootStrength) + minRoll;
 	var amt = simpleSeconds(item, seconds);
-	if (game.global.mapsActive) amt = scaleToCurrentMap(amt);
-	else{
-		if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
-		if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
-	} 
-	
+	if (item != "science") amt += rewardResource(item, 0.5 * lootRoll, 50);
+	if (game.global.mapsActive){
+		amt = scaleToCurrentMap(amt, true);
+	}
 	addResCheckMax(item, amt);
 	var messageNumber = Math.floor(Math.random() * success.length);
 	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", "pumpkimp");		
@@ -7377,7 +7594,7 @@ function autoPrestiges(equipmentAvailable) {
 		toBuy = (cheapestWeapon[1] < (cheapestArmor[1] * 20)) ? cheapestWeapon[0] : cheapestArmor[0];
 	if (!toBuy) return;
 	var bought = autoBuyUpgrade(toBuy);
-	if (toBuy == "Supershield" && !bought && game.global.autoPrestiges == 1) autoBuyUpgrade(cheapestWeapon[0]);
+	if (toBuy == "Supershield" && !bought && (game.global.autoPrestiges == 1 || game.global.autoPrestiges == 3)) autoBuyUpgrade(cheapestWeapon[0]);
 	else if (cheapestArmor[0] == "Supershield" && !bought && game.global.autoPrestiges == 1) autoBuyUpgrade(cheapestArmor[0]);
 }
 
@@ -7950,6 +8167,7 @@ document.addEventListener('keydown', function(e) {
 		case 91:
 		case 93:
 			ctrlPressed = true;
+			checkButtons("upgrades");
 			break;
 		case 49:
 		case 88:
@@ -7990,6 +8208,7 @@ document.addEventListener('keyup', function(e) {
 	}
 	if (e.keyCode == 17 || e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93){
 		ctrlPressed = false;
+		checkButtons("upgrades");
 	}
 
 }, true);

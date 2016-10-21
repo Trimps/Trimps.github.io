@@ -28,7 +28,8 @@
 }
 
 .cellColorOverkill {
-    background-color:#3E4A19
+    background-color:#3E4A19 !important;
+	color: black !important;
 }
 
 .voidBadge {
@@ -347,12 +348,19 @@
 }
 
 .cellColorBeaten {
-	background: #194A19;
+	background: #194A19 !important;
 	color: black !important;
+}
+.battleCell.Pumpkimp{
+	background-color: #a65300;	
+}
+
+.pumpkimp{
+	color: #f2b600 !important;
 }
 
 .cellColorCurrent {
-	background: #574800;
+	background: #574800 !important;
 	color: black !important;
 }
 

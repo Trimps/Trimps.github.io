@@ -1188,6 +1188,11 @@ function getBattleStatBd(what) {
 			currentCalc *= mult;
 			textString += "<tr><td class='bdTitle'>Even Stronger (Daily)</td><td>x " + mult.toFixed(2) + "</td><td></td><td class='bdPercent'>+ " + prettify((mult * 100) - 100) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 		}
+		if (typeof game.global.dailyChallenge.rampage !== 'undefined' && what == "attack"){
+			mult = dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
+			currentCalc *= mult;
+			textString += "<tr><td class='bdTitle'>Rampage (Daily)</td><td>x " + dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, 1).toFixed(3) + "</td><td>" + game.global.dailyChallenge.rampage.stacks + "</td><td class='bdPercent'>x " + mult.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+		}
 	}
 	//Add golden battle
 	if (what != "block" && game.goldenUpgrades.Battle.currentBonus > 0){
@@ -1395,7 +1400,7 @@ function getLootBd(what) {
 			if (level < 0) level = 0;
 			var baseAmt = 0;
 			if (game.global.world < 59) baseAmt = 1;
-			else if (game.global.world < getCorruptionStart(true)) baseAmt = 5;
+			else if (game.global.world < mutations.Corruption.start(true)) baseAmt = 5;
 			else baseAmt = 10;
 			var amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
 			amt += Math.round(baseAmt * level);
@@ -1566,7 +1571,7 @@ function prettify(number) {
 		'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
 	];
 	var suffix;
-	if (game.options.menu.standardNotation.enabled == 2)
+	if (game.options.menu.standardNotation.enabled == 2 || (game.options.menu.standardNotation.enabled == 1 && base > suffices.length))
 		suffix = "e" + ((base) * 3);
 	else if (game.options.menu.standardNotation.enabled && base <= suffices.length)
 		suffix = suffices[base-1];
@@ -1709,6 +1714,7 @@ function resetGame(keepPortal) {
 	document.getElementById("portalTimer").className = "timerNotPaused";
 	document.getElementById("grid").className = "";
 	document.getElementById('exitSpireBtnContainer').style.display = "none";
+	document.getElementById('badDebuffSpan').innerHTML = "";
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));			
 	heirloomsShown = false;
@@ -2683,14 +2689,14 @@ function updateButtonColor(what, canAfford, isJob) {
 			elem.style.backgroundColor = "";
 	}
 	
-	if(isJob && game.global.firing === false) {
-		elem.className = elem.className.replace("thingColorFiringJob", "thingColorCanNotAfford");
+	if(canAfford){
+		if 
+			(what == "Gigastation" && ctrlPressed) swapClass("thingColor", "thingColorCtrl", elem);
+		else
+		swapClass("thingColor", "thingColorCanAfford", elem);
 	}
-	
-	if(canAfford)
-		elem.className = elem.className.replace("thingColorCanNotAfford", "thingColorCanAfford");
 	else
-		elem.className = elem.className.replace("thingColorCanAfford", "thingColorCanNotAfford");
+		swapClass("thingColor", "thingColorCanNotAfford", elem);
 }
 
 function getWarpstationColor() {

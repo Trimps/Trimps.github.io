@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.8,
+		version: 3.81,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -135,6 +135,7 @@ var toReturn = {
 		heirloomSeed: Math.floor(Math.random() * 1000000),
 		heirloomBoneSeed: Math.floor(Math.random() * 1000000),
 		eggSeed: Math.floor(Math.random() * 1000000),
+		mutationSeed: Math.floor(Math.random() * 1000000),
 		heirloomsExtra: [],
 		heirloomsCarried: [],
 		StaffEquipped: {},
@@ -229,7 +230,7 @@ var toReturn = {
 			block: 0,
 			trainers: 0
 		},
-		getEnemyAttack: function (level, name, corrupt) {
+		getEnemyAttack: function (level, name, ignoreImpStat) {
 			var world = getCurrentMapObject();
 			var amt = 0;
 			world = (game.global.mapsActive) ? world.level : game.global.world;
@@ -252,14 +253,11 @@ var toReturn = {
 			}	
 			if (world < 60) amt *= 0.85;
 			if (world > 6 && game.global.mapsActive) amt *= 1.1;
-			if (!corrupt)
+			if (!ignoreImpStat)
 				amt *= game.badGuys[name].attack;
-			else {
-				amt *= getCorruptScale("attack");
-			}
 			return Math.floor(amt);
 		},
-		getEnemyHealth: function (level, name, corrupt) {
+		getEnemyHealth: function (level, name, ignoreImpStat) {
 			var world = getCurrentMapObject();
 			world = (game.global.mapsActive) ? world.level : game.global.world;
 			var amt = 0;
@@ -277,10 +275,8 @@ var toReturn = {
 			}
 			if (world < 60) amt *= 0.75;		
 			if (world > 5 && game.global.mapsActive) amt *= 1.1;
-			if (!corrupt)
+			if (!ignoreImpStat)
 				amt *= game.badGuys[name].health;
-			else
-				amt *= getCorruptScale("health");
 			return Math.floor(amt);
 		}
 	},
@@ -307,7 +303,8 @@ var toReturn = {
 					var indicatorElem = document.getElementById("playFabIndicator");
 					if (this.enabled == 1) indicatorElem.className = "icomoon icon-wifi iconStateGood";
 					else indicatorElem.className = "";
-				}
+				},
+				//lockUnless: function (){return false}
 			},
 			standardNotation: {
 				enabled: 1,
@@ -1448,7 +1445,7 @@ var toReturn = {
 			}
 		},
 		Corrupted: {
-			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + getCorruptionStart(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension."},
+			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension."},
 			filter: function () {
 				return (game.global.highestLevelCleared >= 189);
 			},
@@ -2539,7 +2536,7 @@ var toReturn = {
 			}
 		},
 		Pumpkimp: {
-			location: "None",
+			location: "Maps",
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
@@ -2796,7 +2793,7 @@ var toReturn = {
 			loot: function (level) {
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 				var amt = (game.global.world >= 60) ? 10 : 2;
-				if (game.global.world >= getCorruptionStart(true)) amt *= 2;
+				if (game.global.world >= mutations.Corruption.start(true)) amt *= 2;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";
@@ -3069,7 +3066,7 @@ var toReturn = {
 			loot: function (level) {
 				if (game.global.spireActive) return;
 				if (!game.global.brokenPlanet) planetBreaker();
-				var amt = (game.global.world >= getCorruptionStart(true)) ? 10 : 5;
+				var amt = (game.global.world >= mutations.Corruption.start(true)) ? 10 : 5;
 				amt = rewardResource("helium", amt, level);
 				game.global.totalHeliumEarned += amt;
 				message("You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Loot", "oil", 'helium', 'helium');				
@@ -5094,7 +5091,7 @@ var toReturn = {
 		Gigastation: {
 			locked: 1,
 			allowed: 0,
-			tooltip: "Prestige your Warpstation, increasing the amount of Trimps it can house by 20% and the base cost by 75%. There's no turning back, learning these blueprints will make your previous model of Warpstation obsolete but functional, and you will keep all Trimps housed there. Learning this will build one new Warpstation.",
+			tooltip: "Prestige your Warpstation, increasing the amount of Trimps it can house by 20% and the base cost by 75%. There's no turning back, learning these blueprints will make your previous model of Warpstation obsolete but functional, and you will keep all Trimps housed there. Learning this will build one new Warpstation. <b>Holding Ctrl will cause as many Warpstations as you currently own to be purchased immediately after Gigastation, if you can afford them.</b>",
 			done: 0,
 			cost: {
 				resources: {
@@ -5103,10 +5100,11 @@ var toReturn = {
 					science: [100000000000, 1.4]
 				}
 			},
-			fire: function () {
+			fire: function (heldCtrl) {
 				if (game.buildings.Warpstation.purchased > game.buildings.Warpstation.owned){
 					clearQueue('Warpstation');
 				}
+				var oldAmt = game.buildings.Warpstation.owned;
 				game.global.lastWarp = game.buildings.Warpstation.owned;
 				game.buildings.Warpstation.increase.by *= 1.20;
 				game.buildings.Warpstation.cost.gems[0] *= 1.75;
@@ -5114,6 +5112,7 @@ var toReturn = {
 				game.buildings.Warpstation.purchased = 1;
 				game.buildings.Warpstation.owned = 1;
 				game.resources.trimps.max += game.buildings.Warpstation.increase.by;
+				if ((ctrlPressed || heldCtrl) && oldAmt > 1) buyBuilding("Warpstation", false, false, oldAmt - 1);
 			}
 		},
 		

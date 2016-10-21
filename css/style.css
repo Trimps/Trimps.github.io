@@ -2111,11 +2111,38 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 	padding: 2%;
 }
 
-.corruptedBadGuyName{
-	background-color: #2f006d;
-	color: white;
+.badNameMutation{
 	font-weight: bold;
 	padding: 0px 0.2vw;
+}
+
+/* MUTATIONS HERE */
+
+.badNameMutation.Corruption{
+	background-color: #2f006d;
+	color: white;
+}
+
+.battleCell.Corruption, .badge.Corruption{
+	background-color: #2E0854;
+	color: #DDDDFF;
+}
+
+.battleCell.Pumpkimp, .badge.Pumpkimp, .badNameMutation.Pumpkimp{
+	background-color: #d96c00;
+	color: white;
+}
+
+.badNameMutation.Pumpkimp{
+	background-color: #a65300;	
+}
+
+#row9 .battleCell.Pumpkimp{
+	background-color: #006600;
+}
+
+.battleCell.mapPumpkimp{
+	background-color: #a65300;	
 }
 
 .easterEgg0{
@@ -2719,7 +2746,7 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-background: linear-gradient(to left, #760d00 , #a98200);
+	background: radial-gradient(#a65300 45%, #000 60%);
 color: white;
 }
 
@@ -2729,7 +2756,7 @@ color: white;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background: linear-gradient(to left, #f5bd00 , #a91200);
+background: radial-gradient(#000 45%, #a65300 60%);
 color: white;
 }
 .btn-new:active,
@@ -2788,6 +2815,10 @@ input::-webkit-inner-spin-button {
 	border: 1px solid white;
 }
 
+.thingColorCtrl {
+	background: radial-gradient(#000066 45%, black 60%);
+}
+
 .thingColorGoldenUpgrade {
 	background: #ffd700;
 	color: black !important;
@@ -2834,15 +2865,18 @@ input::-webkit-inner-spin-button {
 }
 
 .cellColorBeaten{
-	background: green;
+	background: green !important;
+	color: black !important;
 }
 
 .cellColorCurrent {
-	background: yellow;
+	background: yellow !important;
+	color: black !important;
 }
 
 .cellColorOverkill {
-	background: #67cf00;
+	background: #67cf00 !important;
+	color: black !important;
 }
 
 .percentColorBlue {
