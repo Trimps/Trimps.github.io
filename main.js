@@ -465,6 +465,9 @@ function load(saveString, autoLoad, fromPf) {
 			if (game.global.gridArray[x].corrupted) game.global.gridArray[x].mutation = "Corruption";
 		}
 	}
+	if (oldVersion < 3.811){
+		game.global.messages.Loot.events = true;
+	}
 
 	//End compatibility
 	
@@ -1996,9 +1999,8 @@ function getBuildingItemPrice(toBuy, costItem, isEquipment, purchaseAmt){
 }
 
 function buyBuilding(what, confirmed, fromAuto, forceAmt) {
-	console.log(forceAmt);
 	if (game.options.menu.pauseGame.enabled) return;
-	if (!confirmed && game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
+	if (!forceAmt && !confirmed && game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var toBuy = game.buildings[what];
 	var purchaseAmt = 1;
 	if (forceAmt) purchaseAmt = Math.min(forceAmt, calculateMaxAfford(toBuy, true, false, false, true));
@@ -2433,7 +2435,7 @@ function breed() {
 	var adjustedMax = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : trimps.maxSoldiers;
 	var totalTime = log10((trimpsMax - trimps.employed) / (trimpsMax - adjustedMax - trimps.employed)) / log10(potencyMod);
 	totalTime /= 10;
-
+	game.global.breedTime = adjustedMax / breeding;
 	if (game.jobs.Geneticist.locked == false && game.global.Geneticistassist && game.global.GeneticistassistSetting > 0){
 		var target = game.global.GeneticistassistSetting;
 		//tired of typing Geneticistassist
@@ -4446,7 +4448,7 @@ function battle(force) {
         trimps.owned -= adjustedMax;
     } else {
         //var max = Math.ceil((trimpsMax - trimps.employed) * 0.05);
-        if (trimps.owned >= trimpsMax) {
+        if (trimps.owned >= trimpsMax || game.global.breedTime <= 0.1) {
             trimps.soldiers = adjustedMax;
             trimps.owned -= adjustedMax;
         }
@@ -6310,11 +6312,15 @@ function fight(makeUp) {
 		}
 	}
     var attackAndBlock = (cellAttack - game.global.soldierCurrentBlock);
+	var pierce = 0;
 	if (game.global.brokenPlanet && !game.global.mapsActive){
-		var overpower = (game.global.formation == 3) ? 0.1 : 0.2;
-		if (game.global.challengeActive == "Lead") overpower += (game.challenges.Lead.stacks * 0.001);
-		overpower *= cellAttack;
-		if (attackAndBlock < overpower) attackAndBlock = overpower;
+		//Configure pierce
+		pierce = (game.global.formation == 3) ? 0.1 : 0.2;
+		if (game.global.challengeActive == "Lead") pierce += (game.challenges.Lead.stacks * 0.001);
+		
+		//Calculate pierce for regular attacks
+		var atkPierce = pierce * cellAttack;
+		if (attackAndBlock < atkPierce) attackAndBlock = atkPierce;
 	}
 	if (attackAndBlock < 0) attackAndBlock = 0;
 	var trimpAttack = calculateDamage(game.global.soldierCurrentAttack, false, true);
@@ -6455,7 +6461,14 @@ function fight(makeUp) {
 	}
 	if (cell.health <= 0 && typeof game.global.dailyChallenge.explosive !== 'undefined'){
 		if (game.global.dailyChallenge.explosive.strength <= 15 || game.global.soldierHealthMax > game.global.soldierCurrentBlock){
-			game.global.soldierHealth -= cellAttack * dailyModifiers.explosive.getMult(game.global.dailyChallenge.explosive.strength);
+			var explodeDamage = cellAttack * dailyModifiers.explosive.getMult(game.global.dailyChallenge.explosive.strength);
+			var explodeAndBlock = explodeDamage - game.global.soldierCurrentBlock;
+			if (explodeAndBlock < 0) explodeAndBlock = 0;
+			if (pierce > 0){
+				var explodePierce = pierce * explodeDamage;
+				if (explodeAndBlock < explodePierce) explodeAndBlock = explodePierce;
+			}
+			game.global.soldierHealth -= explodeAndBlock;
 			if (game.global.soldierHealth <= 0) thisKillsTheTrimp();
 		}
 	}
@@ -7300,7 +7313,7 @@ function givePumpkimpLoot(){
 	var item = elligible[roll];
 	if (item == "nothing") {
 		var failNumber = Math.floor(Math.random() * failures.length);
-		message(failures[failNumber], "Loot", "*magic-wand", "pumpkimp");
+		message(failures[failNumber], "Loot", "*magic-wand", "pumpkimp", "events");
 		return;
 	}
 	var lootStrength = (game.global.mapsActive) ? 3 : 20;
@@ -7314,7 +7327,7 @@ function givePumpkimpLoot(){
 	}
 	addResCheckMax(item, amt);
 	var messageNumber = Math.floor(Math.random() * success.length);
-	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", "pumpkimp");		
+	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", "pumpkimp", "events");		
 }
 
 function activateTurkimpPowers() {

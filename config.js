@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.81,
+		version: 3.811,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -169,6 +169,7 @@ var toReturn = {
 		dailyChallenge: {},
 		recentDailies: [],
 		dailyHelium: 0,
+		breedTime: 1,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -202,7 +203,8 @@ var toReturn = {
 				secondary: true,
 				exotic: true,
 				helium: true,
-				essence: true
+				essence: true,
+				events: true
 			},
 			Unlocks: {
 				enabled: true,

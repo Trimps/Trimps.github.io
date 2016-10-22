@@ -683,6 +683,10 @@ function messageConfigHover(what, event){
 			text = "Log the less common loot items: Gems, Fragments, Territory Bonus, and others.";
 			title = "Secondary";
 			break;
+		case 'Lootevents':
+			text = "Log drops and messages from temporary events, such as holidays.";
+			title = "Events";
+			break;
 		case 'Lootexotic':
 			text = "Log the rewards granted by Exotic Imports.";
 			title = "Exotic";
