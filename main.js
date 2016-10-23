@@ -3715,6 +3715,7 @@ function getAmountInRange(maxRange, toKeep)
 function setMutationTooltip(which, mutation){
 	var elem = document.getElementById('corruptionBuff');
 	var effect = mutationEffects[which];
+	if (typeof effect === 'undefined') return;
 	if (typeof mutations[mutation].tooltip === 'undefined') return;
 	elem.innerHTML = '<span class="badge badBadge ' + mutation + '" onmouseover="tooltip(\'' + effect.title + '\', \'customText\', event, \'' + mutations[mutation].tooltip(which) + '\')" onmouseout="tooltip(\'hide\')"><span class="' + effect.icon + '"></span></span>';
 }
