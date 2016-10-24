@@ -84,8 +84,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Finish Daily"){
 		var value = getDailyHeliumValue(countDailyWeight()) / 100;
-		var reward = 0;
-		if (game.resources.helium.owned > 0) reward = Math.floor(game.resources.helium.owned * value);
+		var reward = game.resources.helium.owned + game.stats.spentOnWorms.value;
+		if (reward > 0) reward = Math.floor(reward * value);
 		tooltipText = "Clicking <b>Finish</b> below will end your daily challenge and you will be unable to attempt it again. You will earn <b>" + prettify(reward) + " extra Helium!</b>";
 		costText = '<div class="maxCenter"><div id="confirmTooltipBtn" class="btn btn-info" onclick="abandonChallenge(); cancelTooltip()">Finish</div><div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div></div>';
 		game.global.lockTooltip = true;
@@ -419,7 +419,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var buyAmt = game.global.buyAmt;
 		if (buyAmt == "Max") buyAmt = calculateMaxAfford(game.jobs[what], false, false, true);
 		if (game.global.firing){
-			tooltipText = "Fire a " + what + ". Refunds no resources, but frees up some workspace for your Trimps.";
+			var firstChar = what.charAt(0);
+			var aAn = (firstChar == "A" || firstChar == "E" || firstChar == "I" || firstChar == "O" || firstChar == "U") ? " an " : " a ";
+			tooltipText = "Fire " + aAn + " " + what + ". Refunds no resources, but frees up some workspace for your Trimps.";
 			costText = "";
 		}
 		else{

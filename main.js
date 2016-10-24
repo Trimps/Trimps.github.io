@@ -1129,6 +1129,14 @@ function checkOfflineProgress(noTip){
 		}
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		if (game.global.challengeActive == "Balance") amt *= game.challenges.Balance.getGatherMult();
+		if (game.global.challengeActive == "Daily"){
+			if (typeof game.global.dailyChallenge.famine !== 'undefined' && x < 4){
+				amt *= dailyModifiers.famine.getMult(game.global.dailyChallenge.famine.strength);
+			}
+			if (typeof game.global.dailyChallenge.dedication !== 'undefined'){
+				amt *= dailyModifiers.dedication.getMult(game.global.dailyChallenge.dedication.strength);
+			}
+		}
 		amt = calcHeirloomBonus("Staff", compatible[x] + "Speed", amt);
 		amt *= dif;
 		if (x < 3){
@@ -5861,8 +5869,8 @@ function abandonDaily(){
 		}
 	}
 	var value = getDailyHeliumValue(countDailyWeight()) / 100;
-	var reward = 0;
-	if (game.resources.helium.owned > 0) reward = Math.floor(game.resources.helium.owned * value);
+	var reward = game.resources.helium.owned + game.stats.spentOnWorms.value;
+	if (reward > 0) reward = Math.floor(reward * value);
 	if (!isNumberBad(reward)){
 		game.resources.helium.owned += reward;
 		game.global.totalHeliumEarned += reward;
