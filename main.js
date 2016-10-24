@@ -1130,7 +1130,7 @@ function checkOfflineProgress(noTip){
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		if (game.global.challengeActive == "Balance") amt *= game.challenges.Balance.getGatherMult();
 		if (game.global.challengeActive == "Daily"){
-			if (typeof game.global.dailyChallenge.famine !== 'undefined' && x < 4){
+			if (typeof game.global.dailyChallenge.famine !== 'undefined' && x < 3){
 				amt *= dailyModifiers.famine.getMult(game.global.dailyChallenge.famine.strength);
 			}
 			if (typeof game.global.dailyChallenge.dedication !== 'undefined'){
