@@ -1570,6 +1570,11 @@ function prettify(number) {
 	var base = Math.floor(Math.log(number)/Math.log(1000));
 	if (base <= 0) return prettifySub(number);
 	number /= Math.pow(1000, base);
+	if (number >= 999.5) {
+		// 999.5 rounds to 1000 and we don’t want to show “1000K” or such
+		number /= 1000;
+		++base;
+	}
 	
 	var suffices = [
 		'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
