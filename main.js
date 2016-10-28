@@ -6201,6 +6201,7 @@ function fight(makeUp) {
 		}
         game.global.fighting = false;
         document.getElementById("badGuyCol").style.visibility = "hidden";
+		document.getElementById('corruptionBuff').innerHTML = "";
         var unlock;
         if (game.global.mapsActive) unlock = game.mapUnlocks[cell.special];
         else {
