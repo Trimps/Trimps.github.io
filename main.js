@@ -3134,6 +3134,14 @@ function generateHeirloomIcon(heirloom, location, number){
 }
 
 
+function htmlEncode(text) {
+	text = text.replace("&", "&amp;");
+	text = text.replace("'", "&apos;");
+	text = text.replace('"', "&quot;");
+	text = text.replace("<", "&lt;");
+	text = text.replace(">", "&gt;");
+	return text;
+}
 
 function displaySelectedHeirloom(modSelected, selectedIndex, fromTooltip, locationOvr, indexOvr, fromPopup){
 	if (fromPopup && !game.options.menu.voidPopups.enabled) return;
@@ -3190,7 +3198,7 @@ function renameHeirloom(cancel, fromPopup){
 	}
 	var value = inputText.value;
 	if (value.length < 1) return;
-	value = value.substring(0, 25);
+	value = htmlEncode(value.substring(0, 25));
 	heirloom.name = value;
 	titleElem.innerHTML = value;
 	if (game.global.selectedHeirloom[1] == (heirloom.type + "Equipped")) document.getElementById(heirloom.type + "EquippedName").innerHTML = value;
