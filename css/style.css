@@ -638,6 +638,26 @@ overflow-x: hidden;
 	background-color: rgba(0,0,102,1);
 }
 
+#generatorWindow{
+	width: 98.3%;
+}
+
+.generatorStateActive{
+	background-color: #8c0000;
+}
+
+.generatorStatePassive{
+	background-color: #000040;
+}
+
+.generatorStateHybridActive{
+	background: linear-gradient(to right, #318696 14%,#8c0000 55%);
+}
+
+.generatorStateHybridPassive{
+	background: linear-gradient(to right, #318696 14%,#000040 55%);
+}
+
 /* Small Buttons */
 
 #buyHere.buttonSizeSmall div .buyBox .thing{
@@ -649,6 +669,11 @@ overflow-x: hidden;
 
 #buyHere.buttonSizeSmall div .buyBox #GeneticistassistContainer{
 	width: 39.3%;
+}
+
+#buyHere.buttonSizeSmall div .buyBox #generatorWindow{
+	width: 98.7%;
+	font-size: 0.85vw;
 }
 
 /* Tiny Buttons */
@@ -663,6 +688,12 @@ overflow-x: hidden;
 #buyHere.buttonSizeTiny div .buyBox #GeneticistassistContainer{
 	width: 33.1333333%;
 }
+
+#buyHere.buttonSizeTiny div .buyBox #generatorWindow{
+	width: 99.7999996%;
+	font-size: 0.85vw;
+}
+
 
 
 .noBotMarg{
@@ -813,9 +844,17 @@ overflow-x: hidden;
 	color: black;
 }
 
-.settingBtn2:hover, .btn-yellow{
+.settingBtn2:hover, .btn-yellow:hover{
 	background-color: #e6e600;
 	color: black;
+}
+
+.settingBtn3{
+	background-color: #318696;
+}
+
+.settingBtn3:hover{
+	background-color: #287280;
 }
 
 .optionContainer {
@@ -1682,7 +1721,7 @@ overflow-x: hidden;
 	cursor: pointer;
 }
 
-.spireMetals{
+.spireMetals, .spireMetalsMsg{
 	color: #f2b600;
 	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
@@ -1817,6 +1856,10 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 
 .doubleTall{
 	line-height: 3.75vw;
+}
+
+.tripleTall{
+	line-height: 6.4vw;
 }
 
 #achievementPopup{
@@ -2128,6 +2171,11 @@ background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%);
 	color: #DDDDFF;
 }
 
+.battleCell.Magma, .badge.Magma, .badNameMutation.Magma, .message.Magma {
+	background-color: #8c0000;
+	color: #FFDDDD;
+}
+
 .battleCell.Pumpkimp, .badge.Pumpkimp, .badNameMutation.Pumpkimp{
 	background-color: #d96c00;
 	color: white;
@@ -2216,6 +2264,10 @@ color: #DDDDFF !important;
 	font-weight: bold;
 }
 
+.planetBreakDescription b{
+	font-weight: bolder;
+}
+
 .planetBreakDescription .good{
 	color: green;
 }
@@ -2241,12 +2293,17 @@ color: #DDDDFF !important;
 	background-color: #d9534f;
 }
 
-.autoUpgradeBtn.colorSuccess:hover, .dailyTop.colorSuccess:hover {
+.autoUpgradeBtn.colorSuccess:hover, .dailyTop.colorSuccess:hover, .colorSuccess.hoverColor:hover {
 	background-color: #449d44;
 }
 
-.autoUpgradeBtn.colorDanger:hover, #talentRespecBtn.colorDanger:hover {
+.autoUpgradeBtn.colorDanger:hover, #talentRespecBtn.colorDanger:hover, .colorDanger.hoverColor:hover {
 	background-color: #d43f3a;
+}
+
+.colorDark{
+	background-color: #0f0f1e;
+	color: #a8a8b7;
 }
 
 .workColorOff{
@@ -2278,14 +2335,20 @@ background-color: rgba(255,255,255,0.25);
 	background-color: #337ab7;
 	color: white;
 }
+
+.colorPrimary.hoverColor:hover{
+	background-color: #2d6da3;
+}
+
 .greyColor, .colorGrey{
 	background-color: grey;
 }
-.tealColor{
+.tealColor, .colorTeal{
 	background-color: #318696 !important;
 	color: white;
 }
-.tealColor:hover{
+
+.tealColor:hover, .colorTeal.hoverColor:hover{
 	background-color: #2b7583 !important;
 	color: white;
 }
@@ -2746,8 +2809,8 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	background: radial-gradient(#a65300 45%, #000 60%);
-color: white;
+	background: linear-gradient(to left, #8c0000 14%,#2E0854 55%);
+	color: white;
 }
 
 .btn-new:hover,
@@ -2756,8 +2819,8 @@ color: white;
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-background: radial-gradient(#000 45%, #a65300 60%);
-color: white;
+	background: linear-gradient(to right, #2E0854 14%,#8c0000 55%);
+	color: white;
 }
 .btn-new:active,
 .btn-new.active,
@@ -2813,6 +2876,11 @@ input::-webkit-inner-spin-button {
 
 .mapElementNotSelected {
 	border: 1px solid white;
+}
+
+.thingColorDone {
+	background: #004000;
+	color: white !important;
 }
 
 .thingColorCtrl {
@@ -3002,4 +3070,211 @@ sup{
 
 .col-xs-3.fifth{
 	width: 20% !important;
+}
+
+#magmiteOwned, #generatorUpgradeTitle{
+	font-size: 1.2em;
+	font-weight: bold;
+	text-align: center;
+	display: inline-block;
+	width: 50%;
+}
+
+#magmiteOwned{
+	color: #8c0000;
+}
+
+#generatorUpgradeTitle{
+	color: #000040;
+}
+
+.generatorUpgradeTitle{
+	text-align: center;
+	font-size: 1.1em;
+	font-weight: bold;
+	padding: 1%;
+}
+
+#magmiteCost, #generatorUpgradeName{
+	text-align: center;
+	font-size: 1.2em;
+	display: inline-block;
+	width: 50%;
+}
+
+#generatorUpgradeName{
+	font-weight: bold;
+}
+
+#magmiteCost.canAfford{
+	color: #80c780; 
+}
+
+#magmiteCost.cantAfford{
+	color: #d9534f;
+}
+
+#generatorUpgradeDescription{
+	background-color: #777777;
+	padding: 0.5%;
+	margin-top: 1%;
+	color: #333333;
+	min-height: 6.8vw;
+}
+
+#generatorNextTick {
+	position: absolute;
+	top: 60%;
+	font-size: 1.5em;
+	color: black;
+		text-shadow:
+	 -1px -1px 0 #FFF,  
+	  1px -1px 0 #FFF,
+	 -1px 1px 0 #FFF,
+	  1px 1px 0 #FFF;
+	  text-align: center;
+	  width: 100%;
+	  left: 0;
+}
+
+#generatorProducingContainer{
+	font-size: 1.1em;
+	padding-top: 10%;
+}
+
+#generatorTickContainer{
+	height: 5vw;
+	width: 5vw;
+	display: inline-block;
+	position: relative;
+	margin-top: 3%;
+}
+
+#fuelContainer{
+	width: 5vw;
+	height: 5vw;
+	display: inline-block;
+	position: relative;
+	border: 1px solid black;
+	margin-top: 3%;
+	transform: rotate(180deg);
+}
+
+#fuelGlass {
+	background: linear-gradient( 45deg, white, lightblue, white, lightblue, white, lightblue );
+	opacity: 0.5;
+	width:100%;
+	height: 100%;
+}
+
+#genTitleContainer{
+	display: inline-block;
+	width: 40%;
+	float: left;
+}
+
+
+#generatorTitle{
+	margin-bottom: 0.25vw;
+	font-size: 1.2em;
+}
+
+#generatorUpgradeBtn{
+	margin-top: 0.5vw;
+	font-size: 1.1em;
+	display: inline-block;
+	width: 70%;
+}
+
+#genGaugeContainer{
+	background: rgba(0, 0, 0, 0.2);
+	padding-right: 0;
+	display: inline-block;
+	width: 60%;
+	float: right;
+}
+
+#genGaugeContainer .row{
+	margin: 0;
+}
+
+#fuelBar{
+	background-color: #b6a800;
+	position: absolute;
+	height: 100%;
+	top: 0%;
+	width: 100%;
+	transition: height 0.5s ease-out;
+}
+
+#fuelStorageBar{
+	background-color: #8c4600;
+	position: absolute;
+	height: 100%;
+	top: 0%;
+	width: 100%;
+	transition: height 0.5s ease-out;
+}
+
+#fuelOwnedText{
+	position: absolute;
+	width: 100%;
+	left: 0;
+	top: 25%;
+	color: black;
+	transform: rotate(180deg);
+}
+
+#overclockerTargetTime{
+	text-align: center;
+	font-size: 1.3em;
+	padding: 0.5%;
+}
+
+.overclockerBtn{
+	width: 25%;
+	display: inline-block;
+	color: white;
+}
+
+.radial-progress {
+	background-color: #919191;
+	border: 1px solid black;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	position: relative;
+}
+
+.radial-progress  .radial-progress-circle {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+
+.radial-progress   .radial-progress-arrow {
+	position: absolute;
+	left: 45%;
+	width: 10%;
+	height: 50%;
+}
+
+.radial-progress   .radial-progress-arrow.mobile {
+	background-color: #000;
+}
+
+.radial-progress   .radial-progress-arrow.static {
+	background-color: #515151;
+	border: 1px solid black;
+}
+
+.radial-progress .radial-progress-knob {
+	position:absolute;
+	top: 45%;
+	left: 45%;
+	width: 10%;
+	height: 10%;
+	border-radius: 50%;
+	border: 1px solid black;
 }

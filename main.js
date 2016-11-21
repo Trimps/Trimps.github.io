@@ -139,6 +139,17 @@ function save(exportThis, fromManual) {
 		delete talent.requires;
 		delete talent.name;
 	}
+	for (var itemGU in saveGame.generatorUpgrades){
+		var genUp = saveGame.generatorUpgrades[itemGU];
+		delete genUp.base;
+		delete genUp.baseCost;
+		delete genUp.baseIncrease;
+	}
+	for (var itemPGU in saveGame.permanentGeneratorUpgrades){
+		var genUp = saveGame.permanentGeneratorUpgrades[itemPGU];
+		delete genUp.description;
+		delete genUp.cost;
+	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
 	try{
@@ -468,7 +479,29 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 3.811){
 		game.global.messages.Loot.events = true;
 	}
-
+	if (oldVersion < 4){
+		if (game.global.world >= 230) game.global.canMagma = false;
+		else if (game.global.highestLevelCleared > 229){
+			game.global.highestLevelCleared = 229;
+			if (game.global.roboTrimpLevel > 8)
+				game.global.roboTrimpLevel = 8;
+		}
+		game.resources.trimps.potency = 0.0085;
+		if (game.global.spentEssence > 0){
+			for (var item in game.talents){
+				game.talents[item].purchased = false;
+				if (item == "foreman") continue;
+				if (game.talents[item].purchased && typeof game.talents[item].onRespec === 'function') game.talents[item].onRespec();			
+			}
+			if (typeof savegame.talents.foreman !== 'undefined' && savegame.talents.foreman.purchased) game.global.autoCraftModifier -= 1250;
+			if (typeof savegame.talents.foreman2 !== 'undefined' && savegame.talents.foreman2.purchased) game.global.autoCraftModifier -= 3750;
+			game.global.essence += game.global.spentEssence;
+			game.global.spentEssence = 0;
+			message("Due to a rework of the current Masteries, all of your spent Dark Essence has been refunded for free! Don't forget to repurchase your Masteries!", "Notices");
+			updateTalentNumbers();
+		}
+		game.global.messages.Loot.magma = true;
+	}
 	//End compatibility
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
@@ -675,7 +708,7 @@ function magnetoShriek() {
 	displayRoboTrimp();
 	if (game.global.useShriek && !game.global.mapsActive){
         var cell = game.global.gridArray[game.global.lastClearedCell + 1];
-		if (cell.name == "Improbability"){
+		if (cell.name == "Improbability" || cell.name  == "Omnipotrimp"){
 			activateShriek();
 		}
 	}
@@ -722,12 +755,15 @@ function displayAllStats(buildAll) {
 	}
 }
 
+var portalWindowOpen = false;
 function portalClicked() {
+	portalWindowOpen = true;
 	cancelTooltip();
 	game.global.viewingUpgrades = false;
 	game.global.respecActive = false;
 	game.global.tempHighHelium = game.resources.helium.owned;
 	game.resources.helium.respecMax = game.resources.helium.owned + game.global.heliumLeftover;
+	game.resources.helium.totalSpentTemp = 0;
 	document.getElementById("wrapper").style.display = "none";
 	var bgColor = "";
 	if (game.global.sLevel == 1) bgColor = "#00b386";
@@ -1091,7 +1127,7 @@ function checkOfflineProgress(noTip){
 		var amt = job.owned * job.modifier;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
 		if (game.portal.Motivation_II.level > 0) amt *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
-		if (game.portal.Meditation.level > 0) {
+		if (game.portal.Meditation.level > 0 || (game.jobs.Magmamancer.owned > 0 && resName == "metal")) {
 			var toAlter;
 			var originalAmt = amt;
 			//Find how many stacks of 10 minutes were already stacked before logging out
@@ -1101,9 +1137,11 @@ function checkOfflineProgress(noTip){
 			//Start at 100% untouched
 			var remaining = 100;
 			//if a 10 minute chunk is larger than the time offline, no need to scale in chunks, skip to the end.
-			if (timeAtLastOnline < 6 && chunkPercent < 100){
+			var loops = 6;
+			if (game.jobs.Magmamancer.owned && resName == "metal") loops = 12;
+			if (timeAtLastOnline < loops && chunkPercent < 100){				
 				//Start from however many stacks were held before logging out. End at 5 stacks, the 6th will be all time remaining rather than chunks and handled at the end
-				for (var z = timeAtLastOnline; z < 6; z++){			
+				for (var z = timeAtLastOnline; z < loops; z++){
 					//If no full chunks left, let the final calculation handle it
 					if (remaining < chunkPercent) break;
 					//Remove a chunk from remaining, as it is about to be calculated
@@ -1115,7 +1153,11 @@ function checkOfflineProgress(noTip){
 					//Remove it from toAlter
 					amt -= toAlter;
 					//Modify and add back
-					amt += (toAlter * (1 + (z * 0.01 * game.portal.Meditation.level)).toFixed(2));
+					if (game.portal.Meditation.level && z < 6)
+						amt += (toAlter * (1 + (z * 0.01 * game.portal.Meditation.level)));
+					//loops will only set to 72 if the current resource is metal and the player has Magmamancers
+					if (loops == 12)
+						amt += (toAlter * game.jobs.Magmamancer.getBonusPercent(false, z));
 				}
 			}
 			if (remaining){
@@ -1124,7 +1166,10 @@ function checkOfflineProgress(noTip){
 				//Remove
 				amt -= toAlter;
 				//Modify and add back the final amount
-				amt += (toAlter) * (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+				if (game.portal.Meditation.level)
+					amt += (toAlter) * (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
+				if (loops == 12)
+					amt += (toAlter * game.jobs.Magmamancer.getBonusPercent());
 			}
 		}
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
@@ -1472,7 +1517,7 @@ function clearQueue(specific) {
 		existing++;
 		if (specific && game.global.buildingsQueue[existing - 1].split('.')[0] != specific) continue;
 		else existing--;
-		removeQueueItem("queueItem" + x);
+		removeQueueItem("queueItem" + x, true);
 	}
 }
 
@@ -1505,6 +1550,7 @@ function activatePortal(){
 }
 
 function cancelPortal(keep){
+	portalWindowOpen = false;
 	if (game.global.kongBonusMode){
 		game.global.kongBonusMode = false;
 		if (!keep) resetGame();		
@@ -1678,13 +1724,28 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	}
 	if (givePercentage > 0) amt *= givePercentage;
 	amt = Math.floor(amt);
-    addResCheckMax(what, amt);
+	if (what == "helium") 
+		addHelium(amt);
+	else
+		addResCheckMax(what, amt);
 	if (game.options.menu.useAverages.enabled){
 		addAvg(what, amt);
 	}
-	if (what == "helium") checkAchieve("totalHelium");
     return amt;
 };
+
+function addHelium(amt){
+	if (game.global.challengeActive) distributeToChallenges(amt);
+	game.resources.helium.owned += amt;
+	game.global.totalHeliumEarned += amt;
+	if (portalWindowOpen){
+		var heElem = document.getElementById('portalHelium');
+		game.resources.helium.respecMax += amt;
+		game.resources.helium.tempHighHelium += amt;
+		if (heElem != null) heElem.innerHTML = '<span id="portalHeliumOwned">' + prettify(game.resources.helium.respecMax - game.resources.helium.totalSpentTemp) + '</span> Helium';			
+	}
+	checkAchieve("totalHelium");
+}
 
 function addResCheckMax(what, number, noStat, fromGather, nonFilteredLoot) {
     var res = game.resources[what];
@@ -1805,7 +1866,8 @@ function gather() {
 			perSec = (game.jobs[job].owned * game.jobs[job].modifier);
 			if (game.portal.Motivation.level > 0) perSec += (perSec * game.portal.Motivation.level * game.portal.Motivation.modifier);
 			if (game.portal.Motivation_II.level > 0) perSec *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
-			if (game.portal.Meditation.level > 0) perSec *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+			if (game.portal.Meditation.level > 0) perSec *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
+			if (game.jobs.Magmamancer.owned > 0 && increase == "metal") perSec *= game.jobs.Magmamancer.getBonusPercent();
 			if (game.global.challengeActive == "Meditate") perSec *= 1.25;
 			else if (game.global.challengeActive == "Size") perSec *= 1.5;
 			if (game.global.challengeActive == "Toxicity"){
@@ -2009,6 +2071,7 @@ function getBuildingItemPrice(toBuy, costItem, isEquipment, purchaseAmt){
 function buyBuilding(what, confirmed, fromAuto, forceAmt) {
 	if (game.options.menu.pauseGame.enabled) return;
 	if (!forceAmt && !confirmed && game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
+/* 	if (what == "Nursery" && mutations.Magma.active()) return; */
 	var toBuy = game.buildings[what];
 	var purchaseAmt = 1;
 	if (forceAmt) purchaseAmt = Math.min(forceAmt, calculateMaxAfford(toBuy, true, false, false, true));
@@ -2408,6 +2471,12 @@ function breed() {
         return;
     }
     var potencyMod = trimps.potency;
+	//Add potency (book)
+	if (game.upgrades.Potency.done > 0) potencyMod *= Math.pow(1.1, game.upgrades.Potency.done);
+	//Add Nurseries
+	if (game.buildings.Nursery.owned > 0) potencyMod *= Math.pow(1.01, game.buildings.Nursery.owned);
+	//Add Venimp
+	if (game.unlocks.impCount.Venimp > 0) potencyMod *= Math.pow(1.003, game.unlocks.impCount.Venimp);
 	//Broken Planet
 	if (game.global.brokenPlanet) potencyMod /= 10;
 	//Pheromones
@@ -3133,7 +3202,6 @@ function generateHeirloomIcon(heirloom, location, number){
 	return html;
 }
 
-
 function htmlEncode(text) {
 	text = text.replace("&", "&amp;");
 	text = text.replace("'", "&apos;");
@@ -3565,9 +3633,13 @@ var mutations = {
 		active: function (){
 			return (game.global.world >= this.start());
 		},
+		cellCount: function(){
+			var possible = Math.floor((game.global.world - this.start()) / 3) + 2;
+			if (possible > 80) possible = 80;
+			return possible;
+		},
 		pattern: function (currentArray) {
-		   var possible = Math.floor((game.global.world - this.start()) / 3) + 2;
-		   if (possible > 80) possible = 80;
+		   var possible = this.cellCount();   
 		   var spread = (Math.floor(possible / 6) + 1) * 10;
 		   if (spread > 100) spread = 100;
 		   var addCorrupteds = getAmountInRange(spread, possible);
@@ -3592,24 +3664,385 @@ var mutations = {
 		reward: function (effect) {
 			if (game.global.world < 20) return;
 			var percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
-			var amt = rewardResource("helium", ((game.global.world >= this.start(true)) ? 10 : 5), 99, false, percentage);
-			game.global.totalHeliumEarned += amt;
-			distributeToChallenges(amt);
+			var baseValue = (game.global.world >= this.start(true)) ? 10 : 5;
+			if (mutations.Magma.active()) baseValue *= 3;
+			var amt = rewardResource("helium", baseValue, 99, false, percentage);
 			var text = "The corruption quickly swirls into the air and dissipates. <span class='helium'>You see " + prettify(amt) + " canisters of Helium left on the ground and pick them up. Useful!</span>";
 			message(text, "Loot", "oil", "voidMessage", "helium");			
 		},
 		tooltip: function (effectName) {
 			var text = "All corrupted enemies currently deal " + prettify(this.statScale(3)) + "X attack and have " + prettify(this.statScale(10)) + "X health. In addition, ";
 			text += mutationEffects[effectName].text;
-			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from this zone.";
+			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this zone.";
 			return text;
 		},
-		effects: ['corruptDbl', 'corruptBleed', 'corruptStrong', 'corruptTough', 'corruptDodge'],
+		effects: ['corruptDbl', 'corruptBleed', 'corruptStrong', 'corruptTough', 'corruptDodge', 'corruptCrit'],
 		namePrefix: 'Corrupt'
+	},
+	Magma: {
+		start: function (){
+			var number = 230;
+			return number;
+		},
+		active: function (){
+			return (game.global.canMagma && game.global.world >= this.start());
+		},
+        minBranchLength : 1,
+        maxBranchLength : 2,
+        get targetCells () {return (game.talents.magmaFlow.purchased) ? 18 : 16},
+        get singlePathMaxSize () {return (game.talents.magmaFlow.purchased) ? 18 : 16},
+        discardMultiplePaths: true,
+        discardMaxThreshold: 6,
+		multiplier: -1,
+		lastCalculatedMultiplier: -1,
+		getTrimpDecay: function (demandRecount){
+			if (!this.active) return;
+			if (this.multiplier == -1 || demandRecount) {
+				var start = this.start();
+				var zones = game.global.world - this.start() + 1;
+				this.multiplier = 1;
+				for (var x = 0; x < zones; x++){
+					this.multiplier *= this.getTrimpDecayMult(x + start);
+				}
+				this.lastCalculatedMultiplier = game.global.world;
+			}
+			return this.multiplier;
+		},
+		increaseTrimpDecay: function () {
+			if (this.lastCalculatedMultiplier >= game.global.world) return;
+			if (this.multiplier == -1) {
+				this.getTrimpDecay(true);
+				return;
+			}
+			var newMult = this.getTrimpDecayMult();
+			this.multiplier *= newMult;
+			this.lastCalculatedMultiplier = game.global.world;
+		},
+		getTrimpDecayMult: function (world){
+			return 0.8;
+			if (!world) world = game.global.world;
+			var decay = (1 - ((1 / ((world - mutations.Magma.start()) + 100)) * 100));
+			decay -= 0.2;
+			if (decay < 0) decay = 0;
+			decay += 0.2;
+			decay = 1 - decay;
+			return decay;
+		},
+        getEligibleOrigin: function(currentArray) {
+			if(game.global.world % 5 === 0 && this.targetCells === this.singlePathMaxSize) {
+				return {x: 9, y: 9};
+			}
+            var b,i,x,y;
+           
+            loop:
+            for(b = 0; b < 100; b++) { //random a position on the edge
+                var random = getRandomIntSeeded(game.global.mutationSeed++, 0, 10);
+                var side = getRandomIntSeeded(game.global.mutationSeed++, 0, 4);
+               
+                var originX, originY;
+               
+                switch(side) {
+                    case 0:
+                        originX = 0;
+                        originY = random;
+                        break;
+                    case 1:
+                        originX = 9;
+                        originY = random;
+                        break;
+                    case 2:
+                        originX = random;
+                        originY = 0;
+                        break;
+                    default:
+                        originX = random;
+                        originY = 9;
+                }
+               
+                for(x = originX - 1; x <= originX + 1; x++) { //check all 9 cells around the randomed origin; retry if any of them is occupied
+                    for(y = originY - 1; y <= originY + 1; y++) {
+                        if(x < 0 || x > 9 || y < 0 || y > 9)
+                            continue;
+                       
+                        if(currentArray[x * 10 + y] == "Magma")
+                            continue loop;
+                    }
+                }
+               
+                return {x: originX, y: originY};
+            }
+           
+            return null; //if there is no space available on edges
+        },
+        addBranch: function(currentArray, arr, length, direction) {
+            var count = 0;
+           
+            if(direction !== undefined) {
+                for(var i = 0; i < length; i++) {
+                    var vector; //this is the x,y of the next cell to occupy
+                    switch(direction) { //translate direction
+                        case 0:
+                            vector = {x: arr[arr.length - 1].x + 1, y: arr[arr.length - 1].y}; //up
+                            break;
+                        case 1:
+                            vector = {x: arr[arr.length - 1].x - 1, y: arr[arr.length - 1].y}; //down
+                            break;
+                        case 2:
+                            vector = {x: arr[arr.length - 1].x, y: arr[arr.length - 1].y + 1}; //right
+                            break;
+                        default:
+                            vector = {x: arr[arr.length - 1].x, y: arr[arr.length - 1].y - 1}; //mystery
+                    }
+                   
+                    if(vector.x < 0 || vector.x > 9 || vector.y < 0 || vector.y > 9) //end the branch if out of bounds
+                        return count;
+                   
+                    switch(direction) { //check the 5 cells in the direction of which we're going
+                                        //for example going up we'll be checking these cells:
+                                        //-----
+                                        //-XXX-
+                                        //-X|X-
+                                        //-----
+                        case 0:
+                            for(var x = vector.x; x <= vector.x + 1; x++) { //iterating over the 6 cells
+                                for(var y = vector.y - 1; y <= vector.y + 1; y++) {
+                                    if(x == vector.x && y == vector.y) //ignore origin
+                                        continue;
+                                   
+                                    if(x < 0 || x > 9 || y < 0 || y > 9) //ignore out of bounds
+                                        continue;
+                                   
+                                    if(currentArray[x * 10 + y] == "Magma") //end the branch if one of the cells is occupied
+                                        return count;
+                                }
+                            }
+                            break;
+                        case 1:
+                            for(var x = vector.x; x >= vector.x - 1; x--) {
+                                for(var y = vector.y - 1; y <= vector.y + 1; y++) {
+                                    if(x == vector.x && y == vector.y)
+                                        continue;
+                                   
+                                    if(x < 0 || x > 9 || y < 0 || y > 9)
+                                        continue;
+                                   
+                                    if(currentArray[x * 10 + y] == "Magma")
+                                        return count;
+                                }
+                            }
+                            break;
+                        case 2:
+                            for(var x = vector.x - 1; x <= vector.x + 1; x++) {
+                                for(var y = vector.y; y <= vector.y + 1; y++) {
+                                    if(x == vector.x && y == vector.y)
+                                        continue;
+                                   
+                                    if(x < 0 || x > 9 || y < 0 || y > 9)
+                                        continue;
+                                   
+                                    if(currentArray[x * 10 + y] == "Magma")
+                                        return count;
+                                }
+                            }
+                            break;
+                        default:
+                            for(var x = vector.x - 1; x <= vector.x + 1; x++) {
+                                for(var y = vector.y; y >= vector.y - 1; y--) {
+                                    if(x == vector.x && y == vector.y)
+                                        continue;
+                                   
+                                    if(x < 0 || x > 9 || y < 0 || y > 9)
+                                        continue;
+                                   
+                                    if(currentArray[x * 10 + y] == "Magma")
+                                        return count;
+                                }
+                            }
+                    }
+                   
+                    currentArray[vector.x * 10 + vector.y] = "Magma"; //if all is okay, continue the branch
+                    arr.push(vector);
+                    count++;
+                }
+            }
+           
+            return count; //return the number of cells this branch succesfully occupied
+        },
+        addPrettyRiver: function(currentArray, origin, length) {
+            var arr = [origin]; //this is the full array of vectors of the path just as a helper to other functions
+            var i,j,l;
+           
+            var branchLength, previousDirection = -1, pathDone;
+           
+            for(i = 0; i < 100; i++) {
+                branchLength = getRandomIntSeeded(game.global.mutationSeed++,
+                length < this.minBranchLength ? length : this.minBranchLength,
+                length > this.maxBranchLength ? this.maxBranchLength + 1 : length + 1);
+               
+                var dirArr;
+               
+                if(i == 0) { //always generate first branch facing outwards from edge origin point
+                    dirArr = [];
+                    dirArr[0] = origin.x == 0 ? 0 : (origin.x == 9 ? 1 : (origin.y == 0 ? 2 : 3));
+                }
+                else { //next branches use a viable direction determined by this
+                    dirArr = getAmountInRange(4, 4); //get a random array of directions
+                    l = dirArr.length;
+                    for(j = 0; j < l; j++) {
+                        if(dirArr[j] == previousDirection ||
+                           (dirArr[j] == 0 && previousDirection == 1) ||
+                           (dirArr[j] == 1 && previousDirection == 0) ||
+                           (dirArr[j] == 2 && previousDirection == 3) ||
+                           (dirArr[j] == 3 && previousDirection == 2)
+                           ) // don't go the same way as before or opposite
+                            dirArr[j] = null;
+                    }
+                   
+                    for(j = 0; j < 4; j++) { //delete the thrown away directions
+                        l = dirArr.indexOf(null);
+                        if(l > -1)
+                            dirArr.splice(l, 1);
+                        else
+                            break;
+                    }
+                   
+                    if(dirArr[0] === undefined) //if all directions were not viable, quit out of the entire river
+                        return length;          //return leftover length
+                }
+               
+               
+                for(j = 0; j < 4; j++) {
+                    pathDone = this.addBranch(currentArray, arr, branchLength, dirArr[0]); //try doing a branch in one of the directions from the array of directions
+                    if(pathDone > 0) { //if the branch placed at least one cell, break out and do another branch
+                        length -= pathDone; //reduce length leftover by number of cells done by branch
+                        previousDirection = dirArr[0];
+                        break;
+                    }
+                   
+                    dirArr.splice(0, 1); //if the branch did not place any cells, remove the direction from the direction array
+                   
+                    if(dirArr[0] === undefined) //if all directions were not viable, quit out of the entire river
+                        return length;          //return leftover length
+                }
+           
+                if(length <= 0) //if there's no leftover length, we're done
+                    break;
+            }
+           
+            return length;
+        },
+        generateRivers : function (currentArray) {
+            var i, origin, riversAmt = 0;
+           
+            var targetCells = this.targetCells;
+			var singlePathMaxSize = this.singlePathMaxSize;
+            for(var i = 0; i < 20; i++) {
+                if(targetCells > 0) { //if we're still supposed to be adding cells
+                    var newTarget = targetCells > singlePathMaxSize ? singlePathMaxSize : targetCells; //determine target river length
+                   
+                    origin = this.getEligibleOrigin(currentArray);
+                    if(origin === null) { //this will never occur unless the edges of the map are completely filled up
+                        return riversAmt;
+                    }
+                   
+                    currentArray[origin.x * 10 + origin.y] = "Magma"; //the origin is not part of the path, so we're adding it here
+                   
+                    riversAmt++;
+                   
+                    if(newTarget - 1 <= 0 && targetCells - 1 <= 0) { // if there's only 1 length left to make a path, just do the origin, then leave
+                        break;
+                    }
+                   
+                    var cellsLeftOver = this.addPrettyRiver(currentArray, origin, newTarget - 1);
+                    targetCells -= newTarget - cellsLeftOver;
+                }
+                else break;
+            }
+           
+            return riversAmt;
+        },
+        pattern: function (currentArray) {
+            var i, j, rivers;
+           
+            var tempCurrentArray = [];
+            for(i = 0; i < currentArray.length; i++)
+                tempCurrentArray[i] = currentArray[i];
+           
+            var threshold = this.discardMultiplePaths ? this.discardMaxThreshold : 1;
+           
+            for(i = 0; i <= threshold; i++) {
+                rivers = this.generateRivers(currentArray);
+                if(rivers == 1)
+                    break;
+                else if(i != threshold) {
+                    for(j = 0; j < tempCurrentArray.length; j++)
+                        currentArray[j] = tempCurrentArray[j];
+                }
+            }
+           var replacedCorruptions = 0;
+           
+            for(i = 0; i < tempCurrentArray.length; i++) {
+                if(tempCurrentArray[i] == "Corruption" && currentArray[i] == "Magma")
+                    replacedCorruptions++;
+            }
+           
+            for(i = 0; i < currentArray.length; i++) {
+                if(currentArray[i] == "") {
+                    currentArray[i] = "Corruption";
+                    replacedCorruptions--;
+                   
+                    if(replacedCorruptions <= 0)
+                        break;
+                }
+            }
+           return currentArray;
+          },
+		attack: function (cellNum, name) {
+			return game.global.getEnemyAttack(cellNum, name);
+		},
+		health: function (cellNum, name) {
+			return game.global.getEnemyHealth(cellNum, name);
+		},
+		statScale: function (base){
+			return base;			
+		},
+		reward: function (effect) {
+			var amt;
+			var text;
+			if (game.global.generatorMode == 1 || (game.global.generatorMode == 2 && game.global.magmaFuel < getGeneratorFuelCap(false, true))){
+				amt = game.generatorUpgrades.Supply.modifier;
+				var zoneCap = 0.2 + ((game.global.world - this.start()) * 0.01);
+				amt = Math.min(amt, zoneCap);
+				game.global.magmaFuel = Math.round((game.global.magmaFuel + amt) * 100) / 100;
+				var cap = getGeneratorFuelCap(true);
+				if (game.global.magmaFuel > cap){
+					var dif = game.global.magmaFuel - cap;
+					if (dif <= 0) dif = 0;
+					amt -= dif;
+					if (amt <= 0) amt = 0;
+					text = "You earned " + prettify(amt) + " fuel! (" + prettify(dif) + " destroyed, not enough capacity)";
+					game.global.magmaFuel = cap;
+				}
+				else 
+					text = "You earned " + prettify(amt) + " fuel!";
+				changeGeneratorState(null, true);				
+			}
+			else{
+				amt = getMagmiteReward();
+				text = "You earned " + prettify(amt) + " Magmite!";
+				game.global.magmite += amt;
+				updateGeneratorUpgradeHtml();
+				document.getElementById('upgradeMagmiteTotal').innerHTML = prettify(game.global.magmite) + " Mi";
+			}
+			updateGeneratorInfo();
+			message(text, "Loot", "oil", "Magma", "magma");			
+		},
+		effects: ['none'],
+		namePrefix: 'Magma'
 	},
 	Pumpkimp: {
 		active: function (){
-			return (getRandomIntSeeded(game.global.mutationSeed++, 0, 20) == 10);
+			return false;
 		},
 		pattern: function(currentArray) {
 			var loc = getRandomIntSeeded(game.global.mutationSeed++, 0, 4);
@@ -3656,11 +4089,322 @@ var mutationEffects = {
 		text: 'this bad guy has a 30% chance to dodge your attacks.',
 		title: 'Corrupted Agility'
 	},
+	magmaAttack: {
+		icon: 'icomoon icon-pushpin',
+		text: 'this bad guy has additional attack. On death, it will bestow 1 stack of magma attack on your Trimps',
+		title: 'Magma Attack',
+		onDeath: function (){
+			game.magma.buffs.attack++;
+		}
+	},
 	none: {
 		icon: '',
 		text: '',
 		title: ''
 	}
+}
+
+function startTheMagma(){
+	tooltip('The Magma', null, 'update');
+	var genSetting = game.options.menu.generatorStart.enabled;
+	if (genSetting){
+		if (genSetting == 3) game.global.generatorMode = 2;
+		else if (genSetting == 2) game.global.generatorMode = 0;
+		else if (genSetting == 1) game.global.generatorMode = 1;
+	}
+	drawAllBuildings();
+	game.upgrades.Coordination.allowed += 100;
+}
+
+function decayNurseries(){
+	if (game.buildings.Nursery.owned <= 0) return;
+	game.buildings.Nursery.owned = Math.floor(game.buildings.Nursery.owned * 0.9);
+}
+
+function getMagmiteReward(){
+/* 	var amt = game.global.world - 230;
+	amt = Math.floor(amt / 5) + 1;
+	return amt; */
+	return 1;
+}
+
+function getGeneratorFuelCap(includeStorage, checkingHybrid){
+	var cap = game.generatorUpgrades.Capacity.modifier;
+	if (checkingHybrid && game.permanentGeneratorUpgrades.Storage.owned){
+		return cap * 1.5;
+	}
+	if (includeStorage && game.permanentGeneratorUpgrades.Storage.owned){
+		return cap * 2;
+	}
+	else return cap;
+}
+
+function increaseTheHeat(){
+	if (game.resources.trimps.soldiers > 0) {
+		var newMult = mutations.Magma.getTrimpDecayMult(game.global.world);
+		game.global.soldierCurrentAttack *= newMult;
+		game.global.soldierHealthMax *= newMult;
+		if (game.global.soldierHealth > game.global.soldierHealthMax) 
+			game.global.soldierHealth = game.global.soldierHealthMax;
+		if (game.global.soldierHealth <= 0) game.global.soldierHealth = 0;
+	}	
+}
+
+function updateGeneratorInfo(){
+	if (!mutations.Magma.active()) return;
+	var elem = document.getElementById('generatorWindow');
+	//update fuel
+	var currentFuel = game.global.magmaFuel;
+	//update efficiency
+	var nextTickAmount = getGeneratorTickAmount();
+	
+	//get state
+	var state = ['Passive', 'Active', 'Hybrid'];
+	state = state[game.global.generatorMode];
+	
+	if (elem == null){
+		var html = "<div class='thing generatorState' id='generatorWindow'><div id='genTitleContainer'> <div id='generatorTitle'>Dimensional Generator</div><div><span id='generatorActiveBtn' onclick='changeGeneratorState(1)' class='workBtn pointer noselect colorDanger hoverColor'>Gain Fuel</span> <span onclick='changeGeneratorState(0)' id='generatorPassiveBtn' class='workBtn pointer noselect colorPrimary hoverColor'>Gain Mi</span> <span onclick='changeGeneratorState(2)' id='generatorHybridBtn' class='workBtn pointer noselect colorTeal hoverColor' style='display: none'>Hybrid</span></div> <div id='generatorUpgradeBtn' onclick='tooltip(\"Upgrade Generator\", null, \"update\")'class='workBtn pointer noselect colorDark hoverColor'>Upgrade (<span id='upgradeMagmiteTotal'></span>)</div></div><div id='genGaugeContainer'><div class='row'><div class='col-xs-4'><div id='fuelContainer'><div id='fuelBar'></div><div id='fuelStorageBar'></div><div id='fuelGlass'></div><div id='fuelOwnedText'>Fuel<br/><span id='generatorFuelOwned'>0</span> / <span id='generatorFuelMax'>0</span></div></div></div><div class='col-xs-4'><div id='generatorProducingContainer'>Producing<br/><span id='generatorTrimpsPs'>0</span><br/>Housing/Tick</div></div><div class='col-xs-4'><div id='generatorTickContainer'> <div id='generatorRadialContainer' class='radial-progress'> <div class='radial-progress-circle'> <div class='radial-progress-arrow static''></div></div><div id='generatorRadial' class='radial-progress-circle'> <div class='radial-progress-arrow mobile'></div> </div> <div id='clockKnob' class='radial-progress-knob generatorState'></div></div><span id='generatorNextTick'>0</span></div></div></div></div></div>";
+		document.getElementById('buildingsHere').innerHTML += html;
+	}
+	changeGeneratorState(null, true);
+	if (game.permanentGeneratorUpgrades.Hybridization.owned) document.getElementById('generatorHybridBtn').style.display = 'inline';
+	updateGeneratorFuel();
+	document.getElementById('generatorTrimpsPs').innerHTML = prettify(scaleNumberForCarp(nextTickAmount));
+	document.getElementById('upgradeMagmiteTotal').innerHTML = prettify(game.global.magmite) + " Mi";	
+}
+
+function scaleNumberForCarp(num){
+	if (game.portal.Carpentry.level > 0) num = Math.floor(num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level)));
+	if (game.portal.Carpentry_II.level > 0) num = Math.floor(num * (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level)));
+	return num;
+}
+
+function buyGeneratorUpgrade(item){
+	var upgrade = game.generatorUpgrades[item];
+	if (typeof upgrade === 'undefined') {
+		buyPermanentGeneratorUpgrade(item);
+		return;
+	}
+	var cost = upgrade.cost();
+	if (game.global.magmite < cost) return;
+	game.global.magmite -= cost;
+	if (game.global.magmite <= 0) game.global.magmite = 0;
+	if (typeof upgrade.nextModifier !== 'undefined') 
+		upgrade.modifier = upgrade.nextModifier();
+	upgrade.upgrades++;
+	updateGeneratorUpgradeHtml();
+	updateGeneratorInfo();
+	showGeneratorUpgradeInfo(item);
+}
+
+function buyPermanentGeneratorUpgrade(item){
+	var upgrade = game.permanentGeneratorUpgrades[item];
+	if (typeof upgrade === 'undefined') return;
+	var cost = upgrade.cost;
+	if (game.global.magmite < cost) return;
+	if (upgrade.owned) return;
+	game.global.magmite -= cost;
+	if (game.global.magmite <= 0) game.global.magmite = 0;
+	upgrade.owned = true;
+	updateGeneratorUpgradeHtml();
+	updateGeneratorInfo();
+	showGeneratorUpgradeInfo(item, true);
+}
+
+function getGeneratorUpgradeHtml(){
+		var tooltipText = "<div id='generatorUpgradeTooltip'>";
+		tooltipText += "<div class='generatorUpgradeTitle'>Multi Upgrades</div>";
+		for (var item in game.generatorUpgrades){
+			tooltipText += "<div class='thing pointer noselect thingColor' onclick='showGeneratorUpgradeInfo(\"" + item + "\")' id='generatorUpgrade" + item + "'></div>";		
+		}
+		tooltipText += "<div class='generatorUpgradeTitle'>One and Done Upgrades</div>";
+		for (var item in game.permanentGeneratorUpgrades){
+			tooltipText += "<div class='thing pointer noselect thingColor' onclick='showGeneratorUpgradeInfo(\"" + item + "\", true)' id='generatorUpgrade" + item + "'></div>";	
+		}
+		tooltipText += "<br/><div id='generatorUpgradeDescription' class='noselect'><b>Click an upgrade to learn more about it!</b><br/></div>";
+		tooltipText += "</div>";
+		return tooltipText;
+}
+
+function updateGeneratorUpgradeHtml(){
+	if (document.getElementById('generatorUpgradeTooltip') == null) return;
+	for (var item in game.generatorUpgrades){
+		var elem = document.getElementById('generatorUpgrade' + item);
+		if (elem == null) continue;
+		var upgrade = game.generatorUpgrades[item];
+		var cost = upgrade.cost();
+		var text = item + "<br/>" + upgrade.upgrades;
+		elem.innerHTML = text;
+		var state = (game.global.magmite >= cost) ? "CanAfford" : "CanNotAfford";
+		swapClass('thingColor', 'thingColor' + state, elem);
+	}
+	for (var item in game.permanentGeneratorUpgrades){
+		var elem = document.getElementById('generatorUpgrade' + item);
+		if (elem == null) continue;
+		var upgrade = game.permanentGeneratorUpgrades[item];
+		var cost = upgrade.cost;
+		var text = item + "<br/>";
+		text += (upgrade.owned) ? "Done" : prettify(cost) + " Mi";
+		elem.innerHTML = text;
+		var state;
+		if (upgrade.owned) 
+			state = "Done";
+		else 
+			state = (game.global.magmite >= cost) ? "CanAfford" : "CanNotAfford";
+		swapClass('thingColor', 'thingColor' + state, elem);	
+	}
+	var magmiteElem = document.getElementById('magmiteOwned');
+	if (magmiteElem != null) magmiteElem.innerHTML = "Magmite: " + prettify(game.global.magmite) + "<br/>";
+	if (document.getElementById('magmiteCost') != null && lastViewedDGUpgrade)
+		showGeneratorUpgradeInfo(lastViewedDGUpgrade[0], lastViewedDGUpgrade[1]);
+}
+
+
+function getGeneratorTickTime(){
+	var baseTick = 60;
+	var zoneMult = (game.talents.quickGen.purchased) ? 1.03 : 1.02;
+	var tickTime = Math.ceil(1 / Math.pow(zoneMult, Math.floor((game.global.world - mutations.Magma.start()) / 3)) * baseTick * 10) / 10;
+	return (tickTime < 5) ? 5 : tickTime;
+}
+
+function canGeneratorTick(){
+	return (game.global.timeSinceLastGeneratorTick >= (getGeneratorTickTime() * 1000));
+}
+
+var lastViewedDGUpgrade;
+function showGeneratorUpgradeInfo(item, permanent){
+	var elem = document.getElementById('generatorUpgradeDescription');
+	if (elem == null) return;
+	var description;
+	var cost;
+	if (permanent) {
+		description = game.permanentGeneratorUpgrades[item].description;
+		cost = game.permanentGeneratorUpgrades[item].cost;
+	}
+	else {
+		description = game.generatorUpgrades[item].description();
+		cost = game.generatorUpgrades[item].cost();
+	}
+	var color = (game.global.magmite >= cost) ? "Success" : "Danger";
+	elem.innerHTML = "<div id='generatorUpgradeName'>" + item + "</div><div onclick='buyGeneratorUpgrade(\"" + item + "\")' id='magmiteCost' class='pointer noSelect hoverColor color" + color + "'>Buy: " + prettify(cost) + " Magmite</div>" + description + "<br/>";
+	lastViewedDGUpgrade = [item, permanent];
+}
+
+var thisTime = 0;
+function updateNextGeneratorTickTime(){
+    //update tick time
+    var tickTime = getGeneratorTickTime();
+    var nextTickIn = (tickTime * 1000) - game.global.timeSinceLastGeneratorTick;
+    var framesPerVisual = 10;  
+    nextTickIn /= 1000;
+    nextTickIn = (isNumberBad(nextTickIn)) ? 0 : nextTickIn;
+    nextTickIn = Math.round(nextTickIn * 10) / 10;
+	if(Math.round((nextTickIn + 0.1) * 10) / 10 == tickTime) {
+		thisTime = framesPerVisual - 1;
+	}
+    document.getElementById('generatorNextTick').innerHTML = prettify(Math.floor(nextTickIn + 1));
+    var countingTick = Math.round((tickTime - nextTickIn) * 10) / 10;
+    countingTick = Math.round(countingTick * 10) / 10;
+	if (thisTime >= framesPerVisual - 1) {
+		thisTime = 0;
+		var timeRemaining = tickTime - countingTick;
+		if(timeRemaining != 0 && timeRemaining <= framesPerVisual / 10) {
+			timeRemaining -= 0.1;
+			timeRemaining = Math.round(timeRemaining * 10) / 10;
+			thisTime = framesPerVisual;
+			framesPerVisual = timeRemaining * 10;
+			thisTime -= framesPerVisual;
+		}
+		goRadial(document.getElementById('generatorRadial'), countingTick, tickTime, 100 * framesPerVisual);
+	}
+    else thisTime++;
+}
+
+function updateGeneratorFuel(){
+	var currentFuel = game.global.magmaFuel;
+	var maxFuel = getGeneratorFuelCap();
+	document.getElementById('generatorFuelOwned').innerHTML = prettify(currentFuel);
+	document.getElementById('generatorFuelMax').innerHTML = prettify(maxFuel);
+	var bar = document.getElementById('fuelStorageBar');
+	var percent;
+	if (currentFuel > maxFuel) {
+		var storageCap = getGeneratorFuelCap(true);
+		
+		percent = Math.ceil(((currentFuel - maxFuel) / (storageCap - maxFuel)) * 100);
+		if (percent > 100) percent = 100;
+		if (percent < 0) percent = 0;
+		//bar.style.top = (100 - percent) + "%";
+		bar.style.height = percent + "%";	
+	}
+	else {
+		//bar.style.top = "100%";
+		bar.style.height = "0%";
+	}
+	bar = document.getElementById('fuelBar');
+	percent = Math.ceil((currentFuel / maxFuel) * 100);
+	if (percent > 100) percent = 100;
+	//bar.style.top = (100 - percent) + "%";
+	bar.style.height = percent + "%";
+
+}
+
+function changeGeneratorState(to, updateOnly){
+	//0 passive, 1 active, 2 hybrid
+	if (!updateOnly)
+		game.global.generatorMode = to;
+	to = game.global.generatorMode;
+	if (to == 2){
+		if (game.global.magmaFuel < getGeneratorFuelCap(false, true)){
+			to = 3;
+		}
+	}
+	var state = ['Passive', 'Active', 'HybridPassive', 'HybridActive'];
+	state = state[to];
+	swapClass('generatorState', 'generatorState' + state, document.getElementById('generatorWindow'));
+	swapClass('generatorState', 'generatorState' + state, document.getElementById('clockKnob'));
+}
+
+function generatorTick(){
+	if (!mutations.Magma.active()) return;
+	var fuelRate = getFuelBurnRate();
+	if (game.global.magmaFuel < fuelRate) return;
+	game.global.timeSinceLastGeneratorTick += 100;
+	updateNextGeneratorTickTime();
+	if (!canGeneratorTick()) {
+		return;
+	}
+	var tickAmt = getGeneratorTickAmount();
+	game.stats.trimpsGenerated.value += tickAmt;
+	game.resources.trimps.max += tickAmt;
+	game.global.magmaFuel = Math.round((game.global.magmaFuel - fuelRate) * 100) / 100;
+	if (game.global.magmaFuel >= fuelRate)
+		game.global.timeSinceLastGeneratorTick = 0;
+	else {
+		game.global.timeSinceLastGeneratorTick = 0;
+		goRadial(document.getElementById('generatorRadial'), 0, 10, 0);
+		document.getElementById('generatorNextTick').innerHTML = 0;
+	}
+	updateGeneratorInfo();
+	changeGeneratorState(null, true);
+}
+
+function getGeneratorTickAmount(){
+	var fuelAmt = getGeneratorFuelCap();
+	fuelAmt = (game.global.magmaFuel > fuelAmt) ? fuelAmt : game.global.magmaFuel;
+	return game.generatorUpgrades.Efficiency.tickAtFuel(fuelAmt);
+}
+
+function getFuelBurnRate(){
+	var rate = 0.5;
+	if (game.permanentGeneratorUpgrades.Slowburn.owned) rate -= 0.1;
+	return rate;
+}
+
+function getMagmiteDecayAmt(){
+	var rate = 30;
+	if (game.permanentGeneratorUpgrades.Shielding.owned) 
+		rate -= 10;
+	return rate;
 }
 
 var canSkeletimp = false;
@@ -3736,9 +4480,25 @@ function setMutationTooltip(which, mutation){
 	elem.innerHTML = '<span class="badge badBadge ' + mutation + '" onmouseover="tooltip(\'' + effect.title + '\', \'customText\', event, \'' + mutations[mutation].tooltip(which) + '\')" onmouseout="tooltip(\'hide\')"><span class="' + effect.icon + '"></span></span>';
 }
 
-function setVoidCorruptionIcon(){
-	var text = "This Void Map has become unstable due to Corruption. Enemy attack increased by " + (mutations.Corruption.statScale(3) / 2).toFixed(1) + "X, and health increased by " + (mutations.Corruption.statScale(10) / 2).toFixed(1) + "X. Helium at the end of the map is doubled!";
-	document.getElementById('corruptionBuff').innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'Void Corruption\', \'customText\', event, \'' + text + '\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-plus"></span></span>&nbsp;';
+function setVoidCorruptionIcon(regularMap){
+	var attackScale = "";
+	var healthScale = "";
+	if (regularMap || !mutations.Magma.active()){
+		attackScale = (mutations.Corruption.statScale(3) / 2);
+		healthScale = (mutations.Corruption.statScale(10) / 2);
+	}
+	else {
+		attackScale = (mutations.Corruption.statScale(3));
+		healthScale = (mutations.Corruption.statScale(10));
+	}
+	var text = "This " + ((regularMap) ? "map" : "Void Map") + " has become unstable due to Corruption. Enemy attack increased by " + prettify(attackScale) + "X, and health increased by " + prettify(healthScale) + "X.";
+	var title = "";
+	if (!regularMap){
+		text += " Helium at the end of the map is now double what you would earn from a World zone, including Corrupted cells!";
+		title = "Void Corruption";
+	}
+	else title = "Map Corruption";
+	document.getElementById('corruptionBuff').innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + title + '\', \'customText\', event, \'' + text + '\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-plus"></span></span>&nbsp;';
 }
 
 function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation) {
@@ -3751,7 +4511,12 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation)
 		if (badGuy.location == "Maps" && !mapSuffix) continue;
 		if (level == totalCells && badGuy.last && (badGuy.location == mapSuffix || (!mapSuffix && badGuy.location == "World")) && world >= badGuy.world) {
 			if (item == "Blimp" && (world != 5 && world  != 10 && world < 15)) continue;
-			if (!mapSuffix && (game.global.brokenPlanet || game.global.world == 59) && item == "Blimp") item = "Improbability";
+			if (!mapSuffix && (game.global.brokenPlanet || game.global.world == 59) && item == "Blimp"){
+				if (mutations.Magma.active())
+					item = "Omnipotrimp";
+				else
+					item = "Improbability";
+			}
 			selected = item;
 			force = true;
 			break;
@@ -4074,8 +4839,6 @@ function easterEggClicked(){
 		if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 		var amt = (game.global.world >= 59) ? 5 : 1;
 		amt = rewardResource("helium", amt, 99);
-		game.global.totalHeliumEarned += amt;
-		distributeToChallenges(amt);
 		startText += prettify(amt) + " helium!";
 	}
 	message(startText, "Loot", "*droplet", "eggMessage easterEgg" + getRandomIntSeeded(game.global.eggSeed + 1, 0, 4));
@@ -4435,6 +5198,8 @@ function battleCoordinator(makeUp) {
     game.global.battleCounter += (1000 / game.settings.speed);
 	var num = (game.portal.Agility.level) ? 1000 * Math.pow(1 - game.portal.Agility.modifier, game.portal.Agility.level) : 1000;
 	if (game.talents.hyperspeed.purchased) num -= 100;
+	if (game.talents.hyperspeed2.purchased && (game.global.world <= Math.floor((game.global.highestLevelCleared + 1) * 0.5)))
+		num -= 100;
 	if (game.global.battleCounter >= num) {
         game.global.battleCounter -= num; //Thanks grabz
         fight(makeUp);
@@ -4484,6 +5249,14 @@ function getBadCoordLevel(){
 		amt = Math.ceil(amt * 1.25);
 	}
 	return amt;
+}
+
+function getPierceAmt(){
+	var base = 0.2;
+	if (game.global.challengeActive == "Lead") base += (game.challenges.Lead.stacks * 0.001);
+	if (game.global.formation == 3) base *= 0.5;	
+	if (game.talents.pierce.purchased) base *= 0.75;
+	return base;
 }
 
 function startFight() {
@@ -4536,8 +5309,12 @@ function startFight() {
 		badCoord = getBadCoordLevel();
 		badName += " (" + prettify(badCoord) + ")";	
 	}
-	if (game.global.brokenPlanet && !game.global.mapsActive)
-		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Pierce\', \'customText\', event, \'20% of the damage from this Bad Guy pierces through block\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-tint"></span></span>';	
+	if (cell.name == "Omnipotrimp" && game.global.world % 5 == 0){
+		badName += ' <span class="badge badBadge Magma" onmouseover="tooltip(\'Superheated\', \'customText\', event, \'This Omnipotrimp is Superheated, and will explode on death.\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-fire2"></span></span>';
+	}
+	if (game.global.brokenPlanet && !game.global.mapsActive){
+		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Pierce\', \'customText\', event, \'' + prettify(getPierceAmt() * 100) + '% of the damage from this Bad Guy pierces through block\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-tint"></span></span>';
+	}
 	if (game.global.challengeActive == "Slow" || ((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom"))
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Fast\', \'customText\', event, \'This Bad Guy is fast and attacks first\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-forward"></span></span>';
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")){
@@ -4549,6 +5326,9 @@ function startFight() {
 		setMutationTooltip(cell.corrupted, cell.mutation);
 	else if (map && map.location == "Void" && game.global.world >= corruptionStart){
 		setVoidCorruptionIcon();
+	}
+	else if (map && mutations.Magma.active()){
+		setVoidCorruptionIcon(true);
 	}
 	else
 		document.getElementById('corruptionBuff').innerHTML = "";
@@ -4587,9 +5367,15 @@ function startFight() {
             var difficulty = map.difficulty;
             cell.attack *= difficulty;
             cell.health *= difficulty;
-			if (map.location == "Void" && game.global.world >= corruptionStart){
-				cell.attack *= (mutations.Corruption.statScale(3) / 2).toFixed(1);
-				cell.health *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
+			if (game.global.world >= corruptionStart){
+				if (mutations.Magma.active() && map.location == "Void"){
+					cell.attack *= (mutations.Corruption.statScale(3)).toFixed(1);
+					cell.health *= (mutations.Corruption.statScale(10)).toFixed(1);
+				}
+				else if (map.location == "Void" || mutations.Magma.active()){
+					cell.attack *= (mutations.Corruption.statScale(3) / 2).toFixed(1);
+					cell.health *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
+				}
 			}
         }
 		if (game.global.challengeActive == "Meditate") cell.health *= 2;
@@ -4602,7 +5388,7 @@ function startFight() {
 			cell.health *= 2;
 		}
 		else if (game.global.challengeActive == "Lead" && (game.challenges.Lead.stacks > 0)) cell.health *= (1 + (game.challenges.Lead.stacks * 0.04));
-		if (cell.name == 'Improbability'){
+		if (cell.name == 'Improbability' || cell.name == "Omnipotrimp"){
 			if (game.global.roboTrimpLevel && game.global.useShriek) activateShriek();
 			if (game.global.world >= corruptionStart) {
 				if (game.global.spireActive) {
@@ -4663,21 +5449,33 @@ function startFight() {
 		game.global.difs.health = 0;
 		game.global.difs.block = 0;
 		game.global.difs.trainers = game.jobs.Trainer.owned;
-        game.global.soldierHealthMax = (game.global.health * trimpsFighting);
+        game.global.soldierHealthMax = game.global.health;
 		game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
+        game.global.soldierCurrentAttack = game.global.attack;
+		//Magma;
+		if (mutations.Magma.active()){
+			var magMult = mutations.Magma.getTrimpDecay();
+			game.global.soldierHealthMax *= magMult;
+			game.global.soldierCurrentAttack *= magMult;
+		}
+		//Soldiers
+		game.global.soldierHealthMax *= trimpsFighting;
+		game.global.soldierCurrentAttack *= trimpsFighting;
 		//Toughness
 		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
 		if (game.portal.Toughness_II.level > 0) game.global.soldierHealthMax *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
 		if (game.global.lowestGen >= 0) {
-			if (game.global.breedBack <= 0) game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
-			game.global.lastLowGen = game.global.lowestGen;
-			if (game.global.breedBack <= 0) game.global.lowestGen = -1;
+			if (game.global.breedBack <= 0) {
+				game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
+				game.global.lastLowGen = game.global.lowestGen;
+				game.global.lowestGen = -1;
+			}
+			else game.global.lastLowGen = 0;
 			game.global.breedBack = soldType / 2;
 		}
 		if (game.goldenUpgrades.Battle.currentBonus > 0){
 			game.global.soldierHealthMax *= game.goldenUpgrades.Battle.currentBonus + 1;
 		}
-        game.global.soldierCurrentAttack = (game.global.attack * trimpsFighting);
 		//Resilience
 		if (game.portal.Resilience.level > 0) game.global.soldierHealthMax *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
 		//Power
@@ -4713,6 +5511,9 @@ function startFight() {
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
 			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
+			if (mutations.Magma.active()){
+				healthTemp *= mutations.Magma.getTrimpDecay();
+			}
 			if (game.portal.Toughness_II.level) healthTemp *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
 			if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.global.lastLowGen);
 			if (game.goldenUpgrades.Battle.currentBonus > 0) healthTemp *= game.goldenUpgrades.Battle.currentBonus + 1;
@@ -4731,6 +5532,9 @@ function startFight() {
 		}
 		if (game.global.difs.attack !== 0) {
 			var attackTemp = trimpsFighting * game.global.difs.attack * ((game.portal.Power.modifier * game.portal.Power.level) + 1);
+			if (mutations.Magma.active()){
+				attackTemp *= mutations.Magma.getTrimpDecay();
+			}
 			if (game.portal.Power_II.level) attackTemp *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
 			if (game.global.formation !== 0){
 				attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
@@ -4864,6 +5668,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 			var vpAmt = (game.talents.voidPower2.purchased) ? 35 : 15;
 			number *= ((vpAmt / 100) + 1);
 		}
+
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
 				if (minFluct == -1) minFluct = fluctuation;
@@ -4956,14 +5761,24 @@ function tryScry(){
 	var reward = calculateScryingReward();
 	if (reward <= 0) return;
 	game.global.essence += reward;
+	var maxCost = getTotalTalentCost();
+	if (game.global.spentEssence + game.global.essence > maxCost){
+		game.global.essence = Math.max(maxCost - game.global.spentEssence, 0);
+		game.global.essence = Math.round(game.global.essence);
+		message("You have no more use for Dark Essence!", "Loot", "*cloud3", "essenceMessage", "essence");
+	}
+	else {
+		message("You found " + prettify(reward) + " Dark Essence!", "Loot", "*cloud3", "essenceMessage", "essence");
+	}
 	updateTalentNumbers();
-	message("You found " + prettify(reward) + " Dark Essence!", "Loot", "*cloud3", "essenceMessage", "essence");
+	
 }
 
 function calculateScryingReward(){
 	var scryableLevels = game.global.world - 180;
 	if (scryableLevels <= 0) return 0;
-	var num = Math.floor((1 * Math.pow(1.11613, scryableLevels)) / 3);
+	var modAmt = (game.global.canMagma) ? 1.1683885 : 1.11613; //4.0 compatibility
+	var num = Math.floor((1 * Math.pow(modAmt, scryableLevels)) / 3);
 	return (num < 1) ? 1 : num;
 }
 
@@ -5044,7 +5859,7 @@ function purchaseTalent(what){
 
 function getHighestTalentTier(countTilNext){
 	var count = countPurchasedTalents();
-	var requiredPerTier = [3, 7, 12];
+	var requiredPerTier = [3, 7, 11, 16];
 	for (var x = 0; x < requiredPerTier.length; x++){
 		if (count < requiredPerTier[x]){
 			if (countTilNext) return requiredPerTier[x] - count;
@@ -5072,8 +5887,16 @@ function countPurchasedTalents(){
 
 function getNextTalentCost(){
 	var count = countPurchasedTalents();
-	if (count == 20) return -1;
+	if (count == Object.keys(game.talents).length) return -1;
 	return Math.floor(10 * Math.pow(3, count));
+}
+
+function getTotalTalentCost(){
+	var cost = 0;
+	for (var x = 0; x < Object.keys(game.talents).length; x++){
+		cost += Math.floor(10 * Math.pow(3, x));
+	}
+	return cost;
 }
 
 function nextWorld() {
@@ -5098,7 +5921,7 @@ function nextWorld() {
     buildGrid();
     drawGrid();
 	if (game.worldText["w" + game.global.world]) message(game.worldText["w" + game.global.world], "Story");
-	checkAchieve("zones");
+	if (game.global.canMagma) checkAchieve("zones");
 	if (game.global.challengeActive == "Mapology") {
 		game.challenges.Mapology.credits++;
 		updateMapCredits();
@@ -5140,7 +5963,12 @@ function nextWorld() {
 			updateDailyStacks('karma');
 		}
 	}
-	if (game.talents.blacksmith.purchased && (game.global.world <= Math.floor((game.global.highestLevelCleared + 1) / 2))) dropPrestiges();
+	if (game.talents.blacksmith.purchased){
+		if (game.global.world <= Math.floor((game.global.highestLevelCleared + 1) / 2))
+			dropPrestiges();
+		else if (game.talents.blacksmith2.purchased && game.global.world <= Math.floor((game.global.highestLevelCleared + 1) / 1.33))
+			dropPrestiges();
+	}
 	if (game.talents.bionic.purchased){
 		var bTier = ((game.global.world - 126) / 15);
 		game.mapUnlocks.BionicWonderland.canRunOnce = false;
@@ -5165,6 +5993,14 @@ function nextWorld() {
 	if (game.global.world == mutations.Corruption.start(true)){
 		tooltip("Corruption", null, 'update');
 	}
+	if (mutations.Magma.active()){
+		if (game.global.world == mutations.Magma.start()){
+			startTheMagma();
+		}
+		mutations.Magma.increaseTrimpDecay();
+		increaseTheHeat();
+		decayNurseries();
+	}
 	if (game.global.world == 30 && game.global.canRespecPerks && !game.global.bonePortalThisRun && countHeliumSpent() <= 60) giveSingleAchieve(0);
 	else if (game.global.world == 10 && game.stats.trimpsKilled.value <= 5) giveSingleAchieve(3);
 	else if (game.global.world == 60){
@@ -5172,7 +6008,7 @@ function nextWorld() {
 		if (game.stats.cellsOverkilled.value == 2950) giveSingleAchieve(19);
 		if (getHighestPrestige() <= 3) giveSingleAchieve(11);
 		//Without Hiring Anything
-		var jobCount = 0; 
+		var jobCount = 0;
 		for (var job in game.jobs) jobCount += game.jobs[job].owned; //Dragimp adds 1
 		if (jobCount - game.jobs.Dragimp.owned == 0 && game.stats.trimpsFired.value == 0) giveSingleAchieve(16);
 	}
@@ -5402,10 +6238,8 @@ function buyGoldenUpgrade(what) {
 	return true;
 }
 
-function giveHeliumReward(mod){
+function giveHeliumReward(mod){ //used for spire only
 	var amt = rewardResource("helium", mod, 99);
-	game.global.totalHeliumEarned += amt;
-	distributeToChallenges(amt);
 	return amt;
 }
 
@@ -5880,8 +6714,7 @@ function abandonDaily(){
 	var reward = game.resources.helium.owned + game.stats.spentOnWorms.value;
 	if (reward > 0) reward = Math.floor(reward * value);
 	if (!isNumberBad(reward)){
-		game.resources.helium.owned += reward;
-		game.global.totalHeliumEarned += reward;
+		addHelium(reward);
 		game.global.dailyHelium += reward;
 		game.stats.dailyBonusHelium.value += reward;
 		checkAchieve('dailyHelium');
@@ -6332,11 +7165,7 @@ function fight(makeUp) {
     var attackAndBlock = (cellAttack - game.global.soldierCurrentBlock);
 	var pierce = 0;
 	if (game.global.brokenPlanet && !game.global.mapsActive){
-		//Configure pierce
-		pierce = (game.global.formation == 3) ? 0.1 : 0.2;
-		if (game.global.challengeActive == "Lead") pierce += (game.challenges.Lead.stacks * 0.001);
-		
-		//Calculate pierce for regular attacks
+		pierce = getPierceAmt();
 		var atkPierce = pierce * cellAttack;
 		if (attackAndBlock < atkPierce) attackAndBlock = atkPierce;
 	}
@@ -6926,7 +7755,8 @@ function simpleSeconds(what, seconds) {
 		var amt = job.owned * job.modifier * seconds;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
 		if (game.portal.Motivation_II.level > 0) amt *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
-		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
+		if (game.jobs.Magmamancer.owned > 0 && what == "metal") amt *= game.jobs.Magmamancer.getBonusPercent();
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		else if (game.global.challengeActive == "Size") amt *= 1.5;
 		if (game.global.challengeActive == "Toxicity"){
@@ -6993,7 +7823,8 @@ function addBoost(level, previewOnly) {
 		var amt = job.owned * job.modifier * add;
 		amt += (amt * game.portal.Motivation.level * game.portal.Motivation.modifier);
 		if (game.portal.Motivation_II.level > 0) amt *= (1 + (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier));
-		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01)).toFixed(2);
+		if (game.portal.Meditation.level > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
+		if (game.jobs.Magmamancer.owned > 0 && job.increase == "metal") amt *= game.jobs.Magmamancer.getBonusPercent();
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		if (game.global.challengeActive == "Toxicity"){
 			var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
@@ -7200,7 +8031,7 @@ function successPurchaseFlavor(){
 }
 
 function updateBones() {
-	document.getElementById("bonesOwned").innerHTML = prettify(game.global.b);
+	document.getElementById("bonesOwned").innerHTML = prettify(game.global.b) + " " + ((game.global.b == 1) ? "Bone" : "Bones");
 	updateSkeleBtn();
 }
 
@@ -7231,6 +8062,7 @@ function boostHe(checkOnly) {
 	game.global.totalHeliumEarned += amt;
 	game.global.totalPortals++;
 	checkAchieve("portals", null, false, true);
+	checkAchieve("totalHelium");
 	displayPerksBtn();
 	document.getElementById("pastUpgradesBtn").style.border = "1px solid red";
 }
@@ -8004,6 +8836,7 @@ function playFabFinishLogin(downloadFirst){
 }
 
 function saveToPlayFab(saveString){
+	if (game.global.isBeta) return;
 	if (!playFabId || typeof PlayFab === 'undefined' || typeof PlayFab.ClientApi === 'undefined') return false;
 	var requestData = {
 		TitleId: "9186",
@@ -8115,7 +8948,9 @@ function gameLoop(makeUp, now) {
 	loops++;
 	if (loops % 10 == 0){
 		if (game.global.challengeActive == "Decay") updateDecayStacks(true);
+		if (game.global.autoUpgradesAvailable) autoUpgrades();
 	}
+	if (mutations.Magma.active()) generatorTick();
 }
 
 
@@ -8175,7 +9010,7 @@ function updatePortalTimer(justGetTime) {
 		if (game.resources.helium.owned) document.getElementById("heliumPh").innerHTML = prettify(game.stats.heliumHour.value()) + "/hr";
 		if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
 		if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
-		if (game.global.autoUpgradesAvailable) autoUpgrades();
+
 		if (game.global.selectedChallenge == "Daily") updateDailyClock();
 	}
 	document.getElementById("portalTime").innerHTML = timeString;

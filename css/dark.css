@@ -218,6 +218,10 @@
     border-color: #5D5D5D;
 }
 
+#generatorWindow{
+	width: calc(100% + 1px);
+}
+
 /* Small Buttons */
 
 #buyHere.buttonSizeSmall div .buyBox .thing{
@@ -421,7 +425,7 @@
 	border-top:1px solid black;
 }
 
-.primaryColor {
+.primaryColor, .colorPrimary {
 	background-color: #183854;
 }
 
@@ -437,7 +441,7 @@
  background-color: #202020;
 }
 
-.workBtn.primaryColor:hover {
+.workBtn.primaryColor:hover, .colorPrimary.hoverColor:hover {
  background-color: #286090;
  color: #fff;
 }
@@ -899,6 +903,7 @@ color:#8F8F00
 .goldMap.mapElementNotSelected.mapThing:hover {
  background-color:#776200 !important;
 }
+
 .workBtn.infoColor:hover {
     background-color: #447f91;
     color: white;
@@ -907,4 +912,27 @@ color:#8F8F00
 .workBtn.dangerColor:hover {
     background-color: #672523;
     color: #fff;
+}
+
+#generatorUpgradeDescription {
+    background-color: #000000;
+    color: #C8C8C8;
+}
+ 
+#magmiteCost {
+    border: 1px solid #5D5D5D;
+}
+ 
+#tipCost b {
+    color: #AD2A2A !important;
+}
+ 
+#generatorUpgradeTitle {
+    color: #5b5bf6;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+ 
+#magmiteOwned {
+    color: #b40000;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }

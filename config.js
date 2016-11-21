@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 3.811,
+		version: 4.0,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -170,6 +170,11 @@ var toReturn = {
 		recentDailies: [],
 		dailyHelium: 0,
 		breedTime: 1,
+		magmite: 0,
+		magmaFuel: 0,
+		generatorMode: 1, //0 passive, 1 active, 2 hybrid
+		timeSinceLastGeneratorTick: -1,
+		canMagma: true,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -204,6 +209,7 @@ var toReturn = {
 				exotic: true,
 				helium: true,
 				essence: true,
+				magma: true,
 				events: true
 			},
 			Unlocks: {
@@ -586,7 +592,7 @@ var toReturn = {
 			},
 			masteryTab: {
 				enabled: 1,
-				extraTags: "layout alerts",
+				extraTags: "alerts",
 				description: "Choose what you would like to see on your Mastery Tab! <b>No Mastery Info</b> will keep the tab clean and static. <b>Alert Mastery</b> will show an alert on the tab as soon as a new Mastery becomes affordable. <b>Show Essence</b> will always show your total amount of unspent essence on the tab.",
 				titles: ["No Mastery Info", "Alert Mastery", "Show Essence"],
 				lockUnless: function () {
@@ -594,6 +600,19 @@ var toReturn = {
 				},
 				onToggle: function () {
 					updateTalentNumbers();
+				}
+			},
+			generatorStart: {
+				enabled: 0,
+				extraTags: "general",
+				description: "Choose what mode the Dimensional Generator should start each run on. <b>Default Generator</b> will continue with whatever setting you were using at the end of your last run. <b>All Other Settings<b> are named by what mode will be set to active at the start of each run.",
+				get titles () {
+					var arr = ["Default Generator", "Gain Fuel", "Gain Mi"];
+					if (game.permanentGeneratorUpgrades.Hybridization.owned) arr.push("Hybrid");
+					return arr;
+				},
+				lockUnless: function () {
+					return (game.global.highestLevelCleared >= 229);
 				}
 			},
 			pauseGame: {
@@ -615,6 +634,7 @@ var toReturn = {
 						game.global.lastSkeletimp += dif;
 						game.global.zoneStarted += dif;
 						game.global.mapStarted += dif;
+						game.global.lastGeneratorTick += dif;
 						this.timeAtPause = 0;
 						game.global.time = 0;
 						game.global.lastOnline = now;
@@ -691,16 +711,16 @@ var toReturn = {
 			icon: "*heart5"
 		},
 		foreman: {
-			description: "Summon 5000 foremen to aid in construction.",
-			name: "Foremany I",
+			description: "Summon 50000 foremen to aid in construction.",
+			name: "Foremany",
 			tier: 2,
 			purchased: false,
 			onPurchase: function () {
-				game.global.autoCraftModifier += 1250;
+				game.global.autoCraftModifier += 12500;
 				updateForemenCount();
 			},
 			onRespec: function () {
-				game.global.autoCraftModifier -= 1250;
+				game.global.autoCraftModifier -= 12500;
 				updateForemenCount();
 			},
 			icon: "user",
@@ -736,21 +756,12 @@ var toReturn = {
 			icon: "*heart5",
 			requires: "voidPower"
 		},
-		foreman2: {
-			description: "Summon 15000 additional foremen to aid in construction.",
-			name: "Foremany II",
+		doubleBuild: {
+			description: "Stacked items in the Building Queue will be constructed two at a time.",
+			name: "Double Build",
 			tier: 3,
 			purchased: false,
-			onPurchase: function () {
-				game.global.autoCraftModifier += 3750;
-				updateForemenCount();
-			},
-			onRespec: function () {
-				game.global.autoCraftModifier -= 3750;
-				updateForemenCount();
-			},
-			icon: "user",
-			requires: "foreman"
+			icon: "*hammer"
 		},
 		headstart2: {
 			description: "Corruption begins an additional 10 levels earlier, at zone 166.",
@@ -776,7 +787,7 @@ var toReturn = {
 		},
 		hyperspeed: {
 			description: "Reduce the time in between fights and attacks by 100ms.",
-			name: "Hyperspeed",
+			name: "Hyperspeed I",
 			tier: 4,
 			purchased: false,
 			icon: "fast-forward"
@@ -785,7 +796,7 @@ var toReturn = {
 			get description () {
 				return "Each cleared zone through Z" + Math.floor((game.global.highestLevelCleared + 1) / 2) + " (half of your highest zone reached) will drop all available equipment prestiges from maps.";
 			},
-			name: "Blacksmithery",
+			name: "Blacksmithery I",
 			tier: 4,
 			purchased: false,
 			icon: "*hammer2"
@@ -798,13 +809,12 @@ var toReturn = {
 			icon: "road",
 			requires: "headstart2"
 		},
-		skeletimp2: {
-			description: "Reduce the minimum time between Skeletimp spawns by an additional 10 minutes",
-			name: "King of Bones II",
+		pierce: {
+			description: "Reduce the amount of enemy damage that can pierce block by 25%.",
+			name: "Metallic Coat",
 			tier: 4,
 			purchased: false,
-			icon: "italic",
-			requires: "skeletimp"
+			icon: "tint"
 		},
 		turkimp3: {
 			description: "Increase the bonus resources gained while Well Fed from a Turkimp by 25%, from 50% to 75%.",
@@ -814,10 +824,46 @@ var toReturn = {
 			requires: "turkimp2",
 			icon: "*spoon-knife"
 		},
-
-
-
-
+		hyperspeed2: {
+			get description(){
+				return "Reduce the time in between fights and attacks by an additional 100ms through Z" + Math.floor((game.global.highestLevelCleared + 1) * 0.5) + " (50% of your highest zone reached)";
+			},
+			name: "Hyperspeed II",
+			tier: 5,
+			purchased: false,
+			icon: "fast-forward"
+		},
+		blacksmith2: {
+			get description () {
+				return "Each cleared zone through Z" + Math.floor((game.global.highestLevelCleared + 1) / 1.33) + " (75% of your highest zone reached) will drop all available equipment prestiges from maps.";
+			},
+			name: "Blacksmithery II",
+			tier: 5,
+			purchased: false,
+			icon: "*hammer2"
+		},
+		magmaFlow: {
+			description: "Cause two extra Magma cells to appear on any zone that already has Magma.",
+			name: "Magma Flow",
+			tier: 5,
+			purchased: false,
+			icon: "*fire",
+		},
+		skeletimp2: {
+			description: "Reduce the minimum time between Skeletimp spawns by an additional 10 minutes",
+			name: "King of Bones II",
+			tier: 5,
+			purchased: false,
+			icon: "italic",
+			requires: "skeletimp"
+		},
+		quickGen: {
+			description: "Increase the amount of speed that the Dimensional Generator gains per zone by 50%.",
+			name: "Quick Gen",
+			tier: 5,
+			purchased: false,
+			icon: "*diamonds"
+		}
 		
 		
 
@@ -965,7 +1011,7 @@ var toReturn = {
 			otherModifier: 0.3,
 			priceBase: 75,
 			heliumSpent: 0,
-			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for 230% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. Maximum of 10 levels.",
+			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for +130% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. Maximum of 10 levels.",
 			max: 10
 		},
 		Carpentry: {
@@ -1620,8 +1666,90 @@ var toReturn = {
 			},
 			value: 0,
 			valueTotal: 0
+		},
+		trimpsGenerated: {
+			title: "Trimps from Generator",
+			display: function() {
+				return (this.value > 0 || this.valueTotal > 0);
+			},
+			value: 0,
+			valueTotal: 0
 		}
 		
+	},
+	generatorUpgrades: {
+		Efficiency: {
+			base: 5e8,
+			baseCost: 8,
+			upgrades: 0,
+			modifier: 1,
+			tickAtFuel: function(fuel){
+				return Math.floor(Math.sqrt(fuel) * ((this.base * 0.1 * this.upgrades) + this.base));
+			},
+			cost: function(){
+				return this.baseCost + (8 * this.upgrades);
+			},
+			description: function(){
+				var burnRate = getFuelBurnRate();
+				return "Your Generator currently grants " + prettify(scaleNumberForCarp(this.tickAtFuel(burnRate))) + " Max Trimps per tick at " + burnRate + " fuel (the amount of fuel needed to tick). Purchase this to increase the Generator's efficiency by 10% (additive)";
+			}
+		},
+		Capacity: {
+			base: 3,
+			baseCost: 32,
+			upgrades: 0,
+			modifier: 3,
+			baseIncrease: 0.4,
+			cost: function(){
+				return this.baseCost + (32 * this.upgrades);
+			},
+			nextModifier: function(){
+				return this.baseIncrease + this.modifier;
+			},
+			description: function(){
+				return "Your Generator can currently store " + prettify(this.modifier) + " fuel. Purchase this to increase the fuel capacity by " + prettify(this.baseIncrease) + ". The more fuel you have in storage, the more housing you'll create per tick!";
+			}
+		},
+		Supply: {
+			base: 0.2,
+			baseCost: 64,
+			baseIncrease: 0.02,
+			upgrades: 0,
+			modifier: 0.2,
+			cost: function(){
+				return this.baseCost + (64 * this.upgrades);
+			},
+			nextModifier: function(){
+				return this.baseIncrease + this.modifier;
+			},
+			description: function(){
+				var currentAmt = this.modifier;
+				var maxZone = ((currentAmt - 0.2) / 0.01) + mutations.Magma.start();
+				return "The Magma at Zone " + mutations.Magma.start() + " contains 0.2 fuel per cell, and each zone after that can drop 0.01 more. Your generator can currently only harvest a max of " + prettify(this.modifier) + " per cell, meaning some fuel after Z" + prettify(maxZone) + " will be unharvestable. Purchase this upgrade to increase the amount you can harvest per cell by <b>0.02</b>, taking advantage of <b>2 extra zones</b>.";
+			}
+		},
+	},
+	permanentGeneratorUpgrades: {
+		Hybridization: {
+			description: "Unlock the ability to switch your Dimensional Generator to Hybrid mode. Hybrid mode will automatically switch to Gain Fuel when fuel is below max, and Gain Mi when fuel is full.",
+			cost: 400,
+			owned: false
+		},
+		Storage: {
+			description: "Unlock extra fuel storage. This storage will always be equal to your normal fuel cap and will only store extra fuel above your normal cap. Fuel in this extra storage does not increase generator Trimps/tick, but acts as nice padding to help prevent wasted fuel. Hybrid mode will attempt to fill your extra storage halfway.",
+			cost: 800,
+			owned: false
+		},
+		Shielding: {
+			description: "Reduce the amount of Magmite that decays after each portal by 10% (additive)",
+			cost: 1400,
+			owned: false
+		},	
+		Slowburn: {
+			description: "Reduce the rate of fuel consumption per tick by 0.1, from 0.5 to 0.4",
+			cost: 2500,
+			owned: false
+		}
 	},
 	//Total 1335.2% after adding daily bonus helium
 	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40],
@@ -1638,9 +1766,9 @@ var toReturn = {
 				return game.global.highestLevelCleared + " total";
 			},
 			evaluate: function () { return game.global.highestLevelCleared},
-			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220],
-			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6],
-			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator"],
+			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300],
+			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7],
+			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator", "Heat Maker", "Heat Hater", "Heat Breaker", "Heat Slayer", "Heat Expert", "Heat Bender", "Volcanic", "Magma Master"],
 			icon: "icomoon icon-compass2",
 			newStuff: []
 		},
@@ -1834,6 +1962,9 @@ var toReturn = {
 				return prettify(this.evaluate()) + " total";
 			},
 			breakpoints: [5e5, 1e6, 5e6, 2.5e7, 2e9],
+			display: function () {
+				return (game.global.highestLevelCleared >= 99);
+			},
 			tiers: [3, 4, 5, 6, 7],
 			names: ["Daytermined", "Daydicated", "Daystiny", "Daylighted", "Daystroyer"],
 			icon: "icomoon icon-sun",
@@ -2272,6 +2403,32 @@ var toReturn = {
 		w190: "You awaken from your sleep in a cold sweat to a frantic and terrified noise from the back of the cave where you were sleeping. With urgency, you run to the source of the noise to make sure your Trimps are okay. As you reach the back, you see a handful of Trimps trying to use a small and very angry Snimp as a musical instrument. You put some sand in your ears and go back to sleep.",
 		w193: "The corruption continues to thicken as you near the Spire. You're beginning to grow accustomed to the smell of corruption, and really don't mind it anymore. It reminds you of blueberries. Evil blueberries.",
 		w198: "You're so close to the source of corruption that you can taste it, and it doesn't taste good.",
+		get w205 () {
+			if (game.global.spireRows < 10)
+				return "You look back at The Spire and feel kinda bad that there's still a ton of Corruption coming out of it, but you'll get him some time.";
+			return "You don't miss Druopitee too much. You don't remember all that much to miss, but the point stands.";
+		},
+		get w210 () {
+			if (game.global.spireRows < 10)
+				return "It smells extra corrupt. That Spire can't be healthy for the environment.";
+			return "There's still Corruption, but it feels less threatening. You feel more at peace with the planet and feel like you're on track to repairing it. Surely nothing else terrible will happen any time soon.";
+		},
+		get w220 () {
+			if (game.global.spireRows < 10)
+				return "Your Trimps seem content. They kinda wish that spire wasn't still pumping purple stuff in to their world, but they don't mind too much.";
+			return "Your Trimps seem content. You taught some basic puppetry to them and they've been putting on some great shows with defeated Snimps.";
+		},
+		w225: "You wake up in a sweat after a good night's sleep in a cool, dark cave. You dreamt that you were overheating, though that's never really been a problem before. Oh well, strange dreams and memories haven't really indicated anything important before, it's probably nothing.",
+		w231: "It's pretty hot.",
+		w235: "The heat intensifies as you move further and further through the zones. Instinct says to turn away from the heat, but that wouldn't be any fun.",
+		get w245 () {
+			if (game.jobs.Magmamancer.owned > 0)
+				return "Your Magmamancers have figured out how to make little fountains in the Magma around the base. You like the effect.";
+			return "You remember Magmamancers as being pretty cool.";
+		},
+		w251: "You asked that Omnipotrimp nicely not to explode after you killed it, but it exploded anyways. Pretty rude.",
+		w255: "Your Trimps continue to lose strength as you press through the zones, but they seem to be adapting well in spirits. It seems like each generation likes the heat more and more.",
+		w265: "You're determined to repair the planet, though you feel like it's not yet possible. Either way, you know you're gaining strength and that your Trimps would follow you anywhere."
 	},
 	
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over", "swam the river Styx", "turned in to jerky", "forgot to put armor on", "croaked", "flatlined", "won't follow you to battle again", "died. Lame", "lagged out", "imp-loded"],
@@ -2330,6 +2487,15 @@ var toReturn = {
 			owned: 0,
 			max: -1
 		} 
+	},
+	
+	magma: {
+		buffs: {
+			attack: 0,
+			crit: 0,
+			health: 0,
+			potency: 0
+		}
 	},
 	
 	equipment: {
@@ -2538,7 +2704,7 @@ var toReturn = {
 			}
 		},
 		Pumpkimp: {
-			location: "Maps",
+			location: "None",
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
@@ -2770,17 +2936,14 @@ var toReturn = {
 				if (game.global.world >= 21 && (game.global.totalPortals >= 1 || game.global.portalActive)){
 					if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 					amt = rewardResource("helium", 1, level);
-					game.global.totalHeliumEarned += amt;
 					message("You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Loot", "oil", "helium", "helium");
 					distributeToChallenges(amt);
 					if (game.global.world >= 40 && game.global.challengeActive == "Balance") {
 						var reward = game.challenges.Balance.heldHelium;
 						message("You have completed the Balance challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
-						game.resources.helium.owned += reward;
-						game.global.totalHeliumEarned += reward;
 						game.challenges.Balance.abandon();
 						game.global.challengeActive = "";
-					
+						addHelium(reward);
 					}
 				}
 			}
@@ -2795,9 +2958,16 @@ var toReturn = {
 			loot: function (level) {
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 				var amt = (game.global.world >= 60) ? 10 : 2;
-				if (game.global.world >= mutations.Corruption.start(true)) amt *= 2;
-				amt = rewardResource("helium", amt, level);
-				game.global.totalHeliumEarned += amt;
+				if (mutations.Magma.active()) amt *= 3;
+				var percentage = 1;
+				if (game.global.world >= mutations.Corruption.start(true)){ 
+					percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
+					percentage *= mutations.Corruption.cellCount() * 2;
+					percentage += 2;
+					console.log(percentage);
+					console.log(amt);
+				}
+				amt = rewardResource("helium", amt, level, false, percentage);
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";
 				if (game.options.menu.repeatVoids.enabled && game.global.totalVoidMaps > 1){
 					msg += "the next Void map";
@@ -2912,10 +3082,9 @@ var toReturn = {
 						game.portal.Siphonology.locked = false;
 						game.challenges.Mapocalypse.abandon();
 					}
-					game.resources.helium.owned += reward;
-					game.global.totalHeliumEarned += reward;
 					game.challenges.Electricity.heldHelium = 0;
 					game.global.challengeActive = "";
+					addHelium(reward);
 					game.global.radioStacks = 0;
 					updateRadioStacks();
 				}
@@ -2937,10 +3106,9 @@ var toReturn = {
 				if (game.global.challengeActive == "Crushed") {
 					var heliumAdded = game.challenges.Crushed.heldHelium;
 					message("You have completed the Crushed challenge! You have been rewarded with " + prettify(heliumAdded) + " Helium.", "Notices");
-					game.resources.helium.owned += heliumAdded;
-					game.global.totalHeliumEarned += heliumAdded;
 					game.challenges.Crushed.heldHelium = 0;
 					game.global.challengeActive = "";
+					addHelium(heliumAdded);
 					if (game.challenges.Crushed.critsTaken == 0) giveSingleAchieve(14);
 					game.challenges.Crushed.abandon();
 				}
@@ -3070,7 +3238,6 @@ var toReturn = {
 				if (!game.global.brokenPlanet) planetBreaker();
 				var amt = (game.global.world >= mutations.Corruption.start(true)) ? 10 : 5;
 				amt = rewardResource("helium", amt, level);
-				game.global.totalHeliumEarned += amt;
 				message("You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Loot", "oil", 'helium', 'helium');				
 				distributeToChallenges(amt);
 				if (game.global.challengeActive == "Slow" && game.global.world == 120){
@@ -3091,10 +3258,9 @@ var toReturn = {
 					var reward = (game.challenges[challenge].heliumMultiplier) ? game.challenges[challenge].heliumMultiplier : 2;
 					reward = game.challenges[challenge].heldHelium * reward;
 					message("You have completed the " + challenge + " challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
-					game.resources.helium.owned += reward;
-					game.global.totalHeliumEarned += reward;
 					game.challenges[challenge].heldHelium = 0;
 					game.global.challengeActive = "";
+					addHelium(reward);
 				}
 				else if (game.global.challengeActive == "Mapology" && game.global.world == 100){
 					message("You have completed the Mapology challenge! You have unlocked the 'Resourceful' Perk! Cheaper stuff!", "Notices");
@@ -3102,6 +3268,25 @@ var toReturn = {
 					game.portal.Resourceful.locked = false;
 					game.challenges.Mapology.abandon();
 				}
+			}
+		},
+		Omnipotrimp: {
+			locked: 1,
+			location: "World",
+			last: true,
+			world: 59,
+			attack: 1.2,
+			health: 6,
+			fast: true,
+			loot: function (level) {
+				amt = rewardResource("helium", 30, level);
+				message("You managed to steal " + prettify(amt) + " Helium canisters from that Omnipotrimp. That'll teach it.", "Loot", "oil", 'helium', 'helium');
+				if (game.global.world % 5 == 0){
+					message("The Omnipotrimp explodes, killing all of your soldiers!", "Combat", null, null, 'trimp');
+					game.global.soldierHealth = 0;
+					updateGoodBar();
+				}
+				distributeToChallenges(amt);
 			}
 		},
 		//Exotics
@@ -3198,7 +3383,6 @@ var toReturn = {
 			dropDesc: "Grants 0.3% Trimp breed speed",
 			loot: function () {
 				game.unlocks.impCount.Venimp++;
-				game.resources.trimps.potency *= 1.003;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Venimp);
 				amt = (amt - 1) * 100;
 				message("The ground up Venimp now increases your Trimps' breed speed by " + amt.toFixed(2) + "%!", "Loot", "glass", "exotic", "exotic");			
@@ -3459,7 +3643,7 @@ var toReturn = {
 			}
 		},
 		AutoStorage: {
-			world: 150,
+			world: 75,
 			level: "last",
 			icon: "*eye4",
 			title: "Auspicious Presence",
@@ -3534,8 +3718,7 @@ var toReturn = {
 				message("Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'", "Story");
 				game.global.portalActive = true;
 				fadeIn("helium", 10);
-				game.resources.helium.owned += 45;
-				game.global.totalHeliumEarned += 45;
+				addHelium(45);
 				message("<span class='glyphicon glyphicon-oil'></span> You were able to extract 45 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
 				fadeIn("portalBtn", 10);
 				if (game.global.challengeActive == "Metal"){
@@ -4418,11 +4601,22 @@ var toReturn = {
 			addClass: "brokenUpgrade",
 			world: -10,
 			startAt: 180,
+			lastAt: 229,
 			level: 19,
 			icon: "*make-group",
 			title: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
+			}
+		},
+		Magmamancer: {
+			message: "You find a smouldering book that looks like it was pushed from the core of this planet. Inside are drawings of Trimps performing rituals with Gems and Magma. It's very hot to the touch, but you take it with you as you haven't had new reading material in a while.",
+			world: 230,
+			level: 90,
+			icon: "book",
+			title: "Magmamancers",
+			fire: function () {
+				unlockUpgrade("Magmamancers");
 			}
 		},
 		//49 is for weapon
@@ -4538,7 +4732,9 @@ var toReturn = {
 			message: "You find an ancient book titled Coordination. Exciting.",
 			world: -1,
 			level: 99,
-			icon: "book",
+			get icon (){
+				return (game.global.world == mutations.Magma.start() - 1) ?  "*archive2" : "book";
+			},
 			title: "Coordination",
 			fire: function() {
 				if (game.global.challengeActive == "Trimp"){
@@ -4672,7 +4868,7 @@ var toReturn = {
 			fire: function (level) {
 				if (!game.global.spireActive) return;
 				var amt = rewardResource("metal", 25, level);
-				message("There sure is a lot of metal just tossed around in this Spire! You just found " + prettify(amt) + " more!", "Loot", "*safe", "spireMetals", "primary");
+				message("There sure is a lot of metal just tossed around in this Spire! You just found " + prettify(amt) + " more!", "Loot", "*safe", "spireMetalsMsg", "primary");
 			},
 			title: "Spire Metal",
 			icon: "*safe",
@@ -4936,15 +5132,16 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 120,
-			tooltip: "Construct a gem-powered nursery, where baby Trimps can grow up faster. Increases Trimps per second from breeding by 1% (compounding).",
+			get tooltip () {
+				if (mutations.Magma.active())
+					return "Magma is generally not conductive to a healthy Nursery environment. Each Nursery will still increase Trimps per second from breeding by 1% (compounding), but 10% of your active Nurseries will shut down each zone as the Magma moves closer. Safety first!";
+				return "Construct a gem-powered nursery, where baby Trimps can grow up faster. Increases Trimps per second from breeding by 1% (compounding).";
+				
+			},
 			cost: {
 				gems: [400000, 1.06],
 				wood: [1000000, 1.06],
 				metal: [500000, 1.06]
-			},
-			increase: {
-				what: "trimps.potency.mult",
-				by: 1.01
 			}
 		},
 	},
@@ -5034,6 +5231,51 @@ var toReturn = {
 			},
 			increase: "custom",
 			modifier: 1
+		},
+		Magmamancer: {
+			locked: 1,
+			owned: 0,
+			get tooltip(){
+				var timeOnZone = Math.floor((new Date().getTime() - game.global.zoneStarted) / 60000);
+				var bonus = (this.getBonusPercent() - 1) * 100;
+				var timeStr;
+				if (timeOnZone >= 120)
+					timeStr = "over 120 minutes (Max)";
+				else{
+					var remaining = 10 - (timeOnZone % 10);
+					var nextBonus = ((this.getBonusPercent(false, Math.floor(timeOnZone / 10) + 1) - 1) * 100);
+					timeStr = prettify(timeOnZone) + " minute" + ((timeOnZone == 1) ? "" : "s") + ". In " + prettify(remaining) + " minute" + ((remaining == 1) ? "" : "s") + ", this bonus will increase to " + prettify(nextBonus) + "%";
+					if (timeOnZone < 10) bonus = 0;
+				}
+				var currentMag = (((1 - Math.pow(0.9999, this.owned)) * 3));
+				var nextMag = (((1 - Math.pow(0.9999, this.owned + 1)) * 3));
+				var nextBonus = (1 - (currentMag / nextMag)) * 100;
+				var textString = "<p>Train a Magmamancer to craft pickaxe heads infused with Gems and Magma, custom for the unique rocks in each zone. The more Magmamancers you have and the longer you spend in one zone, the more Metal your Trimps will be able to gather!</p><p>For each 10 minutes you spend in a zone with Magmamancers up to 2 hours, your Magmamancer bonus will increase by 20% (compounding). Your current bonus is <b>" + prettify(bonus) + "%</b>, and you've been on this zone for " + timeStr + ".</p>";
+				if (this.owned > 0) textString += "<p>Your next Magmamancer will increase the total bonus by " + prettify(nextBonus) + "% (compounding).</p>";
+				else textString += "<p>After training your first Magmamancer, your bonus metal will be " + prettify((nextMag * (Math.pow(1.2, this.getBonusPercent(true)) - 1)) * 100) + "%. (Hold Ctrl to see formula)</p>";
+				if (ctrlPressed) textString += "<b><p>M = Magmamancer count. T = Time on zone in minutes, divided by 10, rounded down.</p><p>Metal/Sec *= 1 + (((1 - (0.9999 ^ M)) * 3) * ((1.2 ^ T) - 1))</p><b>";
+				return textString;
+			},
+			cost: {
+				gems: [1e60, 1.01]
+			},
+			increase: "custom",
+			modifier: 1,
+			getBonusPercent: function (justStacks, forceTime) {
+				var boostMult = 0.9999;
+				var boostMax = 3;
+				var expInc = 1.2;
+				var timeOnZone;
+				if (typeof forceTime === 'undefined'){
+					var timeOnZone = new Date().getTime() - game.global.zoneStarted;
+					timeOnZone = Math.floor(timeOnZone / 600000);
+					if (timeOnZone > 12) timeOnZone = 12;
+					else if (timeOnZone <= 0) return 1;
+				}
+				else timeOnZone = forceTime;
+				if (justStacks) return timeOnZone;
+				return 1 + ((((1 - Math.pow(boostMult, this.owned)) * boostMax)) * (Math.pow(expInc, timeOnZone) - 1));
+			}			
 		}
 	},
 	
@@ -5289,7 +5531,7 @@ var toReturn = {
 				game.buildings.Gym.increase.by = 6 * Math.pow(game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done)), game.buildings.Gym.owned);
 				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * game.buildings.Gym.owned);
 			}
-		},		
+		},	
 	//Formations
 		Formations: {
 			locked: 1,
@@ -5397,6 +5639,21 @@ var toReturn = {
 			fire: function () {
 				unlockJob("Explorer");
 				fadeIn("fragmentsPs", 10);
+			}
+		},
+		Magmamancers: {
+			locked: 1,
+			tooltip: "Your scientists think they can study this book to figure out how to train Trimps as Magmamancers. According to your scientists, according to legend, Magmamancers require gems instead of food as sustainance and can increase the rate of Metal gathering more and more as they stay on the same zone.",
+			done: 0,
+			allowed: 0,
+			cost: {
+				resources: {
+					science: 50e15,
+					gems: 1e60
+				}
+			},
+			fire: function () {
+				unlockJob("Magmamancer");
 			}
 		},
 	//Housing upgrades, in order of unlock
@@ -5707,7 +5964,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
-				game.resources.trimps.potency *= 1.1;
+				//psh
 			}
 		},
 		TrainTacular: { //5
