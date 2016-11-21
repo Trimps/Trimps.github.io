@@ -2937,7 +2937,6 @@ var toReturn = {
 					if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 					amt = rewardResource("helium", 1, level);
 					message("You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Loot", "oil", "helium", "helium");
-					distributeToChallenges(amt);
 					if (game.global.world >= 40 && game.global.challengeActive == "Balance") {
 						var reward = game.challenges.Balance.heldHelium;
 						message("You have completed the Balance challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
@@ -2976,7 +2975,6 @@ var toReturn = {
 					msg += ((game.options.menu.exitTo.enabled) ? "the world " : "your map chamber");
 				}
 				message(msg + " with an extra " + prettify(amt) + " Helium!", "Loot", "oil", "helium", "helium");
-				distributeToChallenges(amt);		
 				game.stats.highestVoidMap.evaluate();
 			}
 		},
@@ -3239,7 +3237,6 @@ var toReturn = {
 				var amt = (game.global.world >= mutations.Corruption.start(true)) ? 10 : 5;
 				amt = rewardResource("helium", amt, level);
 				message("You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Loot", "oil", 'helium', 'helium');				
-				distributeToChallenges(amt);
 				if (game.global.challengeActive == "Slow" && game.global.world == 120){
 					message("You have completed the Slow challenge! You have found the patterns for the Gambeson and the Arbalest!", "Notices");
 					game.global.challengeActive = "";
@@ -3288,7 +3285,6 @@ var toReturn = {
 					game.resources.trimps.soldiers = 0;
 					updateGoodBar();
 				}
-				distributeToChallenges(amt);
 			}
 		},
 		//Exotics
