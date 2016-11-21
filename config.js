@@ -3284,6 +3284,8 @@ var toReturn = {
 				if (game.global.world % 5 == 0){
 					message("The Omnipotrimp explodes, killing all of your soldiers!", "Combat", null, null, 'trimp');
 					game.global.soldierHealth = 0;
+					game.global.fighting = false;
+					game.resources.trimps.soldiers = 0;
 					updateGoodBar();
 				}
 				distributeToChallenges(amt);
