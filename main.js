@@ -3717,8 +3717,8 @@ var mutations = {
 		getTrimpDecayMult: function (world){
 			return 0.8;
 		},
-        getEligibleOrigin: function(currentArray) {
-			if(game.global.world % 5 === 0 && this.targetCells === this.singlePathMaxSize) {
+        getEligibleOrigin: function(currentArray, riversPrior) {
+			if(game.global.world % 5 === 0 && riversPrior === 0) {
 				return {x: 9, y: 9};
 			}
             var b,i,x,y;
@@ -3929,7 +3929,7 @@ var mutations = {
                 if(targetCells > 0) { //if we're still supposed to be adding cells
                     var newTarget = targetCells > singlePathMaxSize ? singlePathMaxSize : targetCells; //determine target river length
                    
-                    origin = this.getEligibleOrigin(currentArray);
+                    origin = this.getEligibleOrigin(currentArray, riversAmt);
                     if(origin === null) { //this will never occur unless the edges of the map are completely filled up
                         return riversAmt;
                     }
