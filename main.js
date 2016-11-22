@@ -1530,11 +1530,7 @@ function activatePortal(){
 			}
 	}
 	if (game.global.challengeActive == "Daily"){
-		var dailyReward = abandonDaily();
-		if (!isNumberBad(dailyReward)) {
-		game.resources.helium.respecMax += dailyReward;
-		game.global.tempHighHelium += dailyReward;
-		}
+		abandonDaily();
 	}
 	var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
 	if (!commitPortalUpgrades(true)) return;	
@@ -4279,7 +4275,13 @@ function showGeneratorUpgradeInfo(item, permanent){
 		cost = game.generatorUpgrades[item].cost();
 	}
 	var color = (game.global.magmite >= cost) ? "Success" : "Danger";
-	elem.innerHTML = "<div id='generatorUpgradeName'>" + item + "</div><div onclick='buyGeneratorUpgrade(\"" + item + "\")' id='magmiteCost' class='pointer noSelect hoverColor color" + color + "'>Buy: " + prettify(cost) + " Magmite</div>" + description + "<br/>";
+	var text;
+	if (permanent && game.permanentGeneratorUpgrades[item].owned){
+		color = "Grey";
+		text = "Done";
+	}
+	else text = "Buy: " + prettify(cost) + " Magmite";
+	elem.innerHTML = "<div id='generatorUpgradeName'>" + item + "</div><div onclick='buyGeneratorUpgrade(\"" + item + "\")' id='magmiteCost' class='pointer noSelect hoverColor color" + color + "'>" + text + "</div>" + description + "<br/>";
 	lastViewedDGUpgrade = [item, permanent];
 }
 
