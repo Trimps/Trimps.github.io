@@ -835,7 +835,7 @@ var toReturn = {
 		},
 		blacksmith2: {
 			get description () {
-				return "Each cleared zone through Z" + Math.floor((game.global.highestLevelCleared + 1) / 1.33) + " (75% of your highest zone reached) will drop all available equipment prestiges from maps.";
+				return "Each cleared zone through Z" + Math.floor((game.global.highestLevelCleared + 1) * 0.75) + " (75% of your highest zone reached) will drop all available equipment prestiges from maps.";
 			},
 			name: "Blacksmithery II",
 			tier: 5,
@@ -1751,7 +1751,7 @@ var toReturn = {
 			owned: false
 		}
 	},
-	//Total 1335.2% after adding daily bonus helium
+	//Total 1635.2% after adding Z230-Z300 zone progress
 	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40],
 	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5"], //handwritten hex colors make the best hex colors
 	achievements: {
@@ -2963,8 +2963,6 @@ var toReturn = {
 					percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
 					percentage *= mutations.Corruption.cellCount() * 2;
 					percentage += 2;
-					console.log(percentage);
-					console.log(amt);
 				}
 				amt = rewardResource("helium", amt, level, false, percentage);
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";

@@ -991,7 +991,8 @@ function getTrimpPs() {
 	if (game.jobs.Geneticist.owned > 0) {
 		var mult = Math.pow(.98, game.jobs.Geneticist.owned);
 		currentCalc *= mult;
-		textString += "<tr style='color: red'><td class='bdTitle'>Geneticist</td><td class='bdPercent'>X  " + mult.toFixed(6) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
+		var display = (mult > 0.0001) ? mult.toFixed(4) : mult.toExponential(3);
+		textString += "<tr style='color: red'><td class='bdTitle'>Geneticist</td><td class='bdPercent'>X  " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add quick trimps
 	if (game.unlocks.quickTrimps){
