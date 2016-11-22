@@ -3592,7 +3592,10 @@ var toReturn = {
 			},
 			createMap: function(tier) {
 				game.global.bionicOwned++;
-				message("You found a map to an even more advanced version of the Bionic Wonderland! Looks scary...", "Story");
+				if (game.global.bionicOwned == 1) 
+					message("You found a map to the Bionic Wonderland. Sounds fun!", "Story");
+				else
+					message("You found a map to an even more advanced version of the Bionic Wonderland! Looks scary...", "Story");
 				var roman = romanNumeral(tier + 1);
 				createMap(((tier * 15) + 125), "Bionic Wonderland " + roman, "Bionic", 3, 100, 2.6, true);
 			},

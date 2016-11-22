@@ -5963,7 +5963,7 @@ function nextWorld() {
 	}
 	if (game.talents.bionic.purchased){
 		var bTier = ((game.global.world - 126) / 15);
-		game.mapUnlocks.BionicWonderland.canRunOnce = false;
+		if (game.global.world >= 126) game.mapUnlocks.BionicWonderland.canRunOnce = false;
 		if (bTier % 1 === 0 && bTier == game.global.bionicOwned) {
 			game.mapUnlocks.roboTrimp.createMap(bTier);
 			refreshMaps();
