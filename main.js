@@ -4158,13 +4158,15 @@ function updateGeneratorInfo(){
 	changeGeneratorState(null, true);
 	if (game.permanentGeneratorUpgrades.Hybridization.owned) document.getElementById('generatorHybridBtn').style.display = 'inline';
 	updateGeneratorFuel();
-	document.getElementById('generatorTrimpsPs').innerHTML = prettify(scaleNumberForCarp(nextTickAmount));
+	document.getElementById('generatorTrimpsPs').innerHTML = prettify(scaleNumberForBonusHousing(nextTickAmount));
 	document.getElementById('upgradeMagmiteTotal').innerHTML = prettify(game.global.magmite) + " Mi";	
 }
 
-function scaleNumberForCarp(num){
+function scaleNumberForBonusHousing(num){
 	if (game.portal.Carpentry.level > 0) num = Math.floor(num * (Math.pow(1 + game.portal.Carpentry.modifier, game.portal.Carpentry.level)));
 	if (game.portal.Carpentry_II.level > 0) num = Math.floor(num * (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level)));
+	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.large !== "undefined") 
+		num = Math.floor(num * dailyModifiers.large.getMult(game.global.dailyChallenge.large.strength));
 	return num;
 }
 
