@@ -358,7 +358,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Export"){
 		if (textString){
-			tooltipText = textString + "<br/><br/><textarea spellcheck='false' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
+			tooltipText = textString + "<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
 			what = "Thanks!";
 		}
 		else
