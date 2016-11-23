@@ -3688,7 +3688,7 @@ var mutations = {
         get targetCells () {return (game.talents.magmaFlow.purchased) ? 18 : 16},
         get singlePathMaxSize () {return (game.talents.magmaFlow.purchased) ? 18 : 16},
         discardMultiplePaths: true,
-        discardMaxThreshold: 6,
+        discardMaxThreshold: 20,
 		multiplier: -1,
 		lastCalculatedMultiplier: -1,
 		getTrimpDecay: function (demandRecount){
@@ -3961,8 +3961,8 @@ var mutations = {
            
             for(i = 0; i <= threshold; i++) {
                 rivers = this.generateRivers(currentArray);
-                if(rivers == 1)
-                    break;
+				if(rivers == Math.ceil(this.targetCells / this.singlePathMaxSize))
+					break;
                 else if(i != threshold) {
                     for(j = 0; j < tempCurrentArray.length; j++)
                         currentArray[j] = tempCurrentArray[j];
