@@ -1691,7 +1691,7 @@ var toReturn = {
 			},
 			description: function(){
 				var burnRate = getFuelBurnRate();
-				return "Your Generator currently grants " + prettify(scaleNumberForCarp(this.tickAtFuel(burnRate))) + " Max Trimps per tick at " + burnRate + " fuel (the amount of fuel needed to tick). Purchase this to increase the Generator's efficiency by 10% (additive)";
+				return "Your Generator currently grants " + prettify(scaleNumberForBonusHousing(this.tickAtFuel(burnRate))) + " Max Trimps per tick at " + burnRate + " fuel (the amount of fuel needed to tick). Purchase this to increase the Generator's efficiency by 10% (additive)";
 			}
 		},
 		Capacity: {
