@@ -7217,22 +7217,26 @@ function fight(makeUp) {
 		}
     }
 	else {
-		if (trimpAttack >= cell.health){
-			overkill = trimpAttack - cell.health;
-			if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
-		}
-        cell.health -= trimpAttack;
-		attacked = true;
-        if (cell.health > 0) {
-			game.global.soldierHealth -= attackAndBlock;
-			wasAttacked = true;
-		}
-        else
-            {
-				cell.health = 0;
-				//fight(makeUp); return;
+		if (game.global.soldierHealth > 0){
+			if (!badDodge){
+				if (trimpAttack >= cell.health){
+					overkill = trimpAttack - cell.health;
+					if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
+				}
+				cell.health -= trimpAttack;
+				attacked = true;
 			}
-        if (game.global.soldierHealth < 0) thisKillsTheTrimp();
+			if (cell.health > 0) {
+				game.global.soldierHealth -= attackAndBlock;
+				wasAttacked = true;
+			}
+			else
+				{
+					cell.health = 0;
+					//fight(makeUp); return;
+				}
+			if (game.global.soldierHealth < 0) thisKillsTheTrimp();
+		}
     }
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && attacked){
 		game.global.soldierHealth -= game.global.soldierHealthMax * (game.global.radioStacks * 0.1);
