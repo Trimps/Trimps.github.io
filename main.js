@@ -3975,13 +3975,15 @@ var mutations = {
                     replacedCorruptions++;
             }
            
-            for(i = 0; i < currentArray.length; i++) {
-                if(currentArray[i] == "") {
-                    currentArray[i] = "Corruption";
-                    replacedCorruptions--;
+            if (replacedCorruptions > 0) {
+                for(i = 0; i < currentArray.length; i++) {
+                   if(currentArray[i] == "") {
+                        currentArray[i] = "Corruption";
+                        replacedCorruptions--;
                    
-                    if(replacedCorruptions <= 0)
-                        break;
+                        if(replacedCorruptions <= 0)
+                            break;
+                    }
                 }
             }
            return currentArray;
