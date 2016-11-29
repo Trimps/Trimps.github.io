@@ -1145,7 +1145,7 @@ function getBattleStatBd(what) {
 	}
 	//Add Geneticist
 	var geneticist = game.jobs.Geneticist;
-	if (geneticist.owned > 0 && what == "health"){
+	if (game.global.lastLowGen > 0 && what == "health"){
 		var calcedGenes = game.global.lastLowGen;
 		var geneticistStrength = Math.pow(1.01, calcedGenes);
 		currentCalc  *= geneticistStrength;
