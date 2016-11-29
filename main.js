@@ -5443,6 +5443,10 @@ function startFight() {
 				game.global.dailyChallenge.weakness.stacks = 0;
 				updateDailyStacks('weakness');	
 			}
+			if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
+				game.global.dailyChallenge.rampage.stacks = 0;
+				updateDailyStacks('rampage');
+			}
 		}
 		game.global.difs.attack = 0;
 		game.global.difs.health = 0;
@@ -6953,10 +6957,6 @@ function fight(makeUp) {
 					cell.health = cell.maxHealth;
 				}
 				updateDailyStacks('bloodthirst');
-			}
-			if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
-				game.global.dailyChallenge.rampage.stacks = 0;
-				updateDailyStacks('rampage');
 			}
 		}
         var s = (game.resources.trimps.soldiers > 1) ? "s " : " ";
