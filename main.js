@@ -7194,7 +7194,7 @@ function fight(makeUp) {
 		game.global.soldierHealth = 0;
 		gotCrit = false;
 	};
-    if (trimpAttack > 0 && (game.global.challengeActive == "Slow" || ((((game.badGuys[cell.name].fast || cell.mutation == "Corrupted") && game.global.challengeActive != "Nom") || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate"))) {
+    if (trimpAttack > 0 && (game.global.challengeActive == "Slow" || ((((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Nom") || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate"))) {
         game.global.soldierHealth -= attackAndBlock;
 		wasAttacked = true;
         if (game.global.soldierHealth > 0) {
