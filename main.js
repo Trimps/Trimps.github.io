@@ -1104,6 +1104,7 @@ function activateKongBonus(oldWorld){
 }
 
 //48 hours = 172800
+var savedOfflineText = "";
 function checkOfflineProgress(noTip){
 	if (!game.global.lastOnline) return;
 	var rightNow = new Date().getTime();
@@ -1233,6 +1234,7 @@ function checkOfflineProgress(noTip){
 	}
 	textString += ".";
 	if (!noTip) tooltip("Trustworthy Trimps", null, "update", textString);
+	else savedOfflineText = textString;
 }
 
 function respecPerks(){
@@ -6961,7 +6963,7 @@ function fight(makeUp) {
 		}
         var s = (game.resources.trimps.soldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
-        message(game.resources.trimps.soldiers + " Trimp" + s + "just " + randomText + ".", "Combat", null, null, 'trimp');
+        message(prettify(game.resources.trimps.soldiers) + " Trimp" + s + "just " + randomText + ".", "Combat", null, null, 'trimp');
 		if (game.global.spireActive && !game.global.mapsActive) deadInSpire();
         game.global.fighting = false;
         game.resources.trimps.soldiers = 0;
@@ -8949,6 +8951,10 @@ function gameLoop(makeUp, now) {
 	if (loops % 10 == 0){
 		if (game.global.challengeActive == "Decay") updateDecayStacks(true);
 		if (game.global.autoUpgradesAvailable) autoUpgrades();
+		if (savedOfflineText) {
+			tooltip("Trustworthy Trimps", null, "update", savedOfflineText);
+			savedOfflineText = "";
+		}
 	}
 	if (mutations.Magma.active()) generatorTick();
 }
