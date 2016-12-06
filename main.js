@@ -8951,7 +8951,7 @@ function gameLoop(makeUp, now) {
 	if (loops % 10 == 0){
 		if (game.global.challengeActive == "Decay") updateDecayStacks(true);
 		if (game.global.autoUpgradesAvailable) autoUpgrades();
-		if (savedOfflineText) {
+		if (savedOfflineText && !game.global.lockTooltip) {
 			tooltip("Trustworthy Trimps", null, "update", savedOfflineText);
 			savedOfflineText = "";
 		}
