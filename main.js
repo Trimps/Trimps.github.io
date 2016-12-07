@@ -1739,7 +1739,7 @@ function addHelium(amt){
 	if (portalWindowOpen){
 		var heElem = document.getElementById('portalHelium');
 		game.resources.helium.respecMax += amt;
-		game.resources.helium.tempHighHelium += amt;
+		game.global.tempHighHelium += amt;
 		if (heElem != null) heElem.innerHTML = '<span id="portalHeliumOwned">' + prettify(game.resources.helium.respecMax - game.resources.helium.totalSpentTemp) + '</span> Helium';			
 	}
 	checkAchieve("totalHelium");
