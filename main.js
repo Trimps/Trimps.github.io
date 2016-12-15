@@ -2983,6 +2983,11 @@ function populateHeirloomWindow(){
 function displayCarriedHeirlooms(){
 	var tempHtml = "";
 	for (var x = 0; x < game.global.heirloomsCarried.length; x++){
+			if (game.global.heirloomsCarried[x] == null) {
+			game.global.heirloomsCarried.splice(x, 1);
+			x--;
+			continue;
+		}
 		tempHtml += generateHeirloomIcon(game.global.heirloomsCarried[x], "Carried", x);
 	}
 	if (!tempHtml) tempHtml += "You are not carrying any Heirlooms";
