@@ -4463,9 +4463,9 @@ function getAmountInRange(maxRange, toKeep)
 	for (var w = 0; w < maxRange; w++){
 		if (w != 99) toShuffle.push(w);
 	}
-    for (var x = Math.floor(toShuffle.length / 2); x < maxRange; x++)
+    for (var x = Math.floor(toShuffle.length / 2); x < toShuffle.length; x++)
     {
-        var random = getRandomIntSeeded(game.global.mutationSeed++, 0, maxRange);
+        var random = getRandomIntSeeded(game.global.mutationSeed++, 0, toShuffle.length);
         var hold = toShuffle[x];
         toShuffle[x] = toShuffle[random];
         toShuffle[random] = hold;
