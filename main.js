@@ -7703,6 +7703,7 @@ function setFormation(what) {
 }
 
 function unlockFormation(what){
+	if (!game.upgrades.Formations.done) return;
 	if (what == "start" || (what == "all" && game.upgrades.Formations.done == 1)){
 		document.getElementById("formation0").style.display = "block";
 		document.getElementById("formation1").style.display = "block";
