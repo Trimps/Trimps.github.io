@@ -502,6 +502,15 @@ function load(saveString, autoLoad, fromPf) {
 		}
 		game.global.messages.Loot.magma = true;
 	}
+	if (oldVersion < 4.01){
+		game.global.messages.Loot.events = true;
+		if (game.stats.trimpsGenerated.value > 0){
+			game.global.trimpsGenerated = game.stats.trimpsGenerated.value;
+			game.stats.trimpsGenerated.value = scaleNumberForBonusHousing(game.stats.trimpsGenerated.value);
+		}
+		if (game.stats.highestVoidMap.valueTotal > 230)
+			game.stats.highestVoidMap.valueTotal = 230;
+	}
 	//End compatibility
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
@@ -563,7 +572,7 @@ function load(saveString, autoLoad, fromPf) {
     if (game.global.autoCraftModifier > 0)
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
-	if (!game.options.menu.pauseGame.enabled) checkOfflineProgress(noOfflineTooltip);
+	if (!game.options.menu.pauseGame.enabled && game.options.menu.offlineProgress.enabled) checkOfflineProgress(noOfflineTooltip);
 	else document.getElementById("portalTimer").className = "timerPaused";
 	if (game.options.menu.darkTheme.enabled != 1) game.options.menu.darkTheme.onToggle();
 	updateLabels();
@@ -2983,7 +2992,7 @@ function populateHeirloomWindow(){
 function displayCarriedHeirlooms(){
 	var tempHtml = "";
 	for (var x = 0; x < game.global.heirloomsCarried.length; x++){
-			if (game.global.heirloomsCarried[x] == null) {
+		if (game.global.heirloomsCarried[x] == null) {
 			game.global.heirloomsCarried.splice(x, 1);
 			x--;
 			continue;
@@ -4014,12 +4023,25 @@ var mutations = {
 				game.global.magmaFuel = Math.round((game.global.magmaFuel + amt) * 100) / 100;
 				var cap = getGeneratorFuelCap(true);
 				if (game.global.magmaFuel > cap){
-					var dif = game.global.magmaFuel - cap;
-					if (dif <= 0) dif = 0;
-					amt -= dif;
-					if (amt <= 0) amt = 0;
-					text = "You earned " + prettify(amt) + " fuel! (" + prettify(dif) + " destroyed, not enough capacity)";
-					game.global.magmaFuel = cap;
+					if (game.generatorUpgrades.Overclocker.upgrades > 0){
+						var rate = getFuelBurnRate();
+						var aboveCap = game.global.magmaFuel - cap;
+						rate = Math.ceil(aboveCap / rate);
+						text = "You earned " + prettify(amt) + " fuel, triggering " + rate + " Overclock" + ((rate > 1) ? "s" : "") + "!";
+						for (var x = 0; x < rate; x++){
+							generatorTick(true);
+						}
+						if (game.global.magmaFuel > cap) 
+							game.global.magmaFuel = cap;
+					}
+					else {
+						var dif = game.global.magmaFuel - cap;
+						if (dif <= 0) dif = 0;
+						amt -= dif;
+						if (amt <= 0) amt = 0;
+						text = "You earned " + prettify(amt) + " fuel! (" + prettify(dif) + " destroyed, not enough capacity)";
+						game.global.magmaFuel = cap;
+					}
 				}
 				else 
 					text = "You earned " + prettify(amt) + " fuel!";
@@ -4052,8 +4074,55 @@ var mutations = {
         },
 		effects: ['none'],
 		namePrefix: 'Hallowed'
+	},
+	TrimpmasSnow: {
+		active: function() {
+			return (game.options.menu.showSnow.enabled == 1);
+		},
+		pattern: function(currentArray) {
+			var winner, i, l = currentArray.length;
+			for(i = 0; i < l; i++) {
+				winner = "";
+				if (currentArray[i] === ""){
+					if ((i % 10) > 0 && currentArray[i - 1]){
+						winner = currentArray[i - 1];
+					}
+					if (winner != "Magma" && i > 9 && currentArray[i - 10]){
+						winner = currentArray[i - 10];
+					}
+					if (winner != "Magma" && i < 90 && currentArray[i + 10]){
+						winner = currentArray[i + 10];
+					}
+					if (winner != "Magma" && (i % 10 < 9) && currentArray[i + 1]){
+						winner = currentArray[i + 1];
+					}
+					if (winner == "Magma")
+						winner = "HotSnow";
+					else if (winner == "Corruption")
+						winner = "CorruptSnow";
+					else winner = "";
+					currentArray[i] = (winner) ? winner : "TrimpmasSnow";
+				}
+			}
+			return currentArray;
+		},
+		effects: ['none'],
+		namePrefix: 'Snowy'
+	},
+	CorruptSnow: {
+		active: function () {
+			return false;
+		},
+		effects: ['none'],
+		namePrefix: 'Snowy'
+	},
+	HotSnow: {
+		active: function () {
+			return false;
+		},
+		effects: ['none'],
+		namePrefix: 'Snowy'	
 	}
-
 }
 
 var mutationEffects = {
@@ -4112,6 +4181,7 @@ function startTheMagma(){
 	}
 	drawAllBuildings();
 	game.upgrades.Coordination.allowed += 100;
+	drawAllUpgrades();
 }
 
 function decayNurseries(){
@@ -4180,6 +4250,8 @@ function scaleNumberForBonusHousing(num){
 }
 
 function buyGeneratorUpgrade(item){
+	if (item == "Overclocker" && (!game.permanentGeneratorUpgrades.Hybridization.owned || !game.permanentGeneratorUpgrades.Storage.owned))
+		return;
 	var upgrade = game.generatorUpgrades[item];
 	if (typeof upgrade === 'undefined') {
 		buyPermanentGeneratorUpgrade(item);
@@ -4236,6 +4308,8 @@ function updateGeneratorUpgradeHtml(){
 		var text = item + "<br/>" + upgrade.upgrades;
 		elem.innerHTML = text;
 		var state = (game.global.magmite >= cost) ? "CanAfford" : "CanNotAfford";
+		if (item == "Overclocker" && (!game.permanentGeneratorUpgrades.Hybridization.owned || !game.permanentGeneratorUpgrades.Storage.owned))
+			state = "CanNotAfford";
 		swapClass('thingColor', 'thingColor' + state, elem);
 	}
 	for (var item in game.permanentGeneratorUpgrades){
@@ -4286,6 +4360,8 @@ function showGeneratorUpgradeInfo(item, permanent){
 		cost = game.generatorUpgrades[item].cost();
 	}
 	var color = (game.global.magmite >= cost) ? "Success" : "Danger";
+	if (item == "Overclocker" && (!game.permanentGeneratorUpgrades.Hybridization.owned || !game.permanentGeneratorUpgrades.Storage.owned))
+			color = "Danger";
 	var text;
 	if (permanent && game.permanentGeneratorUpgrades[item].owned){
 		color = "Grey";
@@ -4370,25 +4446,32 @@ function changeGeneratorState(to, updateOnly){
 	swapClass('generatorState', 'generatorState' + state, document.getElementById('clockKnob'));
 }
 
-function generatorTick(){
+function generatorTick(fromOverclock){
 	if (!mutations.Magma.active()) return;
 	var fuelRate = getFuelBurnRate();
-	if (game.global.magmaFuel < fuelRate) return;
-	game.global.timeSinceLastGeneratorTick += 100;
-	updateNextGeneratorTickTime();
-	if (!canGeneratorTick()) {
-		return;
+	if (!fromOverclock){
+		if (game.global.magmaFuel < fuelRate) return;
+		game.global.timeSinceLastGeneratorTick += 100;
+		updateNextGeneratorTickTime();
+		if (!canGeneratorTick()) {
+			return;
+		}
 	}
+	checkAchieve("housing", "Generator");
 	var tickAmt = getGeneratorTickAmount();
-	game.stats.trimpsGenerated.value += tickAmt;
+	if (fromOverclock) tickAmt *= (1 - game.generatorUpgrades.Overclocker.modifier);
+	game.stats.trimpsGenerated.value += scaleNumberForBonusHousing(tickAmt);
+	game.global.trimpsGenerated += tickAmt;
 	game.resources.trimps.max += tickAmt;
 	game.global.magmaFuel = Math.round((game.global.magmaFuel - fuelRate) * 100) / 100;
-	if (game.global.magmaFuel >= fuelRate)
-		game.global.timeSinceLastGeneratorTick = 0;
-	else {
-		game.global.timeSinceLastGeneratorTick = 0;
-		goRadial(document.getElementById('generatorRadial'), 0, 10, 0);
-		document.getElementById('generatorNextTick').innerHTML = 0;
+	if (!fromOverclock){
+		if (game.global.magmaFuel >= fuelRate)
+			game.global.timeSinceLastGeneratorTick = 0;
+		else {
+			game.global.timeSinceLastGeneratorTick = 0;
+			goRadial(document.getElementById('generatorRadial'), 0, 10, 0);
+			document.getElementById('generatorNextTick').innerHTML = 0;
+		}
 	}
 	updateGeneratorInfo();
 	changeGeneratorState(null, true);
@@ -8212,7 +8295,11 @@ function activateTurkimpPowers() {
 }
 
 function givePresimptLoot(){
-	var elligible = ["food", "food", "food", "food", "wood", "wood", "wood", "wood", "metal", "metal", "metal", "metal", "bones"];
+	var elligible = ["food", "food", "wood", "wood", "metal",  "metal", "metal", "metal", "metal", "metal", "metal"];
+	var boneTime = 30;
+	boneTime *= 60000;
+	if (new Date().getTime() > (game.global.lastBonePresimpt + boneTime))
+		elligible.push("bones");
 	var success = [
 		"You hurriedly open up the Presimpt, and find ",
 		"Ooh look, a Presimpt! You tear it open and receive ",
@@ -8220,7 +8307,7 @@ function givePresimptLoot(){
 		"Presimpts for everyone! Wait there's only one. Then Presimpt just for you! With ",
 		"This Presimpt has little snowman markings all over it! Inside, you find "];			
 	if (game.jobs.Dragimp.owned > 0) elligible.push("gems", "gems", "gems", "gems");
-	else elligible.push("food", "wood", "metal", "metal");
+	else elligible.push("food", "food", "wood", "metal");
 	if (game.jobs.Explorer.locked == 0) elligible.push("fragments", "fragments", "fragments");
 	else elligible.push("food", "wood", "metal"); 
 	var roll = Math.floor(Math.random() * elligible.length);
@@ -8228,14 +8315,15 @@ function givePresimptLoot(){
 	game.global.presimptStore = elligible[roll];
 	if (item == "bones") {
 		message("You shake the Presimpt before opening it, and can tell there's something special in this one. Yup! That thoughtful Presimpt gave you a perfectly preserved bone!", "Loot", "*gift", "presimpt presimptBones");
+		game.global.lastBonePresimpt = new Date().getTime();
 		game.global.b++;
 		updateSkeleBtn();
 		return;
 	}
-	var randomBoost = Math.floor(Math.random() * 3) + 2;
+	var randomBoost = Math.floor(Math.random() * 4) + 2;
 	var amt = rewardResource(item, randomBoost, (game.global.lastClearedCell + 1));
 	var messageNumber = Math.floor(Math.random() * success.length);
-	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*gift", "presimpt");
+	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*gift", "presimpt", "events");
 }
 
 function updateTurkimpTime() {

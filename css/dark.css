@@ -48,6 +48,25 @@
     margin-right: 0px;
 }
 
+.battleCell.TrimpmasSnow, .badge.TrimpmasSnow, .badge.CorruptSnow, .badge.HotSnow, .badNameMutation.TrimpmasSnow, .badNameMutation.CorruptSnow, .badNameMutation.HotSnow{
+    color: #003a54;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.6), rgba(189, 255, 255, 0.6));
+}
+
+.battleCell.CorruptSnow {
+    color: #2E0854;
+   background: linear-gradient(45deg, rgba(255, 255, 255, 0.6), rgba(221, 175, 255, 0.6));
+}
+
+.battleCell.HotSnow {
+    color: #8c0000;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.6), rgba(253, 175, 175, 0.6));
+}
+.presimpt {
+    color: rgba(64, 220, 64, 0.88) !important;
+    background: rgba(220, 64, 64, 0.5);
+}
+
 .talentRowLocked .talentNotPurchased {
     background-color: #3F3F3F;
 }

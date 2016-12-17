@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.0,
+		version: 4.01,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -173,8 +173,10 @@ var toReturn = {
 		magmite: 0,
 		magmaFuel: 0,
 		generatorMode: 1, //0 passive, 1 active, 2 hybrid
+		trimpsGenerated: 0,
 		timeSinceLastGeneratorTick: -1,
 		canMagma: true,
+		lastBonePresimpt: 0,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -359,7 +361,7 @@ var toReturn = {
 			},
 			progressBars: {
 				enabled: 1,
-				extraTags: "other layout",
+				extraTags: "performance",
 				description: "Toggle progress bars to on, off, or performance. Performance and off will reduce CPU usage.",
 				titles: ["No Progress Bars", "Progress Bars", "Performance Bars"],
 				onToggle: function () {
@@ -614,6 +616,18 @@ var toReturn = {
 				lockUnless: function () {
 					return (game.global.highestLevelCleared >= 229);
 				}
+			},
+			showSnow: {
+				enabled: 1,
+				extraTags: "general",
+				description: "Disable the snow effect in the world. <b>This will take effect on the next zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
+				titles: ["No Snow", "Show Snow"]			
+			},
+			offlineProgress: {
+				enabled: 1,
+				extraTags: "other",
+				description: "Disables or enables earning resources while offline. <b>Warning: If this is toggled off, no resources will be earned from Trustworthy Trimps when coming back to the game after being offline.</b> This can be helpful if you are analysing stats and do not want resources counted when there is no timer running",
+				titles: ["No Offline Progress", "Offline Progress"]
 			},
 			pauseGame: {
 				enabled: 0,
@@ -1728,26 +1742,47 @@ var toReturn = {
 				return "The Magma at Zone " + mutations.Magma.start() + " contains 0.2 fuel per cell, and each zone after that can drop 0.01 more. Your generator can currently only harvest a max of " + prettify(this.modifier) + " per cell, meaning some fuel after Z" + prettify(maxZone) + " will be unharvestable. Purchase this upgrade to increase the amount you can harvest per cell by <b>0.02</b>, taking advantage of <b>2 extra zones</b>.";
 			}
 		},
+		Overclocker: {
+			base: 0.5,
+			baseCost: 512,
+			baseIncrease: 0.01,
+			upgrades: 0,
+			modifier: 0.5,
+			cost: function () {
+				return this.baseCost + (32 * this.upgrades);
+			},
+			nextModifier: function () {
+				if (this.upgrades == 0) return this.modifier;
+				return this.modifier * (1 - this.baseIncrease);
+			},
+			description: function () {
+				var requires = "<p class='" + ((game.permanentGeneratorUpgrades.Hybridization.owned && game.permanentGeneratorUpgrades.Storage.owned) ? "green" : "red") + "'>Requires Hybridization and Storage.</p>";
+				var text = requires + "<p>The first level of this upgrade will cause the Dimensional Generator to overclock instead of wasting fuel whenever you find more fuel than you can store. Overclocking will cause an instant Generator tick at a base of 50% effectiveness.</p><p>Every upgrade purchased after the first will reduce the Overclocking penalty by 1%, compounding.</p>";
+				if (this.upgrades > 0)
+					text += "<p>Your current Overclocker effectiveness is " + ((1 - this.modifier) * 100).toFixed(2) + "%. Next level, your Overclocker effectiveness will be " + ((1 - (this.modifier * (1 - this.baseIncrease))) * 100).toFixed(2) + "%.</p>";
+				return text;
+			}
+		}
 	},
 	permanentGeneratorUpgrades: {
 		Hybridization: {
 			description: "Unlock the ability to switch your Dimensional Generator to Hybrid mode. Hybrid mode will automatically switch to Gain Fuel when fuel is below max, and Gain Mi when fuel is full.",
-			cost: 400,
+			cost: 300,
 			owned: false
 		},
 		Storage: {
 			description: "Unlock extra fuel storage. This storage will always be equal to your normal fuel cap and will only store extra fuel above your normal cap. Fuel in this extra storage does not increase generator Trimps/tick, but acts as nice padding to help prevent wasted fuel. Hybrid mode will attempt to fill your extra storage halfway.",
-			cost: 800,
+			cost: 600,
 			owned: false
 		},
 		Shielding: {
 			description: "Reduce the amount of Magmite that decays after each portal by 10% (additive)",
-			cost: 1400,
+			cost: 1050,
 			owned: false
 		},	
 		Slowburn: {
 			description: "Reduce the rate of fuel consumption per tick by 0.1, from 0.5 to 0.4",
-			cost: 2500,
+			cost: 1875,
 			owned: false
 		}
 	},
@@ -1810,11 +1845,12 @@ var toReturn = {
 			finished: 0,
 			title: "Real Estate",
 			description: function (number) {
+				if (number == 9) return "Use the Dimensional Generator";
 				return "Build your first  " + this.breakpoints[number];
 			},
-			breakpoints: ["Hut", "House", "Mansion", "Hotel", "Resort", "Gateway", "Wormhole", "Collector", "Warpstation"],
-			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3],
-			names: ["Tiny Homes", "Residential Development", "Taste for Luxury", "Fancy", "The Skyline", "Dimensional Drift", "Too Cool For Helium", "Space From Stars", "To Infinity and Beyond"],
+			breakpoints: ["Hut", "House", "Mansion", "Hotel", "Resort", "Gateway", "Wormhole", "Collector", "Warpstation", "Generator"],
+			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 5],
+			names: ["Tiny Homes", "Residential Development", "Taste for Luxury", "Fancy", "The Skyline", "Dimensional Drift", "Too Cool For Helium", "Space From Stars", "To Infinity and Beyond", "Mass Generation"],
 			icon: "icomoon icon-building-o",
 			newStuff: []
 		},
@@ -2683,7 +2719,7 @@ var toReturn = {
 	badGuys: {
 		Presimpt: {
 			location: "World",
-			locked: 1,
+			locked: 0,
 			attack: 1.1,
 			health: 1.5,
 			fast: false,
@@ -3280,6 +3316,7 @@ var toReturn = {
 				message("You managed to steal " + prettify(amt) + " Helium canisters from that Omnipotrimp. That'll teach it.", "Loot", "oil", 'helium', 'helium');
 				if (game.global.world % 5 == 0){
 					message("The Omnipotrimp explodes, killing all of your soldiers!", "Combat", null, null, 'trimp');
+					game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
 					game.global.soldierHealth = 0;
 					game.global.fighting = false;
 					game.resources.trimps.soldiers = 0;
@@ -4461,6 +4498,16 @@ var toReturn = {
 				unlockUpgrade("Potency");
 			}
 		},
+/* 		SuperShriek: {
+			message: "This book will help your RoboTrimp shriek louder!",
+			world: 183,
+			level: 5,
+			icon: "book",
+			title: "MagnetoShriek is love, MagnetoShriek is life",
+			fire: function () {
+				unlockUpgrade("SuperShriek");
+			}
+		}, */
 		//19 is for Armor
 		Miner: {
 			message: "You found an ancient book about mining. With some research you should be able to teach the Trimps to mine!",
@@ -4952,7 +4999,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 10,
-			tooltip: "Has room for $incby$ more lovely Trimps, and enough workspace for half of them.",
+			tooltip: "Has room for $incby$ more lovely Trimps. All Trimp housing has enough workspaces for only half of the Trimps that can live there.",
 			cost: {
 				food: [125, 1.24],
 				wood: [75, 1.24]
@@ -5532,7 +5579,20 @@ var toReturn = {
 				game.buildings.Gym.increase.by = 6 * Math.pow(game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done)), game.buildings.Gym.owned);
 				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * game.buildings.Gym.owned);
 			}
-		},	
+		},
+		SuperShriek: {
+			locked: 1,
+			allowed: 0,
+			get tooltip (){ 
+				var text = "This book will teach your Robotrimp how to do a much better job of shrieking, allowing MagnetoShriek to be used on multiple Corrupted cells in addition to Improbabilities. Upgraded MagnetoShriek starts off only being able to affect 1 cell at a time, but each use after purchasing this upgrade will extend the bonus by one additional cell, up to a max of 5 cells (resets on portal). <br/><br/> Each new Bionic Wonderland clear starting at Z185 will permanently increase the cell count cap by 1.";
+				var cap = 5;
+				if (game.global.roboTrimpLevel >= 5)
+					cap += game.global.roboTrimpLevel - 4;
+				var cleared = (game.global.roboTrimpLevel - 4);
+				text += " <b>You have cleared " + cleared + " Bionic Wonderland" + ((cleared == 1) ? "" : "s") + " at 185 or higher, and your MagnetoShriek cell count cap will be " + cap + "</b>";
+				return text;
+			}
+		},
 	//Formations
 		Formations: {
 			locked: 1,

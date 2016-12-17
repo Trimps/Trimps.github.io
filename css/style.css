@@ -1289,6 +1289,21 @@ overflow-x: hidden;
     color: red;
 }
 
+.battleCell.TrimpmasSnow, .badge.TrimpmasSnow, .badge.CorruptSnow, .badge.HotSnow, .badNameMutation.TrimpmasSnow, .badNameMutation.CorruptSnow, .badNameMutation.HotSnow{
+    color: #0082bc;
+    background: linear-gradient(45deg, white, #bdffff);
+}
+
+.battleCell.CorruptSnow{
+    color: #6082bc;
+    background: linear-gradient(45deg, white, #ddafff);
+}
+
+.battleCell.HotSnow{
+    color: #b0828c;
+    background: linear-gradient(45deg, white, #fdafaf);
+}
+
 #portalWrapper{
 	color: black;
 	width: 100vw;

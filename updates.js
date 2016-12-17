@@ -834,7 +834,8 @@ function getPsString(what, rawNum) {
 	//Add Magmamancer
 	if (game.jobs.Magmamancer.owned > 0 && what == "metal"){
 		var manceStrength = game.jobs.Magmamancer.getBonusPercent();
-		if (manceStrength > 0){
+		console.log(manceStrength);
+		if (manceStrength > 1){
 			currentCalc *= manceStrength;
 			manceStrength = (manceStrength - 1) * 100;
 			textString += "<tr><td class='bdTitle'>Magmamancers</td><td class='bdPercent'>" + (game.jobs.Magmamancer.getBonusPercent(true) * 10) + " minutes (+" + prettify(manceStrength) + "%)</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
@@ -1282,13 +1283,13 @@ function getMaxTrimps() {
 	//Add base
 	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + base + "</td></tr>";
 	//Add job count
-	var housing = trimps.max - game.global.totalGifts - game.unlocks.impCount.TauntimpAdded - base - game.stats.trimpsGenerated.value;
+	var housing = trimps.max - game.global.totalGifts - game.unlocks.impCount.TauntimpAdded - base - game.global.trimpsGenerated;
 	var currentCalc = housing + base;
 	textString += "<tr><td class='bdTitle'>Housing</td><td class='bdPercent'>+ " + prettify(housing) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	//Add generatorUpgrades
-	if (game.stats.trimpsGenerated.value > 0){
-		currentCalc += game.stats.trimpsGenerated.value;
-		textString += "<tr><td class='bdTitle'>Generated Housing</td><td class='bdPercent'>+ " + prettify(game.stats.trimpsGenerated.value) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	if (game.global.trimpsGenerated > 0){
+		currentCalc += game.global.trimpsGenerated;
+		textString += "<tr><td class='bdTitle'>Generated Housing</td><td class='bdPercent'>+ " + prettify(game.global.trimpsGenerated) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Territory Bonus
 	if (game.global.totalGifts > 0){
@@ -1860,6 +1861,7 @@ function resetGame(keepPortal) {
 	var permanentGenUpgrades;
 	var genMode;
 	var advMaps;
+	var lastBonePresimpt;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -1916,6 +1918,7 @@ function resetGame(keepPortal) {
 		permanentGenUpgrades = game.permanentGeneratorUpgrades;
 		genMode = game.global.generatorMode;
 		advMaps = game.global.sessionMapValues;
+		lastBonePresimpt = game.global.lastBonePresimpt;
 		if (!game.global.canMagma) {
 			if (highestLevel > 229) highestLevel = 229;
 			if (roboTrimp > 8) roboTrimp = 8;
@@ -1968,6 +1971,7 @@ function resetGame(keepPortal) {
 		game.permanentGeneratorUpgrades = permanentGenUpgrades;
 		game.global.generatorMode = genMode;
 		game.global.sessionMapValues = advMaps;
+		game.global.lastBonePresimpt = lastBonePresimpt;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined' && !statItem.noAdd) statItem.valueTotal += statItem.value;
@@ -3137,7 +3141,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 				totalBonus += game.tierValues[achievement.tiers[x]];
 			}	
 		}
-		game.global.achievementBonus = totalBonus.toFixed(1);
+		game.global.achievementBonus = parseFloat(totalBonus.toFixed(1));
 	}
 	
 	function displayAchievements(){
