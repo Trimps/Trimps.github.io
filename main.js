@@ -5387,13 +5387,12 @@ function startFight() {
     }
     swapClass("cellColor", "cellColorCurrent", cellElem);
 	var badName;
+	var displayedName = (cell.name == "Improbability" && game.global.spireActive) ? "Druopitee" : cell.name;
 	if (cell.mutation) {
-		badName = "<span class='badNameMutation " + cell.mutation + "'>" + mutations[cell.mutation].namePrefix + " " + cell.name + "</span>";
+		badName = "<span class='badNameMutation " + cell.mutation + "'>" + mutations[cell.mutation].namePrefix + " " + displayedName + "</span>";
 	}
-	else if (cell.name == "Improbability" && game.global.spireActive)
-		badName = "Druopitee";
 	else
-		badName = cell.name;
+		badName = displayedName;
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
 		badName += " (" + prettify(badCoord) + ")";	
