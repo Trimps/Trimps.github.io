@@ -834,7 +834,6 @@ function getPsString(what, rawNum) {
 	//Add Magmamancer
 	if (game.jobs.Magmamancer.owned > 0 && what == "metal"){
 		var manceStrength = game.jobs.Magmamancer.getBonusPercent();
-		console.log(manceStrength);
 		if (manceStrength > 1){
 			currentCalc *= manceStrength;
 			manceStrength = (manceStrength - 1) * 100;
