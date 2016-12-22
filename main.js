@@ -573,7 +573,7 @@ function load(saveString, autoLoad, fromPf) {
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
 	if (!game.options.menu.pauseGame.enabled && game.options.menu.offlineProgress.enabled) checkOfflineProgress(noOfflineTooltip);
-	else document.getElementById("portalTimer").className = "timerPaused";
+	else if (game.options.menu.pauseGame.enabled) document.getElementById("portalTimer").className = "timerPaused";
 	if (game.options.menu.darkTheme.enabled != 1) game.options.menu.darkTheme.onToggle();
 	updateLabels();
 	if (game.global.viewingUpgrades){
