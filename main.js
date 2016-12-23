@@ -572,8 +572,18 @@ function load(saveString, autoLoad, fromPf) {
     if (game.global.autoCraftModifier > 0)
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
-	if (!game.options.menu.pauseGame.enabled && game.options.menu.offlineProgress.enabled) checkOfflineProgress(noOfflineTooltip);
-	else if (game.options.menu.pauseGame.enabled) document.getElementById("portalTimer").className = "timerPaused";
+	if (!game.options.menu.pauseGame.enabled) {
+		//If not paused and offline progress is enabled, run offline progress
+		if (game.options.menu.offlineProgress.enabled)
+			checkOfflineProgress(noOfflineTooltip);
+		//If not paused and offline progress is disabled, fix clock
+		else {
+			game.global.portalTime += (new Date().getTime() - game.global.lastOnline);
+		}
+	}
+	//If paused, set clock pulse
+	else
+		document.getElementById("portalTimer").className = "timerPaused";
 	if (game.options.menu.darkTheme.enabled != 1) game.options.menu.darkTheme.onToggle();
 	updateLabels();
 	if (game.global.viewingUpgrades){
