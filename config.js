@@ -617,12 +617,12 @@ var toReturn = {
 					return (game.global.highestLevelCleared >= 229);
 				}
 			},
-			showSnow: {
+/* 			showSnow: {
 				enabled: 1,
 				extraTags: "general",
 				description: "Disable the snow effect in the world. <b>This will take effect on the next zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
 				titles: ["No Snow", "Show Snow"]			
-			},
+			}, */
 			offlineProgress: {
 				enabled: 1,
 				extraTags: "other",
@@ -2722,7 +2722,7 @@ var toReturn = {
 	badGuys: {
 		Presimpt: {
 			location: "World",
-			locked: 0,
+			locked: 1,
 			attack: 1.1,
 			health: 1.5,
 			fast: false,

@@ -4087,7 +4087,7 @@ var mutations = {
 	},
 	TrimpmasSnow: {
 		active: function() {
-			return (game.options.menu.showSnow.enabled == 1);
+			return false;
 		},
 		pattern: function(currentArray) {
 			var winner, i, l = currentArray.length;
