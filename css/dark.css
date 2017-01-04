@@ -166,12 +166,12 @@
 }
 .resourceRow >:first-child {
     padding-right: 0px;
-	width: calc(50% - 4px);
+	width: 50%; 
 }
 .resourceRow >:nth-child(2) {
     padding-left: 0px;
 	padding-right: 0px;
-	width: calc(50% - 4px);
+	width: 50%; 
 }
 #fragments {
     border: 1px solid #212121;
@@ -191,15 +191,25 @@
 }
 #miscColumn {
     padding-left: 0px;
-    z-index: 0;
-	margin-left: 0px;
+	margin-left: -2px;
+    padding-right: calc(0.5vw - 2px);
+}
+#buyCol {
+   padding-right: 0.5vw;   
 }
 .playerGatherSm {
     height: 33.3%
 }
 #resourceColumn {
     padding-right: 0px;
-    z-index: 1
+	margin-left: 0; 
+    width: 33.33333333%;
+}
+#resourceColumn .row {
+    padding-right: 0;
+    padding-left: 0;
+    margin-right: 0;
+    margin-left: 0;
 }
 .psText {
     color: #C8C8C8 !important
