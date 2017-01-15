@@ -4074,7 +4074,7 @@ var mutations = {
 		reward: function (effect) {
 			var amt;
 			var text;
-			if (game.global.generatorMode == 1 || (game.global.generatorMode == 2 && parseFloat(game.global.magmaFuel.toFixed(1)) < getGeneratorFuelCap(false, true))){
+			if (game.global.generatorMode == 1 || (game.global.generatorMode == 2 && game.global.magmaFuel < getGeneratorFuelCap(false, true))){
 				amt = game.generatorUpgrades.Supply.modifier;
 				var zoneCap = 0.2 + ((game.global.world - this.start()) * 0.01);
 				amt = Math.min(amt, zoneCap);
@@ -4494,7 +4494,7 @@ function changeGeneratorState(to, updateOnly){
 		game.global.generatorMode = to;
 	to = game.global.generatorMode;
 	if (to == 2){
-		if (parseFloat(game.global.magmaFuel.toFixed(1)) < getGeneratorFuelCap(false, true)){
+		if (game.global.magmaFuel < getGeneratorFuelCap(false, true)){
 			to = 3;
 		}
 	}
