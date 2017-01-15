@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.01,
+		version: 4.1,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -1529,6 +1529,11 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		},
+		battlesLost: {
+			title: "Battles Lost",
+			value: 0,
+			valueTotal: 0
+		},
 		mapsCleared: {
 			title: "Maps Cleared",
 			value: 0,
@@ -1786,7 +1791,7 @@ var toReturn = {
 			owned: false
 		}
 	},
-	//Total 1635.2% after adding Z230-Z300 zone progress
+	//Total 2100.5% after 4.1
 	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40],
 	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5"], //handwritten hex colors make the best hex colors
 	achievements: {
@@ -1888,9 +1893,9 @@ var toReturn = {
 				if (this.breakpoints.length > this.finished) return this.evaluate() + " / " + this.breakpoints[this.finished];
 				return this.evaluate() + " total";
 			},
-			breakpoints: [30, 70, 130, 200, 400, 777, 1000, 1500],//total zones according to stats
-			tiers: [2, 2, 3, 3, 3, 4, 4, 5],
-			names: ["Pathfinder", "Bushwhacker", "Pioneer", "Seeker", "Adventurer", "Lucky Resolve", "GigaClearer", "Globetrotter"],
+			breakpoints: [30, 70, 130, 200, 400, 777, 1000, 1500, 10000, 50000],//total zones according to stats
+			tiers: [2, 2, 3, 3, 3, 4, 4, 5, 7, 7],
+			names: ["Pathfinder", "Bushwhacker", "Pioneer", "Seeker", "Adventurer", "Lucky Resolve", "GigaClearer", "Globetrotter", "Vanquisher", "Conquistador"],
 			icon: "icomoon icon-globe3",
 			newStuff: []
 		},
@@ -1923,7 +1928,7 @@ var toReturn = {
 				return "Gather " + prettify(this.breakpoints[number]) + " total Helium";
 			},
 			progress: function (){
-				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				if (this.breakpoints.length > this.finished) return prettify(Math.floor(this.evaluate() * 10000) / 10000) + " / " + prettify(this.breakpoints[this.finished]);
 				return prettify(this.evaluate()) + " total";
 			},
 			evaluate: function () {
@@ -1932,9 +1937,9 @@ var toReturn = {
 			display: function () {
 				return (game.global.totalHeliumEarned > 0);
 			},
-			breakpoints: [100, 10e2, 10e3, 10e4, 10e5, 10e6, 10e7, 10e8],
-			tiers: [1, 2, 3, 4, 5, 6, 6, 7],
-			names: ["Cool", "Crisp", "Chilly", "Frosty", "Frigid", "Frozen", "Gelid", "Glacial"],
+			breakpoints: [100, 10e2, 10e3, 10e4, 10e5, 10e6, 10e7, 10e8, 10e10, 10e11],
+			tiers: [1, 2, 3, 4, 5, 6, 6, 7, 7, 7],
+			names: ["Cool", "Crisp", "Chilly", "Frosty", "Frigid", "Frozen", "Gelid", "Glacial", "Freaking Cold", "Absolute Zero"],
 			icon: "glyphicon glyphicon-oil",
 			newStuff: []
 		},
@@ -1956,9 +1961,9 @@ var toReturn = {
 			display: function () {
 				return (game.global.totalPortals >= 5);
 			},
-			breakpoints: [1, 10, 40, 100, 500, 1111, 2000],
-			tiers: [2, 2, 3, 3, 4, 5, 6],
-			names: ["Finder", "Gatherer", "Accumulator", "Fancier", "Aficionado", "Devotee", "Connoisseur"],
+			breakpoints: [1, 10, 40, 100, 500, 1111, 2000, 5000],
+			tiers: [2, 2, 3, 3, 4, 5, 6, 7],
+			names: ["Finder", "Gatherer", "Accumulator", "Fancier", "Aficionado", "Devotee", "Connoisseur", "Expert"],
 			icon: "icomoon icon-archive",
 			newStuff: []
 		},
@@ -2005,6 +2010,32 @@ var toReturn = {
 			names: ["Daytermined", "Daydicated", "Daystiny", "Daylighted", "Daystroyer"],
 			icon: "icomoon icon-sun",
 			newStuff: []
+		},
+		humaneRun: {
+			finished: 0,
+			title: "Humane Run",
+			description: function (number){
+				var number = this.breakpoints[number];
+				return "<span style='font-size: .8em'>Reach Z" + number + " after losing no more than one fight per zone.</span>";
+			},
+			evaluate: function () {
+				if (!this.earnable || game.stats.battlesLost.value > this.lastZone + 1) return 0;
+				return game.global.world;
+			},
+			progress: function () {
+				if (!this.earnable && this.lastZone == -1) return "You need to portal to become eligible";
+				if (!this.earnable) return "You lost more than once on Z" + this.lastZone;
+				if (game.stats.battlesLost.value > this.lastZone + 1) return "You lost too many fights!";
+				if (game.stats.battlesLost.value == this.lastZone + 1) return "You've lost once this zone, be careful!";
+				return "Still Earnable!";
+			},
+			earnable: true,
+			lastZone: -1,
+			breakpoints: [5, 50, 100, 150, 200, 250, 300, 350],
+			tiers: [1, 4, 5, 6, 7, 7, 7, 7],
+			names: ["Sitter", "Watchdog", "Nanny", "Caretaker", "Supervisor", "Advocate", "Savior", "Trimp Lover"],
+			icon: "glyphicon glyphicon-eye-open",
+			newStuff: [],
 		},
 		blockTimed: {
 			finished: 0,
@@ -2175,9 +2206,9 @@ var toReturn = {
 			highest: 0,
 			reverse: true,
 			showAll: true,
-			breakpoints: [1680, 1080, 390, 180, 150], //In minutes
-			tiers: [5, 5, 5, 6, 6],
-			names: ["Cosmic Curiosity", "Star Struck", "Space Speeder", "Intense Inertia", "Stellar Striker"],
+			breakpoints: [1680, 1080, 390, 180, 150, 50], //In minutes
+			tiers: [5, 5, 5, 6, 6, 7],
+			names: ["Cosmic Curiosity", "Star Struck", "Space Speeder", "Intense Inertia", "Stellar Striker", "Instant Implosion"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
@@ -2200,9 +2231,9 @@ var toReturn = {
 			highest: 0,
 			reverse: true,
 			showAll: true,
-			breakpoints: [1300, 900, 500, 200, 175],
-			tiers: [6, 6, 6, 7, 7],
-			names: ["Spire Trialer", "Spire Rider", "Spire Strider", "Spire Glider", "Spire Flier"],
+			breakpoints: [1300, 900, 500, 200, 175, 60],
+			tiers: [6, 6, 6, 7, 7, 7],
+			names: ["Spire Trialer", "Spire Rider", "Spire Strider", "Spire Glider", "Spire Flier", "Inspired"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
@@ -2224,11 +2255,11 @@ var toReturn = {
 	
 	heirlooms: { //Basic layout for modifiers. Steps can be set specifically for each modifier, or else default steps will be used
 		//NOTE: currentBonus is the only thing that will persist!
-		values: [10, 20, 30, 50, 150, 300, 800],
-		defaultSteps: [[1, 2, 1], [2, 3, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8]],
-		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal'],
-		rarities:[[7500,2500,-1,-1,-1,-1,-1],[2000,6500,1500,-1,-1,-1,-1],[500,4500,5000,-1,-1,-1,-1],[-1,3200,4300,2500,-1,-1,-1],[-1,1600,3300,5000,100,-1,-1],[-1,820,2400,6500,200,80,-1],[-1,410,1500,7500,400,160,30],[-1,200,600,8000,800,320,80],[-1,-1,-1,7600,1600,640,160], [-1,-1,-1,3500,5000,1200, 300]],
-		rarityBreakpoints: [41, 60, 80, 100, 125, 146, 166, 181, 201],
+		values: [10, 20, 30, 50, 150, 300, 800, 2000],
+		defaultSteps: [[1, 2, 1], [2, 3, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8], [128, 320, 16]],
+		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal', 'Magmatic'],
+		rarities:[[7500,2500,-1,-1,-1,-1,-1, -1],[2000,6500,1500,-1,-1,-1,-1, -1],[500,4500,5000,-1,-1,-1,-1, -1],[-1,3200,4300,2500,-1,-1,-1, -1],[-1,1600,3300,5000,100,-1,-1, -1],[-1,820,2400,6500,200,80,-1, -1],[-1,410,1500,7500,400,160,30, -1],[-1,200,600,8000,800,320,80, -1],[-1,-1,-1,7600,1600,640,160, -1], [-1,-1,-1,3500,5000,1200, 300, -1], [-1, -1, -1, -1, 8000, 1570, 350, 80], [-1, -1, -1, -1, 6000, 3170, 680, 150]],
+		rarityBreakpoints: [41, 60, 80, 100, 125, 146, 166, 181, 201, 230, 300],
 		Staff: {
 			metalDrop: {
 				name: "Metal Drop Rate",
@@ -2283,42 +2314,42 @@ var toReturn = {
 			playerEfficiency: {
 				name: "Player Efficiency",
 				currentBonus: 0,
-				steps: [[2,4,1],[4,8,1],[8,16,1],[16,32,2],[32,64,4],[64,128,8],[128,256,16]]
+				steps: [[2,4,1],[4,8,1],[8,16,1],[16,32,2],[32,64,4],[64,128,8],[128,256,16], [256, 512, 32]]
 			},
 			trainerEfficiency: {
 				name: "Trainer Efficiency",
 				currentBonus: 0,
-				steps: [[1,5,1],[5,10,1],[10,20,1],[20,40,2],[40,60,2],[60,80,2],[80,100,2]]
+				steps: [[1,5,1],[5,10,1],[10,20,1],[20,40,2],[40,60,2],[60,80,2],[80,100,2], [100, 120, 2]]
 			},
 			storageSize: {
 				name: "Storage Size",
 				currentBonus: 0,
-				steps: [[8,16,4],[16,32,4],[32,64,4],[64,128,4],[128,256,8],[256,512,16],[512,768,16]]
+				steps: [[8,16,4],[16,32,4],[32,64,4],[64,128,4],[128,256,8],[256,512,16],[512,768,16],[768, 1024, 16]]
 			},
 			breedSpeed: {
 				name: "Breed Speed",
 				currentBonus: 0,
-				steps: [[1,2,1],[2,5,1],[5,10,1],[10,20,1],[70,100,3],[100,130,3],[130,160,3]]
+				steps: [[1,2,1],[2,5,1],[5,10,1],[10,20,1],[70,100,3],[100,130,3],[130,160,3],[160, 190, 3]]
 			},
 			trimpHealth: {
 				name: "Trimp Health",
 				currentBonus: 0,
-				steps: [[1,2,1],[2,6,1],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5]]
+				steps: [[1,2,1],[2,6,1],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200, 260, 6]]
 			},
 			trimpAttack: {
 				name: "Trimp Attack",
 				currentBonus: 0,
-				steps: [[1,2,1],[2,6,1],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5]]
+				steps: [[1,2,1],[2,6,1],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200, 260, 6]]
 			},
 			trimpBlock: {
 				name: "Trimp Block",
 				currentBonus: 0,
-				steps: [[1,2,1],[2,4,1],[4,7,1],[7,10,1],[28,40,1],[48,60,1],[68,80,1]]
+				steps: [[1,2,1],[2,4,1],[4,7,1],[7,10,1],[28,40,1],[48,60,1],[68,80,1],[88, 100, 1]]
 			},
 			critDamage: {
 				name: "Crit Damage, additive",
 				currentBonus: 0,
-				steps: [[10,20,5],[20,40,5],[40,60,5],[60,100,5],[100,200,10],[200,300,10],[300,400,10]],
+				steps: [[10,20,5],[20,40,5],[40,60,5],[60,100,5],[100,200,10],[200,300,10],[300,400,10],[400, 500, 10]],
 				filter: function () {
 					return (!game.portal.Relentlessness.locked);
 				}
@@ -2326,7 +2357,7 @@ var toReturn = {
 			critChance: {
 				name: "Crit Chance, additive",
 				currentBonus: 0,
-				steps: [[0.2,0.6,0.2],[0.6,1.4,0.2],[1.4,2.6,0.2],[2.6,5,0.2],[5,7.4,0.2],[7.4,9.8,0.2],[9.8,12.2,0.2]],
+				steps: [[0.2,0.6,0.2],[0.6,1.4,0.2],[1.4,2.6,0.2],[2.6,5,0.2],[5,7.4,0.2],[7.4,9.8,0.2],[9.8,12.2,0.2], [12.2, 15.8, 0.3]],
 				filter: function () {
 					return (!game.portal.Relentlessness.locked);
 				}
@@ -2334,7 +2365,7 @@ var toReturn = {
 			voidMaps: {
 				name: "Void Map Drop Chance",
 				currentBonus: 0,
-				steps: [[0.5,1.5,0.5],[2.5,4,0.5],[5,7,0.5],[8,11,0.5],[12,16,0.5],[17,22,0.5],[24,30,0.5]]
+				steps: [[0.5,1.5,0.5],[2.5,4,0.5],[5,7,0.5],[8,11,0.5],[12,16,0.5],[17,22,0.5],[24,30,0.5],[32, 38, 0.5]]
 			},
 			empty: {
 				name: "Empty",

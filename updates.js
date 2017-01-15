@@ -150,7 +150,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Repeat Map"){
-		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast.";
+		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast. <br/><br/>If you are <b>not</b> repeating, your current group of Trimps will not be abandoned after the map ends.";
 		costText = "";
 	}
 	if (what == "Customize Targets"){
@@ -1795,6 +1795,8 @@ function resetGame(keepPortal) {
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));	
 	mutations.Magma.multiplier = -1;
 	mutations.Magma.lastCalculatedMultiplier = -1;
+	game.achievements.humaneRun.earnable = true;
+	game.achievements.humaneRun.lastZone = 0;
 	heirloomsShown = false;
 	goldenUpgradesShown = false;
 	game.global.selectedHeirloom = [];
@@ -3165,7 +3167,10 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 				var borderStyle = "";
 				var tierValue = "<span style='color: black;' class='" + achievement.icon + "'></span>";
 				if ((!one && achievement.finished == x) || (one && !achievement.finished[x] && game.global.highestLevelCleared >= achievement.filters[x])) {
-					displayColor = (one && !checkFeatEarnable(x)) ? "#b32d00" : "#C5C515"; //Yellow
+					if (item == "humaneRun")
+						displayColor = (achievement.evaluate() == 0) ? "#b32d00" : "#C5C515"; //Yellow
+					else
+						displayColor = (one && !checkFeatEarnable(x)) ? "#b32d00" : "#C5C515"; //Yellow
 				}
 				else if ((one && achievement.finished[x]) || (!one && achievement.finished > x)) {
 					displayColor = "#159515"; //Greenz
@@ -3196,7 +3201,8 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 			[", thanks to your bounty of achievements", ", must be all those achievements", ", you are one with the achievements", " and you water your achievements daily"],
 			[", your Trimps are mighty impressed", ", your achievements are mind blowing", ". You wake up, achieve, then sleep", ", you have achievement in your blood"],
 			[", your achievements are beyond mortal comprehension", ", Trimps far and wide tell stories of your achievement", ", you have achieved achievement", ", everything you touch turns to achievement"],
-			[", your achievements have achieved achievement", ", news of your achievement spreads throughout the galaxy", ", achievements bend to your will", ", your achievements transcend reality"]
+			[", your achievements have achieved achievement", ", news of your achievement spreads throughout the galaxy", ", achievements bend to your will", ", your achievements transcend reality"],
+			[", word of your achievement spreads throughout the universe", ", everyone else is super jealous", ", the achievements of your achievements have achieved achievement", ", your achievements have gained sentience", ", everyone else just stays home", ", you appear if someone says 'Achievement' 3 times in a mirror"]
 		];
 		var fluffLevel = getAchievementStrengthLevel();		
 		fluff = fluff[fluffLevel];
@@ -3259,10 +3265,21 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		else return true;
 	}
 	
+	function countTotalPossibleAchievePercent(){
+		var total = 0;
+		for (var item in game.achievements){
+			var achieve = game.achievements[item];
+			for (var x = 0; x < achieve.tiers.length; x++){
+				total += game.tierValues[achieve.tiers[x]];
+			}
+		}
+		return total;
+	}
+	
 	function setGoldenBonusAchievementText(){
 		var elem = document.getElementById('achievementGoldenBonusContainer');
 		var tier = getAchievementStrengthLevel();
-		var tiers = [15, 100, 300, 600, 1000];
+		var tiers = [15, 100, 300, 600, 1000, 2000];
 		var freq = getGoldenFrequency(tier);
 		if (tier <= 0) {
 			elem.innerHTML = "";
@@ -3280,7 +3297,8 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		else if (percent < 300) return 2;
 		else if (percent < 600) return 3;
 		else if (percent < 1000) return 4;
-		return 5;
+		else if (percent < 2000) return 5;
+		return 6;
 	}
 	
 	var trimpAchievementHelpOn = false;

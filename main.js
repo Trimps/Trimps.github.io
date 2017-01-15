@@ -511,7 +511,16 @@ function load(saveString, autoLoad, fromPf) {
 		if (game.stats.highestVoidMap.valueTotal > 230)
 			game.stats.highestVoidMap.valueTotal = 230;
 	}
+	if (oldVersion < 4.1){
+		game.achievements.humaneRun.earnable = false;
+	}
 	//End compatibility
+	
+	//Test server only
+
+	//End test server only
+	
+
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
     if (game.global.gridArray.length > 0) {
@@ -1910,7 +1919,7 @@ function gather() {
 		}
 		if (what && increase == what){
 			if (game.global.turkimpTimer > 0 && (what == "food" || what == "wood" || what == "metal")){
-				perSec *= 1.5;
+				perSec *= game.talents.turkimp3.purchased ? 1.75 : 1.5;
 			}
 			perSec += getPlayerModifier();
 		}
@@ -3088,7 +3097,7 @@ function selectHeirloom(number, location, elem){
 			document.getElementById("extraHeirloomsBtnGroup").style.visibility = "visible";
 			document.getElementById("equipHeirloomBtn2").innerHTML = (typeof game.global[heirloom.type + "Equipped"].name === 'undefined') ? "Equip" : "Swap";
 			if (game.global.heirloomsCarried.length < game.global.maxCarriedHeirlooms) swapClass("heirloomBtn", "heirloomBtnActive", document.getElementById("carryHeirloomBtn"));
-			document.getElementById("recycleHeirloomBtn").innerHTML = "Recycle (+" + prettify(Math.floor(game.heirlooms.values[heirloom.rarity] / 2)) + " Nullifium)";
+			document.getElementById("recycleHeirloomBtn").innerHTML = "Recycle (+" + prettify(getTotalHeirloomRefundValue(heirloom)) + " Nullifium)";
 			break;
 	}
 	displaySelectedHeirloom();
@@ -3097,7 +3106,7 @@ function selectHeirloom(number, location, elem){
 function recycleHeirloom(confirmed){
 	var heirloom = getSelectedHeirloom();
 	if (game.global.selectedHeirloom[0] == -1 || game.global.selectedHeirloom[1] == "heirloomsCarried") return;
-	var value = Math.floor(game.heirlooms.values[heirloom.rarity] / 2);
+	var value = Math.floor(getTotalHeirloomRefundValue(heirloom));
 	if (!confirmed) {
 		tooltip('confirm', null, 'update', 'You are about to recycle ' + heirloom.name + ' for ' + prettify(value) + ' Nullifium. Are you sure?' , 'recycleHeirloom(true)', 'Recycle Heirloom');
 		return;
@@ -3111,7 +3120,7 @@ function recycleAllExtraHeirlooms(valueOnly){
 	var extraHeirlooms = game.global.heirloomsExtra;
 	var value = 0;
 	for (var item in extraHeirlooms){
-		value += Math.floor(game.heirlooms.values[extraHeirlooms[item].rarity] / 2);
+		value += getTotalHeirloomRefundValue(extraHeirlooms[item]);
 	}
 	if (valueOnly) return value;
 	game.global.nullifium += value;
@@ -3363,16 +3372,47 @@ function getModUpgradeCost(heirloom, modIndex){
 
 function getStepPriceIncrease(heirloom, mod){
 	var modConfig = game.heirlooms[heirloom.type][mod[0]];
-	var priceIncrease = [2, 1.5, 1.25, 1.19, 1.15, 1.12, 1.1]
+	var priceIncrease = [2, 1.5, 1.25, 1.19, 1.15, 1.12, 1.1, 1.06]
 	var step = (typeof modConfig.steps !== 'undefined') ? modConfig.steps : game.heirlooms.defaultSteps;
 	step = step[heirloom.rarity];
 	if (mod[1] <= step[1]) return 1;
 	return Math.pow(priceIncrease[heirloom.rarity], ((mod[1] - step[1]) / step[2]));
 }
 
+function getTotalHeirloomRefundValue(heirloom){
+	var total = 0;
+	for (var x = 0; x < heirloom.mods.length; x++){
+		var thisMod = heirloom.mods[x];
+		//Create a dummy heirloom with a copy of this mod at 0 upgrades to count price
+		var dummyHeirloom = setupDummyHeirloom(heirloom, thisMod);
+		total += countPriceOfUpgrades(dummyHeirloom, heirloom.mods[x][3]);
+	}
+	return Math.floor(total) + Math.floor(game.heirlooms.values[heirloom.rarity] / 2);
+}
+
+//Dummy heirloom for mod recycle price calculating
+function setupDummyHeirloom(heirloom, mod){
+	var modConfig = game.heirlooms[heirloom.type][mod[0]];
+	var step = (typeof modConfig.steps !== 'undefined') ? modConfig.steps : game.heirlooms.defaultSteps;
+	step = step[heirloom.rarity];
+	var dummyMod = [mod[0], mod[1] - (mod[3] * step[2]), mod[2], 0, mod[4]];
+	var dummyHeirloom = {rarity: heirloom.rarity, step: step[2], type: heirloom.type, mods: [dummyMod]};
+	return dummyHeirloom;
+}
+
+function countPriceOfUpgrades(dummyHeirloom, count){
+	var total = 0;
+	for (var x = 0; x < count; x++){
+		total += Math.ceil(getModUpgradeCost(dummyHeirloom, 0));
+		dummyHeirloom.mods[0][3]++;
+		dummyHeirloom.mods[0][1] += dummyHeirloom.step;
+	}
+	return total;
+}
+
 function upgradeMod(confirmed){
 	var heirloom = getSelectedHeirloom();
-	var cost = getModUpgradeCost(heirloom, selectedMod);
+	var cost = Math.ceil(getModUpgradeCost(heirloom, selectedMod));
 	if (game.global.nullifium < cost) return;
 	if (!confirmed && game.options.menu.boneAlerts.enabled == 1) {
 		tooltip('confirm', null, 'update', 'You are about to upgrade ' + game.heirlooms[heirloom.type][heirloom.mods[selectedMod][0]].name + ' for ' + prettify(cost) + ' Nullifium. Are you sure?' , 'upgradeMod(true)', 'Upgrade Mod');
@@ -3389,6 +3429,7 @@ function upgradeMod(confirmed){
 	}
 	game.heirlooms[heirloom.type][heirloom.mods[selectedMod][0]].currentBonus = newBonus;
 	displaySelectedHeirloom();
+	selectHeirloom(game.global.selectedHeirloom[0], game.global.selectedHeirloom[1]);
 	selectMod(selectedMod);
 	document.getElementById("nullifiumCount").innerHTML = prettify(game.global.nullifium);
 }
@@ -3413,8 +3454,15 @@ function replaceMod(confirmed){
 	if (!confirmed && game.options.menu.boneAlerts.enabled == 1) {
 		var oldName = game.heirlooms[heirloom.type][heirloom.mods[selectedMod][0]].name;
 		var text = (oldName == "Empty") ? "You are about to add " : "You are about to replace " + oldName + " with ";
-		
-		tooltip('confirm', null, 'update', text + newMod.name + ' for ' + prettify(cost) + ' Nullifium. Are you sure?' , 'replaceMod(true)', 'Replace Mod');
+		text += newMod.name + ' for ' + prettify(cost) + ' Nullifium. ';
+		if (oldName != "Empty"){
+			if (mod[3] > 0){
+				var cost = countPriceOfUpgrades(setupDummyHeirloom(heirloom, mod), mod[3]);
+				text += "<br/><br/><b>You have already purchased " + mod[3] + " upgrades for " + oldName + " and spent a total of " + prettify(cost) + " Nullifium. <span style='color:red'>Replacing this mod will not refund your Nu, and it will be permanently lost</span></b>.";
+			}
+		}
+		text += " Are you sure?";
+		tooltip('confirm', null, 'update', text, 'replaceMod(true)', 'Replace Mod');
 		return;
 	}
 	game.global.nullifium -= cost;
@@ -3474,8 +3522,8 @@ function checkSelectedModsFor(what){
 }
 
 function createHeirloom(zone, fromBones){
-	var slots = [1, 2, 2, 3, 3, 4, 4];
-	var rarityNames = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal'];
+	var slots = [1, 2, 2, 3, 3, 4, 4, 5];
+	var rarityNames = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal', 'Magmatic'];
 	//Determine Type
 	var seed = (fromBones) ? game.global.heirloomBoneSeed : game.global.heirloomSeed;
 	var type = (getRandomIntSeeded(seed++, 0, 2) == 0) ? "Shield" : "Staff";
@@ -4026,7 +4074,7 @@ var mutations = {
 		reward: function (effect) {
 			var amt;
 			var text;
-			if (game.global.generatorMode == 1 || (game.global.generatorMode == 2 && game.global.magmaFuel < getGeneratorFuelCap(false, true))){
+			if (game.global.generatorMode == 1 || (game.global.generatorMode == 2 && parseFloat(game.global.magmaFuel.toFixed(1)) < getGeneratorFuelCap(false, true))){
 				amt = game.generatorUpgrades.Supply.modifier;
 				var zoneCap = 0.2 + ((game.global.world - this.start()) * 0.01);
 				amt = Math.min(amt, zoneCap);
@@ -4446,7 +4494,7 @@ function changeGeneratorState(to, updateOnly){
 		game.global.generatorMode = to;
 	to = game.global.generatorMode;
 	if (to == 2){
-		if (game.global.magmaFuel < getGeneratorFuelCap(false, true)){
+		if (parseFloat(game.global.magmaFuel.toFixed(1)) < getGeneratorFuelCap(false, true)){
 			to = 3;
 		}
 	}
@@ -5045,34 +5093,37 @@ function mapsClicked(confirmed) {
 		return;
 	}	
     if (game.global.switchToMaps || game.global.switchToWorld || game.options.menu.alwaysAbandon.enabled == 1) {
-		if (game.global.spireActive && !game.global.mapsActive && game.global.fighting) deadInSpire();
-        game.global.switchToMaps = true;
-		game.global.soldierHealth = 0;
-		game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
-		game.resources.trimps.soldiers = 0;
-		
-		var bar = document.getElementById("goodGuyBar");
-		swapClass("percentColor", "percentColorRed", bar);
-		bar.style.width = "0%";
-		var healthElem = document.getElementById("goodGuyHealth");
-		if (healthElem != null) healthElem.innerHTML = 0;
-		if (game.global.challengeActive == "Nom") {
-			var cell;
-			var cellNum;
-			if (game.global.mapsActive) {
-				cellNum = game.global.lastClearedMapCell + 1;
-				cell = game.global.mapGridArray[cellNum];
-			} else {
-				cellNum = game.global.lastClearedCell + 1;
-				cell = game.global.gridArray[cellNum];
+		if (!game.global.preMapsActive){
+			if (game.global.spireActive && !game.global.mapsActive && game.global.fighting) deadInSpire();
+			game.global.switchToMaps = true;
+			game.global.soldierHealth = 0;
+			game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
+			game.stats.battlesLost.value++;
+			game.resources.trimps.soldiers = 0;
+			
+			var bar = document.getElementById("goodGuyBar");
+			swapClass("percentColor", "percentColorRed", bar);
+			bar.style.width = "0%";
+			var healthElem = document.getElementById("goodGuyHealth");
+			if (healthElem != null) healthElem.innerHTML = 0;
+			if (game.global.challengeActive == "Nom") {
+				var cell;
+				var cellNum;
+				if (game.global.mapsActive) {
+					cellNum = game.global.lastClearedMapCell + 1;
+					cell = game.global.mapGridArray[cellNum];
+				} else {
+					cellNum = game.global.lastClearedCell + 1;
+					cell = game.global.gridArray[cellNum];
+				}
+				cell.nomStacks = (cell.nomStacks) ? cell.nomStacks + 1 : 1;
+				if (cell.nomStacks > 100) cell.nomStacks = 100;
+				updateNomStacks(cell.nomStacks);
+				if (cell.health > 0) cell.health += (cell.maxHealth * 0.05);
+				else cell.health = 0;
+				if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
+				updateBadBar(cell);
 			}
-			cell.nomStacks = (cell.nomStacks) ? cell.nomStacks + 1 : 1;
-			if (cell.nomStacks > 100) cell.nomStacks = 100;
-			updateNomStacks(cell.nomStacks);
-			if (cell.health > 0) cell.health += (cell.maxHealth * 0.05);
-			else cell.health = 0;
-			if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
-			updateBadBar(cell);
 		}
 		mapsSwitch();
         return;
@@ -5197,6 +5248,7 @@ function clearMapDescription(){
 
 function setNonMapBox(){
 	document.getElementById("mapsBtn").innerHTML = "Maps";
+	if (game.global.totalVoidMaps > 0) addVoidAlert();
 	var worldNumElem = document.getElementById("worldNumber");
 	worldNumElem.style.display = (game.global.spireActive) ? 'none' : 'inline';
 	document.getElementById("worldNumber").innerHTML = game.global.world;
@@ -6114,6 +6166,17 @@ function nextWorld() {
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve(8);
 	else if (game.global.world == 120 && !game.global.researched) giveSingleAchieve(7);
 	displayGoldenUpgrades();
+	if (game.achievements.humaneRun.earnable){
+		if (game.stats.battlesLost.value > game.achievements.humaneRun.lastZone + 1){
+			game.achievements.humaneRun.lastZone = game.global.world - 1;
+			game.achievements.humaneRun.earnable = false;
+		}
+		else{
+			checkAchieve("humaneRun");
+			game.achievements.humaneRun.lastZone = game.stats.battlesLost.value;
+			}
+	}
+	
 }
 
 function autoUnlockHousing(){
@@ -7045,6 +7108,7 @@ function fight(makeUp) {
     if (game.global.soldierHealth <= 0) {
 		if (isVoid) game.global.voidDeaths++;
 		game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
+		game.stats.battlesLost.value++;
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.bloodthirst !== 'undefined'){
 				game.global.dailyChallenge.bloodthirst.stacks++;
@@ -7231,7 +7295,8 @@ function fight(makeUp) {
 			game.stats.zonesCleared.value++;
 			checkAchieve("totalZones");
 		}
-        battle(true);
+        if (game.global.soldierHealth > 0) 
+			battle(true);
         return;
     }
 	var cellAttack = calculateDamage(cell.attack, false, false, false, cell);

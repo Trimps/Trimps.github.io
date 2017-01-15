@@ -1511,6 +1511,9 @@ overflow-x: hidden;
 	color: white;
 	font-size: 2vw;
 	line-height: 2vw;
+	text-align: center;
+	width: 2vw;
+	display: inline-block;
 }
 
 .heirloomRare0{
@@ -1570,11 +1573,83 @@ overflow-x: hidden;
 	  0.15vw 0.15vw 0.3vw #2f006d;
 }
 
+.selectedHeirloomItem.heirloomRare6{
+background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%); 
+background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%); 
+background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%); 
+}
+
+.selectedHeirloomItem.heirloomRare7{
+background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%); 
+}
+
 .heirloomRare6 .heirloomMod:hover, .heirloomRare6.rarityBdBox{
 	border: 0.2vw solid #2693ff;
 }
 
 .heirloomRare6 .heirloomMod{
+	background-color: initial;
+}
+
+.heirloomRare7{
+	color: #730000;
+	text-shadow: 
+			1px 1px 2px #ff9326, 
+			0 0 25px #ff4000, 
+			0 0 5px #f37900, 
+			-0.17vw -0.17vw 0.17vw rgba(140,35,0,0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(89,0,0,0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(102,0,0,0.58),
+			  0.17vw 0.17vw 0.3vw rgba(89,0,0,0.72);	
+}
+
+.heirloomRare7.heirloomThing, .heirloomRare7 div .selectedHeirloomIcon{
+	color: #730000;
+	animation: heirRare7Animated 7s infinite;
+}
+
+@keyframes heirRare7Animated{
+	0% {
+		text-shadow: 
+			1px 1px 2px #ff9326, 
+			0 0 25px #ff4000, 
+			0 0 5px #f37900, 
+			-0.17vw -0.17vw 0.17vw rgba(140,35,0,0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(89,0,0,0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(102,0,0,0.58),
+			  0.17vw 0.17vw 0.3vw rgba(89,0,0,0.72);	
+			  animation-timing-function: ease-in;
+	}
+	50% {
+		text-shadow: 
+			1px 1px 8px #ff9326, 
+			0 0 50px #ff4000, 
+			0 0 25px #f37900, 
+			-0.17vw -0.17vw 0.17vw rgba(140,35,0,0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(89,0,0,0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(102,0,0,0.58),
+			  0.17vw 0.17vw 0.3vw rgba(89,0,0,0.72);	
+			  animation-timing-function: ease-out;
+	}
+	100% {
+	text-shadow: 
+			1px 1px 2px #ff9326, 
+			0 0 25px #ff4000, 
+			0 0 5px #f37900, 
+			-0.17vw -0.17vw 0.17vw rgba(140,35,0,0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(89,0,0,0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(102,0,0,0.58),
+			  0.17vw 0.17vw 0.3vw rgba(89,0,0,0.72);	
+	}
+}
+
+
+
+.heirloomRare7 .heirloomMod:hover, .heirloomRare7.rarityBdBox{
+	border: 0.2vw solid #8c0000;
+}
+
+.heirloomRare7 .heirloomMod{
 	background-color: initial;
 }
 
@@ -1761,11 +1836,6 @@ overflow-x: hidden;
 	background-color: #111111;
 }
 
-.selectedHeirloomItem.heirloomRare6{
-background: -moz-linear-gradient(-45deg,  #000b38 0%, #280021 50%, #000b38 100%); 
-background: -webkit-linear-gradient(-45deg,  #000b38 0%,#280021 50%,#000b38 100%); 
-background: linear-gradient(135deg,  #000b38 0%,#280021 50%,#000b38 100%); 
-}
 
 
 
@@ -2824,8 +2894,8 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	background: linear-gradient(to left, #8c0000 14%,#2E0854 55%);
-	color: white;
+	color: #ff4000;
+	background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%); 
 }
 
 .btn-new:hover,
@@ -2834,8 +2904,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	background: linear-gradient(to right, #2E0854 14%,#8c0000 55%);
-	color: white;
+	color: #d90000;
+	background: linear-gradient(135deg,  #400000 0%, #100000 50%, #400000 100%); 
 }
 .btn-new:active,
 .btn-new.active,
