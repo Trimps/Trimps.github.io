@@ -2546,6 +2546,7 @@ function updateSideTrimps(){
 	document.getElementById("trimpsUnemployed").innerHTML = breedCount;
 	document.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.realMax() / 2));
 	var free = (Math.ceil(trimps.realMax() / 2) - trimps.employed);
+	if (free < 0) free = 0;
 	var s = (free > 1) ? "s" : "";
 	document.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " workspace" + s;
 }

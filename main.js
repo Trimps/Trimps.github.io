@@ -5099,10 +5099,12 @@ function mapsClicked(confirmed) {
 		if (!game.global.preMapsActive){
 			if (game.global.spireActive && !game.global.mapsActive && game.global.fighting) deadInSpire();
 			game.global.switchToMaps = true;
-			game.global.soldierHealth = 0;
-			game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
-			game.stats.battlesLost.value++;
-			game.resources.trimps.soldiers = 0;
+			if (game.resources.trimps.soldiers > 0){
+				game.global.soldierHealth = 0;
+				game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
+				game.stats.battlesLost.value++;
+				game.resources.trimps.soldiers = 0;
+			}
 			
 			var bar = document.getElementById("goodGuyBar");
 			swapClass("percentColor", "percentColorRed", bar);
