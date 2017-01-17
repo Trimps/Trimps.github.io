@@ -3469,6 +3469,9 @@ function replaceMod(confirmed){
 	var steps = (typeof newMod.steps !== 'undefined') ? newMod.steps : game.heirlooms.defaultSteps;
 	steps = steps[heirloom.rarity];
 	mod[0] = newModName;
+	if (!heirloom.repSeed)
+		heirloom.repSeed = getRandomIntSeeded(game.global.heirloomSeed, 1, 10e6);
+	mod[4] = getRandomIntSeeded(heirloom.repSeed++, 1, 10e6);
 	steps = getRandomBySteps(steps, mod);
 	mod[1] = steps[0];
 	mod[2] = steps[1];
@@ -3540,7 +3543,7 @@ function createHeirloom(zone, fromBones){
 	var name = rarityNames[rarity] + " " + type;
 	//Heirloom configuration
 	//{name: "", type: "", rarity: #, mods: [[ModName, value, createdStepsFromCap, upgradesPurchased, seed]]}
-	var buildHeirloom = {name: name, type: type, rarity: rarity, mods: []};
+	var buildHeirloom = {name: name, type: type, repSeed: getRandomIntSeeded(seed++, 1, 10e6), rarity: rarity, mods: []};
 	var x = 0;
 	for (x; x < slots; x++){
 		var roll = getRandomIntSeeded(seed++, 0, elligible.length);
