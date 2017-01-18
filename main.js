@@ -3580,7 +3580,7 @@ function getRandomBySteps(steps, mod, fromBones){
 			seed = mod[4]++;
 		}
 		else {
-			seed = (fromBones) ? game.global.heirloomBoneSeed : game.global.heirloomSeed++;
+			seed = (fromBones) ? game.global.heirloomBoneSeed++ : game.global.heirloomSeed++;
 		}
 		var possible = ((steps[1] - steps[0]) / steps[2]);
 		var roll = getRandomIntSeeded(seed, 0, possible + 1);
