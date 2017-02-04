@@ -4077,7 +4077,7 @@ var mutations = {
 		reward: function (effect) {
 			var amt;
 			var text;
-			if (game.global.generatorMode == 1 || (game.global.generatorMode == 2 && game.global.magmaFuel < getGeneratorFuelCap(false, true))){
+			if (game.global.generatorMode == 1 || (game.global.generatorMode == 2 && (getGeneratorFuelCap(false, true) - game.global.magmaFuel > 0.01))){
 				amt = game.generatorUpgrades.Supply.modifier;
 				var zoneCap = 0.2 + ((game.global.world - this.start()) * 0.01);
 				amt = Math.min(amt, zoneCap);
