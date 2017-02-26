@@ -1396,11 +1396,11 @@ overflow-x: hidden;
 }
 
 .perkColorOn{
-	background-color: black;
+	background-color: #000;
 }
 
 .perkColorOff{
-	background-color: grey;
+	background-color: #808080;
 }
 
 .perkColorMaxed{
@@ -2130,7 +2130,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 #portalStory{
 	display: inline-block;
-	font-size: 1.25vw;
+	font-size: 1.15vw;
 }
 
 .dailyTopRow{
@@ -2151,11 +2151,12 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 .heirloomRecycleWarning{
 	background-color: black;
 	color: red;
+	font-size: 0.85em;
 }
 
 .portalThing{
 	width: 19.3%;
-	font-size: 1.2vw;
+	font-size: 1.1vw;
 }
 
 #portalUpgradesHere{
@@ -2204,7 +2205,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .greenText{
-	color: green;
+	color: green !important;
+}
+
+.redText{
+	color: red !important;
 }
 
 .exotic{
@@ -2810,8 +2815,16 @@ background-color: rgba(255,255,255,0.25);
 	width: 19.4%;
 }
 
+.challengeThing:hover{
+	background-color: #2b7583;	
+}
+
 #challengeDaily{
 	background-color: #b38600;
+}
+
+#challengeDaily:hover{
+	background-color: #9a7300;
 }
 
 #extraGridInfo{
@@ -2843,6 +2856,10 @@ background-color: rgba(255,255,255,0.25);
 
 .finishedChallenge {
 	background-color: grey;
+}
+
+.finishedChallenge:hover {
+	background-color: #737373;
 }
 
 .formationBtn{
@@ -2894,8 +2911,8 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	color: #ff4000;
-	background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%); 
+	color: white;
+	background: linear-gradient(40deg,  #318696 0%, #990099 30%, #990099 70%, #318696 100%); 
 }
 
 .btn-new:hover,
@@ -2904,8 +2921,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: #d90000;
-	background: linear-gradient(135deg,  #400000 0%, #100000 50%, #400000 100%); 
+	color: white;
+	background: linear-gradient(135deg,  #990099 0%, #318696 50%, #990099 100%); 
 }
 .btn-new:active,
 .btn-new.active,
@@ -2966,6 +2983,27 @@ input::-webkit-inner-spin-button {
 .thingColorDone {
 	background: #004000;
 	color: white !important;
+}
+
+.thingColorSquared {
+	background: #990099 !important;
+	color: white !important;
+}
+
+.thingColorSquared:hover {
+	background: #800080 !important;
+	color: white !important;
+}
+
+.thingColorSquared.cBorderOn{
+	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #bfdfff;
+    -moz-box-shadow:inset 0px 0px 0px 0.2vw #bfdfff;
+    box-shadow:inset 0px 0px 0px 0.2vw #bfdfff;
+	border: 0;	
+}
+
+.colorSquared{
+	color: #990099;
 }
 
 .thingColorCtrl {

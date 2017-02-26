@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.1,
+		version: 4.2,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -177,6 +177,8 @@ var toReturn = {
 		timeSinceLastGeneratorTick: -1,
 		canMagma: true,
 		lastBonePresimpt: 0,
+		runningChallengeSquared: false,
+		totalSquaredReward: 0,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -319,8 +321,8 @@ var toReturn = {
 			standardNotation: {
 				enabled: 1,
 				extraTags: "layout",
-				description: "Swap between standard formatting (12.7M, 540B), engineering notation (12.7e6, 540e9), or scientific notation (1.27e7, 5.40e11).",
-				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation"],
+				description: "Swap between Standard Formatting (12.7M, 540B), Engineering Notation (12.7e6, 540e9), Scientific Notation (1.27e7, 5.40e11), or Alphabetic Notation (12.7b, 540c).",
+				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation", "Alphabetic Notation"],
 			},
 			tooltips: {
 				enabled: 1,
@@ -477,10 +479,10 @@ var toReturn = {
 				titles: ["Not Fading", "Fading"]
 			},
 			extraStats: {
-				enabled: 0,
+				enabled: 1,
 				extraTags: "layout",
 				description: "Toggle on or off adding extra information to map items.",
-				titles: ["Standard Maps", "Extra Info"],
+				titles: ["Minimalist Maps", "Extra Map Info"],
 				onToggle: function () {
 					refreshMaps();
 				}
@@ -683,7 +685,7 @@ var toReturn = {
 	},
 	talents: {
 		bionic: {
-			description: "Automatically pick up each level of Bionic Wonderland as you pass that zone, as long as you already have any available ones before that zone.",
+			description: "Automatically pick up each level of Bionic Wonderland as you pass that zone, as long as you have already earned any available ones before that zone and have earned the RoboTrimp from all currently owned maps.",
 			name: "Bionic Magnet",
 			tier: 1,
 			purchased: false,
@@ -1151,6 +1153,9 @@ var toReturn = {
 			filter: function () {
 				return (game.resources.helium.owned >= 30 || game.global.totalHeliumEarned >= 30);
 			},
+			allowSquared: true,
+			squaredDescription: "Tweak the portal to bring you back to a universe where Trimps are less disciplined, in order to teach you how to be a better Trimp trainer. Your Trimps' minimum damage will be drastically lower, but their high end damage will be considerably higher.",
+			highestSquared: 0,
 			unlocks: "Range",
 			unlockString: "have 30 total helium"
 		},
@@ -1162,12 +1167,27 @@ var toReturn = {
 			},
 			abandon: function () {
 				game.worldUnlocks.Miner.fire();
-				for (var x = 0; x < game.challenges.Metal.heldBooks; x++){
+				if (this.heldBooks >= 1){
+					game.upgrades.Speedminer.locked = 0;
+					if (this.heldBooks > 1){
+						game.upgrades.Speedminer.allowed += this.heldBooks - 1;
+					}
 					unlockUpgrade("Speedminer");
 				}
+				if (this.heldMegaBooks >= 1){
+					game.upgrades.Megaminer.locked = 0;
+					if (this.heldMegaBooks > 1){
+						game.upgrades.Megaminer.allowed += this.heldMegaBooks - 1;
+					}
+					unlockUpgrade("Megaminer");
+				}
 			},
+			allowSquared: true,
+			squaredDescription: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies.",
+			highestSquared: 0,
 			fireAbandon: false,
 			heldBooks: 0,
+			heldMegaBooks: 0,
 			unlocks: "Artisanistry",
 			unlockString: "reach Zone 25"
 		},
@@ -1189,6 +1209,9 @@ var toReturn = {
 				game.jobs.Miner.modifier *= 1.5;
 				game.resources.trimps.maxMod = 0.5;
 			},
+			allowSquared: true,
+			squaredDescription: "Tweak the portal to bring you to an alternate reality, where Trimps are bigger and stronger, to force yourself to figure out a way to build larger housing. Your Trimps will gather 50% more resources, but your housing will fit 50% fewer Trimps.",
+			highestSquared: 0,
 			fireAbandon: true,
 			unlocks: "Carpentry",
 			unlockString: "reach Zone 35"
@@ -1228,6 +1251,9 @@ var toReturn = {
 				if (formatText) return this.balanceStacks + "%";
 				return ((this.balanceStacks * 0.01) + 1);
 			},
+			allowSquared: true,
+			squaredDescription: "Your scientists have discovered a chaotic dimension filled with unharvestable but pretty helium. All enemies have 100% more health, enemies in world deal 17% more damage, and enemies in maps deal 135% more damage. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250.",
+			highestSquared: 0,
 			fireAbandon: true,
 			heldHelium: 0,
 			heliumThrough: 40,
@@ -1288,11 +1314,14 @@ var toReturn = {
 			}
 		},
 		Meditate: {
-			description: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, and your trimps will gather 25% faster. Completing <b>'Trimple of Doom' (33)</b> will return the world to normal.",
+			description: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, but your trimps will gather 25% faster. Completing <b>'Trimple of Doom' (33)</b> will return the world to normal.",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 44);
 			},
+			allowSquared: true,
+			squaredDescription: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, but your trimps will gather 25% faster.",
+			highestSquared: 0,
 			unlocks: "Meditation",
 			unlockString: "reach Zone 45"
 		},
@@ -1314,14 +1343,21 @@ var toReturn = {
 			completed: false,
 			heldBooks: 0,
 			fireAbandon: true,
+			allowSquared: true,
+			squaredDescription: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination.",
+			highestSquared: 0,
+			replaceSquareThresh: 40,
+			replaceSquareReward: 3,
+			replaceSquareGrowth: 3,
 			unlocks: "Resilience",
 			filter: function () {
 				return (game.global.world >= 60 || game.global.highestLevelCleared >= 59);
 			},
 			abandon: function () {
-				for (var x = 0; x < game.challenges.Trimp.heldBooks; x++){
+				if (game.challenges.Trimp.heldBooks > 1)
+					game.upgrades.Coordination.allowed += game.challenges.Trimp.heldBooks - 1;
+				if (game.challenges.Trimp.heldBooks > 0)
 					unlockUpgrade("Coordination");
-				}
 			},
 			unlockString: "reach Zone 60"
 		},
@@ -1330,6 +1366,11 @@ var toReturn = {
 			completed: false,
 			heldBooks: 0,
 			fireAbandon: true,
+			allowSquared: true,
+			squaredDescription: "Travel to a dimension where Trimps refuse to breed in captivity, good luck!",
+			highestSquared: 0,
+			replaceSquareThresh: 50,
+			replaceSquareGrowth: 2,
 			unlocks: "Anticipation",
 			filter: function () {
 				return (game.global.highestLevelCleared >= 69);
@@ -1355,6 +1396,9 @@ var toReturn = {
 			},
 			heldHelium: 0,
 			heliumThrough: 79,
+			allowSquared: true,
+			squaredDescription: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack.",
+			highestSquared: 0,
 			unlockString: "clear 'The Prison' at Zone 80"
 		},
 		Frugal: {
@@ -1398,6 +1442,11 @@ var toReturn = {
 		Coordinate: {
 			description: "Visit a dimension where Bad Guys are Coordinated but never fast, to allow you to study naturally evolved Coordination. Completing <b>'Dimension of Anger' (20)</b> with this challenge active will cause all enemies to lose their Coordination.",
 			completed: false,
+			allowSquared: true,
+			squaredDescription: "Visit a dimension where Bad Guys are Coordinated but never fast, chip 'em down!",
+			highestSquared: 0,
+			replaceSquareFreq: 3,
+			replaceSquareThresh: 30,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 119);
 			},
@@ -1423,6 +1472,9 @@ var toReturn = {
 		Slow: {
 			description: "Legends tell of a dimension inhabited by incredibly fast bad guys, where blueprints exist for a powerful yet long forgotten weapon and piece of armor. All bad guys will attack first in this dimension, but clearing <b>Zone 120</b> with this challenge active will forever-after allow you to create these new pieces of equipment.",
 			completed: false,
+			allowSquared: true,
+			squaredDescription: "Legends tell of a dimension inhabited by incredibly fast bad guys, and you seem to want to go there to prove something. All bad guys will attack first in this dimension, watch your health!",
+			highestSquared: 0,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 129);
 			},
@@ -1431,6 +1483,9 @@ var toReturn = {
 		Nom: {
 			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with an additional 200% of all helium earned up to that point. This is repeatable!",
 			completed: false,
+			allowSquared: true,
+			squaredDescription: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first.",
+			highestSquared: 0,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 144);
 			},
@@ -1445,6 +1500,9 @@ var toReturn = {
 				return (game.global.highestLevelCleared >= 149);
 			},
 			fireAbandon: true,
+			allowSquared: true,
+			squaredDescription: "Travel to a dimension where maps are scarce, in an attempt to learn to be more resourceful. You will earn one map Credit for each World Zone you clear, and it costs 1 credit to run 1 map. <b>The mastery Blacksmithery will not function while this challenge is active.</b>",
+			highestSquared: 0,
 			abandon: function (){
 				document.getElementById("mapCreditsLeft").innerHTML = "";
 			},
@@ -1468,6 +1526,9 @@ var toReturn = {
 			maxStacks: 1500, //Changing this breaks the feat spaghetti
 			stackMult: 0.997,
 			lootMult: 0.15,
+			allowSquared: true,
+			squaredDescription: "Travel to a dimension filled with the glory that comes from killing toxic bad guys. All bad guys have 5x attack and 2x health. Each time you attack a bad guy, your Trimps lose 5% of their health, and toxins are released into the air which reduce the breeding speed of your Trimps by 0.3% (of the current amount), but also increase all loot found by 0.15%, stacking up to 1500 times. These stacks will reset when you clear a zone.",
+			highestSquared: 0,
 			unlockString: "reach Zone 165"
 		},
 		Devastation: {
@@ -1485,6 +1546,9 @@ var toReturn = {
 			filter: function () {
 				return (game.global.highestLevelCleared >= 179);
 			},
+			allowSquared: true,
+			squaredDescription: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Relax and let the Trimps figure it out for themselves, you know you want to.",
+			highestSquared: 0,
 			heliumMultiplier: 1.5,
 			heldHelium: 0,
 			heliumThrough: 180,
@@ -1499,6 +1563,9 @@ var toReturn = {
 			heliumMultiplier: 2.5,
 			stacks: 0,
 			heldHelium: 0,
+			allowSquared: true,
+			squaredDescription: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack.",
+			highestSquared: 0,
 			heliumThrough: 180,
 			unlockString: "reach Zone 180",
 			fireAbandon: true,
@@ -3005,6 +3072,7 @@ var toReturn = {
 				rewardResource("wood", 2, level);
 				rewardResource("metal", 2, level);
 				message("That Blimp dropped " + prettify(amt) + " Food, Wood and Metal! That should be useful.", "Loot", "piggy-bank", null, 'primary');
+				if (game.global.runningChallengeSquared) return;
 				if (game.global.world >= 21 && (game.global.totalPortals >= 1 || game.global.portalActive)){
 					if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 					amt = rewardResource("helium", 1, level);
@@ -3036,7 +3104,10 @@ var toReturn = {
 					percentage *= mutations.Corruption.cellCount() * 2;
 					percentage += 2;
 				}
-				amt = rewardResource("helium", amt, level, false, percentage);
+				if (game.global.runningChallengeSquared)
+					amt = 0;
+				else
+					amt = rewardResource("helium", amt, level, false, percentage);
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";
 				if (game.options.menu.repeatVoids.enabled && game.global.totalVoidMaps > 1){
 					msg += "the next Void map";
@@ -3119,6 +3190,7 @@ var toReturn = {
 				checkAchieve("doomTimed");
 				var amt = rewardResource("metal", 2, level, true);
 				message("Indianimp dropped " + prettify(amt) + " metal!", "Loot", "*cubes", null, 'primary');
+				if (game.global.runningChallengeSquared) return;
 				if (game.global.challengeActive == "Trapper"){
 					game.global.challengeActive = "";
 					game.challenges.Trapper.abandon();
@@ -3141,6 +3213,7 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				checkAchieve("prisonTimed");
+				if (game.global.runningChallengeSquared) return;
 				if (game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") {
 					var reward = Math.floor(game.challenges.Electricity.heldHelium * 1.5);
 					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
@@ -3304,6 +3377,7 @@ var toReturn = {
 			loot: function (level) {
 				if (game.global.spireActive) return;
 				if (!game.global.brokenPlanet) planetBreaker();
+				if (game.global.runningChallengeSquared) return;
 				var amt = (game.global.world >= mutations.Corruption.start(true)) ? 10 : 5;
 				amt = rewardResource("helium", amt, level);
 				message("You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Loot", "oil", 'helium', 'helium');				
@@ -3346,8 +3420,10 @@ var toReturn = {
 			health: 6,
 			fast: true,
 			loot: function (level) {
-				amt = rewardResource("helium", 30, level);
-				message("You managed to steal " + prettify(amt) + " Helium canisters from that Omnipotrimp. That'll teach it.", "Loot", "oil", 'helium', 'helium');
+				if (!game.global.runningChallengeSquared){
+					amt = rewardResource("helium", 30, level);
+					message("You managed to steal " + prettify(amt) + " Helium canisters from that Omnipotrimp. That'll teach it.", "Loot", "oil", 'helium', 'helium');
+				}
 				if (game.global.world % 5 == 0){
 					message("The Omnipotrimp explodes, killing all of your soldiers!", "Combat", null, null, 'trimp');
 					game.stats.trimpsKilled.value += game.resources.trimps.soldiers;
@@ -3668,9 +3744,10 @@ var toReturn = {
 				if (game.global.bionicOwned == 1) 
 					message("You found a map to the Bionic Wonderland. Sounds fun!", "Story");
 				else
-					message("You found a map to an even more advanced version of the Bionic Wonderland! Looks scary...", "Story");
+					message("You found a map to an even more advanced version of the Bionic Wonderland! Looks scary... Your scientists remind you that you can only carry 3 of these incredibly heavy, metallic maps at a time.", "Story");
 				var roman = romanNumeral(tier + 1);
 				createMap(((tier * 15) + 125), "Bionic Wonderland " + roman, "Bionic", 3, 100, 2.6, true);
+				purgeBionics();
 			},
 			fire: function (fromTalent) {
 				var level = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
@@ -3785,14 +3862,18 @@ var toReturn = {
 			title: "Portal",
 			filterUpgrade: true,
 			canRunOnce: true,
-			fire: function () {
+			fire: function (level, fromGenerator) {
 				if (!this.canRunOnce) return;
-				message("Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'", "Story");
+				var messageText = (fromGenerator) ? "The world feels a little bit less angry as you fire off your handy Portal Generator. You can tell that somewhere in some dimension, a Megablimp is no more. In front of you, 45 helium and a green, shining box appear on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'." : "Don't ever let anyone tell you that you didn't just kill that Megablimp. Because you did. As he melts away into nothingness, you notice a green, shining box on the ground. In tiny writing on the box, you can make out the words 'Time portal. THIS SIDE UP'.";
+				message(messageText, "Story");
 				game.global.portalActive = true;
+				fadeIn("portalBtn", 10);
+				if (game.global.runningChallengeSquared) return;
 				fadeIn("helium", 10);
 				addHelium(45);
-				message("<span class='glyphicon glyphicon-oil'></span> You were able to extract 45 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
-				fadeIn("portalBtn", 10);
+				if (!fromGenerator){
+					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract 45 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
+				}
 				if (game.global.challengeActive == "Metal"){
 					game.global.challengeActive = "";
 					game.challenges.Metal.abandon();
@@ -3835,6 +3916,8 @@ var toReturn = {
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function () {
+				unlockUpgrade("Shieldblock");
+				if (game.global.runningChallengeSquared) return;
 				if (game.global.challengeActive == "Scientist"){
 					game.global.challengeActive = "";
 					game.global.sLevel = getScientistLevel();
@@ -3847,7 +3930,6 @@ var toReturn = {
 					game.portal.Resilience.locked = false;
 					message("You have completed the <b>Trimp Challenge!</b> You have unlocked the 'Resilience' perk, and your Trimps can fight together again.", "Notices");
 				}
-				unlockUpgrade("Shieldblock");
 			}
 		},
 		Bounty: {
@@ -4774,6 +4856,11 @@ var toReturn = {
 			icon: "book",
 			title: "Megaminer",
 			fire: function() {
+				if (game.global.challengeActive == "Metal"){
+					message("Your scientists appreciate the fact that you've managed to find another useless book, but they make sure to let you know it's still useless.", "Notices");
+					game.challenges.Metal.heldMegaBooks++;
+					return;
+				}
 				unlockUpgrade("Megaminer");
 			}
 		},

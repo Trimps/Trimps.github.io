@@ -106,6 +106,11 @@ function save(exportThis, fromManual) {
 	for (var itemF in saveGame.challenges){
 		var challenge = saveGame.challenges[itemF];
 		delete challenge.unlockString;
+		delete challenge.squaredDescription;
+		delete challenge.replaceSquareFreq;
+		delete challenge.replaceSquareReward;
+		delete challenge.replaceSquareThresh;
+		delete challenge.replaceSquareGrowth;
 		delete challenge.description;
 	}
 	for (var itemG in saveGame.achievements){
@@ -514,10 +519,13 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 4.1){
 		game.achievements.humaneRun.earnable = false;
 	}
+	if (oldVersion < 4.2){
+		if (game.global.highestLevelCleared > 64)
+			tooltip("UnlockedChallenge2", null, 'update');
+	}
 	//End compatibility
 	
 	//Test server only
-
 	//End test server only
 	
 
@@ -649,6 +657,7 @@ function load(saveString, autoLoad, fromPf) {
 
 	if (game.global.voidBuff) setVoidBuffTooltip();
 	if (game.upgrades.Gigastation.done >= 1) loadGigastations();
+	checkChallengeSquaredAllowed();
 
 	if (oldVersion < 2){
 		if (game.global.world == 59){
@@ -731,7 +740,7 @@ function displayRoboTrimp() {
 }
 
 function magnetoShriek() {
-	if (game.global.roboTrimpCooldown > 0 || !game.global.roboTrimpLevel) return;
+	if (game.global.roboTrimpCooldown > 0 || !game.global.roboTrimpLevel || game.global.world < 60) return;
 	game.global.useShriek = !game.global.useShriek;
 	displayRoboTrimp();
 	if (game.global.useShriek && !game.global.mapsActive){
@@ -783,8 +792,47 @@ function displayAllStats(buildAll) {
 	}
 }
 
+function countChallengeSquaredReward(){
+	var reward = 0;
+	for (var item in game.challenges){
+		var challenge = game.challenges[item];
+		if (!challenge.allowSquared) continue;
+		reward += getIndividualSquaredReward(challenge);
+	}
+	game.global.totalSquaredReward = reward;
+}
+
+var squaredConfig = {
+		rewardFreq: 10,
+		rewardEach: 1,
+		rewardGrowth: 1,
+		thresh: 100,
+}
+
+function getIndividualSquaredReward(challenge, forceHighest){
+	if (!forceHighest) forceHighest = challenge.highestSquared;
+	forceHighest++; //Clear zone not reach it
+	if (forceHighest <= 1) return 0;
+	var bonus = 0;
+	var thresh = (challenge.replaceSquareThresh) ? challenge.replaceSquareThresh : squaredConfig.thresh;
+	var reward = (challenge.replaceSquareReward) ? challenge.replaceSquareReward : squaredConfig.rewardEach;
+	var rewardGrowth = (challenge.replaceSquareGrowth) ? challenge.replaceSquareGrowth : squaredConfig.rewardGrowth;
+	var freq = (challenge.replaceSquareFreq) ? challenge.replaceSquareFreq : squaredConfig.rewardFreq;
+	var addedBonuses = 0;
+	var loops = Math.ceil(forceHighest / thresh);
+	for (var x = 0; x < loops; x++){
+		var count = (x == loops - 1) ? forceHighest - addedBonuses : thresh;
+		addedBonuses += count - (count % freq);
+		count = Math.floor(count / freq);
+		bonus += count * ((rewardGrowth * x) + reward);
+	}
+	return Math.round(bonus);
+}
+
 var portalWindowOpen = false;
+var challengeSquaredMode = false;
 function portalClicked() {
+	challengeSquaredMode = false;
 	portalWindowOpen = true;
 	cancelTooltip();
 	game.global.viewingUpgrades = false;
@@ -809,6 +857,7 @@ function portalClicked() {
 	document.getElementById("totalPortals").innerHTML = game.global.totalPortals;
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
 	document.getElementById("activatePortalBtn").innerHTML = "Activate Portal";
+	document.getElementById("challengeSquaredBonusAmt").innerHTML = prettify(game.global.totalSquaredReward);
 		if (game.global.canRespecPerks) {
 		document.getElementById("respecPortalBtn").innerHTML = "Respec";
 		document.getElementById("respecPortalBtn").style.display = "inline-block";
@@ -819,6 +868,11 @@ function portalClicked() {
 	displayPortalUpgrades();
 	
 	game.global.removingPerks = false;
+}
+
+function toggleChallengeSquared(){
+	challengeSquaredMode = !challengeSquaredMode;
+	displayChallenges();
 }
 
 function displayChallenges() {
@@ -833,8 +887,9 @@ function displayChallenges() {
 		var thisFail = false;
 		var name = "";
 		var challenge = game.challenges[what];
+		if (challengeSquaredMode && !challenge.allowSquared) continue;
 		if (!challenge.filter(true)) {
-			if (firstFail || what == "Daily") continue;
+			if (firstFail || what == "Daily" || challengeSquaredMode) continue;
 			firstFail = true;
 			thisFail = true;
 		}
@@ -875,6 +930,7 @@ function displayChallenges() {
 		else if (what == "Frugal") done = game.global.frugalDone;
 		else if (what == "Slow") done = game.global.slowDone;
 		done = (done) ? "finishedChallenge" : "";
+		if (challengeSquaredMode) done = "thingColorSquared";
 		if (thisFail) done = "nextChallenge";
 		if (!name) name = what;
 		challengeHTML += '<div class="noselect pointer challengeThing thing ' + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + name + '</span></div>';
@@ -905,11 +961,13 @@ function selectChallenge(what) {
 		if (addChallenge !== null) addChallenge.innerHTML = "";
 		return;
 	}
-	
-
-	var desc = game.challenges[what].description;
+	var desc = (challengeSquaredMode) ? game.challenges[what].squaredDescription + " " + getSpecialSquaredRewards(game.challenges[what]) : game.challenges[what].description;
 	desc += "<b>";
-	if (game.portal[game.challenges[what].unlocks]) desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
+	if (challengeSquaredMode) {
+		var reward = getIndividualSquaredReward(game.challenges[what]);
+		desc += " Your highest zone reached for this Challenge<sup>2</sup> is Z" + game.challenges[what].highestSquared + ", earning you " + prettify(reward) + "% extra attack and health, and " + prettify(reward / 10) + "% more Helium from all sources.";
+	}
+	else if (game.portal[game.challenges[what].unlocks]) desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
 	else if (what == "Scientist") {
 		var sciLev = getScientistLevel();
 		if (sciLev == game.global.sLevel) desc += " You have already completed this challenge!";
@@ -921,8 +979,10 @@ function selectChallenge(what) {
 	game.global.selectedChallenge = what;
 	document.getElementById("flagMustRestart").style.display = (what == "Scientist") ? "inline" : "none";
 	
-	if (addChallenge !== null) addChallenge.innerHTML = "You have the <b>" + what + " Challenge</b> active.";
-	
+	if (addChallenge !== null){
+		addChallenge.innerHTML = "You have the <b>" + what + " Challenge</b> active.";
+		addChallenge.className = (challengeSquaredMode) ? "colorSquared" : "";
+	}
 	if (what == "Daily") updateDailyClock();
 }
 
@@ -969,6 +1029,12 @@ function confirmAbandonChallenge(){
 function abandonChallenge(restart){
 	var challengeName = game.global.challengeActive;
 	var challenge = game.challenges[challengeName];
+	if (game.global.runningChallengeSquared){
+		if (game.global.world > game.challenges[game.global.challengeActive].highestSquared)
+			game.challenges[game.global.challengeActive].highestSquared = game.global.world;
+		countChallengeSquaredReward();
+	}
+	game.global.runningChallengeSquared = false;
 	game.global.challengeActive = "";
 	if (challenge.fireAbandon && typeof challenge.abandon !== 'undefined') challenge.abandon();
 	cancelPortal();
@@ -981,10 +1047,59 @@ function abandonChallenge(restart){
 		message("Your challenge has been abandoned.", "Notices");
 }
 
+function checkChallengeSquaredAllowed(){
+	document.getElementById('challengeTitleSquared').style.display = (game.global.highestLevelCleared >= 64) ? "block" : "none";
+	document.getElementById('challengeTitleNoSquared').style.display = (game.global.highestLevelCleared >= 64) ? "none" : "block";
+}
+
 function formatDailySeedDate(){
 	if (!game.global.dailyChallenge.seed) return "";
 	var seed = String(game.global.dailyChallenge.seed);
 	return seed.substr(0, 4) + '-' + seed.substr(4, 2) + '-' + seed.substr(6);
+}
+
+function getSpecialSquaredRewards(challenge){
+	var description = "";
+	if (challenge.replaceSquareReward || challenge.replaceSquareThresh || challenge.replaceSquareFreq || challenge.replaceSquareGrowth){ 
+		var threshes = (challenge.replaceSquareThresh) ? challenge.replaceSquareThresh : squaredConfig.thresh;
+		var reward = (challenge.replaceSquareReward) ? challenge.replaceSquareReward : squaredConfig.rewardEach;
+		var freq = (challenge.replaceSquareFreq) ? challenge.replaceSquareFreq : squaredConfig.rewardFreq;
+		var rewardIncrease = (challenge.replaceSquareGrowth) ? challenge.replaceSquareGrowth : squaredConfig.rewardGrowth;
+		description += "<span class='colorSquared'>This challenge issues rewards differently than most other Challenge<sup>2</sup>s.";
+		description += ((challenge.replaceSquareReward) ? "<b>" : "")  + " You will gain " + reward + "% attack and health, and " + prettify(reward / 10) + "% Helium" + ((challenge.replaceSquareReward) ? "</b>" : "");
+		description += ((challenge.replaceSquareFreq) ? "<b>" : "") + " for every " + freq + " zones cleared." + ((challenge.replaceSquareFreq) ? "</b>" : "");
+		description += ((challenge.replaceSquareThresh) ? "<b>" : "") + " Every " + threshes + " zones cleared," + ((challenge.replaceSquareThresh) ? "</b>" : "");
+		description += ((challenge.replaceSquareGrowth) ? "<b>" : "") + " this bonus will increase by " + rewardIncrease + "% attack and health, and " + prettify(rewardIncrease / 10) + "% Helium.</span> " + ((challenge.replaceSquareGrowth) ? "</b>" : "");
+	}
+	return description;
+}
+
+function getSquaredDescriptionInRun(hideDesc){
+	if (!game.global.runningChallengeSquared) return "";
+	var challenge = game.challenges[game.global.challengeActive];
+	var description = "";
+	if (!hideDesc){
+		description = challenge.squaredDescription + " " + getSpecialSquaredRewards(challenge);
+	}
+	description += "<b>You are currently at Zone " + game.global.world;
+	var portalText = (game.global.viewingUpgrades) ? "abandon the challenge " : "use the portal ";
+	var dif = getIndividualSquaredReward(challenge, game.global.world) - getIndividualSquaredReward(challenge);
+	if (challenge.highestSquared > 0){
+		if (dif >= 1){		
+			description += ", <span class='greenText'>your previous highest for this challenge was Zone " + challenge.highestSquared + ". If you " + portalText + "now, you'll add " + prettify(dif) + "% damage and health to your total Challenge<sup>2</sup> bonus, bringing it to " + prettify(dif + game.global.totalSquaredReward) + "%.</span>";
+		}
+		else {
+			description += ", <span class='redText'>your best for this challenge is Zone " + challenge.highestSquared + ". If you " + portalText + "now, your total Challenge<sup>2</sup> attack and health bonus will stay at " + prettify(game.global.totalSquaredReward) + "%.</span>";
+		}
+	}
+	else{
+		if (dif <= 0) 
+			description += ". <span class='redText'>You'll need to reach at least Zone " + squaredConfig.rewardFreq + " before you'll add anything to your current Challenge<sup>2</sup> attack and health bonus of " + prettify(game.global.totalSquaredReward) + "%.</span>";
+		else
+			description += ". <span class='greenText'>If you " + portalText + "now, you'll add " + prettify(dif) + "% to your Challenge<sup>2</sup> bonus, bringing the total attack and health increase to " + prettify(dif + game.global.totalSquaredReward) + "%.</span>";
+	}
+	description += "</b>";
+	return description;
 }
 
 function viewPortalUpgrades() {
@@ -998,6 +1113,8 @@ function viewPortalUpgrades() {
 		var description;
 		if (game.global.challengeActive == "Daily")
 			description = getCurrentDailyDescription();
+		else if (game.global.runningChallengeSquared)
+			description = getSquaredDescriptionInRun();
 		else
 			description = game.challenges[game.global.challengeActive].description;
 		if (game.global.challengeActive == "Scientist"){
@@ -1327,9 +1444,16 @@ function activateClicked(){
 		newText = "All set?";
 	}
 	else newText = "Are you sure you want to enter the portal? You will lose all progress other than the portal-compatible upgrades you've earned, such as Helium, Perks, Bones, and Exotic Imports. Who knows where or when it will send you.";
-	if (game.global.selectedChallenge) newText += " <span id='addChallenge'>You have the <b>" + game.global.selectedChallenge + " Challenge</b> active.</span>";
+	if (game.global.selectedChallenge){
+		if (challengeSquaredMode)
+			newText += " <span id='addChallenge' class='colorSquared'>You have the <b>" + game.global.selectedChallenge + " Challenge<sup>2</sup></b> active.</span>";
+		else
+			newText += " <span id='addChallenge'>You have the <b>" + game.global.selectedChallenge + " Challenge</b> active.</span>";
+	}
 	else newText += " <span id='addChallenge'></span>";
-	if (game.global.challengeActive == "Daily") newText += "<br/><span style='color: red;'><i>You still have the Daily challenge active! If you portal right now, your reward will be applied at the beginning of your next run. Alternatively, click 'Finish Daily' in the World or inside 'View Perks' to get the bonus now.</i></span>";
+	if (game.global.challengeActive == "Daily") newText += "<br/><span style='color: red; font-size: 0.85em;'><i>You still have the Daily challenge active! If you portal right now, your reward will be applied at the beginning of your next run. Alternatively, click 'Finish Daily' in the World or inside 'View Perks' to get the bonus now.</i></span>";
+	if (game.global.runningChallengeSquared) newText += "<br/><div style='background-color: black; font-size: 0.85em;'>" + getSquaredDescriptionInRun(true) + "</div>";
+	else
 	newText += "<br/>";
 	if (game.global.heirloomsExtra.length){
 		var s = (game.global.heirloomsExtra.length > 1) ? "s" : "";
@@ -1562,6 +1686,12 @@ function activatePortal(){
 	if (game.global.challengeActive == "Daily"){
 		abandonDaily();
 	}
+	if (game.global.runningChallengeSquared){
+		if (game.global.world > game.challenges[game.global.challengeActive].highestSquared)
+			game.challenges[game.global.challengeActive].highestSquared = game.global.world;
+		game.global.challengeActive = "";
+	}
+	game.global.runningChallengeSquared = challengeSquaredMode;
 	var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
 	if (!commitPortalUpgrades(true)) return;	
 	game.global.heliumLeftover = refund;
@@ -1571,6 +1701,7 @@ function activatePortal(){
 	resetGame(true);
 	if (game.global.totalPortals == 1) addNewSetting('extraMapBtns');
 	displayPerksBtn();
+	handleFinishDailyBtn();
 	document.getElementById("portalUpgradesHere").innerHTML = "";
 	message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 }
@@ -1720,6 +1851,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
 	if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
 	if (game.global.spireRows > 0) amt *= 1 + (game.global.spireRows * 0.02);
+	if (game.global.totalSquaredReward > 0 && what == "helium") amt *= ((game.global.totalSquaredReward / 1000) + 1);
 	if (game.unlocks.impCount.Magnimp && what != "helium") amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
 	if (game.global.challengeActive == "Toxicity"){
 		var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
@@ -2289,20 +2421,37 @@ function buyJob(what, confirmed, noTip) {
 	if (!noTip) tooltip(what, "jobs", "update");
 }
 
-function addGeneticist(){
+function addGeneticist(amount){
 	if (game.global.challengeActive == "Corrupted") game.challenges.Corrupted.hiredGenes = true;
 	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
 	var owned = game.resources.trimps.owned - game.resources.trimps.employed;
 	if (owned < 1) return;
+	if (owned < amount)
+		amount = owned;
 	if (workspaces <= 0) {
 		//try to free up a workspace if possible
-		if (!freeWorkspace()) return;
+		if (!freeWorkspace(amount)){
+			amount = 1;
+			if (!freeWorkspace(amount))
+				return;
+		}
 	}
-	var cost = getNextGeneticistCost();
-	if (game.resources.food.owned < cost) return;
-	game.resources.food.owned -= cost;
-	game.resources.trimps.employed++;
-	game.jobs.Geneticist.owned++;
+	var cost = game.jobs.Geneticist.cost.food;
+	var price = Math.floor((cost[0] * Math.pow(cost[1], game.jobs.Geneticist.owned)) * ((Math.pow(cost[1], amount) - 1) / (cost[1] - 1)));
+	if (game.resources.food.owned < price) {
+		price = getNextGeneticistCost();
+		if (game.resources.food.owned < price) return;
+		amount = 1;
+	}
+	game.resources.food.owned -= price;
+	game.resources.trimps.employed += amount;
+	game.jobs.Geneticist.owned += amount;
+}
+
+function removeGeneticist(amount){
+	if (game.jobs.Geneticist.owned < amount) return;
+	game.resources.trimps.employed -= amount;
+	game.jobs.Geneticist.owned -= amount;
 }
 
 function getNextGeneticistCost(){
@@ -2310,23 +2459,20 @@ function getNextGeneticistCost(){
 	return resolvePow(geneticist.cost.food, geneticist, 1);
 }
 
-function freeWorkspace(){
+function freeWorkspace(amount){
+	if (!amount) amount = 1;
 	var toCheck = [];
-	if (game.jobs.Miner.owned >= 1) toCheck.push('Miner');
-	if (game.jobs.Farmer.owned >= 1) toCheck.push('Farmer');
-	if (game.jobs.Lumberjack.owned >= 1) toCheck.push('Lumberjack');
+	if (game.jobs.Miner.owned >= amount) toCheck.push('Miner');
+	if (game.jobs.Farmer.owned >= amount) toCheck.push('Farmer');
+	if (game.jobs.Lumberjack.owned >= amount) toCheck.push('Lumberjack');
 	if (toCheck.length == 0) return false;
 	var selected = toCheck[Math.floor(Math.random() * toCheck.length)];
-	game.jobs[selected].owned--;
-	game.resources.trimps.employed--;
+	game.jobs[selected].owned -= amount;
+	game.resources.trimps.employed -= amount;
 	return true;
 }
 
-function removeGeneticist(){
-	if (game.jobs.Geneticist.owned <= 0) return;
-	game.resources.trimps.employed--;
-	game.jobs.Geneticist.owned--;
-}
+
 
 function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob, forceMax){ //don't use forceMax for jobs until you fix that second return
 	if (!itemObj.cost){
@@ -2545,24 +2691,29 @@ function breed() {
 		var GAElem = document.getElementById('Geneticistassist');
 		var GAIndicator = document.getElementById('GAIndicator');
 		var canRun = false;
+		var now = new Date().getTime();
 		if (lastGAToggle == -1) canRun = true;
 		else if (new Date().getTime() > lastGAToggle + 2000){
 			lastGAToggle = -1;
 			canRun = true;
 		}
-		if (GAElem && canRun){
+		if (GAElem && canRun){			
 			var thresh = totalTime * 0.02;
-			var compareTime = (timeRemaining > 5 && (timeRemaining > target + 1)) ? (timeRemaining - 1) : totalTime;
+			var compareTime = (timeRemaining > 1 && (timeRemaining > target + 1)) ? (timeRemaining - 1) : totalTime;
 			if (!isFinite(thresh)) thresh = 0;
 			if (!isFinite(compareTime)) compareTime = 999;
+			var genDif = Math.ceil(log10(target / compareTime) / log10(1.02));
 			if (compareTime < target) {
 				swapClass("state", "stateHiring", GAElem);
 				
 				if (game.resources.food.owned * 0.01 < getNextGeneticistCost()){
 					GAIndicator.innerHTML = " (<span style='font-size: 0.8em' class='glyphicon glyphicon-apple'></span>)";
 				}
-				else if (timeRemaining < 5) {
-					addGeneticist();
+				else if (timeRemaining < 1 || ((target - ((now - lastSoldierSentAt) / 1000)) > timeRemaining)) {
+					if (genDif > 0){
+						if (genDif > 10) genDif = 10;
+						addGeneticist(genDif);
+					}
 					GAIndicator.innerHTML = " (+)";
 				}
 				else GAIndicator.innerHTML = " (<span style='font-size: 0.8em' class='icmoon icon-clock3'></span>)";
@@ -2570,7 +2721,10 @@ function breed() {
 			else if (compareTime - thresh > target) {
 				swapClass("state", "stateFiring", GAElem);
 				GAIndicator.innerHTML = " (-)";
-				removeGeneticist();
+				if (genDif < 0){
+					if (genDif < -10) genDif = -10;
+					removeGeneticist(Math.abs(genDif));
+				}
 			}
 			else {
 				swapClass("state", "stateHappy", GAElem);
@@ -2937,38 +3091,34 @@ function addVoidAlert(){
 	document.getElementById('mapsBtn').innerHTML += ' <span id="voidAlert" class="alert badge">' + game.global.totalVoidMaps + '</span>';
 }
 
+var voidBuffConfig = {
+		doubleAttack: {
+			icon: 'icomoon icon-pushpin',
+			text: 'This bad guy attacks twice - once before you, and once again after you.',
+			title: 'Void Attack',
+		},
+		slowBreed: {
+			icon: 'icomoon icon-cloudy2',
+			text: 'This map is reducing the repopulation speed of your Trimps by 80%.',
+			title: 'Void Gas',
+		},
+		getCrit: {
+			icon: 'icomoon icon-heart6',
+			text: 'This bad guy has a 25% chance to crit you for 400% extra damage.',
+			title: 'Void Strength',
+		},
+		bleed: {
+			icon: "icomoon icon-drop",
+			text: 'Every time this bad guy attacks, you will lose an additional 20% of your <b>current</b> health.',
+			title: 'Void Bleed',
+		}
+}
+
 function setVoidBuffTooltip(){
-	var icon;
-	var text;
-	var title;
+	var buff = voidBuffConfig[game.global.voidBuff];
 	var stackCount = "";
 	var elem = document.getElementById('voidBuff');
-	switch(game.global.voidBuff){
-		case 'doubleAttack':
-			icon = 'icomoon icon-pushpin';
-			text = 'This bad guy attacks twice - once before you, and once again after you.';
-			title = 'Void Attack';
-			break;
-		case 'slowBreed':
-			icon = 'icomoon icon-cloudy2';
-			text = 'This map is reducing the repopulation speed of your Trimps by 80%.';
-			title = 'Void Gas';
-			break;
-		case 'getCrit':
-			icon = 'icomoon icon-heart6';
-			text = 'This bad guy has a 25% chance to crit you for 400% extra damage.';
-			title = 'Void Strength';
-			break;
-		case 'bleed':
-			icon = "icomoon icon-drop";
-			text = 'Every time this bad guy attacks, you will lose an additional 20% of your <b>current</b> health.';
-			title = 'Void Bleed';
-			break;
-		default:
-			elem.innerHTML = "";
-			return;
-	}
-	elem.innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + title + '\', \'customText\', event, \'' + text + '\')" onmouseout="tooltip(\'hide\')"><span id="voidBuffStacks">' + stackCount + '</span><span class="' + icon + '"></span></span>';
+	elem.innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + buff.title + '\', \'customText\', event, \'' + buff.text + '\')" onmouseout="tooltip(\'hide\')"><span class="' + buff.icon + '"></span></span>';
 }
 
 var heirloomsShown = false;
@@ -3699,7 +3849,7 @@ function getMapIndex(mapId) {
 var mutations = {
 	Corruption: {
 		start: function (ignoreCorrupted){
-			var start = (game.talents.headstart.purchased) ? ((game.talents.headstart2.purchased) ? ((game.talents.headstart3.purchased) ? 151 : 166) : 176) : 181;
+			var start = (game.talents.headstart.purchased && !game.global.runningChallengeSquared) ? ((game.talents.headstart2.purchased) ? ((game.talents.headstart3.purchased) ? 151 : 166) : 176) : 181;
 			if (ignoreCorrupted) return start;
 			return (game.global.challengeActive == "Corrupted") ? 60 : start;
 		},
@@ -3735,7 +3885,7 @@ var mutations = {
 			return base;			
 		},
 		reward: function (effect) {
-			if (game.global.world < 20) return;
+			if (game.global.world < 20 || game.global.runningChallengeSquared) return;
 			var percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
 			var baseValue = (game.global.world >= this.start(true)) ? 10 : 5;
 			if (mutations.Magma.active()) baseValue *= 3;
@@ -5415,6 +5565,7 @@ function getPierceAmt(){
 	return base;
 }
 
+var lastSoldierSentAt =  new Date().getTime();
 function startFight() {
 	game.global.battleCounter = 0;
     document.getElementById("badGuyCol").style.visibility = "visible";
@@ -5491,6 +5642,7 @@ function startFight() {
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
     if (cell.maxHealth == -1) {
 		var overkill = 0;
+
 		if (cell.health != -1) overkill = cell.health;
 		if (cell.mutation && typeof mutations[cell.mutation].attack !== 'undefined')
 			cell.attack = mutations[cell.mutation].attack(cell.level, cell.name);
@@ -5574,6 +5726,7 @@ function startFight() {
     var trimpsFighting = game.resources.trimps.maxSoldiers;
 	var soldType = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
+				lastSoldierSentAt = new Date().getTime();
 		game.global.battleCounter = 0;
 		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
 			if (!cell.killCount) cell.killCount = 1;
@@ -5656,6 +5809,8 @@ function startFight() {
 			var vpAmt = (game.talents.voidPower2.purchased) ? 35 : 15;
 			game.global.soldierHealthMax *= ((vpAmt / 100) + 1);
 		}
+		if (game.global.totalSquaredReward > 0)
+			game.global.soldierHealthMax *= ((game.global.totalSquaredReward / 100) + 1);
 		game.global.soldierHealth = game.global.soldierHealthMax;
 		if (game.global.challengeActive == "Devastation") {
 			if (game.challenges.Devastation.lastOverkill != -1) game.global.soldierHealth -= (game.challenges.Devastation.lastOverkill * 7.5);
@@ -5680,6 +5835,8 @@ function startFight() {
 			if (game.global.formation !== 0){
 				healthTemp *= (game.global.formation == 1) ? 4 : 0.5;
 			}
+			if (game.global.totalSquaredReward > 0)
+				healthTemp *= ((game.global.totalSquaredReward / 100) + 1);
 			if (game.global.challengeActive == "Balance"){
 				healthTemp *= game.challenges.Balance.getHealthMult();
 			}
@@ -5826,6 +5983,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 		if (game.talents.voidPower.purchased && game.global.voidBuff){
 			var vpAmt = (game.talents.voidPower2.purchased) ? 35 : 15;
 			number *= ((vpAmt / 100) + 1);
+		}
+		if (game.global.totalSquaredReward > 0){
+			number *= ((game.global.totalSquaredReward / 100) + 1)
 		}
 
 		if (game.global.challengeActive == "Daily"){
@@ -6060,11 +6220,12 @@ function nextWorld() {
 		game.global.highestLevelCleared = game.global.world;
 		game.global.voidMaxLevel = game.global.world;
 		if (game.global.world == 199) addNewSetting('mapsOnSpire'); 
-		if (game.global.world == 180) {
+		else if (game.global.world == 180) {
 			unlockFormation(4);
 			filterTabs('talents');
 			addNewSetting('masteryTab');
 		}
+		else if (game.global.world == 64) tooltip("UnlockedChallenge2", null, 'update');
 	}
     game.global.world++;
     document.getElementById("worldNumber").innerHTML = game.global.world;
@@ -6078,11 +6239,13 @@ function nextWorld() {
     drawGrid();
 	if (game.worldText["w" + game.global.world]) message(game.worldText["w" + game.global.world], "Story");
 	if (game.global.canMagma) checkAchieve("zones");
+	
+	game.global.zoneStarted = new Date().getTime();
+	
 	if (game.global.challengeActive == "Mapology") {
 		game.challenges.Mapology.credits++;
 		updateMapCredits();
 	}
-	game.global.zoneStarted = new Date().getTime();
 	if (game.global.roboTrimpLevel && game.global.brokenPlanet) {
 		if (game.global.roboTrimpCooldown > 0) game.global.roboTrimpCooldown--;
 		displayRoboTrimp();
@@ -6101,7 +6264,7 @@ function nextWorld() {
 	}
 	if (game.global.challengeActive == "Decay"){
 		game.challenges.Decay.stacks = 0;
-		if (game.global.world == 56){
+		if (game.global.world == 56 && !game.global.runningChallengeSquared){
 			game.challenges.Decay.completed = true;
 			game.global.decayDone = true;
 			game.global.challengeActive = "";
@@ -6119,7 +6282,7 @@ function nextWorld() {
 			updateDailyStacks('karma');
 		}
 	}
-	if (game.talents.blacksmith.purchased){
+	if (game.talents.blacksmith.purchased && (game.global.challengeActive != "Mapology" || !game.global.runningChallengeSquared)){
 		if (game.global.world <= Math.floor((game.global.highestLevelCleared + 1) / 2))
 			dropPrestiges();
 		else if (game.talents.blacksmith2.purchased && game.global.world <= Math.floor((game.global.highestLevelCleared + 1) * 0.75))
@@ -6128,7 +6291,7 @@ function nextWorld() {
 	if (game.talents.bionic.purchased){
 		var bTier = ((game.global.world - 126) / 15);
 		if (game.global.world >= 126) game.mapUnlocks.BionicWonderland.canRunOnce = false;
-		if (bTier % 1 === 0 && bTier == game.global.bionicOwned) {
+		if (bTier % 1 === 0 && bTier == game.global.bionicOwned && game.global.roboTrimpLevel >= bTier) {
 			game.mapUnlocks.roboTrimp.createMap(bTier);
 			refreshMaps();
 		}
@@ -6137,7 +6300,7 @@ function nextWorld() {
 		autoUnlockHousing();
 	}
 	if (game.talents.portal.purchased && game.global.world == 21 && game.mapUnlocks.Portal.canRunOnce){
-		game.mapUnlocks.Portal.fire();
+		game.mapUnlocks.Portal.fire(0, true);
 		game.mapUnlocks.Portal.canRunOnce = false;
 		refreshMaps();
 	}
@@ -6168,6 +6331,7 @@ function nextWorld() {
 		for (var job in game.jobs) jobCount += game.jobs[job].owned; //Dragimp adds 1
 		if (jobCount - game.jobs.Dragimp.owned == 0 && game.stats.trimpsFired.value == 0) giveSingleAchieve(16);
 	}
+	else if (game.global.world == 65) checkChallengeSquaredAllowed();
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve(8);
 	else if (game.global.world == 120 && !game.global.researched) giveSingleAchieve(7);
 	displayGoldenUpgrades();
@@ -6182,6 +6346,18 @@ function nextWorld() {
 			}
 	}
 	
+}
+
+function purgeBionics(){
+	var bionicMaps = game.global.mapsOwnedArray.filter(function(map){return map.location == "Bionic";});
+	if (bionicMaps.length > 3){
+		var trim = bionicMaps.length - 3;
+		for (var x = 0; x < trim; x++){
+			var index = game.global.mapsOwnedArray.indexOf(bionicMaps[x]);
+			message("Recycled " + bionicMaps[x].name + ".", "Notices");
+			game.global.mapsOwnedArray.splice(index, 1);
+		}
+	}
 }
 
 function autoUnlockHousing(){
@@ -6302,8 +6478,15 @@ function giveSpireReward(level){
 			game.portal.Power_II.locked = false;
 			break;
 		case 40: 
-			amt = giveHeliumReward(15);
-			message("<span class='spirePoem'>To stay safe, I built many large towers.<br/>I'd climb up, and I'd peer out for hours.<br/>I searched for lifetimes, my mind became devoured,<br/>then one day I found a way to gain power.</span><br/>Dammit Druopitee. This is all going to end up being his fault, isn't it? You help yourself to a container filled with " + prettify(amt) + " Helium, and figure he'll owe you a lot more than that once you hear some more.", "Story");
+			
+			text = "<span class='spirePoem'>To stay safe, I built many large towers.<br/>I'd climb up, and I'd peer out for hours.<br/>I searched for lifetimes, my mind became devoured,<br/>then one day I found a way to gain power.</span><br/>Dammit Druopitee. This is all going to end up being his fault, isn't it? ";
+			if (!game.global.runningChallengeSquared){
+				amt = giveHeliumReward(15);
+				text += "You help yourself to a container filled with " + prettify(amt) + " Helium, and figure he'll owe you a lot more than that once you hear some more.";
+				}
+			else
+				text += "You look for something to steal to try and even the playing field, but can't find anything. Oh well.";
+			message(text, "Story");
 			break;
 		case 50: 
 			text = "<span class='spirePoem'>After many lifetimes of observation,<br/>I had finally found my salvation.<br/>An airborne chemical to cause great mutation,<br/>the Corruption was my new creation.</span><br/>Yup, totally his fault.";
@@ -6332,8 +6515,12 @@ function giveSpireReward(level){
 			break;
 		case 100:
 			if (game.global.spireDeaths == 0) giveSingleAchieve(23);
-			amt = giveHeliumReward(100);
-			text = "Druopitee collapses to the floor. You were hoping he'd be a little more sane, but whatever. You shut down the corruption device and hope the planet will repair itself soon, then you rummage through his stuff and find keys, surely for the ship! You also find a massive stockpile of <b>" + prettify(amt) + " Helium</b>.";
+
+			text = "Druopitee collapses to the floor. You were hoping he'd be a little more sane, but whatever. You shut down the corruption device and hope the planet will repair itself soon, then you rummage through his stuff and find keys, surely for the ship!";
+			if (!game.global.runningChallengeSquared){
+				amt = giveHeliumReward(100);
+				text += "You also find a massive stockpile of <b>" + prettify(amt) + " Helium</b>.";
+			}
 			if (game.portal.Looting_II.locked) text += " Your skills at salvaging things from this Spire have helped you <b>unlock Looting II</b>.";
 			text += " You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption in to the planet. Maybe the statues would be bigger if you stayed and helped out?";
 			message(text, "Story");
@@ -6344,6 +6531,7 @@ function giveSpireReward(level){
 			handleExitSpireBtn();
 			break;
 		default:
+			if (game.global.runningChallengeSquared) return;
 			amt = 0.5;
 			amt *= Math.pow(1.01, level);
 			amt = giveHeliumReward(amt);
@@ -6360,7 +6548,13 @@ function displayGoldenUpgrades(redraw) {
 	for (var item in game.goldenUpgrades){
 		var upgrade = game.goldenUpgrades[item];
 		if (item == "Void" && game.global.totalPortals < 5) continue;
-		var color = (item == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) ? "thingColorCanNotAfford" : "thingColorGoldenUpgrade";
+		var color = "thingColorGoldenUpgrade";
+		if (
+			(item == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) ||
+			(item == "Helium" && game.global.runningChallengeSquared)
+		){
+			color = "thingColorCanNotAfford";
+		}
 		html += '<div onmouseover="tooltip(\'' + item + '\', \'goldenUpgrades\', event)" onmouseout="tooltip(\'hide\')" class="' + color + ' thing goldenUpgradeThing noselect pointer upgradeThing" id="' + item + 'Golden" onclick="buyGoldenUpgrade(\'' + item + '\'); cancelTooltip();"><span class="thingName">Golden ' + item + ' ' + romanNumeral(game.global.goldenUpgrades + 1) + '</span><br/><span class="thingOwned" id="golden' + item + 'Owned">' + upgrade.purchasedAt.length + '</span></div>';
 	}
 	var elem = document.getElementById('upgradesHere');	
@@ -6391,6 +6585,7 @@ function getGoldenFrequency(fluffTier){
 }
 
 function buyGoldenUpgrade(what) {
+	if (what == "Helium" && game.global.runningChallengeSquared) return;
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var totalAvailable = getAvailableGoldenUpgrades();
 	if (totalAvailable <= 0) return false;
@@ -7787,10 +7982,10 @@ function unlockFormation(what){
 		document.getElementById("formation0").style.display = "block";
 		document.getElementById("formation1").style.display = "block";
 	}
-	if (what == 2 || (what == "all" && game.upgrades.Dominance.done == 1)){
+	if (what == 2 || (game.upgrades.Dominance.done == 1)){
 		document.getElementById("formation2").style.display = "block";
 	}
-	if (what == 3 || (what == "all" && game.upgrades.Barrier.done == 1)){
+	if (what == 3 || (game.upgrades.Barrier.done == 1)){
 		document.getElementById("formation3").style.display = "block";
 	}
 	if ((game.global.world >= 60 && game.global.highestLevelCleared >= 180) && (what == "start" || what == "all" || what == 4)){
@@ -8523,6 +8718,7 @@ function toggleAutoStorage(noChange){
 	}
 }
 
+
 function autoStorage(){
 	var toCheck = ["food", "wood", "metal"];
 	var storage = ["Barn", "Shed", "Forge"];
@@ -8530,7 +8726,7 @@ function autoStorage(){
 		var resource = game.resources[toCheck[x]];
 		var max = Math.floor(resource.max + (resource.max * game.portal.Packrat.modifier * game.portal.Packrat.level));
 		max = calcHeirloomBonus("Shield", "storageSize", max);
-		if (resource.owned >= (max * 0.99)) {
+		if (resource.owned >= (max * 0.99) && canAffordBuilding(storage[x], false)) {
 			buyBuilding(storage[x], false, true);
 			break;
 		}
@@ -8590,6 +8786,7 @@ function autoUpgrades() {
 	var timerCheck = (lastAutoPrestigeToggle == -1 || (new Date().getTime() - lastAutoPrestigeToggle >= 2000));
 	if (timerCheck) lastAutoPrestigeToggle = -1;
 	var equipmentAvailable = {armor: [], weapons: []}
+	var boughtUpgrade = false;
 	for (var item in game.upgrades){
 		var upgradeObj = game.upgrades[item];
 		if (upgradeObj.locked || item == "Shieldblock" || item == "Gigastation") continue;
@@ -8600,7 +8797,12 @@ function autoUpgrades() {
 			equipmentAvailable[type].push(item);
 			continue;
 		}
-		if (autoBuyUpgrade(item)) return;
+		if (!boughtUpgrade && autoBuyUpgrade(item)){
+			if (game.global.autoPrestiges != 0 && timerCheck)
+				boughtUpgrade = true;
+			else
+				return;
+		}
 	}
 	if (game.global.autoPrestiges != 0 && timerCheck) autoPrestiges(equipmentAvailable);
 }

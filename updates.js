@@ -35,7 +35,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipUpdateFunction = "";
 		return;
 	}
-	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed && what != "Well Fed") return;
+	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed && what != "Well Fed" && what != "Challenge2") return;
 	if (event != "update"){
 		var whatU = what, isItInU = isItIn, eventU = event, textStringU = textString, attachFunctionU = attachFunction, numCheckU = numCheck, renameBtnU = renameBtn, noHideU = noHide;
 		var newFunction = function () {
@@ -138,6 +138,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}	
+	if (what == "UnlockedChallenge2"){
+		what = "Unlocked Challenge<sup>2</sup>";
+		tooltipText = "You hear some strange noises behind you and turn around to see three excited scientists. They inform you that they've figured out a way to modify The Portal to take you to a new type of challenging dimension, a system they proudly call 'Challenge<sup>2</sup>'. You will be able to activate and check out their new technology by clicking the 'Challenge<sup>2</sup>' button next time you go to use The Portal.";
+		game.global.lockTooltip = true;
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Thanks, Scientists</div></div>";
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+	}	
 	if (what == "Eggs"){
 		tooltipText = '<span class="eggMessage">It seems as if some sort of animal has placed a bunch of brightly colored eggs in the world. If you happen to see one, you can click on it to send a Trimp to pick it up! According to your scientists, they have a rare chance to contain some neat stuff, but they will not last forever...</span>';
 		game.global.lockTooltip = true;
@@ -151,6 +159,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Repeat Map"){
 		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast. <br/><br/>If you are <b>not</b> repeating, your current group of Trimps will not be abandoned after the map ends.";
+		costText = "";
+	}
+	if (what == "Challenge2"){
+		what = "Challenge<sup>2</sup>";
+		tooltipText = "<p>Click to toggle a challenge mode for your challenges!</p><p>In Challenge<sup>2</sup> mode, you can re-run some challenges in order to earn a permanent attack, health, and Helium bonus for your Trimps. MOST Challenge<sup>2</sup>s will grant <b>" + squaredConfig.rewardEach + "% attack and health and " + prettify(squaredConfig.rewardEach / 10) + "% increased Helium for every " + squaredConfig.rewardFreq + " zones cleared. Every " + squaredConfig.thresh + " zones, the attack and health bonus will increase by an additional 1%, and the Helium bonus will increase by 0.1%</b>. This bonus is additive with all available Challenge<sup>2</sup>s, and your highest zone reached for each challenge is saved and used.</p><p><b>No Challenge<sup>2</sup>s end at any specific zone</b>, they can only be completed by using your portal or abandoning through the 'View Perks' menu. However, <b>no Helium can drop, and no bonus Helium will be earned during or after the run</b>. Void Maps will still drop heirlooms, and all other currency can still be earned.</p><p>You are currently gaining " + prettify(game.global.totalSquaredReward) + "% extra attack and health, and are gaining " + prettify(game.global.totalSquaredReward / 10) + "% extra Helium thanks to your Challenge<sup>2</sup> bonus.</p>";
+		if (game.talents.headstart.purchased) tooltipText += "<p><b>Note that your Headstart mastery will be disabled during Challenge<sup>2</sup> runs</b></p>";
 		costText = "";
 	}
 	if (what == "Customize Targets"){
@@ -202,7 +216,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var s = (timesPurchased == 1) ? "" : "s";
 		var three = (game.global.totalPortals >= 5) ? "three" : "two";
 		tooltipText += " <b>You can only choose one of these " + three + " Golden Upgrades. Choose wisely...</b><br/><br/> Each time Golden Upgrades are unlocked, they will increase in strength. You are currently gaining " + prettify(upgrade.currentBonus * 100) + "% from purchasing this upgrade " + timesPurchased + " time" + s + " since your last portal.";
-		if (what == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) tooltipText += "<br/><b class='red'>This upgrade would put you over 60% increased Void Map chance, which would destabilize the universe. You don't want to destabilize the universe, do you?</b>";
+		if (what == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) tooltipText += "<br/><br/><b class='red'>This upgrade would put you over 60% increased Void Map chance, which would destabilize the universe. You don't want to destabilize the universe, do you?</b>";
+		if (what == "Helium" && game.global.runningChallengeSquared) tooltipText += "<br/><br/><b class='red'>You can't earn helium while running a Challenge<sup>2</sup>!</b>";
 		costText = "Free";
 		if (getAvailableGoldenUpgrades() > 1) costText += " (" + getAvailableGoldenUpgrades() + " remaining)";
 		what = "Golden " + what + " (Tier " + romanNumeral(game.global.goldenUpgrades + 1) + ")";
@@ -820,7 +835,7 @@ function getPsString(what, rawNum) {
 		var motivationStrength = (game.portal.Motivation_II.level * game.portal.Motivation_II.modifier);
 		currentCalc  *= (motivationStrength + 1);
 		motivationStrength = prettify(motivationStrength * 100) + "%";
-		textString += "<tr><td class='bdTitle'>Motivation_II</td><td class='bdPercent'>+ " + motivationStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Motivation II</td><td class='bdPercent'>+ " + motivationStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Meditation
 	if (game.portal.Meditation.level > 0){
@@ -1134,7 +1149,7 @@ function getBattleStatBd(what) {
 		var PerkStrength = (game.portal[perk].level * game.portal[perk].modifier);
 		currentCalc  *= (PerkStrength + 1);
 		PerkStrength = prettify(PerkStrength * 100) + "%";
-		textString += "<tr><td class='bdTitle'>" + perk + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>" + perk.replace('_', ' ') + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}	
 	//Add resilience
 	if (what == "health" && game.portal.Resilience.level > 0){
@@ -1252,7 +1267,11 @@ function getBattleStatBd(what) {
 		var display = (mult > 0.0001) ? mult.toFixed(4) : mult.toExponential(3);
 		textString += "<tr style='color: red'><td class='bdTitle'>Overheating (Magma)</td><td>x 0.8</td><td>" + lvls + "</td><td class='bdPercent'>x " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}	
-	
+	if (game.global.totalSquaredReward > 0 && (what == "attack" || what == "health")){
+		amt = game.global.totalSquaredReward;
+		currentCalc *= (1 + (amt / 100));
+		textString += "<tr><td class='bdTitle'>Challenge<sup>2</sup> Rewards</td><td></td><td></td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>"
+	}
 	
 	var critChance = getPlayerCritChance();
 	if (what == "attack" && critChance){
@@ -1489,9 +1508,7 @@ function getLootBd(what) {
 			if (game.global.voidBuff) {
 				currentCalc *= 2;
 				textString += "<tr><td class='bdTitle'>Void Map</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
-			}
-
-			
+			}			
 	}
 	if (game.global.mapsActive && what != "Helium") {
 		var compareLv = game.global.world;
@@ -1517,7 +1534,7 @@ function getLootBd(what) {
 	if (game.portal.Looting_II.level){
 		amt = (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
 		currentCalc *= amt;
-		textString += "<tr><td class='bdTitle'>Looting_II (perk)</td><td>+ " + prettify(game.portal.Looting_II.modifier * 100) + "%</td><td>" + game.portal.Looting_II.level + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Looting II (perk)</td><td>+ " + prettify(game.portal.Looting_II.modifier * 100) + "%</td><td>" + game.portal.Looting_II.level + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.unlocks.impCount.Magnimp && what != "Helium"){
 	
@@ -1601,18 +1618,29 @@ function getLootBd(what) {
 		}
 	}
 
-	if (what == "Helium" && !game.global.voidBuff && (game.global.world >= 181 || (game.global.challengeActive == 'Corrupted' && game.global.world >= 60))){
+	if (what == "Helium" && !game.global.voidBuff && (game.global.world >= mutations.Corruption.start())){
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
-		textString += "<tr class='corruptedCalcRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td></td><td></td><td>" + prettify(currentCalc * (corrVal / 100)) + "</td></tr>";
+		var corrCount = mutations.Corruption.cellCount();
+		var corrCalc = (corrVal / 100) * currentCalc;
+		textString += "<tr class='corruptedCalcRow'><td class='bdTitle' style='vertical-align: middle'>Corruption Value</td><td>" + corrVal + "%<br/>" + corrCount + " Cells</td><td>Per Cell:<br/>" + prettify(corrCalc) + "</td><td>Per Zone:<br/>" + prettify(corrCalc * corrCount) + "</td><td style='vertical-align: middle'>" + prettify(currentCalc + (corrCalc * corrCount)) + "</td></tr>";
+		//<tr><td class='bdTitle'>Total Per Zone</td><td></td><td></td><td></td><td>" + prettify(currentCalc + (corrCalc * corrVal)) + "</td></tr>
 	}
 	else if (what == "Helium" && game.global.voidBuff && game.global.world >= mutations.Corruption.start(true)) {
 		//5.71m
-		console.log(currentCalc);
 		var corruptedCells = mutations.Corruption.cellCount();
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
 		var percent = (((corrVal / 100) * (corruptedCells)) + 1);
 		currentCalc *= percent;
 		textString += "<tr class='corruptedCalcRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td>" + corruptedCells + "</td><td>X " + prettify(percent) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.totalSquaredReward > 0 && what == "Helium"){
+		amt = game.global.totalSquaredReward / 1000;
+		currentCalc *= (amt + 1);
+		textString += "<tr><td class='bdTitle'>Challenge<sup>2</sup> Reward</td><td></td><td></td><td>+" + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.runningChallengeSquared && what == "Helium"){
+		currentCalc = 0;
+		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge<sup>2</sup></td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
@@ -1640,24 +1668,30 @@ function prettify(number) {
 		number /= 1000;
 		++base;
 	}
-	
-	var suffices = [
-		'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
-		'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv',
-		'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
-	];
-	var suffix;
-	if (game.options.menu.standardNotation.enabled == 2 || (game.options.menu.standardNotation.enabled == 1 && base > suffices.length))
-		suffix = "e" + ((base) * 3);
-	else if (game.options.menu.standardNotation.enabled && base <= suffices.length)
-		suffix = suffices[base-1];
-	else
-	{
-		var exponent = parseFloat(numberTmp).toExponential(2);
-		exponent = exponent.replace('+', '');
-		return exponent;
+	if (game.options.menu.standardNotation.enabled == 3){
+		var suffices = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+		if (base <= suffices.length) suffix = suffices[base -1];
+		else 
+			suffix = suffices[Math.floor(base / suffices.length) - 1] + suffices[(base % suffices.length) - 1];
 	}
-	
+	else {
+		var suffices = [
+			'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
+			'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv',
+			'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
+		];
+		var suffix;
+		if (game.options.menu.standardNotation.enabled == 2 || (game.options.menu.standardNotation.enabled == 1 && base > suffices.length))
+			suffix = "e" + ((base) * 3);
+		else if (game.options.menu.standardNotation.enabled && base <= suffices.length)
+			suffix = suffices[base-1];
+		else
+		{
+			var exponent = parseFloat(numberTmp).toExponential(2);
+			exponent = exponent.replace('+', '');
+			return exponent;
+		}
+	}
 	return prettifySub(number) + suffix;
 }
 
@@ -1863,6 +1897,8 @@ function resetGame(keepPortal) {
 	var genMode;
 	var advMaps;
 	var lastBonePresimpt;
+	var challengeSquared = false;
+	var allChallenges;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -1920,6 +1956,8 @@ function resetGame(keepPortal) {
 		genMode = game.global.generatorMode;
 		advMaps = game.global.sessionMapValues;
 		lastBonePresimpt = game.global.lastBonePresimpt;
+		challengeSquared = game.global.runningChallengeSquared;
+		allChallenges = game.challenges;
 		if (!game.global.canMagma) {
 			if (highestLevel > 229) highestLevel = 229;
 			if (roboTrimp > 8) roboTrimp = 8;
@@ -1973,6 +2011,7 @@ function resetGame(keepPortal) {
 		game.global.generatorMode = genMode;
 		game.global.sessionMapValues = advMaps;
 		game.global.lastBonePresimpt = lastBonePresimpt;
+		game.global.runningChallengeSquared = challengeSquared;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined' && !statItem.noAdd) statItem.valueTotal += statItem.value;
@@ -2011,6 +2050,10 @@ function resetGame(keepPortal) {
 			if (voidMaxLevel < lastPortal) voidMaxLevel = lastPortal;
 		}
 		game.global.voidMaxLevel = voidMaxLevel;
+		for (var cItem in allChallenges){
+			if (game.challenges[cItem] && game.challenges[cItem].allowSquared)
+				game.challenges[cItem].highestSquared = allChallenges[cItem].highestSquared;
+		}
 	}
 	else {
 		game.options.menu.darkTheme.enabled = 0;
@@ -2033,7 +2076,9 @@ function resetGame(keepPortal) {
 	updateDecayStacks();
 	updateAntiStacks();
 	setNonMapBox();
+	checkChallengeSquaredAllowed();
 	initTalents();
+	countChallengeSquaredReward();
 	game.options.menu.tinyButtons.onToggle();
 	if (keepPortal) checkAchieve("portals");
 	document.getElementById("goodGuyAttack").innerHTML = "";
@@ -2255,16 +2300,26 @@ function numTab(what, p) {
 			else {
 				var letters = num.replace(/[^a-z]/gi, "");
 				var base = 0;
-				if (letters.length){			
-					var suffices = [
-						'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
-						'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv',
-						'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
-					];
-					for (var x = 0; x < suffices.length; x++){
-						if (suffices[x].toLowerCase() == letters){
-							base = x + 1;
-							break;
+				if (letters.length){
+					if (game.options.menu.standardNotation.enabled == 3){
+						var suffices = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+						base = (suffices.indexOf(letters[0]) + 1);
+						if (letters.length > 1) {
+							base *= suffices.length;
+							base += (suffices.indexOf(letters[1]) + 1);
+						}
+					}
+					else {
+						var suffices = [
+							'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud',
+							'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv',
+							'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt'
+						];
+						for (var x = 0; x < suffices.length; x++){
+							if (suffices[x].toLowerCase() == letters){
+								base = x + 1;
+								break;
+							}
 						}
 					}
 					if (base) num = Math.round(parseFloat(num.split(letters)[0]) * Math.pow(1000, base));
@@ -2638,6 +2693,8 @@ function getMapIcon(mapObject, nameOnly) {
 	var icon = mapObject.location;
 	icon = game.mapConfig.locations[icon].resourceType;
 	if (nameOnly) return icon;
+	if (mapObject.voidBuff) 
+		return voidBuffConfig[mapObject.voidBuff].icon;
 	switch (icon){
 		case "Food":
 			return "glyphicon glyphicon-apple";
@@ -3333,7 +3390,7 @@ function updateDecayStacks(addStack){
 		elem.style.display = "none";
 		return;
 	}
-	if (addStack && game.challenges.Decay.stacks < 999) game.challenges.Decay.stacks++;
+	if (addStack && game.challenges.Decay.stacks < 999 && game.upgrades.Battle.done > 0) game.challenges.Decay.stacks++;
 	if (elem == null){
 		document.getElementById('debuffSpan').innerHTML += "<span id='decayStacks' onmouseout='tooltip(\"hide\")' class='badge antiBadge'><span id='decayStackCount'></span> <span class='glyphicon glyphicon-cloud'></span></span>";
 		elem = document.getElementById('decayStacks');

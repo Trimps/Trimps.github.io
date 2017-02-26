@@ -767,13 +767,6 @@ color:#8F8F00
  box-shadow: 1px 1px 0 0 #C8C8C8 inset;
 }
 
-.cBorderOn{
-	border: 0;
-	-webkit-box-shadow: 0px 0px 0.5vw 0.3vw #F00 inset;
-	   -moz-box-shadow: 0px 0px 0.5vw 0.3vw #F00 inset;
-            box-shadow: 0px 0px 0.5vw 0.3vw #F00 inset;
-}
-
 .challengeThing {
 	margin-left:0px;
 	margin-top: 0px;
@@ -781,9 +774,34 @@ color:#8F8F00
 	color:#C8C8C8;
 	background-color: #283d44;
 }
+.challengeThing:hover {
+	background-color: #233237;
+}
 
 .finishedChallenge{
 	background-color:#5D5D5D
+}
+
+.finishedChallenge:hover { 
+	background-color: #515151;
+}
+
+.thingColorSquared {
+    background-color: #800080 !important;
+    color: inherit;
+}
+
+.thingColorSquared:hover {
+    background-color: #6e006e !important;
+    color: inherit;
+}
+
+#challengeDaily {
+    background-color: #936e00;
+}
+
+#challengeDaily:hover {
+    background-color: #7f5f00;
 }
 
 .alert{
@@ -964,4 +982,19 @@ color:#8F8F00
 #magmiteOwned {
     color: #b40000;
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.btn-new {
+	color: white;
+	background: linear-gradient(40deg,  #283d44 0%, #800080 30%, #800080 70%, #283d44 100%); 
+}
+
+.btn-new:hover,
+.btn-new:focus,
+.btn-new.focus,
+.btn-new:active,
+.btn-new.active,
+.open > .dropdown-toggle.btn-new {
+	color: white;
+	background: linear-gradient(135deg,  #800080 0%, #283d44 50%, #800080 100%); 
 }
