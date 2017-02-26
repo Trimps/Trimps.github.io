@@ -834,6 +834,7 @@ function getIndividualSquaredReward(challenge, forceHighest){
 var portalWindowOpen = false;
 var challengeSquaredMode = false;
 function portalClicked() {
+	if (game.global.runningChallengeSquared && !game.global.challengeActive) game.global.runningChallengeSquared = false;
 	challengeSquaredMode = false;
 	portalWindowOpen = true;
 	cancelTooltip();
