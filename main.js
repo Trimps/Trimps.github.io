@@ -520,8 +520,10 @@ function load(saveString, autoLoad, fromPf) {
 		game.achievements.humaneRun.earnable = false;
 	}
 	if (oldVersion < 4.2){
-		if (game.global.highestLevelCleared > 64)
+		if (game.global.highestLevelCleared > 64){
 			tooltip("UnlockedChallenge2", null, 'update');
+			noOfflineTooltip = true;
+		}
 	}
 	//End compatibility
 	
