@@ -1688,12 +1688,12 @@ function activatePortal(){
 	if (game.global.challengeActive == "Daily"){
 		abandonDaily();
 	}
-	if (game.global.runningChallengeSquared){
+	if (game.global.runningChallengeSquared && game.global.challengeActive){
 		if (game.global.world > game.challenges[game.global.challengeActive].highestSquared)
 			game.challenges[game.global.challengeActive].highestSquared = game.global.world;
 		game.global.challengeActive = "";
 	}
-	game.global.runningChallengeSquared = challengeSquaredMode;
+	game.global.runningChallengeSquared = (game.global.selectedChallenge) ? challengeSquaredMode : false;
 	var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
 	if (!commitPortalUpgrades(true)) return;	
 	game.global.heliumLeftover = refund;
