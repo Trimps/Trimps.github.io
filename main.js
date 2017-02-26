@@ -1038,6 +1038,7 @@ function abandonChallenge(restart){
 	var challengeName = game.global.challengeActive;
 	var challenge = game.challenges[challengeName];
 	if (game.global.runningChallengeSquared){
+		fadeIn("helium", 10);
 		if (game.global.world > game.challenges[game.global.challengeActive].highestSquared)
 			game.challenges[game.global.challengeActive].highestSquared = game.global.world;
 		countChallengeSquaredReward();

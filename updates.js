@@ -1825,6 +1825,7 @@ function resetGame(keepPortal) {
 	document.getElementById("grid").className = "";
 	document.getElementById('exitSpireBtnContainer').style.display = "none";
 	document.getElementById('badDebuffSpan').innerHTML = "";
+	document.getElementById('heliumPh').innerHTML = "";
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));	
 	mutations.Magma.multiplier = -1;
