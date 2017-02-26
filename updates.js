@@ -1617,7 +1617,15 @@ function getLootBd(what) {
 			heirloomBonus = 0;
 		}
 	}
-
+	if (game.global.totalSquaredReward > 0 && what == "Helium"){
+		amt = game.global.totalSquaredReward / 1000;
+		currentCalc *= (amt + 1);
+		textString += "<tr><td class='bdTitle'>Challenge<sup>2</sup> Reward</td><td></td><td></td><td>+" + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.runningChallengeSquared && what == "Helium"){
+		currentCalc = 0;
+		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge<sup>2</sup></td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
 	if (what == "Helium" && !game.global.voidBuff && (game.global.world >= mutations.Corruption.start())){
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
 		var corrCount = mutations.Corruption.cellCount();
@@ -1632,15 +1640,6 @@ function getLootBd(what) {
 		var percent = (((corrVal / 100) * (corruptedCells)) + 1);
 		currentCalc *= percent;
 		textString += "<tr class='corruptedCalcRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td>" + corruptedCells + "</td><td>X " + prettify(percent) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
-	}
-	if (game.global.totalSquaredReward > 0 && what == "Helium"){
-		amt = game.global.totalSquaredReward / 1000;
-		currentCalc *= (amt + 1);
-		textString += "<tr><td class='bdTitle'>Challenge<sup>2</sup> Reward</td><td></td><td></td><td>+" + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
-	}
-	if (game.global.runningChallengeSquared && what == "Helium"){
-		currentCalc = 0;
-		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge<sup>2</sup></td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
