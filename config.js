@@ -1160,7 +1160,7 @@ var toReturn = {
 			unlockString: "have 30 total helium"
 		},
 		Metal: {
-			description: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies. If you complete The Dimension Of Anger without disabling the challenge, miners will re-unlock.",
+			description: "Tweak the portal to bring you to an alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies. If you complete The Dimension Of Anger without disabling the challenge, miners will re-unlock.",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 24);
