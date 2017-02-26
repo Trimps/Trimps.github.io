@@ -529,7 +529,12 @@ function load(saveString, autoLoad, fromPf) {
 	
 	//Test server only
 	//End test server only
-	
+	//Temporary until next patch
+	if (!getCurrentMapObject()) {
+		game.global.currentMapId = "";
+		game.global.mapGridArray = []
+		game.global.lastClearedMapCell = -1;
+	}
 
 	
     if (game.buildings.Gym.locked === 0) document.getElementById("blockDiv").style.visibility = "visible";
@@ -6357,6 +6362,12 @@ function purgeBionics(){
 		var trim = bionicMaps.length - 3;
 		for (var x = 0; x < trim; x++){
 			var index = game.global.mapsOwnedArray.indexOf(bionicMaps[x]);
+			if (game.global.mapsOwnedArray[index].id == game.global.currentMapId){
+				if (game.global.mapsActive) continue;
+				game.global.currentMapId = "";
+				game.global.mapGridArray = [];
+				game.global.lastClearedMapCell = -1;
+			}
 			message("Recycled " + bionicMaps[x].name + ".", "Notices");
 			game.global.mapsOwnedArray.splice(index, 1);
 		}
