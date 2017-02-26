@@ -818,7 +818,7 @@ var squaredConfig = {
 
 function getIndividualSquaredReward(challenge, forceHighest){
 	if (!forceHighest) forceHighest = challenge.highestSquared;
-	forceHighest++; //Clear zone not reach it
+	forceHighest--; //Clear zone not reach it
 	if (forceHighest <= 1) return 0;
 	var bonus = 0;
 	var thresh = (challenge.replaceSquareThresh) ? challenge.replaceSquareThresh : squaredConfig.thresh;
@@ -2683,6 +2683,7 @@ function breed() {
 	potencyMod = calcHeirloomBonus("Shield", "breedSpeed", potencyMod);
 	breeding = breeding * potencyMod;
     updatePs(breeding, true);
+
 	potencyMod = (1 + (potencyMod / 10));
 	var timeRemaining = log10((trimpsMax - trimps.employed) / (trimps.owned - trimps.employed)) / log10(potencyMod);
 	timeRemaining /= 10;
@@ -2712,7 +2713,7 @@ function breed() {
 			if (!isFinite(thresh)) thresh = 0;
 			if (!isFinite(compareTime)) compareTime = 999;
 			var genDif = Math.ceil(log10(target / compareTime) / log10(1.02));
-			if (compareTime < target) {
+			if (compareTime < target && potencyMod > 1.0000000000000005) {
 				swapClass("state", "stateHiring", GAElem);
 				
 				if (game.resources.food.owned * 0.01 < getNextGeneticistCost()){
@@ -2727,7 +2728,8 @@ function breed() {
 				}
 				else GAIndicator.innerHTML = " (<span style='font-size: 0.8em' class='icmoon icon-clock3'></span>)";
 			}
-			else if (compareTime - thresh > target) {
+			else if (compareTime - thresh > target || (potencyMod == 1)) {
+				if (!isFinite(genDif)) genDif = -1;
 				swapClass("state", "stateFiring", GAElem);
 				GAIndicator.innerHTML = " (-)";
 				if (genDif < 0){
