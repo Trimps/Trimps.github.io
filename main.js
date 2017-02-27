@@ -525,6 +525,9 @@ function load(saveString, autoLoad, fromPf) {
 			noOfflineTooltip = true;
 		}
 	}
+	if (oldVersion == 4.2){
+		countChallengeSquaredReward();
+	}
 	//End compatibility
 	
 	//Test server only
@@ -818,7 +821,6 @@ var squaredConfig = {
 
 function getIndividualSquaredReward(challenge, forceHighest){
 	if (!forceHighest) forceHighest = challenge.highestSquared;
-	forceHighest--; //Clear zone not reach it
 	if (forceHighest <= 1) return 0;
 	var bonus = 0;
 	var thresh = (challenge.replaceSquareThresh) ? challenge.replaceSquareThresh : squaredConfig.thresh;
@@ -1113,6 +1115,16 @@ function getSquaredDescriptionInRun(hideDesc){
 
 function viewPortalUpgrades() {
 	if (game.global.totalPortals == 0) return;
+	var c2Btn = document.getElementById('challengeSquaredViewBtn');
+	if (c2Btn){
+		if (game.global.highestLevelCleared >= 64 && game.global.runningChallengeSquared){
+			c2Btn.style.display = 'inline-block';
+			document.getElementById('challengeSquaredBonusAmtView').innerHTML = prettify(game.global.totalSquaredReward);
+		}
+		else 
+			c2Btn.style.display = 'none';
+	}
+	
 	cancelTooltip();
 	game.global.viewingUpgrades = true;
 	game.resources.helium.respecMax = game.global.heliumLeftover;

@@ -163,7 +163,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Challenge2"){
 		what = "Challenge<sup>2</sup>";
-		tooltipText = "<p>Click to toggle a challenge mode for your challenges!</p><p>In Challenge<sup>2</sup> mode, you can re-run some challenges in order to earn a permanent attack, health, and Helium bonus for your Trimps. MOST Challenge<sup>2</sup>s will grant <b>" + squaredConfig.rewardEach + "% attack and health and " + prettify(squaredConfig.rewardEach / 10) + "% increased Helium for every " + squaredConfig.rewardFreq + " zones cleared. Every " + squaredConfig.thresh + " zones, the attack and health bonus will increase by an additional 1%, and the Helium bonus will increase by 0.1%</b>. This bonus is additive with all available Challenge<sup>2</sup>s, and your highest zone reached for each challenge is saved and used.</p><p><b>No Challenge<sup>2</sup>s end at any specific zone</b>, they can only be completed by using your portal or abandoning through the 'View Perks' menu. However, <b>no Helium can drop, and no bonus Helium will be earned during or after the run</b>. Void Maps will still drop heirlooms, and all other currency can still be earned.</p><p>You are currently gaining " + prettify(game.global.totalSquaredReward) + "% extra attack and health, and are gaining " + prettify(game.global.totalSquaredReward / 10) + "% extra Helium thanks to your Challenge<sup>2</sup> bonus.</p>";
+		tooltipText = "";
+		if (!textString)
+		tooltipText = "<p>Click to toggle a challenge mode for your challenges!</p>";
+		tooltipText += "<p>In Challenge<sup>2</sup> mode, you can re-run some challenges in order to earn a permanent attack, health, and Helium bonus for your Trimps. MOST Challenge<sup>2</sup>s will grant <b>" + squaredConfig.rewardEach + "% attack and health and " + prettify(squaredConfig.rewardEach / 10) + "% increased Helium for every " + squaredConfig.rewardFreq + " zones reached. Every " + squaredConfig.thresh + " zones, the attack and health bonus will increase by an additional 1%, and the Helium bonus will increase by 0.1%</b>. This bonus is additive with all available Challenge<sup>2</sup>s, and your highest zone reached for each challenge is saved and used.</p><p><b>No Challenge<sup>2</sup>s end at any specific zone</b>, they can only be completed by using your portal or abandoning through the 'View Perks' menu. However, <b>no Helium can drop, and no bonus Helium will be earned during or after the run</b>. Void Maps will still drop heirlooms, and all other currency can still be earned.</p><p>You are currently gaining " + prettify(game.global.totalSquaredReward) + "% extra attack and health, and are gaining " + prettify(game.global.totalSquaredReward / 10) + "% extra Helium thanks to your Challenge<sup>2</sup> bonus.</p>";
 		if (game.talents.headstart.purchased) tooltipText += "<p><b>Note that your Headstart mastery will be disabled during Challenge<sup>2</sup> runs.</b></p>";
 		costText = "";
 	}
@@ -1270,7 +1273,7 @@ function getBattleStatBd(what) {
 	if (game.global.totalSquaredReward > 0 && (what == "attack" || what == "health")){
 		amt = game.global.totalSquaredReward;
 		currentCalc *= (1 + (amt / 100));
-		textString += "<tr><td class='bdTitle'>Challenge<sup>2</sup> Rewards</td><td></td><td></td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>"
+		textString += "<tr><td class='bdTitle'>Challenge² Rewards</td><td></td><td></td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>"
 	}
 	
 	var critChance = getPlayerCritChance();
@@ -1620,11 +1623,11 @@ function getLootBd(what) {
 	if (game.global.totalSquaredReward > 0 && what == "Helium"){
 		amt = game.global.totalSquaredReward / 1000;
 		currentCalc *= (amt + 1);
-		textString += "<tr><td class='bdTitle'>Challenge<sup>2</sup> Reward</td><td></td><td></td><td>+" + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Challenge² Reward</td><td></td><td></td><td>+" + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.global.runningChallengeSquared && what == "Helium"){
 		currentCalc = 0;
-		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge<sup>2</sup></td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge²</td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (what == "Helium" && !game.global.voidBuff && (game.global.world >= mutations.Corruption.start())){
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
@@ -2567,7 +2570,7 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			psText = calcHeirloomBonus("Staff", jobName + "Speed", psText);
 			if (game.global.playerGathering == increase){
 				if (game.global.turkimpTimer > 0 && increase != "science"){
-					psText *= 1.5;
+					psText *= game.talents.turkimp3.purchased ? 1.75 : 1.5;
 				}
 			psText += getPlayerModifier();
 		}

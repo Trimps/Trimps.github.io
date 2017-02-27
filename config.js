@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.2,
+		version: 4.21,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -1181,6 +1181,8 @@ var toReturn = {
 					}
 					unlockUpgrade("Megaminer");
 				}
+				if (this.holdMagma)
+					unlockUpgrade("Magmamancers");
 			},
 			allowSquared: true,
 			squaredDescription: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies.",
@@ -1188,6 +1190,7 @@ var toReturn = {
 			fireAbandon: false,
 			heldBooks: 0,
 			heldMegaBooks: 0,
+			holdMagma: false,
 			unlocks: "Artisanistry",
 			unlockString: "reach Zone 25"
 		},
@@ -3115,7 +3118,9 @@ var toReturn = {
 				else {
 					msg += ((game.options.menu.exitTo.enabled) ? "the world " : "your map chamber");
 				}
-				message(msg + " with an extra " + prettify(amt) + " Helium!", "Loot", "oil", "helium", "helium");
+				if (game.global.runningChallengeSquared) msg += ".";
+				else msg += " with an extra " + prettify(amt) + " Helium!";
+				message(msg, "Loot", "oil", "helium", "helium");
 				game.stats.highestVoidMap.evaluate();
 			}
 		},
@@ -4780,6 +4785,11 @@ var toReturn = {
 			icon: "book",
 			title: "Magmamancers",
 			fire: function () {
+				if (game.global.challengeActive == "Metal"){
+					game.challenges.Metal.holdMagma = true;
+					message("This book really doesn't help too much while you're dealing with the minerlessness of this dimension. Better let your scientists hold this one for you for a bit.", "Notices");
+					return;
+				}
 				unlockUpgrade("Magmamancers");
 			}
 		},
