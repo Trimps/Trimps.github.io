@@ -1078,8 +1078,8 @@ function getSpecialSquaredRewards(challenge){
 		var rewardIncrease = (challenge.replaceSquareGrowth) ? challenge.replaceSquareGrowth : squaredConfig.rewardGrowth;
 		description += "<span class='colorSquared'>This challenge issues rewards differently than most other Challenge<sup>2</sup>s.";
 		description += ((challenge.replaceSquareReward) ? "<b>" : "")  + " You will gain " + reward + "% attack and health, and " + prettify(reward / 10) + "% Helium" + ((challenge.replaceSquareReward) ? "</b>" : "");
-		description += ((challenge.replaceSquareFreq) ? "<b>" : "") + " for every " + freq + " zones cleared." + ((challenge.replaceSquareFreq) ? "</b>" : "");
-		description += ((challenge.replaceSquareThresh) ? "<b>" : "") + " Every " + threshes + " zones cleared," + ((challenge.replaceSquareThresh) ? "</b>" : "");
+		description += ((challenge.replaceSquareFreq) ? "<b>" : "") + " for every " + freq + " zones reached." + ((challenge.replaceSquareFreq) ? "</b>" : "");
+		description += ((challenge.replaceSquareThresh) ? "<b>" : "") + " Every " + threshes + " zones reached," + ((challenge.replaceSquareThresh) ? "</b>" : "");
 		description += ((challenge.replaceSquareGrowth) ? "<b>" : "") + " this bonus will increase by " + rewardIncrease + "% attack and health, and " + prettify(rewardIncrease / 10) + "% Helium.</span> " + ((challenge.replaceSquareGrowth) ? "</b>" : "");
 	}
 	return description;
