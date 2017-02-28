@@ -3560,7 +3560,9 @@ function getTotalHeirloomRefundValue(heirloom){
 		var dummyHeirloom = setupDummyHeirloom(heirloom, thisMod);
 		total += countPriceOfUpgrades(dummyHeirloom, heirloom.mods[x][3]);
 	}
-	return Math.floor(total) + Math.floor(game.heirlooms.values[heirloom.rarity] / 2);
+	var result = Math.floor(total) + Math.floor(game.heirlooms.values[heirloom.rarity] / 2);
+	if (isNumberBad(result)) return 0;
+	return result;
 }
 
 //Dummy heirloom for mod recycle price calculating
