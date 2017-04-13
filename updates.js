@@ -35,7 +35,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipUpdateFunction = "";
 		return;
 	}
-	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed && what != "Well Fed" && what != "Challenge2" && what != 'Perk Preset') return;
+	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed && what != "Well Fed" && what != "Challenge2" && what != 'Perk Preset' && what != 'Activate Portal') return;
 	if (event != "update"){
 		var whatU = what, isItInU = isItIn, eventU = event, textStringU = textString, attachFunctionU = attachFunction, numCheckU = numCheck, renameBtnU = renameBtn, noHideU = noHide;
 		var newFunction = function () {
