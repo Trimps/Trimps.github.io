@@ -78,6 +78,13 @@ overflow-x: hidden;
 	line-height: 1.15vw;
 }
 
+#addChallenge{
+	display: block;
+	text-align: center;
+	font-size: 1.05em;
+	font-weight: bold;
+}
+
 .talentName{
 	font-size: 0.7vw;
 }
@@ -199,7 +206,7 @@ overflow-x: hidden;
 #miscColumn {
     margin-right: 0;
 	height: 100%;
-	width: 8.33333333%;
+	width: 8.6%;
 	padding-left: 0.5vw;
 	padding-right: 0.5vw;
 }
@@ -271,6 +278,81 @@ overflow-x: hidden;
     font-size: 1.12em;
     text-align: center;
     padding: 3px;
+}
+
+#autoStructureBtn{
+	overflow: hidden;
+	height: 1.51em;
+}
+
+#autoStructureBtn div{
+	display: inline-block;
+	text-align: center; 
+}
+
+#autoStructureBtn div:first-child{
+	width: 80%; 
+}
+
+#autoStructureBtn div:nth-child(2){
+	width: 20%; 
+	background-color: grey;
+	float: right;
+}
+
+#autoStructureBtn div:nth-child(2):hover{
+	background-color: #666666;
+}
+
+#autoStructureBtn div span{
+	line-height: 1.2em;
+	font-size: 1.1em;
+}
+
+#autoGoldenChoices{
+	width: 100%;
+}
+
+.autoGoldenChoice{
+	width: 30%;
+	text-align: center;
+	margin: 0 1.66%;
+	padding: 1.66% 0;
+	border: 1px solid black;
+	display: inline-block;
+}
+
+#autoStructureConfigTable tbody tr td{
+	padding: 5px;
+}
+
+#autoStructureConfigTable tbody tr td:nth-child(2) div:first-child{
+	border-left: 1px solid black;
+}
+
+.structConfigCheckbox{
+	transform: scale(2.5);
+}
+
+.Mutimp{
+	color: #00d936;
+}
+
+#autoStructureConfigTable{
+	width: 100%;
+	font-size: 1.2vw;
+}
+
+#autoStructureConfigTable tbody tr td div div select{
+	padding: 1%;
+}
+
+.structConfigQuantity{
+	display: inline-block;
+	width: 50%;
+	padding: 1%;
+	line-height: normal;
+	border-width: 1px;
 }
 
 .incrementBtn {
@@ -425,6 +507,7 @@ overflow-x: hidden;
 #logColumn {
     padding-left: .25vw;
 	height: 100%;
+	width: 41.4%;
 }
 
 
@@ -528,6 +611,7 @@ overflow-x: hidden;
 
 #viewChallengeText {
 	font-size: 1.3vw;
+	color: white;
 }
 
 #viewChallengeText ul{
@@ -556,6 +640,12 @@ overflow-x: hidden;
 	color: white;
     font-size: 1vw;
 	padding: 4px;
+}
+
+#portalPresets{
+	border: 1px solid white;
+	background: black;
+	margin: 0.5vw 0;
 }
 
 #buyHere {
@@ -855,6 +945,14 @@ overflow-x: hidden;
 
 .settingBtn3:hover{
 	background-color: #287280;
+}
+
+.settingBtn4{
+	background-color: #7a00f2;
+}
+
+.settingBtn4:hover{
+	background-color: #47008c;
 }
 
 .optionContainer {
@@ -1289,6 +1387,10 @@ overflow-x: hidden;
     color: red;
 }
 
+.orange{
+	color: #ff6519;
+}
+
 .battleCell.TrimpmasSnow, .badge.TrimpmasSnow, .badge.CorruptSnow, .badge.HotSnow, .badNameMutation.TrimpmasSnow, .badNameMutation.CorruptSnow, .badNameMutation.HotSnow{
     color: #0082bc;
     background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(189,255,255,0.8));
@@ -1407,8 +1509,19 @@ overflow-x: hidden;
 	background-color: #696980;
 }
 
+.portalThing{
+	width: 19.3%;
+	font-size: 1.1vw;
+}
+
 .portalThing.detailed{
 	font-size: 0.96vw;
+	line-height: 1.1vw;
+}
+
+.portalThing .thingName{
+	font-size: 1em;
+	font-weight: bold;
 }
 
 .portalThing .thingOwned{
@@ -1481,7 +1594,28 @@ overflow-x: hidden;
 	display: block;
 }
 
-.heirloomBtnActive{
+.portalError{
+	display: block;
+	padding: 2%;
+}
+
+.squaredError{
+	background-color: #000;
+	color: white;
+	border: 0.3em solid #990099;
+}
+
+.magmiteError{
+	background-color: #000040;
+	color: white;
+}
+
+.dailyError{
+	background-color: #b38600;
+	color: white;
+}
+
+.heirloomBtnActive, .heirloomRecycleWarning{
 	background-color: #3b0076;
 	color: #DDDDFF;
 }
@@ -2148,17 +2282,6 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	padding: 0 1%;
 }
 
-.heirloomRecycleWarning{
-	background-color: black;
-	color: red;
-	font-size: 0.85em;
-}
-
-.portalThing{
-	width: 19.3%;
-	font-size: 1.1vw;
-}
-
 #portalUpgradesHere{
 	display: inline-block;
 }
@@ -2185,7 +2308,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .inPortalBtnSm{
-	font-size: 1.5vw !important;
+	font-size: 1.3vw !important;
 	margin-bottom: .5vw;
 }
 
@@ -2199,6 +2322,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 .StoryMessage {
 	color: #00FFFF;
+}
+.StoryMessage.highlightStoryMessage{
+	background-color: black;
+	border: 1px solid red;
+	padding: 2%;
 }
 #saveGame{
 	color: #7CFC00;
@@ -2344,6 +2472,10 @@ color: #DDDDFF !important;
 
 .sizeSecReduced{
 	font-size: 1.1em !important;
+}
+
+.seventhColumn{
+	width: 14.2857% !important;
 }
 
 #gemsPs .sizeSecReduced, #fragmentsPs .sizeSecReduced{
@@ -2767,9 +2899,18 @@ background-color: rgba(255,255,255,0.25);
 	margin-bottom: 1vw;
 }
 
+#portalBtnContainer{
+	margin-top: 0.5em;
+}
+
+.tinyTextTip table tbody tr td{
+	font-size: 0.75em;
+}
+
 #specificChallengeDescription{
 	min-height: 10vw;
 	overflow-y: auto;
+	overflow-x: hidden;
 	max-height: 14.3vw;
 	margin: 0.5vw;
 	color: #318696;
@@ -2817,6 +2958,15 @@ background-color: rgba(255,255,255,0.25);
 
 .challengeThing:hover{
 	background-color: #2b7583;	
+}
+
+.challengeRepeatable{
+	background-color: #1d4567;
+	color: white;
+}
+
+.challengeRepeatable:hover{
+	background-color: #122a3f;
 }
 
 #challengeDaily{
@@ -2911,8 +3061,9 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	color: white;
-	background: linear-gradient(40deg,  #318696 0%, #990099 30%, #990099 70%, #318696 100%); 
+	color: #0086b3;
+	font-weight: bold;
+	background-color: #000;
 }
 
 .btn-new:hover,
@@ -2921,8 +3072,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: white;
-	background: linear-gradient(135deg,  #990099 0%, #318696 50%, #990099 100%); 
+	color: #000;
+	background-color: #0086b3;
 }
 .btn-new:active,
 .btn-new.active,
@@ -2981,17 +3132,17 @@ input::-webkit-inner-spin-button {
 }
 
 .thingColorDone {
-	background: #004000;
+	background-color: #004000;
 	color: white !important;
 }
 
 .thingColorSquared {
-	background: #990099 !important;
+	background-color: #990099 !important;
 	color: white !important;
 }
 
 .thingColorSquared:hover {
-	background: #800080 !important;
+	background-color: #800080 !important;
 	color: white !important;
 }
 
@@ -3041,6 +3192,10 @@ input::-webkit-inner-spin-button {
 
 .tabNotSelected {
 	background: rgba(255,255,255,0.25);
+}
+
+.tabNotEnabled {
+	background: rgb(128,128,128);
 }
 
 #NewTab.tabNotSelected {

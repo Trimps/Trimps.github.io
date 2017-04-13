@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.21,
+		version: 4.3,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -179,6 +179,15 @@ var toReturn = {
 		lastBonePresimpt: 0,
 		runningChallengeSquared: false,
 		totalSquaredReward: 0,
+		perkPreset1: {},
+		perkPreset2: {},
+		perkPreset3: {},
+		improvedAutoStorage: false,
+		firstCustomAmt: -1,
+		firstCustomExact: -1,
+		autoGolden: -1,
+		autoStructureSetting: {enabled: false},
+		passive: true,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -609,7 +618,7 @@ var toReturn = {
 			generatorStart: {
 				enabled: 0,
 				extraTags: "general",
-				description: "Choose what mode the Dimensional Generator should start each run on. <b>Default Generator</b> will continue with whatever setting you were using at the end of your last run. <b>All Other Settings<b> are named by what mode will be set to active at the start of each run.",
+				description: "Choose what mode the Dimensional Generator should start each run on. <b>Default Generator</b> will continue with whatever setting you were using at the end of your last run. <b>The Rest of The Settings<b> are named by what mode will be set to active at the start of each run.",
 				get titles () {
 					var arr = ["Default Generator", "Gain Fuel", "Gain Mi"];
 					if (game.permanentGeneratorUpgrades.Hybridization.owned) arr.push("Hybrid");
@@ -625,6 +634,27 @@ var toReturn = {
 				description: "Disable the snow effect in the world. <b>This will take effect on the next zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
 				titles: ["No Snow", "Show Snow"]			
 			}, */
+			geneSend: {
+				enabled: 0,
+				extraTags: "other",
+				description: "When enabled, as long as you have one Geneticist, AutoFight will automatically send soldiers to fight if they have been breeding for longer than your Geneticistassist setting.",
+				titles: ["No Gene Sending", "Using Gene Send"]
+			},
+			fireForJobs: {
+				enabled: 0,
+				extraTags: "other",
+				description: "When enabled, hiring Trimps for jobs with scaling price increases (Trainer, Explorer, etc) while you have no workspaces will attempt to fire Farmers, Lumberjacks and Miners until you have enough room.",
+				titles: ["Not Firing For Jobs", "Firing For Jobs"]
+			},
+			ctrlGigas: {
+				enabled: 0,
+				extraTags: "other",
+				description: "When enabled, all Gigastation purchases will act as if the Ctrl key was held, regardless of whether or not it actually was held. When disabled, you will have to hold Ctrl to tell Gigastations to automatically purchase Warpstations (See Gigastation tooltip for more info).",
+				lockUnless: function () {
+					return (game.global.highestLevelCleared >= 60);
+				},
+				titles: ["Dynamic Giga Ctrl", "Always Giga Ctrl"]
+			},
 			offlineProgress: {
 				enabled: 1,
 				extraTags: "other",
@@ -706,11 +736,11 @@ var toReturn = {
 			icon: "th-large",
 		},
 		housing: {
-			description: "Unlock Mansion, Hotel, and Resort automatically when passing the zone they drop at.",
-			name: "Home Detector I",
+			description: "Unlock Mansion, Hotel, Nursery, Resort, Gateway, Wormhole, and Collector automatically when passing the zone they drop at.",
+			name: "Home Detector",
 			tier: 1,
 			purchased: false,
-			icon: "home",
+			icon: "home"
 		},
 		turkimp: {
 			description: "Increases the bonus time from each Turkimp by 5 minutes, and increases the time cap by 10 minutes.",
@@ -726,6 +756,20 @@ var toReturn = {
 			purchased: false,
 			icon: "*heart5"
 		},
+		pierce: {
+			description: "Reduce the amount of enemy damage that can pierce block by 25%.",
+			name: "Metallic Coat",
+			tier: 2,
+			purchased: false,
+			icon: "tint"
+		},
+		headstart: {
+			description: "Corruption begins 5 levels earlier, at zone 176.",
+			name: "Headstart I",
+			tier: 2,
+			purchased: false,
+			icon: "road"
+		},
 		foreman: {
 			description: "Summon 50000 foremen to aid in construction.",
 			name: "Foremany",
@@ -739,22 +783,8 @@ var toReturn = {
 				game.global.autoCraftModifier -= 12500;
 				updateForemenCount();
 			},
+			requires: "housing",
 			icon: "user",
-		},
-		headstart: {
-			description: "Corruption begins 5 levels earlier, at zone 176.",
-			name: "Headstart I",
-			tier: 2,
-			purchased: false,
-			icon: "road"
-		},
-		housing2: {
-			description: "Unlock Gateway, Wormhole, and Collector automatically when passing the zone they drop at.",
-			name: "Home Detector II",
-			tier: 2,
-			purchased: false,
-			icon: "home",
-			requires: "housing"
 		},
 		turkimp2: {
 			description: "Increase the chance of finding a Turkimp by 33%.",
@@ -772,12 +802,12 @@ var toReturn = {
 			icon: "*heart5",
 			requires: "voidPower"
 		},
-		doubleBuild: {
-			description: "Stacked items in the Building Queue will be constructed two at a time.",
-			name: "Double Build",
+		mapLoot: {
+			description: "Reduces the starting point of the Low Map Level Loot Penalty by 1 level. This allows you to earn the same amount of loot by doing a map at your current world number, or at your current world number minus 1.",
+			name: "Map Reducer",
 			tier: 3,
 			purchased: false,
-			icon: "*hammer"
+			icon: "*gift2"
 		},
 		headstart2: {
 			description: "Corruption begins an additional 10 levels earlier, at zone 166.",
@@ -787,19 +817,19 @@ var toReturn = {
 			icon: "road",
 			requires: "headstart"
 		},
+		doubleBuild: {
+			description: "Stacked items in the Building Queue will be constructed two at a time.",
+			name: "Double Build",
+			tier: 3,
+			purchased: false,
+			icon: "*hammer"
+		},
 		skeletimp: {
 			description: "Double the chance for a Megaskeletimp to appear instead of a Skeletimp.",
 			name: "King of Bones I",
 			tier: 3,
 			purchased: false,
 			icon: "italic",
-		},
-		mapLoot: {
-			description: "Reduces the starting point of the Low Map Level Loot Penalty by 1 level. This allows you to earn the same amount of loot by doing a map at your current world number, or at your current world number minus 1.",
-			name: "Map Reducer",
-			tier: 3,
-			purchased: false,
-			icon: "*gift2"
 		},
 		hyperspeed: {
 			description: "Reduce the time in between fights and attacks by 100ms.",
@@ -825,12 +855,20 @@ var toReturn = {
 			icon: "road",
 			requires: "headstart2"
 		},
-		pierce: {
-			description: "Reduce the amount of enemy damage that can pierce block by 25%.",
-			name: "Metallic Coat",
+		autoStructure: {
+			description: "Unlock the AutoStructure tool, allowing you to automatically purchase structures.",
+			name: "AutoStructure",
 			tier: 4,
 			purchased: false,
-			icon: "tint"
+			icon: "home",
+			requires: "doubleBuild",
+			onPurchase: function () {
+				toggleAutoStructure(true);
+			},
+			onRespec: function () {
+				game.global.autoStructureSetting.enabled = false;
+				toggleAutoStructure(true, true);
+			}
 		},
 		turkimp3: {
 			description: "Increase the bonus resources gained while Well Fed from a Turkimp by 25%, from 50% to 75%.",
@@ -865,21 +903,21 @@ var toReturn = {
 			purchased: false,
 			icon: "*fire",
 		},
-		skeletimp2: {
-			description: "Reduce the minimum time between Skeletimp spawns by an additional 10 minutes",
-			name: "King of Bones II",
-			tier: 5,
-			purchased: false,
-			icon: "italic",
-			requires: "skeletimp"
-		},
 		quickGen: {
 			description: "Increase the amount of speed that the Dimensional Generator gains per zone by 50%.",
 			name: "Quick Gen",
 			tier: 5,
 			purchased: false,
 			icon: "*diamonds"
-		}
+		},
+		skeletimp2: {
+			description: "Reduce the minimum time between Skeletimp spawns by 10 minutes",
+			name: "King of Bones II",
+			tier: 5,
+			purchased: false,
+			icon: "italic",
+			requires: "skeletimp"
+		},
 		
 		
 
@@ -1100,7 +1138,7 @@ var toReturn = {
 		Motivation: {
 			modifier: 0.05,
 			heliumSpent: 0,
-			tooltip: "Practice public speaking with your trimps. Each level increases the amount of resources that workers produce by 5%.",
+			tooltip: "Practice public speaking with your Trimps. Each level increases the amount of resources that workers produce by 5%.",
 			priceBase: 2,
 			level: 0
 		},
@@ -1317,13 +1355,13 @@ var toReturn = {
 			}
 		},
 		Meditate: {
-			description: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, but your trimps will gather 25% faster. Completing <b>'Trimple of Doom' (33)</b> will return the world to normal.",
+			description: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, but your Trimps will gather 25% faster. Completing <b>'Trimple of Doom' (33)</b> will return the world to normal.",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 44);
 			},
 			allowSquared: true,
-			squaredDescription: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, but your trimps will gather 25% faster.",
+			squaredDescription: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, but your Trimps will gather 25% faster.",
 			highestSquared: 0,
 			unlocks: "Meditation",
 			unlockString: "reach Zone 45"
@@ -1386,7 +1424,7 @@ var toReturn = {
 			unlockString: "reach Zone 70"
 		},
 		Electricity: {
-			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with an additional 150% of all helium earned up to but not including Zone 80. This is repeatable!",
+			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with an additional 200% of all helium earned up to but not including Zone 80. This is repeatable!",
 			completed: false,
 			hasKey: false,
 			filter: function () {
@@ -2311,7 +2349,7 @@ var toReturn = {
 			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare
 			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
-			descriptions: ["Reach Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over 250k total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Reach Z60 without hiring a single Trimp", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering any maps", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths"],
+			descriptions: ["Reach Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over 250k total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Reach Z60 without hiring a single Trimp", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths"],
 			tiers: [3, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7],
 			description: function (number) {
 				return this.descriptions[number];
@@ -3220,7 +3258,7 @@ var toReturn = {
 				checkAchieve("prisonTimed");
 				if (game.global.runningChallengeSquared) return;
 				if (game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") {
-					var reward = Math.floor(game.challenges.Electricity.heldHelium * 1.5);
+					var reward = Math.floor(game.challenges.Electricity.heldHelium * 2);
 					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
 					else if (game.global.challengeActive == "Mapocalypse") {
 						message("You have completed the Mapocalypse challenge! You have unlocked the 'Siphonology' Perk, and have been rewarded with " + prettify(reward) + " Helium.", "Notices");
@@ -3397,7 +3435,7 @@ var toReturn = {
 				}
 				else if ((game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165) || ((game.global.challengeActive == "Watch" || game.global.challengeActive == "Lead") && game.global.world >= 180) || (game.global.challengeActive == "Corrupted" && game.global.world >= 190)){
 					var challenge = game.global.challengeActive;
-					if (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap) giveSingleAchieve(20);
+					if (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap && game.buildings.Nursery.purchased == 0) giveSingleAchieve(20);
 					if (game.global.challengeActive == "Lead" && game.upgrades.Gigastation.done <= 1) giveSingleAchieve(21);
 					if (game.global.challengeActive == "Corrupted" && !game.challenges.Corrupted.hiredGenes && game.jobs.Geneticist.owned == 0) giveSingleAchieve(22);
 					if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400) giveSingleAchieve(17);
@@ -3437,6 +3475,28 @@ var toReturn = {
 					game.resources.trimps.soldiers = 0;
 					updateGoodBar();
 				}
+			}
+		},
+		Mutimp: {
+			location: "World",
+			locked: 1,
+			attack: 3,
+			health: 6,
+			fast: true,
+			loot: function (level) {
+				amt = rewardResource("metal", 5, level);
+				message("Radioactive waste spills to the ground as the Mutimp falls. You send a few Trimps to grab the shiny stuff in the toxic sludge, which ends up being " + prettify(amt) + " bars of metal!", "Loot", "*cubes", null, 'primary');
+			}
+		},
+		Hulking_Mutimp: {
+			location: "World",
+			locked: 1,
+			attack: 5,
+			health: 12,
+			fast: true,
+			loot: function (level) {
+				amt = rewardResource("metal", 8, level);
+				message("Radioactive waste spills to the ground as the Hulking Mutimp falls. You send a few Trimps to grab the shiny stuff in the toxic sludge, which ends up being " + prettify(amt) + " bars of metal!", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		//Exotics
@@ -3697,7 +3757,7 @@ var toReturn = {
 			},
 			Doom: {
 				resourceType: "Metal",
-				upgrade: "Relentlessness"
+				upgrade: [ "AncientTreasure", "Relentlessness"]
 			},
 			Prison: {
 				resourceType: "Food",
@@ -3709,7 +3769,7 @@ var toReturn = {
 			},
 			Void: {
 				resourceType: "Any",
-				upgrade: ["AutoStorage", "Heirloom"]
+				upgrade: ["AutoStorage", "Heirloom", "ImprovedAutoStorage"]
 			},
 			Star: {
 				resourceType: "Metal"
@@ -3794,6 +3854,7 @@ var toReturn = {
 				game.global.Geneticistassist = true;
 				unlockJob("Geneticist");
 				addNewSetting("GeneticistassistTarget");
+				addNewSetting("geneSend");
 			}
 		},
 		AutoStorage: {
@@ -3812,8 +3873,44 @@ var toReturn = {
 				game.global.autoStorageAvailable = true;
 				document.getElementById("autoStorageBtn").style.display = "block";
 				createHeirloom();
+				message("You found an Heirloom!", "Loot", "*archive", null, "secondary", null, null, true);
+			}	
+		},
+		ImprovedAutoStorage: {
+			world: 150,
+			level: "last",
+			icon: "*eye4",
+			title: "Auspicious Presence Part II",
+			canRunOnce: true,
+			filterUpgrade: true,
+			specialFilter: function(world) {
+				return !game.global.improvedAutoStorage;
+			},
+			fire: function(){
+				var text = "<p>From the void, an auspicious presence reaches out and fills your mind. You feel at peace with the world. It asks you what you desire most. Wait... hasn't this happened before? Last time you asked for your Trimps to be smart enough to manage storage structures on their own. You can make it better this time! You excitedly ask for your Trimps to waste less resources when managing resources on their own. The presence lets you know that it is done, then dissipates. You get serious déjà-vu while regretting not asking to go home.</p><p style='font-weight: bold'>From now on, storage facilities will be constructed instantly. If you collect more resources from one source than you can hold, the extra resources will be used to build new storage facilities without wasting any resources. You may not be home, but your Trimps are now quite talented!</p>";
+				tooltip('confirm', null, 'update', text, null, 'Auspicious Presence Part II', null, null, true);
+				enableImprovedAutoStorage();
+				createHeirloom();
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
 			}	
+		},
+		AncientTreasure: {
+			world: 33,
+			level: "last",
+			icon: "piggy-bank",
+			title: "Ancient Treasure",
+			canRunOnce: true,
+			filterUpgrade: true,
+			specialFilter: function(world) {
+				return !game.portal.Relentlessness.locked;
+			},
+			fire: function(){
+				addResCheckMax("food", game.resources.food.owned);
+				addResCheckMax("wood", game.resources.wood.owned);
+				addResCheckMax("metal", game.resources.metal.owned);
+				message("After barely escaping a fierce boulder, you check out the relic you found in there. It glows extremely bright for a few seconds before disappearing, and you look at your storages to see that your Food, Wood, and Metal have been doubled!", "Story", "piggy-bank", "highlightStoryMessage");
+			}
+			
 		},
 		Heirloom: {
 			world: 6,
@@ -4968,7 +5065,6 @@ var toReturn = {
 		},
 		easterEgg: {
 			world: -1,
-			locked: true,
 			level: [0, 99],
 			title: "Colored Egg",
 			icon: "*droplet",
@@ -5130,6 +5226,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 10,
+			AP: true,
 			tooltip: "Has room for $incby$ more lovely Trimps. All Trimp housing has enough workspaces for only half of the Trimps that can live there.",
 			cost: {
 				food: [125, 1.24],
@@ -5145,6 +5242,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 20,
+			AP: true,
 			tooltip: "A better house for your Trimps! Each house supports up to $incby$ more Trimps.",
 			cost: {
 				food: [1500, 1.22],
@@ -5161,6 +5259,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 60,
+			AP: true,
 			tooltip: "A pretty sick mansion for your Trimps to live in. Each Mansion supports $incby$ more Trimps.",
 			cost: {
 				gems: [100, 1.2],
@@ -5179,6 +5278,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 120,
+			AP: true,
 			tooltip: "A fancy hotel for many Trimps to live in. Complete with room service and a mini bar. Supports $incby$ Trimps.",
 			cost: {
 				gems: [2000, 1.18],
@@ -5197,6 +5297,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 240,
+			AP: true,
 			tooltip: "A huge resort for your Trimps to live in. Sucks for the ones still stuck in huts. Supports $incby$ Trimps.",
 			cost: {
 				gems: [20000, 1.16],
@@ -5215,6 +5316,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 480,
+			AP: true,
 			tooltip: "A Gateway to another dimension, where your Trimps can sleep and work. Supports $incby$ Trimps.",
 			cost: {
 				fragments: [3000, 1.14],
@@ -5231,6 +5333,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 600,
+			AP: true,
 			tooltip: "Use your crazy, helium-cooled, easy-to-aim wormhole generator to create easy-to-travel links to other colonizable planets where your Trimps can sleep and work. Each supports $incby$ Trimps. <b>This building costs helium to create.</b>",
 			cost: {
 				helium: [10, 1.075],
@@ -5246,6 +5349,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 1200,
+			AP: true,
 			tooltip: "Each collector allows you to harvest more of the power of your home star, allowing your Trimps to colonize a larger chunk of your solar system. Each supports $incby$ Trimps.",
 			cost: {
 				gems: [500000000000, 1.12]
@@ -5261,6 +5365,7 @@ var toReturn = {
 			purchased: 0,
 			craftTime: 1200,
 			origTime: 1200,
+			AP: true,
 			tooltip: "Create a gigantic Warpstation, capable of housing tons of Trimps and instantly transporting them back to the home planet when needed. Supports $incby$ Trimps.",
 			cost: {
 				gems: [100000000000000, 1.4],
@@ -5277,6 +5382,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 20,
+			AP: true,
 			tooltip: "A building where your Trimps can work out. Each Gym increases the amount of damage each trimp can block by $incby$~",
 			cost: {
 				wood: [400, 1.185]
@@ -5297,6 +5403,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 120,
+			AP: true,
 			tooltip: "Pay a tribute of food to your Dragimp, increasing his appetite and his speed. He will gather gems 5% faster (compounding).",
 			cost: {
 				food: [10000, 1.05]
@@ -5311,6 +5418,7 @@ var toReturn = {
 			owned: 0,
 			purchased: 0,
 			craftTime: 120,
+			AP: true,
 			get tooltip () {
 				if (mutations.Magma.active())
 					return "<p>Magma is generally not conductive to a healthy Nursery environment. Each Nursery will still increase Trimps per second from breeding by 1% (compounding), but 10% of your active Nurseries will shut down each zone as the Magma moves closer. Safety first!</p><p>You have purchased " + prettify(this.purchased) + " total Nurseries.</p>";
@@ -5368,6 +5476,7 @@ var toReturn = {
 		},
 		Trainer: {
 			locked: 1,
+			allowAutoFire: true,
 			owned: 0,
 			tooltip: function () {
 				var text = "Each trainer will increase the base amount your soldiers can block by ";
@@ -5387,6 +5496,7 @@ var toReturn = {
 		},
 		Explorer: {
 			locked: 1,
+			allowAutoFire: true,
 			owned: 0,
 			tooltip: "Each explorer will find an average of $modifier$ fragments each second.",
 			cost: {
@@ -5403,6 +5513,7 @@ var toReturn = {
 		},
 		Geneticist: {
 			locked: 1,
+			allowAutoFire: true,
 			owned: 0,
 			tooltip: "Each Geneticist will increase the health of each Trimp by 1% (compounding), but slows the rate at which baby Trimps grow by 2% (compounding).",
 			cost: {
@@ -5414,6 +5525,7 @@ var toReturn = {
 		Magmamancer: {
 			locked: 1,
 			owned: 0,
+			allowAutoFire: true,
 			get tooltip(){
 				var timeOnZone = Math.floor((new Date().getTime() - game.global.zoneStarted) / 60000);
 				var bonus = (this.getBonusPercent() - 1) * 100;
@@ -5577,6 +5689,7 @@ var toReturn = {
 			},
 			fire: function () {
 				game.global.autoBattle = true;
+				pauseFight(true);
 				fadeIn("pauseFight", 1);
 			}
 		},

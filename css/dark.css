@@ -778,6 +778,15 @@ color:#8F8F00
 	background-color: #233237;
 }
 
+.challengeRepeatable{
+	background-color: #337ab7;
+	color: white;
+}
+
+.challengeRepeatable:hover{
+	background-color: #285f8f;
+}
+
 .finishedChallenge{
 	background-color:#5D5D5D
 }
