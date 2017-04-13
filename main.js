@@ -5390,7 +5390,7 @@ function easterEggClicked(){
 	if (game.global.totalPortals < 5){ //Give metal if player doesn't have 5 total portals and VM/Heirloom/Nu was rolled
 		if (roll > 0.84 && (roll <= 0.92 || game.global.totalPortals == 0)) roll = 0.84;
 	}
-	if (roll <= 0.84){
+	if (roll <= 0.84 || (roll > 0.92 && game.global.runningChallengeSquared)){
 		var reward = '';
 		var rewardRoll = getRandomIntSeeded(game.global.eggSeed - 2, 1, 6);
 		if (roll <= 0.25) reward = "food";
