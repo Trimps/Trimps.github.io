@@ -1190,6 +1190,9 @@ function swapToCurrentChallenge(updateOnly){
 		document.getElementById('viewChallengeText').innerHTML = getCurrentChallengePane();
 		updatePortalChallengeAbandonButton();
 		btnElem.innerHTML = "Select New Challenge";
+		var c2Reward = document.getElementById('challengeSquaredBonusAmtView');
+		if (c2Reward !== null)
+			c2Reward.innerHTML = prettify(game.global.totalSquaredReward);
 	}
 	else {
 		viewChallengeElem.style.display = 'none';
