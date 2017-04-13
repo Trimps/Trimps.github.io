@@ -783,7 +783,6 @@ var toReturn = {
 				game.global.autoCraftModifier -= 12500;
 				updateForemenCount();
 			},
-			requires: "housing",
 			icon: "user",
 		},
 		turkimp2: {
