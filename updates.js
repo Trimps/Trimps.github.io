@@ -195,7 +195,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else if (textString > 0 && textString <= 3){
 			var preset = game.global["perkPreset" + textString];
 			if (typeof preset === 'undefined') return;
-			what = (preset.Name) ? preset.Name : "Preset " + textString;
+			what = (preset.Name) ? "Preset: " + preset.Name : "Preset " + textString;
 			if (isObjectEmpty(preset)){
 				tooltipText = "<span class='red'>This Preset slot is empty!</span> Select this slot and then click 'Save' to save your current Perk configuration to this slot. You'll be able to load this configuration back whenever you want, as long as you have your Respec active.";
 			}
