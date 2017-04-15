@@ -7404,6 +7404,9 @@ var dailyModifiers = {
 			addStack: function() {
 				var global = game.global;
 				var challenge = global.dailyChallenge.pressure;
+				if (this.getMaxStacks(challenge.strength) <= challenge.stacks) {
+					return;
+				}
 				challenge.stacks++;
 				if (global.fighting){
 					global.soldierHealthMax *= 0.99;
