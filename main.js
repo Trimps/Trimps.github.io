@@ -7390,7 +7390,7 @@ var dailyModifiers = {
 				return (((time * 1.3) + stacks) / 200);
 			},
 			getMult: function(str, stacks){
-				return Math.pow(0.99, stacks);
+				return Math.pow(0.99, min(stacks, this.getMagetMaxStacks(str)));
 			},
 			addSecond: function(){
 				var modifier = game.global.dailyChallenge.pressure;
@@ -7401,14 +7401,16 @@ var dailyModifiers = {
 				}
 				updateDailyStacks('pressure');
 			},
-			addStack: function(){
-				game.global.dailyChallenge.pressure.stacks++;
-				if (game.global.fighting){
-					game.global.soldierHealthMax *= 0.99;
-					if (game.global.soldierHealthMax < game.global.soldierHealth)
-						game.global.soldierHealth = game.global.soldierHealthMax;
-					if (game.global.soldierHealth < 0)
-						game.global.soldierHealth = 0;
+			addStack: function() {
+				var global = game.global;
+				var challenge = global.dailyChallenge.pressure;
+				challenge.stacks++;
+				if (global.fighting){
+					global.soldierHealthMax *= 0.99;
+					if (global.soldierHealthMax < global.soldierHealth)
+						global.soldierHealth = global.soldierHealthMax;
+					if (global.soldierHealth < 0)
+						global.soldierHealth = 0;
 				}
 			},
 			timePerStack: function(str){
