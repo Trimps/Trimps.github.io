@@ -7619,8 +7619,8 @@ function updateDailyClock(justTime){
 function getDailyTimeString(add, makePretty, getDayOfWeek){
 	var today = new Date();
 	if (!add) add = 0;
-	today.setDate(today.getDate() + add + lastAdd);
-	if (getDayOfWeek) return today.getDay();
+	today.setUTCDate(today.getUTCDate() + add + lastAdd);
+	if (getDayOfWeek) return today.getUTCDay();
 	var year = today.getUTCFullYear();
 	var month = today.getUTCMonth() + 1; //For some reason January is month 0? Why u do dis?
 	if (month < 10) month = "0" + month;
