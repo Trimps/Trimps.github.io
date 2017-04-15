@@ -7390,7 +7390,7 @@ var dailyModifiers = {
 				return (((time * 1.3) + stacks) / 200);
 			},
 			getMult: function(str, stacks){
-				return Math.pow(0.99, min(stacks, this.getMagetMaxStacks(str)));
+				return Math.pow(0.99, stacks);
 			},
 			addSecond: function(){
 				var modifier = game.global.dailyChallenge.pressure;
