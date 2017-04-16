@@ -2319,10 +2319,17 @@ function applyS5(){
 }
 
 
+var currentRAF = null;
+var pendingLogs = [];
+var pendingsByType = {
+	Loot: [],
+	Unlocks: [],
+	Combat: [],
+	Notices: []
+}
 function message(messageString, type, lootIcon, extraClass, extraTag, htmlPrefix) {
-	if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !game.global.messages[type][extraTag]) return;
+if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !game.global.messages[type][extraTag]) return;
 	var log = document.getElementById("log");
-	var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
 	var displayType = (game.global.messages[type].enabled) ? "block" : "none";
 	var prefix = "";
 	var addId = "";
@@ -2349,9 +2356,30 @@ function message(messageString, type, lootIcon, extraClass, extraTag, htmlPrefix
 		}
 	}
 	else messageString = htmlPrefix + " " + messageString;
-	log.innerHTML += "<span" + addId + " class='" + type + "Message message" +  " " + extraClass + "' style='display: " + displayType + "'>" + messageString + "</span>";
-	if (needsScroll) log.scrollTop = log.scrollHeight;
-	if (type != "Story") trimMessages(type);
+	var messageHTML = "<span" + addId + " class='" + type + "Message message" +  " " + extraClass + "' style='display: " + displayType + "'>" + messageString + "</span>";
+	pendingLogs.push(messageHTML);
+	if (type != "Story"){
+		var pendingArray = pendingsByType[type];
+		if (!pendingArray) console.log(type);
+		pendingArray.push(pendingLogs.length - 1);
+		if (pendingArray.length > 10){
+			pendingLogs.splice(pendingArray[0], 1)
+			pendingArray.splice(0, 1);
+		}
+	}
+	if (currentRAF != null) cancelAnimationFrame(currentRAF);
+	currentRAF = requestAnimationFrame(function() {
+		var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
+		var pendingMessages = pendingLogs.join('');
+		log.innerHTML += pendingMessages;
+		pendingLogs = [];
+		for (var item in pendingsByType){
+			if (pendingsByType[item].length)
+				trimMessages(item);
+			pendingsByType[item] = [];
+		}
+		if (needsScroll) log.scrollTop = log.scrollHeight;
+	});
 }
 
 function getCurrentTime(){
