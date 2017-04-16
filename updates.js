@@ -2370,6 +2370,7 @@ if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !
 	if (currentRAF != null) cancelAnimationFrame(currentRAF);
 	currentRAF = requestAnimationFrame(function() {
 		var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
+		var beforeScroll = log.scrollTop;
 		var pendingMessages = pendingLogs.join('');
 		log.innerHTML += pendingMessages;
 		pendingLogs = [];
@@ -2378,7 +2379,11 @@ if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !
 				trimMessages(item);
 			pendingsByType[item] = [];
 		}
-		if (needsScroll) log.scrollTop = log.scrollHeight;
+		if (needsScroll) {
+			log.scrollTop = log.scrollHeight;
+		} else {
+			log.scrollTop = beforeScroll;
+		}
 	});
 }
 
