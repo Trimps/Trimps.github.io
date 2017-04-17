@@ -2362,7 +2362,7 @@ if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !
     if (type != "Story"){
         var pendingArray = pendingLogs[type];
         pendingArray.push(pendingLogs.all.length - 1);
-        if (pendingArray.length > 10){
+        if (pendingArray.length > 20){
             pendingLogs.all.splice(pendingArray[0], 1)
             pendingArray.splice(0, 1);
         }
