@@ -2319,72 +2319,77 @@ function applyS5(){
 }
 
 
-var currentRAF = null;
-var pendingLogs = [];
-var pendingsByType = {
-	Loot: [],
-	Unlocks: [],
-	Combat: [],
-	Notices: []
-}
+var pendingLogs = {
+    Loot: [],
+    Unlocks: [],
+    Combat: [],
+    Notices: [],
+    all: [],
+    RAF: null
+};
+ 
 function message(messageString, type, lootIcon, extraClass, extraTag, htmlPrefix) {
 if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !game.global.messages[type][extraTag]) return;
-	var log = document.getElementById("log");
-	var displayType = (game.global.messages[type].enabled) ? "block" : "none";
-	var prefix = "";
-	var addId = "";
-	if (messageString == "Game Saved!" || extraClass == 'save') {
-		addId = " id='saveGame'";
-		if (document.getElementById('saveGame') !== null){
-			log.removeChild(document.getElementById('saveGame'));
-		}
-	}
-	if (game.options.menu.timestamps.enabled){
-		messageString = ((game.options.menu.timestamps.enabled == 1) ? getCurrentTime() : updatePortalTimer(true)) + " " + messageString;
-	}
-	if (!htmlPrefix){
-		if (lootIcon && lootIcon.charAt(0) == "*") {
-			lootIcon = lootIcon.replace("*", "");
-			prefix =  "icomoon icon-";
-		}
-		else prefix = "glyphicon glyphicon-";
-		if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span> " + messageString;
-		if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span> " + messageString;
-		if (type == "Loot" && lootIcon) messageString = "<span class='" + prefix + lootIcon + "'></span> " + messageString;
-		if (type == "Notices"){
-			messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
-		}
-	}
-	else messageString = htmlPrefix + " " + messageString;
-	var messageHTML = "<span" + addId + " class='" + type + "Message message" +  " " + extraClass + "' style='display: " + displayType + "'>" + messageString + "</span>";
-	pendingLogs.push(messageHTML);
-	if (type != "Story"){
-		var pendingArray = pendingsByType[type];
-		if (!pendingArray) console.log(type);
-		pendingArray.push(pendingLogs.length - 1);
-		if (pendingArray.length > 10){
-			pendingLogs.splice(pendingArray[0], 1)
-			pendingArray.splice(0, 1);
-		}
-	}
-	if (currentRAF != null) cancelAnimationFrame(currentRAF);
-	currentRAF = requestAnimationFrame(function() {
-		var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
-		var beforeScroll = log.scrollTop;
-		var pendingMessages = pendingLogs.join('');
-		log.innerHTML += pendingMessages;
-		pendingLogs = [];
-		for (var item in pendingsByType){
-			if (pendingsByType[item].length)
-				trimMessages(item);
-			pendingsByType[item] = [];
-		}
-		if (needsScroll) {
-			log.scrollTop = log.scrollHeight;
-		} else {
-			log.scrollTop = beforeScroll;
-		}
-	});
+    var log = document.getElementById("log");
+    var displayType = (game.global.messages[type].enabled) ? "block" : "none";
+    var prefix = "";
+    var addId = "";
+    if (messageString == "Game Saved!" || extraClass == 'save') {
+        addId = " id='saveGame'";
+        if (document.getElementById('saveGame') !== null){
+            log.removeChild(document.getElementById('saveGame'));
+        }
+    }
+    if (game.options.menu.timestamps.enabled){
+        messageString = ((game.options.menu.timestamps.enabled == 1) ? getCurrentTime() : updatePortalTimer(true)) + " " + messageString;
+    }
+    if (!htmlPrefix){
+        if (lootIcon && lootIcon.charAt(0) == "*") {
+            lootIcon = lootIcon.replace("*", "");
+            prefix =  "icomoon icon-";
+        }
+        else prefix = "glyphicon glyphicon-";
+        if (type == "Story") messageString = "<span class='glyphicon glyphicon-star'></span> " + messageString;
+        if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span> " + messageString;
+        if (type == "Loot" && lootIcon) messageString = "<span class='" + prefix + lootIcon + "'></span> " + messageString;
+        if (type == "Notices"){
+            messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
+        }
+    }
+    else messageString = htmlPrefix + " " + messageString;
+    var messageHTML = "<span" + addId + " class='" + type + "Message message" +  " " + extraClass + "' style='display: " + displayType + "'>" + messageString + "</span>";
+    pendingLogs.all.push(messageHTML);
+    if (type != "Story"){
+        var pendingArray = pendingLogs[type];
+        pendingArray.push(pendingLogs.all.length - 1);
+        if (pendingArray.length > 10){
+            pendingLogs.all.splice(pendingArray[0], 1)
+            pendingArray.splice(0, 1);
+        }
+    }
+}
+ 
+function postMessages(){
+    if (pendingLogs.RAF != null) cancelAnimationFrame(pendingLogs.RAF);
+    pendingLogs.RAF = requestAnimationFrame(function() {
+        var log = document.getElementById("log");
+        var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
+        var scrollTop = log.scrollTop;
+        var pendingMessages = pendingLogs.all.join('');
+        log.innerHTML += pendingMessages;
+        pendingLogs.all = [];
+        for (var item in pendingLogs){
+            if (item == "all" || item == "RAF") continue;
+            if (pendingLogs[item].length)
+                trimMessages(item);
+            pendingLogs[item] = [];
+        }
+        if (needsScroll) {
+           log.scrollTop = log.scrollHeight;
+        } else {
+           log.scrollTop = scrollTop;
+        }
+    });
 }
 
 function getCurrentTime(){

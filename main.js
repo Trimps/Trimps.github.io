@@ -9957,6 +9957,7 @@ function gameLoop(makeUp, now) {
 		}
 	}
 	if (mutations.Magma.active()) generatorTick();
+	if (!makeUp) postMessages(); //Just this one new line added here
 }
 
 
