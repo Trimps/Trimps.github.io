@@ -7401,14 +7401,19 @@ var dailyModifiers = {
 				}
 				updateDailyStacks('pressure');
 			},
-			addStack: function(){
-				game.global.dailyChallenge.pressure.stacks++;
-				if (game.global.fighting){
-					game.global.soldierHealthMax *= 0.99;
-					if (game.global.soldierHealthMax < game.global.soldierHealth)
-						game.global.soldierHealth = game.global.soldierHealthMax;
-					if (game.global.soldierHealth < 0)
-						game.global.soldierHealth = 0;
+			addStack: function() {
+				var global = game.global;
+				var challenge = global.dailyChallenge.pressure;
+				if (this.getMaxStacks(challenge.strength) <= challenge.stacks) {
+					return;
+				}
+				challenge.stacks++;
+				if (global.fighting){
+					global.soldierHealthMax *= 0.99;
+					if (global.soldierHealthMax < global.soldierHealth)
+						global.soldierHealth = global.soldierHealthMax;
+					if (global.soldierHealth < 0)
+						global.soldierHealth = 0;
 				}
 			},
 			timePerStack: function(str){
