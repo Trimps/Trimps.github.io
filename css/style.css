@@ -1546,6 +1546,7 @@ overflow-x: hidden;
 	padding-right: 10vw;
 	font-size: 1.5vw;
 	color: white;
+	overflow-y: auto;
 }
 
 #modReplaceBox, #modUpgradeBox{
