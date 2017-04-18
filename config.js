@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.3,
+		version: 4.31,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -1795,6 +1795,14 @@ var toReturn = {
 		},
 		trimpsGenerated: {
 			title: "Trimps from Generator",
+			display: function() {
+				return (this.value > 0 || this.valueTotal > 0);
+			},
+			value: 0,
+			valueTotal: 0
+		},
+		decayedNurseries: {
+			title: "Nurseries Closed by Magma",
 			display: function() {
 				return (this.value > 0 || this.valueTotal > 0);
 			},

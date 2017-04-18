@@ -537,6 +537,9 @@ function load(saveString, autoLoad, fromPf) {
 		if (game.global.spentEssence > 0)
 			respecTalents(false, true);
 	}
+	if (oldVersion < 4.31 && game.global.world >= 230){
+		game.stats.decayedNurseries.value = game.buildings.Nursery.purchased - game.buildings.Nursery.owned;
+	}
 	//End compatibility
 	
 	//Test server only
@@ -2452,7 +2455,6 @@ function getBuildingItemPrice(toBuy, costItem, isEquipment, purchaseAmt){
 function buyBuilding(what, confirmed, fromAuto, forceAmt) {
 	if (game.options.menu.pauseGame.enabled) return false;
 	if (!forceAmt && !confirmed && game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return false;
-/* 	if (what == "Nursery" && mutations.Magma.active()) return; */
 	var toBuy = game.buildings[what];
 	var purchaseAmt = 1;
 	if (forceAmt) purchaseAmt = Math.min(forceAmt, calculateMaxAfford(toBuy, true, false, false, true));
@@ -2623,6 +2625,7 @@ function trapThings() {
 }
 
 function buyJob(what, confirmed, noTip) {
+	var checkAndFix = false;
 	if (game.options.menu.pauseGame.enabled) return;
 	if (game.global.challengeActive == "Scientist" && what == "Scientist") return;
 	if (game.global.challengeActive == "Corrupted" && what == "Geneticist") game.challenges.Corrupted.hiredGenes = true;
@@ -2642,8 +2645,13 @@ function buyJob(what, confirmed, noTip) {
 	if (game.options.menu.fireForJobs.enabled && game.jobs[what].allowAutoFire){
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
 		if (workspaces < purchaseAmt) {
-			freeWorkspace(purchaseAmt - workspaces);
+			var fireAmt = purchaseAmt - workspaces;
+			var freed = freeWorkspace(fireAmt);
 			workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+			if (workspaces < purchaseAmt && freed){
+				workspaces = purchaseAmt;
+				checkAndFix = true;
+			}
 		}
 	}
 	if (workspaces <= 0) return;
@@ -2652,6 +2660,11 @@ function buyJob(what, confirmed, noTip) {
 	game.jobs[what].owned += added;
 	game.resources.trimps.employed += added;
 	if (!noTip) tooltip(what, "jobs", "update");
+	if (checkAndFix){
+		workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+		if (workspaces < 0)
+			freeWorkspace(Math.abs(workspaces));
+	}
 }
 
 function addGeneticist(amount){
@@ -2692,7 +2705,7 @@ function getNextGeneticistCost(){
 	return resolvePow(geneticist.cost.food, geneticist, 1);
 }
 
-function freeWorkspace(amount){
+function freeWorkspace(amount, getAmtFreed){
 	if (!amount) amount = 1;
 	var toCheck = [];
 	if (game.jobs.Miner.owned >= amount) toCheck.push('Miner');
@@ -4654,7 +4667,10 @@ function startTheMagma(){
 
 function decayNurseries(){
 	if (game.buildings.Nursery.owned <= 0) return;
-	game.buildings.Nursery.owned = Math.floor(game.buildings.Nursery.owned * 0.9);
+	var afterDecay = Math.floor(game.buildings.Nursery.owned * 0.9);
+	game.stats.decayedNurseries.value += (game.buildings.Nursery.owned - afterDecay);
+	game.buildings.Nursery.owned = afterDecay;
+	
 }
 
 function getMagmiteReward(){
@@ -9270,11 +9286,14 @@ function buyAutoStructures(){
 	for (var item in setting){
 		if (item == "enabled" || item == "unlocked") continue;
 		var building = game.buildings[item];
-		if (typeof setting[item].buyMax !== 'undefined' && setting[item].buyMax > 0 && building.purchased >= setting[item].buyMax)
+		var purchased = building.purchased;
+		if (item == "Nursery" && game.global.world >= 230)
+			purchased -= game.stats.decayedNurseries.value;
+		if (typeof setting[item].buyMax !== 'undefined' && setting[item].buyMax > 0 && purchased >= setting[item].buyMax)
 			continue;
 		if (!game.buildings[item].locked && setting[item].enabled){
 			if (game.global.buildingsQueue.length < 10){
-				if ((!setting[item].buyMax || building.purchased < (setting[item].buyMax - 1)) && canAffordBuilding(item, false, false, false, false, 2, setting[item].value)){
+				if ((!setting[item].buyMax || purchased < (setting[item].buyMax - 1)) && canAffordBuilding(item, false, false, false, false, 2, setting[item].value)){
 					buyBuilding(item, true, true, 2);
 				}
 				else if (canAffordBuilding(item, false, false, false, false, 1, setting[item].value))
@@ -9962,6 +9981,7 @@ function gameLoop(makeUp, now) {
 		}
 	}
 	if (mutations.Magma.active()) generatorTick();
+	if (!makeUp) postMessages();
 }
 
 
