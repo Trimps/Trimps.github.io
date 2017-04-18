@@ -1955,6 +1955,7 @@ function resetGame(keepPortal) {
 	document.getElementById('heliumPh').innerHTML = "";
 	document.getElementById("mapCreditsLeft").innerHTML = "";
 	document.getElementById("swapToCurrentChallengeBtn").style.display = "none";
+	document.getElementById('autoGoldenBtn').style.display = "none";
 	lookingAtCurrentChallenge = false;
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));	
