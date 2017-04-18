@@ -3351,6 +3351,7 @@ function buffVoidMaps(){
 }
 
 function addVoidAlert(){ 
+	if (game.global.switchToMaps) return;
 	var alert = document.getElementById('voidAlert')
 	if (alert !== null) {
 		alert.innerHTML = game.global.totalVoidMaps;
