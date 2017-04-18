@@ -1940,6 +1940,7 @@ function resetGame(keepPortal) {
 	document.getElementById("badCanCrit").style.display = "none";
 	document.getElementById("autoUpgradeBtn").style.display = "none";
 	document.getElementById("autoPrestigeBtn").style.display = "none";
+	document.getElementById("autoGoldenBtn").style.display = "none";
 	document.getElementById("voidBuff").innerHTML = "";
 	document.getElementById("voidMapsHere").innerHTML = "";
 	document.getElementById("heirloomWrapper").style.display = "none";
