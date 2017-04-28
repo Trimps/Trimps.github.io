@@ -3268,6 +3268,8 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
 	game.global.mapsOwnedArray.push(newMap);
     if (!messageOverride) message("You just made " + mapName[0] + "!", "Loot", "th-large", null, 'secondary');
     unlockMap(game.global.mapsOwnedArray.length - 1);
+	if (game.global.currentMapId === "")
+		selectMap(newMap.id);
 }
 
 function checkVoidMap() {
