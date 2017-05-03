@@ -5331,7 +5331,7 @@ function dropPrestiges(){
 	for (var x = 0; x < toDrop.length; x++){
 		unlockUpgrade(toDrop[x]);
 		var prestigeUnlock = game.mapUnlocks[toDrop[x]];
-		if (game.global.sLevel >= 4) {
+		if (game.global.sLevel >= 4 && game.global.challengeActive != "Mapology") {
 			unlockUpgrade(toDrop[x]);
 			prestigeUnlock.last += 10;
 		}
