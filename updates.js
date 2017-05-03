@@ -3527,7 +3527,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 				return (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400);
 			},
 			f20: function () {
-				return (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap);
+				return (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap && game.buildings.Nursery.purchased == 0);
 			},
 			f21: function () {
 				return (game.global.challengeActive == "Lead" && game.upgrades.Gigastation.done <= 1);
