@@ -891,6 +891,7 @@ var toReturn = {
 				return "Each cleared zone through Z" + Math.floor((game.global.highestLevelCleared + 1) * 0.75) + " (75% of your highest zone reached) will drop all available equipment prestiges from maps.";
 			},
 			name: "Blacksmithery II",
+			requires: "blacksmith",
 			tier: 5,
 			purchased: false,
 			icon: "*hammer2"
