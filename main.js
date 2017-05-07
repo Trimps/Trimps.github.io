@@ -3304,7 +3304,8 @@ function seededRandom(seed){
 }
 
 function getRandomIntSeeded(seed, minIncl, maxExcl) {
-	return Math.floor(seededRandom(seed) * (maxExcl - minIncl)) + minIncl;
+	var toReturn = Math.floor(seededRandom(seed) * (maxExcl - minIncl)) + minIncl;
+	return (toReturn === maxExcl) ? minIncl : toReturn;
 }
 
 function createVoidMap() {
