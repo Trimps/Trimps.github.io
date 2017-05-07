@@ -2176,7 +2176,8 @@ function setGather(what, updateOnly) {
     var colorOn = "workColorOn";
 	var btnText = "";
 	var collectBtn;
-	if (game.global.turkimpTimer > 0 && (what == "food" || what == "wood" || what == "metal")){
+	var job = what == "food" ? "Farmer" : what == "wood" ? "Lumberjack" : what == "metal" ? "Miner" : false;
+	if (game.global.turkimpTimer > 0 && job && game.jobs[job].owned > 0) {
 		colorOn = "workColorTurkimp";
 		btnText = "<span class='icomoon icon-spoon-knife'></span>";
 	}
@@ -2640,6 +2641,7 @@ function buyJob(what, confirmed, noTip) {
 		game.stats.trimpsFired.value += purchaseAmt;
 		if (game.jobs[what].owned < 0) game.jobs[what].owned = 0;
 		if (game.resources.trimps.employed < 0) game.resources.trimps.employed = 0;
+		if (game.global.playerGathering) setGather(game.global.playerGathering);
 		return;
 	}
 	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
@@ -2660,6 +2662,7 @@ function buyJob(what, confirmed, noTip) {
 	var added = canAffordJob(what, true, workspaces);
 	game.jobs[what].owned += added;
 	game.resources.trimps.employed += added;
+	if (game.global.playerGathering) setGather(game.global.playerGathering);
 	if (!noTip) tooltip(what, "jobs", "update");
 	if (checkAndFix){
 		workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
