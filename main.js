@@ -1551,6 +1551,7 @@ function activateClicked(){
 }
 
 function enablePerkConfirmBtn(){
+	if (portalWindowOpen && game.global.selectedChallenge == "Daily") return;
 	document.getElementById("activatePortalBtn").innerHTML = "Confirm";
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
 }
