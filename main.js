@@ -8393,7 +8393,6 @@ function affordOneTier(what, whereFrom, take) {
 }
 
 function fadeIn(elem, speed) {
-    var opacity = 0;
     elem = document.getElementById(elem);
     elem.style.opacity = 0;
     if (elem.style.display == "none") elem.style.display = "block";
@@ -8402,13 +8401,16 @@ function fadeIn(elem, speed) {
 		elem.style.opacity = 1;
 		return;
 	}
-    var fadeInt = setInterval(function () {
-        opacity = opacity + 0.01;
+	var total = 100 * speed;
+	var start = Performance.now();
+    var fadeCallback = function (timer) {
+		var opacity = (timer - start) / total;
         elem.style.opacity = opacity;
-        if (opacity >= 1) {
-            clearInterval(fadeInt);
+        if (!(opacity >= 1)) {
+            requestAnimationFrame(fadeCallback);
         }
-    }, speed);
+    };
+	requestAnimationFrame(fadeCallback);
 }
 
 function autoTrap() {
