@@ -8402,7 +8402,7 @@ function fadeIn(elem, speed) {
 		return;
 	}
 	var total = 100 * speed;
-	var start = Performance.now();
+	var start = performance.now();
     var fadeCallback = function (timer) {
 		var opacity = (timer - start) / total;
         elem.style.opacity = opacity;
