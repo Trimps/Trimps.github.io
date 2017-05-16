@@ -7458,7 +7458,7 @@ var dailyModifiers = {
 		},
 		mirrored: {
 			description: function (str) {
-				return "Enemies have an " + prettify(this.getReflectChance(str)) + "% chance to reflect an attack, dealing " + prettify(this.getMult(str) * 100) + "% of damage taken back to your Trimps.";
+				return "Enemies have a" + (str.toString()[0] == '8' ? 'n' : '') + " " + prettify(this.getReflectChance(str)) + "% chance to reflect an attack, dealing " + prettify(this.getMult(str) * 100) + "% of damage taken back to your Trimps.";
 			},
 			getReflectChance: function(str){
 				return (Math.ceil(str / 10)) * 10;
