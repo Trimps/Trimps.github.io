@@ -2648,12 +2648,15 @@ function buyJob(what, confirmed, noTip) {
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
 		if (workspaces < purchaseAmt) {
 			firingForJobs = true;
-			//Fire later in case the purchase cannot be afforded
+			// Fire later in case the purchase cannot be afforded
 		}
 	}
 
 
-	if (workspaces <= 0) return;
+	// Don't explicitly check if workspaces <= 0, delegate that to canAffordJob
+	// That way, firingForJobs is accounted for
+	// canAffordJob will check workspaces <= 0 anyway
+
 	if (!canAffordJob(what, false, workspaces, firingForJobs)) return;
 	var added = canAffordJob(what, true, workspaces, firingForJobs);
 	if (firingForJobs) {
