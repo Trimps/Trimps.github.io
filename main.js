@@ -2658,7 +2658,6 @@ function buyJob(what, confirmed, noTip) {
 	// canAffordJob will check workspaces <= 0 anyway
 
 	if (!canAffordJob(what, false, workspaces, firingForJobs)) return;
-	var added = canAffordJob(what, true, workspaces, firingForJobs);
 	if (firingForJobs) {
 		// Now that we know if can afford the purchase, we can fire workers
 		var fireAmt = purchaseAmt - workspaces;
@@ -2673,6 +2672,7 @@ function buyJob(what, confirmed, noTip) {
 			checkAndFix = true;
 		}
 	}
+	var added = canAffordJob(what, true, workspaces);
 	game.jobs[what].owned += added;
 	game.resources.trimps.employed += added;
 
