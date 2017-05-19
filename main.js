@@ -2644,10 +2644,16 @@ function buyJob(what, confirmed, noTip) {
 	}
 	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
 	var firingForJobs = false;
+	var fireAmt;
 	if (game.options.menu.fireForJobs.enabled && game.jobs[what].allowAutoFire){
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
 		if (workspaces < purchaseAmt) {
-			firingForJobs = true;
+			workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+			fireAmt = purchaseAmt - workspaces;
+			// Check to see if there are enough workers to fire
+			if (!((game.jobs.Miner.owned + game.jobs.Farmer.owned + game.jobs.Lumberjack.owned) < fireAmt)) {
+				firingForJobs = true;
+			}
 			// Fire later in case the purchase cannot be afforded
 		}
 	}
@@ -2658,11 +2664,11 @@ function buyJob(what, confirmed, noTip) {
 	// canAffordJob will check workspaces <= 0 anyway
 
 	if (!canAffordJob(what, false, workspaces, firingForJobs)) return;
+
 	if (firingForJobs) {
 		// Now that we know if can afford the purchase, we can fire workers
-		var fireAmt = purchaseAmt - workspaces;
+
 		var freed = freeWorkspace(fireAmt);
-		workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
 		if (!freed) {
 			return;
 		}
