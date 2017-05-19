@@ -2643,23 +2643,37 @@ function buyJob(what, confirmed, noTip) {
 		return;
 	}
 	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var firingForJobs = false;
 	if (game.options.menu.fireForJobs.enabled && game.jobs[what].allowAutoFire){
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
 		if (workspaces < purchaseAmt) {
-			var fireAmt = purchaseAmt - workspaces;
-			var freed = freeWorkspace(fireAmt);
-			workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
-			if (workspaces < purchaseAmt && freed){
-				workspaces = purchaseAmt;
-				checkAndFix = true;
-			}
+			firingForJobs = true;
+			//Fire later in case the purchase cannot be afforded
 		}
 	}
+
+
 	if (workspaces <= 0) return;
-	if (!canAffordJob(what, false, workspaces)) return;
-	var added = canAffordJob(what, true, workspaces);
+	if (!canAffordJob(what, false, workspaces, firingForJobs)) return;
+	var added = canAffordJob(what, true, workspaces, firingForJobs);
+	if (firingForJobs) {
+		// Now that we know if can afford the purchase, we can fire workers
+		var fireAmt = purchaseAmt - workspaces;
+		var freed = freeWorkspace(fireAmt);
+		workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+		if (!freed) {
+			return;
+		}
+
+		if (workspaces < purchaseAmt && freed){
+			workspaces = purchaseAmt;
+			checkAndFix = true;
+		}
+	}
 	game.jobs[what].owned += added;
 	game.resources.trimps.employed += added;
+
+
 	if (!noTip) tooltip(what, "jobs", "update");
 	if (checkAndFix){
 		workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
