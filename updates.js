@@ -862,6 +862,10 @@ function messageConfigHover(what, event){
 			text = "Log all Dark Essence found by scrying.";
 			title = "Dark Essence";
 			break;
+		case 'Lootmagma':
+			text = "Log drops from Magma cells, including Fuel and Magmite.";
+			title = "Magma";
+			break;
 		default: return;
 	}
 	document.getElementById('messageConfigMessage').innerHTML = "<b>" + title + "</b> - " + text;
