@@ -192,7 +192,7 @@ function load(saveString, autoLoad, fromPf) {
 	var fromImport = false;
 	if (saveString === true) fromImport = true
     if (saveString) {	
-        savegame = JSON.parse(LZString.decompressFromBase64(((fromImport) ? document.getElementById("importBox").value.replace(/(\r\n|\n|\r|\s)/gm,"") : saveString)));
+        savegame = JSON.parse(LZString.decompressFromBase64(((fromImport) ? document.getElementById("importBox").value.replace(/([^a-zA-Z0-9\/+=])/gm,"") : saveString)));
         tooltip('hide');
 		if (!savegame) {
 			message("It looks like your import code isn't working properly. Please make sure that your export code is saved in a text file compatible with all of the characters. If you believe this code should be working, you can Email it to Trimpsgame@gmail.com and I will do my best to restore it for you!", "Notices");
