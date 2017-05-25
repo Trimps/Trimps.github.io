@@ -5996,7 +5996,8 @@ function startFight() {
 				cell.health *= dailyModifiers.badMapHealth.getMult(game.global.dailyChallenge.badMapHealth.strength);
 			}
 			if (typeof game.global.dailyChallenge.empower !== 'undefined'){
-				cell.health *= dailyModifiers.empower.getMult(game.global.dailyChallenge.empower.strength, game.global.dailyChallenge.empower.stacks);
+				if (!game.global.mapsActive)
+					cell.health *= dailyModifiers.empower.getMult(game.global.dailyChallenge.empower.strength, game.global.dailyChallenge.empower.stacks);
 				updateDailyStacks("empower");
 			}
 		}
@@ -6088,9 +6089,11 @@ function startFight() {
 				updateDailyStacks('rampage');
 			}
 			if (!game.global.passive && typeof game.global.dailyChallenge.empower !== 'undefined'){
-				game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
-				var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
-				if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
+				if (!game.global.mapsActive){
+					game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
+					var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
+					if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
+				}
 				updateDailyStacks('empower');
 			}
 		}
@@ -6385,7 +6388,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				if (typeof game.global.dailyChallenge.bloodthirst !== 'undefined'){
 					number *= dailyModifiers.bloodthirst.getMult(game.global.dailyChallenge.bloodthirst.strength, game.global.dailyChallenge.bloodthirst.stacks)
 				}
-				if (typeof game.global.dailyChallenge.empower !== 'undefined'){
+				if (typeof game.global.dailyChallenge.empower !== 'undefined' && !game.global.mapsActive){
 					number *= dailyModifiers.empower.getMult(game.global.dailyChallenge.empower.strength, game.global.dailyChallenge.empower.stacks);
 				}
 			}
@@ -7403,7 +7406,7 @@ var dailyModifiers = {
 		},
 		empower: {
 			description: function (str) {
-				return "All enemies gain " + str + " stacks of Empower whenever your Trimps die. Empower increases their attack and health by 0.2% per stack, can stack to 9999, and never resets.";
+				return "All enemies gain " + str + " stacks of Empower whenever your Trimps die in the World. Empower increases the attack and health of bad guys in the World by 0.2% per stack, can stack to 9999, and never resets.";
 			},
 			getWeight: function (str) {
 				return (str / 6) * 2;
@@ -7420,6 +7423,7 @@ var dailyModifiers = {
 			getMaxStacks: function (str) {
 				return 9999;
 			},
+			worldStacksOnly: true,
 			iconOnEnemy: true,
 			icon: "baby-formula",
 			minMaxStep: [1, 10, 1],
@@ -7634,7 +7638,7 @@ function checkCompleteDailies(){
 
 function updateDailyStacks(what){
 	var elem = document.getElementById(what + "DailyStacks");
-	if (game.global.dailyChallenge[what].stacks == 0){
+	if (game.global.dailyChallenge[what].stacks == 0 || (dailyModifiers[what].worldStacksOnly && game.global.mapsActive)){
 		if (elem == null) return;
 		else elem.style.display = "none";
 		return;

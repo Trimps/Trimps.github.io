@@ -3626,7 +3626,7 @@ function updateDecayStacks(addStack){
 
 function swapClass(prefix, newClass, elem) {
 if (elem == null) {
-	console.log("swapClass, No element found");
+	console.log("swapClass, No element found. Prefix: " + prefix + ", newClass: " + newClass);
 	return;
 	}
   var className = elem.className;
