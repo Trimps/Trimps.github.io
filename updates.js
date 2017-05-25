@@ -1462,7 +1462,7 @@ function getMaxTrimps() {
 		currentCalc  *= (1 + carpentryStrength);
 		currentCalc = Math.floor(currentCalc);
 		carpentryStrength = prettify(carpentryStrength * 100) + "%";
-		textString += "<tr><td class='bdTitle'>Carpentry_II</td><td class='bdPercent'>+ " + carpentryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Carpentry II</td><td class='bdPercent'>+ " + carpentryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Size Challenge
 	if (game.global.challengeActive == "Size"){
