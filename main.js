@@ -6445,19 +6445,22 @@ function updateTalentNumbers(){
 	var nextCostElem = document.getElementById('talentsNextCost')
 	var talentsNeededElem = document.getElementById('talentsNeeded');
 	var talentsCostElem = document.getElementById('talentsCost');
-	//Check primary elements, update
-	if (mainEssenceElem == null || nextCostElem == null || talentsNeededElem == null) return;
-		var nextCost = getNextTalentCost();
-		mainEssenceElem.innerHTML = prettify(game.global.essence);
-		if (nextCost == -1){
-			talentsCostElem.style.display = 'none';
-			return;
-		}
-		talentsCostElem.style.display = "block";
-		nextCostElem.innerHTML = prettify(nextCost);
-		talentsNeededElem.innerHTML = getHighestTalentTier(true);
 	var alertElem = document.getElementById('talentsAlert');
 	var countElem = document.getElementById('talentsEssenceTotal');
+	//Check primary elements, update
+	if (mainEssenceElem == null || nextCostElem == null || talentsNeededElem == null) {return;}
+
+	var nextCost = getNextTalentCost();
+	mainEssenceElem.innerHTML = prettify(game.global.essence);
+	if (nextCost == -1){
+		talentsCostElem.style.display = 'none';
+		alertElem.innerHTML = "";
+		countElem.innerHTML = "";
+		return;
+	}
+	talentsCostElem.style.display = "block";
+	nextCostElem.innerHTML = prettify(nextCost);
+	talentsNeededElem.innerHTML = getHighestTalentTier(true);
 	//Check setting elements, update
 	if (alertElem == null || countElem == null) return;
 		alertElem.innerHTML = (game.options.menu.masteryTab.enabled == 1 && nextCost <= game.global.essence) ? "!" : "";
