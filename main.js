@@ -2019,8 +2019,8 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 		}
 		level *= 1.35;
 		if (level < 0) level = 0;
-		amt += Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
-		amt += Math.round(baseAmt * level);
+		amt += baseAmt * Math.round(Math.pow(1.23, Math.sqrt(level)));
+		amt += baseAmt * Math.round(level);
 	}
 	//Scale 20% across the zone, depending on cell number
 	if (what != "helium" && what != "fragments"){
