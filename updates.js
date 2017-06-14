@@ -582,7 +582,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			costText = "";
 		}
 		else{
-			var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+			var workspaces = game.workspaces;
 			var ignoreWorkspaces = (game.jobs[what].allowAutoFire && game.options.menu.fireForJobs.enabled);
 			if (workspaces < buyAmt && !ignoreWorkspaces) buyAmt = workspaces;
 			costText = getTooltipJobText(what, buyAmt);
@@ -2566,7 +2566,7 @@ function numTab(what, p, fromRestore) {
 				num = num.split('/');
 				num[0] = parseFloat(num[0]);
 				num[1] = parseFloat(num[1]);
-				var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+				var workspaces = game.workspaces;
 				num = Math.floor(workspaces * (num[0] / num[1]));
 				if (num < 0 || num > workspaces) num = 1;
 			}
@@ -3061,7 +3061,7 @@ function drawUpgrade(what, where){
 function checkButtons(what) {
 	var where = game[what];
 	if (what == "jobs") {
-		var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+		var workspaces = game.workspaces;
 		for (var item in game.jobs){
 			if (game.jobs[item].locked == 1) continue;
 			if (workspaces <= 0 && !(game.jobs[item].allowAutoFire && game.options.menu.fireForJobs.enabled)) updateButtonColor(item, false, true);
