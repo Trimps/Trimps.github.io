@@ -459,7 +459,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Toxic" && isItIn != "dailyStack"){
-		tooltipText = "This bad guy is toxic. You will find " + (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks).toFixed(1) + "% more loot! Oh, also, this bad guy has 5x attack, 2x health, your Trimps will lose 5% health each time they attack, and the toxic air is causing your Trimps to breed " + (100 - (Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks) * 100)).toFixed(2) + "% slower. These stacks will reset after clearing the zone.";
+		tooltipText = "This bad guy is toxic. You will obtain " + (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks).toFixed(1) + "% more resources! Oh, also, this bad guy has 5x attack, 2x health, your Trimps will lose 5% health each time they attack, and the toxic air is causing your Trimps to breed " + (100 - (Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks) * 100)).toFixed(2) + "% slower. These stacks will reset after clearing the zone.";
 		costText = "";
 	}
 	if (what == "Momentum"){
@@ -3682,24 +3682,25 @@ function updateDecayStacks(addStack){
 }
 
 function swapClass(prefix, newClass, elem) {
-if (elem == null) {
-	console.log("swapClass, No element found. Prefix: " + prefix + ", newClass: " + newClass);
-	return;
+	if (elem == null) {
+		console.log("swapClass, No element found. Prefix: " + prefix + ", newClass: " + newClass);
+		return;
 	}
-  var className = elem.className;
-  if (typeof className.split('newClass')[1] !== 'undefined') return;
-  className = className.split(prefix);
-  if(typeof className[1] === 'undefined') {
-	  console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class.");
-	  elem.className += " " + newClass;
-	  return;
-  }
-  var classEnd = className[1].indexOf(' ');
-  if (classEnd >= 0)
-  	className = className[0] + newClass + className[1].slice(classEnd, className[1].length);
-  else
-  	className = className[0] + newClass;
-  elem.className = className;
+	var className = elem.className;
+	if (typeof className.split('newClass')[1] !== 'undefined') return;
+	className = className.split(prefix);
+ 	if(typeof className[1] === 'undefined') {
+		console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class.");
+		elem.className += " " + newClass;
+		return;
+	}
+	var classEnd = className[1].indexOf(' ');
+ 	if (classEnd >= 0) {
+		className = className[0] + newClass + className[1].slice(classEnd, className[1].length);
+	} else {
+		className = className[0] + newClass;
+	}
+	elem.className = className;
 }
 
 function goRadial(elem, currentSeconds, totalSeconds, frameTime){
