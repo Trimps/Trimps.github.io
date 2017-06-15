@@ -10406,7 +10406,13 @@ function updatePortalTimer(justGetTime) {
 var shiftPressed = false;
 var ctrlPressed = false;
 // X = 88, h = 72, d = 68, b = 66
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
+	var checkStatus = function () {
+		return !game.global.preMapsActive && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown;
+	};
+	var onFight = function (e) {
+		return !heirloomsShown && !portalWindowOpen && !trimpStatsDisplayed && !trimpAchievementsOpen;
+	};
 	switch(e.keyCode){
 		case 27:
 			cancelTooltip();
@@ -10424,33 +10430,61 @@ document.addEventListener('keydown', function(e) {
 		case 49:
 		case 88:
 		case 97:
-			if (!game.global.preMapsActive && game.upgrades.Formations.done && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('0');
+			if (checkStatus() && game.upgrades.Formations.done) setFormation('0');
 			break;
 		case 50:
 		case 72:
 		case 98:
-			if (!game.global.preMapsActive && game.upgrades.Formations.done && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('1');
+			if (checkStatus() && game.upgrades.Formations.done) setFormation('1');
 			break;
 		case 51:
 		case 68:
 		case 99:
-			if (!game.global.preMapsActive && game.upgrades.Dominance.done && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('2');
+			if (checkStatus() && game.upgrades.Dominance.done) setFormation('2');
 			break;
 		case 52:
 		case 66:
 		case 100:
-			if (!game.global.preMapsActive && game.upgrades.Barrier.done && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('3');
+			if (checkStatus() && game.upgrades.Barrier.done) setFormation('3');
 			break;
 		case 53:
 		case 83:
 		case 101:
-			if (!game.global.preMapsActive && game.upgrades.Formations.done && game.global.highestLevelCleared >= 180 && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('4');
+			if (checkStatus() && game.upgrades.Formations.done) setFormation('4');
 			break;
 		case 13:
 			var confirmCheck = document.getElementById("confirmTooltipBtn");
 			if (confirmCheck !== null && typeof confirmCheck.onclick == 'function'){
 				confirmCheck.onclick();
 			}
+		case 77:
+			// M for maps
+			if (game.global.mapsUnlocked && onFight()) {
+				mapsClicked();
+			}
+			break;
+		case 82:
+			// R for repeat
+			if (game.global.mapsActive && onFight()) {
+				repeatClicked();
+			}
+			break;
+		case 65:
+			// A for AutoFight
+			if (game.global.autoBattle && onFight()) {
+				pauseFight();
+			}
+			break;
+		case 32:
+			// Space for pause
+			toggleSetting('pauseGame');
+			break;
+		case 70:
+			// F for fight
+			if (onFight()) {
+				fightManual();
+			}
+			break;
 	}
 }, true);
 document.addEventListener('keyup', function(e) {

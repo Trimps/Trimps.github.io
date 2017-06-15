@@ -737,7 +737,7 @@ var toReturn = {
 			pauseGame: {
 				enabled: 0,
 				extraTags: "other",
-				description: "Pause your game. This will pause all resource gathering, offline progress, and timers.",
+				description: "Pause your game. This will pause all resource gathering, offline progress, and timers. (Hotkey: Space)",
 				titles: ["Not Paused", "Paused"],
 				timeAtPause: 0,
 				onToggle: function () {
