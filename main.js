@@ -6882,7 +6882,7 @@ function giveSpireReward(level){
 			text = "Druopitee collapses to the floor. You were hoping he'd be a little more sane, but whatever. You shut down the corruption device and hope the planet will repair itself soon, then you rummage through his stuff and find keys, surely for the ship!";
 			if (!game.global.runningChallengeSquared){
 				amt = giveHeliumReward(100);
-				text += "You also find a massive stockpile of <b>" + prettify(amt) + " Helium</b>.";
+				text += " You also find a massive stockpile of <b>" + prettify(amt) + " Helium</b>.";
 			}
 			if (game.portal.Looting_II.locked) text += " Your skills at salvaging things from this Spire have helped you <b>unlock Looting II</b>.";
 			text += " You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption in to the planet. Maybe the statues would be bigger if you stayed and helped out?";
