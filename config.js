@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.32,
+		version: 4.4,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -222,6 +222,7 @@ var toReturn = {
 				exotic: true,
 				helium: true,
 				essence: true,
+				token: true,
 				magma: true,
 				events: true
 			},
@@ -299,6 +300,78 @@ var toReturn = {
 			if (!ignoreImpStat)
 				amt *= game.badGuys[name].health;
 			return Math.floor(amt);
+		}
+	},
+	empowerments: {
+		Poison: {
+			description: function () {
+				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing it to take <b>" + this.formatModifier(this.getModifier()) + "%</b> of the damage you dealt every turn until it dies. Each attack by your Trimps will further add to the poison effect.";
+			},
+			upgradeDescription: function () {
+				return "Increases the percentage of damage that sticks to enemies as poison during the Empowerment of Poison by <b>" + this.formatModifier(this.baseModifier) + "%</b>. You currently poison for <b>" + this.formatModifier(this.getModifier()) + "%</b>, and next level will cause you to poison for <b>" + this.formatModifier(this.getModifier(1)) + "%</b>.";
+			},
+			baseModifier: 0.01,
+			getModifier: function (change) {
+				if (!change) change = 0;
+				return ((this.level + change) * this.baseModifier);
+			},
+			formatModifier: function (number){
+				return prettify(number * 100);
+			},
+			color: "#33bb33", 
+			currentDebuffPower: 0,
+			level: 1,
+			retainLevel: 0,
+			tokens: 0
+		},
+		Wind: {
+			description: function () {
+				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing winds to swell and knock extra resources in to your reach. Each stack increases Helium gained from all sources by <b>" + this.formatModifier(this.getModifier()) + "%</b> and increases all other resources gained by <b>" + this.formatModifier(this.getModifier() * 10) + "%</b>. The helium bonus does not apply to maps.";
+			},
+			upgradeDescription: function () {
+				return "Increases the amount of extra Helium you find by <b>" + this.formatModifier(this.baseModifier) + "%</b> and non-Helium resources by <b>" + this.formatModifier(this.baseModifier * 10) + "%</b> per stack when the Empowerment of Wind is active. Your current bonus is <b>" + this.formatModifier(this.getModifier()) + "%</b> Helium, and next level will bring your bonus to <b>" + this.formatModifier(this.getModifier(1)) + "%</b> extra helium. Non-Helium resource gain is always 10x that of Helium, and the Helium bonus does not apply in maps.";
+			},
+			baseModifier: 0.001,
+			getModifier: function (change) {
+				if (!change) change = 0;
+				return ((this.level + change) * this.baseModifier);
+			},
+			formatModifier: function (number) {
+				return prettify(number * 100);
+			},
+			getCombatModifier: function () {
+				return this.currentDebuffPower * this.getModifier();
+			},
+			currentDebuffPower: 0,
+			color: "#337733",
+			level: 1,
+			retainLevel: 0,
+			maxStacks: 200,
+			tokens: 0
+		},
+		Ice: {
+			description: function () {
+				return "When this Empowerment is active, enemies will be Chilled each time your Trimps attack. The Chill debuff stacks, reduces the damage that enemy deals by <b>" + this.formatModifier(this.getModifier()) + "%</b> (compounding) per stack, and increases the damage your Trimps deal to that enemy by the same amount (with diminishing returns, max of 100%) until it dies.";
+			},
+			upgradeDescription: function () {
+				return "Reduces the enemy's damage dealt from each stack of Chilled when the Empowerment of Ice is active by <b>" + this.formatModifier(1 - this.baseModifier) + "%</b> (compounding), and increases the damage your Trimps deal to that enemy by the same amount (with diminishing returns, max of 100%). Your current bonus is <b>" + this.formatModifier(this.getModifier()) + "%</b>, and next level will bring your bonus to <b>" + this.formatModifier(this.getModifier(1)) + "%</b>.";
+			},
+			baseModifier: 0.01,
+			getModifier: function (change) {
+				if (!change) change = 0;
+				return Math.pow(1 - this.baseModifier, (this.level + change));
+			},
+			getCombatModifier: function () {
+				return Math.pow(this.getModifier(), this.currentDebuffPower);
+			},
+			formatModifier: function (number){
+				return prettify((1 - number) * 100);
+			},
+			color: "#3333bb",
+			currentDebuffPower: 0,
+			level: 1,
+			retainLevel: 0,
+			tokens: 0
 		}
 	},
 	options: {

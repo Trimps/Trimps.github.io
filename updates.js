@@ -21,10 +21,11 @@
 var customUp;
 var tooltipUpdateFunction = "";
 var lastMousePos = [];
+var lastTooltipFrom = "";
 
 //"onmouseover="tooltip('*TOOLTIP_TITLE*', 'customText', event, '*TOOLTIP_TEXT*');" onmouseout="tooltip('hide')""
 //in the event of what == 'confirm', numCheck works as a Title! Exciting, right?
-function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide, hideCancel) { //Now 20% less menacing. Work in progress.
+function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide, hideCancel, ignoreShift) { //Now 20% less menacing. Work in progress.
 	checkAlert(what, isItIn);
 	if (game.global.lockTooltip) return;
 	var elem = document.getElementById("tooltipDiv");
@@ -35,7 +36,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipUpdateFunction = "";
 		return;
 	}
-	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed && what != "Well Fed" && what != "Challenge2" && what != 'Perk Preset' && what != 'Activate Portal') return;
+	if ((event != 'update' || isItIn) && !game.options.menu.tooltips.enabled && !shiftPressed && what != "Well Fed" && what != "Challenge2" && what != 'Perk Preset' && what != 'Activate Portal' && !ignoreShift) return;
 	if (event != "update"){
 		var whatU = what, isItInU = isItIn, eventU = event, textStringU = textString, attachFunctionU = attachFunction, numCheckU = numCheck, renameBtnU = renameBtn, noHideU = noHide;
 		var newFunction = function () {
@@ -82,6 +83,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
+	}
+	if (what == "Empowerments of Nature"){
+		var active = getEmpowerment();
+		if (!active) return;
+		var emp = game.empowerments[active];
+		if (typeof emp.description === 'undefined') return;
+		var lvlsLeft = ((5 - (game.global.world % 5)) + game.global.world) + 1;
+		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
+		costText = "";
+		
 	}
 	if (what == "Finish Daily"){
 		var value = getDailyHeliumValue(countDailyWeight()) / 100;
@@ -177,6 +188,19 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 
+	}
+	if (what == "Poisoned"){
+		tooltipText = "This enemy is harmed by the Empowerment of Poison, and is taking " + prettify(game.empowerments.Poison.currentDebuffPower) + " extra damage per turn.";
+		costText = "";
+	}
+	if (what == "Chilled"){
+		tooltipText = "This enemy has been chilled by the Empowerment of Ice, is taking " + prettify((1 - game.empowerments.Ice.getCombatModifier()) * 100) + "% more damage, and is dealing " + prettify((1 - game.empowerments.Ice.getCombatModifier()) * 100) + "% less damage with each normal attack.";
+		costText = "";
+	}
+	if (what == "Breezy"){
+		var heliumText = (!game.global.mapsActive)? "increasing all Helium gained by " + prettify(game.empowerments.Wind.getCombatModifier() * 100) + "% and all other" : "increasing all non-Helium ";
+		tooltipText = "There is a rather large amount of Wind swelling around this enemy, " + heliumText + " resources by " + prettify(game.empowerments.Wind.getCombatModifier() * 1000) + "%.";
+		costText = "";
 	}
 	if (what == "Perk Preset"){
 		if (textString == "Save"){
@@ -349,8 +373,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 	}
 	if (what == "The Magma"){
+		var reward = rewardResource("helium", 60, 99);
 		tooltipText = "<p>You stumble across a large locked chest, unlike anything you've ever seen. The lock looks rusty, you smack it with a rock, and it falls right off. Immediately the ground shakes and cracks beneath your feet, intense heat hits your face, and Magma boils up from the core.</p><p>Where one minute ago there was dirt, grass, and noxious fog, there are now rivers of molten rock (and noxious fog). You'd really like to try and repair the planet somehow, so you decide to keep pushing on. It's been working out well so far, there was some useful stuff in that chest!</p><hr/>";
-		tooltipText += "<span class='planetBreakDescription'><span class='bad'>The heat is tough on your Trimps, causing each zone to reduce their attack and health by 20% more than the last. 10% of your Nurseries will permanently close after each zone to avoid Magma flows, and Corruption has seeped in to both Void and regular Maps, further increasing their difficulty. </span><span class='good'> However, the chest contained plans and materials for the <b>Dimensional Generator</b> building and <b>100 copies of Coordination</b>! In addition, all zones are now worth <b>3x Helium</b>!<span></span>";
+		tooltipText += "<span class='planetBreakDescription'><span class='bad'>The heat is tough on your Trimps, causing each zone to reduce their attack and health by 20% more than the last. 10% of your Nurseries will permanently close after each zone to avoid Magma flows, and Corruption has seeped in to both Void and regular Maps, further increasing their difficulty. </span><span class='good'> However, the chest contained plans and materials for the <b>Dimensional Generator</b> building, <b>" + prettify(reward) + "Helium</b>, and <b>100 copies of Coordination</b>! In addition, all zones are now worth <b>3x Helium</b>!<span></span>";
 		costText += "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>K</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
@@ -1014,6 +1039,11 @@ function getPsString(what, rawNum) {
 			textString += "<tr style='color: red'><td class='bdTitle'>Famine (Daily)</td><td class='bdPercent'>" + prettify(mult * 100) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 		}
 	}
+	if (getEmpowerment() == "Wind"){
+		var windMod = game.empowerments.Wind.getCombatModifier() * 10;
+		currentCalc *= (1 + windMod);
+		textString += "<tr><td class='bdTitle'>Swiftness (Wind)</td><td class='bdPercent'>+ " + prettify(windMod * 100) +"%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	var heirloomBonus = calcHeirloomBonus("Staff", jobs[index] + "Speed", 0, true);
 	if (heirloomBonus > 0){
 		currentCalc *= ((heirloomBonus / 100) + 1);
@@ -1389,6 +1419,13 @@ function getBattleStatBd(what) {
 		currentCalc *= (1 + (amt / 100));
 		textString += "<tr><td class='bdTitle'>Challenge² Rewards</td><td></td><td></td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>"
 	}
+	//Ice
+	if (what == "attack" && getEmpowerment() == "Ice"){
+		amt = 1 - game.empowerments.Ice.getCombatModifier();
+		currentCalc *= (1 + amt);
+		textString += "<tr><td class='bdTitle'>Chilled Enemy</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
+
+	}
 
 	var critChance = getPlayerCritChance();
 	if (what == "attack" && critChance){
@@ -1710,6 +1747,19 @@ function getLootBd(what) {
 		amt = game.global.spireRows * 0.02;
 		currentCalc *= (1 + amt);
 		textString += "<tr><td class='bdTitle'>Spire Rows</td><td>+ 2%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (getEmpowerment() == "Wind" && (what != "Helium" || !game.global.mapsActive)){
+		var windMod;
+		var baseMod = game.empowerments.Wind.baseModifier * 100;
+		if (what == "Helium"){
+			windMod = game.empowerments.Wind.getCombatModifier();
+		}
+		else{
+			windMod = game.empowerments.Wind.getCombatModifier() * 10;
+			baseMod *= 10;
+		}
+		currentCalc *= (1 + windMod);
+		textString += "<tr><td class='bdTitle'>Swiftness (Wind)</td><td>" + prettify(baseMod) + "%</td><td>" + game.empowerments.Wind.level + "</td><td class='bdPercent'>+ " + prettify(windMod * 100) +"%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (what != "Helium" && game.global.formation == 4 && !game.global.waitToScry){
 		currentCalc *= 2;
@@ -2043,6 +2093,7 @@ function resetGame(keepPortal) {
 	var pauseFightMember; //Member? I Member
 	var autoGolden;
 	var heirloomSeed;
+	var empowerments;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -2114,6 +2165,7 @@ function resetGame(keepPortal) {
 		autoStructureSetting = game.global.autoStructureSetting;
 		pauseFightMember = game.global.pauseFight;
 		autoGolden = game.global.autoGolden;
+		empowerments = game.empowerments;
 		if (!game.global.canMagma) {
 			if (highestLevel > 229) highestLevel = 229;
 			if (roboTrimp > 8) roboTrimp = 8;
@@ -2179,6 +2231,7 @@ function resetGame(keepPortal) {
 		game.global.lastCustomExact = firstCustomExact;
 		game.global.autoStructureSetting = autoStructureSetting;
 		game.global.pauseFight = pauseFightMember;
+		game.empowerments = empowerments;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined' && !statItem.noAdd) statItem.valueTotal += statItem.value;
@@ -2240,6 +2293,7 @@ function resetGame(keepPortal) {
 	toggleAutoPrestiges(true);
 	toggleVoidMaps(true);
 	fireMode(true);
+	setEmpowerTab();
 	resetAdvMaps();
 	cancelPortal();
 	updateRadioStacks();
@@ -2459,12 +2513,13 @@ function filterTabs (what) {
 	enableDisableTab(game.global.buyTab, false);
 	game.global.buyTab = what;
 	enableDisableTab(what, true);
-	var tabs = ["buildings", "jobs", "upgrades", "equipment", "talents"];
+	var tabs = ["buildings", "jobs", "upgrades", "equipment", "talents", "nature"];
 	for (var tab in tabs){
 		tab = tabs[tab];
-		document.getElementById(tab + "Container").style.display = ((what == "all" && tab != "talents") || tab == what) ? "block" : "none";
+		document.getElementById(tab + "Container").style.display = ((what == "all" && tab != "talents" && tab != "nature") || tab == what) ? "block" : "none";
 	}
 	if (what == "talents") displayTalents();
+	if (what == "nature") displayNature();
 
 }
 

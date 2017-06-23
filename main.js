@@ -155,6 +155,11 @@ function save(exportThis, fromManual) {
 		delete genUp.description;
 		delete genUp.cost;
 	}
+	for (var itemEmp in saveGame.empowerments){
+		var empUp = saveGame.empowerments[itemEmp];
+		delete empUp.baseModifier;
+		delete empUp.color;
+	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
 	try{
@@ -716,6 +721,10 @@ function load(saveString, autoLoad, fromPf) {
 		swapClass("psColor", "psColorOrange", document.getElementById("trimpsPs"));
 	else
 		swapClass("psColor", "psColorWhite", document.getElementById("trimpsPs"));
+	handlePoisonDebuff();
+	handleIceDebuff();
+	handleWindDebuff();
+	setEmpowerTab();
 	return true;
 }
 
@@ -2067,6 +2076,15 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	//Yes, Lead giving double helium and Watch not reducing helium is on purpose!
 	if (game.global.challengeActive == "Watch" && what != "helium") amt /= 2;
 	if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) amt *= 2;
+	if (getEmpowerment() == "Wind"){
+		if (what == "Helium"){
+			if (!checkMapLootScale){
+				amt *= (1 + game.empowerments.Wind.getCombatModifier());
+			}
+		}
+		else 
+			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
+	}
 	if (what == "helium"){
 		if (game.global.sLevel >= 5) amt *= Math.pow(1.005, game.global.world);
 		if (game.goldenUpgrades.Helium.currentBonus > 0) amt *= 1 + game.goldenUpgrades.Helium.currentBonus;
@@ -4142,6 +4160,230 @@ function getMapIndex(mapId) {
 	}
 }
 
+function getEmpowerment(adjust, getNaming){
+	var adjWorld = game.global.world;
+	if (typeof adjust !== 'undefined') adjWorld += adjust;
+	if (adjWorld < 236) return false;
+	var activeEmpowerments = ["Poison", "Wind", "Ice"];
+	var naming = ["Toxic", "Gusty", "Frozen"];
+	adjWorld = Math.floor((adjWorld - 236) / 5);
+	adjWorld = adjWorld % activeEmpowerments.length;
+	if (getNaming) return naming[adjWorld];
+	return activeEmpowerments[adjWorld];
+}
+
+function stackPoison(trimpAttack){
+	game.empowerments.Poison.currentDebuffPower += Math.ceil(game.empowerments.Poison.getModifier() * trimpAttack);
+	handlePoisonDebuff();
+}
+
+function handlePoisonDebuff(){
+	var elem = document.getElementById('poisonEmpowermentIcon');
+	if (getEmpowerment() != "Poison"){
+		game.empowerments.Poison.currentDebuffPower = 0;
+		if (elem == null) return;
+		elem.style.display = 'none';
+		return;
+	}
+	if (elem == null){
+		document.getElementById('badDebuffSpan').innerHTML += '<span class="badge badBadge" id="poisonEmpowermentIcon" onmouseover="tooltip(\'Poisoned\', null, event)" onmouseout="tooltip(\'hide\')"><span id="poisonEmpowermentText"></span><span class="icomoon icon-flask"></span></span>';
+		elem = document.getElementById('poisonEmpowermentIcon');
+	}
+	elem.style.display = 'inline-block';
+	document.getElementById('poisonEmpowermentText').innerHTML = prettify(game.empowerments.Poison.currentDebuffPower);
+}
+
+function handleIceDebuff() {
+	var elem = document.getElementById('iceEmpowermentIcon');
+	if (getEmpowerment() != "Ice"){
+		game.empowerments.Ice.currentDebuffPower = 0;
+		if (elem == null) return;
+		elem.style.display = 'none';
+		return;
+	}
+	if (elem == null){
+		document.getElementById('badDebuffSpan').innerHTML += '<span class="badge badBadge" id="iceEmpowermentIcon" onmouseover="tooltip(\'Chilled\', null, event)" onmouseout="tooltip(\'hide\')"><span id="iceEmpowermentText"></span><span class="glyphicon glyphicon-certificate"></span></span>';
+		elem = document.getElementById('iceEmpowermentIcon');
+	}
+	elem.style.display = 'inline-block';
+	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);	
+}
+
+function handleWindDebuff() {
+	var elem = document.getElementById('windEmpowermentIcon');
+	if (getEmpowerment() != "Wind"){
+		game.empowerments.Wind.currentDebuffPower = 0;
+		if (elem == null) return;
+		elem.style.display = 'none';
+		return;
+	}
+	if (elem == null){
+		document.getElementById('badDebuffSpan').innerHTML += '<span class="badge badBadge" id="windEmpowermentIcon" onmouseover="tooltip(\'Breezy\', null, event)" onmouseout="tooltip(\'hide\')"><span id="windEmpowermentText"></span><span class="icomoon icon-air"></span></span>';
+		elem = document.getElementById('windEmpowermentIcon');
+	}
+	elem.style.display = 'inline-block';
+	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);	
+}
+
+function setEmpowerTab(){
+	var empowerMod = getEmpowerment();
+	var empowerTab = document.getElementById('natureTab');
+	if (game.global.highestLevelCleared < 235) {
+		empowerTab.style.display = 'none';
+		return;
+	}
+	empowerTab.style.display = 'table-cell';
+	if (empowerMod == false){
+		swapClass("empowerTab", "empowerTabNone", empowerTab);
+		document.getElementById('natureA').innerHTML = "Nature";
+		return;
+	}
+	var icons = {
+		Poison: "icomoon icon-flask",
+		Ice: "glyphicon glyphicon-certificate",
+		Wind: "icomoon icon-air"
+	}
+	swapClass("empowerTab", "empowerTab" + empowerMod, empowerTab);
+	document.getElementById('natureA').innerHTML = "<span class='" + icons[empowerMod] + "'></span> Nature";
+}
+
+function updateEmpowerCosts(){
+	var empowers = ["Poison", "Wind", "Ice"];
+	for (var x = 0; x < empowers.length; x++){
+		var emp = empowers[x];
+		document.getElementById('natureUpgrade' + emp + 'Cost').innerHTML = checkAndFormatTokens(getNextNatureCost(emp), emp);
+		document.getElementById('natureStackTransfer' + emp + 'Cost').innerHTML = (game.empowerments[emp].retainLevel >= 80) ? "<span class='red'>Max</span>" : checkAndFormatTokens(getNextNatureCost(emp, true), emp);
+		for (var y = 0; y < empowers.length; y++){
+			var empY = empowers[y];
+			if (empY == emp) continue;
+			document.getElementById('nature' + emp + empY + 'Cost').innerHTML = checkAndFormatTokens(10, emp);
+		}
+	}
+}
+
+function checkAndFormatTokens(tokenCost, empowerment){
+	var canAfford = (game.empowerments[empowerment].tokens >= tokenCost);
+	return "<span class='" + ((canAfford) ? "green" : "red") + "'>" + prettify(tokenCost) + " Tokens</span>";
+}
+
+function getRetainModifier(empowerment){
+	empowerment = game.empowerments[empowerment];
+	return 0.01 * empowerment.retainLevel;
+}
+
+function resetEmpowerStacks(){
+	var empowerment = getEmpowerment();
+	for (var item in game.empowerments){
+		if (item == empowerment){
+			game.empowerments[item].currentDebuffPower = 1 + (Math.ceil(game.empowerments[item].currentDebuffPower * getRetainModifier(item)));
+			continue;
+		}
+		game.empowerments[item].currentDebuffPower = 1;
+	}
+	handlePoisonDebuff();
+	handleWindDebuff();
+	handleIceDebuff();
+}
+
+function natureTooltip(event, doing, spending, convertTo){
+	var tipTitle = "";
+	var tipText = "";
+	var tipCost = 0;
+	if (doing == 'upgrade'){
+		tipTitle = "Upgrade Empowerment of " + spending;
+		tipText = game.empowerments[spending].upgradeDescription();
+		tipCost = getNextNatureCost(spending);
+	}
+	else if (doing == 'description'){
+		tipTitle = "Empowerment of " + spending;
+		tipText = game.empowerments[spending].description();
+	}
+	else if (doing == 'convert'){
+		tipTitle = "Convert " + spending + " to " + convertTo;
+		tipText = "Trade 10 Tokens of " + spending + " and get back 5 Tokens of " + convertTo + ".";
+		tipCost = 10;
+	}
+	else if (doing == 'stackTransfer'){
+		tipTitle = "Upgrade " + spending + " Stack Transfer Rate";
+		if (game.empowerments[spending].retainLevel >= 80){
+			tipText = "You are currently at the maximum level for Stack Transfer Rate, allowing <b>80%</b> of your stacks to transfer.";
+			tipCost = 0;
+		}
+		else{
+			tipText = "Currently, a minimum of <b>" + prettify(getRetainModifier(spending) * 100) + "%</b> of your stacks transfer after you kill a bad guy during the Empowerment of " + spending + ". Each level of this upgrade will increase the transfer rate by <b>1%</b>, bringing you to <b>" + prettify((getRetainModifier(spending) + 0.01) * 100) + "%</b>. Maximum of 80 levels.";
+			tipCost = getNextNatureCost(spending, true);
+		}
+	}
+	if (tipCost == 0) tipCost = "";
+	else tipCost = (game.empowerments[spending].tokens < tipCost) ? "<span class='red'>" + prettify(tipCost) + " Tokens of " + spending + "</span>" : "<span class='green'>" + prettify(tipCost) + " Tokens of " + spending + "</span>";
+	tooltip(tipTitle, 'customText', event, tipText, tipCost, null, null, null, null, true);
+	tooltipUpdateFunction = '';
+}
+
+function displayNature(){
+	updateNatureInfoSpans();
+}
+
+function rewardToken(empowerment){
+	var tokens = Math.floor((game.global.world - 236) / 15) + 1;
+	game.empowerments[empowerment].tokens += tokens;
+	message("You found " + prettify(tokens) + " Token" + ((tokens == 1) ? "" : "s") + " of " + empowerment + "!", "Loot", "*medal2", "empoweredCell" + empowerment, 'token');
+	if (game.global.buyTab == "nature")
+		updateNatureInfoSpans();
+}
+
+function updateNatureInfoSpans(){
+	for (var item in game.empowerments){
+		var emp = game.empowerments[item];
+		document.getElementById('infoSpan' + item).innerHTML = "<span class='icomoon icon-info2'></span>&nbsp" + emp.formatModifier(emp.getModifier()) + "%";
+		document.getElementById('tokenCount' + item).innerHTML = prettify(emp.tokens);
+		document.getElementById('natureUpgrade' + item + 'Level').innerHTML = "Lv: " + prettify(emp.level);
+		document.getElementById('natureStackTransfer' + item + 'Level').innerHTML = "Lv: " + prettify(emp.retainLevel);
+	}
+	updateEmpowerCosts();
+}
+
+function naturePurchase(doing, spending, convertTo){
+	if (doing == 'upgrade'){
+		var cost = getNextNatureCost(spending);
+		var empowerment = game.empowerments[spending];
+		if (empowerment.tokens < cost) return;
+		empowerment.tokens -= cost;
+		empowerment.level++;
+		updateNatureInfoSpans();
+		natureTooltip('update', doing, spending);
+		return;
+	}
+	if (doing == "convert"){
+		var spendEmp = game.empowerments[spending];
+		if (spendEmp.tokens < 10) return;
+		spendEmp.tokens -= 10;
+		game.empowerments[convertTo].tokens += 5;
+		updateNatureInfoSpans();
+		natureTooltip('update', doing, spending, convertTo);
+		return;
+	}
+	if (doing == "stackTransfer"){
+		var empowerment = game.empowerments[spending];
+		if (empowerment.retainLevel >= 80)
+			return;
+		var cost = getNextNatureCost(spending, true);
+		if (empowerment.tokens < cost) return;
+		empowerment.tokens -= cost;
+		empowerment.retainLevel++;
+		updateNatureInfoSpans();
+		natureTooltip('update', doing, spending);
+		return;
+	}
+}
+
+function getNextNatureCost(empowerment, forRetain){
+	empowerment = game.empowerments[empowerment];
+	var scale = ((forRetain) ? 2 : 4);
+	var level = ((forRetain) ? empowerment.retainLevel + 1 : empowerment.level);
+	return scale + ((level - 1) * scale);
+}
+
 var mutations = {
 	Corruption: {
 		start: function (ignoreCorrupted){
@@ -5044,6 +5286,9 @@ function buildGrid() {
 			corrupteds = mutations[item].pattern(corrupteds);
 		}
 	}
+	var needsEmpower = false;
+	if (game.global.world > 236 && game.global.world % 5 == 1)
+		needsEmpower = true;
     for (var i = 0; i < 100; i++) {
         var newCell = {
             level: i + 1,
@@ -5057,6 +5302,10 @@ function buildGrid() {
 		if (corrupteds[i] != "") {
 			newCell.mutation = corrupteds[i];
 			newCell.corrupted = getSeededRandomFromArray(game.global.mutationSeed++, mutations[corrupteds[i]].effects);
+		}
+		if ((i >= 50 && needsEmpower && typeof newCell.corrupted === 'undefined') || (i == 98 && needsEmpower)){
+			newCell.empowerment = getEmpowerment(-1);
+			needsEmpower = false;
 		}
 		array.push(newCell);
     }
@@ -5089,7 +5338,7 @@ function setMutationTooltip(which, mutation){
 	var effect = mutationEffects[which];
 	if (typeof effect === 'undefined') return;
 	if (typeof mutations[mutation].tooltip === 'undefined') return;
-	elem.innerHTML = '<span class="badge badBadge ' + mutation + '" onmouseover="tooltip(\'' + effect.title + '\', \'customText\', event, \'' + mutations[mutation].tooltip(which) + '\')" onmouseout="tooltip(\'hide\')"><span class="' + effect.icon + '"></span></span>';
+	elem.innerHTML = '<span class="badge badBadge ' + mutation + '" onmouseover="tooltip(\'' + effect.title + '\', \'customText\', event, \'' + mutations[mutation].tooltip(which) + '\')" onmouseout="tooltip(\'hide\')"><span class="' + effect.icon + '"></span></span>&nbsp;';
 }
 
 function setVoidCorruptionIcon(regularMap){
@@ -5356,7 +5605,7 @@ function dropPrestiges(){
 	for (var x = 0; x < toDrop.length; x++){
 		unlockUpgrade(toDrop[x]);
 		var prestigeUnlock = game.mapUnlocks[toDrop[x]];
-		if (game.global.sLevel >= 4 && game.global.challengeActive != "Mapology") {
+		if (game.global.sLevel >= 4 && game.global.challengeActive != "Mapology" && (Math.ceil(prestigeUnlock.last / 5) % 2 == 0)) {
 			unlockUpgrade(toDrop[x]);
 			prestigeUnlock.last += 10;
 		}
@@ -5401,6 +5650,10 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
 			if (!maps && game.global.gridArray[counter].mutation) className += " " + game.global.gridArray[counter].mutation;
+			if (!maps && game.global.gridArray[counter].empowerment){
+				className += " empoweredCell" + game.global.gridArray[counter].empowerment;
+				cell.title = "Token of " + game.global.gridArray[counter].empowerment;
+			}
 			else if (!maps && game.global.world == 200 && game.global.spireActive) className += " spireCell";
             cell.className = className;
             cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
@@ -5628,6 +5881,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
             game.global.mapsActive = false;
             game.global.preMapsActive = false;
         } else game.global.preMapsActive = true;
+		resetEmpowerStacks();
     }
 
 	var currentMapObj;
@@ -5938,6 +6192,10 @@ function startFight() {
 	}
 	else
 		badName = displayedName;
+	if (cell.empowerment){
+		badName = getEmpowerment(-1, true) + " " + badName;
+		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>"; 
+	}
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
 		badName += " (" + prettify(badCoord) + ")";
@@ -5988,6 +6246,14 @@ function startFight() {
 		}
 		if (cell.corrupted == "corruptStrong") cell.attack *= 2;
 		if (cell.corrupted == "corruptTough") cell.health *= 5;
+		if (cell.empowerment){
+			if (cell.mutation != "Corruption"){
+				cell.health = mutations.Corruption.health(cell.level, cell.name);
+				cell.attack = mutations.Corruption.attack(cell.level, cell.name);
+			}
+			cell.health *= 4;
+			cell.attack *= 1.2;
+		}
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.badHealth !== 'undefined'){
 				cell.health *= dailyModifiers.badHealth.getMult(game.global.dailyChallenge.badHealth.strength);
@@ -6329,7 +6595,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 		if (game.global.totalSquaredReward > 0){
 			number *= ((game.global.totalSquaredReward / 100) + 1)
 		}
-
+		if (getEmpowerment() == "Ice"){
+			number *= 1 + (1 - game.empowerments.Ice.getCombatModifier());
+		}
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
 				if (minFluct == -1) minFluct = fluctuation;
@@ -6352,6 +6620,8 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
 			}
 		}
+		
+
 	}
 	else {
 		//Situational bad guy damage increases
@@ -6392,6 +6662,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 					number *= dailyModifiers.empower.getMult(game.global.dailyChallenge.empower.strength, game.global.dailyChallenge.empower.stacks);
 				}
 			}
+		}
+		if (getEmpowerment() == "Ice"){
+			number *= game.empowerments.Ice.getCombatModifier();
 		}
 		if (game.global.usingShriek) {
 			number *= game.mapUnlocks.roboTrimp.getShriekValue();
@@ -6699,6 +6972,7 @@ function nextWorld() {
 			game.achievements.humaneRun.lastZone = game.stats.battlesLost.value;
 			}
 	}
+	setEmpowerTab();
 
 }
 
@@ -7904,6 +8178,7 @@ function fight(makeUp) {
 		if (game.global.formation == 4 && !game.global.mapsActive && !game.global.waitToScry) tryScry();
 		if (game.global.challengeActive == "Nom" && cell.nomStacks == 100) giveSingleAchieve(15);
 		if (game.global.usingShriek) disableShriek();
+		//Death message
 		randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
 		var firstChar = cell.name.charAt(0);
 		var aAn = (firstChar == "A" || firstChar == "E" || firstChar == "I" || firstChar == "O" || firstChar == "U") ? " an " : " a ";
@@ -7917,6 +8192,7 @@ function fight(makeUp) {
 		catch(err){
 			console.debug(err);
 		}
+		//Challenge Shenanigans
 		if (game.global.challengeActive == "Balance" && game.global.world >= 6){
 			if (game.global.mapsActive) game.challenges.Balance.removeStack();
 			else game.challenges.Balance.addStack();
@@ -7946,6 +8222,7 @@ function fight(makeUp) {
 				updateDailyStacks('bloodthirst');
 			}
 		}
+		//Html stuff
 		if (cell.overkilled && game.options.menu.overkillColor.enabled){
 			if (game.options.menu.overkillColor.enabled == 2){
 				var prevCellElem = document.getElementById(((game.global.mapsActive) ? "mapCell" : "cell") + (cellNum - 1));
@@ -7961,6 +8238,10 @@ function fight(makeUp) {
         game.global.fighting = false;
         document.getElementById("badGuyCol").style.visibility = "hidden";
 		document.getElementById('corruptionBuff').innerHTML = "";
+		//Loot!
+		if (cell.empowerment){
+			rewardToken(cell.empowerment);
+		}
         var unlock;
         if (game.global.mapsActive) unlock = game.mapUnlocks[cell.special];
         else {
@@ -7973,7 +8254,7 @@ function fight(makeUp) {
             if (game.global.mapsActive) {
                 if (typeof game.mapUnlocks[cell.special].last !== 'undefined') {
 					game.mapUnlocks[cell.special].last += 5;
-					if (typeof game.upgrades[cell.special].prestige && game.global.sLevel >= 4 && game.global.challengeActive != "Mapology"){
+					if (typeof game.upgrades[cell.special].prestige && game.global.sLevel >= 4 && game.global.challengeActive != "Mapology" && (Math.ceil(game.mapUnlocks[cell.special].last / 5) % 2 == 1)){
 						unlock.fire(cell.level);
 						game.mapUnlocks[cell.special].last += 5;
 						message(unlock.message.replace("a book", "two books"), "Unlocks", null, null, 'repeated', cell.text);
@@ -7994,6 +8275,11 @@ function fight(makeUp) {
 		if (!game.global.mapsActive && game.global.spireActive && game.global.world == 200) {
 			giveSpireReward(cell.level);
 		}
+		//Post Loot
+		resetEmpowerStacks();
+		
+		//Map and World split here for non-loot stuff, anything for both goes above
+		//Map Only
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
 			game.stats.mapsCleared.value++;
 			checkAchieve("totalMaps");
@@ -8049,6 +8335,7 @@ function fight(makeUp) {
 				return;
 			}
 		}
+		//World Only
         if (cellNum == 99) {
 			nextWorld();
 			game.stats.zonesCleared.value++;
@@ -8059,6 +8346,10 @@ function fight(makeUp) {
         return;
     }
 	var cellAttack = calculateDamage(cell.attack, false, false, false, cell);
+	if (getEmpowerment() == "Ice"){
+		var badAttackElem = document.getElementById("badGuyAttack");
+		badAttackElem.innerHTML = calculateDamage(cell.attack, true, false, false, cell);
+	}
 	var badCrit = false;
 	if (game.global.challengeActive == "Crushed"){
 		if (checkCrushedCrit()) {
@@ -8119,6 +8410,10 @@ function fight(makeUp) {
 		game.global.soldierHealth = 0;
 		gotCrit = false;
 	};
+	var thisKillsTheBadGuy = function() {
+		cell.health = 0;
+		//fight(makeUp); return;
+	};
     if (trimpAttack > 0 && (game.global.challengeActive == "Slow" || ((((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Nom") || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate"))) {
         game.global.soldierHealth -= attackAndBlock;
 		wasAttacked = true;
@@ -8127,6 +8422,10 @@ function fight(makeUp) {
 				if (trimpAttack >= cell.health) {
 					overkill = trimpAttack - cell.health;
 					if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
+				}
+				if (getEmpowerment() == "Poison"){
+					cell.health -= game.empowerments.Poison.currentDebuffPower;
+					stackPoison(trimpAttack);
 				}
 				cell.health -= trimpAttack;
 				attacked = true;
@@ -8137,8 +8436,8 @@ function fight(makeUp) {
 			}
 		}
         else thisKillsTheTrimp();
-        if (cell.health <= 0) {cell.health = 0;
-		//fight(makeUp); return;
+        if (cell.health <= 0) {
+			thisKillsTheBadGuy();
 		}
     }
 	else {
@@ -8147,6 +8446,10 @@ function fight(makeUp) {
 				if (trimpAttack >= cell.health){
 					overkill = trimpAttack - cell.health;
 					if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
+				}
+				if (getEmpowerment() == "Poison"){
+					cell.health -= game.empowerments.Poison.currentDebuffPower;
+					stackPoison(trimpAttack);
 				}
 				cell.health -= trimpAttack;
 				attacked = true;
@@ -8157,8 +8460,7 @@ function fight(makeUp) {
 			}
 			else
 				{
-					cell.health = 0;
-					//fight(makeUp); return;
+					thisKillsTheBadGuy();
 				}
 			if (game.global.soldierHealth < 0) thisKillsTheTrimp();
 		}
@@ -8175,6 +8477,15 @@ function fight(makeUp) {
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && wasAttacked){
 		game.global.radioStacks++;
 		updateRadioStacks();
+	}
+	if (getEmpowerment() == "Ice" && attacked){
+		game.empowerments.Ice.currentDebuffPower++;
+		handleIceDebuff();
+	}
+	if (getEmpowerment() == "Wind" && attacked) {
+		if (game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks)
+			game.empowerments.Wind.currentDebuffPower++;
+		handleWindDebuff();
 	}
 	if (game.global.challengeActive == "Daily"){
 		if (typeof game.global.dailyChallenge.plague !== 'undefined'){

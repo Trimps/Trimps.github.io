@@ -11,6 +11,10 @@ overflow-x: hidden;
 	background-color: #928DAD;
 }
 
+.spire ul li.spireCell.cellColorNotBeaten.Corruption{
+	background-color: #2E0854;
+}
+
 .progress-bar {
     -webkit-transition: width .1s ease;
     transition: width .1s ease;
@@ -3061,9 +3065,9 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	color: #0086b3;
+	color: white;
 	font-weight: bold;
-	background-color: #000;
+	background: linear-gradient(to right, rgba(50,150,50,1) 0%, rgba(60,75,130,1) 50%, rgba(50,50,200,1) 100%);
 }
 
 .btn-new:hover,
@@ -3072,8 +3076,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: #000;
-	background-color: #0086b3;
+	color: white;
+	background: linear-gradient(to right, rgba(50,50,200,1) 0%, rgba(50,150,50,1) 50%, rgba(60,75,130,1) 100%);
 }
 .btn-new:active,
 .btn-new.active,
@@ -3208,6 +3212,119 @@ input::-webkit-inner-spin-button {
 
 #buyTabs > ul > .tabSelected a {
 	border-bottom: 0;
+}
+
+.natureUpgradeLevel{
+	position: absolute;
+	font-size: 0.7vw;
+	top: 2%;
+	left: 2%;
+}
+
+.natureUpgradeCost{
+	position: absolute;
+	font-size: 0.7vw;
+	top: 80%;
+	left: 2%;
+	
+}
+
+.natureBuyIconMini .natureUpgradeCost{
+	top: 77%;
+}
+
+.natureUpgradeCost .green{
+	color: white;
+}
+
+.empowerTabPoison, .empoweredCellPoison, .tabColPoison, .badNamePoison, #poisonEmpowermentIcon{
+	background: rgba(50, 150, 50, 0.75) !important;
+}
+
+.empowerTabWind, .empoweredCellWind, .tabColWind, .badNameWind, #windEmpowermentIcon{
+	background: rgba(60, 75, 130, 0.75) !important;
+}
+
+.empowerTabIce, .empoweredCellIce, .tabColIce, .badNameIce, #iceEmpowermentIcon{
+	background: rgba(50, 50, 200, 0.75) !important;
+}
+
+.badNamePoison, .badNameWind, .badNameIce{
+	font-weight: bold;
+	color: white;
+}
+
+#infoSpanPoison{
+	background: rgb(20, 80, 20);
+}
+
+#infoSpanWind{
+	background: rgb(30, 35, 65);
+}
+
+#infoSpanIce{
+	background: rgb(25, 25, 125);
+}
+
+.infoSpanNature{
+	display: inline-block;
+	font-size: 0.7vw;
+	border-radius: 50px;
+	border: 1px solid white;
+	width: 4vw;
+	padding: 0.1vw;
+	position: absolute;
+	top: 0.2vw;
+	left: 0.2vw;
+}
+
+.infoSpanNature span{
+	font-size: 0.6vw;
+	color: yellow;
+}
+
+.natureColDescription{
+	font-size: 0.8vw;
+	line-height: 0.8vw;
+	display: block;
+	margin-bottom: 2vw;
+	display: none;
+}
+
+.tabColNature{
+	text-align: center;
+	font-size: 1.5vw;
+	min-height: calc(99vh - 20vw - 205px);
+	height: 100%;
+}
+
+.natureBuyIcon{
+	font-size: 3vw;
+	display: block;
+	width: 50%;
+	margin-left: 25%;
+	border: 5px solid black;
+	padding-top: 7.5%;
+	margin-bottom: 2%;
+	cursor: pointer;
+	position: relative;
+}
+
+.natureBuyIconMini{
+	font-size: 2vw;
+	display: inline-block;
+	width: 40%;
+	margin-left: 0;
+	padding-top: 7%;
+	padding-bottom: 5%;
+}
+
+.natureBuyIconMini:first-child{
+	margin-left: 5.5%;
+}
+
+#natureA span{
+	font-size: 0.8vw;
 }
 
 .cellColorBeaten{

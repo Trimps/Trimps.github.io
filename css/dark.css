@@ -996,18 +996,3 @@ color:#8F8F00
 .redText{
 	color: #AD2A2A !important;
 }
-
-.btn-new {
-	color: white;
-	background: linear-gradient(40deg,  #283d44 0%, #800080 30%, #800080 70%, #283d44 100%); 
-}
-
-.btn-new:hover,
-.btn-new:focus,
-.btn-new.focus,
-.btn-new:active,
-.btn-new.active,
-.open > .dropdown-toggle.btn-new {
-	color: white;
-	background: linear-gradient(135deg,  #800080 0%, #283d44 50%, #800080 100%); 
-}

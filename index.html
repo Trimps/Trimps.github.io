@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 4.32</title>
+	<title>Trimps 4.4</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css?49" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?50" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -388,6 +388,7 @@
 					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="tabNotSelected buyTab"><a id="upgradesA"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
 					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>		
 					<li role="presentation" id="talentsTab"  style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
+					<li role="presentation" id="natureTab" style='display: none'  onclick="filterTabs('nature')" class="tabNotSelected buyTab empowerTabNone" onmouseover="tooltip('Empowerments of Nature', null, event)" onmouseout="tooltip('hide')"><a id="natureA">Nature</a></li>		
 				</ul>
 				</div>
 
@@ -511,6 +512,87 @@
 								<div id="talentsCost">Your next mastery costs <span id='talentsNextCost'>0</span>. Next tier in <span id='talentsNeeded'>0</span>.</div>
 								<div id="talentsHere">
 								
+								</div>
+							</div>
+							<div id="natureContainer" style="display: none; height: 100%;">
+								<div class='row noMarg' style="height: 100%;">
+									<div class='col-xs-4 tabColPoison tabColNature'>
+										<div class='natureTitle'>
+											<span id='infoSpanPoison' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Poison')" onmouseout="tooltip('hide')"><span class='icomoon icon-info2'></span></span>
+											Poison									
+										</div>
+										Tokens: <span id="tokenCountPoison">0</span>
+										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'upgrade', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Poison')">
+											<span class='natureUpgradeLevel' id='natureUpgradePoisonLevel'></span>
+											<span class='natureUpgradeCost' id='natureUpgradePoisonCost'></span>
+											<span class='icomoon icon-plus'></span>
+										</span>
+										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'stackTransfer', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Poison')">
+											<span class='natureUpgradeLevel' id='natureStackTransferPoisonLevel'></span>
+											<span class='natureUpgradeCost' id='natureStackTransferPoisonCost'></span>
+											<span class='icomoon icon-rotate-left'></span>
+										</span>
+										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Poison', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Poison', 'Wind')">
+											<span class='natureUpgradeCost' id='naturePoisonWindCost'></span>
+											<span class='icomoon icon-air'></span>
+										</span>
+										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Poison', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Poison', 'Ice')">
+											<span class='natureUpgradeCost' id='naturePoisonIceCost'></span>
+											<span class='glyphicon glyphicon-certificate'></span>
+										</span>
+									</div>
+									<div class='col-xs-4 tabColWind tabColNature'>
+										<div class='natureTitle'>
+											<span id='infoSpanWind' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Wind')" onmouseout="tooltip('hide')"><span class='icomoon icon-info2'></span></span>
+												Wind
+										</div>
+										Tokens: <span id="tokenCountWind">0</span>
+										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'upgrade', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Wind')">
+											<span class='natureUpgradeLevel' id='natureUpgradeWindLevel'></span>
+											<span class='natureUpgradeCost' id='natureUpgradeWindCost'></span>
+											<span class='icomoon icon-plus'></span>
+										</span>
+										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'stackTransfer', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Wind')">
+											<span class='natureUpgradeLevel' id='natureStackTransferWindLevel'></span>
+											<span class='natureUpgradeCost' id='natureStackTransferWindCost'></span>
+											<span class='icomoon icon-rotate-left'></span>
+										</span>
+										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Ice')">
+											<span class='natureUpgradeCost' id='natureWindIceCost'></span>
+											<span class='glyphicon glyphicon-certificate'></span>
+										</span>
+										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Poison')">
+										<span class='natureUpgradeCost' id='natureWindPoisonCost'></span>
+											<span class='icomoon icon-flask'></span>
+										</span>
+										
+									</div>
+									<div class='col-xs-4 tabColIce tabColNature'>
+										<div class='natureTitle'>
+											<span id='infoSpanIce' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Ice')" onmouseout="tooltip('hide')"></span>
+											Ice
+										</div>
+										Tokens: <span id="tokenCountIce">0</span>
+										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'upgrade', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Ice')">
+											<span class='natureUpgradeLevel' id='natureUpgradeIceLevel'></span>
+											<span class='natureUpgradeCost' id='natureUpgradeIceCost'></span>
+											<span class='icomoon icon-plus'></span>
+										</span>
+										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'stackTransfer', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Ice')">
+											<span class='natureUpgradeLevel' id='natureStackTransferIceLevel'></span>
+											<span class='natureUpgradeCost' id='natureStackTransferIceCost'></span>
+											<span class='icomoon icon-rotate-left'></span>
+										</span>
+										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Ice', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Ice', 'Poison')">
+											<span class='natureUpgradeCost' id='natureIcePoisonCost'></span>
+											<span class='icomoon icon-flask'></span>
+										</span>
+										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Ice', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Ice', 'Wind')">
+											<span class='natureUpgradeCost' id='natureIceWindCost'></span>
+											<span class='icomoon icon-air'></span>
+										</span>
+										
+									</div>
 								</div>
 							</div>
 						</div>
@@ -1117,9 +1199,9 @@
 	</div>
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
-	<script type="text/javascript" src="config.js?89"></script>
-	<script type="text/javascript" src="updates.js?89"></script>
-	<script type="text/javascript" src="main.js?89"></script>
+	<script type="text/javascript" src="config.js?90"></script>
+	<script type="text/javascript" src="updates.js?90"></script>
+	<script type="text/javascript" src="main.js?90"></script>
 	
 </body>
 
