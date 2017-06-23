@@ -4325,7 +4325,7 @@ function displayNature(){
 }
 
 function rewardToken(empowerment){
-	var tokens = Math.floor((game.global.world - 236) / 15) + 1;
+	var tokens = Math.floor((game.global.world - 241) / 15) + 1;
 	game.empowerments[empowerment].tokens += tokens;
 	message("You found " + prettify(tokens) + " Token" + ((tokens == 1) ? "" : "s") + " of " + empowerment + "!", "Loot", "*medal2", "empoweredCell" + empowerment, 'token');
 	if (game.global.buyTab == "nature")
