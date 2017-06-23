@@ -8385,6 +8385,9 @@ function fight(makeUp) {
 	}
 	if (attackAndBlock < 0) attackAndBlock = 0;
 	var trimpAttack = calculateDamage(game.global.soldierCurrentAttack, false, true);
+	if (getEmpowerment() == "Ice"){
+		document.getElementById('goodGuyAttack').innerHTML = calculateDamage(game.global.soldierCurrentAttack, true, true);
+	}
 	updateTitimp();
 	var gotCrit = false;
 	var critSpan = document.getElementById("critSpan");
