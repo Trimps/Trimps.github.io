@@ -2078,7 +2078,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) amt *= 2;
 	if (getEmpowerment() == "Wind"){
 		if (what == "Helium"){
-			if (!checkMapLootScale){
+			if (!game.global.mapsActive){
 				amt *= (1 + game.empowerments.Wind.getCombatModifier());
 			}
 		}
