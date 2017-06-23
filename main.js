@@ -2275,6 +2275,9 @@ function gather() {
 			}
 			if (game.global.challengeActive == "Watch") perSec /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) perSec*= 2;
+			if (getEmpowerment() == "Wind"){
+				perSec *= (game.empowerments.Wind.getCombatModifier() * 10);
+			}
 			perSec = calcHeirloomBonus("Staff", job + "Speed", perSec);
 		}
 		if (what && increase == what){
@@ -4921,7 +4924,8 @@ var mutationEffects = {
 }
 
 function startTheMagma(){
-	tooltip('The Magma', null, 'update');
+	var reward = rewardResource("helium", 60, 99);
+	tooltip('The Magma', null, 'update', reward);
 	var genSetting = game.options.menu.generatorStart.enabled;
 	if (genSetting){
 		if (genSetting == 3) game.global.generatorMode = 2;
@@ -9021,6 +9025,9 @@ function simpleSeconds(what, seconds) {
 		if (game.global.challengeActive == "Decay"){
 			amt *= 10;
 			amt *= Math.pow(0.995, game.challenges.Decay.stacks);
+		}
+		if (getEmpowerment() == "Wind"){
+			amt *= (game.empowerments.Wind.getCombatModifier() * 10);
 		}
 		amt = calcHeirloomBonus("Staff", jobName + "Speed", amt);
 		if (game.global.playerGathering == what){

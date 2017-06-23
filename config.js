@@ -326,7 +326,7 @@ var toReturn = {
 		},
 		Wind: {
 			description: function () {
-				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing winds to swell and knock extra resources in to your reach. Each stack increases Helium gained from all sources by <b>" + this.formatModifier(this.getModifier()) + "%</b> and increases all other resources gained by <b>" + this.formatModifier(this.getModifier() * 10) + "%</b> until that enemy dies. The helium bonus does not apply to maps.";
+				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing winds to swell and knock extra resources in to your reach. Each stack increases Helium gained from all sources by <b>" + this.formatModifier(this.getModifier()) + "%</b> and increases all other resources gained by <b>" + this.formatModifier(this.getModifier() * 10) + "%</b> until that enemy dies (maximum of 200 stacks). The helium bonus does not apply to maps.";
 			},
 			upgradeDescription: function () {
 				return "Increases the amount of extra Helium you find by <b>" + this.formatModifier(this.baseModifier) + "%</b> and non-Helium resources by <b>" + this.formatModifier(this.baseModifier * 10) + "%</b> per stack when the Empowerment of Wind is active. Your current bonus is <b>" + this.formatModifier(this.getModifier()) + "%</b> Helium, and next level will bring your bonus to <b>" + this.formatModifier(this.getModifier(1)) + "%</b> extra helium. Non-Helium resource gain is always 10x that of Helium, and the Helium bonus does not apply in maps.";
