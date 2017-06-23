@@ -2276,7 +2276,7 @@ function gather() {
 			if (game.global.challengeActive == "Watch") perSec /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) perSec*= 2;
 			if (getEmpowerment() == "Wind"){
-				perSec *= (game.empowerments.Wind.getCombatModifier() * 10);
+				perSec *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 			}
 			perSec = calcHeirloomBonus("Staff", job + "Speed", perSec);
 		}
@@ -9027,7 +9027,7 @@ function simpleSeconds(what, seconds) {
 			amt *= Math.pow(0.995, game.challenges.Decay.stacks);
 		}
 		if (getEmpowerment() == "Wind"){
-			amt *= (game.empowerments.Wind.getCombatModifier() * 10);
+			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 		}
 		amt = calcHeirloomBonus("Staff", jobName + "Speed", amt);
 		if (game.global.playerGathering == what){

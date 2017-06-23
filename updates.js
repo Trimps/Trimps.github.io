@@ -2842,6 +2842,9 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			}
 			if (game.global.challengeActive == "Watch") psText /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) psText *= 2;
+			if (getEmpowerment() == "Wind"){
+				psText *= 1 + (game.empowerments.Wind.getCombatModifier() * 10);
+			}
 			psText = calcHeirloomBonus("Staff", jobName + "Speed", psText);
 			if (game.global.playerGathering == increase){
 				if (game.global.turkimpTimer > 0 && increase != "science"){
