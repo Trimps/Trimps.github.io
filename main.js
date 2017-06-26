@@ -4924,7 +4924,7 @@ var mutationEffects = {
 }
 
 function startTheMagma(){
-	var reward = rewardResource("helium", 60, 99);
+	var reward = (game.global.runningChallengeSquared) ? 0 : rewardResource("helium", 60, 99);
 	tooltip('The Magma', null, 'update', reward);
 	var genSetting = game.options.menu.generatorStart.enabled;
 	if (genSetting){
