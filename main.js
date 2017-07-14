@@ -10358,17 +10358,33 @@ function gameTimeout() {
     game.global.time += tick;
     var dif = (now - game.global.start) - game.global.time;
     while (dif >= tick) {
-        gameLoop(true, now);
+        runGameLoop(true, now);
         dif -= tick;
         game.global.time += tick;
 		ctrlPressed = false;
     }
-    gameLoop(null, now);
+    runGameLoop(null, now);
     updateLabels();
     setTimeout(gameTimeout, (tick - dif));
 }
 
-
+/**
+ * Passes parameters to gameLoop, handles errors.
+ * @param  {bool} makeUp makeUp causes the function to loop to exhaust ticks
+ * @param  {Date} now    Date.now()
+ * @return {[type]}        [description]
+ */
+function runGameLoop(makeUp, now) {
+	try {
+		gameLoop(makeUp, now);
+	} catch (e) {
+		// Manual override, this is more important
+		game.global.lockTooltip = false;
+		tooltip('hide');
+		tooltip('Error', null, 'update', e.stack);
+		throw(e);
+	}
+}
 function updatePortalTimer(justGetTime) {
 	if (game.global.portalTime < 0) return;
 	var timeSince = new Date().getTime() - game.global.portalTime;
