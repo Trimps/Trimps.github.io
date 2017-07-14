@@ -92,7 +92,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var lvlsLeft = ((5 - (game.global.world % 5)) + game.global.world) + 1;
 		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
 		costText = "";
-		
+
 	}
 	if (what == "Finish Daily"){
 		var value = getDailyHeliumValue(countDailyWeight()) / 100;
@@ -2020,7 +2020,6 @@ function resetGame(keepPortal) {
 	goldenUpgradesShown = false;
 	game.global.selectedHeirloom = [];
 	resetOnePortalRewards();
-	playFabLoginErrors = 0;
 
 	setFormation("0");
 	hideFormations();
@@ -2899,7 +2898,7 @@ function drawAllBuildings(){
 	var elem = document.getElementById("buildingsHere");
 	elem.innerHTML = "";
 	for (var item in game.buildings){
-		building = game.buildings[item];
+		var building = game.buildings[item];
 		if (building.locked == 1) continue;
 		drawBuilding(item, elem);
 		if (building.alert && game.options.menu.showAlerts.enabled){
@@ -3704,17 +3703,14 @@ if (elem == null) {
 
 function goRadial(elem, currentSeconds, totalSeconds, frameTime){
 
-        if (currentSeconds <= 0) currentSeconds = 0;
-        elem.style.transition = "";
-        elem.style.transform = "rotate(" + timeToDegrees(currentSeconds, totalSeconds) + "deg)";
-        setTimeout(
-            (function(ft, cs, ts) {
-                return function() {
-                    elem.style.transform = "rotate(" + timeToDegrees(cs + ft / 1000, ts) + "deg)";
-                    elem.style.transition = cs < 0.1 ? "" : "transform " + ft + "ms linear";
-                }
-            })(frameTime, currentSeconds, totalSeconds).bind(this)
-        , 0);
+    if (currentSeconds <= 0) currentSeconds = 0;
+    elem.style.transition = "";
+    elem.style.transform = "rotate(" + timeToDegrees(currentSeconds, totalSeconds) + "deg)";
+	var apply = function () {
+		elem.style.transform = "rotate(" + timeToDegrees(currentSeconds + frameTime / 1000, totalSeconds) + "deg)";
+		elem.style.transition = currentSeconds < 0.1 ? "" : "transform " + frameTime + "ms linear";
+	}
+	requestAnimationFrame(apply);
 }
 
 function isObjectEmpty(obj){
