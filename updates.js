@@ -31,7 +31,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	var elem = document.getElementById("tooltipDiv");
 	swapClass("tooltipExtra", "tooltipExtraNone", elem);
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
-	if (what == "hide"){
+	if (what == 'hide'){
 		elem.style.display = "none";
 		tooltipUpdateFunction = "";
 		return;
@@ -64,7 +64,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 		what = what[0].toUpperCase() + what.substr(1)
 	}
-	if (what == "Confirm Purchase"){
+	if (what == 'Confirm Purchase'){
 		if (attachFunction == "purchaseImport()" && !boneTemp.selectedImport) return;
 		if (game.options.menu.boneAlerts.enabled == 0 && numCheck){
 			eval(attachFunction);
@@ -84,7 +84,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Empowerments of Nature"){
+	if (what == 'Empowerments of Nature'){
 		var active = getEmpowerment();
 		if (!active) return;
 		var emp = game.empowerments[active];
@@ -94,7 +94,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 
 	}
-	if (what == "Finish Daily"){
+	if (what == 'Finish Daily'){
 		var value = getDailyHeliumValue(countDailyWeight()) / 100;
 		var reward = game.resources.helium.owned + game.stats.spentOnWorms.value;
 		if (reward > 0) reward = Math.floor(reward * value);
@@ -104,17 +104,17 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Switch Daily"){
+	if (what == 'Switch Daily'){
 		var daysUntilReset = Math.floor(7 + textString);
 		tooltipText = "Click to view " + ((textString == 0) ? "today" : dayOfWeek(getDailyTimeString(textString, false, true))) + "s challenge, which resets in less than " + daysUntilReset + " day" + ((daysUntilReset == 1) ? "" : "s") + ".";
 		costText = "";
 	}
-	if (what == "Decay"){
+	if (what == 'Decay'){
 		var decayedAmt = ((1 - Math.pow(0.995, game.challenges.Decay.stacks)) * 100).toFixed(2);
 		tooltipText = "Things are quickly becoming tougher. Gathering, looting, and Trimp attack are reduced by " + decayedAmt + "%.";
 		costText = "";
 	}
-	if (what == "Heirloom"){
+	if (what == 'Heirloom'){
 		//attachFunction == location, numCheck == index
 		tooltipText = displaySelectedHeirloom(false, 0, true, numCheck, attachFunction)
 		costText = "";
@@ -123,34 +123,34 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		swapClass("tooltipExtra", "tooltipExtraHeirloom", elem);
 		noExtraCheck = true;
 	}
-	if (what == "Respec"){
+	if (what == 'Respec'){
 		tooltipText = "You can respec your perks once per portal. Clicking cancel after clicking this button will not consume your respec.";
 		costText = "";
 	}
-	if (what == "Well Fed"){
+	if (what == 'Well Fed'){
 		var tBonus = (game.talents.turkimp3.purchased) ? 75 : 50;
 		tooltipText = "That Turkimp was delicious, and you have leftovers. If you set yourself to gather Food, Wood, or Metal while this buff is active, you can share with your workers to increase their gather speed by " + tBonus + "%";
 		costText = "";
 	}
-	if (what == "Geneticistassist"){
+	if (what == 'Geneticistassist'){
 		tooltipText = "I'm your Geneticistassist! I'll hire and fire Geneticists until your total breed time is as close as possible to the target time you choose. I will fire a Farmer, Lumberjack, or Miner at random if there aren't enough workspaces, I will never spend more than 1% of your food on a Geneticist, and you can customize my target time options in Settings. I have uploaded myself to your portal and will never leave you.";
 		costText = "";
 	}
-	if (what == "Welcome"){
+	if (what == 'Welcome'){
 		tooltipText = "Welcome to Trimps! This game saves using Local Storage in your browser. Clearing your cookies or browser settings will cause your save to disappear! Please make sure you regularly back up your save file by either using the 'Export' button in the bar below or the 'Online Saving' option under 'Settings'.<br/><br/><b>Chrome and Firefox are currently the only fully supported browsers.</b><br/><br/><b>Would you like to enable online saving before you start?</b>";
 		game.global.lockTooltip = true;
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip(); toggleSetting(\"usePlayFab\");'>Enable Online Saving</div><div class='btn btn-danger' onclick='cancelTooltip()'>Don't Enable</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Trustworthy Trimps"){
+	if (what == 'Trustworthy Trimps'){
 		tooltipText = textString;
 		game.global.lockTooltip = true;
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Sweet, thanks.</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Configure AutoStructure"){
+	if (what == 'Configure AutoStructure'){
 		tooltipText = "<p>Here you can choose which structures will be automatically purchased when AutoStructure is toggled on. Check a box to enable the automatic purchasing of that structure, set the dropdown to specify the cost-to-resource % that the structure should be purchased below, and set the 'Up To:' box to the maximum number of that structure you'd like purchased <b>(0&nbsp;for&nbsp;no&nbsp;limit)</b>. For example, setting the dropdown to 10% and the 'Up To:' box to 50 for 'House' will cause a House to be automatically purchased whenever the costs of the next house are less than 10% of your Food, Metal, and Wood, as long as you have less than 50 houses.</p><table id='autoStructureConfigTable'><tbody><tr>";
 		var count = 0;
 		for (var item in game.buildings){
@@ -173,15 +173,15 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			verticalCenterTooltip(true);
 		};
 	}
-	if (what == "AutoStructure"){
+	if (what == 'AutoStructure'){
 		tooltipText = "<p>Your mastery of this world has enabled your Foremen to handle fairly complicated orders regarding which buildings should be built. Click the cog icon on the right side of this button to tell your Foremen what you want and when you want it, then click the left side of the button to tell them to start or stop.</p>";
 		costText = "";
 	}
-	if (what == "AutoGolden"){
+	if (what == 'AutoGolden'){
 		tooltipText = '<p>Thanks to your brilliant Scientists, you can designate Golden Upgrades to be purchased automatically! Toggle between: </p><p><b>AutoGolden Off</b> when you\'re not feeling particularly trusting.</p><p><b>AutoGolden Helium</b> when you\'re looking to boost your Perk game. 4/5 Trimps agree that this will increase your overall Helium earned, though none of the 5 really understood the question.</p><p><b>AutoGolden Battle</b> if your Trimps have a tendency to slack off when you turn your back.</p><p><b>AutoGolden Void</b> if you need some more purple in your life. This is your Trimps\' least favorite choice, but it\'s pretty lucrative so...</p><p>Please allow 4 seconds for Trimp retraining after clicking this button before any Golden Upgrades are automatically purchased, and don\'t forget to frequently thank your scientists! Seriously, they get moody.</p>';
 		costText = "";
 	}
-	if (what == "AutoGolden Unlocked"){
+	if (what == 'AutoGolden Unlocked'){
 		tooltipText = "<p>Your Trimps have extracted and processed hundreds of Golden Upgrades by now, and though you're still nervous to leave things completely to them, you figure they can probably handle doing this on their own as well. You find the nearest Trimp and ask if he could handle buying Golden Upgrades on his own, as long as you told him which ones to buy. You can tell by the puddle of drool rapidly gaining mass at his feet that this is going to take either magic or a lot of hard work.</p><p>You can't find any magic anywhere, so you decide to found Trimp University, a school dedicated to teaching Trimps how to extract the might of Golden Upgrades without any assistance. Weeks go by while you and your Trimps work tirelessly to set up the University, choosing only the finest building materials and hiring only the most renowned Foremen to draw the plans. Just as you're finishing up, a Scientist stops by, sees what you're doing, and offers to just handle the Golden Upgrades instead. Probably should have just asked one of them first.</p><p><b>You have unlocked AutoGolden!</b></p>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Close</div></div>";
 		game.global.lockTooltip = true;
@@ -189,20 +189,20 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 
 	}
-	if (what == "Poisoned"){
+	if (what == 'Poisoned'){
 		tooltipText = "This enemy is harmed by the Empowerment of Poison, and is taking " + prettify(game.empowerments.Poison.currentDebuffPower) + " extra damage per turn.";
 		costText = "";
 	}
-	if (what == "Chilled"){
+	if (what == 'Chilled'){
 		tooltipText = "This enemy has been chilled by the Empowerment of Ice, is taking " + prettify((1 - game.empowerments.Ice.getCombatModifier()) * 100) + "% more damage, and is dealing " + prettify((1 - game.empowerments.Ice.getCombatModifier()) * 100) + "% less damage with each normal attack.";
 		costText = "";
 	}
-	if (what == "Breezy"){
+	if (what == 'Breezy'){
 		var heliumText = (!game.global.mapsActive)? "increasing all Helium gained by " + prettify(game.empowerments.Wind.getCombatModifier() * 100) + "% and all other" : "increasing all non-Helium ";
 		tooltipText = "There is a rather large amount of Wind swelling around this enemy, " + heliumText + " resources by " + prettify(game.empowerments.Wind.getCombatModifier() * 1000) + "%.";
 		costText = "";
 	}
-	if (what == "Perk Preset"){
+	if (what == 'Perk Preset'){
 		if (textString == "Save"){
 			what = "Save Perk Preset";
 			tooltipText = "Click to save your current perk loadout to the selected preset";
@@ -235,8 +235,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			}
 		}
 	}
-	if (what == "Rename Preset"){
-		what == "Rename Preset " + selectedPreset;
+	if (what == 'Rename Preset'){
+		what == 'Rename Preset ' + selectedPreset;
 		tooltipText = "Type a name below for your Perk Preset! This name will show up on the Preset bar and make it easy to identify which Preset is which."
 		if (textString) tooltipText += " <b>Max of 1,000 for most perks</b>";
 		var preset = game.global["perkPreset" + selectedPreset];
@@ -256,7 +256,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		noExtraCheck = true;
 
 	}
-	if (what == "UnlockedChallenge2"){
+	if (what == 'UnlockedChallenge2'){
 		what = "Unlocked Challenge<sup>2</sup>";
 		tooltipText = "You hear some strange noises behind you and turn around to see three excited scientists. They inform you that they've figured out a way to modify The Portal to take you to a new type of challenging dimension, a system they proudly call 'Challenge<sup>2</sup>'. You will be able to activate and check out their new technology by clicking the 'Challenge<sup>2</sup>' button next time you go to use The Portal.";
 		game.global.lockTooltip = true;
@@ -264,14 +264,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Eggs"){
+	if (what == 'Eggs'){
 		tooltipText = '<span class="eggMessage">It seems as if some sort of animal has placed a bunch of brightly colored eggs in the world. If you happen to see one, you can click on it to send a Trimp to pick it up! According to your scientists, they have a rare chance to contain some neat stuff, but they will not last forever...</span>';
 		game.global.lockTooltip = true;
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>I'll keep an eye out.</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Portal"){
+	if (what == 'Portal'){
 		tooltipText = "The portal device you found shines green in the lab. Such a familiar shade...";
 		costText = "";
 	}
@@ -279,7 +279,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast. <br/><br/>If you are <b>not</b> repeating, your current group of Trimps will not be abandoned after the map ends.";
 		costText = "";
 	}
-	if (what == "Challenge2"){
+	if (what == 'Challenge2'){
 		what = "Challenge<sup>2</sup>";
 		tooltipText = "";
 		if (!textString)
@@ -288,7 +288,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (game.talents.headstart.purchased) tooltipText += "<p><b>Note that your Headstart mastery will be disabled during Challenge<sup>2</sup> runs.</b></p>";
 		costText = "";
 	}
-	if (what == "Customize Targets"){
+	if (what == 'Customize Targets'){
 		var steps = game.global.GeneticistassistSteps;
 		tooltipText = "<div id='GATargetError'></div><div>Customize the target thresholds for your Geneticistassist! Use a number between 0.5 and 60 seconds for all 3 boxes. Each box corresponds to a Geneticistassist toggle threshold.</div><div style='width: 100%'><input class='GACustomInput' id='target1' value='" + steps[1] + "'/><input class='GACustomInput' id='target2' value='" + steps[2] + "'/><input class='GACustomInput' id='target3' value='" + steps[3] + "'/><hr class='noBotMarg'/><div id='GADisableCheck'><input type='checkbox'" + ((game.options.menu.GeneticistassistTarget.disableOnUnlock) ? " checked='true'" : "") + "' id='disableOnUnlockCheck' /> Start disabled when unlocked each run</div></div>";
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='customizeGATargets();'>Confirm</div> <div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div>"
@@ -297,7 +297,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 
 	}
-	if (what == "Message Config"){
+	if (what == 'Message Config'){
 		tooltipText = "<div id='messageConfigMessage'>Here you can finely tune your message settings, to see only what you want from each category. Mouse over the name of a filter for more info.</div>";
 		var msgs = game.global.messages;
 		var toCheck = ["Loot", "Unlocks", "Combat"];
@@ -321,7 +321,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		swapClass('tooltipExtra', 'tooltipExtraLg', elem);
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip();configMessages();'>Confirm</div> <div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div>"
 	}
-	if (what == "The Improbability"){
+	if (what == 'The Improbability'){
 		tooltipText = "<span class='planetBreakMessage'>That shouldn't have happened. There should have been a Blimp there. Something is growing unstable.</span>";
 		if (!game.global.autoUpgradesAvailable) tooltipText += "<br/><br/><span class='planetBreakMessage'><b>Your Trimps seem to understand that they'll need to help out more, and you realize how to permanently use them to automate upgrades!<b></span><br/>";
 		costText = "<span class='planetBreakDescription'><span class='bad'>Trimp breed speed reduced by a factor of 10. 20% of enemy damage can now penetrate your block.</span><span class='good'> You have unlocked a new upgrade to learn a Formation. Helium harvested per zone is increased by a factor of 5. Equipment cost is dramatically cheaper. You have access to the 'Trimp' challenge!<span></span>";
@@ -337,8 +337,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var s = (timesPurchased == 1) ? "" : "s";
 		var three = (game.global.totalPortals >= 5) ? "three" : "two";
 		tooltipText += " <b>You can only choose one of these " + three + " Golden Upgrades. Choose wisely...</b><br/><br/> Each time Golden Upgrades are unlocked, they will increase in strength. You are currently gaining " + prettify(upgrade.currentBonus * 100) + "% from purchasing this upgrade " + timesPurchased + " time" + s + " since your last portal.";
-		if (what == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) tooltipText += "<br/><br/><b class='red'>This upgrade would put you over 60% increased Void Map chance, which would destabilize the universe. You don't want to destabilize the universe, do you?</b>";
-		if (what == "Helium" && game.global.runningChallengeSquared) tooltipText += "<br/><br/><b class='red'>You can't earn helium while running a Challenge<sup>2</sup>!</b>";
+		if (what == 'Void' && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) tooltipText += "<br/><br/><b class='red'>This upgrade would put you over 60% increased Void Map chance, which would destabilize the universe. You don't want to destabilize the universe, do you?</b>";
+		if (what == 'Helium' && game.global.runningChallengeSquared) tooltipText += "<br/><br/><b class='red'>You can't earn helium while running a Challenge<sup>2</sup>!</b>";
 		costText = "Free";
 		if (getAvailableGoldenUpgrades() > 1) costText += " (" + getAvailableGoldenUpgrades() + " remaining)";
 		what = "Golden " + what + " (Tier " + romanNumeral(game.global.goldenUpgrades + 1) + ")";
@@ -357,7 +357,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else costText = prettify(nextTalCost) + " Dark Essence";
 		what = talent.name;
 	}
-	if (what == "Corruption"){
+	if (what == 'Corruption'){
 		if (game.global.challengeActive == "Corrupted"){
 			tooltipText = "<span class='planetBreakMessage'>Though you've seen the Corruption grow since the planet broke, you can now see a giant spire pumping out tons of the purple goo. Things seem to be absorbing it at a higher rate now.</span><br/>";
 			costText += "<span class='planetBreakDescription'><span class='bad'>Improbabilities and Void Maps are now more difficult.</span> <span class='good'>Improbabilities and Void Maps now drop 2x helium.</span></span>";
@@ -372,7 +372,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "The Magma"){
+	if (what == 'The Magma'){
 		tooltipText = "<p>You stumble across a large locked chest, unlike anything you've ever seen. The lock looks rusty, you smack it with a rock, and it falls right off. Immediately the ground shakes and cracks beneath your feet, intense heat hits your face, and Magma boils up from the core.</p><p>Where one minute ago there was dirt, grass, and noxious fog, there are now rivers of molten rock (and noxious fog). You'd really like to try and repair the planet somehow, so you decide to keep pushing on. It's been working out well so far, there was some useful stuff in that chest!</p><hr/>";
 		tooltipText += "<span class='planetBreakDescription'><span class='bad'>The heat is tough on your Trimps, causing each zone to reduce their attack and health by 20% more than the last. 10% of your Nurseries will permanently close after each zone to avoid Magma flows, and Corruption has seeped in to both Void and regular Maps, further increasing their difficulty. </span><span class='good'> However, the chest contained plans and materials for the <b>Dimensional Generator</b> building, <b>" + prettify(textString) + " Helium</b>, and <b>100 copies of Coordination</b>! In addition, all zones are now worth <b>3x Helium</b>!<span></span>";
 		costText += "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>K</div></div>";
@@ -380,7 +380,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Spire"){
+	if (what == 'Spire'){
 		tooltipText = "<span class='planetBreakMessage'>The Spire looms menacingly above you, and you take in a deep breath of corruption. You take a look back at your Trimps to help gather some courage, and you push the door open. You slowly walk inside and are greeted by an incredibly loud, deep, human voice.<br/><br/><b>Do you know what you face? If you are defeated ten times in this place, you shall be removed from this space. If you succeed, then you shall see the light of knowledge that you seek.</b><span>";
 		tooltipText += "<br/><hr/><span class='planetBreakDescription'><span class='bad'>This zone is considerably more difficult than the previous and next zones. If 10 groups of Trimps die in combat while in the spire, the world will return to normal.</span> <span class='good'>Each cell gives more and more helium. Every 10th cell gives a larger reward, and increases all loot gained until your next portal by 2% (including helium).</span>";
 		if (game.options.menu.mapsOnSpire.enabled) tooltipText += "<br/><hr/>You were moved to Maps to protect your limited chances at the spire. You can disable this in settings!";
@@ -389,28 +389,28 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Exit Spire"){
+	if (what == 'Exit Spire'){
 		tooltipText = "This will exit the spire, and you will be unable to re-enter until your next portal. Are you sure?";
 		costText = "<div class='maxCenter'><div class='btn btn-info' onclick='cancelTooltip(); endSpire()'>Exit Spire</div><div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Respec Talents"){
+	if (what == 'Respec Talents'){
 		tooltipText = "This will return all Dark Essence that was spent on talents at the cost of 20 bones. Are you sure?";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); respecTalents(true)'>Respec</div><div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "The Geneticistassist"){
+	if (what == 'The Geneticistassist'){
 		tooltipText = "Greetings, friend! I'm your new robotic pal <b>The Geneticistassist</b> and I am here to assist you with your Geneticists. I will hang out in your Jobs tab, and will appear every run after Geneticists are unlocked. You can customize me in Settings under 'General'!";
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Thanks, Geneticistassist!</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "MagnetoShriek"){
+	if (what == 'MagnetoShriek'){
 		var shriekValue = ((1 - game.mapUnlocks.roboTrimp.getShriekValue()) * 100).toFixed(1);
 		tooltipText = "Your pet RoboTrimp seems to be gifted at distorting the magnetic field around certain bad guys, especially Improbabilities. You can activate this ability once every 5 zones in order to tell your RoboTrimp to reduce the attack damage of the next Improbability by " + shriekValue + "%. This must be reactivated each time it comes off cooldown.";
 		tooltipText += "<span id='roboTrimpTooltipActive' style='font-weight: bold'><br/><br/>";
@@ -419,7 +419,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 		//elem.style.top = "55%";
 	}
-	if (what == "Reset"){
+	if (what == 'Reset'){
 		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone. <b style='color: red'>This is not the soft-reset you're looking for. This will delete your save.</b>";
 		costText="<div class='maxCenter'><div class='btn btn-danger' onclick='resetGame();unlockTooltip();tooltip(\"hide\")'>Delete Save</div> <div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
@@ -436,14 +436,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "Allow the Trimps to start fighting on their own whenever their town gets overcrowded";
 		costText = "";
 	}
-	if (what == "New Achievements"){
+	if (what == 'New Achievements'){
 		tooltipText = "The universe has taken an interest in your achievements, and has begun tracking them. You already have some completed thanks to your previous adventures, would you like to see them?";
 		costText = "<div class='maxCenter'><div class='btn btn-success' onclick='toggleAchievementWindow(); cancelTooltip()'>Check Achievements</div> <div class='btn btn-danger' onclick='cancelTooltip()'>No, That Sounds Dumb</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Upgrade Generator"){
+	if (what == 'Upgrade Generator'){
 		tooltipText = getGeneratorUpgradeHtml();
 		costText = "<b style='color: red'>These upgrades persist through portal and cannot be refunded. Choose wisely! " + getMagmiteDecayAmt() + "% of your unspent Magmite will decay on portal.</b><br/><br/><div class='maxCenter'><span class='btn btn-info' onclick='cancelTooltip()'>Close</span></div>";
 		game.global.lockTooltip = true;
@@ -454,7 +454,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		};
 		titleText = "<div id='generatorUpgradeTitle'>Upgrade Generator</div><div id='magmiteOwned'></div>";
 	}
-	if (what == "Queue"){
+	if (what == 'Queue'){
 		tooltipText = "This is a building in your queue, you'll need to click \"Build\" to build it. Clicking an item in the queue will cancel it for a full refund.";
 		costText = "";
 	}
@@ -462,12 +462,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "This bad guy is toxic. You will find " + (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks).toFixed(1) + "% more loot! Oh, also, this bad guy has 5x attack, 2x health, your Trimps will lose 5% health each time they attack, and the toxic air is causing your Trimps to breed " + (100 - (Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks) * 100)).toFixed(2) + "% slower. These stacks will reset after clearing the zone.";
 		costText = "";
 	}
-	if (what == "Momentum"){
+	if (what == 'Momentum'){
 		var stacks = game.challenges.Lead.stacks;
 		tooltipText = "This bad guy has " + prettify(stacks * 4) + "% more damage and health, pierces an additional " + (stacks * 0.1).toFixed(1) + "% block, and each attack that does not kill it will cause your Trimps to lose " + (stacks * 0.03).toFixed(2) + "% of their health.";
 		costText = "";
 	}
-	if (what == "Custom"){
+	if (what == 'Custom'){
 		customUp = (textString) ? 2 : 1;
 		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 and 200k to select that large number, or fractions such as 1/2 and 50% to select that fraction of your available workspaces."
 		if (textString) tooltipText += " <b>Max of 1,000 for most perks</b>";
@@ -485,14 +485,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		};
 		noExtraCheck = true;
 	}
-	if (what == "Max"){
+	if (what == 'Max'){
 		tooltipText = "No reason to spend everything in one place! Here you can set the ratio of your resources to spend when using the 'Max' button. Setting this to 0.5 will spend no more than half of your resources per click, etc."
 		costText = "<ul id='buyMaxUl'><li onclick='setMax(1)'>Max</li><li onclick='setMax(0.5)'>0.5</li><li onclick='setMax(0.33)'>0.33</li><li onclick='setMax(0.25)'>0.25</li><li onclick='setMax(0.1)'>0.1</li></ul>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Export"){
+	if (what == 'Export'){
 		if (textString){
 			tooltipText = textString + "<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
 			what = "Thanks!";
@@ -520,7 +520,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Import"){
+	if (what == 'Import'){
 		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea spellcheck='false' id='importBox' style='width: 100%' rows='5'></textarea>";
 		costText="<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); load(true);'>Import</div>"
 		if (playFabId != -1) costText += "<div class='btn btn-primary' onclick='loadFromPlayFab()'>Import From PlayFab</div>";
@@ -532,16 +532,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			document.getElementById('importBox').focus();
 		}
 	}
-	if (what == "AutoPrestige"){
+	if (what == 'AutoPrestige'){
 		tooltipText = '<p>Your scientists have come a long way since you first crashed here, and can now purchase prestige upgrades automatically for you with hardly any catastrophic mistakes. They understand the word "No" and the following three commands: </p><p><b>AutoPrestige All</b> will always purchase the cheapest prestige available first.</p><p><b>Weapons Only</b> as you may be able to guess, will only purchase Weapon prestiges.</p><p><b>Weapons First</b> will only purchase Weapon prestiges unless the cheapest Armor prestige is less than 5% of the cost of the cheapest Weapon.</p>';
 	}
-	if (what == "AutoUpgrade"){
+	if (what == 'AutoUpgrade'){
 		tooltipText = "Your scientists can finally handle some upgrades on their own! Toggling this on will cause most upgrades to be purchased automatically. Does not include equipment prestiges or upgrades that would trigger a confirmation popup.";
 	}
-	if (what == "Recycle All"){
+	if (what == 'Recycle All'){
 		tooltipText = "Recycle all maps below the selected level.";
 	}
-	if (what == "PlayFab Login"){
+	if (what == 'PlayFab Login'){
 		var tipHtml = getPlayFabLoginHTML();
 		tooltipText = tipHtml[0];
 		costText = tipHtml[1];
@@ -551,21 +551,21 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		swapClass('tooltipExtra', 'tooltipExtraLg', elem);
 
 	}
-	if (what == "PlayFab Conflict"){
+	if (what == 'PlayFab Conflict'){
 		tooltipText = "It looks like your save stored at PlayFab is further along than the save on your computer.<br/><b>Your save on PlayFab has earned " + prettify(textString) + " total Helium, defeated Zone " + attachFunction + ", and cleared " + prettify(numCheck) + " total Zones. The save on your computer only has " + prettify(game.global.totalHeliumEarned) + " total Helium, has defeated Zone " + game.global.highestLevelCleared + ", and cleared " + prettify(game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal) + " total Zones.</b><br/>Would you like to Download your save from PlayFab, Overwrite your online save with this one, or Cancel and do nothing?";
 		costText = "<span class='btn btn-primary' onclick='playFabFinishLogin(true)'>Download From PlayFab</span><span class='btn btn-warning' onclick='playFabFinishLogin(false)'>Overwrite PlayFab Save</span><span class='btn btn-danger' onclick='cancelPlayFab();'>Cancel</span>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Fire Trimps"){
+	if (what == 'Fire Trimps'){
 		if (!game.global.firing)
 		tooltipText = "Activate firing mode, turning the job buttons red, and forcing them to fire trimps rather than hire them. The newly unemployed Trimps will start breeding instead of working, but you will not receive a refund on resources.";
 		else
 		tooltipText = "Disable firing mode";
 		costText = "";
 	}
-	if (what == "Maps"){
+	if (what == 'Maps'){
 		if (!game.global.preMapsActive)
 		tooltipText = "Travel to the Map Chamber. Maps are filled with goodies, and for each max level map you clear you will gain a 20% stacking damage bonus for that zone (stacks up to 10 times).";
 		else
@@ -612,7 +612,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (isItIn == "equipment"){
 		costText = canAffordBuilding(what, false, true, true);
-		if (what == "Shield" && game.equipment.Shield.blockNow){
+		if (what == 'Shield' && game.equipment.Shield.blockNow){
 			var blockPerShield = game.equipment.Shield.blockCalculated + (game.equipment.Shield.blockCalculated * game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100));
 			tooltipText += " (" + prettify(blockPerShield) + " after Trainers)";
 		}
@@ -640,7 +640,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var percentNum = (game.global.frugalDone) ? '60' : '50';
 			tooltipText = tooltipText.replace('?', percentNum);
 		}
-		if (what == "Coordination"){
+		if (what == 'Coordination'){
 			var coordReplace = (game.portal.Coordinated.level) ? (25 * Math.pow(game.portal.Coordinated.modifier, game.portal.Coordinated.level)).toFixed(3) : 25;
 			tooltipText = tooltipText.replace('<coord>', coordReplace);
 			if (!canAffordCoordinationTrimps()){
@@ -678,8 +678,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (typeof tipSplit[1] !== 'undefined'){
 			if (tipSplit[1] == 'incby'){
 				var increase = toTip.increase.by;
-				if (game.portal.Carpentry.level && toTip.increase.what == "trimps.max") increase *= Math.pow(1.1, game.portal.Carpentry.level);
-				if (game.portal.Carpentry_II.level && toTip.increase.what == "trimps.max") increase *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
+				if (game.portal.Carpentry.level && toTip.increase.what == 'trimps.max') increase *= Math.pow(1.1, game.portal.Carpentry.level);
+				if (game.portal.Carpentry_II.level && toTip.increase.what == 'trimps.max') increase *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
 				tooltipText = tipSplit[0] + prettify(increase) + tipSplit[2];
 			}
 			else if (isItIn == "jobs" && toTip.increase != "custom"){
@@ -911,7 +911,7 @@ function unlockTooltip(){
 }
 
 function getPsString(what, rawNum) {
-	if (what == "helium") return;
+	if (what == 'helium') return;
 	var resOrder = ["food", "wood", "metal", "science", "gems", "fragments"];
 	var books = ["farming", "lumber", "miner", "science"];
 	var jobs = ["Farmer", "Lumberjack", "Miner", "Scientist", "Dragimp", "Explorer"];
@@ -919,7 +919,7 @@ function getPsString(what, rawNum) {
 	var job = game.jobs[jobs[index]];
 	var book = game.upgrades["Speed" + books[index]];
 	var mBook = game.upgrades["Mega" + books[index]];
-	var base = (what == "fragments") ? 0.1 : 0.5;
+	var base = (what == 'fragments') ? 0.1 : 0.5;
 	var textString =  "<table class='bdTable table table-striped'><tbody>";
 	//Add base
 	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + prettify(base) + "</td></tr>";
@@ -947,7 +947,7 @@ function getPsString(what, rawNum) {
 		textString += "<tr><td class='bdTitle'>Bounty</td><td class='bdPercent'>+ 100%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Tribute
-	if (what == "gems" && game.buildings.Tribute.owned > 0){
+	if (what == 'gems' && game.buildings.Tribute.owned > 0){
 		var tributeStrength = Math.pow(game.buildings.Tribute.increase.by, game.buildings.Tribute.owned);
 		currentCalc *= tributeStrength;
 		tributeStrength = prettify((tributeStrength - 1) * 100) + "%";
@@ -983,7 +983,7 @@ function getPsString(what, rawNum) {
 		}
 	}
 	//Add Magmamancer
-	if (game.jobs.Magmamancer.owned > 0 && what == "metal"){
+	if (game.jobs.Magmamancer.owned > 0 && what == 'metal'){
 		var manceStrength = game.jobs.Magmamancer.getBonusPercent();
 		if (manceStrength > 1){
 			currentCalc *= manceStrength;
@@ -1051,7 +1051,7 @@ function getPsString(what, rawNum) {
 	}
 	//Add player
 	if (game.global.playerGathering == what){
-		if (game.global.turkimpTimer > 0 && (what == "food" || what == "wood" || what == "metal")){
+		if (game.global.turkimpTimer > 0 && (what == 'food' || what == 'wood' || what == 'metal')){
 			var tBonus = (game.talents.turkimp3.purchased) ? 75 : 50;
 			currentCalc *= (1 + (tBonus / 100));
 			textString += "<tr><td class='bdTitle'>Sharing Food</td><td class='bdPercent'>+ " + tBonus + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
@@ -1197,15 +1197,15 @@ function getFluctuation(number, minFluct, maxFluct){
 function getBattleStatBd(what) {
 	var equipment = {};
 	var name = what.charAt(0).toUpperCase() + what.substr(1, what.length);
-	var textString =  "<table class='bdTableSm table table-striped'><tbody><tr><td></td><td>Base</td><td>Level</td><td>Item " + name + "</td><td>Total</td>" + ((what == "attack") ? "<td>Min</td><td>Max</td>" : "") + "</tr>";
+	var textString =  "<table class='bdTableSm table table-striped'><tbody><tr><td></td><td>Base</td><td>Level</td><td>Item " + name + "</td><td>Total</td>" + ((what == 'attack') ? "<td>Min</td><td>Max</td>" : "") + "</tr>";
 	var currentCalc = 0;
 	var maxFluct = 0.2;
 	var minFluct = 0.2;
 	var percent = 0;
-	if (what == "health" || what == "attack"){
-		currentCalc += (what == "health") ? 50 : 6;
-		textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercentSm'>" + prettify(currentCalc) + "</td><td></td><td></td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? "<td>-20%</td><td>+20%</td>" : "") + "</tr>";
-		if (what == "attack"){
+	if (what == 'health' || what == 'attack'){
+		currentCalc += (what == 'health') ? 50 : 6;
+		textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercentSm'>" + prettify(currentCalc) + "</td><td></td><td></td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? "<td>-20%</td><td>+20%</td>" : "") + "</tr>";
+		if (what == 'attack'){
 			//Discipline
 			if (game.global.challengeActive == "Discipline"){
 				minFluct = 0.995;
@@ -1239,10 +1239,10 @@ function getBattleStatBd(what) {
 			var equipStrength = temp[what + "Calculated"] * temp.level;
 			currentCalc += equipStrength;
 			percent = ((equipStrength / game.global[what]) * 100).toFixed(1) + "%";
-			textString += "<tr><td class='bdTitle'>" + equip + "</td><td>" + prettify(temp[what + "Calculated"]) + "</td><td>" + temp.level + "</td><td>" + prettify(equipStrength) + " (" + percent + ")</td><td>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+			textString += "<tr><td class='bdTitle'>" + equip + "</td><td>" + prettify(temp[what + "Calculated"]) + "</td><td>" + temp.level + "</td><td>" + prettify(equipStrength) + " (" + percent + ")</td><td>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 		}
 	}
-	else if (what == "block"){
+	else if (what == 'block'){
 		//Add Gym
 		var gym = game.buildings.Gym;
 		if (gym.owned > 0){
@@ -1269,31 +1269,31 @@ function getBattleStatBd(what) {
 	}
 	//Add coordination
 	currentCalc  *= game.resources.trimps.maxSoldiers;
-	textString += "<tr><td class='bdTitle'>Soldiers</td><td class='bdPercentSm'></td><td></td><td>x " + prettify(game.resources.trimps.maxSoldiers) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+	textString += "<tr><td class='bdTitle'>Soldiers</td><td class='bdPercentSm'></td><td></td><td>x " + prettify(game.resources.trimps.maxSoldiers) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	//Add achievements
-	if (what == "attack" && game.global.achievementBonus > 0){
+	if (what == 'attack' && game.global.achievementBonus > 0){
 		currentCalc *= 1 + (game.global.achievementBonus / 100);
 		textString += "<tr><td class='bdTitle'>Achievements</td><td class='bdPercentSm'></td><td></td><td>+ " + game.global.achievementBonus + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
 	}
 	//Add perk
 	var perk = "";
-	if (what == "health") perk = "Toughness";
-	if (what == "attack") perk = "Power";
+	if (what == 'health') perk = "Toughness";
+	if (what == 'attack') perk = "Power";
 	if (perk && game.portal[perk].level > 0){
 		var PerkStrength = (game.portal[perk].level * game.portal[perk].modifier);
 		currentCalc  *= (PerkStrength + 1);
 		PerkStrength = prettify(PerkStrength * 100) + "%";
-		textString += "<tr><td class='bdTitle'>" + perk + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>" + perk + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
 	perk = perk + "_II";
 	if (game.portal[perk] && game.portal[perk].level > 0){
 		var PerkStrength = (game.portal[perk].level * game.portal[perk].modifier);
 		currentCalc  *= (PerkStrength + 1);
 		PerkStrength = prettify(PerkStrength * 100) + "%";
-		textString += "<tr><td class='bdTitle'>" + perk.replace('_', ' ') + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>" + perk.replace('_', ' ') + "</td><td>" + (game.portal[perk].modifier * 100) + "%</td><td>" + game.portal[perk].level + "</td><td>+ " + PerkStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
 	//Add resilience
-	if (what == "health" && game.portal.Resilience.level > 0){
+	if (what == 'health' && game.portal.Resilience.level > 0){
 		var resStrength = Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
 		currentCalc *= resStrength;
 		resStrength = prettify((resStrength - 1) * 100) + "%";
@@ -1301,7 +1301,7 @@ function getBattleStatBd(what) {
 	}
 	//Add Geneticist
 	var geneticist = game.jobs.Geneticist;
-	if (game.global.lastLowGen > 0 && what == "health"){
+	if (game.global.lastLowGen > 0 && what == 'health'){
 		var calcedGenes = game.global.lastLowGen;
 		var geneticistStrength = Math.pow(1.01, calcedGenes);
 		currentCalc  *= geneticistStrength;
@@ -1310,7 +1310,7 @@ function getBattleStatBd(what) {
 	}
 	//Add Anticipation
 	var anticipation = game.portal.Anticipation;
-	if (anticipation.level > 0 && what == "attack"){
+	if (anticipation.level > 0 && what == 'attack'){
 		var antiStrength = ((anticipation.level * anticipation.modifier * game.global.antiStacks) + 1);
 		currentCalc *= antiStrength;
 		antiStrength = prettify((antiStrength - 1) * 100) + "%";
@@ -1320,36 +1320,36 @@ function getBattleStatBd(what) {
 	//Add formations
 	if (game.global.formation > 0){
 		var formStrength = 0.5;
-		if ((game.global.formation == 1 && what == "health") || (game.global.formation == 2 && what == "attack") || (game.global.formation == 3 && what == "block")) formStrength = 4;
+		if ((game.global.formation == 1 && what == 'health') || (game.global.formation == 2 && what == 'attack') || (game.global.formation == 3 && what == 'block')) formStrength = 4;
 		currentCalc *= formStrength;
-		textString += "<tr><td class='bdTitle'>Formation</td><td></td><td></td><td>x " + formStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>Formation</td><td></td><td></td><td>x " + formStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 
 	}
 	//Add Titimp
-	if (game.global.titimpLeft > 1 && game.global.mapsActive && what == "attack"){
+	if (game.global.titimpLeft > 1 && game.global.mapsActive && what == 'attack'){
 		currentCalc *= 2;
 		textString += "<tr><td class='bdTitle'>Titimp</td><td></td><td></td><td>x 2</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	//Add map bonus
-	if (!game.global.mapsActive && game.global.mapBonus > 0 && what == "attack"){
+	if (!game.global.mapsActive && game.global.mapBonus > 0 && what == 'attack'){
 		var mapBonusMult = 0.2 * game.global.mapBonus;
 		currentCalc *= (1 + mapBonusMult);
 		mapBonusMult *= 100;
 		textString += "<tr><td class='bdTitle'>Map Bonus</td><td>20%</td><td>" + game.global.mapBonus + "</td><td>+ " + prettify(mapBonusMult) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	//Add RoboTrimp
-	if (what == "attack" && game.global.roboTrimpLevel > 0){
+	if (what == 'attack' && game.global.roboTrimpLevel > 0){
 		var roboTrimpMod = 0.2 * game.global.roboTrimpLevel;
 		currentCalc *= (1 + roboTrimpMod);
 		roboTrimpMod *= 100;
 		textString += "<tr><td class='bdTitle'><span class='icomoon icon-chain'></span> RoboTrimp <span class='icomoon icon-chain'></span></td><td>20%</td><td>" + game.global.roboTrimpLevel + "</td><td>+ " + prettify(roboTrimpMod) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	//Add challenges
-	if (what == "health" && game.global.challengeActive == "Balance"){
+	if (what == 'health' && game.global.challengeActive == "Balance"){
 		currentCalc *= game.challenges.Balance.getHealthMult();
 		textString += "<tr style='color: red'><td class='bdTitle'>Weakness (Balance)</td><td>1%</td><td>" + game.challenges.Balance.balanceStacks + "</td><td>- " + game.challenges.Balance.getHealthMult(true) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
-	if (what == "attack" && game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)){
+	if (what == 'attack' && game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)){
 		currentCalc *= 1.5;
 		textString += "<tr><td class='bdTitle'>Determined (Lead)</td><td></td><td></td><td>+ 50%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
@@ -1357,9 +1357,9 @@ function getBattleStatBd(what) {
 	if (heirloomBonus > 0){
 		currentCalc *= ((heirloomBonus / 100) + 1);
 		heirloomBonus = prettify(heirloomBonus) + '%';
-		textString += "<tr><td class='bdTitle'>Heirloom (Shield)</td><td></td><td></td><td>+ " + heirloomBonus + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>Heirloom (Shield)</td><td></td><td></td><td>+ " + heirloomBonus + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
-	if (game.global.challengeActive == "Decay" && what == "attack"){
+	if (game.global.challengeActive == "Decay" && what == 'attack'){
 		currentCalc *= 5;
 		textString += "<tr><td class='bdTitle'>Sanity (Decay)</td><td></td><td></td><td class='bdPercent'>x 5</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 		var stackStr = Math.pow(0.995, game.challenges.Decay.stacks);
@@ -1368,27 +1368,27 @@ function getBattleStatBd(what) {
 	}
 	if (game.global.challengeActive == "Daily"){
 		var mult = 0;
-		if (typeof game.global.dailyChallenge.weakness !== 'undefined' && what == "attack"){
+		if (typeof game.global.dailyChallenge.weakness !== 'undefined' && what == 'attack'){
 			mult = dailyModifiers.weakness.getMult(game.global.dailyChallenge.weakness.strength, game.global.dailyChallenge.weakness.stacks);
 			currentCalc *= mult;
 			textString += "<tr style='color: red'><td class='bdTitle'>Weakness (Daily)</td><td>x " + dailyModifiers.weakness.getMult(game.global.dailyChallenge.weakness.strength, 1).toFixed(2) + "</td><td>" + game.global.dailyChallenge.weakness.stacks + "</td><td class='bdPercent'>x " + mult.toFixed(2) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 		}
-		if (typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && what == "attack" && (game.global.world % 2 == 1)){
+		if (typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && what == 'attack' && (game.global.world % 2 == 1)){
 			mult = dailyModifiers.oddTrimpNerf.getMult(game.global.dailyChallenge.oddTrimpNerf.strength);
 			currentCalc *= mult;
 			textString += "<tr style='color: red'><td class='bdTitle'>Oddly Weak (Daily)</td><td>x " + mult.toFixed(2) + "</td><td></td><td class='bdPercent'>x " + mult.toFixed(2) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 		}
-		if (typeof game.global.dailyChallenge.evenTrimpBuff !== 'undefined' && what == "attack" && (game.global.world % 2 == 0)){
+		if (typeof game.global.dailyChallenge.evenTrimpBuff !== 'undefined' && what == 'attack' && (game.global.world % 2 == 0)){
 			mult = dailyModifiers.evenTrimpBuff.getMult(game.global.dailyChallenge.evenTrimpBuff.strength);
 			currentCalc *= mult;
 			textString += "<tr><td class='bdTitle'>Even Stronger (Daily)</td><td>x " + mult.toFixed(2) + "</td><td></td><td class='bdPercent'>+ " + prettify((mult * 100) - 100) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 		}
-		if (typeof game.global.dailyChallenge.rampage !== 'undefined' && what == "attack"){
+		if (typeof game.global.dailyChallenge.rampage !== 'undefined' && what == 'attack'){
 			mult = dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
 			currentCalc *= mult;
 			textString += "<tr><td class='bdTitle'>Rampage (Daily)</td><td>x " + dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, 1).toFixed(3) + "</td><td>" + game.global.dailyChallenge.rampage.stacks + "</td><td class='bdPercent'>x " + mult.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 		}
-		if (typeof game.global.dailyChallenge.pressure !== 'undefined' && what == "health"){
+		if (typeof game.global.dailyChallenge.pressure !== 'undefined' && what == 'health'){
 			mult = dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
 			currentCalc *= mult;
 			textString += "<tr style='color: red'><td class='bdTitle'>Pressure (Daily)</td><td>x " + mult.toFixed(2) + "</td><td></td><td class='bdPercent'>x " + mult.toFixed(2) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
@@ -1398,28 +1398,28 @@ function getBattleStatBd(what) {
 	if (what != "block" && game.goldenUpgrades.Battle.currentBonus > 0){
 		amt = game.goldenUpgrades.Battle.currentBonus;
 		currentCalc *= 1 + amt;
-		textString += "<tr><td class='bdTitle'>Golden Battle</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>Golden Battle</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
 	if (what != "block" && game.talents.voidPower.purchased && game.global.voidBuff){
 		amt = (game.talents.voidPower2.purchased) ? 35 : 15;
 		currentCalc *= (1 + (amt / 100));
-		textString += "<tr><td class='bdTitle'>Void Power (Mastery)</td><td></td><td>" + ((game.talents.voidPower2.purchased) ? 2 : 1) + "</td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>Void Power (Mastery)</td><td></td><td>" + ((game.talents.voidPower2.purchased) ? 2 : 1) + "</td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
 	//Magma
-	if (mutations.Magma.active() && (what == "attack" || what == "health")){
+	if (mutations.Magma.active() && (what == 'attack' || what == 'health')){
 		mult = mutations.Magma.getTrimpDecay();
 		var lvls = game.global.world - mutations.Magma.start() + 1;
 		currentCalc *= mult;
 		var display = (mult > 0.0001) ? mult.toFixed(4) : mult.toExponential(3);
-		textString += "<tr style='color: red'><td class='bdTitle'>Overheating (Magma)</td><td>x 0.8</td><td>" + lvls + "</td><td class='bdPercent'>x " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr style='color: red'><td class='bdTitle'>Overheating (Magma)</td><td>x 0.8</td><td>" + lvls + "</td><td class='bdPercent'>x " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
-	if (game.global.totalSquaredReward > 0 && (what == "attack" || what == "health")){
+	if (game.global.totalSquaredReward > 0 && (what == 'attack' || what == 'health')){
 		amt = game.global.totalSquaredReward;
 		currentCalc *= (1 + (amt / 100));
-		textString += "<tr><td class='bdTitle'>Challenge² Rewards</td><td></td><td></td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>"
+		textString += "<tr><td class='bdTitle'>Challenge² Rewards</td><td></td><td></td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == 'attack') ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>"
 	}
 	//Ice
-	if (what == "attack" && getEmpowerment() == "Ice"){
+	if (what == 'attack' && getEmpowerment() == "Ice"){
 		amt = 1 - game.empowerments.Ice.getCombatModifier();
 		currentCalc *= (1 + amt);
 		textString += "<tr><td class='bdTitle'>Chilled Enemy</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
@@ -1427,7 +1427,7 @@ function getBattleStatBd(what) {
 	}
 
 	var critChance = getPlayerCritChance();
-	if (what == "attack" && critChance){
+	if (what == 'attack' && critChance){
 		var critMult = getPlayerCritDamageMult();
 		currentCalc *= critMult;
 		textString += "<tr class='critRow'><td class='bdTitle'>Crit Chance</td><td>" + prettify(critChance * 100) + "%</td><td class='bdTitle'>Crit Damage</td><td>+ " + prettify((critMult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
@@ -1435,7 +1435,7 @@ function getBattleStatBd(what) {
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getBattleStatBd('" + what + "')", name, "Refresh", true);
-	if (what == "attack"){
+	if (what == 'attack'){
 		verticalCenterTooltip(true);
 	}
 }
@@ -1750,7 +1750,7 @@ function getLootBd(what) {
 	if (getEmpowerment() == "Wind" && (what != "Helium" || !game.global.mapsActive)){
 		var windMod;
 		var baseMod = game.empowerments.Wind.getModifier() * 100;
-		if (what == "Helium"){
+		if (what == 'Helium'){
 			windMod = game.empowerments.Wind.getCombatModifier();
 		}
 		else{
@@ -1765,7 +1765,7 @@ function getLootBd(what) {
 		textString += "<tr><td class='bdTitle'>Formation</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	var heirloomBonus = 0;
-	if (what == "Food/Wood/Metal"){
+	if (what == 'Food/Wood/Metal'){
 		heirloomBonus = calcHeirloomBonus("Staff", "foodDrop", 0, true);
 		if (heirloomBonus > 0){
 			textString += "<tr><td class='bdTitle'>Heirloom - Food (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
@@ -1782,37 +1782,37 @@ function getLootBd(what) {
 			heirloomBonus = 0;
 		}
 	}
-	else if (what == "Fragments"){
+	else if (what == 'Fragments'){
 		heirloomBonus = calcHeirloomBonus("Staff", "fragmentsDrop", 0, true);
 		if (heirloomBonus > 0){
 			textString += "<tr><td class='bdTitle'>Heirloom (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
 			heirloomBonus = 0;
 		}
 	}
-	else if (what == "Gems"){
+	else if (what == 'Gems'){
 		heirloomBonus = calcHeirloomBonus("Staff", "gemsDrop", 0, true);
 		if (heirloomBonus > 0){
 			textString += "<tr><td class='bdTitle'>Heirloom (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
 			heirloomBonus = 0;
 		}
 	}
-	if (game.global.totalSquaredReward > 0 && what == "Helium"){
+	if (game.global.totalSquaredReward > 0 && what == 'Helium'){
 		amt = game.global.totalSquaredReward / 1000;
 		currentCalc *= (amt + 1);
 		textString += "<tr><td class='bdTitle'>Challenge² Reward</td><td></td><td></td><td>+" + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
-	if (game.global.runningChallengeSquared && what == "Helium"){
+	if (game.global.runningChallengeSquared && what == 'Helium'){
 		currentCalc = 0;
 		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge²</td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
-	if (what == "Helium" && !game.global.voidBuff && (game.global.world >= mutations.Corruption.start())){
+	if (what == 'Helium' && !game.global.voidBuff && (game.global.world >= mutations.Corruption.start())){
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
 		var corrCount = mutations.Corruption.cellCount();
 		var corrCalc = (corrVal / 100) * currentCalc;
 		textString += "<tr class='corruptedCalcRow'><td class='bdTitle' style='vertical-align: middle'>Corruption Value</td><td>" + corrVal + "%<br/>" + corrCount + " Cells</td><td>Per Cell:<br/>" + prettify(corrCalc) + "</td><td>Per Zone:<br/>" + prettify(corrCalc * corrCount) + "</td><td style='vertical-align: middle'>" + prettify(currentCalc + (corrCalc * corrCount)) + "</td></tr>";
 		//<tr><td class='bdTitle'>Total Per Zone</td><td></td><td></td><td></td><td>" + prettify(currentCalc + (corrCalc * corrVal)) + "</td></tr>
 	}
-	else if (what == "Helium" && game.global.voidBuff && game.global.world >= mutations.Corruption.start(true)) {
+	else if (what == 'Helium' && game.global.voidBuff && game.global.world >= mutations.Corruption.start(true)) {
 		//5.71m
 		var corruptedCells = mutations.Corruption.cellCount();
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
@@ -2514,10 +2514,10 @@ function filterTabs (what) {
 	var tabs = ["buildings", "jobs", "upgrades", "equipment", "talents", "nature"];
 	for (var tab in tabs){
 		tab = tabs[tab];
-		document.getElementById(tab + "Container").style.display = ((what == "all" && tab != "talents" && tab != "nature") || tab == what) ? "block" : "none";
+		document.getElementById(tab + "Container").style.display = ((what == 'all' && tab != "talents" && tab != "nature") || tab == what) ? "block" : "none";
 	}
-	if (what == "talents") displayTalents();
-	if (what == "nature") displayNature();
+	if (what == 'talents') displayTalents();
+	if (what == 'nature') displayNature();
 
 }
 
@@ -2543,7 +2543,7 @@ function setMax(amount){
 
 function numTab(what, p, fromRestore) {
 	var num = 0;
-	if (what == "6" && game.global.buyAmt == "Max") tooltip('Max', null, 'update');
+	if (what == '6' && game.global.buyAmt == "Max") tooltip('Max', null, 'update');
 	if (what == 5){
 		unlockTooltip();
 		tooltip('hide');
@@ -2665,7 +2665,7 @@ function removeQueueItem(what, force, second) {
 	if (game.options.menu.pauseGame.enabled && !force) return;
 	var queue = document.getElementById("queueItemsHere");
 	var elem;
-	if (what == "first"){
+	if (what == 'first'){
 		elem = queue.firstChild;
 		var name = game.global.buildingsQueue[0].split('.');
 		if (name[1] > 1){
@@ -3017,7 +3017,7 @@ function unlockUpgrade(what, displayOnly) {
 	var upgrade = game.upgrades[what];
 	upgrade.locked = 0;
 	if (upgrade.prestiges){
-		var resName = (what == "Supershield") ? "wood" : "metal";
+		var resName = (what == 'Supershield') ? "wood" : "metal";
 		upgrade.cost.resources[resName] = getNextPrestigeCost(what);
 	}
 	if (!displayOnly) {
@@ -3047,7 +3047,7 @@ function drawAllUpgrades(){
 function drawUpgrade(what, where){
 	var upgrade = game.upgrades[what];
 	if (upgrade.prestiges && (!upgrade.cost.resources[metal] || !upgrade.cost.resources[wood])){
-		var resName = (what == "Supershield") ? "wood" : "metal";
+		var resName = (what == 'Supershield') ? "wood" : "metal";
 		upgrade.cost.resources[resName] = getNextPrestigeCost(what);
 	}
 	var done = upgrade.done;
@@ -3068,7 +3068,7 @@ function checkButtons(what) {
 		}
 		return;
 	}
-	if (what == "upgrades"){
+	if (what == 'upgrades'){
 		for (var itemA in game.upgrades){
 			if (game.upgrades[itemA].locked == 1) continue;
 			if (itemA == "Coordination")
@@ -3078,7 +3078,7 @@ function checkButtons(what) {
 		}
 		return;
 	}
-	if (what == "buildings"){
+	if (what == 'buildings'){
 		for (var itemBuild in game.buildings){
 			var thisBuilding = game.buildings[itemBuild];
 			if (thisBuilding.locked == 1) continue;
@@ -3089,7 +3089,7 @@ function checkButtons(what) {
 		}
 		return;
 	}
-	if (what == "equipment"){
+	if (what == 'equipment'){
 		for (var itemEquip in game.equipment){
 			var thisEquipment = game.equipment[itemEquip];
 			if (thisEquipment.locked == 1) continue;
@@ -3135,7 +3135,7 @@ function updateButtonColor(what, canAfford, isJob) {
 		}
 		return;
 	}
-	if (what == "Warpstation") {
+	if (what == 'Warpstation') {
 		if(canAfford)
 			elem.style.backgroundColor = getWarpstationColor();
 		else
@@ -3144,7 +3144,7 @@ function updateButtonColor(what, canAfford, isJob) {
 
 	if(canAfford){
 		if
-			(what == "Gigastation" && (ctrlPressed || game.options.menu.ctrlGigas.enabled)) swapClass("thingColor", "thingColorCtrl", elem);
+			(what == 'Gigastation' && (ctrlPressed || game.options.menu.ctrlGigas.enabled)) swapClass("thingColor", "thingColorCtrl", elem);
 		else
 		swapClass("thingColor", "thingColorCanAfford", elem);
 	}
@@ -3273,8 +3273,8 @@ function settingTab(what){
 	searchSettings(elem);
 	clearSettingTabs();
 	var tabElem = document.getElementById(what + "Tab");
-	if (tabElem) swapClass('tab', 'tabSelected', tabElem);
-	if (what == "New") document.getElementById('NewTab').style.display = "table-cell";
+	if (tabEzlem) swapClass('tab', 'tabSelected', tabElem);
+	if (what == 'New') document.getElementById('NewTab').style.display = "table-cell";
 }
 
 function clearSettingTabs(){
