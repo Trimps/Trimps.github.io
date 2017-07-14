@@ -16,7 +16,7 @@
 		author's website, you can find a copy at
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
-
+"use strict"
 
 var customUp;
 var tooltipUpdateFunction = "";
