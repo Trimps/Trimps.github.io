@@ -21,6 +21,8 @@
 
 "use strict";
 
+// List of all external dependencies. Useful for linters.
+let prettify, getCurrentMapObject, refreshMap, swapClass, tooltip, updateTalentNumbers, save, gameTimeout, updatePortalTimer, cancelTooltip, tooltipUpdateFunction, updateForemenCount, toggleAutoStructure, updateAntiStacks, isSaving, getDailyChallenge, startDaily, abandonDaily, unlockUpgrade, refreshMaps, updateBalanceStacks, message, addNewSetting, getScientistInfo, getScientistLevel, toggleAutoUpgrades, updateDecayStacks, updateMapCredits, mutations, getFuelBurnRate, scaleNumberForBonusHousing, formatMinutesForDescriptions, getMinutesThisPortal, updateRadioStacks, givePresimptLoot, activateTurkimpPowers, givePumpkimpLoot, rewardResource, fadeIn, addHelium, checkAchieve, giveSingleAchieve, planetBreaker, unlockEquipment, updateGoodBar, simpleSeconds, scaleToCurrentMap, addResCheckMax, updateSkeleBtn, romanNumeral, createMap, purgeBionics, getMapIndex, unlockJob, createHeirloom, enableImprovedAutoStorage, unlockMapStuff, unlockBuilding, getRandomIntSeeded, calculatePercentageBuildingCost, calcHeirloomBonus, ctrlPressed, clearQueue, buyBuilding, buildGrid, drawGrid, pauseFight, toggleAutoTrap, prestigeEquipment, levelEquipment, unlockFormation;
 function newGame () {
 var toReturn = {
 	global: {
@@ -259,7 +261,6 @@ var toReturn = {
 			var world = getCurrentMapObject();
 			var amt = 0;
 			world = (game.global.mapsActive) ? world.level : game.global.world;
-			var adjWorld = ((world - 1) * 100) + level;
 			amt += 50 * Math.sqrt(world) * Math.pow(3.27, world / 2);
 			amt -= 10;
 			if (world == 1){
@@ -270,9 +271,9 @@ var toReturn = {
 				amt *= 0.5;
 				amt = (amt * 0.32) + ((amt * 0.68) * (level / 100));
 			}
-			else if (world < 60)
+			else if (world < 60) {
 				amt = (amt * 0.375) + ((amt * 0.7) * (level / 100));
-			else{
+			} else {
 				amt = (amt * 0.4) + ((amt * 0.9) * (level / 100));
 				amt *= Math.pow(1.15, world - 59);
 			}
@@ -614,7 +615,7 @@ var toReturn = {
 					swapClass("col-xs", "col-xs-" + setTo[1], document.getElementById("extraMapBtns"));
 				},
 				lockUnless: function () {
-					return (game.global.totalPortals > 0)
+					return (game.global.totalPortals > 0);
 				},
 			},
 			GeneticistassistTarget: {
@@ -633,7 +634,7 @@ var toReturn = {
 				description: "Choose if you would like to see a different cell color for cells that you overkilled. Toggle between off, showing both cells involved in the overkill, or just showing the 1 cell that was skipped.",
 				titles: ["No Overcolors", "1 Overkill Cell", "2 Overkill Cells"],
 				lockUnless: function () {
-					return (!game.portal.Overkill.locked)
+					return (!game.portal.Overkill.locked);
 				},
 			},
 			forceQueue: {
@@ -660,7 +661,7 @@ var toReturn = {
 				description: "When entering the Maps screen, by default the Level Selector starts at your current world number. Toggling this setting on will force this number to default to your minimum Siphonology level instead.",
 				titles: ["Use World Number", "Use Siphonology Level"],
 				lockUnless: function () {
-					return (!game.portal.Siphonology.locked)
+					return (!game.portal.Siphonology.locked);
 				}
 			},
 			timestamps: {
@@ -685,7 +686,7 @@ var toReturn = {
 				description: "Choose what you would like to see on your Mastery Tab! <b>No Mastery Info</b> will keep the tab clean and static. <b>Alert Mastery</b> will show an alert on the tab as soon as a new Mastery becomes affordable. <b>Show Essence</b> will always show your total amount of unspent essence on the tab.",
 				titles: ["No Mastery Info", "Alert Mastery", "Show Essence"],
 				lockUnless: function () {
-					return (game.global.highestLevelCleared >= 180)
+					return (game.global.highestLevelCleared >= 180);
 				},
 				onToggle: function () {
 					updateTalentNumbers();
@@ -1379,7 +1380,7 @@ var toReturn = {
 		Scientist: {
 			get description (){
 				var is5 = (game.global.highestLevelCleared >= 124 && game.global.sLevel >= 4);
-				return "Attempt modifying the portal to " + ((is5) ? "retain positive qualities from previous dimensions" : "harvest resources when travelling") + ". Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists" + ((is5) ? " and <b style='color: maroon'>all enemy damage will be 10X higher</b>" : "") + ". Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal."
+				return "Attempt modifying the portal to " + ((is5) ? "retain positive qualities from previous dimensions" : "harvest resources when travelling") + ". Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists" + ((is5) ? " and <b style='color: maroon'>all enemy damage will be 10X higher</b>" : "") + ". Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal.";
 			},
 			completed: false,
 			heldBooks: 0,
@@ -1691,7 +1692,7 @@ var toReturn = {
 			}
 		},
 		Corrupted: {
-			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension."},
+			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension.";},
 			filter: function () {
 				return (game.global.highestLevelCleared >= 189);
 			},
@@ -1733,7 +1734,7 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0,
 			display: function () {
-				return ((this.value + this.valueTotal) > 0)
+				return ((this.value + this.valueTotal) > 0);
 			}
 		},
 		trimpsFired: {
@@ -1771,7 +1772,7 @@ var toReturn = {
 		spentOnWorms: {
 			title: "Wormholed Helium",
 			display: function () {
-				return ((this.value + this.valueTotal) > 0)
+				return ((this.value + this.valueTotal) > 0);
 			},
 			value: 0,
 			valueTotal: 0
@@ -1997,7 +1998,7 @@ var toReturn = {
 				if (this.breakpoints.length > this.finished) return game.global.highestLevelCleared + " / " + this.breakpoints[this.finished];
 				return game.global.highestLevelCleared + " total";
 			},
-			evaluate: function () { return game.global.highestLevelCleared},
+			evaluate: function () { return game.global.highestLevelCleared;},
 			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300],
 			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7],
 			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator", "Heat Maker", "Heat Hater", "Heat Breaker", "Heat Slayer", "Heat Expert", "Heat Bender", "Volcanic", "Magma Master"],
@@ -2065,7 +2066,7 @@ var toReturn = {
 				if (this.breakpoints.length > this.finished) return this.evaluate() + " / " + this.breakpoints[this.finished];
 				return this.evaluate() + " total";
 			},
-			evaluate: function () { return game.global.totalPortals},
+			evaluate: function () { return game.global.totalPortals;},
 			breakpoints: [1, 3, 10, 20, 50, 100, 200, 500],
 			tiers: [1, 2, 2, 2, 3, 3, 4, 4],
 			names: ["A Trimp Through Time", "When The Wild Things Are", "A Time Like No Other", "Venti Timeachino", "Time of Your Life", "Centennial Trimper", "Amnesia", "Dedicated Traveller"],
@@ -2139,7 +2140,7 @@ var toReturn = {
 			finished: 0,
 			title: "Heirloom Collection",
 			description: function (number) {
-				var number = this.breakpoints[number];
+				number = this.breakpoints[number];
 				var s = (number > 1) ? "s" : "";
 				return "Collect " + prettify(number) + " Heirloom" + s;
 			},
@@ -2163,7 +2164,7 @@ var toReturn = {
 			finished: 0,
 			title: "Gem Collection",
 			description: function (number) {
-				var number = this.breakpoints[number];
+				number = this.breakpoints[number];
 				var s = (number > 1) ? "s" : "";
 				return "Collect  " + prettify(number) + " Gem" + s;
 			},
@@ -2184,7 +2185,7 @@ var toReturn = {
 			finished: 0,
 			title: "Daily Bonus",
 			description: function (number) {
-				var number = this.breakpoints[number];
+				number = this.breakpoints[number];
 				return "Earn " + prettify(number) + " Helium from the Daily Challenge";
 			},
 			evaluate: function () {
@@ -2207,7 +2208,7 @@ var toReturn = {
 			finished: 0,
 			title: "Humane Run",
 			description: function (number){
-				var number = this.breakpoints[number];
+				number = this.breakpoints[number];
 				return "<span style='font-size: .8em'>Reach Z" + number + " after losing no more than one fight per zone.</span>";
 			},
 			evaluate: function () {
@@ -2233,7 +2234,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: The Block",
 			description: function (number) {
-				var number = formatMinutesForDescriptions(this.breakpoints[number]);
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear The Block in " + number + " or less from start of run";
 			},
 			evaluate: function () {
@@ -2258,7 +2259,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: The Wall",
 			description: function (number) {
-				var number = formatMinutesForDescriptions(this.breakpoints[number]);
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear The Wall in " + number + " or less from start of run";
 			},
 			display: function () {
@@ -2283,7 +2284,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: Anger",
 			description: function (number) {
-				var number = formatMinutesForDescriptions(this.breakpoints[number]);
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear DoA in " + number + " or less from start of run";
 			},
 			display: function () {
@@ -2308,7 +2309,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: Doom",
 			description: function (number) {
-				var number = formatMinutesForDescriptions(this.breakpoints[number]);
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear ToD in " + number + " or less from start of run";
 			},
 			display: function () {
@@ -2333,7 +2334,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: The Prison",
 			description: function (number) {
-				var number = formatMinutesForDescriptions(this.breakpoints[number]);
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear Prison in " + number + " or less from start of run";
 			},
 			display: function () {
@@ -2358,7 +2359,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: Bionic",
 			description: function (number) {
-				var number = formatMinutesForDescriptions(this.breakpoints[number]);
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "<span style='font-size: .8em'>Clear Bionic Wonderland in " + number + " or less from start of run</span>";
 			},
 			display: function () {
@@ -2383,7 +2384,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: Star",
 			description: function (number) {
-				var number = formatMinutesForDescriptions(this.breakpoints[number]);
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "<span style='font-size: .8em'>Clear Imploding Star in " + number + " or less from start of run</span>";
 			},
 			display: function () {
@@ -2408,7 +2409,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: Spire",
 			description: function (number) {
-				var number = formatMinutesForDescriptions(this.breakpoints[number]);
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "<span style='font-size: .8em'>Clear The Spire in " + number + " or less from start of run</span>";
 			},
 			display: function () {
@@ -2660,7 +2661,7 @@ var toReturn = {
 		},
 		w182: "Well, there's not really much doubt about it anymore. Some sort of intelligence is intentionally making life more difficult for you and your Trimps. You take this as a sign that you're pretty important, why else would something risk destroying an entire planet to stop you? Your parents would be so proud.",
 		get w184 () {
-				return "The corruption seems to be more pronounced the closer you get to the Spire. Looks like there's " + mutations.Corruption.cellCount() + " of em now."
+				return "The corruption seems to be more pronounced the closer you get to the Spire. Looks like there's " + mutations.Corruption.cellCount() + " of em now.";
 			},
 		w185: "You have trouble putting in to words exactly what the Corruption does to the creatures on this planet. They seem to be stripped of all natural abilities and given powers that you didn't know could exist in the primary dimension.",
 		w187: "None of these corrupted enemies seem to have eyes, so you decide to see if you can get away with flipping one off. As it reacts by roaring and stomping around in a rage, you realize that these things are powerful enough not to need eyes to observe the world. What <i>are</i> these?!",
@@ -3111,7 +3112,7 @@ var toReturn = {
 				var icon;
 				var tag;
 				if (random === 0) {
-					var amt = rewardResource("fragments", 1, level, true);
+					amt = rewardResource("fragments", 1, level, true);
 					res = "fragments";
 					icon = "th";
 					tag = "secondary";
@@ -3268,7 +3269,7 @@ var toReturn = {
 			health: 4,
 			fast: false,
 			loot: function (level) {
-				checkAchieve("angerTimed")
+				checkAchieve("angerTimed");
 			}
 		},
 		Dragimp: {
@@ -3303,7 +3304,7 @@ var toReturn = {
 			health: 2.5,
 			fast: false,
 			loot: function (level) {
-				checkAchieve("wallTimed")
+				checkAchieve("wallTimed");
 			}
 		},
 		Indianimp: {
@@ -3389,7 +3390,7 @@ var toReturn = {
 			health: 1.5,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .25, level, true);
+				var amt = rewardResource("metal", 0.25, level, true);
 				message("Mechimp disengaged. Reward encountered: " + prettify(amt) + " bars of metal. Huzzah.", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3400,7 +3401,7 @@ var toReturn = {
 			health: 0.8,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .25, level, true);
+				var amt = rewardResource("metal", 0.25, level, true);
 				message("Destructimp shorted out. Salvage results: " + prettify(amt) + " bars of metal. Acceptable.", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3411,7 +3412,7 @@ var toReturn = {
 			health: 1.2,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .25, level, true);
+				var amt = rewardResource("metal", 0.25, level, true);
 				message("Terminatimp Terminated. Findings: " + prettify(amt) + " bars of metal. Hasta la Vista.", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3422,7 +3423,7 @@ var toReturn = {
 			health: 1.3,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .5, level, true);
+				var amt = rewardResource("metal", 0.5, level, true);
 				message("Autoimp force quit. Memory dump provides " + prettify(amt) + " bars of metal and no clues. It's a feature!", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3466,7 +3467,7 @@ var toReturn = {
 			health: 1.8,
 			fast: true,
 			loot: function (level) {
-				var amt = rewardResource("metal", .5, level, true);
+				var amt = rewardResource("metal", 0.5, level, true);
 				message("The Fusimp explodes, leaving behind " + prettify(amt) + " bars of metal and a nice dose of radiation.", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3548,7 +3549,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				if (!game.global.runningChallengeSquared){
-					var amt rewardResource("helium", 30, level);
+					var amt = rewardResource("helium", 30, level);
 					message("You managed to steal " + prettify(amt) + " Helium canisters from that Omnipotrimp. That'll teach it.", "Loot", "oil", 'helium', 'helium');
 				}
 				if (game.global.world % 5 == 0){
@@ -3568,7 +3569,7 @@ var toReturn = {
 			health: 6,
 			fast: true,
 			loot: function (level) {
-				var amt rewardResource("metal", 5, level);
+				var amt = rewardResource("metal", 5, level);
 				message("Radioactive waste spills to the ground as the Mutimp falls. You send a few Trimps to grab the shiny stuff in the toxic sludge, which ends up being " + prettify(amt) + " bars of metal!", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -5615,17 +5616,18 @@ var toReturn = {
 				var timeOnZone = Math.floor((new Date().getTime() - game.global.zoneStarted) / 60000);
 				var bonus = (this.getBonusPercent() - 1) * 100;
 				var timeStr;
+				var nextBonus;
 				if (timeOnZone >= 120)
 					timeStr = "over 120 minutes (Max)";
 				else{
 					var remaining = 10 - (timeOnZone % 10);
-					var nextBonus = ((this.getBonusPercent(false, Math.floor(timeOnZone / 10) + 1) - 1) * 100);
+					nextBonus = ((this.getBonusPercent(false, Math.floor(timeOnZone / 10) + 1) - 1) * 100);
 					timeStr = prettify(timeOnZone) + " minute" + ((timeOnZone == 1) ? "" : "s") + ". In " + prettify(remaining) + " minute" + ((remaining == 1) ? "" : "s") + ", this bonus will increase to " + prettify(nextBonus) + "%";
 					if (timeOnZone < 10) bonus = 0;
 				}
 				var currentMag = (((1 - Math.pow(0.9999, this.owned)) * 3));
 				var nextMag = (((1 - Math.pow(0.9999, this.owned + 1)) * 3));
-				var nextBonus = (1 - (currentMag / nextMag)) * 100;
+				nextBonus = (1 - (currentMag / nextMag)) * 100;
 				var textString = "<p>Train a Magmamancer to craft pickaxe heads infused with Gems and Magma, custom for the unique rocks in each zone. The more Magmamancers you have and the longer you spend in one zone, the more Metal your Trimps will be able to gather!</p><p>For each 10 minutes you spend in a zone with Magmamancers up to 2 hours, your Magmamancer bonus will increase by 20% (compounding). Your current bonus is <b>" + prettify(bonus) + "%</b>, and you've been on this zone for " + timeStr + ".</p>";
 				if (this.owned > 0) textString += "<p>Your next Magmamancer will increase the total bonus by " + prettify(nextBonus) + "% (compounding, hold Ctrl to see formula)</p>";
 				else textString += "<p>After training your first Magmamancer, your bonus metal will be " + prettify((nextMag * (Math.pow(1.2, this.getBonusPercent(true)) - 1)) * 100) + "%. (Hold Ctrl to see formula)</p>";
@@ -5643,7 +5645,7 @@ var toReturn = {
 				var expInc = 1.2;
 				var timeOnZone;
 				if (typeof forceTime === 'undefined'){
-					var timeOnZone = new Date().getTime() - game.global.zoneStarted;
+					timeOnZone = new Date().getTime() - game.global.zoneStarted;
 					timeOnZone = Math.floor(timeOnZone / 600000);
 					if (timeOnZone > 12) timeOnZone = 12;
 					else if (timeOnZone <= 0) return 1;
