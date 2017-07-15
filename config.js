@@ -2230,7 +2230,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: The Block",
 			description: function (number) {
-				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				var number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear The Block in " + number + " or less from start of run";
 			},
 			evaluate: function () {
@@ -2255,7 +2255,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: The Wall",
 			description: function (number) {
-				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				var number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear The Wall in " + number + " or less from start of run";
 			},
 			display: function () {
@@ -2280,7 +2280,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: Anger",
 			description: function (number) {
-				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				var number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear DoA in " + number + " or less from start of run";
 			},
 			display: function () {
@@ -2305,7 +2305,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: Doom",
 			description: function (number) {
-				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				var number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear ToD in " + number + " or less from start of run";
 			},
 			display: function () {
@@ -2330,7 +2330,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: The Prison",
 			description: function (number) {
-				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				var number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "Clear Prison in " + number + " or less from start of run";
 			},
 			display: function () {
@@ -2355,7 +2355,7 @@ var toReturn = {
 			finished: 0,
 			title: "Speed: Bionic",
 			description: function (number) {
-				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				var number = formatMinutesForDescriptions(this.breakpoints[number]);
 				return "<span style='font-size: .8em'>Clear Bionic Wonderland in " + number + " or less from start of run</span>";
 			},
 			display: function () {
