@@ -2401,6 +2401,17 @@ function resolvePow(cost, whatObj, addOwned) {
 }
 
 //Now with equipment! buyAmt
+/**
+ * Check if the player has enough resources to purchase a thing
+ * @param  {String}  what              Name of building/equipment to check
+ * @param  {Boolean} [take]            Whether to deduct resources if available, does not give item
+ * @param  {Boolean} [buildCostString] Return a HTMLString representing cost of buying
+ * @param  {Boolean} [isEquipment]     Whether 'what' is a building or equipment
+ * @param  {Boolean} [updatingLabel]   If true, use actual amount, else use maximum that can be purchased
+ * @param  {Number}  [forceAmt]        Override the amount in game.global.buyAmt
+ * @param  {Number}  [autoPerc]        Multiper for AutoStructure
+ * @return {(Boolean|HTMLString)}      Whether the purchase can be done
+ */
 function canAffordBuilding(what, take, buildCostString, isEquipment, updatingLabel, forceAmt, autoPerc){
 	var costString = "";
 	var toBuy;
@@ -2425,31 +2436,29 @@ function canAffordBuilding(what, take, buildCostString, isEquipment, updatingLab
 				artMult *= dailyModifiers.metallicThumb.getMult(game.global.dailyChallenge.metallicThumb.strength);
 			}
 			price = Math.ceil(price * artMult);
+		} else if (game.portal.Resourceful.level) {
+			price = Math.ceil(price * (Math.pow(1 - game.portal.Resourceful.modifier, game.portal.Resourceful.level)));
 		}
-		else if (game.portal.Resourceful.level) price = Math.ceil(price * (Math.pow(1 - game.portal.Resourceful.modifier, game.portal.Resourceful.level)));
 		if (autoPerc > 0){
 			if (price > game.resources[costItem].owned * (autoPerc / 100))
 				return false;
 			continue;
-		}
-		else if (price > game.resources[costItem].owned || !(isFinite(price))) {
-			if (buildCostString) color = "red";
-			else return false;
+		} else if (price > game.resources[costItem].owned || !(isFinite(price))) {
+			if (buildCostString) {color = "red";}
+			else {return false;}
 		}
 		if (buildCostString) {
 			var percent;
 			if (color == "red"){
-				if ((costItem == "food" || costItem == "wood" || costItem == "metal") && price > getMaxForResource(costItem))
+				if ((costItem == "food" || costItem == "wood" || costItem == "metal") && price > getMaxForResource(costItem)) {
 					color = "orange";
+				}
 				var thisPs = getPsString(costItem, true);
-				if (thisPs > 0)
-				{
+				if (thisPs > 0)	{
 					percent = calculateTimeToMax(null, thisPs, (price - game.resources[costItem].owned));
 					percent = "(" + percent + ")";
-				}
-				else percent = "(<span class='icomoon icon-infinity'></span>)";
-			}
-			else{
+				} else {percent = "(<span class='icomoon icon-infinity'></span>)";}
+			} else {
 				percent = (game.resources[costItem].owned > 0) ? prettify(((price / game.resources[costItem].owned) * 100).toFixed(1)) : 0;
 				percent = "(" + percent + "%)";
 			}
@@ -2494,7 +2503,7 @@ function buyBuilding(what, confirmed, fromAuto, forceAmt) {
 			tooltip('Confirm Purchase', null, 'update', 'You are about to purchase ' + purchaseAmt + ' Wormholes, <b>which cost helium</b>. Make sure you can earn back what you spend!', 'buyBuilding(\'Wormhole\', true)');
 			return false;
 		}
-		((forceAmt) ? canAffordBuilding(what, true, false, false, false, purchaseAmt) : canAffordBuilding(what, true));
+		((forceAmt) ? canAffordBuilding(what, true, false, false, false, purchaseAmt) : canAffordBuilding(what, true)); // Done for side effects
 		game.buildings[what].purchased += purchaseAmt;
 		if (getCraftTime(game.buildings[what]) == 0) {
 			for (var x = 0; x < purchaseAmt; x++) buildBuilding(what);
@@ -2614,7 +2623,12 @@ function setNewCraftItem() {
 	var timeLeft = (game.global.timeLeftOnCraft / (game.global.autoCraftModifier + getPlayerModifier())).toFixed(1);
 
 	if (elem && !document.getElementById("queueTimeRemaining")) elem.innerHTML += "<span id='queueTimeRemaining'> - " + timeLeft + " Seconds</span><div id='animationDiv'></div>";
-	if (elem && timeLeft <= 0.1) {timeLeft = 0.1; if (game.options.menu.queueAnimation.enabled); document.getElementById("animationDiv").style.opacity = '1'}
+	if (elem && timeLeft <= 0.1) {
+		timeLeft = 0.1;
+		if (game.options.menu.queueAnimation.enabled) {
+			document.getElementById("animationDiv").style.opacity = '1';
+		}
+	}
 }
 
 function calculatePercentageBuildingCost(what, resourceToCheck, costModifier, replaceMax){
