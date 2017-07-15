@@ -3273,7 +3273,7 @@ function settingTab(what){
 	searchSettings(elem);
 	clearSettingTabs();
 	var tabElem = document.getElementById(what + "Tab");
-	if (tabEzlem) swapClass('tab', 'tabSelected', tabElem);
+	if (tabElem) swapClass('tab', 'tabSelected', tabElem);
 	if (what == 'New') document.getElementById('NewTab').style.display = "table-cell";
 }
 
