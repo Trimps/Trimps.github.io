@@ -165,6 +165,7 @@ function save(exportThis, fromManual) {
     if (exportThis) return saveString;
 	if (disableSaving) {
 		message("Due to an error occuring, saving has been disabled to prevent corruption", "Notices");
+		postMessages();
 		return;
 	}
 	try{

@@ -92,7 +92,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var lvlsLeft = ((5 - (game.global.world % 5)) + game.global.world) + 1;
 		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
 		costText = "";
-		
+
 	}
 	if (what == "Finish Daily"){
 		var value = getDailyHeliumValue(countDailyWeight()) / 100;
@@ -3801,7 +3801,15 @@ tooltips.showError = (textString) => {
 	if (document.queryCommandSupported('copy')){
 		costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 	}
-	costText += "</div>";
+	costText += "<a id='downloadLink' target='_blank' download='Trimps Bug Report', href=";
+	if (Blob !== null) {
+		let blob = new Blob([bugReport], {type: 'text/plain'});
+		let uri = URL.createObjectURL(blob);
+		costText += uri;
+	} else {
+		costText += 'data:text/plain,' + encodeURIComponent(bugReport);
+	}
+	costText += " ><div class='btn btn-danger' id='downloadBtn'>Download as file</div></a>";
 	disableSaving = true;
 	return {tooltip: tooltip, costText: costText};
 };
