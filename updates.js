@@ -3051,7 +3051,7 @@ function drawAllUpgrades(){
 
 function drawUpgrade(what, where){
 	var upgrade = game.upgrades[what];
-	if (upgrade.prestiges && (!upgrade.cost.resources['metal'] || !upgrade.cost.resources['wood'])){
+	if (upgrade.prestiges && (!upgrade.cost.resources.metal || !upgrade.cost.resources.wood)){
 		var resName = (what == 'Supershield') ? "wood" : "metal";
 		upgrade.cost.resources[resName] = getNextPrestigeCost(what);
 	}
