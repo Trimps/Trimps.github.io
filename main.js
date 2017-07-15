@@ -37,6 +37,7 @@ function autoSave() {
 
 var lastOnlineSave = -1800000;
 var isSaving = false;
+var disableSaving = false;
 function save(exportThis, fromManual) {
 	isSaving = true;
     var saveString = JSON.stringify(game);
@@ -162,6 +163,10 @@ function save(exportThis, fromManual) {
 	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
+	if (disableSaving) {
+		message("Due to an error occuring, saving has been disabled to prevent corruption", "Notices");
+		return;
+	}
 	try{
 		localStorage.setItem("trimpSave1",saveString);
 		if (localStorage.getItem("trimpSave1") == saveString){

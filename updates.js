@@ -561,6 +561,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "Go back to to the World Map.";
 		costText = "";
 	}
+
+	if (what == 'Error') {
+		game.global.lockTooltip = true;
+		let returnObj = tooltips.showError(textString);
+		tooltipText = returnObj.tooltip;
+		costText = returnObj.costText;
+		ondisplay = tooltips.handleCopyButton();
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+	}
 	if (isItIn == "jobs"){
 		var buyAmt = game.global.buyAmt;
 		if (buyAmt == "Max") buyAmt = calculateMaxAfford(game.jobs[what], false, false, true);
@@ -3770,15 +3780,29 @@ let tooltips = {};
  */
 tooltips.showError = (textString) => {
 	let tooltip = "<p>Well this is embarrassing. Trimps has encountered an error. Try refreshing the page.</p>";
-	tooltip += "<p>It would be awesome if you post the following and your save file to the <a href='reddit.com/r/Trimps/'>trimps subreddit</a></p>";
-	tooltip += "<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>";
-	tooltip += textString;
+	tooltip += "<p>It would be awesome if you post the following <a href='reddit.com/r/Trimps/'>trimps subreddit</a> or email it to trimpsgame@gmail.com</p>";
+	tooltip += "Note: Saving has been disabled.<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>";
+	let bugReport = "--BEGIN ERROR STACK--\n";
+	bugReport += textString + '\n';
+	bugReport += "--END ERROR STACK--\n\n";
+	bugReport += "--BEGIN SAVE FILE--\n";
+	let saveFile;
+	try {
+		saveFile = save(true);
+		bugReport += saveFile + "\n";
+	} catch (e) {
+		bugReport += "While attempting to save, the following error occured\n"
+		bugReport += e.stack + "\n";
+	}
+	bugReport += "--END SAVE FILE--";
+	tooltip += bugReport;
 	tooltip += "</textarea>";
 	let costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
 	if (document.queryCommandSupported('copy')){
 		costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 	}
 	costText += "</div>";
+	disableSaving = true;
 	return {tooltip: tooltip, costText: costText};
 };
 
