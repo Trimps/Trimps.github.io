@@ -3546,7 +3546,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				if (!game.global.runningChallengeSquared){
-					var amt = rewardResource("helium", 30, level);
+					amt = rewardResource("helium", 30, level);
 					message("You managed to steal " + prettify(amt) + " Helium canisters from that Omnipotrimp. That'll teach it.", "Loot", "oil", 'helium', 'helium');
 				}
 				if (game.global.world % 5 == 0){
