@@ -3780,7 +3780,7 @@ let tooltips = {};
  */
 tooltips.showError = (textString) => {
 	let tooltip = "<p>Well this is embarrassing. Trimps has encountered an error. Try refreshing the page.</p>";
-	tooltip += "<p>It would be awesome if you post the following <a href='reddit.com/r/Trimps/'>trimps subreddit</a> or email it to trimpsgame@gmail.com</p>";
+	tooltip += "<p>It would be awesome if you post the following to the <a href='reddit.com/r/Trimps/'>trimps subreddit</a> or email it to trimpsgame@gmail.com</p>";
 	tooltip += "Note: Saving has been disabled.<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>";
 	let bugReport = "--BEGIN ERROR STACK--\n";
 	bugReport += textString + '\n';
