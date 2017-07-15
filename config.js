@@ -18,7 +18,9 @@
 		<http://www.gnu.org/licenses/>. */
 
 //Spoilers ahead, proceed with caution
-"use strict"
+
+"use strict";
+
 function newGame () {
 var toReturn = {
 	global: {
