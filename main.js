@@ -1033,7 +1033,7 @@ function getScientistLevel() {
 	if (game.global.highestLevelCleared >= 89 && game.global.sLevel == 2) return 3;
 	if (game.global.highestLevelCleared >= 109 && game.global.sLevel == 3) return 4;
 	if (game.global.highestLevelCleared >= 129 && game.global.sLevel >= 4) return 5;
-	return 1;
+	return game.global.sLevel;
 }
 
 function getScientistInfo(number, reward){

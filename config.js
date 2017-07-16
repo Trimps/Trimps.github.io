@@ -1384,8 +1384,7 @@ var toReturn = {
 				if (game.global.sLevel == 0) return (game.global.highestLevelCleared >= 39);
 				else if (game.global.sLevel == 1) return (game.global.highestLevelCleared >= 49);
 				else if (game.global.sLevel == 2) {
-					if (game.global.highestLevelCleared > 69 && game.global.prisonClear) return (game.global.highestLevelCleared >= 89);
-					else return true;
+					return (game.global.highestLevelCleared >= 89);
 				}
 				else if (game.global.sLevel == 3){
 					 return (game.global.highestLevelCleared >= 109);
@@ -1393,6 +1392,7 @@ var toReturn = {
 				else if (game.global.sLevel >= 4){
 					return (game.global.highestLevelCleared >= 129);
 				}
+				else return true;
 			},
 			abandon: function () {
 				game.worldUnlocks.Scientist.fire();
