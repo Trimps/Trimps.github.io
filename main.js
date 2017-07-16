@@ -10399,7 +10399,7 @@ function updatePortalTimer(justGetTime) {
 		if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
 		if (game.global.selectedChallenge == "Daily") updateDailyClock();
 	}
-	document.getElementById("portalTime").innerHTML = timeString;
+	document.getElementById("portalTime").textContent = timeString;
 	setTimeout(updatePortalTimer, 1000);
 }
 
