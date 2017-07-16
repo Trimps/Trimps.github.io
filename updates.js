@@ -2441,6 +2441,11 @@ function adjustMessageIndexes(index){
 
 function postMessages(){
     if (pendingLogs.RAF != null) cancelAnimationFrame(pendingLogs.RAF);
+
+    if(pendingLogs.all.length < 1) {
+        return;
+    }
+    
     pendingLogs.RAF = requestAnimationFrame(function() {
         var log = document.getElementById("log");
         var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
