@@ -2445,7 +2445,7 @@ function postMessages(){
     if(pendingLogs.all.length < 1) {
         return;
     }
-    
+
     pendingLogs.RAF = requestAnimationFrame(function() {
         var log = document.getElementById("log");
         var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
@@ -2894,7 +2894,7 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 		if (trimps && game.unlocks.quickTrimps) {
 			psText += " (x2!)";
 		}
-		elem.innerHTML = psText;
+		elem.textContent = psText;
 		swapClass('sizeSec', ((psText.replace('.','').length >= 11) ? 'sizeSecReduced' : 'sizeSecRegular'), elem);
 }
 
