@@ -2727,7 +2727,18 @@ var toReturn = {
 			},
 			working: 0,
 			speed: 5,
-			employed: 0,
+			get employed () {
+				var total = 0;
+				for (var job in game.jobs) {
+					total += game.jobs[job].owned;
+				}
+				total -= game.jobs.Dragimp.owned;
+				return total;
+			},
+			set employed (value) {
+				console.warn('employed is now a getter, and does not need to be set');
+				return;
+			},
 			soldiers: 0,
 			maxSoldiers: 1,
 			potency: 0.0085
@@ -6705,7 +6716,11 @@ var toReturn = {
 	},
 	get workspaces () {
 		return Math.ceil(this.resources.trimps.realMax() / 2) - this.resources.trimps.employed;
-	}
+	},
+	set workspaces (value) {
+		console.warn('workspaces is now a getter, and does not need to be set');
+		return;
+	},
 };
 return toReturn;
 }

@@ -51,6 +51,8 @@ function save(exportThis, fromManual) {
 	delete saveGame.badGuyDeathTexts;
 	delete saveGame.tierValues;
 	delete saveGame.colorsList;
+	delete saveGame.workspaces;
+	delete saveGame.resources.trimps.employed;
     for (var item in saveGame.equipment) {
 		delete saveGame.equipment[item].tooltip;
 		delete saveGame.equipment[item].blocktip;
@@ -313,6 +315,9 @@ function load(saveString, autoLoad, fromPf) {
                     if (c == "cost") continue;
                     if (c == "tooltip") continue;
 					if (a == "mapUnlocks" && c == "repeat") continue;
+					if (a == "resources" && b == "trimps" && c == "employed") {
+						continue;
+					}
 					if (a == "resources" && c == "owned"){
 						//check bad entries here.
 					}
@@ -326,6 +331,7 @@ function load(saveString, autoLoad, fromPf) {
 							midGame[c].currentBonus = botSave.currentBonus;
 						continue;
 					}
+
                     midGame[c] = botSave;
                 }
         }
@@ -2082,7 +2088,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 				amt *= (1 + game.empowerments.Wind.getCombatModifier());
 			}
 		}
-		else 
+		else
 			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 	}
 	if (what == "helium"){
@@ -2656,11 +2662,9 @@ function buyJob(what, confirmed, noTip) {
 	if (game.global.firing){
 		if (game.jobs[what].owned < 1) return;
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
-		game.resources.trimps.employed -= (game.jobs[what].owned < purchaseAmt) ? game.jobs[what].owned : purchaseAmt;
 		game.jobs[what].owned -= purchaseAmt;
 		game.stats.trimpsFired.value += purchaseAmt;
 		if (game.jobs[what].owned < 0) game.jobs[what].owned = 0;
-		if (game.resources.trimps.employed < 0) game.resources.trimps.employed = 0;
 		return;
 	}
 	var workspaces = game.workspaces;
@@ -2701,7 +2705,6 @@ function buyJob(what, confirmed, noTip) {
 	}
 	var added = canAffordJob(what, true, workspaces);
 	game.jobs[what].owned += added;
-	game.resources.trimps.employed += added;
 
 
 	if (!noTip) tooltip(what, "jobs", "update");
@@ -2735,13 +2738,11 @@ function addGeneticist(amount){
 		amount = 1;
 	}
 	game.resources.food.owned -= price;
-	game.resources.trimps.employed += amount;
 	game.jobs.Geneticist.owned += amount;
 }
 
 function removeGeneticist(amount){
 	if (game.jobs.Geneticist.owned < amount) return;
-	game.resources.trimps.employed -= amount;
 	game.jobs.Geneticist.owned -= amount;
 }
 
@@ -2759,7 +2760,6 @@ function freeWorkspace(amount, getAmtFreed){
 	if (toCheck.length == 0) return false;
 	var selected = toCheck[Math.floor(Math.random() * toCheck.length)];
 	game.jobs[selected].owned -= amount;
-	game.resources.trimps.employed -= amount;
 	return true;
 }
 
@@ -4209,7 +4209,7 @@ function handleIceDebuff() {
 		elem = document.getElementById('iceEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);	
+	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);
 }
 
 function handleWindDebuff() {
@@ -4225,7 +4225,7 @@ function handleWindDebuff() {
 		elem = document.getElementById('windEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);	
+	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);
 }
 
 function setEmpowerTab(){
@@ -6198,7 +6198,7 @@ function startFight() {
 		badName = displayedName;
 	if (cell.empowerment){
 		badName = getEmpowerment(-1, true) + " " + badName;
-		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>"; 
+		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
 	}
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
@@ -6624,7 +6624,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
 			}
 		}
-		
+
 
 	}
 	else {
@@ -7286,7 +7286,6 @@ function assignExtraWorkers(){
 	for (var x = 0; x < jobs.length; x++){
 		game.jobs[jobs[x]].owned += split;
 	}
-	game.resources.trimps.employed += Math.round(split * 3);
 	game.resources.food.owned -= (split * 30);
 }
 
@@ -8281,7 +8280,7 @@ function fight(makeUp) {
 		}
 		//Post Loot
 		resetEmpowerStacks();
-		
+
 		//Map and World split here for non-loot stuff, anything for both goes above
 		//Map Only
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
