@@ -10387,7 +10387,7 @@ function updatePortalTimer(justGetTime) {
 		if (x != 3) timeString += ":";
 	}
 	if (justGetTime) return timeString;
-	if (game.options.menu.pauseGame.enabled) timeString = timeString + "&nbsp;(PAUSED)";
+	if (game.options.menu.pauseGame.enabled) timeString = timeString + " (PAUSED)";
 	else {
 		checkAchieve("totalGems");
 		if (trimpStatsDisplayed) displayAllStats();
