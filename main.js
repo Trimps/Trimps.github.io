@@ -2088,7 +2088,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 				amt *= (1 + game.empowerments.Wind.getCombatModifier());
 			}
 		}
-		else 
+		else
 			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 	}
 	if (what == "helium"){
@@ -4215,7 +4215,7 @@ function handleIceDebuff() {
 		elem = document.getElementById('iceEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);	
+	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);
 }
 
 function handleWindDebuff() {
@@ -4231,7 +4231,7 @@ function handleWindDebuff() {
 		elem = document.getElementById('windEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);	
+	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);
 }
 
 function setEmpowerTab(){
@@ -6204,7 +6204,7 @@ function startFight() {
 		badName = displayedName;
 	if (cell.empowerment){
 		badName = getEmpowerment(-1, true) + " " + badName;
-		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>"; 
+		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
 	}
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
@@ -6630,7 +6630,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
 			}
 		}
-		
+
 
 	}
 	else {
@@ -8287,7 +8287,7 @@ function fight(makeUp) {
 		}
 		//Post Loot
 		resetEmpowerStacks();
-		
+
 		//Map and World split here for non-loot stuff, anything for both goes above
 		//Map Only
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
@@ -10378,7 +10378,6 @@ function gameTimeout() {
  * Passes parameters to gameLoop, handles errors.
  * @param  {bool} makeUp makeUp causes the function to loop to exhaust ticks
  * @param  {Date} now    Date.now()
- * @return {[type]}        [description]
  */
 function runGameLoop(makeUp, now) {
 	try {

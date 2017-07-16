@@ -673,14 +673,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		noExtraCheck = true;
 	}
 
-	if (what == 'Error') {
-		game.global.lockTooltip = true;
-		let returnObj = tooltips.showError(textString);
-		tooltipText = returnObj.tooltip;
-		costText = returnObj.costText;
-		ondisplay = tooltips.handleCopyButton();
-	}
-
 	if (!noExtraCheck){
 		var tipSplit = tooltipText.split('$');
 		if (typeof tipSplit[1] !== 'undefined'){
@@ -3833,7 +3825,7 @@ tooltips.handleCopyButton = () => {
 			});
 		}
 	} else {
-		ondisplay = function () {document.getElementById('exportArea').select};
+		ondisplay = function () {document.getElementById('exportArea').select()};
 	}
 	return ondisplay;
 };
