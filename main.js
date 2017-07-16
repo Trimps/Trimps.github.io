@@ -21,10 +21,6 @@
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 "use strict";
-// Useful for linters. Note: is not accurate, as it was generated from
-// main = Intersection(updatesDepends, configDepends)
-// updates + config = Union(updatesDepends - main, configDepends - main)
-//let kongregate, game, LZString, message, tooltip, squaredConfig, refreshMaps, TTimeAccel, unlockJob, addNewSetting, updateSkeleBtn, updateDecayStacks, unlockEquipment, cancelTooltip, romanNumeral, unlockUpgrade, prettify, checkAchieve, tooltipUpdateFunction, giveSingleAchieve, swapClass, numTab, resetGame, addQueueItem, achievementCompatibilityUnlock, unlockMap, filterMessage, filterTabs, updateLabels, displayPerksBtn, toggleSetting, getAchievementStrengthLevel, calculateAchievementBonus, isObjectEmpty, removeQueueItem, getPsString, checkEndOfQueue, updatePs, drawAllBuildings, drawAllUpgrades, goRadial, getBarColorClass, strength, ga, checkButtons, countAlertsIn, PlayFab, postMessages, unlockTooltip, trimpAchievementsOpen;
 if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== null) {
 	var boneBtn = document.getElementById("getBonesBtn");
 	boneBtn.onclick = "";
