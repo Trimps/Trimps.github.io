@@ -6342,8 +6342,8 @@ function startFight() {
 			updateAntiStacks();
 		}
 		if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")) {
-			game.global.radioStacks = 0;
-			updateRadioStacks();
+			game.challenges.Electricity.stacks = 0;
+			updateElectricityStacks();
 		}
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.plague !== 'undefined'){
@@ -6557,8 +6557,8 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 	var minFluct = -1;
 	if (isTrimp){
 		//Situational Trimp damage increases
-		if (game.global.radioStacks > 0) {
-			number *= (1 - (game.global.radioStacks * 0.1));
+		if (game.challenges.Electricity.stacks > 0) { //Electricity
+			number *= (1 - (game.challenges.Electricity.stacks * 0.1));
 		}
 		if (game.global.antiStacks > 0) {
 			number *= ((game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1);
@@ -8478,12 +8478,12 @@ function fight(makeUp) {
 			thisKillsTheTrimp();
 	}
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && attacked){
-		game.global.soldierHealth -= game.global.soldierHealthMax * (game.global.radioStacks * 0.1);
+		game.global.soldierHealth -= game.global.soldierHealthMax * (game.challenges.Electricity.stacks * 0.1);
 		if (game.global.soldierHealth < 0) thisKillsTheTrimp();
 	}
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && wasAttacked){
-		game.global.radioStacks++;
-		updateRadioStacks();
+		game.challenges.Electricity.stacks++;
+		updateElectricityStacks();
 	}
 	if (getEmpowerment() == "Ice" && attacked){
 		game.empowerments.Ice.currentDebuffPower++;
@@ -8635,12 +8635,12 @@ function checkCrushedCrit(){
 	return badCrit;
 }
 
-function updateRadioStacks(tipOnly){
+function updateElectricityStacks(tipOnly){
 	var elem = document.getElementById("debuffSpan");
-	if (game.global.radioStacks > 0){
-		var number = game.global.radioStacks * 10;
+	if (game.challenges.Electricity.stacks > 0){
+		var number = game.challenges.Electricity.stacks * 10;
 		var addText = 'Your Trimps are dealing ' + number + '% less damage and taking ' + number + '% of their total health as damage per attack.';
-		elem.innerHTML = '<span class="badge trimpBadge" onmouseover="tooltip(\'Electrified\', \'customText\', event, \'' + addText + '\'); updateRadioTip()" onmouseout="tooltip(\'hide\')">' + game.global.radioStacks + '<span class="icomoon icon-power"></span></span>';
+		elem.innerHTML = '<span class="badge trimpBadge" onmouseover="tooltip(\'Electrified\', \'customText\', event, \'' + addText + '\'); updateElectricityTip()" onmouseout="tooltip(\'hide\')">' + game.challenges.Electricity.stacks + '<span class="icomoon icon-power"></span></span>';
 		if (tipOnly){
 			document.getElementById('tipText').innerHTML = addText;
 			return;
@@ -8650,9 +8650,9 @@ function updateRadioStacks(tipOnly){
 	else elem.innerHTML = "";
 }
 
-function updateRadioTip(){
+function updateElectricityTip(){
 	tooltipUpdateFunction = function () {
-		updateRadioStacks(true);
+		updateElectricityStacks(true);
 	};
 }
 
