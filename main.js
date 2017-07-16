@@ -2082,7 +2082,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 				amt *= (1 + game.empowerments.Wind.getCombatModifier());
 			}
 		}
-		else 
+		else
 			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 	}
 	if (what == "helium"){
@@ -2290,7 +2290,7 @@ function gather() {
 		if (game.options.menu.useAverages.enabled) perSec += getAvgLootSecond(increase);
 		if (game.resources[increase].max > 0){
 			var timeToFillElem = document.getElementById(increase + "TimeToFill");
-			if (timeToFillElem) timeToFillElem.innerHTML = calculateTimeToMax(game.resources[increase], perSec, null, true);
+			if (timeToFillElem) timeToFillElem.textContent = calculateTimeToMax(game.resources[increase], perSec, null, true);
 		}
 		addResCheckMax(increase, amount, null, true);
     }
@@ -4225,7 +4225,7 @@ function handleWindDebuff() {
 		elem = document.getElementById('windEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);	
+	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);
 }
 
 function setEmpowerTab(){
@@ -6198,7 +6198,7 @@ function startFight() {
 		badName = displayedName;
 	if (cell.empowerment){
 		badName = getEmpowerment(-1, true) + " " + badName;
-		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>"; 
+		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
 	}
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
@@ -6624,7 +6624,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
 			}
 		}
-		
+
 
 	}
 	else {
@@ -8281,7 +8281,7 @@ function fight(makeUp) {
 		}
 		//Post Loot
 		resetEmpowerStacks();
-		
+
 		//Map and World split here for non-loot stuff, anything for both goes above
 		//Map Only
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
