@@ -500,7 +500,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else
 		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>"
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 			ondisplay = function(){
@@ -513,9 +513,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 						document.getElementById('clipBoardBtn').innerHTML = "Error, not copied";
 					  }
 				});
-			}
+			};
 		}
-		else ondisplay = function () {document.getElementById('exportArea').select}
+		else ondisplay = function () {document.getElementById('exportArea').select();};
 		costText += "</div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
