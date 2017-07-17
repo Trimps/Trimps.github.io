@@ -21,6 +21,22 @@
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
 "use strict";
+/**
+ * String containing HTML
+ * @typedef {String} HTMLString
+ */
+/**
+* Object representing a cell in a map/zone
+* @typedef {Object} Cell
+* @property {Number} level Cell number in zone/map. Starts at 1
+* @property {Number} maxHealth Negatives are flags that the bad guy needs to be spawned
+* @property {Number} health
+* @property {Number} attack
+* @property {String} special
+* @property {String} text
+* @property {String} name
+* @property {Number} [killCount]
+*/
 if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== null) {
 	var boneBtn = document.getElementById("getBonesBtn");
 	boneBtn.onclick = "";

@@ -92,7 +92,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var lvlsLeft = ((5 - (game.global.world % 5)) + game.global.world) + 1;
 		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
 		costText = "";
-		
+
 	}
 	if (what == "Finish Daily"){
 		var value = getDailyHeliumValue(countDailyWeight()) / 100;
