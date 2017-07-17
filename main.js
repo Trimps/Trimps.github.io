@@ -6154,7 +6154,6 @@ function startFight() {
     var cellNum;
     var cell;
     var cellElem;
-	var badCoord;
 	var instaFight = false;
 	var madeBadGuy = false;
 	var map = false;
@@ -6176,16 +6175,7 @@ function startFight() {
 
 	document.getElementById("badGuyName").innerHTML = getBadName();
 	var corruptionStart = mutations.Corruption.start(true);
-	if (cell.mutation)
-		setMutationTooltip(cell.corrupted, cell.mutation);
-	else if (map && map.location == "Void" && game.global.world >= corruptionStart){
-		setVoidCorruptionIcon();
-	}
-	else if (map && mutations.Magma.active()){
-		setVoidCorruptionIcon(true);
-	}
-	else
-		document.getElementById('corruptionBuff').innerHTML = "";
+	setCorruptionBuffUI(cell, map, corruptionStart);
 	if (game.global.challengeActive == "Balance") updateBalanceStacks();
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
     if (cell.maxHealth == -1) {
@@ -6520,6 +6510,23 @@ function cellElemNullError() {
 	return;
 }
 
+/**
+ * Sets the contents of '#corruptionBuff', from inputs & globals
+ * @param {Cell} cell            Cell the bad guy is in
+ * @param {Object} map             Map the cell is in
+ * @param {Number} corruptionStart Zone where corruption starts
+ */
+function setCorruptionBuffUI(cell, map, corruptionStart) {
+	if (cell.mutation) {
+		setMutationTooltip(cell.corrupted, cell.mutation);
+	} else if (map && map.location == "Void" && game.global.world >= corruptionStart){
+		setVoidCorruptionIcon();
+	} else if (map && mutations.Magma.active()){
+		setVoidCorruptionIcon(true);
+	} else {
+		document.getElementById('corruptionBuff').innerHTML = "";
+	}
+}
 function updateAllBattleNumbers (skipNum) {
 	var cellNum;
     var cell;
