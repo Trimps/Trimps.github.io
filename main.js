@@ -2082,7 +2082,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 				amt *= (1 + game.empowerments.Wind.getCombatModifier());
 			}
 		}
-		else 
+		else
 			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 	}
 	if (what == "helium"){
@@ -4209,7 +4209,7 @@ function handleIceDebuff() {
 		elem = document.getElementById('iceEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);	
+	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);
 }
 
 function handleWindDebuff() {
@@ -4225,7 +4225,7 @@ function handleWindDebuff() {
 		elem = document.getElementById('windEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);	
+	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);
 }
 
 function setEmpowerTab(){
@@ -6173,36 +6173,8 @@ function startFight() {
 		}
     }
     swapClass("cellColor", "cellColorCurrent", cellElem);
-	var badName;
-	var displayedName = (cell.name == "Improbability" && game.global.spireActive) ? "Druopitee" : cell.name.replace('_', ' ');
-	if (displayedName == "Mutimp" || displayedName == "Hulking Mutimp"){
-		displayedName = "<span class='Mutimp'>" + displayedName + "</span>";
-	}
-	if (cell.mutation) {
-		badName = "<span class='badNameMutation " + cell.mutation + "'>" + mutations[cell.mutation].namePrefix + " " + displayedName + "</span>";
-	}
-	else
-		badName = displayedName;
-	if (cell.empowerment){
-		badName = getEmpowerment(-1, true) + " " + badName;
-		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>"; 
-	}
-	if (game.global.challengeActive == "Coordinate"){
-		badCoord = getBadCoordLevel();
-		badName += " (" + prettify(badCoord) + ")";
-	}
-	if (cell.name == "Omnipotrimp" && game.global.world % 5 == 0){
-		badName += ' <span class="badge badBadge Magma" onmouseover="tooltip(\'Superheated\', \'customText\', event, \'This Omnipotrimp is Superheated, and will explode on death.\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-fire2"></span></span>';
-	}
-	if (game.global.brokenPlanet && !game.global.mapsActive){
-		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Pierce\', \'customText\', event, \'' + prettify(getPierceAmt() * 100) + '% of the damage from this Bad Guy pierces through block\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-tint"></span></span>';
-	}
-	if (game.global.challengeActive == "Slow" || ((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom"))
-		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Fast\', \'customText\', event, \'This Bad Guy is fast and attacks first\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-forward"></span></span>';
-	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")){
-		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Electric\', \'customText\', event, \'This Bad Guy is electric and stacks a debuff on your Trimps\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-power-cord"></span></span>';
-	}
-	document.getElementById("badGuyName").innerHTML = badName;
+
+	document.getElementById("badGuyName").innerHTML = getBadName();
 	var corruptionStart = mutations.Corruption.start(true);
 	if (cell.mutation)
 		setMutationTooltip(cell.corrupted, cell.mutation);
@@ -6490,6 +6462,44 @@ function startFight() {
 	if (instaFight) fight();
 }
 /**
+ * Generates the HTML for the bad guy, pulls info from cell and globals
+ * @param  {Cell} cell Cell the bad guy is in.
+ * @return {HTMLString}      HTMLString to show bad guy
+ */
+function getBadName(cell) {
+	var displayedName = (cell.name == "Improbability" && game.global.spireActive) ? "Druopitee" : cell.name.replace('_', ' ');
+	if (displayedName == "Mutimp" || displayedName == "Hulking Mutimp"){
+		displayedName = "<span class='Mutimp'>" + displayedName + "</span>";
+	}
+	var badName;
+	if (cell.mutation) {
+		badName = "<span class='badNameMutation " + cell.mutation + "'>" + mutations[cell.mutation].namePrefix + " " + displayedName + "</span>";
+	}
+	else
+		badName = displayedName;
+	if (cell.empowerment){
+		badName = getEmpowerment(-1, true) + " " + badName;
+		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
+	}
+	if (game.global.challengeActive == "Coordinate"){
+		var badCoord = getBadCoordLevel();
+		badName += " (" + prettify(badCoord) + ")";
+	}
+	if (cell.name == "Omnipotrimp" && game.global.world % 5 == 0){
+		badName += ' <span class="badge badBadge Magma" onmouseover="tooltip(\'Superheated\', \'customText\', event, \'This Omnipotrimp is Superheated, and will explode on death.\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-fire2"></span></span>';
+	}
+	if (game.global.brokenPlanet && !game.global.mapsActive){
+		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Pierce\', \'customText\', event, \'' + prettify(getPierceAmt() * 100) + '% of the damage from this Bad Guy pierces through block\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-tint"></span></span>';
+	}
+	if (game.global.challengeActive == "Slow" || ((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom"))
+		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Fast\', \'customText\', event, \'This Bad Guy is fast and attacks first\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-forward"></span></span>';
+	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")){
+		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Electric\', \'customText\', event, \'This Bad Guy is electric and stacks a debuff on your Trimps\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-power-cord"></span></span>';
+	}
+	return badName;
+}
+
+/**
  * Handles when cellElem == null, and brings game back into defined state
  */
 function cellElemNullError() {
@@ -6631,7 +6641,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
 			}
 		}
-		
+
 
 	}
 	else {
@@ -8288,7 +8298,7 @@ function fight(makeUp) {
 		}
 		//Post Loot
 		resetEmpowerStacks();
-		
+
 		//Map and World split here for non-loot stuff, anything for both goes above
 		//Map Only
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
