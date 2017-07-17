@@ -564,7 +564,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 
 	if (what == 'Error') {
 		game.global.lockTooltip = true;
-		let returnObj = tooltips.showError(textString);
+		var returnObj = tooltips.showError(textString);
 		tooltipText = returnObj.tooltip;
 		costText = returnObj.costText;
 		ondisplay = tooltips.handleCopyButton();
@@ -3764,21 +3764,21 @@ function timeToDegrees(currentSeconds, totalSeconds){
 
 // 431741580's code
 
-let tooltips = {};
+var tooltips = {};
 /**
  * Generates tooltip and text for error popup
  * @param  {String} textString String of error stack
  * @return {{tooltip: String, costText: String}}   tooltip to be shown[description]
  */
-tooltips.showError = (textString) => {
-	let tooltip = "<p>Well this is embarrassing. Trimps has encountered an error. Try refreshing the page.</p>";
+tooltips.showError = function (textString) {
+	var tooltip = "<p>Well this is embarrassing. Trimps has encountered an error. Try refreshing the page.</p>";
 	tooltip += "<p>It would be awesome if you post the following to the <a href='reddit.com/r/Trimps/'>trimps subreddit</a> or email it to trimpsgame@gmail.com</p>";
 	tooltip += "Note: Saving has been disabled.<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>";
-	let bugReport = "--BEGIN ERROR STACK--\n";
+	var bugReport = "--BEGIN ERROR STACK--\n";
 	bugReport += textString + '\n';
 	bugReport += "--END ERROR STACK--\n\n";
 	bugReport += "--BEGIN SAVE FILE--\n";
-	let saveFile;
+	var saveFile;
 	try {
 		saveFile = save(true);
 		bugReport += saveFile + "\n";
@@ -3789,14 +3789,14 @@ tooltips.showError = (textString) => {
 	bugReport += "--END SAVE FILE--";
 	tooltip += bugReport;
 	tooltip += "</textarea>";
-	let costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
+	var costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
 	if (document.queryCommandSupported('copy')){
 		costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 	}
 	costText += "<a id='downloadLink' target='_blank' download='Trimps Bug Report', href=";
 	if (Blob !== null) {
-		let blob = new Blob([bugReport], {type: 'text/plain'});
-		let uri = URL.createObjectURL(blob);
+		var blob = new Blob([bugReport], {type: 'text/plain'});
+		var uri = URL.createObjectURL(blob);
 		costText += uri;
 	} else {
 		costText += 'data:text/plain,' + encodeURIComponent(bugReport);
@@ -3810,8 +3810,8 @@ tooltips.showError = (textString) => {
  * Generates a function to handle copy button on popups
  * @return {Function} Function to handle copy butons
  */
-tooltips.handleCopyButton = () => {
-	let ondisplay;
+tooltips.handleCopyButton = function () {
+	var ondisplay;
 	if (document.queryCommandSupported('copy')){
 		ondisplay = function(){
 			document.getElementById('exportArea').select();
