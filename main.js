@@ -6154,7 +6154,7 @@ function startFight() {
     var cellNum;
     var cell;
     var cellElem;
-	var instaFight = false;
+	var instaFight;
 	var madeBadGuy = false;
 	var map = false;
     if (game.global.mapsActive) {
@@ -6179,96 +6179,7 @@ function startFight() {
 	if (game.global.challengeActive == "Balance") updateBalanceStacks();
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
     if (cell.maxHealth == -1) {
-		var overkill = 0;
-
-		if (cell.health != -1) overkill = cell.health;
-		if (cell.mutation && typeof mutations[cell.mutation].attack !== 'undefined')
-			cell.attack = mutations[cell.mutation].attack(cell.level, cell.name);
-		else
-			cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
-		if (cell.mutation && typeof mutations[cell.mutation].health !== 'undefined')
-			cell.health = mutations[cell.mutation].health(cell.level, cell.name);
-		else
-			cell.health = game.global.getEnemyHealth(cell.level, cell.name);
-		if (game.global.spireActive && game.global.world == 200 && !game.global.mapsActive){
-			cell.origAttack = cell.attack;
-			cell.origHealth = cell.health;
-			cell.attack = getSpireStats(cell.level, cell.name, "attack");
-			cell.health = getSpireStats(cell.level, cell.name, "health");
-
-		}
-		if (cell.corrupted == "corruptStrong") cell.attack *= 2;
-		if (cell.corrupted == "corruptTough") cell.health *= 5;
-		if (cell.empowerment){
-			if (cell.mutation != "Corruption"){
-				cell.health = mutations.Corruption.health(cell.level, cell.name);
-				cell.attack = mutations.Corruption.attack(cell.level, cell.name);
-			}
-			cell.health *= 4;
-			cell.attack *= 1.2;
-		}
-		if (game.global.challengeActive == "Daily"){
-			if (typeof game.global.dailyChallenge.badHealth !== 'undefined'){
-				cell.health *= dailyModifiers.badHealth.getMult(game.global.dailyChallenge.badHealth.strength);
-			}
-			if (typeof game.global.dailyChallenge.badMapHealth !== 'undefined' && game.global.mapsActive){
-				cell.health *= dailyModifiers.badMapHealth.getMult(game.global.dailyChallenge.badMapHealth.strength);
-			}
-			if (typeof game.global.dailyChallenge.empower !== 'undefined'){
-				if (!game.global.mapsActive)
-					cell.health *= dailyModifiers.empower.getMult(game.global.dailyChallenge.empower.strength, game.global.dailyChallenge.empower.stacks);
-				updateDailyStacks("empower");
-			}
-		}
-		if (game.global.challengeActive == "Coordinate") cell.health *= badCoord;
-        if (game.global.mapsActive) {
-            var difficulty = map.difficulty;
-            cell.attack *= difficulty;
-            cell.health *= difficulty;
-			if (game.global.world >= corruptionStart){
-				if (mutations.Magma.active() && map.location == "Void"){
-					cell.attack *= (mutations.Corruption.statScale(3)).toFixed(1);
-					cell.health *= (mutations.Corruption.statScale(10)).toFixed(1);
-				}
-				else if (map.location == "Void" || mutations.Magma.active()){
-					cell.attack *= (mutations.Corruption.statScale(3) / 2).toFixed(1);
-					cell.health *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
-				}
-			}
-        }
-		if (game.global.challengeActive == "Meditate") cell.health *= 2;
-		else if (game.global.challengeActive == "Toxicity"){
-			cell.attack *= 5;
-			cell.health *= 2;
-		}
-		else if (game.global.challengeActive == "Balance"){
-			cell.attack *= (game.global.mapsActive) ? 2.35 : 1.17;
-			cell.health *= 2;
-		}
-		else if (game.global.challengeActive == "Lead" && (game.challenges.Lead.stacks > 0)) cell.health *= (1 + (Math.min(game.challenges.Lead.stacks, 200) * 0.04));
-		if (cell.name == 'Improbability' || cell.name == "Omnipotrimp"){
-			if (game.global.roboTrimpLevel && game.global.useShriek) activateShriek();
-			if (game.global.world >= corruptionStart) {
-				if (game.global.spireActive) {
-					cell.origHealth *= mutations.Corruption.statScale(10);
-					cell.origAttack *= mutations.Corruption.statScale(3);
-				}
-				else {
-					cell.health *= mutations.Corruption.statScale(10);
-					cell.attack *= mutations.Corruption.statScale(3);
-				}
-			}
-		}
-        cell.maxHealth = cell.health;
-		if (game.portal.Overkill.level) cell.health -= (overkill * game.portal.Overkill.level * 0.005);
-		if (cell.health < 1) {
-			cell.health = 0;
-			cell.overkilled = true;
-			if (cell.name == "Improbability") giveSingleAchieve(12);
-			instaFight = true;
-			if (!game.global.mapsActive) game.stats.cellsOverkilled.value++;
-		}
-		else if (game.global.waitToScry) game.global.waitToScry = false;
+		instaFight = spawnBadGuy(cell);
 		madeBadGuy = true;
     }
 	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
@@ -6527,6 +6438,110 @@ function setCorruptionBuffUI(cell, map, corruptionStart) {
 		document.getElementById('corruptionBuff').innerHTML = "";
 	}
 }
+
+/**
+ * Spawns a new bad guy in place in cell, and sets globals
+ * @param  {Cell} cell Cell to spawn bad guy in
+ * @return {Boolean} instaFight
+ */
+function spawnBadGuy(cell) {
+	var overkill = 0;
+
+	if (cell.health != -1) overkill = cell.health;
+	if (cell.mutation && typeof mutations[cell.mutation].attack !== 'undefined') {
+		cell.attack = mutations[cell.mutation].attack(cell.level, cell.name);
+	} else {
+		cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
+	}
+	if (cell.mutation && typeof mutations[cell.mutation].health !== 'undefined') {
+		cell.health = mutations[cell.mutation].health(cell.level, cell.name);
+	} else {
+		cell.health = game.global.getEnemyHealth(cell.level, cell.name);
+	}
+	if (game.global.spireActive && game.global.world == 200 && !game.global.mapsActive){
+		cell.origAttack = cell.attack;
+		cell.origHealth = cell.health;
+		cell.attack = getSpireStats(cell.level, cell.name, "attack");
+		cell.health = getSpireStats(cell.level, cell.name, "health");
+	}
+
+	if (cell.corrupted == "corruptStrong") cell.attack *= 2;
+	if (cell.corrupted == "corruptTough") cell.health *= 5;
+	if (cell.empowerment){
+		if (cell.mutation != "Corruption"){
+			cell.health = mutations.Corruption.health(cell.level, cell.name);
+			cell.attack = mutations.Corruption.attack(cell.level, cell.name);
+		}
+		cell.health *= 4;
+		cell.attack *= 1.2;
+	}
+	if (game.global.challengeActive == "Daily"){
+		if (typeof game.global.dailyChallenge.badHealth !== 'undefined'){
+			cell.health *= dailyModifiers.badHealth.getMult(game.global.dailyChallenge.badHealth.strength);
+		}
+		if (typeof game.global.dailyChallenge.badMapHealth !== 'undefined' && game.global.mapsActive){
+			cell.health *= dailyModifiers.badMapHealth.getMult(game.global.dailyChallenge.badMapHealth.strength);
+		}
+		if (typeof game.global.dailyChallenge.empower !== 'undefined'){
+			if (!game.global.mapsActive)
+				cell.health *= dailyModifiers.empower.getMult(game.global.dailyChallenge.empower.strength, game.global.dailyChallenge.empower.stacks);
+			updateDailyStacks("empower");
+		}
+	}
+	if (game.global.challengeActive == "Coordinate") cell.health *= getBadCoordLevel();
+	if (game.global.mapsActive) {
+		var difficulty = map.difficulty;
+		cell.attack *= difficulty;
+		cell.health *= difficulty;
+		if (game.global.world >= corruptionStart){
+			if (mutations.Magma.active() && map.location == "Void"){
+				cell.attack *= (mutations.Corruption.statScale(3)).toFixed(1);
+				cell.health *= (mutations.Corruption.statScale(10)).toFixed(1);
+			} else if (map.location == "Void" || mutations.Magma.active()){
+				cell.attack *= (mutations.Corruption.statScale(3) / 2).toFixed(1);
+				cell.health *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
+			}
+		}
+	}
+	if (game.global.challengeActive == "Meditate") {
+		cell.health *= 2;
+	} else if (game.global.challengeActive == "Toxicity"){
+		cell.attack *= 5;
+		cell.health *= 2;
+	} else if (game.global.challengeActive == "Balance"){
+		cell.attack *= (game.global.mapsActive) ? 2.35 : 1.17;
+		cell.health *= 2;
+	} else if (game.global.challengeActive == "Lead" &&
+	          (game.challenges.Lead.stacks > 0)) {
+		cell.health *= (1 + (Math.min(game.challenges.Lead.stacks, 200) * 0.04));
+	}
+	if (cell.name == 'Improbability' || cell.name == "Omnipotrimp"){
+		if (game.global.roboTrimpLevel && game.global.useShriek) activateShriek();
+		if (game.global.world >= corruptionStart) {
+			if (game.global.spireActive) {
+				cell.origHealth *= mutations.Corruption.statScale(10);
+				cell.origAttack *= mutations.Corruption.statScale(3);
+			} else {
+				cell.health *= mutations.Corruption.statScale(10);
+				cell.attack *= mutations.Corruption.statScale(3);
+			}
+		}
+	}
+	cell.maxHealth = cell.health;
+	var instaFight = false;
+	if (game.portal.Overkill.level) cell.health -= (overkill * game.portal.Overkill.level * 0.005);
+	if (cell.health < 1) {
+		cell.health = 0;
+		cell.overkilled = true;
+		if (cell.name == "Improbability") giveSingleAchieve(12);
+		instaFight = true;
+		if (!game.global.mapsActive) game.stats.cellsOverkilled.value++;
+	} else if (game.global.waitToScry) {
+		game.global.waitToScry = false;
+	}
+	return instaFight;
+}
+
 function updateAllBattleNumbers (skipNum) {
 	var cellNum;
     var cell;
