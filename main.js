@@ -6168,20 +6168,7 @@ function startFight() {
         cell = game.global.gridArray[cellNum];
         cellElem = document.getElementById("cell" + cellNum);
 		if (cellElem == null){ //Not sure what causes this to be needed, but on very rare occasions, this can prevent some save files from freezing on load
-			if (game.global.lastClearedCell != 99) {
-				 if (game.global.lastClearedCell == -1){
-					buildGrid();
-					drawGrid();
-					document.getElementById("battleContainer").style.visibility = "visible";
-					document.getElementById('metal').style.visibility = "visible";
-					console.log("Attempted to fight in World when no grid was initialized. Find an adult");
-				}
-				return;
-			}
-			nextWorld();
-			game.stats.zonesCleared.value++;
-			checkAchieve("totalZones");
-			console.log("crisis averted");
+			cellElemNullError();
 			return;
 		}
     }
@@ -6501,6 +6488,26 @@ function startFight() {
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
 	if (instaFight) fight();
+}
+/**
+ * Handles when cellElem == null, and brings game back into defined state
+ */
+function cellElemNullError() {
+	if (game.global.lastClearedCell != 99) {
+		 if (game.global.lastClearedCell == -1){
+			buildGrid();
+			drawGrid();
+			document.getElementById("battleContainer").style.visibility = "visible";
+			document.getElementById('metal').style.visibility = "visible";
+			console.log("Attempted to fight in World when no grid was initialized. Find an adult");
+		}
+		return;
+	}
+	nextWorld();
+	game.stats.zonesCleared.value++;
+	checkAchieve("totalZones");
+	console.log("crisis averted");
+	return;
 }
 
 function updateAllBattleNumbers (skipNum) {
