@@ -6206,6 +6206,16 @@ function startFight() {
     var trimpsFighting = game.resources.trimps.maxSoldiers;
 	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
+		//TODO: move this into fight
+		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
+			if (!cell.killCount) {
+				cell.killCount = 1;
+			} else {
+				cell.killCount++;
+			}
+			if (cell.killCount >= 50) giveSingleAchieve(2);
+		}
+
 		spawnTrimps();
     }
 	else {
@@ -6465,14 +6475,6 @@ function spawnTrimps() {
 	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
 	lastSoldierSentAt = new Date().getTime();
 	game.global.battleCounter = 0;
-	if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
-		if (!cell.killCount) {
-			cell.killCount = 1;
-		} else {
-			cell.killCount++;
-		}
-		if (cell.killCount >= 50) giveSingleAchieve(2);
-	}
 	if (game.portal.Anticipation.level){
 		game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
 		if (game.global.antiStacks >= 30) game.global.antiStacks = 30;
