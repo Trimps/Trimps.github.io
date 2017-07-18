@@ -6218,69 +6218,7 @@ function startFight() {
     }
 	else {
 		if (game.global.challengeActive == "Lead") manageLeadStacks(!game.global.mapsActive && madeBadGuy);
-
-		//Check differences in equipment, apply perks, bonuses, and formation
-		if (game.global.difs.health !== 0) {
-			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
-			if (mutations.Magma.active()){
-				healthTemp *= mutations.Magma.getTrimpDecay();
-			}
-			if (game.portal.Toughness_II.level) healthTemp *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
-			if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.global.lastLowGen);
-			if (game.goldenUpgrades.Battle.currentBonus > 0) healthTemp *= game.goldenUpgrades.Battle.currentBonus + 1;
-			if (game.portal.Resilience.level > 0) healthTemp *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
-		if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') healthTemp *= dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
-			if (game.global.formation !== 0){
-				healthTemp *= (game.global.formation == 1) ? 4 : 0.5;
-			}
-			if (game.global.totalSquaredReward > 0)
-				healthTemp *= ((game.global.totalSquaredReward / 100) + 1);
-			if (game.global.challengeActive == "Balance"){
-				healthTemp *= game.challenges.Balance.getHealthMult();
-			}
-			healthTemp = calcHeirloomBonus("Shield", "trimpHealth", healthTemp);
-			game.global.soldierHealthMax += healthTemp;
-			game.global.soldierHealth += healthTemp;
-			game.global.difs.health = 0;
-			if (game.global.soldierHealth <= 0) game.global.soldierHealth = 0;
-		}
-		if (game.global.difs.attack !== 0) {
-			var attackTemp = trimpsFighting * game.global.difs.attack * ((game.portal.Power.modifier * game.portal.Power.level) + 1);
-			if (mutations.Magma.active()){
-				attackTemp *= mutations.Magma.getTrimpDecay();
-			}
-			if (game.portal.Power_II.level) attackTemp *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
-			if (game.global.formation !== 0){
-				attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
-			}
-			attackTemp = calcHeirloomBonus("Shield", "trimpAttack", attackTemp);
-			game.global.soldierCurrentAttack += attackTemp;
-			game.global.difs.attack = 0;
-		}
-		if (game.global.difs.block !== 0) {
-			var blockTemp = (trimpsFighting * game.global.difs.block * ((game.global.difs.trainers * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + 1));
-			if (game.global.formation !== 0){
-				blockTemp *= (game.global.formation == 3) ? 4 : 0.5;
-			}
-			blockTemp = calcHeirloomBonus("Shield", "trimpBlock", blockTemp);
-			game.global.soldierCurrentBlock += blockTemp;
-			game.global.difs.block = 0;
-		}
-		if (game.resources.trimps.soldiers != soldierNum && game.global.maxSoldiersAtStart > 0){
-			var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
-			var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
-			var requiredTrimps = (soldierNum - game.resources.trimps.soldiers);
-			if (freeTrimps >= requiredTrimps) {
-				game.resources.trimps.owned -= requiredTrimps;
-				var oldHealth = game.global.soldierHealthMax;
-				game.global.soldierHealthMax *= newTrimps;
-				game.global.soldierHealth += (game.global.soldierHealthMax - oldHealth);
-				game.global.soldierCurrentAttack *= newTrimps;
-				game.global.soldierCurrentBlock *= newTrimps;
-				game.resources.trimps.soldiers = soldierNum;
-				game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
-			}
-		}
+		handleStatChanges();
 	}
 
 	updateAllBattleNumbers(game.resources.trimps.soldiers < soldierNum);
@@ -6572,6 +6510,77 @@ function spawnTrimps() {
 	}
 	if (game.global.challengeActive == "Lead") manageLeadStacks();
 
+}
+
+/**
+ * Apply changes to stats stored in game.global.difs
+ * @return {[type]} [description]
+ */
+function handleStatChanges() {
+	//Check differences in equipment, apply perks, bonuses, and formation
+	var trimpsFighting = game.resources.trimps.maxSoldiers;
+	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
+	if (game.global.difs.health !== 0) {
+		var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
+		if (mutations.Magma.active()){
+			healthTemp *= mutations.Magma.getTrimpDecay();
+		}
+		if (game.portal.Toughness_II.level) healthTemp *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
+		if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.global.lastLowGen);
+		if (game.goldenUpgrades.Battle.currentBonus > 0) healthTemp *= game.goldenUpgrades.Battle.currentBonus + 1;
+		if (game.portal.Resilience.level > 0) healthTemp *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
+	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') healthTemp *= dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
+		if (game.global.formation !== 0){
+			healthTemp *= (game.global.formation == 1) ? 4 : 0.5;
+		}
+		if (game.global.totalSquaredReward > 0)
+			healthTemp *= ((game.global.totalSquaredReward / 100) + 1);
+		if (game.global.challengeActive == "Balance"){
+			healthTemp *= game.challenges.Balance.getHealthMult();
+		}
+		healthTemp = calcHeirloomBonus("Shield", "trimpHealth", healthTemp);
+		game.global.soldierHealthMax += healthTemp;
+		game.global.soldierHealth += healthTemp;
+		game.global.difs.health = 0;
+		if (game.global.soldierHealth <= 0) game.global.soldierHealth = 0;
+	}
+	if (game.global.difs.attack !== 0) {
+		var attackTemp = trimpsFighting * game.global.difs.attack * ((game.portal.Power.modifier * game.portal.Power.level) + 1);
+		if (mutations.Magma.active()){
+			attackTemp *= mutations.Magma.getTrimpDecay();
+		}
+		if (game.portal.Power_II.level) attackTemp *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
+		if (game.global.formation !== 0){
+			attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
+		}
+		attackTemp = calcHeirloomBonus("Shield", "trimpAttack", attackTemp);
+		game.global.soldierCurrentAttack += attackTemp;
+		game.global.difs.attack = 0;
+	}
+	if (game.global.difs.block !== 0) {
+		var blockTemp = (trimpsFighting * game.global.difs.block * ((game.global.difs.trainers * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + 1));
+		if (game.global.formation !== 0){
+			blockTemp *= (game.global.formation == 3) ? 4 : 0.5;
+		}
+		blockTemp = calcHeirloomBonus("Shield", "trimpBlock", blockTemp);
+		game.global.soldierCurrentBlock += blockTemp;
+		game.global.difs.block = 0;
+	}
+	if (game.resources.trimps.soldiers != soldierNum && game.global.maxSoldiersAtStart > 0){
+		var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
+		var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
+		var requiredTrimps = (soldierNum - game.resources.trimps.soldiers);
+		if (freeTrimps >= requiredTrimps) {
+			game.resources.trimps.owned -= requiredTrimps;
+			var oldHealth = game.global.soldierHealthMax;
+			game.global.soldierHealthMax *= newTrimps;
+			game.global.soldierHealth += (game.global.soldierHealthMax - oldHealth);
+			game.global.soldierCurrentAttack *= newTrimps;
+			game.global.soldierCurrentBlock *= newTrimps;
+			game.resources.trimps.soldiers = soldierNum;
+			game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
+		}
+	}
 }
 
 function updateAllBattleNumbers (skipNum) {
