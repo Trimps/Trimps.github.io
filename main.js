@@ -6204,7 +6204,7 @@ function startFight() {
     }
 
     var trimpsFighting = game.resources.trimps.maxSoldiers;
-	var soldType = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
+	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
 		spawnTrimps();
     }
@@ -6258,10 +6258,10 @@ function startFight() {
 			game.global.soldierCurrentBlock += blockTemp;
 			game.global.difs.block = 0;
 		}
-		if (game.resources.trimps.soldiers != soldType && game.global.maxSoldiersAtStart > 0){
+		if (game.resources.trimps.soldiers != soldierNum && game.global.maxSoldiersAtStart > 0){
 			var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
 			var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
-			var requiredTrimps = (soldType - game.resources.trimps.soldiers);
+			var requiredTrimps = (soldierNum - game.resources.trimps.soldiers);
 			if (freeTrimps >= requiredTrimps) {
 				game.resources.trimps.owned -= requiredTrimps;
 				var oldHealth = game.global.soldierHealthMax;
@@ -6269,13 +6269,13 @@ function startFight() {
 				game.global.soldierHealth += (game.global.soldierHealthMax - oldHealth);
 				game.global.soldierCurrentAttack *= newTrimps;
 				game.global.soldierCurrentBlock *= newTrimps;
-				game.resources.trimps.soldiers = soldType;
+				game.resources.trimps.soldiers = soldierNum;
 				game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
 			}
 		}
 	}
 
-	updateAllBattleNumbers(game.resources.trimps.soldiers < soldType);
+	updateAllBattleNumbers(game.resources.trimps.soldiers < soldierNum);
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
 	if (instaFight) fight();
