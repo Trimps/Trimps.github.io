@@ -6206,107 +6206,7 @@ function startFight() {
     var trimpsFighting = game.resources.trimps.maxSoldiers;
 	var soldType = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
-				lastSoldierSentAt = new Date().getTime();
-		game.global.battleCounter = 0;
-		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
-			if (!cell.killCount) cell.killCount = 1;
-			else cell.killCount++;
-			if (cell.killCount >= 50) giveSingleAchieve(2);
-		}
-		if (game.portal.Anticipation.level){
-			game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
-			if (game.global.antiStacks >= 30) game.global.antiStacks = 30;
-			game.global.lastBreedTime = 0;
-			updateAntiStacks();
-		}
-		if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")) {
-			game.global.radioStacks = 0;
-			updateRadioStacks();
-		}
-		if (game.global.challengeActive == "Daily"){
-			if (typeof game.global.dailyChallenge.plague !== 'undefined'){
-				game.global.dailyChallenge.plague.stacks = 0;
-				updateDailyStacks('plague');
-			}
-			if (typeof game.global.dailyChallenge.weakness !== 'undefined'){
-				game.global.dailyChallenge.weakness.stacks = 0;
-				updateDailyStacks('weakness');
-			}
-			if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
-				game.global.dailyChallenge.rampage.stacks = 0;
-				updateDailyStacks('rampage');
-			}
-			if (!game.global.passive && typeof game.global.dailyChallenge.empower !== 'undefined'){
-				if (!game.global.mapsActive){
-					game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
-					var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
-					if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
-				}
-				updateDailyStacks('empower');
-			}
-		}
-		game.global.difs.attack = 0;
-		game.global.difs.health = 0;
-		game.global.difs.block = 0;
-		game.global.difs.trainers = game.jobs.Trainer.owned;
-        game.global.soldierHealthMax = game.global.health;
-		game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
-        game.global.soldierCurrentAttack = game.global.attack;
-		//Magma;
-		if (mutations.Magma.active()){
-			var magMult = mutations.Magma.getTrimpDecay();
-			game.global.soldierHealthMax *= magMult;
-			game.global.soldierCurrentAttack *= magMult;
-		}
-		//Soldiers
-		game.global.soldierHealthMax *= trimpsFighting;
-		game.global.soldierCurrentAttack *= trimpsFighting;
-		//Toughness
-		if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
-		if (game.portal.Toughness_II.level > 0) game.global.soldierHealthMax *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
-		if (game.global.lowestGen >= 0) {
-			if (game.global.breedBack <= 0) {
-				game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
-				game.global.lastLowGen = game.global.lowestGen;
-				game.global.lowestGen = -1;
-			}
-			else game.global.lastLowGen = 0;
-			game.global.breedBack = soldType / 2;
-		}
-		if (game.goldenUpgrades.Battle.currentBonus > 0){
-			game.global.soldierHealthMax *= game.goldenUpgrades.Battle.currentBonus + 1;
-		}
-		//Resilience
-		if (game.portal.Resilience.level > 0) game.global.soldierHealthMax *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
-		//Power
-		if (game.portal.Power.level > 0) game.global.soldierCurrentAttack += (game.global.soldierCurrentAttack * game.portal.Power.level * game.portal.Power.modifier);
-        if (game.portal.Power_II.level > 0) game.global.soldierCurrentAttack *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
-		game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + game.global.block) * trimpsFighting);
-		game.global.soldierHealthMax = calcHeirloomBonus("Shield", "trimpHealth", game.global.soldierHealthMax);
-		game.global.soldierCurrentAttack = calcHeirloomBonus("Shield", "trimpAttack", game.global.soldierCurrentAttack);
-		game.global.soldierCurrentBlock = calcHeirloomBonus("Shield", "trimpBlock", game.global.soldierCurrentBlock);
-		if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') game.global.soldierHealthMax *= dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
-		if (game.global.formation !== 0){
-			game.global.soldierHealthMax *= (game.global.formation == 1) ? 4 : 0.5;
-			game.global.soldierCurrentAttack *= (game.global.formation == 2) ? 4 : 0.5;
-			game.global.soldierCurrentBlock *= (game.global.formation == 3) ? 4 : 0.5;
-		}
-		if (game.global.challengeActive == "Balance"){
-			game.global.soldierHealthMax *= game.challenges.Balance.getHealthMult();
-		}
-		if (game.talents.voidPower.purchased && game.global.voidBuff){
-			var vpAmt = (game.talents.voidPower2.purchased) ? 35 : 15;
-			game.global.soldierHealthMax *= ((vpAmt / 100) + 1);
-		}
-		if (game.global.totalSquaredReward > 0)
-			game.global.soldierHealthMax *= ((game.global.totalSquaredReward / 100) + 1);
-		game.global.soldierHealth = game.global.soldierHealthMax;
-		if (game.global.challengeActive == "Devastation") {
-			if (game.challenges.Devastation.lastOverkill != -1) game.global.soldierHealth -= (game.challenges.Devastation.lastOverkill * 7.5);
-			game.challenges.Devastation.lastOverkill = -1;
-			if (game.global.soldierHealth < 1) game.global.soldierHealth = 0;
-		}
-		if (game.global.challengeActive == "Lead") manageLeadStacks();
+		spawnTrimps();
     }
 	else {
 		if (game.global.challengeActive == "Lead") manageLeadStacks(!game.global.mapsActive && madeBadGuy);
@@ -6558,6 +6458,117 @@ function spawnBadGuy(cell) {
 		game.global.waitToScry = false;
 	}
 	return instaFight;
+}
+
+function spawnTrimps() {
+	var trimpsFighting = game.resources.trimps.maxSoldiers;
+	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
+	lastSoldierSentAt = new Date().getTime();
+	game.global.battleCounter = 0;
+	if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
+		if (!cell.killCount) {
+			cell.killCount = 1;
+		} else {
+			cell.killCount++;
+		}
+		if (cell.killCount >= 50) giveSingleAchieve(2);
+	}
+	if (game.portal.Anticipation.level){
+		game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
+		if (game.global.antiStacks >= 30) game.global.antiStacks = 30;
+		game.global.lastBreedTime = 0;
+		updateAntiStacks();
+	}
+	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")) {
+		game.challenges.Electricity.stacks = 0;
+		updateElectricityStacks();
+	}
+	if (game.global.challengeActive == "Daily"){
+		var dailyChallenges = ['plague', 'weakness', 'rampage'];
+		// This is why ES6 i of array exists.
+		for (var i = 0; i < dailyChallenges.length; i++) {
+			if (game.global.dailyChallenge[dailyChallenges[i]]) {
+				game.global.dailyChallenge[dailyChallenges[i]].stacks = 0;
+			}
+			updateDailyStacks(dailyChallenges[i]);
+		}
+
+		if (!game.global.passive && typeof game.global.dailyChallenge.empower !== 'undefined'){
+			if (!game.global.mapsActive){
+				game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
+				var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
+				if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
+			}
+			updateDailyStacks('empower');
+		}
+	}
+	game.global.difs.attack = 0;
+	game.global.difs.health = 0;
+	game.global.difs.block = 0;
+	game.global.difs.trainers = game.jobs.Trainer.owned;
+	game.global.soldierHealthMax = game.global.health;
+	game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
+	game.global.soldierCurrentAttack = game.global.attack;
+	//Magma;
+	if (mutations.Magma.active()){
+		var magMult = mutations.Magma.getTrimpDecay();
+		game.global.soldierHealthMax *= magMult;
+		game.global.soldierCurrentAttack *= magMult;
+	}
+	//Soldiers
+	game.global.soldierHealthMax *= trimpsFighting;
+	game.global.soldierCurrentAttack *= trimpsFighting;
+	//Toughness
+	if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
+	if (game.portal.Toughness_II.level > 0) game.global.soldierHealthMax *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
+	if (game.global.lowestGen >= 0) {
+		if (game.global.breedBack <= 0) {
+			game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
+			game.global.lastLowGen = game.global.lowestGen;
+			game.global.lowestGen = -1;
+		} else {
+			game.global.lastLowGen = 0;
+		}
+		game.global.breedBack = soldierNum / 2;
+	}
+	if (game.goldenUpgrades.Battle.currentBonus > 0){
+		game.global.soldierHealthMax *= game.goldenUpgrades.Battle.currentBonus + 1;
+	}
+	//Resilience
+	if (game.portal.Resilience.level > 0) game.global.soldierHealthMax *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
+	//Power
+	if (game.portal.Power.level > 0) game.global.soldierCurrentAttack += (game.global.soldierCurrentAttack * game.portal.Power.level * game.portal.Power.modifier);
+	if (game.portal.Power_II.level > 0) game.global.soldierCurrentAttack *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
+	game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + game.global.block) * trimpsFighting);
+	game.global.soldierHealthMax = calcHeirloomBonus("Shield", "trimpHealth", game.global.soldierHealthMax);
+	game.global.soldierCurrentAttack = calcHeirloomBonus("Shield", "trimpAttack", game.global.soldierCurrentAttack);
+	game.global.soldierCurrentBlock = calcHeirloomBonus("Shield", "trimpBlock", game.global.soldierCurrentBlock);
+	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') {
+		game.global.soldierHealthMax *= dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
+
+	if (game.global.formation !== 0){
+		game.global.soldierHealthMax *= (game.global.formation == 1) ? 4 : 0.5;
+		game.global.soldierCurrentAttack *= (game.global.formation == 2) ? 4 : 0.5;
+		game.global.soldierCurrentBlock *= (game.global.formation == 3) ? 4 : 0.5;
+	}
+	if (game.global.challengeActive == "Balance"){
+		game.global.soldierHealthMax *= game.challenges.Balance.getHealthMult();
+	}
+	if (game.talents.voidPower.purchased && game.global.voidBuff){
+		var vpAmt = (game.talents.voidPower2.purchased) ? 35 : 15;
+		game.global.soldierHealthMax *= ((vpAmt / 100) + 1);
+	}
+	if (game.global.totalSquaredReward > 0) {
+		game.global.soldierHealthMax *= ((game.global.totalSquaredReward / 100) + 1);
+	}
+	game.global.soldierHealth = game.global.soldierHealthMax;
+	if (game.global.challengeActive == "Devastation") {
+		if (game.challenges.Devastation.lastOverkill != -1) game.global.soldierHealth -= (game.challenges.Devastation.lastOverkill * 7.5);
+		game.challenges.Devastation.lastOverkill = -1;
+		if (game.global.soldierHealth < 1) game.global.soldierHealth = 0;
+	}
+	if (game.global.challengeActive == "Lead") manageLeadStacks();
+
 }
 
 function updateAllBattleNumbers (skipNum) {
