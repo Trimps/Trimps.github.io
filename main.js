@@ -6163,75 +6163,17 @@ function getPierceAmt(){
 	return base;
 }
 
-var lastSoldierSentAt =  new Date().getTime();
-function startFight() {
-	game.global.battleCounter = 0;
-    document.getElementById("badGuyCol").style.visibility = "visible";
-    var cellNum, cell, cellElem;
-	var madeBadGuy = false;
-	var map = false;
-    if (game.global.mapsActive) {
-        cellNum = game.global.lastClearedMapCell + 1;
-        cell = game.global.mapGridArray[cellNum];
-        cellElem = document.getElementById("mapCell" + cellNum);
-		map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
-    } else {
-        cellNum = game.global.lastClearedCell + 1;
-        cell = game.global.gridArray[cellNum];
-        cellElem = document.getElementById("cell" + cellNum);
-		if (cellElem == null){ //Not sure what causes this to be needed, but on very rare occasions, this can prevent some save files from freezing on load
-			cellElemNullError();
-			return;
-		}
-    }
-
-    swapClass("cellColor", "cellColorCurrent", cellElem);
-
-	document.getElementById("badGuyName").innerHTML = getBadName(cell);
-	var corruptionStart = mutations.Corruption.start(true);
-	setCorruptionBuffUI(cell, corruptionStart, map);
-
-	if (game.global.challengeActive == "Balance") updateBalanceStacks();
-	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
-	if (game.global.challengeActive == "Nom" && cell.nomStacks) updateNomStacks(cell.nomStacks);
-
-	var instaFight;
-    if (cell.maxHealth == -1) {
-		instaFight = spawnBadGuy(cell, corruptionStart, map);
-		madeBadGuy = true;
-    }
-
-    var trimpsFighting = game.resources.trimps.maxSoldiers;
-	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
-    if (game.global.soldierHealth <= 0) {
-		//TODO: move this into fight
-		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
-			if (!cell.killCount) {
-				cell.killCount = 1;
-			} else {
-				cell.killCount++;
-			}
-			if (cell.killCount >= 50) giveSingleAchieve(2);
-		}
-
-		spawnTrimps();
-    }
-	else {
-		if (game.global.challengeActive == "Lead") manageLeadStacks(!game.global.mapsActive && madeBadGuy);
-		handleStatChanges();
-	}
-
-	updateAllBattleNumbers(game.resources.trimps.soldiers < soldierNum);
-    game.global.fighting = true;
-    game.global.lastFightUpdate = new Date();
-	if (instaFight) fight();
-}
+/**
+ * fightNS contains functions related to startFight and fight
+ * @namespace
+ */
+var fightNS = {
 /**
  * Generates the HTML for the bad guy, pulls info from cell and globals
  * @param  {Cell} cell Cell the bad guy is in.
  * @return {HTMLString}      HTMLString to show bad guy
  */
-function getBadName(cell) {
+getBadName: function getBadName(cell) {
 	var displayedName = (cell.name == "Improbability" && game.global.spireActive) ? "Druopitee" : cell.name.replace('_', ' ');
 	if (displayedName == "Mutimp" || displayedName == "Hulking Mutimp"){
 		displayedName = "<span class='Mutimp'>" + displayedName + "</span>";
@@ -6263,12 +6205,12 @@ function getBadName(cell) {
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Electric\', \'customText\', event, \'This Bad Guy is electric and stacks a debuff on your Trimps\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-power-cord"></span></span>';
 	}
 	return badName;
-}
+},
 
 /**
  * Handles when cellElem == null, and brings game back into defined state
  */
-function cellElemNullError() {
+cellElemNullError: function cellElemNullError() {
 	if (game.global.lastClearedCell != 99) {
 		 if (game.global.lastClearedCell == -1){
 			buildGrid();
@@ -6284,7 +6226,7 @@ function cellElemNullError() {
 	checkAchieve("totalZones");
 	console.log("crisis averted");
 	return;
-}
+},
 
 /**
  * Sets the contents of '#corruptionBuff', from inputs & globals
@@ -6292,7 +6234,7 @@ function cellElemNullError() {
  * @param {Number} corruptionStart Zone where corruption starts
  * @param {Object} [map]             Map the cell is in
  */
-function setCorruptionBuffUI(cell, corruptionStart, map) {
+setCorruptionBuffUI: function setCorruptionBuffUI(cell, corruptionStart, map) {
 	if (cell.mutation) {
 		setMutationTooltip(cell.corrupted, cell.mutation);
 	} else if (map && map.location == "Void" && game.global.world >= corruptionStart){
@@ -6302,16 +6244,16 @@ function setCorruptionBuffUI(cell, corruptionStart, map) {
 	} else {
 		document.getElementById('corruptionBuff').innerHTML = "";
 	}
-}
+},
 
 /**
  * Spawns a new bad guy in place in cell, and sets globals
  * @param  {Cell} cell Cell to spawn bad guy in
  * @param  {Number} corruptionStart Zone where corruption starts
  * @param  {Object|null} [map=null] Map the cell is in,
-spawnbadguy * @return {Boolean} instaFight
+ * @return {Boolean} instaFight
  */
-function spawnBadGuy(cell, corruptionStart, map) {
+spawnBadGuy: function spawnBadGuy(cell, corruptionStart, map) {
 	var overkill = 0;
 
 	if (cell.health != -1) overkill = cell.health;
@@ -6407,9 +6349,12 @@ function spawnBadGuy(cell, corruptionStart, map) {
 		game.global.waitToScry = false;
 	}
 	return instaFight;
-}
+},
 
-function spawnTrimps() {
+/**
+ * Spawns a new group of soldiers
+ */
+spawnSoldiers: function spawnSoldiers() {
 	var trimpsFighting = game.resources.trimps.maxSoldiers;
 	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
 	lastSoldierSentAt = new Date().getTime();
@@ -6510,13 +6455,12 @@ function spawnTrimps() {
 	}
 	if (game.global.challengeActive == "Lead") manageLeadStacks();
 
-}
+},
 
 /**
  * Apply changes to stats stored in game.global.difs
- * @return {[type]} [description]
  */
-function handleStatChanges() {
+handleStatChanges: function handleStatChanges() {
 	//Check differences in equipment, apply perks, bonuses, and formation
 	var trimpsFighting = game.resources.trimps.maxSoldiers;
 	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
@@ -6581,6 +6525,71 @@ function handleStatChanges() {
 			game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
 		}
 	}
+},
+};
+
+var lastSoldierSentAt =  new Date().getTime();
+function startFight() {
+	game.global.battleCounter = 0;
+    document.getElementById("badGuyCol").style.visibility = "visible";
+    var cellNum, cell, cellElem;
+	var madeBadGuy = false;
+	var map = false;
+    if (game.global.mapsActive) {
+        cellNum = game.global.lastClearedMapCell + 1;
+        cell = game.global.mapGridArray[cellNum];
+        cellElem = document.getElementById("mapCell" + cellNum);
+		map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
+    } else {
+        cellNum = game.global.lastClearedCell + 1;
+        cell = game.global.gridArray[cellNum];
+        cellElem = document.getElementById("cell" + cellNum);
+		if (cellElem == null){ //Not sure what causes this to be needed, but on very rare occasions, this can prevent some save files from freezing on load
+			fightNS.cellElemNullError();
+			return;
+		}
+    }
+
+    swapClass("cellColor", "cellColorCurrent", cellElem);
+
+	document.getElementById("badGuyName").innerHTML = getBadName(cell);
+	var corruptionStart = mutations.Corruption.start(true);
+	fightNS.setCorruptionBuffUI(cell, corruptionStart, map);
+
+	if (game.global.challengeActive == "Balance") updateBalanceStacks();
+	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
+	if (game.global.challengeActive == "Nom" && cell.nomStacks) updateNomStacks(cell.nomStacks);
+
+	var instaFight;
+    if (cell.maxHealth == -1) {
+		instaFight = fightNS.spawnBadGuy(cell, corruptionStart, map);
+		madeBadGuy = true;
+    }
+
+    var trimpsFighting = game.resources.trimps.maxSoldiers;
+	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
+    if (game.global.soldierHealth <= 0) {
+		//TODO: move this into fight
+		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
+			if (!cell.killCount) {
+				cell.killCount = 1;
+			} else {
+				cell.killCount++;
+			}
+			if (cell.killCount >= 50) giveSingleAchieve(2);
+		}
+
+		fightNS.spawnSoldiers();
+    }
+	else {
+		if (game.global.challengeActive == "Lead") manageLeadStacks(!game.global.mapsActive && madeBadGuy);
+		fightNS.handleStatChanges();
+	}
+
+	updateAllBattleNumbers(game.resources.trimps.soldiers < soldierNum);
+    game.global.fighting = true;
+    game.global.lastFightUpdate = new Date();
+	if (instaFight) fight();
 }
 
 function updateAllBattleNumbers (skipNum) {
