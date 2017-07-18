@@ -6167,10 +6167,7 @@ var lastSoldierSentAt =  new Date().getTime();
 function startFight() {
 	game.global.battleCounter = 0;
     document.getElementById("badGuyCol").style.visibility = "visible";
-    var cellNum;
-    var cell;
-    var cellElem;
-	var instaFight;
+    var cellNum, cell, cellElem;
 	var madeBadGuy = false;
 	var map = false;
     if (game.global.mapsActive) {
@@ -6192,14 +6189,15 @@ function startFight() {
 
 	document.getElementById("badGuyName").innerHTML = getBadName(cell);
 	var corruptionStart = mutations.Corruption.start(true);
-	setCorruptionBuffUI(cell, map, corruptionStart);
+	setCorruptionBuffUI(cell, corruptionStart, map);
 
 	if (game.global.challengeActive == "Balance") updateBalanceStacks();
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
 	if (game.global.challengeActive == "Nom" && cell.nomStacks) updateNomStacks(cell.nomStacks);
 
+	var instaFight;
     if (cell.maxHealth == -1) {
-		instaFight = spawnBadGuy(cell);
+		instaFight = spawnBadGuy(cell, corruptionStart, map);
 		madeBadGuy = true;
     }
 
@@ -6304,8 +6302,9 @@ function getBadName(cell) {
 	if (cell.mutation) {
 		badName = "<span class='badNameMutation " + cell.mutation + "'>" + mutations[cell.mutation].namePrefix + " " + displayedName + "</span>";
 	}
-	else
+	else {
 		badName = displayedName;
+	}
 	if (cell.empowerment){
 		badName = getEmpowerment(-1, true) + " " + badName;
 		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
@@ -6352,10 +6351,10 @@ function cellElemNullError() {
 /**
  * Sets the contents of '#corruptionBuff', from inputs & globals
  * @param {Cell} cell            Cell the bad guy is in
- * @param {Object} map             Map the cell is in
  * @param {Number} corruptionStart Zone where corruption starts
+ * @param {Object} [map]             Map the cell is in
  */
-function setCorruptionBuffUI(cell, map, corruptionStart) {
+function setCorruptionBuffUI(cell, corruptionStart, map) {
 	if (cell.mutation) {
 		setMutationTooltip(cell.corrupted, cell.mutation);
 	} else if (map && map.location == "Void" && game.global.world >= corruptionStart){
@@ -6370,9 +6369,11 @@ function setCorruptionBuffUI(cell, map, corruptionStart) {
 /**
  * Spawns a new bad guy in place in cell, and sets globals
  * @param  {Cell} cell Cell to spawn bad guy in
- * @return {Boolean} instaFight
+ * @param  {Number} corruptionStart Zone where corruption starts
+ * @param  {Object|null} [map=null] Map the cell is in,
+spawnbadguy * @return {Boolean} instaFight
  */
-function spawnBadGuy(cell) {
+function spawnBadGuy(cell, corruptionStart, map) {
 	var overkill = 0;
 
 	if (cell.health != -1) overkill = cell.health;
@@ -6547,7 +6548,7 @@ function spawnTrimps() {
 	game.global.soldierCurrentBlock = calcHeirloomBonus("Shield", "trimpBlock", game.global.soldierCurrentBlock);
 	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') {
 		game.global.soldierHealthMax *= dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
-
+	}
 	if (game.global.formation !== 0){
 		game.global.soldierHealthMax *= (game.global.formation == 1) ? 4 : 0.5;
 		game.global.soldierCurrentAttack *= (game.global.formation == 2) ? 4 : 0.5;
