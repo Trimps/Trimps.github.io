@@ -6249,33 +6249,75 @@ setCorruptionBuffUI: function setCorruptionBuffUI(cell, corruptionStart, map) {
 /**
  * Spawns a new bad guy in place in cell, and sets globals
  * @param  {Cell} cell Cell to spawn bad guy in
- * @param  {Number} corruptionStart Zone where corruption starts
  * @param  {Object|null} [map=null] Map the cell is in,
  * @return {Boolean} instaFight
  */
-spawnBadGuy: function spawnBadGuy(cell, corruptionStart, map) {
+spawnBadGuy: function spawnBadGuy(cell, map) {
 	var overkill = 0;
 
 	if (cell.health != -1) overkill = cell.health;
-	if (cell.mutation && typeof mutations[cell.mutation].attack !== 'undefined') {
-		cell.attack = mutations[cell.mutation].attack(cell.level, cell.name);
-	} else {
-		cell.attack = game.global.getEnemyAttack(cell.level, cell.name);
+	fightNS.applyBadGuyMutation(cell);
+	fightNS.applyBadGuySpire(cell);
+	fightNS.applyBadGuyEmpowerment(cell);
+	fightNS.applyBadGuyDaily(cell);
+	fightNS.applyBadGuyMaps(cell, map);
+	fightNS.applyBadGuyChallenge(cell);
+	fightNS.applyBadGuyImprobability(cell);
+	cell.maxHealth = cell.health;
+	var instaFight = false;
+	if (game.portal.Overkill.level) cell.health -= (overkill * game.portal.Overkill.level * 0.005);
+	if (cell.health < 1) {
+		cell.health = 0;
+		cell.overkilled = true;
+		if (cell.name == "Improbability") giveSingleAchieve(12);
+		instaFight = true;
+		if (!game.global.mapsActive) game.stats.cellsOverkilled.value++;
+	} else if (game.global.waitToScry) {
+		game.global.waitToScry = false;
 	}
+	return instaFight;
+},
+
+/**
+ * Applies mutation to a newly spawned bad guy
+ * @param  {Cell} cell Cell to apply mutation to
+ */
+applyBadGuyMutation: function applyBadGuyMutation(cell) {
 	if (cell.mutation && typeof mutations[cell.mutation].health !== 'undefined') {
 		cell.health = mutations[cell.mutation].health(cell.level, cell.name);
 	} else {
 		cell.health = game.global.getEnemyHealth(cell.level, cell.name);
 	}
+},
+
+/**
+ * Applies spire modifers to cell, and saves old stats into cell.orig*
+ * @param  {Cell} cell Cell to apply spire modifiers to
+ */
+applyBadGuySpire: function applyBadGuySpire(cell) {
 	if (game.global.spireActive && game.global.world == 200 && !game.global.mapsActive){
 		cell.origAttack = cell.attack;
 		cell.origHealth = cell.health;
 		cell.attack = getSpireStats(cell.level, cell.name, "attack");
 		cell.health = getSpireStats(cell.level, cell.name, "health");
 	}
+},
 
+
+ /**
+ * Applies corruption modifers to cell
+ * @param  {Cell} cell Cell to apply corruption modifiers to
+ */
+applyBadGuyCorruption: function applyBadGuyCorruption(cell) {
 	if (cell.corrupted == "corruptStrong") cell.attack *= 2;
 	if (cell.corrupted == "corruptTough") cell.health *= 5;
+},
+
+/**
+* Applies empowerment modifers to cell, replacing corruption modifiers
+* @param  {Cell} cell Cell to apply empowerment modifiers to
+*/
+applyBadGuyEmpowerment: function applyBadGuyEmpowerment(cell) {
 	if (cell.empowerment){
 		if (cell.mutation != "Corruption"){
 			cell.health = mutations.Corruption.health(cell.level, cell.name);
@@ -6284,6 +6326,13 @@ spawnBadGuy: function spawnBadGuy(cell, corruptionStart, map) {
 		cell.health *= 4;
 		cell.attack *= 1.2;
 	}
+},
+
+/**
+* Applies daily challenge modifers to cell
+* @param  {Cell} cell Cell to apply daily challenge modifiers to
+*/
+applyBadGuyDaily: function applyBadGuyDaily(cell) {
 	if (game.global.challengeActive == "Daily"){
 		if (typeof game.global.dailyChallenge.badHealth !== 'undefined'){
 			cell.health *= dailyModifiers.badHealth.getMult(game.global.dailyChallenge.badHealth.strength);
@@ -6297,7 +6346,15 @@ spawnBadGuy: function spawnBadGuy(cell, corruptionStart, map) {
 			updateDailyStacks("empower");
 		}
 	}
-	if (game.global.challengeActive == "Coordinate") cell.health *= getBadCoordLevel();
+},
+
+/**
+* Applies Map modifers to cell, eg. corruption, map difficulty
+* @param  {Cell} cell Cell to apply map modifiers to
+* @param  {Object} map Map the cell is part of
+*/
+applyBadGuyMaps: function applyBadGuyMaps(cell, map) {
+	var corruptionStart = mutations.Corruption.start(true);
 	if (game.global.mapsActive) {
 		var difficulty = map.difficulty;
 		cell.attack *= difficulty;
@@ -6312,6 +6369,14 @@ spawnBadGuy: function spawnBadGuy(cell, corruptionStart, map) {
 			}
 		}
 	}
+},
+
+/**
+* Applies Challenge modifers to cell
+* @param  {Cell} cell Cell to apply challenge modifiers to
+*/
+applyBadGuyChallenge: function applyBadGuyChallenge(cell) {
+	if (game.global.challengeActive == "Coordinate") cell.health *= getBadCoordLevel();
 	if (game.global.challengeActive == "Meditate") {
 		cell.health *= 2;
 	} else if (game.global.challengeActive == "Toxicity"){
@@ -6324,6 +6389,14 @@ spawnBadGuy: function spawnBadGuy(cell, corruptionStart, map) {
 	          (game.challenges.Lead.stacks > 0)) {
 		cell.health *= (1 + (Math.min(game.challenges.Lead.stacks, 200) * 0.04));
 	}
+},
+
+/**
+* Applies Improbability/Omnipotrimp modifers to cell
+* @param  {Cell} cell Cell to apply Improbability/Omnipotrimp modifiers to
+ */
+applyBadGuyImprobability: function applyBadGuyImprobability(cell) {
+	var corruptionStart = mutations.Corruption.start(true);
 	if (cell.name == 'Improbability' || cell.name == "Omnipotrimp"){
 		if (game.global.roboTrimpLevel && game.global.useShriek) activateShriek();
 		if (game.global.world >= corruptionStart) {
@@ -6336,19 +6409,6 @@ spawnBadGuy: function spawnBadGuy(cell, corruptionStart, map) {
 			}
 		}
 	}
-	cell.maxHealth = cell.health;
-	var instaFight = false;
-	if (game.portal.Overkill.level) cell.health -= (overkill * game.portal.Overkill.level * 0.005);
-	if (cell.health < 1) {
-		cell.health = 0;
-		cell.overkilled = true;
-		if (cell.name == "Improbability") giveSingleAchieve(12);
-		instaFight = true;
-		if (!game.global.mapsActive) game.stats.cellsOverkilled.value++;
-	} else if (game.global.waitToScry) {
-		game.global.waitToScry = false;
-	}
-	return instaFight;
 },
 
 /**
@@ -6552,7 +6612,7 @@ function startFight() {
 
     swapClass("cellColor", "cellColorCurrent", cellElem);
 
-	document.getElementById("badGuyName").innerHTML = getBadName(cell);
+	document.getElementById("badGuyName").innerHTML = fightNS.getBadName(cell);
 	var corruptionStart = mutations.Corruption.start(true);
 	fightNS.setCorruptionBuffUI(cell, corruptionStart, map);
 
