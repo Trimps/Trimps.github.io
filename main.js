@@ -6187,20 +6187,22 @@ function startFight() {
 			return;
 		}
     }
+
     swapClass("cellColor", "cellColorCurrent", cellElem);
 
-	document.getElementById("badGuyName").innerHTML = getBadName();
+	document.getElementById("badGuyName").innerHTML = getBadName(cell);
 	var corruptionStart = mutations.Corruption.start(true);
 	setCorruptionBuffUI(cell, map, corruptionStart);
+
 	if (game.global.challengeActive == "Balance") updateBalanceStacks();
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
+	if (game.global.challengeActive == "Nom" && cell.nomStacks) updateNomStacks(cell.nomStacks);
+
     if (cell.maxHealth == -1) {
 		instaFight = spawnBadGuy(cell);
 		madeBadGuy = true;
     }
-	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
-		updateNomStacks(cell.nomStacks);
-	}
+
     var trimpsFighting = game.resources.trimps.maxSoldiers;
 	var soldType = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
