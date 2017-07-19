@@ -6780,6 +6780,16 @@ handleStatChanges: function handleStatChanges() {
 	}
 },
 
+/**
+ * Updates UI.
+ * @param  {Cell} cell Cell of current bad guy
+ */
+updateStartFightChallenges: function updateStartFightChallenges(cell) {
+	if (game.global.challengeActive == "Balance") updateBalanceStacks();
+	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
+	if (game.global.challengeActive == "Nom" && cell.nomStacks) updateNomStacks(cell.nomStacks);
+},
+
 get soldierNum() {
 	return (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
 },
@@ -6813,10 +6823,7 @@ function startFight() {
 	document.getElementById("badGuyName").innerHTML = fightNS.getBadName(cell);
 	var corruptionStart = mutations.Corruption.start(true);
 	fightNS.setCorruptionBuffUI(cell, map);
-
-	if (game.global.challengeActive == "Balance") updateBalanceStacks();
-	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
-	if (game.global.challengeActive == "Nom" && cell.nomStacks) updateNomStacks(cell.nomStacks);
+	fightNS.updateStartFightChallenges();
 
 	var instaFight;
     if (cell.maxHealth == -1) {
