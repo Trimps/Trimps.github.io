@@ -6419,19 +6419,94 @@ applyBadGuyImprobability: function applyBadGuyImprobability(cell) {
  * Spawns a new group of soldiers
  */
 spawnSoldiers: function spawnSoldiers() {
-	var trimpsFighting = game.resources.trimps.maxSoldiers;
 	lastSoldierSentAt = new Date().getTime();
-	game.global.battleCounter = 0;
+
+	fightNS.updateSoldierChallenges();
+
+	fightNS.resetSoldierStats();
+
+	fightNS.applySoldierMagma();
+
+    fightNS.applySoldierAmount();
+
+	fightNS.applySoldierGeneticist();
+
+	fightNS.applySoldierPerks();
+
+	fightNS.applySoldierGoldenBattle();
+
+	//Trainers. Trainers are weird in that it needs trainers and heirloom.
+	game.global.soldierCurrentBlock *= Math.floor(game.jobs.Trainer.owned * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100));
+
+	fightNS.applySoldierHeirloomBonus();
+
+	fightNS.applySoldierFormation();
+
+	fightNS.applySoldierVoidPower();
+
+	fightNS.applySoldierChallenge2();
+
+	game.global.soldierHealth = game.global.soldierHealthMax;
+	fightNS.applySoldierDevastation(); //This must be last
+
+},
+
+/**
+ * Update UI and stacks for challenges & daily on spawn
+ */
+updateSoldierChallenges: function updateSoldierChallenges() {
+	fightNS.updateSoldierAnticipation();
+	fightNS.updateSoldierElectricity();
+	fightNS.updateSoldierDaily();
+	if (game.global.challengeActive == "Lead") manageLeadStacks();
+},
+
+/**
+ * Applies perks to soldiers
+ */
+applySoldierPerks: function applySoldierPerks() {
+	fightNS.applySoldierToughness();
+	fightNS.applySoldierResilience();
+	fightNS.applySoldierPower();
+},
+
+/**
+ * Applies challenges to soldiers
+ */
+applySoldierChallenges: function applySoldierChallenges() {
+	fightNS.applySoldierDaily();
+	fightNS.applySoldierBalance();
+
+},
+
+/**
+ * Update UI and stacks for Anticipation  on spawn
+ */
+updateSoldierAnticipation: function updateSoldierAnticipation() {
 	if (game.portal.Anticipation.level){
 		game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
-		if (game.global.antiStacks >= 30) game.global.antiStacks = 30;
+		if (game.global.antiSgame.global.antiStackstacks >= 30) {
+			game.global.antiStacks = 30;
+		}
 		game.global.lastBreedTime = 0;
 		updateAntiStacks();
 	}
+},
+
+/**
+ * Update UI and stacks for Electricity
+ */
+updateSoldierElectricity: function updateSoldierElectricity() {
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")) {
 		game.challenges.Electricity.stacks = 0;
 		updateElectricityStacks();
 	}
+},
+
+/**
+ * Update UI and stacks for challenges & daily
+ */
+updateSoldierDaily: function updateSoldierDaily() {
 	if (game.global.challengeActive == "Daily"){
 		var dailyChallenges = ['plague', 'weakness', 'rampage'];
 		// This is why ES6 i of array exists.
@@ -6443,14 +6518,31 @@ spawnSoldiers: function spawnSoldiers() {
 		}
 
 		if (!game.global.passive && typeof game.global.dailyChallenge.empower !== 'undefined'){
-			if (!game.global.mapsActive){
-				game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
-				var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
-				if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
-			}
-			updateDailyStacks('empower');
+			fightNS.updateSoldierEmpower();
 		}
 	}
+
+},
+/**
+ * Update UI and stacks for empower
+ */
+updateSoldierEmpower: function updateSoldierEmpower() {
+	//TODO: this needs to be moved into fight
+	if (!game.global.mapsActive){
+		game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
+		var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
+		if (game.global.dailyChallenge.empower.stacks >= maxStack) {
+			game.global.dailyChallenge.empower.stacks = maxStack;
+		}
+	}
+	updateDailyStacks('empower');
+},
+
+/**
+ * Reset global.difs and soldier attack, health and block
+ */
+resetSoliderStats: function resetSoliderStats() {
+	game.global.battleCounter = 0;
 	game.global.difs.attack = 0;
 	game.global.difs.health = 0;
 	game.global.difs.block = 0;
@@ -6458,18 +6550,47 @@ spawnSoldiers: function spawnSoldiers() {
 	game.global.soldierHealthMax = game.global.health;
 	game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
 	game.global.soldierCurrentAttack = game.global.attack;
-	//Magma;
+},
+
+/**
+ * Apply magma mutators
+ */
+applySoldierMagma: function applySoldierMagma() {
 	if (mutations.Magma.active()){
 		var magMult = mutations.Magma.getTrimpDecay();
 		game.global.soldierHealthMax *= magMult;
 		game.global.soldierCurrentAttack *= magMult;
 	}
-	//Soldiers
-	game.global.soldierHealthMax *= trimpsFighting;
+},
+
+/**
+ * apply coordination mutators
+ */
+applySoldierAmount: function applySoldierAmount() {
+	var trimpsFighting = game.resources.trimps.maxSoldiers;
+    game.global.soldierHealthMax *= trimpsFighting;
 	game.global.soldierCurrentAttack *= trimpsFighting;
-	//Toughness
-	if (game.portal.Toughness.level > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * game.portal.Toughness.level * game.portal.Toughness.modifier);
-	if (game.portal.Toughness_II.level > 0) game.global.soldierHealthMax *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
+},
+
+/**
+ * Applies toughness and toughness_II perk
+ */
+applySoldierToughness: function applySoldierToughness() {
+    var toughness = game.portal.Toughness;
+    if (toughness > 0) {
+        game.global.soldierHealthMax *= (1 + (toughness.level * toughness.modifier));
+    }
+    var toughness_II = game.portal.Toughness_II;
+	if (toughness_II.level > 0) {
+        game.global.soldierHealthMax *= (1 + (toughness_II.modifier * toughness_II.level));
+    }
+},
+
+/**
+ * Applies geneticist bonus and sets up next geneticist
+ * @return {[type]} [description]
+ */
+applySoldierGeneticist: function applySoldierGeneticist() {
 	if (game.global.lowestGen >= 0) {
 		if (game.global.breedBack <= 0) {
 			game.global.soldierHealthMax *= Math.pow(1.01, game.global.lowestGen);
@@ -6478,46 +6599,115 @@ spawnSoldiers: function spawnSoldiers() {
 		} else {
 			game.global.lastLowGen = 0;
 		}
-		game.global.breedBack = soldierNum / 2;
+		game.global.breedBack = fightNS.soldierNum / 2;
 	}
-	if (game.goldenUpgrades.Battle.currentBonus > 0){
+},
+
+/**
+ * Applies golden battle bonus
+ */
+applySoldierGoldenBattle: function applySoldierGoldenBattle() {
+    if (game.goldenUpgrades.Battle.currentBonus > 0){
 		game.global.soldierHealthMax *= game.goldenUpgrades.Battle.currentBonus + 1;
 	}
-	//Resilience
-	if (game.portal.Resilience.level > 0) game.global.soldierHealthMax *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
-	//Power
-	if (game.portal.Power.level > 0) game.global.soldierCurrentAttack += (game.global.soldierCurrentAttack * game.portal.Power.level * game.portal.Power.modifier);
-	if (game.portal.Power_II.level > 0) game.global.soldierCurrentAttack *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
-	game.global.soldierCurrentBlock = Math.floor((game.global.block * (game.jobs.Trainer.owned * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + game.global.block) * trimpsFighting);
+},
+
+/**
+ * Applies resilience perk
+ */
+applySoldierResilience: function applySoldierResilience() {
+    var resilience = game.portal.Resilience;
+    if (resilience.level > 0) {
+        game.global.soldierHealthMax *= Math.pow(resilience.modifier + 1, resilience.level);
+    }
+},
+
+/**
+ * Applies power and power_II perks
+ */
+applySoldierPower: function applySoldierPower() {
+    var power = game.portal.Power;
+    if (power.level > 0) {
+        game.global.soldierCurrentAttack *= (1 + (power.level * power.modifier));
+    }
+    var power_II = game.portal.Power_II;
+    if (power_II.level > 0) {
+        game.global.soldierCurrentAttack *= (1 + (power_II.modifier * power_II.level));
+    }
+},
+
+/**
+ * Applies heirloom bonuses
+ */
+applySoldierHeirloomBonus: function applySoldierHeirloomBonus() {
 	game.global.soldierHealthMax = calcHeirloomBonus("Shield", "trimpHealth", game.global.soldierHealthMax);
 	game.global.soldierCurrentAttack = calcHeirloomBonus("Shield", "trimpAttack", game.global.soldierCurrentAttack);
 	game.global.soldierCurrentBlock = calcHeirloomBonus("Shield", "trimpBlock", game.global.soldierCurrentBlock);
+},
+
+/**
+ * Applies daily mutators
+ */
+applySoldierDaily: function applySoldierDaily() {
+	var pressure = game.global.dailyChallenge.pressure;
 	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') {
-		game.global.soldierHealthMax *= dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
+		game.global.soldierHealthMax *= dailyModifiers.pressure.getMult(pressure.strength, pressure.stacks);
 	}
+},
+
+/**
+ * Applies formation mutators
+ */
+applySoldierFormation: function applySoldierFormation() {
 	if (game.global.formation !== 0){
 		game.global.soldierHealthMax *= (game.global.formation == 1) ? 4 : 0.5;
 		game.global.soldierCurrentAttack *= (game.global.formation == 2) ? 4 : 0.5;
 		game.global.soldierCurrentBlock *= (game.global.formation == 3) ? 4 : 0.5;
 	}
+},
+
+/**
+ * Applies balance mutator
+ * @return {[type]} [description]
+ */
+applySoldierBalance: function applySoldierBalance() {
 	if (game.global.challengeActive == "Balance"){
 		game.global.soldierHealthMax *= game.challenges.Balance.getHealthMult();
 	}
+},
+
+/**
+ * Applies void power bouns
+ */
+applySoldierVoidPower: function applySoldierVoidPower() {
 	if (game.talents.voidPower.purchased && game.global.voidBuff){
 		var vpAmt = (game.talents.voidPower2.purchased) ? 35 : 15;
 		game.global.soldierHealthMax *= ((vpAmt / 100) + 1);
 	}
+},
+
+/**
+ * Applies c^2 bonus
+ */
+applySoldierChallenge2: function applySoldierChallenge2() {
 	if (game.global.totalSquaredReward > 0) {
 		game.global.soldierHealthMax *= ((game.global.totalSquaredReward / 100) + 1);
 	}
-	game.global.soldierHealth = game.global.soldierHealthMax;
-	if (game.global.challengeActive == "Devastation") {
-		if (game.challenges.Devastation.lastOverkill != -1) game.global.soldierHealth -= (game.challenges.Devastation.lastOverkill * 7.5);
-		game.challenges.Devastation.lastOverkill = -1;
-		if (game.global.soldierHealth < 1) game.global.soldierHealth = 0;
-	}
-	if (game.global.challengeActive == "Lead") manageLeadStacks();
+},
 
+/**
+ * Applies devasation penalty to trimps. Must come after all other mutators to avoid affecting maxHealth
+ */
+applySoldierDevastation: function applySoldierDevastation() {
+	if (game.global.challengeActive == "Devastation") {
+		if (game.challenges.Devastation.lastOverkill != -1) {
+			game.global.soldierHealth -= (game.challenges.Devastation.lastOverkill * 7.5);
+		}
+		game.challenges.Devastation.lastOverkill = -1;
+		if (game.global.soldierHealth < 1) {
+			game.global.soldierHealth = 0;
+		}
+	}
 },
 
 /**
