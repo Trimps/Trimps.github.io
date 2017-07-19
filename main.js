@@ -6283,14 +6283,18 @@ spawnBadGuy: function spawnBadGuy(cell, map) {
 },
 
 /**
- * Applies mutation to a newly spawned bad guy
+ * Sets attack and health of bad guy, and applies mutation to a newly spawned bad guy
  * @param  {Cell} cell Cell to apply mutation to
  */
 applyBadGuyMutation: function applyBadGuyMutation(cell) {
-	if (cell.mutation && typeof mutations[cell.mutation].health !== 'undefined') {
-		cell.health = mutations[cell.mutation].health(cell.level, cell.name);
-	} else {
-		cell.health = game.global.getEnemyHealth(cell.level, cell.name);
+	var stats = ['attack', 'health'];
+	var getEnemy = ['getEnemyAttack', 'getEnemyAttack'];
+	for (var i = 0; i < stats.length; i++) {
+		if (cell.mutation && typeof mutations[cell.mutation][stats[i]] !== 'undefined') {
+			cell[stats[i]] = mutations[cell.mutation][stats[i]](cell.level, cell.name);
+		} else {
+			cell[stats[i]] = game.global[getEnemy[i]](cell.level, cell.name);
+		}
 	}
 },
 
@@ -6485,7 +6489,7 @@ applySoldierChallenges: function applySoldierChallenges() {
 updateSoldierAnticipation: function updateSoldierAnticipation() {
 	if (game.portal.Anticipation.level){
 		game.global.antiStacks = Math.floor(game.global.lastBreedTime / 1000);
-		if (game.global.antiSgame.global.antiStackstacks >= 30) {
+		if (game.global.antiStackstacks >= 30) {
 			game.global.antiStacks = 30;
 		}
 		game.global.lastBreedTime = 0;
@@ -6541,7 +6545,7 @@ updateSoldierEmpower: function updateSoldierEmpower() {
 /**
  * Reset global.difs and soldier attack, health and block
  */
-resetSoliderStats: function resetSoliderStats() {
+resetSoldierStats: function resetSoldierStats() {
 	game.global.battleCounter = 0;
 	game.global.difs.attack = 0;
 	game.global.difs.health = 0;
@@ -6887,7 +6891,7 @@ function startFight() {
 	document.getElementById("badGuyName").innerHTML = fightNS.getBadName(cell);
 	var corruptionStart = mutations.Corruption.start(true);
 	fightNS.setCorruptionBuffUI(cell, map);
-	fightNS.updateStartFightChallenges();
+	fightNS.updateStartFightChallenges(cell);
 
 	var instaFight;
     if (cell.maxHealth == -1) {
