@@ -6231,10 +6231,10 @@ cellElemNullError: function cellElemNullError() {
 /**
  * Sets the contents of '#corruptionBuff', from inputs & globals
  * @param {Cell} cell            Cell the bad guy is in
- * @param {Number} corruptionStart Zone where corruption starts
  * @param {Object} [map]             Map the cell is in
  */
-setCorruptionBuffUI: function setCorruptionBuffUI(cell, corruptionStart, map) {
+setCorruptionBuffUI: function setCorruptionBuffUI(cell, map) {
+	var corruptionStart = mutations.Corruption.start(true);
 	if (cell.mutation) {
 		setMutationTooltip(cell.corrupted, cell.mutation);
 	} else if (map && map.location == "Void" && game.global.world >= corruptionStart){
@@ -6416,7 +6416,6 @@ applyBadGuyImprobability: function applyBadGuyImprobability(cell) {
  */
 spawnSoldiers: function spawnSoldiers() {
 	var trimpsFighting = game.resources.trimps.maxSoldiers;
-	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
 	lastSoldierSentAt = new Date().getTime();
 	game.global.battleCounter = 0;
 	if (game.portal.Anticipation.level){
@@ -6523,7 +6522,6 @@ spawnSoldiers: function spawnSoldiers() {
 handleStatChanges: function handleStatChanges() {
 	//Check differences in equipment, apply perks, bonuses, and formation
 	var trimpsFighting = game.resources.trimps.maxSoldiers;
-	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
 	if (game.global.difs.health !== 0) {
 		var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
 		if (mutations.Magma.active()){
@@ -6570,6 +6568,7 @@ handleStatChanges: function handleStatChanges() {
 		game.global.soldierCurrentBlock += blockTemp;
 		game.global.difs.block = 0;
 	}
+	var soldierNum = fightNS.soldierNum;
 	if (game.resources.trimps.soldiers != soldierNum && game.global.maxSoldiersAtStart > 0){
 		var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
 		var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
@@ -6586,6 +6585,11 @@ handleStatChanges: function handleStatChanges() {
 		}
 	}
 },
+
+get soldierNum() {
+	return (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
+},
+
 };
 
 var lastSoldierSentAt =  new Date().getTime();
@@ -6614,7 +6618,7 @@ function startFight() {
 
 	document.getElementById("badGuyName").innerHTML = fightNS.getBadName(cell);
 	var corruptionStart = mutations.Corruption.start(true);
-	fightNS.setCorruptionBuffUI(cell, corruptionStart, map);
+	fightNS.setCorruptionBuffUI(cell, map);
 
 	if (game.global.challengeActive == "Balance") updateBalanceStacks();
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
@@ -6627,7 +6631,6 @@ function startFight() {
     }
 
     var trimpsFighting = game.resources.trimps.maxSoldiers;
-	var soldierNum = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
     if (game.global.soldierHealth <= 0) {
 		//TODO: move this into fight
 		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
@@ -6646,7 +6649,7 @@ function startFight() {
 		fightNS.handleStatChanges();
 	}
 
-	updateAllBattleNumbers(game.resources.trimps.soldiers < soldierNum);
+	updateAllBattleNumbers(game.resources.trimps.soldiers < fightNS.soldierNum);
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
 	if (instaFight) fight();
