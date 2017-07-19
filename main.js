@@ -30,12 +30,16 @@
 * @typedef {Object} Cell
 * @property {Number} level Cell number in zone/map. Starts at 1
 * @property {Number} maxHealth Negatives are flags that the bad guy needs to be spawned
-* @property {Number} health
+* @property {Number} health Health of the cell, negatives are flags for needs spawning
 * @property {Number} attack
-* @property {String} special
-* @property {String} text
-* @property {String} name
-* @property {Number} [killCount]
+* @property {String} special Loot ocated in the cell, e.g. freeMetals
+* @property {String} text HTMLString to show in cell
+* @property {String} name Name of bad guy
+* @property {Number} [killCount] Number of kills the cell has gotten as a voidsnimp
+* @property {Number} [origAttack] Original attack before spire modifier
+* @property {Number} [origHealth] Original health before spire modifier
+* @property {String} [mutation] Mutation on cell, e.g. corruption, magma
+* @property {String} [corrupted] Type of corruption the cell has
 */
 if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== null) {
 	var boneBtn = document.getElementById("getBonesBtn");
