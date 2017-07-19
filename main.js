@@ -6576,14 +6576,7 @@ applySoldierAmount: function applySoldierAmount() {
  * Applies toughness and toughness_II perk
  */
 applySoldierToughness: function applySoldierToughness() {
-    var toughness = game.portal.Toughness;
-    if (toughness > 0) {
-        game.global.soldierHealthMax *= (1 + (toughness.level * toughness.modifier));
-    }
-    var toughness_II = game.portal.Toughness_II;
-	if (toughness_II.level > 0) {
-        game.global.soldierHealthMax *= (1 + (toughness_II.modifier * toughness_II.level));
-    }
+	game.global.soldierHealthMax *= fightNS.toughnessMultipler;
 },
 
 /**
@@ -6626,14 +6619,7 @@ applySoldierResilience: function applySoldierResilience() {
  * Applies power and power_II perks
  */
 applySoldierPower: function applySoldierPower() {
-    var power = game.portal.Power;
-    if (power.level > 0) {
-        game.global.soldierCurrentAttack *= (1 + (power.level * power.modifier));
-    }
-    var power_II = game.portal.Power_II;
-    if (power_II.level > 0) {
-        game.global.soldierCurrentAttack *= (1 + (power_II.modifier * power_II.level));
-    }
+	game.global.soldierCurrentAttack *= fightNS.toughnessMultipler;
 },
 
 /**
@@ -6717,69 +6703,146 @@ handleStatChanges: function handleStatChanges() {
 	//Check differences in equipment, apply perks, bonuses, and formation
 	var trimpsFighting = game.resources.trimps.maxSoldiers;
 	if (game.global.difs.health !== 0) {
-		var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
-		if (mutations.Magma.active()){
-			healthTemp *= mutations.Magma.getTrimpDecay();
-		}
-		if (game.portal.Toughness_II.level) healthTemp *= (1 + (game.portal.Toughness_II.modifier * game.portal.Toughness_II.level));
-		if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.global.lastLowGen);
-		if (game.goldenUpgrades.Battle.currentBonus > 0) healthTemp *= game.goldenUpgrades.Battle.currentBonus + 1;
-		if (game.portal.Resilience.level > 0) healthTemp *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
-	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') healthTemp *= dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
-		if (game.global.formation !== 0){
-			healthTemp *= (game.global.formation == 1) ? 4 : 0.5;
-		}
-		if (game.global.totalSquaredReward > 0)
-			healthTemp *= ((game.global.totalSquaredReward / 100) + 1);
-		if (game.global.challengeActive == "Balance"){
-			healthTemp *= game.challenges.Balance.getHealthMult();
-		}
-		healthTemp = calcHeirloomBonus("Shield", "trimpHealth", healthTemp);
-		game.global.soldierHealthMax += healthTemp;
-		game.global.soldierHealth += healthTemp;
-		game.global.difs.health = 0;
-		if (game.global.soldierHealth <= 0) game.global.soldierHealth = 0;
+		fightNS.applyDifHealth();
 	}
 	if (game.global.difs.attack !== 0) {
-		var attackTemp = trimpsFighting * game.global.difs.attack * ((game.portal.Power.modifier * game.portal.Power.level) + 1);
-		if (mutations.Magma.active()){
-			attackTemp *= mutations.Magma.getTrimpDecay();
-		}
-		if (game.portal.Power_II.level) attackTemp *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
-		if (game.global.formation !== 0){
-			attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
-		}
-		attackTemp = calcHeirloomBonus("Shield", "trimpAttack", attackTemp);
-		game.global.soldierCurrentAttack += attackTemp;
-		game.global.difs.attack = 0;
+		fightNS.applyDifAttack();
 	}
 	if (game.global.difs.block !== 0) {
-		var blockTemp = (trimpsFighting * game.global.difs.block * ((game.global.difs.trainers * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + 1));
-		if (game.global.formation !== 0){
-			blockTemp *= (game.global.formation == 3) ? 4 : 0.5;
-		}
-		blockTemp = calcHeirloomBonus("Shield", "trimpBlock", blockTemp);
-		game.global.soldierCurrentBlock += blockTemp;
-		game.global.difs.block = 0;
+		fightNS.applyDifBlock();
 	}
 	var soldierNum = fightNS.soldierNum;
 	if (game.resources.trimps.soldiers != soldierNum && game.global.maxSoldiersAtStart > 0){
-		var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
-		var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
-		var requiredTrimps = (soldierNum - game.resources.trimps.soldiers);
-		if (freeTrimps >= requiredTrimps) {
-			game.resources.trimps.owned -= requiredTrimps;
-			var oldHealth = game.global.soldierHealthMax;
-			game.global.soldierHealthMax *= newTrimps;
-			game.global.soldierHealth += (game.global.soldierHealthMax - oldHealth);
-			game.global.soldierCurrentAttack *= newTrimps;
-			game.global.soldierCurrentBlock *= newTrimps;
-			game.resources.trimps.soldiers = soldierNum;
-			game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
-		}
+		fightNS.applyDifSoldierNum();
 	}
 },
 
+/**
+ * Takes difs in game.global.difs.health, applies mutators, then adds to soldier health
+ */
+applyDifHealth: function applyDifHealth() {
+	var trimpsFighting = game.resources.trimps.maxSoldiers;
+	var healthTemp = trimpsFighting * game.global.difs.health;
+	healthTemp *= fightNS.toughnessMultipler;
+	if (mutations.Magma.active()){
+		healthTemp *= mutations.Magma.getTrimpDecay();
+	}
+	if (game.jobs.Geneticist.owned > 0) {
+		healthTemp *= Math.pow(1.01, game.global.lastLowGen);
+	}
+	if (game.goldenUpgrades.Battle.currentBonus > 0) {
+		healthTemp *= game.goldenUpgrades.Battle.currentBonus + 1;
+	}
+	if (game.portal.Resilience.level > 0) {
+		healthTemp *= Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
+	}
+	var pressure = game.global.dailyChallenge.pressure;
+	if (game.global.challengeActive == "Daily" && typeof pressure !== 'undefined') {
+		healthTemp *= dailyModifiers.pressure.getMult(pressure.strength, pressure.stacks);
+	}
+	if (game.global.formation !== 0){
+		healthTemp *= (game.global.formation == 1) ? 4 : 0.5;
+	}
+	if (game.global.totalSquaredReward > 0) {
+		healthTemp *= ((game.global.totalSquaredReward / 100) + 1);
+	}
+	if (game.global.challengeActive == "Balance"){
+		healthTemp *= game.challenges.Balance.getHealthMult();
+	}
+	healthTemp = calcHeirloomBonus("Shield", "trimpHealth", healthTemp);
+	game.global.soldierHealthMax += healthTemp;
+	game.global.soldierHealth += healthTemp;
+	game.global.difs.health = 0;
+	if (game.global.soldierHealth <= 0) {
+		game.global.soldierHealth = 0;
+	}
+},
+
+/**
+ * Takes difs in game.global.difs.attack, applies mutators, then adds to soldier attack
+ */
+applyDifAttack: function applyDifAttack() {
+	var trimpsFighting = game.resources.trimps.maxSoldiers;
+	var attackTemp = trimpsFighting * game.global.difs.attack;
+	attackTemp *= fightNS.powerMultipler;
+	if (mutations.Magma.active()){
+		attackTemp *= mutations.Magma.getTrimpDecay();
+	}
+	if (game.global.formation !== 0){
+		attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
+	}
+	attackTemp = calcHeirloomBonus("Shield", "trimpAttack", attackTemp);
+	game.global.soldierCurrentAttack += attackTemp;
+	game.global.difs.attack = 0;
+},
+
+/**
+ * Takes difs in game.global.difs.block, applies mutators, then adds to soldier block
+ */
+applyDifBlock: function applyDifBlock () {
+	var trimpsFighting = game.resources.trimps.maxSoldiers;
+	var blockTemp = (trimpsFighting * game.global.difs.block * ((game.global.difs.trainers * (calcHeirloomBonus("Shield", "trainerEfficiency", game.jobs.Trainer.modifier) / 100)) + 1));
+	if (game.global.formation !== 0){
+		blockTemp *= (game.global.formation == 3) ? 4 : 0.5;
+	}
+	blockTemp = calcHeirloomBonus("Shield", "trimpBlock", blockTemp);
+	game.global.soldierCurrentBlock += blockTemp;
+	game.global.difs.block = 0;
+},
+
+/**
+ * Diffs maxSoldiers and maxSoldiersAtStart, and applies changes to soldier stats
+ */
+applyDifSoldierNum: function applyDifSoldierNum() {
+	var soldierNum = fightNS.soldierNum;
+	var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
+	var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
+	var requiredTrimps = (soldierNum - game.resources.trimps.soldiers);
+	if (freeTrimps >= requiredTrimps) {
+		game.resources.trimps.owned -= requiredTrimps;
+		var oldHealth = game.global.soldierHealthMax;
+		game.global.soldierHealthMax *= newTrimps;
+		game.global.soldierHealth += (game.global.soldierHealthMax - oldHealth);
+		game.global.soldierCurrentAttack *= newTrimps;
+		game.global.soldierCurrentBlock *= newTrimps;
+		game.resources.trimps.soldiers = soldierNum;
+		game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
+	}
+
+},
+/**
+ * Returns health multipler that toughness & toughness_II gives
+ * @return {Number} multipler that toughness gives
+ */
+get toughnessMultipler () {
+	var multipler = 1;
+	var toughness = game.portal.Toughness;
+	if (toughness > 0) {
+		multipler *= (1 + (toughness.level * toughness.modifier));
+	}
+	var toughness_II = game.portal.Toughness_II;
+	if (toughness_II.level > 0) {
+		multipler *= (1 + (toughness_II.modifier * toughness_II.level));
+	}
+	return multipler;
+},
+
+/**
+* Returns attack multipler that power & power_II gives
+* @return {Number} multipler that power gives
+*/
+get powerMultipler () {
+	var multipler = 1;
+	var power = game.portal.Power;
+	if (power.level > 0) {
+		multipler *= (1 + (power.level * power.modifier));
+	}
+	var power_II = game.portal.Power_II;
+	if (power_II.level > 0) {
+		multipler *= (1 + (power_II.modifier * power_II.level));
+	}
+	return multipler;
+},
 /**
  * Updates UI.
  * @param  {Cell} cell Cell of current bad guy
@@ -6789,6 +6852,7 @@ updateStartFightChallenges: function updateStartFightChallenges(cell) {
 	if (game.global.challengeActive == "Toxicity") updateToxicityStacks();
 	if (game.global.challengeActive == "Nom" && cell.nomStacks) updateNomStacks(cell.nomStacks);
 },
+
 
 get soldierNum() {
 	return (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend: game.resources.trimps.maxSoldiers;
