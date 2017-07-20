@@ -92,7 +92,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var lvlsLeft = ((5 - (game.global.world % 5)) + game.global.world) + 1;
 		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
 		costText = "";
-		
+
 	}
 	if (what == "Finish Daily"){
 		var value = getDailyHeliumValue(countDailyWeight()) / 100;
@@ -1366,6 +1366,12 @@ function getBattleStatBd(what) {
 		currentCalc *= stackStr;
 		textString += "<tr style='color: red'><td class='bdTitle'>Decay</td><td>x 0.995</td><td>" + game.challenges.Decay.stacks + "</td><td class='bdPercent'>x " + stackStr.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
+	if (game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") {
+		var mult = (1 - (game.challenges.Electricity.stacks * 0.1));
+		currentCalc *= mult;
+
+		textString += "<tr style='color: red'><td class='bdTitle'>" + game.global.challengeActive + "</td><td>-10%</td><td>" + game.challenges.Electricity.stacks.toString() + "</td><td class='bdPercent'>x " + mult.toFixed(1) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+	}
 	if (game.global.challengeActive == "Daily"){
 		var mult = 0;
 		if (typeof game.global.dailyChallenge.weakness !== 'undefined' && what == "attack"){
@@ -2295,7 +2301,7 @@ function resetGame(keepPortal) {
 	setEmpowerTab();
 	resetAdvMaps();
 	cancelPortal();
-	updateRadioStacks();
+	updateElectricityStacks();
 	updateDecayStacks();
 	updateAntiStacks();
 	setNonMapBox();
