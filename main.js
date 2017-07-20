@@ -52,6 +52,8 @@ function save(exportThis, fromManual) {
 	delete saveGame.badGuyDeathTexts;
 	delete saveGame.tierValues;
 	delete saveGame.colorsList;
+	delete saveGame.workspaces;
+	delete saveGame.resources.trimps.employed;
     for (var item in saveGame.equipment) {
 		delete saveGame.equipment[item].tooltip;
 		delete saveGame.equipment[item].blocktip;
@@ -319,6 +321,9 @@ function load(saveString, autoLoad, fromPf) {
                     if (c == "cost") continue;
                     if (c == "tooltip") continue;
 					if (a == "mapUnlocks" && c == "repeat") continue;
+					if (a == "resources" && b == "trimps" && c == "employed") {
+						continue;
+					}
 					if (a == "resources" && c == "owned"){
 						//check bad entries here.
 					}
@@ -332,6 +337,7 @@ function load(saveString, autoLoad, fromPf) {
 							midGame[c].currentBonus = botSave.currentBonus;
 						continue;
 					}
+
                     midGame[c] = botSave;
                 }
         }
@@ -2662,20 +2668,18 @@ function buyJob(what, confirmed, noTip) {
 	if (game.global.firing){
 		if (game.jobs[what].owned < 1) return;
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
-		game.resources.trimps.employed -= (game.jobs[what].owned < purchaseAmt) ? game.jobs[what].owned : purchaseAmt;
 		game.jobs[what].owned -= purchaseAmt;
 		game.stats.trimpsFired.value += purchaseAmt;
 		if (game.jobs[what].owned < 0) game.jobs[what].owned = 0;
-		if (game.resources.trimps.employed < 0) game.resources.trimps.employed = 0;
 		return;
 	}
-	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var workspaces = game.workspaces;
 	var firingForJobs = false;
 	var fireAmt;
 	if (game.options.menu.fireForJobs.enabled && game.jobs[what].allowAutoFire){
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
 		if (workspaces < purchaseAmt) {
-			workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+			workspaces = game.workspaces;
 			fireAmt = purchaseAmt - workspaces;
 			// Check to see if there are enough workers to fire
 			if (!((game.jobs.Miner.owned + game.jobs.Farmer.owned + game.jobs.Lumberjack.owned) < fireAmt)) {
@@ -2707,12 +2711,11 @@ function buyJob(what, confirmed, noTip) {
 	}
 	var added = canAffordJob(what, true, workspaces);
 	game.jobs[what].owned += added;
-	game.resources.trimps.employed += added;
 
 
 	if (!noTip) tooltip(what, "jobs", "update");
 	if (checkAndFix){
-		workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+		workspaces = game.workspaces;
 		if (workspaces < 0)
 			freeWorkspace(Math.abs(workspaces));
 	}
@@ -2720,7 +2723,7 @@ function buyJob(what, confirmed, noTip) {
 
 function addGeneticist(amount){
 	if (game.global.challengeActive == "Corrupted") game.challenges.Corrupted.hiredGenes = true;
-	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var workspaces = game.workspaces;
 	var owned = game.resources.trimps.owned - game.resources.trimps.employed;
 	if (owned < 1) return;
 	if (owned < amount)
@@ -2741,13 +2744,11 @@ function addGeneticist(amount){
 		amount = 1;
 	}
 	game.resources.food.owned -= price;
-	game.resources.trimps.employed += amount;
 	game.jobs.Geneticist.owned += amount;
 }
 
 function removeGeneticist(amount){
 	if (game.jobs.Geneticist.owned < amount) return;
-	game.resources.trimps.employed -= amount;
 	game.jobs.Geneticist.owned -= amount;
 }
 
@@ -2765,7 +2766,6 @@ function freeWorkspace(amount, getAmtFreed){
 	if (toCheck.length == 0) return false;
 	var selected = toCheck[Math.floor(Math.random() * toCheck.length)];
 	game.jobs[selected].owned -= amount;
-	game.resources.trimps.employed -= amount;
 	return true;
 }
 
@@ -7280,7 +7280,7 @@ function checkHousing(getHighest){
 }
 
 function assignExtraWorkers(){
-	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var workspaces = game.workspaces;
 	var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
 	//Won't leave you with less than 15% of your max as breeders
 	if (freeTrimps - workspaces < Math.floor(game.resources.trimps.realMax() * 0.15)) return;
@@ -7292,7 +7292,6 @@ function assignExtraWorkers(){
 	for (var x = 0; x < jobs.length; x++){
 		game.jobs[jobs[x]].owned += split;
 	}
-	game.resources.trimps.employed += Math.round(split * 3);
 	game.resources.food.owned -= (split * 30);
 }
 
