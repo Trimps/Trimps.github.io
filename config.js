@@ -16,8 +16,11 @@
 		author's website, you can find a copy at
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. */
-		 
+
 //Spoilers ahead, proceed with caution
+
+"use strict";
+
 function newGame () {
 var toReturn = {
 	global: {
@@ -69,7 +72,7 @@ var toReturn = {
 		buyAmt: 1,
 		numTab: 1,
 		spreadsheetMode: false,
-		lockTooltip: false,	
+		lockTooltip: false,
 		portalActive: false,
 		mapsUnlocked: false,
 		lastOnline: 0,
@@ -256,7 +259,6 @@ var toReturn = {
 			var world = getCurrentMapObject();
 			var amt = 0;
 			world = (game.global.mapsActive) ? world.level : game.global.world;
-			var adjWorld = ((world - 1) * 100) + level;
 			amt += 50 * Math.sqrt(world) * Math.pow(3.27, world / 2);
 			amt -= 10;
 			if (world == 1){
@@ -267,12 +269,12 @@ var toReturn = {
 				amt *= 0.5;
 				amt = (amt * 0.32) + ((amt * 0.68) * (level / 100));
 			}
-			else if (world < 60)
+			else if (world < 60) {
 				amt = (amt * 0.375) + ((amt * 0.7) * (level / 100));
-			else{ 
+			} else {
 				amt = (amt * 0.4) + ((amt * 0.9) * (level / 100));
 				amt *= Math.pow(1.15, world - 59);
-			}	
+			}
 			if (world < 60) amt *= 0.85;
 			if (world > 6 && game.global.mapsActive) amt *= 1.1;
 			if (!ignoreImpStat)
@@ -295,7 +297,7 @@ var toReturn = {
 				amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
 				amt *= Math.pow(1.1, world - 59);
 			}
-			if (world < 60) amt *= 0.75;		
+			if (world < 60) amt *= 0.75;
 			if (world > 5 && game.global.mapsActive) amt *= 1.1;
 			if (!ignoreImpStat)
 				amt *= game.badGuys[name].health;
@@ -318,7 +320,7 @@ var toReturn = {
 			formatModifier: function (number){
 				return prettify(number * 100);
 			},
-			color: "#33bb33", 
+			color: "#33bb33",
 			currentDebuffPower: 0,
 			level: 1,
 			retainLevel: 0,
@@ -537,18 +539,18 @@ var toReturn = {
 						return;
 					}
 					if (this.enabled == 0) {
-						document.getElementById("innerWrapper").style.backgroundColor = "black";	
+						document.getElementById("innerWrapper").style.backgroundColor = "black";
 						link = document.getElementById("darkTheme");
 						if (!link) return;
 						link.disabled = true;
 						document.head.removeChild(link);
 						return;
 					}
-					document.getElementById("innerWrapper").style.backgroundColor = "initial";	
+					document.getElementById("innerWrapper").style.backgroundColor = "initial";
 				},
 				restore: function () {
-					document.getElementById("innerWrapper").style.backgroundColor = "initial";	
-					link = document.getElementById("darkTheme");
+					document.getElementById("innerWrapper").style.backgroundColor = "initial";
+					var link = document.getElementById("darkTheme");
 					if (!link) return;
 					link.disabled = true;
 					document.head.removeChild(link);
@@ -608,10 +610,10 @@ var toReturn = {
 					if (!game.global.mapsActive) return;
 					var setTo = (this.enabled) ? ["8", "2"] : ["10", "off"];
 					swapClass("col-xs", "col-xs-" + setTo[0], document.getElementById("gridContainer"));
-					swapClass("col-xs", "col-xs-" + setTo[1], document.getElementById("extraMapBtns"));				
+					swapClass("col-xs", "col-xs-" + setTo[1], document.getElementById("extraMapBtns"));
 				},
 				lockUnless: function () {
-					return (game.global.totalPortals > 0)
+					return (game.global.totalPortals > 0);
 				},
 			},
 			GeneticistassistTarget: {
@@ -630,7 +632,7 @@ var toReturn = {
 				description: "Choose if you would like to see a different cell color for cells that you overkilled. Toggle between off, showing both cells involved in the overkill, or just showing the 1 cell that was skipped.",
 				titles: ["No Overcolors", "1 Overkill Cell", "2 Overkill Cells"],
 				lockUnless: function () {
-					return (!game.portal.Overkill.locked)
+					return (!game.portal.Overkill.locked);
 				},
 			},
 			forceQueue: {
@@ -649,7 +651,7 @@ var toReturn = {
 				titles: ["Keep Fighting", "Map at Spire"],
 				lockUnless: function () {
 					return (game.global.highestLevelCleared >= 199);
-				}				
+				}
 			},
 			siphonologyMapLevel: {
 				enabled: 0,
@@ -657,7 +659,7 @@ var toReturn = {
 				description: "When entering the Maps screen, by default the Level Selector starts at your current world number. Toggling this setting on will force this number to default to your minimum Siphonology level instead.",
 				titles: ["Use World Number", "Use Siphonology Level"],
 				lockUnless: function () {
-					return (!game.portal.Siphonology.locked)
+					return (!game.portal.Siphonology.locked);
 				}
 			},
 			timestamps: {
@@ -682,7 +684,7 @@ var toReturn = {
 				description: "Choose what you would like to see on your Mastery Tab! <b>No Mastery Info</b> will keep the tab clean and static. <b>Alert Mastery</b> will show an alert on the tab as soon as a new Mastery becomes affordable. <b>Show Essence</b> will always show your total amount of unspent essence on the tab.",
 				titles: ["No Mastery Info", "Alert Mastery", "Show Essence"],
 				lockUnless: function () {
-					return (game.global.highestLevelCleared >= 180)
+					return (game.global.highestLevelCleared >= 180);
 				},
 				onToggle: function () {
 					updateTalentNumbers();
@@ -705,7 +707,7 @@ var toReturn = {
 				enabled: 1,
 				extraTags: "general",
 				description: "Disable the snow effect in the world. <b>This will take effect on the next zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
-				titles: ["No Snow", "Show Snow"]			
+				titles: ["No Snow", "Show Snow"]
 			}, */
 			geneSend: {
 				enabled: 0,
@@ -991,8 +993,8 @@ var toReturn = {
 			icon: "italic",
 			requires: "skeletimp"
 		},
-		
-		
+
+
 
 	},
 	//portal
@@ -1036,7 +1038,7 @@ var toReturn = {
 			additive: true,
 			additiveInc: 500,
 			modifier: 0.01
-		},		
+		},
 		Toughness_II: {
 			level: 0,
 			locked: true,
@@ -1127,7 +1129,7 @@ var toReturn = {
 				timeOnZone = Math.floor(timeOnZone / 600000);
 				if (timeOnZone > 6) timeOnZone = 6;
 				else if (timeOnZone <= 0) return 0;
-				if (justStacks) return timeOnZone;				
+				if (justStacks) return timeOnZone;
 				return (timeOnZone * this.modifier * this.level);
 			}
 		},
@@ -1167,7 +1169,7 @@ var toReturn = {
 			tooltip: "Use your new-found leadership skills in order to increase the minimum damage your Trimps deal by 2% per level. Stacks up to 10 times, doesn't affect max damage. At 10 levels, you will get a minimum of 100% benefit from all attack damage per strike.",
 		},
 		Agility: {
-			level: 0, 
+			level: 0,
 			modifier: 0.05,
 			priceBase: 4,
 			heliumSpent: 0,
@@ -1330,7 +1332,7 @@ var toReturn = {
 			unlocks: "Carpentry",
 			unlockString: "reach Zone 35"
 		},
-		Balance: { 
+		Balance: {
 			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 100% more health, enemies in world deal 17% more damage, and enemies in maps deal 135% more damage. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant an additional 100% of all helium earned up to that point. This challenge is repeatable!",
 			completed: false,
 			filter: function () {
@@ -1374,9 +1376,9 @@ var toReturn = {
 			unlockString: "reach Zone 40"
 		},
 		Scientist: {
-			get description (){ 
+			get description (){
 				var is5 = (game.global.highestLevelCleared >= 124 && game.global.sLevel >= 4);
-				return "Attempt modifying the portal to " + ((is5) ? "retain positive qualities from previous dimensions" : "harvest resources when travelling") + ". Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists" + ((is5) ? " and <b style='color: maroon'>all enemy damage will be 10X higher</b>" : "") + ". Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal."
+				return "Attempt modifying the portal to " + ((is5) ? "retain positive qualities from previous dimensions" : "harvest resources when travelling") + ". Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists" + ((is5) ? " and <b style='color: maroon'>all enemy damage will be 10X higher</b>" : "") + ". Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal.";
 			},
 			completed: false,
 			heldBooks: 0,
@@ -1688,7 +1690,7 @@ var toReturn = {
 			}
 		},
 		Corrupted: {
-			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension."},
+			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension.";},
 			filter: function () {
 				return (game.global.highestLevelCleared >= 189);
 			},
@@ -1726,11 +1728,11 @@ var toReturn = {
 			valueTotal: 0
 		},
 		gemsCollected: {
-			title: "Gems Collected", 
-			value: 0, 
+			title: "Gems Collected",
+			value: 0,
 			valueTotal: 0,
 			display: function () {
-				return ((this.value + this.valueTotal) > 0)
+				return ((this.value + this.valueTotal) > 0);
 			}
 		},
 		trimpsFired: {
@@ -1768,7 +1770,7 @@ var toReturn = {
 		spentOnWorms: {
 			title: "Wormholed Helium",
 			display: function () {
-				return ((this.value + this.valueTotal) > 0)
+				return ((this.value + this.valueTotal) > 0);
 			},
 			value: 0,
 			valueTotal: 0
@@ -1883,7 +1885,7 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		}
-		
+
 	},
 	generatorUpgrades: {
 		Efficiency: {
@@ -1973,7 +1975,7 @@ var toReturn = {
 			description: "Reduce the amount of Magmite that decays after each portal by 10% (additive)",
 			cost: 1050,
 			owned: false
-		},	
+		},
 		Slowburn: {
 			description: "Reduce the rate of fuel consumption per tick by 0.1, from 0.5 to 0.4",
 			cost: 1875,
@@ -1994,7 +1996,7 @@ var toReturn = {
 				if (this.breakpoints.length > this.finished) return game.global.highestLevelCleared + " / " + this.breakpoints[this.finished];
 				return game.global.highestLevelCleared + " total";
 			},
-			evaluate: function () { return game.global.highestLevelCleared},
+			evaluate: function () { return game.global.highestLevelCleared;},
 			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300],
 			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7],
 			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator", "Heat Maker", "Heat Hater", "Heat Breaker", "Heat Slayer", "Heat Expert", "Heat Bender", "Volcanic", "Magma Master"],
@@ -2007,7 +2009,7 @@ var toReturn = {
 			description: function (number) {
 				return "Reach " + prettify(this.breakpoints[number]) + " displayed damage";
 			},
-			progress: function () {				
+			progress: function () {
 				if (this.breakpoints.length > this.finished) return prettify(this.highest) + " / " + prettify(this.breakpoints[this.finished]);
 				return "Highest is " + prettify(this.highest);
 			},
@@ -2062,7 +2064,7 @@ var toReturn = {
 				if (this.breakpoints.length > this.finished) return this.evaluate() + " / " + this.breakpoints[this.finished];
 				return this.evaluate() + " total";
 			},
-			evaluate: function () { return game.global.totalPortals},
+			evaluate: function () { return game.global.totalPortals;},
 			breakpoints: [1, 3, 10, 20, 50, 100, 200, 500],
 			tiers: [1, 2, 2, 2, 3, 3, 4, 4],
 			names: ["A Trimp Through Time", "When The Wild Things Are", "A Time Like No Other", "Venti Timeachino", "Time of Your Life", "Centennial Trimper", "Amnesia", "Dedicated Traveller"],
@@ -2136,7 +2138,7 @@ var toReturn = {
 			finished: 0,
 			title: "Heirloom Collection",
 			description: function (number) {
-				var number = this.breakpoints[number];
+				number = this.breakpoints[number];
 				var s = (number > 1) ? "s" : "";
 				return "Collect " + prettify(number) + " Heirloom" + s;
 			},
@@ -2160,7 +2162,7 @@ var toReturn = {
 			finished: 0,
 			title: "Gem Collection",
 			description: function (number) {
-				var number = this.breakpoints[number];
+				number = this.breakpoints[number];
 				var s = (number > 1) ? "s" : "";
 				return "Collect  " + prettify(number) + " Gem" + s;
 			},
@@ -2181,7 +2183,7 @@ var toReturn = {
 			finished: 0,
 			title: "Daily Bonus",
 			description: function (number) {
-				var number = this.breakpoints[number];
+				number = this.breakpoints[number];
 				return "Earn " + prettify(number) + " Helium from the Daily Challenge";
 			},
 			evaluate: function () {
@@ -2204,7 +2206,7 @@ var toReturn = {
 			finished: 0,
 			title: "Humane Run",
 			description: function (number){
-				var number = this.breakpoints[number];
+				number = this.breakpoints[number];
 				return "<span style='font-size: .8em'>Reach Z" + number + " after losing no more than one fight per zone.</span>";
 			},
 			evaluate: function () {
@@ -2375,7 +2377,7 @@ var toReturn = {
 			names: ["Lover of Bots", "Friend of Bots", "Acquaintance of Bots", "Bot Disliker", "Bot Hater", "Bot Slayer"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
-		},		
+		},
 		starTimed: {
 			finished: 0,
 			title: "Speed: Star",
@@ -2441,7 +2443,7 @@ var toReturn = {
 			newStuff: []
 		}
 	},
-	
+
 	heirlooms: { //Basic layout for modifiers. Steps can be set specifically for each modifier, or else default steps will be used
 		//NOTE: currentBonus is the only thing that will persist!
 		values: [10, 20, 30, 50, 150, 300, 800, 2000],
@@ -2562,10 +2564,10 @@ var toReturn = {
 				rarity: 1
 			}
 		}
-	
+
 	},
-	
-	
+
+
 	worldText: {
 		w2: "Your Trimps killed a lot of bad guys back there. It seems like you're getting the hang of this. However, the world is large, and there are many more zones to explore. Chop chop.",
 		w3: "By your orders, your scientists have begun to try and figure out how large this planet is.",
@@ -2579,7 +2581,7 @@ var toReturn = {
 		w11: "You're unstoppable as long as nothing stops you. Unfortunately, it seems like something really wants to stop you.",
 		w12: "Did you see that green light flash by? Weird. Oh well.",
 		w13: "Your scientists have finally concluded their report on the analysis of the size of the world. According to the report, they're pretty sure it's infinitely large, but you're pretty sure they just got bored of checking.",
-		w14: "You were trying to help bring back some of the Equipment your Trimps left on the ground in that last zone, and you got a splinter. This planet is getting dangerous, stay alert.",		
+		w14: "You were trying to help bring back some of the Equipment your Trimps left on the ground in that last zone, and you got a splinter. This planet is getting dangerous, stay alert.",
 		w15: "Another day, another Blimp at the end of the zone",
 		w16: "Seriously? Another Blimp so soon?",
 		w17: "You climb a large cliff and look out over the new zone. Red dirt, scorched ground, and devastation. Is that a Dragimp flying around out there?!",
@@ -2651,13 +2653,13 @@ var toReturn = {
 		w174: "Strange smells continue to swell around you. Judging by changes in wind direction, the smells are coming from the spire. You still can't describe it other than purple.",
 		w175: "Your Trimps seem happy. They're not used to having a purpose, and having one seems to positively affect them! You call a Trimp over and ask him how he's doing, then you remember that he can't talk.",
 		w178: "You're still not quite sure what that smell is. You feel slightly more powerful, and you fear that your enemies may feel the same way.",
-		get w180 () { 
+		get w180 () {
 		if (game.global.challengeActive != "Corrupted") return "After clearing out the previous zone, you decide to take a day hike to the top of another gigantic mountain to try to find more info about the smell. As you reach the top, your jaw drops. Clear as day, a healthy amount of purple goo is pouring into the atmosphere from the top of the spire. You can see the zones in front of you beginning to change. This really can't be good.";
 		return "After clearing out the previous zone, you decide to take a day hike to the top of another gigantic mountain to try to find more info about the smell. As you reach the top, your jaw drops. Clear as day, a healthy amount of purple goo is pouring into the atmosphere from the top of the spire. This must be what's causing all of this Corruption you've been trudging through. The planet seems pretty heavily Corrupted already, you wonder if you're too late.";
 		},
 		w182: "Well, there's not really much doubt about it anymore. Some sort of intelligence is intentionally making life more difficult for you and your Trimps. You take this as a sign that you're pretty important, why else would something risk destroying an entire planet to stop you? Your parents would be so proud.",
-		get w184 () { 
-				return "The corruption seems to be more pronounced the closer you get to the Spire. Looks like there's " + mutations.Corruption.cellCount() + " of em now."
+		get w184 () {
+				return "The corruption seems to be more pronounced the closer you get to the Spire. Looks like there's " + mutations.Corruption.cellCount() + " of em now.";
 			},
 		w185: "You have trouble putting in to words exactly what the Corruption does to the creatures on this planet. They seem to be stripped of all natural abilities and given powers that you didn't know could exist in the primary dimension.",
 		w187: "None of these corrupted enemies seem to have eyes, so you decide to see if you can get away with flipping one off. As it reacts by roaring and stomping around in a rage, you realize that these things are powerful enough not to need eyes to observe the world. What <i>are</i> these?!",
@@ -2691,16 +2693,16 @@ var toReturn = {
 		w255: "Your Trimps continue to lose strength as you press through the zones, but they seem to be adapting well in spirits. It seems like each generation likes the heat more and more.",
 		w265: "You're determined to repair the planet, though you feel like it's not yet possible. Either way, you know you're gaining strength and that your Trimps would follow you anywhere."
 	},
-	
+
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over", "swam the river Styx", "turned in to jerky", "forgot to put armor on", "croaked", "flatlined", "won't follow you to battle again", "died. Lame", "lagged out", "imp-loded"],
 	badGuyDeathTexts: ["slew", "killed", "destroyed", "extinguished", "liquidated", "vaporized", "demolished", "ruined", "wrecked", "obliterated"],
-	
+
 	settings: {
 		speed: 10,
 		speedTemp: 0,
 		slowdown: false,
 	},
-	
+
 	resources: {
 		food: {
 			owned: 0,
@@ -2747,9 +2749,9 @@ var toReturn = {
 		helium: {
 			owned: 0,
 			max: -1
-		} 
+		}
 	},
-	
+
 	magma: {
 		buffs: {
 			attack: 0,
@@ -2758,7 +2760,7 @@ var toReturn = {
 			potency: 0
 		}
 	},
-	
+
 	equipment: {
 		Shield: {
 			locked: 1,
@@ -3083,7 +3085,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				var amt = rewardResource("gems", 0.3, level, true);
-				message("That Slagimp fell over, and " + prettify(amt) + " gems popped out! How about that?!", "Loot", "*diamond", null, 'secondary'); 
+				message("That Slagimp fell over, and " + prettify(amt) + " gems popped out! How about that?!", "Loot", "*diamond", null, 'secondary');
 			}
 		},
 		Moltimp: {
@@ -3170,7 +3172,7 @@ var toReturn = {
 			loot: function (level) {
 				var amt = rewardResource("food", 0.35, level, true);
 				message("Time for some stew! You scored " + prettify(amt) + " food from that Squirrimp!", "Loot", "apple", null, 'primary');
-			}			
+			}
 		},
 		Gravelimp: {
 			location: "Plentiful",
@@ -3221,7 +3223,7 @@ var toReturn = {
 				var amt = (game.global.world >= 60) ? 10 : 2;
 				if (mutations.Magma.active()) amt *= 3;
 				var percentage = 1;
-				if (game.global.world >= mutations.Corruption.start(true)){ 
+				if (game.global.world >= mutations.Corruption.start(true)){
 					percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
 					percentage *= mutations.Corruption.cellCount() * 2;
 					percentage += 2;
@@ -3265,7 +3267,7 @@ var toReturn = {
 			health: 4,
 			fast: false,
 			loot: function (level) {
-				checkAchieve("angerTimed")
+				checkAchieve("angerTimed");
 			}
 		},
 		Dragimp: {
@@ -3300,7 +3302,7 @@ var toReturn = {
 			health: 2.5,
 			fast: false,
 			loot: function (level) {
-				checkAchieve("wallTimed")
+				checkAchieve("wallTimed");
 			}
 		},
 		Indianimp: {
@@ -3386,7 +3388,7 @@ var toReturn = {
 			health: 1.5,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .25, level, true);
+				var amt = rewardResource("metal", 0.25, level, true);
 				message("Mechimp disengaged. Reward encountered: " + prettify(amt) + " bars of metal. Huzzah.", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3397,8 +3399,8 @@ var toReturn = {
 			health: 0.8,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .25, level, true);
-				message("Destructimp shorted out. Salvage results: " + prettify(amt) + " bars of metal. Acceptable.", "Loot", "*cubes", null, 'primary');				
+				var amt = rewardResource("metal", 0.25, level, true);
+				message("Destructimp shorted out. Salvage results: " + prettify(amt) + " bars of metal. Acceptable.", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		Terminatimp: {
@@ -3408,8 +3410,8 @@ var toReturn = {
 			health: 1.2,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .25, level, true);
-				message("Terminatimp Terminated. Findings: " + prettify(amt) + " bars of metal. Hasta la Vista.", "Loot", "*cubes", null, 'primary');				
+				var amt = rewardResource("metal", 0.25, level, true);
+				message("Terminatimp Terminated. Findings: " + prettify(amt) + " bars of metal. Hasta la Vista.", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		Autoimp: {
@@ -3419,7 +3421,7 @@ var toReturn = {
 			health: 1.3,
 			fast: false,
 			loot: function (level) {
-				var amt = rewardResource("metal", .5, level, true);
+				var amt = rewardResource("metal", 0.5, level, true);
 				message("Autoimp force quit. Memory dump provides " + prettify(amt) + " bars of metal and no clues. It's a feature!", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3463,8 +3465,8 @@ var toReturn = {
 			health: 1.8,
 			fast: true,
 			loot: function (level) {
-				var amt = rewardResource("metal", .5, level, true);
-				message("The Fusimp explodes, leaving behind " + prettify(amt) + " bars of metal and a nice dose of radiation.", "Loot", "*cubes", null, 'primary');				
+				var amt = rewardResource("metal", 0.5, level, true);
+				message("The Fusimp explodes, leaving behind " + prettify(amt) + " bars of metal and a nice dose of radiation.", "Loot", "*cubes", null, 'primary');
 			}
 		},
 		Hydrogimp: {
@@ -3475,8 +3477,8 @@ var toReturn = {
 			fast: false,
 			loot: function (level) {
 				var amt = rewardResource("food", 1, level, true);
-				message("Before you can blink, the Hydrogimp vaporizes. That's fine though, it left " + prettify(amt) + " food for you!", "Loot", "apple", null, 'primary');				
-			}			
+				message("Before you can blink, the Hydrogimp vaporizes. That's fine though, it left " + prettify(amt) + " food for you!", "Loot", "apple", null, 'primary');
+			}
 		},
 		Carbimp: {
 			location: "Star",
@@ -3486,8 +3488,8 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				var amt = rewardResource("wood", 1, level, true);
-				message("The Carbimp begins to crackle and shrink. Within a few seconds, all that's left is " + prettify(amt) + " wood.", "Loot", "tree-deciduous", null, 'primary');				
-			}		
+				message("The Carbimp begins to crackle and shrink. Within a few seconds, all that's left is " + prettify(amt) + " wood.", "Loot", "tree-deciduous", null, 'primary');
+			}
 		},
 		//End Imploding Star stuff
 		Improbability: {
@@ -3504,7 +3506,7 @@ var toReturn = {
 				if (game.global.runningChallengeSquared) return;
 				var amt = (game.global.world >= mutations.Corruption.start(true)) ? 10 : 5;
 				amt = rewardResource("helium", amt, level);
-				message("You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Loot", "oil", 'helium', 'helium');				
+				message("You managed to steal " + prettify(amt) + " Helium canisters from that Improbability. That'll teach it.", "Loot", "oil", 'helium', 'helium');
 				if (game.global.challengeActive == "Slow" && game.global.world == 120){
 					message("You have completed the Slow challenge! You have found the patterns for the Gambeson and the Arbalest!", "Notices");
 					game.global.challengeActive = "";
@@ -3545,7 +3547,7 @@ var toReturn = {
 			fast: true,
 			loot: function (level) {
 				if (!game.global.runningChallengeSquared){
-					amt = rewardResource("helium", 30, level);
+					var amt = rewardResource("helium", 30, level);
 					message("You managed to steal " + prettify(amt) + " Helium canisters from that Omnipotrimp. That'll teach it.", "Loot", "oil", 'helium', 'helium');
 				}
 				if (game.global.world % 5 == 0){
@@ -3565,7 +3567,7 @@ var toReturn = {
 			health: 6,
 			fast: true,
 			loot: function (level) {
-				amt = rewardResource("metal", 5, level);
+				var amt = rewardResource("metal", 5, level);
 				message("Radioactive waste spills to the ground as the Mutimp falls. You send a few Trimps to grab the shiny stuff in the toxic sludge, which ends up being " + prettify(amt) + " bars of metal!", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3576,7 +3578,7 @@ var toReturn = {
 			health: 12,
 			fast: true,
 			loot: function (level) {
-				amt = rewardResource("metal", 8, level);
+				var amt = rewardResource("metal", 8, level);
 				message("Radioactive waste spills to the ground as the Hulking Mutimp falls. You send a few Trimps to grab the shiny stuff in the toxic sludge, which ends up being " + prettify(amt) + " bars of metal!", "Loot", "*cubes", null, 'primary');
 			}
 		},
@@ -3640,7 +3642,7 @@ var toReturn = {
 				if (game.portal.Carpentry.level) amt *= Math.pow((1 + game.portal.Carpentry.modifier), game.portal.Carpentry.level);
 				if (game.portal.Carpentry_II.level > 0) amt *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
 				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic", "exotic");
-				
+
 			}
 		},
 		Whipimp: {
@@ -3661,7 +3663,7 @@ var toReturn = {
 				game.jobs.Explorer.modifier *= 1.003;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Whipimp);
 				amt = (amt - 1) * 100;
-				message("Seeing the Whipimps fall is causing all of your Trimps to work " + amt.toFixed(2) + "% harder!", "Loot", "star", "exotic", "exotic");			
+				message("Seeing the Whipimps fall is causing all of your Trimps to work " + amt.toFixed(2) + "% harder!", "Loot", "star", "exotic", "exotic");
 			}
 		},
 		Venimp: {
@@ -3676,7 +3678,7 @@ var toReturn = {
 				game.unlocks.impCount.Venimp++;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Venimp);
 				amt = (amt - 1) * 100;
-				message("The ground up Venimp now increases your Trimps' breed speed by " + amt.toFixed(2) + "%!", "Loot", "glass", "exotic", "exotic");			
+				message("The ground up Venimp now increases your Trimps' breed speed by " + amt.toFixed(2) + "%!", "Loot", "glass", "exotic", "exotic");
 			}
 		},
 		Jestimp: {
@@ -3717,7 +3719,7 @@ var toReturn = {
 				else timeRemaining = 30;
 				game.global.titimpLeft = timeRemaining;
 				message("That Titimp made your Trimps super strong!", "Loot", "*hammer", "exotic", "exotic");
-			}		
+			}
 		},
 		Chronoimp: {
 			location: "Maps",
@@ -3743,8 +3745,8 @@ var toReturn = {
 					else cMessage += ", ";
 				}
 				message(cMessage, "Loot", "hourglass", "exotic", "exotic");
-				game.unlocks.impCount.Chronoimp++;				
-			}		
+				game.unlocks.impCount.Chronoimp++;
+			}
 		},
 		Magnimp: {
 			location: "World",
@@ -3759,7 +3761,7 @@ var toReturn = {
 				var amt = Math.pow(1.003, game.unlocks.impCount.Magnimp);
 				amt = (amt - 1) * 100;
 				message("You killed a Magnimp! The strong magnetic forces now increase your loot by " + amt.toFixed(2) + "%!", "Loot", "magnet", "exotic", "exotic");
-			}		
+			}
 		},
 		Skeletimp: {
 			location: "World",
@@ -3789,22 +3791,22 @@ var toReturn = {
 				updateSkeleBtn();
 			}
 		}
-		
+
 	},
-	
+
 	mapConfig: {
 		names: {
-			prefix: ["Whispering", "Sandy", "Little", "Big", "Rancid", "Tired", "Laughing", "Weeping", "Windy", "Terrible", "Nasty", "Dirty", 
-			"Red", "Black", "Singing", "Fiery", "Rocky", "Haunted", "Forgotten", "Miserable", "Cursed", "Tainted", "Blessed", "Sacred", 
-			"Abandoned", "Natural", "Enchanted", "Magical", "Calm", "Rugged", "Violent", "Weird", "Secret", "Forbidden", "Bewitched", 
-			"Dark", "Light", "Magnificent", "Evil", "Holy", "Hallowed", "Desecrated", "Silent", "Eternal", "Underground", "Temperate", "Chilly", 
+			prefix: ["Whispering", "Sandy", "Little", "Big", "Rancid", "Tired", "Laughing", "Weeping", "Windy", "Terrible", "Nasty", "Dirty",
+			"Red", "Black", "Singing", "Fiery", "Rocky", "Haunted", "Forgotten", "Miserable", "Cursed", "Tainted", "Blessed", "Sacred",
+			"Abandoned", "Natural", "Enchanted", "Magical", "Calm", "Rugged", "Violent", "Weird", "Secret", "Forbidden", "Bewitched",
+			"Dark", "Light", "Magnificent", "Evil", "Holy", "Hallowed", "Desecrated", "Silent", "Eternal", "Underground", "Temperate", "Chilly",
 			"Muddy", "Dank", "Steamy", "Humid", "Dry", "Putrid", "Foul", "Dangerous", "Marred", "Blighted", "Crystal", "Frozen", "Simple", "Timeless"],
-			suffix: ["Creek.Sea", "Coast.Sea", "Swamp.Sea", "Forest.Forest", "Mountain.Mountain", "Beach.Sea", "Hill.Mountain", "Butte.Mountain", 
-			"Ridge.Mountain", "Mesa.Mountain", "Valley.Depths", "Peak.Mountain", "Canyon.Depths", "Plateau.Mountain", "Crag.Depths", 
-			"Crater.Depths", "Oaks.Forest",  "Volcano.Mountain", "Glacier.Sea",  "Brook.Sea", "Cave.Depths",  "Sea.Sea", "Ocean.Sea", 
-			"Lake.Sea", "Jungle.Forest", "Island.Sea", "Ruins.Depths", "Temple.Depths", "Bog.Sea", "Grove.Forest", "Jungle.Forest", 
-			"Thicket.Forest", "Woods.Forest", "Oasis.Forest", "Mineshaft.Depths", "Tunnel.Depths", "Depths.Depths", "Cavern.Depths", 
-			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", 
+			suffix: ["Creek.Sea", "Coast.Sea", "Swamp.Sea", "Forest.Forest", "Mountain.Mountain", "Beach.Sea", "Hill.Mountain", "Butte.Mountain",
+			"Ridge.Mountain", "Mesa.Mountain", "Valley.Depths", "Peak.Mountain", "Canyon.Depths", "Plateau.Mountain", "Crag.Depths",
+			"Crater.Depths", "Oaks.Forest",  "Volcano.Mountain", "Glacier.Sea",  "Brook.Sea", "Cave.Depths",  "Sea.Sea", "Ocean.Sea",
+			"Lake.Sea", "Jungle.Forest", "Island.Sea", "Ruins.Depths", "Temple.Depths", "Bog.Sea", "Grove.Forest", "Jungle.Forest",
+			"Thicket.Forest", "Woods.Forest", "Oasis.Forest", "Mineshaft.Depths", "Tunnel.Depths", "Depths.Depths", "Cavern.Depths",
+			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful",
 			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful"]
 		},
 		locations: {
@@ -3866,7 +3868,7 @@ var toReturn = {
 		lootBase: 1.3,
 		lootRange: 0.3
 	},
-	
+
 	mapUnlocks: {
 		roboTrimp: {
 			world: 125,
@@ -3887,7 +3889,7 @@ var toReturn = {
 			},
 			createMap: function(tier) {
 				game.global.bionicOwned++;
-				if (game.global.bionicOwned == 1) 
+				if (game.global.bionicOwned == 1)
 					message("You found a map to the Bionic Wonderland. Sounds fun!", "Story");
 				else
 					message("You found a map to an even more advanced version of the Bionic Wonderland! Looks scary... Your scientists remind you that you can only carry 3 of these incredibly heavy, metallic maps at a time.", "Story");
@@ -3915,7 +3917,7 @@ var toReturn = {
 						game.global.roboTrimpLevel++;
 						var values = game.global.roboTrimpLevel;
 						values = [(values) * 20, ((1 - this.getShriekValue()) * 100).toFixed(1)];
-						message("<span class='icomoon icon-chain'></span> Hey look, another baby RoboTrimp! You decide to add him to your collection. You now deal " + Math.floor(values[0]) + "% extra damage thanks to your pets, and MagnetoShriek now removes " + Math.floor(values[1]) + "% of an Improbability's attack", "Notices");					
+						message("<span class='icomoon icon-chain'></span> Hey look, another baby RoboTrimp! You decide to add him to your collection. You now deal " + Math.floor(values[0]) + "% extra damage thanks to your pets, and MagnetoShriek now removes " + Math.floor(values[1]) + "% of an Improbability's attack", "Notices");
 					}
 				}
 			}
@@ -3955,7 +3957,7 @@ var toReturn = {
 				document.getElementById("autoStorageBtn").style.display = "block";
 				createHeirloom();
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary", null, null, true);
-			}	
+			}
 		},
 		ImprovedAutoStorage: {
 			world: 150,
@@ -3973,7 +3975,7 @@ var toReturn = {
 				enableImprovedAutoStorage();
 				createHeirloom();
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
-			}	
+			}
 		},
 		AncientTreasure: {
 			world: 33,
@@ -3991,7 +3993,7 @@ var toReturn = {
 				addResCheckMax("metal", game.resources.metal.owned);
 				message("After barely escaping a fierce boulder, you check out the relic you found in there. It glows extremely bright for a few seconds before disappearing, and you look at your storages to see that your Food, Wood, and Metal have been doubled!", "Story", "piggy-bank", "highlightStoryMessage");
 			}
-			
+
 		},
 		Heirloom: {
 			world: 6,
@@ -4055,7 +4057,7 @@ var toReturn = {
 				fadeIn("helium", 10);
 				addHelium(45);
 				if (!fromGenerator){
-					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract 45 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story"); 
+					message("<span class='glyphicon glyphicon-oil'></span> You were able to extract 45 Helium canisters from that Blimp! Now that you know how to do it, you'll be able to extract helium from normal Blimps.", "Story");
 				}
 				if (game.global.challengeActive == "Metal"){
 					game.global.challengeActive = "";
@@ -4104,7 +4106,7 @@ var toReturn = {
 				if (game.global.challengeActive == "Scientist"){
 					game.global.challengeActive = "";
 					game.global.sLevel = getScientistLevel();
-					game.challenges.Scientist.abandon();					
+					game.challenges.Scientist.abandon();
 					message("You have completed the <b>Scientist Challenge!</b> From now on, you'll " + getScientistInfo(game.global.sLevel, true) + " every time you portal. You've unlocked Scientists, and <b>Don't forget that you can click Research on your Science again!</b>", "Notices");
 				}
 				if (game.global.challengeActive == "Trimp"){
@@ -4187,7 +4189,7 @@ var toReturn = {
 			fire: function () {
 				unlockUpgrade("Hellishmet");
 			}
-		},		
+		},
 		Polierarm: {
 			world: -1,
 			message: "You found a book that will teach you how to upgrade your Polearm!",
@@ -4300,7 +4302,7 @@ var toReturn = {
 			canRunOnce: true,
 			fire: function () {
 				message("You just made a map to The Block!", "Story");
-				createMap(11, "The Block", "Block", 2, 100, 1.3, true, true); 
+				createMap(11, "The Block", "Block", 2, 100, 1.3, true, true);
 			}
 		},
 		TheWall: {
@@ -4313,7 +4315,7 @@ var toReturn = {
 			canRunOnce: true,
 			fire: function () {
 				message("You just made a map to The Wall!", "Story");
-				createMap(15, "The Wall", "Wall", 2, 100, 1.5, true, true); 
+				createMap(15, "The Wall", "Wall", 2, 100, 1.5, true, true);
 			}
 		},
 		ThePrison: {
@@ -4391,7 +4393,7 @@ var toReturn = {
 			}
 		},
 		UberHouse: {
-			world: -1, 
+			world: -1,
 			startAt: 29,
 			message: "This book talks about adding a second floor to your homes! Mind... blown...",
 			level: [10, 20],
@@ -4403,7 +4405,7 @@ var toReturn = {
 			}
 		},
 		UberMansion: {
-			world: -1, 
+			world: -1,
 			startAt: 34,
 			message: "This book will teach you how to make your Trimps share their mansions!",
 			level: [10, 20],
@@ -4500,9 +4502,9 @@ var toReturn = {
 			canRunOnce: true,
 			fire: function () {
 				unlockUpgrade("Trapstorm");
-			}	
+			}
 		},
-		
+
 		Nursery: {
 			world: -1,
 			startAt: 23,
@@ -4550,7 +4552,7 @@ var toReturn = {
 			fire: function (level) {
 				var rand = Math.floor(Math.random() * 3);
 				switch(rand) {
-					case 0: 
+					case 0:
 						game.mapUnlocks.Food.fire(level);
 						break;
 					case 1:
@@ -4610,7 +4612,7 @@ var toReturn = {
 			world: 1,
 			title: "New Armor",
 			level: 4,
-			icon: "question-sign"		
+			icon: "question-sign"
 		},
 		Boots: {
 			message: "You found plans for Boots! Swell!",
@@ -4826,12 +4828,12 @@ var toReturn = {
 		Trainer: {
 			message: "You found a book about proper physical training!",
 			world: 3,
-			level: 3, 
+			level: 3,
 			icon: "book",
 			title: "Step Up Your Block Game!",
 			fire: function () {
 				unlockUpgrade("Trainers");
-			}		
+			}
 		},
 		Scientist: {
 			message: "You found a book about Einstrimp!",
@@ -4857,7 +4859,7 @@ var toReturn = {
 			fire: function () {
 				if (game.upgrades.Explorers.allowed === 0) unlockUpgrade("Explorers");
 			}
-		},		
+		},
 		Speedscience: {
 			message: "You found a book called Speedscience! What do you think it could possibly do?!",
 			brokenPlanet: -1,
@@ -5128,7 +5130,7 @@ var toReturn = {
 			icon: "th-large",
 			title: "Too dark to see",
 			fire: function () {
-				createMap(33, "Trimple Of Doom", "Doom", 3, 100, 1.8, true); 
+				createMap(33, "Trimple Of Doom", "Doom", 3, 100, 1.8, true);
 				message("There is something strange about this map. It doesn't seem to reflect any light at all, just pure darkness.", "Story");
 			}
 		},
@@ -5348,7 +5350,7 @@ var toReturn = {
 				food: [3000, 1.2],
 				wood: [2000, 1.2],
 				metal: [500, 1.2]
-				
+
 			},
 			increase: {
 				what: "trimps.max",
@@ -5367,7 +5369,7 @@ var toReturn = {
 				food: [10000, 1.18],
 				wood: [12000, 1.18],
 				metal: [5000, 1.18]
-				
+
 			},
 			increase: {
 				what: "trimps.max",
@@ -5386,7 +5388,7 @@ var toReturn = {
 				food: [100000, 1.16],
 				wood: [120000, 1.16],
 				metal: [50000, 1.16]
-				
+
 			},
 			increase: {
 				what: "trimps.max",
@@ -5454,10 +5456,10 @@ var toReturn = {
 				metal: [1000000000000000, 1.4]
 			},
 			increase: {
-				what: "trimps.max", 
+				what: "trimps.max",
 				by: 10000
 			}
-		
+
 		},
 		Gym: {
 			locked: 1,
@@ -5477,7 +5479,7 @@ var toReturn = {
 				if (game.upgrades.Gymystic.done === 0) return;
 				var oldBlock = game.buildings.Gym.increase.by;
 				game.buildings.Gym.increase.by *= (game.upgrades.Gymystic.modifier + (0.01 * (game.upgrades.Gymystic.done - 1)));
-				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * (game.buildings.Gym.owned));		
+				game.global.block += ((game.buildings.Gym.increase.by - oldBlock) * (game.buildings.Gym.owned));
 			}
 		},
 		Tribute: {
@@ -5505,7 +5507,7 @@ var toReturn = {
 				if (mutations.Magma.active())
 					return "<p>Magma is generally not conductive to a healthy Nursery environment. Each Nursery will still increase Trimps per second from breeding by 1% (compounding), but 10% of your active Nurseries will shut down each zone as the Magma moves closer. Safety first!</p><p>You have purchased " + prettify(this.purchased) + " total Nurseries.</p>";
 				return "Construct a gem-powered nursery, where baby Trimps can grow up faster. Increases Trimps per second from breeding by 1% (compounding).";
-				
+
 			},
 			cost: {
 				gems: [400000, 1.06],
@@ -5612,17 +5614,18 @@ var toReturn = {
 				var timeOnZone = Math.floor((new Date().getTime() - game.global.zoneStarted) / 60000);
 				var bonus = (this.getBonusPercent() - 1) * 100;
 				var timeStr;
+				var nextBonus;
 				if (timeOnZone >= 120)
 					timeStr = "over 120 minutes (Max)";
 				else{
 					var remaining = 10 - (timeOnZone % 10);
-					var nextBonus = ((this.getBonusPercent(false, Math.floor(timeOnZone / 10) + 1) - 1) * 100);
+					nextBonus = ((this.getBonusPercent(false, Math.floor(timeOnZone / 10) + 1) - 1) * 100);
 					timeStr = prettify(timeOnZone) + " minute" + ((timeOnZone == 1) ? "" : "s") + ". In " + prettify(remaining) + " minute" + ((remaining == 1) ? "" : "s") + ", this bonus will increase to " + prettify(nextBonus) + "%";
 					if (timeOnZone < 10) bonus = 0;
 				}
 				var currentMag = (((1 - Math.pow(0.9999, this.owned)) * 3));
 				var nextMag = (((1 - Math.pow(0.9999, this.owned + 1)) * 3));
-				var nextBonus = (1 - (currentMag / nextMag)) * 100;
+				nextBonus = (1 - (currentMag / nextMag)) * 100;
 				var textString = "<p>Train a Magmamancer to craft pickaxe heads infused with Gems and Magma, custom for the unique rocks in each zone. The more Magmamancers you have and the longer you spend in one zone, the more Metal your Trimps will be able to gather!</p><p>For each 10 minutes you spend in a zone with Magmamancers up to 2 hours, your Magmamancer bonus will increase by 20% (compounding). Your current bonus is <b>" + prettify(bonus) + "%</b>, and you've been on this zone for " + timeStr + ".</p>";
 				if (this.owned > 0) textString += "<p>Your next Magmamancer will increase the total bonus by " + prettify(nextBonus) + "% (compounding, hold Ctrl to see formula)</p>";
 				else textString += "<p>After training your first Magmamancer, your bonus metal will be " + prettify((nextMag * (Math.pow(1.2, this.getBonusPercent(true)) - 1)) * 100) + "%. (Hold Ctrl to see formula)</p>";
@@ -5640,7 +5643,7 @@ var toReturn = {
 				var expInc = 1.2;
 				var timeOnZone;
 				if (typeof forceTime === 'undefined'){
-					var timeOnZone = new Date().getTime() - game.global.zoneStarted;
+					timeOnZone = new Date().getTime() - game.global.zoneStarted;
 					timeOnZone = Math.floor(timeOnZone / 600000);
 					if (timeOnZone > 12) timeOnZone = 12;
 					else if (timeOnZone <= 0) return 1;
@@ -5648,10 +5651,10 @@ var toReturn = {
 				else timeOnZone = forceTime;
 				if (justStacks) return timeOnZone;
 				return 1 + ((((1 - Math.pow(boostMult, this.owned)) * boostMax)) * (Math.pow(expInc, timeOnZone) - 1));
-			}			
+			}
 		}
 	},
-	
+
 	goldenUpgrades: {
 		Helium: {
 			tooltip: function() {
@@ -5684,7 +5687,7 @@ var toReturn = {
 			purchasedAt: []
 		}
 	},
-	
+
 	upgrades: {
 	//Important Upgrades
 		Coordination: {
@@ -5732,7 +5735,7 @@ var toReturn = {
 				if ((ctrlPressed || heldCtrl) && oldAmt > 1) buyBuilding("Warpstation", false, false, oldAmt - 1);
 			}
 		},
-		
+
 	//One Time Use Upgrades, in order of common unlock order
 		Battle: { //0
 			locked: 1,
@@ -5802,7 +5805,7 @@ var toReturn = {
 					science: 10000,
 					food: 100000,
 					wood: 100000
-					
+
 				}
 			},
 			fire: function () {
@@ -5853,7 +5856,7 @@ var toReturn = {
 				game.jobs.Miner.modifier *= 2;
 				game.jobs.Scientist.modifier *= 2;
 				game.jobs.Explorer.modifier *= 2;
-				
+
 			}
 		},
 		Egg: { //17
@@ -5885,9 +5888,9 @@ var toReturn = {
 			},
 			fire: function () {
 				message("You just made a map to the Dimension of Anger! Should be fun!", "Notices");
-				createMap(20, "Dimension of Anger", "Hell", 3, 100, 2.5, true, true); 
+				createMap(20, "Dimension of Anger", "Hell", 3, 100, 2.5, true, true);
 			}
-		},		
+		},
 		Gymystic: { //25
 			locked: 1,
 			allowed: 0,
@@ -5909,7 +5912,7 @@ var toReturn = {
 		SuperShriek: {
 			locked: 1,
 			allowed: 0,
-			get tooltip (){ 
+			get tooltip (){
 				var text = "This book will teach your Robotrimp how to do a much better job of shrieking, allowing MagnetoShriek to be used on multiple Corrupted cells in addition to Improbabilities. Upgraded MagnetoShriek starts off only being able to affect 1 cell at a time, but each use after purchasing this upgrade will extend the bonus by one additional cell, up to a max of 5 cells (resets on portal). <br/><br/> Each new Bionic Wonderland clear starting at Z185 will permanently increase the cell count cap by 1.";
 				var cap = 5;
 				if (game.global.roboTrimpLevel >= 5)
@@ -5944,7 +5947,7 @@ var toReturn = {
 				resources: {
 					science: 20000000000,
 					food: 200000000000
-				}			
+				}
 			},
 			fire: function () {
 				unlockFormation(2);
@@ -5959,8 +5962,8 @@ var toReturn = {
 				resources: {
 					science: 40000000000,
 					food: 400000000000
-				}			
-			},	
+				}
+			},
 			fire: function () {
 				unlockFormation(3);
 			}
@@ -5995,7 +5998,7 @@ var toReturn = {
 			},
 			fire: function () {
 				unlockJob("Scientist");
-			}			
+			}
 		},
 		Trainers: {
 			locked: 1,
@@ -6386,7 +6389,7 @@ var toReturn = {
 			},
 			fire: function () {
 				game.global.playerModifier *= 2;
-			}			
+			}
 		},
 		Speedminer: {
 			locked: 1,
@@ -6401,7 +6404,7 @@ var toReturn = {
 			},
 			fire: function () {
 				game.jobs.Miner.modifier *= 1.25;
-			}			
+			}
 		},
 		Speedlumber: {
 			locked: 1,
@@ -6416,7 +6419,7 @@ var toReturn = {
 			},
 			fire: function () {
 				game.jobs.Lumberjack.modifier *= 1.25;
-			}			
+			}
 		},
 		Speedfarming: {
 			locked: 1,
@@ -6431,7 +6434,7 @@ var toReturn = {
 			},
 			fire: function () {
 				game.jobs.Farmer.modifier *= 1.25;
-			}			
+			}
 		},
 		Speedscience: {
 			locked: 1,
@@ -6445,7 +6448,7 @@ var toReturn = {
 			},
 			fire: function () {
 				game.jobs.Scientist.modifier *= 1.25;
-			}			
+			}
 		},
 		Megaminer: {
 			locked: 1,
@@ -6461,8 +6464,8 @@ var toReturn = {
 			fire: function () {
 				var amt = (game.global.frugalDone) ? 1.6 : 1.5;
 				game.jobs.Miner.modifier *= amt;
-			}			
-		},	
+			}
+		},
 		Megalumber: {
 			locked: 1,
 			allowed: 0,
@@ -6477,8 +6480,8 @@ var toReturn = {
 			fire: function () {
 				var amt = (game.global.frugalDone) ? 1.6 : 1.5;
 				game.jobs.Lumberjack.modifier *= amt;
-			}			
-		},	
+			}
+		},
 		Megafarming: {
 			locked: 1,
 			allowed: 0,
@@ -6493,7 +6496,7 @@ var toReturn = {
 			fire: function () {
 				var amt = (game.global.frugalDone) ? 1.6 : 1.5;
 				game.jobs.Farmer.modifier *= amt;
-			}			
+			}
 		},
 		Megascience: {
 			locked: 1,
@@ -6508,7 +6511,7 @@ var toReturn = {
 			fire: function () {
 				var amt = (game.global.frugalDone) ? 1.6 : 1.5;
 				game.jobs.Scientist.modifier *= amt;
-			}			
+			}
 		},
 	},
 
@@ -6537,7 +6540,7 @@ var toReturn = {
 			},
 			fire: function () {
 				fadeIn("wood", 10);
-				
+
 			}
 		},
 		Barn: {
@@ -6662,7 +6665,7 @@ var toReturn = {
 			done: 0,
 			message: function () {
 				if (game.global.challengeActive == "Trapper") return "Your Trimps look really bored.";
-				else return "Apparently the Trimps breed if they're not working. Doesn't look pleasant.";		
+				else return "Apparently the Trimps breed if they're not working. Doesn't look pleasant.";
 			},
 			cost: {
 				special: function () {
