@@ -37,6 +37,7 @@ function autoSave() {
 
 var lastOnlineSave = -1800000;
 var isSaving = false;
+var disableSaving = false;
 function save(exportThis, fromManual) {
 	isSaving = true;
     var saveString = JSON.stringify(game);
@@ -162,6 +163,11 @@ function save(exportThis, fromManual) {
 	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
+	if (disableSaving) {
+		message("Due to an error occuring, saving has been disabled to prevent corruption", "Notices");
+		postMessages();
+		return;
+	}
 	try{
 		localStorage.setItem("trimpSave1",saveString);
 		if (localStorage.getItem("trimpSave1") == saveString){
@@ -2082,7 +2088,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 				amt *= (1 + game.empowerments.Wind.getCombatModifier());
 			}
 		}
-		else 
+		else
 			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 	}
 	if (what == "helium"){
@@ -4209,7 +4215,7 @@ function handleIceDebuff() {
 		elem = document.getElementById('iceEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);	
+	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);
 }
 
 function handleWindDebuff() {
@@ -4225,7 +4231,7 @@ function handleWindDebuff() {
 		elem = document.getElementById('windEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);	
+	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);
 }
 
 function setEmpowerTab(){
@@ -6198,7 +6204,7 @@ function startFight() {
 		badName = displayedName;
 	if (cell.empowerment){
 		badName = getEmpowerment(-1, true) + " " + badName;
-		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>"; 
+		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
 	}
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
@@ -6624,7 +6630,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
 			}
 		}
-		
+
 
 	}
 	else {
@@ -8281,7 +8287,7 @@ function fight(makeUp) {
 		}
 		//Post Loot
 		resetEmpowerStacks();
-		
+
 		//Map and World split here for non-loot stuff, anything for both goes above
 		//Map Only
         if (game.global.mapsActive && cellNum == (game.global.mapGridArray.length - 1)) {
@@ -10358,17 +10364,31 @@ function gameTimeout() {
     game.global.time += tick;
     var dif = (now - game.global.start) - game.global.time;
     while (dif >= tick) {
-        gameLoop(true, now);
+        runGameLoop(true, now);
         dif -= tick;
         game.global.time += tick;
 		ctrlPressed = false;
     }
-    gameLoop(null, now);
+    runGameLoop(null, now);
     updateLabels();
     setTimeout(gameTimeout, (tick - dif));
 }
 
-
+/**
+ * Passes parameters to gameLoop, handles errors.
+ * @param  {bool} makeUp makeUp causes the function to loop to exhaust ticks
+ * @param  {Date} now    Date.now()
+ */
+function runGameLoop(makeUp, now) {
+	try {
+		gameLoop(makeUp, now);
+	} catch (e) {
+		unlockTooltip(); // Override any other tooltips
+		tooltip('hide');
+		tooltip('Error', null, 'update', e.stack);
+		throw(e);
+	}
+}
 function updatePortalTimer(justGetTime) {
 	if (game.global.portalTime < 0) return;
 	var timeSince = new Date().getTime() - game.global.portalTime;

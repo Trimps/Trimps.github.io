@@ -499,23 +499,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else
 		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>"
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
-			ondisplay = function(){
-				document.getElementById('exportArea').select();
-				document.getElementById('clipBoardBtn').addEventListener('click', function(event) {
-				    document.getElementById('exportArea').select();
-					  try {
-						document.execCommand('copy');
-					  } catch (err) {
-						document.getElementById('clipBoardBtn').innerHTML = "Error, not copied";
-					  }
-				});
-			}
 		}
-		else ondisplay = function () {document.getElementById('exportArea').select}
 		costText += "</div>";
+		ondisplay = tooltips.handleCopyButton();
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -571,6 +560,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else
 		tooltipText = "Go back to to the World Map.";
 		costText = "";
+	}
+
+	if (what == 'Error') {
+		game.global.lockTooltip = true;
+		var returnObj = tooltips.showError(textString);
+		tooltipText = returnObj.tooltip;
+		costText = returnObj.costText;
+		ondisplay = tooltips.handleCopyButton();
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
 	}
 	if (isItIn == "jobs"){
 		var buyAmt = game.global.buyAmt;
@@ -673,6 +672,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = textString;
 		noExtraCheck = true;
 	}
+
 	if (!noExtraCheck){
 		var tipSplit = tooltipText.split('$');
 		if (typeof tipSplit[1] !== 'undefined'){
@@ -3768,3 +3768,71 @@ function timeToDegrees(currentSeconds, totalSeconds){
 	var degrees = (360 * (currentSeconds / totalSeconds * 100) / 100);
 	return degrees % 360;
 }
+
+// 431741580's code
+
+var tooltips = {};
+/**
+ * Generates tooltip and text for error popup
+ * @param  {String} textString String of error stack
+ * @return {{tooltip: String, costText: String}}   tooltip to be shown[description]
+ */
+tooltips.showError = function (textString) {
+	var tooltip = "<p>Well this is embarrassing. Trimps has encountered an error. Try refreshing the page.</p>";
+	tooltip += "<p>It would be awesome if you post the following to the <a href='reddit.com/r/Trimps/'>trimps subreddit</a> or email it to trimpsgame@gmail.com</p>";
+	tooltip += "Note: Saving has been disabled.<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>";
+	var bugReport = "--BEGIN ERROR STACK--\n";
+	bugReport += textString + '\n';
+	bugReport += "--END ERROR STACK--\n\n";
+	bugReport += "--BEGIN SAVE FILE--\n";
+	var saveFile;
+	try {
+		saveFile = save(true);
+		bugReport += saveFile + "\n";
+	} catch (e) {
+		bugReport += "While attempting to save, the following error occured\n"
+		bugReport += e.stack + "\n";
+	}
+	bugReport += "--END SAVE FILE--";
+	tooltip += bugReport;
+	tooltip += "</textarea>";
+	var costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
+	if (document.queryCommandSupported('copy')){
+		costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
+	}
+	costText += "<a id='downloadLink' target='_blank' download='Trimps Bug Report', href=";
+	if (Blob !== null) {
+		var blob = new Blob([bugReport], {type: 'text/plain'});
+		var uri = URL.createObjectURL(blob);
+		costText += uri;
+	} else {
+		costText += 'data:text/plain,' + encodeURIComponent(bugReport);
+	}
+	costText += " ><div class='btn btn-danger' id='downloadBtn'>Download as file</div></a>";
+	disableSaving = true;
+	return {tooltip: tooltip, costText: costText};
+};
+
+/**
+ * Generates a function to handle copy button on popups
+ * @return {Function} Function to handle copy butons
+ */
+tooltips.handleCopyButton = function () {
+	var ondisplay;
+	if (document.queryCommandSupported('copy')){
+		ondisplay = function(){
+			document.getElementById('exportArea').select();
+			document.getElementById('clipBoardBtn').addEventListener('click', function(event) {
+				document.getElementById('exportArea').select();
+				  try {
+					document.execCommand('copy');
+				  } catch (err) {
+					document.getElementById('clipBoardBtn').innerHTML = "Error, not copied";
+				  }
+			});
+		}
+	} else {
+		ondisplay = function () {document.getElementById('exportArea').select()};
+	}
+	return ondisplay;
+};
