@@ -897,7 +897,7 @@
 					<td class="btn btn-new" onclick="window.open('updates.html', '_blank')">
 							V <span id="versionNumber"></span> | What's New 
 					</td>
-					<td id="portalTimer" class="timerNotPaused" onclick="toggleSetting('pauseGame')">
+					<td id="portalTimer" class="timerNotPaused" onclick="toggleSetting('pauseGame')" onmouseover="tooltip('Pause the game', 'customText', event, game.options.menu['pauseGame'].description)" onmouseout="tooltip('hide')">
 						<span id="portalTime">&nbsp;</span>&nbsp;&nbsp;<span style='font-size: 0.85em; line-height: 0.85em;' class='icomoon icon-pause3'></span>&nbsp;
 					</td>
 				</tr>
