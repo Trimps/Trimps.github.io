@@ -6364,14 +6364,6 @@ function startFight() {
 				game.global.dailyChallenge.rampage.stacks = 0;
 				updateDailyStacks('rampage');
 			}
-			if (!game.global.passive && typeof game.global.dailyChallenge.empower !== 'undefined'){
-				if (!game.global.mapsActive){
-					game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
-					var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
-					if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
-				}
-				updateDailyStacks('empower');
-			}
 		}
 		game.global.difs.attack = 0;
 		game.global.difs.health = 0;
@@ -8162,6 +8154,14 @@ function fight(makeUp) {
 					cell.health = cell.maxHealth;
 				}
 				updateDailyStacks('bloodthirst');
+			}
+			if (!game.global.passive && typeof game.global.dailyChallenge.empower !== 'undefined'){
+				if (!game.global.mapsActive){
+					game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
+					var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
+					if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
+				}
+				updateDailyStacks('empower');
 			}
 		}
         var s = (game.resources.trimps.soldiers > 1) ? "s " : " ";
