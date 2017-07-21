@@ -10476,6 +10476,7 @@ document.addEventListener('keydown', function (e) {
 			if (confirmCheck !== null && typeof confirmCheck.onclick == 'function'){
 				confirmCheck.onclick();
 			}
+			break;
 		case 77:
 			// M for maps
 			if (game.global.mapsUnlocked && onFight()) {
