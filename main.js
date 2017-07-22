@@ -10479,29 +10479,31 @@ document.addEventListener('keydown', function (e) {
 			break;
 		case 77:
 			// M for maps
-			if (game.global.mapsUnlocked && onFight()) {
+			if (checkStatus() && game.global.mapsUnlocked && onFight()) {
 				mapsClicked();
 			}
 			break;
 		case 82:
 			// R for repeat
-			if (game.global.mapsActive && onFight()) {
+			if (checkStatus() && game.global.mapsActive && onFight()) {
 				repeatClicked();
 			}
 			break;
 		case 65:
 			// A for AutoFight
-			if (game.global.autoBattle && onFight()) {
+			if (checkStatus() && game.global.autoBattle && onFight()) {
 				pauseFight();
 			}
 			break;
 		case 32:
 			// Space for pause
-			toggleSetting('pauseGame');
+			if (checkStatus()){
+				toggleSetting('pauseGame');
+			}
 			break;
 		case 70:
 			// F for fight
-			if (onFight()) {
+			if (checkStatus() && onFight()) {
 				fightManual();
 			}
 			break;
