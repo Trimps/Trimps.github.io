@@ -3392,9 +3392,13 @@ function createVoidMap() {
 }
 
 function buffVoidMaps(){
+	var difficultyCap = 3.5;
+	if (game.global.challengeActive == "Mapocalypse") {
+		difficultyCap += 3;
+	}
 	for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
 		var map = game.global.mapsOwnedArray[x];
-		if (map.location != "Void" || map.difficulty >= 3.5) continue;
+		if (map.location != "Void" || map.difficulty >= difficultyCap) continue;
 		map.loot += 1;
 		map.difficulty += 2;
 	}
