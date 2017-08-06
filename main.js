@@ -10426,6 +10426,15 @@ function updatePortalTimer(justGetTime) {
 	setTimeout(updatePortalTimer, 1000);
 }
 
+var title = document.title;
+function changeTitle() {
+    if (!game.options.menu.showAlerts.enabled) {document.title=title; return;}
+	var alerts = document.getElementById('buyContainer').getElementsByClassName('alert badge');
+	var upgrades = Array.prototype.filter.call(alerts, function(tt){ return tt.innerHTML === '!'}).length;
+	document.title = '(' + upgrades + ') ' + title
+}
+setInterval(changeTitle, 2000);
+
 var shiftPressed = false;
 var ctrlPressed = false;
 // X = 88, h = 72, d = 68, b = 66
