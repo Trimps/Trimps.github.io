@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.4,
+		version: 4.41,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -3701,7 +3701,7 @@ var toReturn = {
 			loot: function () {
 				var elligible = ["food", "wood", "metal", "science"];
 				if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-				if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
+				if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments");
 				var roll = Math.floor(Math.random() * elligible.length);
 				var item = elligible[roll];
 				var amt = simpleSeconds(item, 45);
@@ -3741,7 +3741,7 @@ var toReturn = {
 			loot: function () {
 				var elligible = ["food", "wood", "metal", "science"];
 				if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-				if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
+				if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments");
 				var cMessage = "That Chronoimp dropped ";
 				for (var x = 0; x < elligible.length; x++){
 					var item = elligible[x];

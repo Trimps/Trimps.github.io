@@ -6992,6 +6992,7 @@ function purgeBionics(){
 				if (game.global.mapsActive) continue;
 				game.global.currentMapId = "";
 				game.global.mapGridArray = [];
+				game.global.lookingAtMap = "";
 				game.global.lastClearedMapCell = -1;
 			}
 			message("Recycled " + bionicMaps[x].name + ".", "Notices");
@@ -9422,7 +9423,7 @@ function givePumpkimpLoot(){
 		"You search the Pumpkimp for loot, but find nothing. Someone wasn't in the holiday spirit!",
 		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."];
 	if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-	if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
+	if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments");
 	var roll = Math.floor(Math.random() * elligible.length);
 	var item = elligible[roll];
 	if (item == "nothing") {
@@ -9482,7 +9483,7 @@ function givePresimptLoot(){
 		"This Presimpt has little snowman markings all over it! Inside, you find "];
 	if (game.jobs.Dragimp.owned > 0) elligible.push("gems", "gems", "gems", "gems");
 	else elligible.push("food", "food", "wood", "metal");
-	if (game.jobs.Explorer.locked == 0) elligible.push("fragments", "fragments", "fragments");
+	if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments", "fragments", "fragments");
 	else elligible.push("food", "wood", "metal");
 	var roll = Math.floor(Math.random() * elligible.length);
 	var item = game.global.presimptStore;
@@ -10473,7 +10474,7 @@ document.addEventListener('keydown', function (e) {
 		case 53:
 		case 83:
 		case 101:
-			if (checkStatus() && game.upgrades.Formations.done) setFormation('4');
+			if (checkStatus() && game.global.world >= 60 && game.global.highestLevelCleared >= 180) setFormation('4');
 			break;
 		case 13:
 			var confirmCheck = document.getElementById("confirmTooltipBtn");

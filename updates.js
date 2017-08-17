@@ -89,7 +89,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (!active) return;
 		var emp = game.empowerments[active];
 		if (typeof emp.description === 'undefined') return;
-		var lvlsLeft = ((5 - (game.global.world % 5)) + game.global.world) + 1;
+		var lvlsLeft = ((5 - ((game.global.world - 1) % 5)) + (game.global.world - 1)) + 1;
 		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
 		costText = "";
 
@@ -1366,7 +1366,7 @@ function getBattleStatBd(what) {
 		currentCalc *= stackStr;
 		textString += "<tr style='color: red'><td class='bdTitle'>Decay</td><td>x 0.995</td><td>" + game.challenges.Decay.stacks + "</td><td class='bdPercent'>x " + stackStr.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
-	if (game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") {
+	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && what == "attack") {
 		var mult = (1 - (game.challenges.Electricity.stacks * 0.1));
 		currentCalc *= mult;
 
