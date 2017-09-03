@@ -2302,7 +2302,7 @@ function gather() {
 		if (game.options.menu.useAverages.enabled) perSec += getAvgLootSecond(increase);
 		if (game.resources[increase].max > 0){
 			var timeToFillElem = document.getElementById(increase + "TimeToFill");
-			if (timeToFillElem) timeToFillElem.innerHTML = calculateTimeToMax(game.resources[increase], perSec, null, true);
+			if (timeToFillElem) timeToFillElem.textContent = calculateTimeToMax(game.resources[increase], perSec, null, true);
 		}
 		addResCheckMax(increase, amount, null, true);
     }
@@ -10411,7 +10411,7 @@ function updatePortalTimer(justGetTime) {
 		if (x != 3) timeString += ":";
 	}
 	if (justGetTime) return timeString;
-	if (game.options.menu.pauseGame.enabled) timeString = timeString + "&nbsp;(PAUSED)";
+	if (game.options.menu.pauseGame.enabled) timeString = timeString + " (PAUSED)";
 	else {
 		checkAchieve("totalGems");
 		if (trimpStatsDisplayed) displayAllStats();
@@ -10423,7 +10423,7 @@ function updatePortalTimer(justGetTime) {
 		if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
 		if (game.global.selectedChallenge == "Daily") updateDailyClock();
 	}
-	document.getElementById("portalTime").innerHTML = timeString;
+	document.getElementById("portalTime").textContent = timeString;
 	setTimeout(updatePortalTimer, 1000);
 }
 

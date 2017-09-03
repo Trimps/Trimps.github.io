@@ -2447,6 +2447,11 @@ function adjustMessageIndexes(index){
 
 function postMessages(){
     if (pendingLogs.RAF != null) cancelAnimationFrame(pendingLogs.RAF);
+
+    if(pendingLogs.all.length < 1) {
+        return;
+    }
+
     pendingLogs.RAF = requestAnimationFrame(function() {
         var log = document.getElementById("log");
         var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
@@ -2806,13 +2811,31 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 	checkAndDisplayEquipment();
 }
 
+var cachedEquipmentDOMNodes = {};
+
 function checkAndDisplayEquipment() {
-		for (var itemD in game.equipment){
-		var toUpdate = game.equipment[itemD];
-		if (toUpdate.locked == 1) continue;
-		if (document.getElementById(itemD) === null) drawAllEquipment();
-		document.getElementById(itemD + "Owned").innerHTML = toUpdate.level;
-	}
+    var getOrCreateNode = function (itemD, toUpdate) {
+        if (!cachedEquipmentDOMNodes[itemD]) {
+            cachedEquipmentDOMNodes[itemD] = {};
+        }
+        if (!cachedEquipmentDOMNodes[itemD][toUpdate.level]) {
+            cachedEquipmentDOMNodes[itemD][toUpdate.level] = document.getElementById(itemD +"Owned");
+        }
+
+        return cachedEquipmentDOMNodes[itemD][toUpdate.level];
+    };
+
+    for (var itemD in game.equipment) {
+        var toUpdate = game.equipment[itemD];
+        if (toUpdate.locked == 1) {
+            continue;
+        }
+        if (document.getElementById(itemD) === null) {
+            drawAllEquipment();
+        }
+
+        getOrCreateNode(itemD, toUpdate).textContent = toUpdate.level;
+    }
 }
 
 function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as first if trimps is true, like (32.4, true)
@@ -2877,7 +2900,7 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 		if (trimps && game.unlocks.quickTrimps) {
 			psText += " (x2!)";
 		}
-		elem.innerHTML = psText;
+		elem.textContent = psText;
 		swapClass('sizeSec', ((psText.replace('.','').length >= 11) ? 'sizeSecReduced' : 'sizeSecRegular'), elem);
 }
 
@@ -3688,25 +3711,34 @@ function updateDecayStacks(addStack){
 }
 
 function swapClass(prefix, newClass, elem) {
-	if (elem == null) {
-		console.log("swapClass, No element found. Prefix: " + prefix + ", newClass: " + newClass);
+	if(elem.classList) {
+		elem.classList.forEach(function(value) {
+			if(value.indexOf(prefix) > -1) {
+				elem.classList.remove(value);
+			}
+		});
+		elem.classList.add(newClass);
 		return;
 	}
-	var className = elem.className;
-	if (typeof className.split('newClass')[1] !== 'undefined') return;
-	className = className.split(prefix);
- 	if(typeof className[1] === 'undefined') {
-		console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class.");
-		elem.className += " " + newClass;
-		return;
+
+if (elem == null) {
+	console.log("swapClass, No element found. Prefix: " + prefix + ", newClass: " + newClass);
+	return;
 	}
-	var classEnd = className[1].indexOf(' ');
- 	if (classEnd >= 0) {
-		className = className[0] + newClass + className[1].slice(classEnd, className[1].length);
-	} else {
-		className = className[0] + newClass;
-	}
-	elem.className = className;
+  var className = elem.className;
+  if (typeof className.split('newClass')[1] !== 'undefined') return;
+  className = className.split(prefix);
+  if(typeof className[1] === 'undefined') {
+	  console.log("swapClass function error: Tried to replace a class that doesn't exist at [" + elem.className + "] using " + prefix + " as prefix and " + newClass + " as target class.");
+	  elem.className += " " + newClass;
+	  return;
+  }
+  var classEnd = className[1].indexOf(' ');
+  if (classEnd >= 0)
+  	className = className[0] + newClass + className[1].slice(classEnd, className[1].length);
+  else
+  	className = className[0] + newClass;
+  elem.className = className;
 }
 
 function goRadial(elem, currentSeconds, totalSeconds, frameTime){
