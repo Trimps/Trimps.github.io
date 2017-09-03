@@ -89,7 +89,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (!active) return;
 		var emp = game.empowerments[active];
 		if (typeof emp.description === 'undefined') return;
-		var lvlsLeft = ((5 - (game.global.world % 5)) + game.global.world) + 1;
+		var lvlsLeft = ((5 - ((game.global.world - 1) % 5)) + (game.global.world - 1)) + 1;
 		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
 		costText = "";
 
@@ -276,7 +276,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Repeat Map"){
-		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast. <br/><br/>If you are <b>not</b> repeating, your current group of Trimps will not be abandoned after the map ends.";
+		tooltipText = "Allow the Trimps to find their way back to square 1 once they finish without your help. They grow up so fast. <br/><br/>If you are <b>not</b> repeating, your current group of Trimps will not be abandoned after the map ends. (Hotkey: R)";
 		costText = "";
 	}
 	if (what == "Challenge2"){
@@ -427,13 +427,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 	}
 	if (what == "Fight"){
-		tooltipText = "Send your poor Trimps to certain doom in the battlefield. You'll get cool stuff though, they'll understand.";
+		tooltipText = "Send your poor Trimps to certain doom in the battlefield. You'll get cool stuff though, they'll understand. (Hotkey: F)";
 		var soldiers = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
 		costText = (soldiers > 1) ? "s" : "";
 		costText = prettify(soldiers) + " Trimp" + costText;
 	}
 	if (what == "AutoFight"){
-		tooltipText = "Allow the Trimps to start fighting on their own whenever their town gets overcrowded";
+		tooltipText = "Allow the Trimps to start fighting on their own whenever their town gets overcrowded (Hotkey: A)";
 		costText = "";
 	}
 	if (what == "New Achievements"){
@@ -459,7 +459,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Toxic" && isItIn != "dailyStack"){
-		tooltipText = "This bad guy is toxic. You will find " + (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks).toFixed(1) + "% more loot! Oh, also, this bad guy has 5x attack, 2x health, your Trimps will lose 5% health each time they attack, and the toxic air is causing your Trimps to breed " + (100 - (Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks) * 100)).toFixed(2) + "% slower. These stacks will reset after clearing the zone.";
+		tooltipText = "This bad guy is toxic. You will obtain " + (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks).toFixed(1) + "% more resources! Oh, also, this bad guy has 5x attack, 2x health, your Trimps will lose 5% health each time they attack, and the toxic air is causing your Trimps to breed " + (100 - (Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks) * 100)).toFixed(2) + "% slower. These stacks will reset after clearing the zone.";
 		costText = "";
 	}
 	if (what == "Momentum"){
@@ -499,23 +499,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else
 		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>"
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
-			ondisplay = function(){
-				document.getElementById('exportArea').select();
-				document.getElementById('clipBoardBtn').addEventListener('click', function(event) {
-				    document.getElementById('exportArea').select();
-					  try {
-						document.execCommand('copy');
-					  } catch (err) {
-						document.getElementById('clipBoardBtn').innerHTML = "Error, not copied";
-					  }
-				});
-			}
 		}
-		else ondisplay = function () {document.getElementById('exportArea').select}
 		costText += "</div>";
+		ondisplay = tooltips.handleCopyButton();
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -567,10 +556,20 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Maps"){
 		if (!game.global.preMapsActive)
-		tooltipText = "Travel to the Map Chamber. Maps are filled with goodies, and for each max level map you clear you will gain a 20% stacking damage bonus for that zone (stacks up to 10 times).";
+		tooltipText = "Travel to the Map Chamber. Maps are filled with goodies, and for each max level map you clear you will gain a 20% stacking damage bonus for that zone (stacks up to 10 times). (Hotkey: M)";
 		else
-		tooltipText = "Go back to to the World Map.";
+		tooltipText = "Go back to the World Map. (Hotkey: M)";
 		costText = "";
+	}
+
+	if (what == 'Error') {
+		game.global.lockTooltip = true;
+		var returnObj = tooltips.showError(textString);
+		tooltipText = returnObj.tooltip;
+		costText = returnObj.costText;
+		ondisplay = tooltips.handleCopyButton();
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
 	}
 	if (isItIn == "jobs"){
 		var buyAmt = game.global.buyAmt;
@@ -582,7 +581,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			costText = "";
 		}
 		else{
-			var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+			var workspaces = game.workspaces;
 			var ignoreWorkspaces = (game.jobs[what].allowAutoFire && game.options.menu.fireForJobs.enabled);
 			if (workspaces < buyAmt && !ignoreWorkspaces) buyAmt = workspaces;
 			costText = getTooltipJobText(what, buyAmt);
@@ -673,6 +672,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = textString;
 		noExtraCheck = true;
 	}
+
 	if (!noExtraCheck){
 		var tipSplit = tooltipText.split('$');
 		if (typeof tipSplit[1] !== 'undefined'){
@@ -1365,6 +1365,12 @@ function getBattleStatBd(what) {
 		var stackStr = Math.pow(0.995, game.challenges.Decay.stacks);
 		currentCalc *= stackStr;
 		textString += "<tr style='color: red'><td class='bdTitle'>Decay</td><td>x 0.995</td><td>" + game.challenges.Decay.stacks + "</td><td class='bdPercent'>x " + stackStr.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+	}
+	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && what == "attack") {
+		var mult = (1 - (game.challenges.Electricity.stacks * 0.1));
+		currentCalc *= mult;
+
+		textString += "<tr style='color: red'><td class='bdTitle'>" + game.global.challengeActive + "</td><td>-10%</td><td>" + game.challenges.Electricity.stacks.toString() + "</td><td class='bdPercent'>x " + mult.toFixed(1) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	if (game.global.challengeActive == "Daily"){
 		var mult = 0;
@@ -2295,7 +2301,7 @@ function resetGame(keepPortal) {
 	setEmpowerTab();
 	resetAdvMaps();
 	cancelPortal();
-	updateRadioStacks();
+	updateElectricityStacks();
 	updateDecayStacks();
 	updateAntiStacks();
 	setNonMapBox();
@@ -2562,7 +2568,7 @@ function numTab(what, p, fromRestore) {
 				num = num.split('%');
 				num[0] = parseFloat(num[0]);
 				if (num[0] <= 100 && num[0] >= 0){
-					var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed
+					var workspaces = game.workspaces;
 					num = Math.floor(workspaces * (num[0] / 100));
 				}
 				else num = 1;
@@ -2571,7 +2577,7 @@ function numTab(what, p, fromRestore) {
 				num = num.split('/');
 				num[0] = parseFloat(num[0]);
 				num[1] = parseFloat(num[1]);
-				var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+				var workspaces = game.workspaces;
 				num = Math.floor(workspaces * (num[0] / num[1]));
 				if (num < 0 || num > workspaces) num = 1;
 			}
@@ -3084,7 +3090,7 @@ function drawUpgrade(what, where){
 function checkButtons(what) {
 	var where = game[what];
 	if (what == "jobs") {
-		var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+		var workspaces = game.workspaces;
 		for (var item in game.jobs){
 			if (game.jobs[item].locked == 1) continue;
 			if (workspaces <= 0 && !(game.jobs[item].allowAutoFire && game.options.menu.fireForJobs.enabled)) updateButtonColor(item, false, true);
@@ -3794,3 +3800,71 @@ function timeToDegrees(currentSeconds, totalSeconds){
 	var degrees = (360 * (currentSeconds / totalSeconds * 100) / 100);
 	return degrees % 360;
 }
+
+// 431741580's code
+
+var tooltips = {};
+/**
+ * Generates tooltip and text for error popup
+ * @param  {String} textString String of error stack
+ * @return {{tooltip: String, costText: String}}   tooltip to be shown[description]
+ */
+tooltips.showError = function (textString) {
+	var tooltip = "<p>Well this is embarrassing. Trimps has encountered an error. Try refreshing the page.</p>";
+	tooltip += "<p>It would be awesome if you post the following to the <a href='reddit.com/r/Trimps/'>trimps subreddit</a> or email it to trimpsgame@gmail.com</p>";
+	tooltip += "Note: Saving has been disabled.<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>";
+	var bugReport = "--BEGIN ERROR STACK--\n";
+	bugReport += textString + '\n';
+	bugReport += "--END ERROR STACK--\n\n";
+	bugReport += "--BEGIN SAVE FILE--\n";
+	var saveFile;
+	try {
+		saveFile = save(true);
+		bugReport += saveFile + "\n";
+	} catch (e) {
+		bugReport += "While attempting to save, the following error occured\n"
+		bugReport += e.stack + "\n";
+	}
+	bugReport += "--END SAVE FILE--";
+	tooltip += bugReport;
+	tooltip += "</textarea>";
+	var costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
+	if (document.queryCommandSupported('copy')){
+		costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
+	}
+	costText += "<a id='downloadLink' target='_blank' download='Trimps Bug Report', href=";
+	if (Blob !== null) {
+		var blob = new Blob([bugReport], {type: 'text/plain'});
+		var uri = URL.createObjectURL(blob);
+		costText += uri;
+	} else {
+		costText += 'data:text/plain,' + encodeURIComponent(bugReport);
+	}
+	costText += " ><div class='btn btn-danger' id='downloadBtn'>Download as file</div></a>";
+	disableSaving = true;
+	return {tooltip: tooltip, costText: costText};
+};
+
+/**
+ * Generates a function to handle copy button on popups
+ * @return {Function} Function to handle copy butons
+ */
+tooltips.handleCopyButton = function () {
+	var ondisplay;
+	if (document.queryCommandSupported('copy')){
+		ondisplay = function(){
+			document.getElementById('exportArea').select();
+			document.getElementById('clipBoardBtn').addEventListener('click', function(event) {
+				document.getElementById('exportArea').select();
+				  try {
+					document.execCommand('copy');
+				  } catch (err) {
+					document.getElementById('clipBoardBtn').innerHTML = "Error, not copied";
+				  }
+			});
+		}
+	} else {
+		ondisplay = function () {document.getElementById('exportArea').select()};
+	}
+	return ondisplay;
+};

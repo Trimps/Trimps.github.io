@@ -37,6 +37,7 @@ function autoSave() {
 
 var lastOnlineSave = -1800000;
 var isSaving = false;
+var disableSaving = false;
 function save(exportThis, fromManual) {
 	isSaving = true;
     var saveString = JSON.stringify(game);
@@ -51,6 +52,8 @@ function save(exportThis, fromManual) {
 	delete saveGame.badGuyDeathTexts;
 	delete saveGame.tierValues;
 	delete saveGame.colorsList;
+	delete saveGame.workspaces;
+	delete saveGame.resources.trimps.employed;
     for (var item in saveGame.equipment) {
 		delete saveGame.equipment[item].tooltip;
 		delete saveGame.equipment[item].blocktip;
@@ -162,6 +165,11 @@ function save(exportThis, fromManual) {
 	}
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
+	if (disableSaving) {
+		message("Due to an error occuring, saving has been disabled to prevent corruption", "Notices");
+		postMessages();
+		return;
+	}
 	try{
 		localStorage.setItem("trimpSave1",saveString);
 		if (localStorage.getItem("trimpSave1") == saveString){
@@ -313,6 +321,9 @@ function load(saveString, autoLoad, fromPf) {
                     if (c == "cost") continue;
                     if (c == "tooltip") continue;
 					if (a == "mapUnlocks" && c == "repeat") continue;
+					if (a == "resources" && b == "trimps" && c == "employed") {
+						continue;
+					}
 					if (a == "resources" && c == "owned"){
 						//check bad entries here.
 					}
@@ -326,6 +337,7 @@ function load(saveString, autoLoad, fromPf) {
 							midGame[c].currentBonus = botSave.currentBonus;
 						continue;
 					}
+
                     midGame[c] = botSave;
                 }
         }
@@ -1033,7 +1045,7 @@ function getScientistLevel() {
 	if (game.global.highestLevelCleared >= 89 && game.global.sLevel == 2) return 3;
 	if (game.global.highestLevelCleared >= 109 && game.global.sLevel == 3) return 4;
 	if (game.global.highestLevelCleared >= 129 && game.global.sLevel >= 4) return 5;
-	return 1;
+	return game.global.sLevel;
 }
 
 function getScientistInfo(number, reward){
@@ -2656,20 +2668,18 @@ function buyJob(what, confirmed, noTip) {
 	if (game.global.firing){
 		if (game.jobs[what].owned < 1) return;
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
-		game.resources.trimps.employed -= (game.jobs[what].owned < purchaseAmt) ? game.jobs[what].owned : purchaseAmt;
 		game.jobs[what].owned -= purchaseAmt;
 		game.stats.trimpsFired.value += purchaseAmt;
 		if (game.jobs[what].owned < 0) game.jobs[what].owned = 0;
-		if (game.resources.trimps.employed < 0) game.resources.trimps.employed = 0;
 		return;
 	}
-	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var workspaces = game.workspaces;
 	var firingForJobs = false;
 	var fireAmt;
 	if (game.options.menu.fireForJobs.enabled && game.jobs[what].allowAutoFire){
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
 		if (workspaces < purchaseAmt) {
-			workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+			workspaces = game.workspaces;
 			fireAmt = purchaseAmt - workspaces;
 			// Check to see if there are enough workers to fire
 			if (!((game.jobs.Miner.owned + game.jobs.Farmer.owned + game.jobs.Lumberjack.owned) < fireAmt)) {
@@ -2701,12 +2711,11 @@ function buyJob(what, confirmed, noTip) {
 	}
 	var added = canAffordJob(what, true, workspaces);
 	game.jobs[what].owned += added;
-	game.resources.trimps.employed += added;
 
 
 	if (!noTip) tooltip(what, "jobs", "update");
 	if (checkAndFix){
-		workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+		workspaces = game.workspaces;
 		if (workspaces < 0)
 			freeWorkspace(Math.abs(workspaces));
 	}
@@ -2714,7 +2723,7 @@ function buyJob(what, confirmed, noTip) {
 
 function addGeneticist(amount){
 	if (game.global.challengeActive == "Corrupted") game.challenges.Corrupted.hiredGenes = true;
-	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var workspaces = game.workspaces;
 	var owned = game.resources.trimps.owned - game.resources.trimps.employed;
 	if (owned < 1) return;
 	if (owned < amount)
@@ -2735,13 +2744,11 @@ function addGeneticist(amount){
 		amount = 1;
 	}
 	game.resources.food.owned -= price;
-	game.resources.trimps.employed += amount;
 	game.jobs.Geneticist.owned += amount;
 }
 
 function removeGeneticist(amount){
 	if (game.jobs.Geneticist.owned < amount) return;
-	game.resources.trimps.employed -= amount;
 	game.jobs.Geneticist.owned -= amount;
 }
 
@@ -2759,7 +2766,6 @@ function freeWorkspace(amount, getAmtFreed){
 	if (toCheck.length == 0) return false;
 	var selected = toCheck[Math.floor(Math.random() * toCheck.length)];
 	game.jobs[selected].owned -= amount;
-	game.resources.trimps.employed -= amount;
 	return true;
 }
 
@@ -3386,9 +3392,13 @@ function createVoidMap() {
 }
 
 function buffVoidMaps(){
+	var difficultyCap = 3.5;
+	if (game.global.challengeActive == "Mapocalypse") {
+		difficultyCap += 3;
+	}
 	for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
 		var map = game.global.mapsOwnedArray[x];
-		if (map.location != "Void" || map.difficulty >= 3.5) continue;
+		if (map.location != "Void" || map.difficulty >= difficultyCap) continue;
 		map.loot += 1;
 		map.difficulty += 2;
 	}
@@ -4209,7 +4219,7 @@ function handleIceDebuff() {
 		elem = document.getElementById('iceEmpowermentIcon');
 	}
 	elem.style.display = 'inline-block';
-	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);	
+	document.getElementById('iceEmpowermentText').innerHTML = prettify(game.empowerments.Ice.currentDebuffPower);
 }
 
 function handleWindDebuff() {
@@ -6342,8 +6352,8 @@ function startFight() {
 			updateAntiStacks();
 		}
 		if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")) {
-			game.global.radioStacks = 0;
-			updateRadioStacks();
+			game.challenges.Electricity.stacks = 0;
+			updateElectricityStacks();
 		}
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.plague !== 'undefined'){
@@ -6357,14 +6367,6 @@ function startFight() {
 			if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
 				game.global.dailyChallenge.rampage.stacks = 0;
 				updateDailyStacks('rampage');
-			}
-			if (!game.global.passive && typeof game.global.dailyChallenge.empower !== 'undefined'){
-				if (!game.global.mapsActive){
-					game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
-					var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
-					if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
-				}
-				updateDailyStacks('empower');
 			}
 		}
 		game.global.difs.attack = 0;
@@ -6557,8 +6559,8 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 	var minFluct = -1;
 	if (isTrimp){
 		//Situational Trimp damage increases
-		if (game.global.radioStacks > 0) {
-			number *= (1 - (game.global.radioStacks * 0.1));
+		if (game.challenges.Electricity.stacks > 0) { //Electricity
+			number *= (1 - (game.challenges.Electricity.stacks * 0.1));
 		}
 		if (game.global.antiStacks > 0) {
 			number *= ((game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1);
@@ -6990,6 +6992,7 @@ function purgeBionics(){
 				if (game.global.mapsActive) continue;
 				game.global.currentMapId = "";
 				game.global.mapGridArray = [];
+				game.global.lookingAtMap = "";
 				game.global.lastClearedMapCell = -1;
 			}
 			message("Recycled " + bionicMaps[x].name + ".", "Notices");
@@ -7160,7 +7163,7 @@ function giveSpireReward(level){
 			text = "Druopitee collapses to the floor. You were hoping he'd be a little more sane, but whatever. You shut down the corruption device and hope the planet will repair itself soon, then you rummage through his stuff and find keys, surely for the ship!";
 			if (!game.global.runningChallengeSquared){
 				amt = giveHeliumReward(100);
-				text += "You also find a massive stockpile of <b>" + prettify(amt) + " Helium</b>.";
+				text += " You also find a massive stockpile of <b>" + prettify(amt) + " Helium</b>.";
 			}
 			if (game.portal.Looting_II.locked) text += " Your skills at salvaging things from this Spire have helped you <b>unlock Looting II</b>.";
 			text += " You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption in to the planet. Maybe the statues would be bigger if you stayed and helped out?";
@@ -7274,7 +7277,7 @@ function checkHousing(getHighest){
 }
 
 function assignExtraWorkers(){
-	var workspaces = Math.ceil(game.resources.trimps.realMax() / 2) - game.resources.trimps.employed;
+	var workspaces = game.workspaces;
 	var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
 	//Won't leave you with less than 15% of your max as breeders
 	if (freeTrimps - workspaces < Math.floor(game.resources.trimps.realMax() * 0.15)) return;
@@ -7286,7 +7289,6 @@ function assignExtraWorkers(){
 	for (var x = 0; x < jobs.length; x++){
 		game.jobs[jobs[x]].owned += split;
 	}
-	game.resources.trimps.employed += Math.round(split * 3);
 	game.resources.food.owned -= (split * 30);
 }
 
@@ -8158,6 +8160,14 @@ function fight(makeUp) {
 				}
 				updateDailyStacks('bloodthirst');
 			}
+			if (!game.global.passive && typeof game.global.dailyChallenge.empower !== 'undefined'){
+				if (!game.global.mapsActive){
+					game.global.dailyChallenge.empower.stacks += dailyModifiers.empower.stacksToAdd(game.global.dailyChallenge.empower.strength);
+					var maxStack = dailyModifiers.empower.getMaxStacks(game.global.dailyChallenge.empower.strength);
+					if (game.global.dailyChallenge.empower.stacks >= maxStack) game.global.dailyChallenge.empower.stacks = maxStack;
+				}
+				updateDailyStacks('empower');
+			}
 		}
         var s = (game.resources.trimps.soldiers > 1) ? "s " : " ";
 		randomText = game.trimpDeathTexts[Math.floor(Math.random() * game.trimpDeathTexts.length)];
@@ -8478,12 +8488,12 @@ function fight(makeUp) {
 			thisKillsTheTrimp();
 	}
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && attacked){
-		game.global.soldierHealth -= game.global.soldierHealthMax * (game.global.radioStacks * 0.1);
+		game.global.soldierHealth -= game.global.soldierHealthMax * (game.challenges.Electricity.stacks * 0.1);
 		if (game.global.soldierHealth < 0) thisKillsTheTrimp();
 	}
 	if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse") && wasAttacked){
-		game.global.radioStacks++;
-		updateRadioStacks();
+		game.challenges.Electricity.stacks++;
+		updateElectricityStacks();
 	}
 	if (getEmpowerment() == "Ice" && attacked){
 		game.empowerments.Ice.currentDebuffPower++;
@@ -8635,12 +8645,12 @@ function checkCrushedCrit(){
 	return badCrit;
 }
 
-function updateRadioStacks(tipOnly){
+function updateElectricityStacks(tipOnly){
 	var elem = document.getElementById("debuffSpan");
-	if (game.global.radioStacks > 0){
-		var number = game.global.radioStacks * 10;
+	if (game.challenges.Electricity.stacks > 0){
+		var number = game.challenges.Electricity.stacks * 10;
 		var addText = 'Your Trimps are dealing ' + number + '% less damage and taking ' + number + '% of their total health as damage per attack.';
-		elem.innerHTML = '<span class="badge trimpBadge" onmouseover="tooltip(\'Electrified\', \'customText\', event, \'' + addText + '\'); updateRadioTip()" onmouseout="tooltip(\'hide\')">' + game.global.radioStacks + '<span class="icomoon icon-power"></span></span>';
+		elem.innerHTML = '<span class="badge trimpBadge" onmouseover="tooltip(\'Electrified\', \'customText\', event, \'' + addText + '\'); updateElectricityTip()" onmouseout="tooltip(\'hide\')">' + game.challenges.Electricity.stacks + '<span class="icomoon icon-power"></span></span>';
 		if (tipOnly){
 			document.getElementById('tipText').innerHTML = addText;
 			return;
@@ -8650,9 +8660,9 @@ function updateRadioStacks(tipOnly){
 	else elem.innerHTML = "";
 }
 
-function updateRadioTip(){
+function updateElectricityTip(){
 	tooltipUpdateFunction = function () {
-		updateRadioStacks(true);
+		updateElectricityStacks(true);
 	};
 }
 
@@ -9413,7 +9423,7 @@ function givePumpkimpLoot(){
 		"You search the Pumpkimp for loot, but find nothing. Someone wasn't in the holiday spirit!",
 		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."];
 	if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-	if (game.jobs.Explorer.locked == 0) elligible.push("fragments");
+	if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments");
 	var roll = Math.floor(Math.random() * elligible.length);
 	var item = elligible[roll];
 	if (item == "nothing") {
@@ -9473,7 +9483,7 @@ function givePresimptLoot(){
 		"This Presimpt has little snowman markings all over it! Inside, you find "];
 	if (game.jobs.Dragimp.owned > 0) elligible.push("gems", "gems", "gems", "gems");
 	else elligible.push("food", "food", "wood", "metal");
-	if (game.jobs.Explorer.locked == 0) elligible.push("fragments", "fragments", "fragments");
+	if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments", "fragments", "fragments");
 	else elligible.push("food", "wood", "metal");
 	var roll = Math.floor(Math.random() * elligible.length);
 	var item = game.global.presimptStore;
@@ -10358,17 +10368,31 @@ function gameTimeout() {
     game.global.time += tick;
     var dif = (now - game.global.start) - game.global.time;
     while (dif >= tick) {
-        gameLoop(true, now);
+        runGameLoop(true, now);
         dif -= tick;
         game.global.time += tick;
 		ctrlPressed = false;
     }
-    gameLoop(null, now);
+    runGameLoop(null, now);
     updateLabels();
     setTimeout(gameTimeout, (tick - dif));
 }
 
-
+/**
+ * Passes parameters to gameLoop, handles errors.
+ * @param  {bool} makeUp makeUp causes the function to loop to exhaust ticks
+ * @param  {Date} now    Date.now()
+ */
+function runGameLoop(makeUp, now) {
+	try {
+		gameLoop(makeUp, now);
+	} catch (e) {
+		unlockTooltip(); // Override any other tooltips
+		tooltip('hide');
+		tooltip('Error', null, 'update', e.stack);
+		throw(e);
+	}
+}
 function updatePortalTimer(justGetTime) {
 	if (game.global.portalTime < 0) return;
 	var timeSince = new Date().getTime() - game.global.portalTime;
@@ -10406,7 +10430,13 @@ function updatePortalTimer(justGetTime) {
 var shiftPressed = false;
 var ctrlPressed = false;
 // X = 88, h = 72, d = 68, b = 66
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
+	var checkStatus = function () {
+		return !game.global.preMapsActive && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown;
+	};
+	var onFight = function (e) {
+		return !heirloomsShown && !portalWindowOpen && !trimpStatsDisplayed && !trimpAchievementsOpen;
+	};
 	switch(e.keyCode){
 		case 27:
 			cancelTooltip();
@@ -10424,33 +10454,64 @@ document.addEventListener('keydown', function(e) {
 		case 49:
 		case 88:
 		case 97:
-			if (!game.global.preMapsActive && game.upgrades.Formations.done && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('0');
+			if (checkStatus() && game.upgrades.Formations.done) setFormation('0');
 			break;
 		case 50:
 		case 72:
 		case 98:
-			if (!game.global.preMapsActive && game.upgrades.Formations.done && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('1');
+			if (checkStatus() && game.upgrades.Formations.done) setFormation('1');
 			break;
 		case 51:
 		case 68:
 		case 99:
-			if (!game.global.preMapsActive && game.upgrades.Dominance.done && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('2');
+			if (checkStatus() && game.upgrades.Dominance.done) setFormation('2');
 			break;
 		case 52:
 		case 66:
 		case 100:
-			if (!game.global.preMapsActive && game.upgrades.Barrier.done && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('3');
+			if (checkStatus() && game.upgrades.Barrier.done) setFormation('3');
 			break;
 		case 53:
 		case 83:
 		case 101:
-			if (!game.global.preMapsActive && game.upgrades.Formations.done && game.global.highestLevelCleared >= 180 && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown) setFormation('4');
+			if (checkStatus() && game.global.world >= 60 && game.global.highestLevelCleared >= 180) setFormation('4');
 			break;
 		case 13:
 			var confirmCheck = document.getElementById("confirmTooltipBtn");
 			if (confirmCheck !== null && typeof confirmCheck.onclick == 'function'){
 				confirmCheck.onclick();
 			}
+			break;
+		case 77:
+			// M for maps
+			if (checkStatus() && game.global.mapsUnlocked && onFight()) {
+				mapsClicked();
+			}
+			break;
+		case 82:
+			// R for repeat
+			if (checkStatus() && game.global.mapsActive && onFight()) {
+				repeatClicked();
+			}
+			break;
+		case 65:
+			// A for AutoFight
+			if (checkStatus() && game.global.autoBattle && onFight()) {
+				pauseFight();
+			}
+			break;
+		case 32:
+			// Space for pause
+			if (checkStatus()){
+				toggleSetting('pauseGame');
+			}
+			break;
+		case 70:
+			// F for fight
+			if (checkStatus() && onFight()) {
+				fightManual();
+			}
+			break;
 	}
 }, true);
 document.addEventListener('keyup', function(e) {

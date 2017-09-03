@@ -2189,8 +2189,8 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	display: inline-block;
 	background-color: grey;
 	border: 1px solid black;
-	line-height: 1.1em;
-	font-size: 1.1em;
+	line-height: 0.9em;
+	font-size: 0.9em;
 	color: black;
 	padding-top: 0.1em;
 }
