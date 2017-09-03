@@ -3711,16 +3711,6 @@ function updateDecayStacks(addStack){
 }
 
 function swapClass(prefix, newClass, elem) {
-	if(elem.classList) {
-		elem.classList.forEach(function(value) {
-			if(value.indexOf(prefix) > -1) {
-				elem.classList.remove(value);
-			}
-		});
-		elem.classList.add(newClass);
-		return;
-	}
-
 if (elem == null) {
 	console.log("swapClass, No element found. Prefix: " + prefix + ", newClass: " + newClass);
 	return;
