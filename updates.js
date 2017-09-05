@@ -2811,31 +2811,13 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 	checkAndDisplayEquipment();
 }
 
-var cachedEquipmentDOMNodes = {};
-
-function checkAndDisplayEquipment() {
-    var getOrCreateNode = function (itemD, toUpdate) {
-        if (!cachedEquipmentDOMNodes[itemD]) {
-            cachedEquipmentDOMNodes[itemD] = {};
-        }
-        if (!cachedEquipmentDOMNodes[itemD][toUpdate.level]) {
-            cachedEquipmentDOMNodes[itemD][toUpdate.level] = document.getElementById(itemD +"Owned");
-        }
-
-        return cachedEquipmentDOMNodes[itemD][toUpdate.level];
-    };
-
-    for (var itemD in game.equipment) {
-        var toUpdate = game.equipment[itemD];
-        if (toUpdate.locked == 1) {
-            continue;
-        }
-        if (document.getElementById(itemD) === null) {
-            drawAllEquipment();
-        }
-
-        getOrCreateNode(itemD, toUpdate).textContent = toUpdate.level;
-    }
+ function checkAndDisplayEquipment() {
+	for (var itemD in game.equipment){
+		var toUpdate = game.equipment[itemD];
+		if (toUpdate.locked == 1) continue;
+		if (document.getElementById(itemD) === null) drawAllEquipment();
+		document.getElementById(itemD + "Owned").innerHTML = toUpdate.level;
+	}
 }
 
 function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as first if trimps is true, like (32.4, true)
