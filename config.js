@@ -2565,7 +2565,7 @@ var toReturn = {
 			title: "Speed: Spire",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Spire 1 in less than " + number + " from start of run</span>";
+				return "<span style='font-size: .8em'>Clear the Spire in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 169);

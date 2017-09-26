@@ -4657,7 +4657,7 @@ var mutations = {
 			message(text, "Loot", "oil", "voidMessage", "helium");
 		},
 		tooltip: function (effectName) {
-			var text = "All corrupted enemies currently deal " + prettify(this.statScale(3)) + "X attack and have " + prettify(this.statScale(10)) + "X health. In addition, ";
+			var text = "All corrupted enemies currently deal " + prettify(this.statScale(3)) + "X damage and have " + prettify(this.statScale(10)) + "X health. In addition, ";
 			text += mutationEffects[effectName].text;
 			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this zone.";
 			return text;
@@ -5088,7 +5088,7 @@ var mutations = {
 			message(text, "Loot", "oil", "Healthy", "helium");
 		},
 		tooltip: function (effectName) {
-			var text = "All Healthy enemies currently deal " + prettify(this.statScale(5)) + "X attack and have " + prettify(this.statScale(14)) + "X health. In addition, ";
+			var text = "All Healthy enemies currently deal " + prettify(this.statScale(5)) + "X damage and have " + prettify(this.statScale(14)) + "X health. In addition, ";
 			text += mutationEffects[effectName].text;
 			text += " It will also drop 45% of the helium you would normally get from completing this zone.";
 			return text;
@@ -6389,8 +6389,8 @@ function battleCoordinator(makeUp) {
 	if (game.talents.hyperspeed.purchased) num -= 100;
 	if (game.talents.hyperspeed2.purchased && (game.global.world <= Math.floor((game.global.highestLevelCleared + 1) * 0.5)))
 		num -= 100;
-	if (!game.global.mapsActive && game.global.gridArray[0].name == "Liquimp" && num < 500)
-		num = 500;
+	if (!game.global.mapsActive && game.global.gridArray[0].name == "Liquimp" && num < 400)
+		num = 400;
 	if (game.global.battleCounter >= num) {
         game.global.battleCounter -= num; //Thanks grabz
         fight(makeUp);
@@ -6567,7 +6567,7 @@ function startFight() {
 		if (cell.corrupted == "corruptStrong") cell.attack *= 2;
 		if (cell.corrupted == "healthyStrong") cell.attack *= 2.5;
 		if (cell.corrupted == "corruptTough") cell.health *= 5;
-		if (cell.corrupted == "healthyTough") cell.attack *= 7.5;
+		if (cell.corrupted == "healthyTough") cell.health *= 7.5;
 		if (cell.empowerment){
 			if (cell.mutation != "Corruption"){
 				cell.health = mutations.Corruption.health(cell.level, cell.name);
