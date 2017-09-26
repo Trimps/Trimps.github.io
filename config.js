@@ -5896,7 +5896,7 @@ var toReturn = {
 				var timeOnZone;
 				if (typeof forceTime === 'undefined'){
 					var timeOnZone = new Date().getTime() - game.global.zoneStarted;
-					if (game.talents.magmamancer.purchased) timeOnZone++;
+					if (game.talents.magmamancer.purchased) timeOnZone += 300000;
 					timeOnZone = Math.floor(timeOnZone / 600000);
 					
 					if (timeOnZone > 12) timeOnZone = 12;
