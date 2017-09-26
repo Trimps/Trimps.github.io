@@ -7789,6 +7789,7 @@ function rewardSpire1(level){
 			game.portal.Looting_II.locked = false;
 			checkAchieve("spireTimed");
 			game.global.spireActive = false;
+			game.global.lastSpireCleared = 1;
 			setNonMapBox();
 			handleExitSpireBtn();
 			break;
