@@ -996,3 +996,11 @@ color:#8F8F00
 .redText{
 	color: #AD2A2A !important;
 }
+
+.liquid ul li {
+    background: #574800;
+}
+
+.LiquimpMessage {
+    background-color: rgba(90, 90, 223, 0.42) !important;
+}

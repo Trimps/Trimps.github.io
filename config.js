@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.41,
+		version: 4.5,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -135,6 +135,7 @@ var toReturn = {
 		heirloomBoneSeed: Math.floor(Math.random() * 1000000),
 		eggSeed: Math.floor(Math.random() * 1000000),
 		mutationSeed: Math.floor(Math.random() * 1000000),
+		enemySeed: Math.floor(Math.random() * 1000000),
 		heirloomsExtra: [],
 		heirloomsCarried: [],
 		StaffEquipped: {},
@@ -187,6 +188,8 @@ var toReturn = {
 		autoGolden: -1,
 		autoStructureSetting: {enabled: false},
 		passive: true,
+		spiresCompleted: 0,
+		lastSpireCleared: 0,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -312,7 +315,8 @@ var toReturn = {
 			baseModifier: 0.01,
 			getModifier: function (change) {
 				if (!change) change = 0;
-				return ((this.level + change) * this.baseModifier);
+				var bonusLevels = (game.talents.nature3.purchased) ? 5 : 0;
+				return ((this.level + change + bonusLevels) * this.baseModifier);
 			},
 			formatModifier: function (number){
 				return prettify(number * 100);
@@ -333,7 +337,8 @@ var toReturn = {
 			baseModifier: 0.001,
 			getModifier: function (change) {
 				if (!change) change = 0;
-				return ((this.level + change) * this.baseModifier);
+				var bonusLevels = (game.talents.nature3.purchased) ? 5 : 0;
+				return ((this.level + change + bonusLevels) * this.baseModifier);
 			},
 			formatModifier: function (number) {
 				return prettify(number * 100);
@@ -358,7 +363,8 @@ var toReturn = {
 			baseModifier: 0.01,
 			getModifier: function (change) {
 				if (!change) change = 0;
-				return Math.pow(1 - this.baseModifier, (this.level + change));
+				var bonusLevels = (game.talents.nature3.purchased) ? 5 : 0;
+				return Math.pow(1 - this.baseModifier, (this.level + change + bonusLevels));
 			},
 			getCombatModifier: function () {
 				return Math.pow(this.getModifier(), this.currentDebuffPower);
@@ -439,8 +445,14 @@ var toReturn = {
 			menuFormatting: {
 				enabled: 1,
 				extraTags: "layout",
-				description: "Toggle on or off large number formatting for jobs and buildings on the left menu. This turns 1000000 in to 1M.",
+				description: "Toggle on or off large number formatting for jobs and buildings on the left menu.",
 				titles: ["No Menu Formatting", "Formatting Menu"]
+			},
+			formatPerkLevels: {
+				enabled: 1,
+				extraTags: "layout",
+				description: "Toggle on or off large number formatting for Perk levels.",
+				titles: ["No Perk Formatting", "Formatting Perk Levels"]
 			},
 			progressBars: {
 				enabled: 1,
@@ -644,8 +656,8 @@ var toReturn = {
 			mapsOnSpire: {
 				enabled: 1,
 				extraTags: "other",
-				description: "Choose whether you would like the game to pause combat by sending you to maps when you reach the spire.",
-				titles: ["Keep Fighting", "Map at Spire"],
+				description: "Choose whether you would like the game to pause combat by sending you to maps when you reach a Spire. <b>Keep Fighting at Spires</b> will not interrupt you when reaching a Spire, <b>Map at Spires</b> will send you to maps on every Spire, <b>Map at Top 2 Spires</b> will send you to maps at the highest and second highest level Spire reached, and <b>Map at Top Spire</b> will switch to maps only on the single highest Spire reached.",
+				titles: ["Keep Fighting at Spires", "Map at Spires", "Map at Top 2 Spires", "Map at Top Spire"],
 				lockUnless: function () {
 					return (game.global.highestLevelCleared >= 199);
 				}
@@ -709,8 +721,8 @@ var toReturn = {
 			geneSend: {
 				enabled: 0,
 				extraTags: "other",
-				description: "When enabled, as long as you have one Geneticist, AutoFight will automatically send soldiers to fight if they have been breeding for longer than your Geneticistassist setting.",
-				titles: ["No Gene Sending", "Using Gene Send"]
+				description: "<p>When <b>Using Gene Send</b> is enabled, as long as you have one Geneticist, AutoFight will automatically send soldiers to fight if they have been breeding for longer than your Geneticistassist setting.</p><p>When <b>Enforce Gene Send</b> is enabled, as long as you have one Geneticist, AutoFight will never send a group of Trimps to fight unless you are at max population or you have reached your set Geneticistassist timer.</p>",
+				titles: ["No Gene Sending", "Using Gene Send", "Enforce Gene Send"]
 			},
 			fireForJobs: {
 				enabled: 0,
@@ -726,6 +738,12 @@ var toReturn = {
 					return (game.global.highestLevelCleared >= 60);
 				},
 				titles: ["Dynamic Giga Ctrl", "Always Giga Ctrl"]
+			},
+			hotkeys: {
+				enabled: 1,
+				extraTags: "other",
+				description: "Enable or disable hotkeys.",
+				titles: ["Disable Hotkeys", "Enable Hotkeys"]
 			},
 			offlineProgress: {
 				enabled: 1,
@@ -990,9 +1008,139 @@ var toReturn = {
 			icon: "italic",
 			requires: "skeletimp"
 		},
+		voidPower3: {
+			description: "Your Trimps gain an additional 30% attack and health inside Void Maps",
+			name: "Void Power III",
+			tier: 6,
+			purchased: false,
+			icon: "*heart5",
+			requires: "voidPower2"
+		},
+		blacksmith3: {
+			get description () {
+				return "Each cleared zone through Z" + Math.floor((game.global.highestLevelCleared + 1) * 0.9) + " (90% of your highest zone reached) will drop all available equipment prestiges from maps.";
+			},
+			name: "Blacksmithery III",
+			requires: "blacksmith2",
+			tier: 6,
+			purchased: false,
+			icon: "*hammer2"
+		},
+		nature: {
+			description: "Increase your token trading ratio from 10:5 to 10:6",
+			name: "Natural Diplomacy I",
+			tier: 6,
+			purchased: false,
+			icon: "*tree3"
+		},
+		liquification: {
+			get description () {
+				var text = (this.purchased) ? "This mastery is increasing " : "This mastery would increase ";
+				return "Increase your Liquification bonus by 5%, as if you had completed 1 extra Spire. You have currently completed " + game.global.spiresCompleted + " unique Spire" + ((game.global.spiresCompleted == 1) ? "" : "s") + ", giving you " + (game.global.spiresCompleted * 5) + "% of your highest Zone reached (through Z" + Math.floor((game.global.spiresCompleted / 20) * (game.global.highestLevelCleared + 1)) + "). " + text + " your bonus to " + ((game.global.spiresCompleted + 1) * 5) + "% of your highest Zone reached (through Z" + Math.floor(((game.global.spiresCompleted + 1) / 20) * (game.global.highestLevelCleared + 1)) + ").";
+			},
+			name: "Liquification I",
+			tier: 6,
+			purchased: false,
+			icon: "*water"
+		},
+		turkimp4: {
+			description: "Learn to grow your own Turkimp, increasing the bonus to +100%, and making the bonus available permanently.",
+			name: "Turkimp Tamer IV",
+			tier: 6,
+			purchased: false,
+			requires: "turkimp3",
+			icon: "*spoon-knife",
+			onPurchase: function(){
+				document.getElementById("turkimpBuff").style.display = "block";
+				if (game.global.playerGathering) setGather(game.global.playerGathering);
+			},
+			onRespec: function(){
+				if (game.global.turkimpTimer <= 0)
+					document.getElementById("turkimpBuff").style.display = "none";
+				if (game.global.playerGathering) setGather(game.global.playerGathering);
 
-
-
+			}
+		},
+		magmamancer: {
+			description: "Magmamancers will now increase Trimp Attack by the same amount that they increase Metal. In addition, start every post-magma zone with 5 minutes of credit already applied to your Magmamancers.",
+			name: "Magmamancermancy",
+			tier: 7,
+			purchased: false,
+			icon: "*fire2"
+		},
+		mapLoot2: {
+			description: "Reduces the min and max number of cells by 5 when creating maps.",
+			name: "Map Reducer II",
+			tier: 7,
+			purchased: false,
+			requires: "mapLoot",
+			icon: "*gift2"
+		},
+		nature2: {
+			description: "Increase your token trading ratio more, from 10:6 to 10:8",
+			name: "Natural Diplomacy II",
+			tier: 7,
+			purchased: false,
+			requires: "nature",
+			icon: "*tree3"
+		},
+		patience: {
+			description: "Anticipation can now reach 45 stacks.",
+			name: "Patience",
+			tier: 7,
+			purchased: false,
+			icon: "*clock2"
+		},
+		stillRowing: {
+			description: "Increase the bonus for completing a full row in a Spire by 50%, from 2% extra loot to 3%.",
+			name: "Still Rowing I",
+			tier: 7,
+			purchased: false,
+			icon: "align-justify"
+		},
+		voidSpecial: {
+			description: "Receive 1 free Void Map after using your Portal for each 100 zones cleared last run. Helium from Void Maps is also increased by 25% for each 100 zones cleared last run.",
+			name: "Void Specialization",
+			tier: 8,
+			purchased: false,
+			icon: "*feed"
+		},
+		healthStrength: {
+			description: "Your Trimps gain 15% additive damage per Healthy cell in your current Zone.",
+			name: "Strength in Health",
+			tier: 8,
+			purchased: false,
+			icon: "*aid-kit"
+		},
+		nature3: {
+			description: "Add 5 levels to the Upgrade and Stack Transfer of all 3 Empowerments of Nature, without increasing the costs.",
+			name: "Natural Diplomacy III",
+			tier: 8,
+			purchased: false,
+			requires: "nature2",
+			icon: "*tree3"
+		},
+		liquification2: {
+			get description () {
+				var text = (this.purchased) ? "This mastery is increasing " : "This mastery would increase ";
+				var totalSpires = game.global.spiresCompleted;
+				if (game.talents.liquification.purchased) totalSpires++;
+				return "Increase your Liquification bonus by another 5%, as if you had completed 1 extra Spire. Counting Liquification I, you have currently completed " + totalSpires + " unique Spire" + ((totalSpires == 1) ? "" : "s") + ", giving you " + (totalSpires * 5) + "% of your highest Zone reached (through Z" + Math.floor((totalSpires / 20) * (game.global.highestLevelCleared + 1)) + "). " + text + " your bonus to " + ((totalSpires + 1) * 5) + "% of your highest Zone reached (through Z" + Math.floor(((totalSpires + 1) / 20) * (game.global.highestLevelCleared + 1)) + ").";
+			},
+			name: "Liquification II",
+			tier: 8,
+			requires: "liquification",
+			purchased: false,
+			icon: "*water"
+		},
+		stillRowing2: {
+			description: "Your Trimps will now gain attack equal to 2x their looting bonus from each Spire row cleared.",
+			name: "Still Rowing II",
+			tier: 8,
+			purchased: false,
+			icon: "align-justify"
+		},
+		//don't forget to add new talent tier to getHighestTalentTier()
 	},
 	//portal
 	portal: {
@@ -1103,7 +1251,10 @@ var toReturn = {
 					updateAntiStacks();
 				}
 			},
-			tooltip: "Use your experiences in understanding the attention span of Trimps to increase the damage dealt by all soldiers based on how long it took to get an army together. Increases damage by 2% per level per second up to 30 seconds. Maximum of 10 levels."
+			get tooltip(){
+				var time = game.talents.patience.purchased ? 45 : 30;
+				return "Use your experiences in understanding the attention span of Trimps to increase the damage dealt by all soldiers based on how long it took to get an army together. Increases damage by 2% per level per second up to " + time + " seconds. Maximum of 10 levels."
+			}
 		},
 		Resilience: {
 			level: 0,
@@ -1882,6 +2033,14 @@ var toReturn = {
 			},
 			value: 0,
 			valueTotal: 0
+		},
+		zonesLiquified: {
+			title: "Zones Liquified",
+			display: function() {
+				return (this.value > 0 || this.valueTotal > 0)
+			},
+			value: 0,
+			valueTotal: 0
 		}
 
 	},
@@ -1981,8 +2140,8 @@ var toReturn = {
 		}
 	},
 	//Total 2100.5% after 4.1
-	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40],
-	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5"], //handwritten hex colors make the best hex colors
+	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80],
+	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5", "#d58565"], //handwritten hex colors make the best hex colors
 	achievements: {
 		zones: {
 			finished: 0,
@@ -1995,9 +2154,9 @@ var toReturn = {
 				return game.global.highestLevelCleared + " total";
 			},
 			evaluate: function () { return game.global.highestLevelCleared},
-			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300],
-			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7],
-			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator", "Heat Maker", "Heat Hater", "Heat Breaker", "Heat Slayer", "Heat Expert", "Heat Bender", "Volcanic", "Magma Master"],
+			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 350, 400, 450, 500],
+			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8],
+			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator", "Heat Maker", "Heat Hater", "Heat Breaker", "Heat Slayer", "Heat Expert", "Heat Bender", "Volcanic", "Magma Master", "Acre of Nature", "Inspired", "Insane", "Spire Master"],
 			icon: "icomoon icon-compass2",
 			newStuff: []
 		},
@@ -2126,9 +2285,9 @@ var toReturn = {
 			display: function () {
 				return (game.global.totalHeliumEarned > 0);
 			},
-			breakpoints: [100, 10e2, 10e3, 10e4, 10e5, 10e6, 10e7, 10e8, 10e10, 10e11],
-			tiers: [1, 2, 3, 4, 5, 6, 6, 7, 7, 7],
-			names: ["Cool", "Crisp", "Chilly", "Frosty", "Frigid", "Frozen", "Gelid", "Glacial", "Freaking Cold", "Absolute Zero"],
+			breakpoints: [100, 10e2, 10e3, 10e4, 10e5, 10e6, 10e7, 10e8, 10e10, 10e11, 10e13, 10e15],
+			tiers: [1, 2, 3, 4, 5, 6, 6, 7, 7, 7, 8, 8],
+			names: ["Cool", "Crisp", "Brisk", "Chilly", "Frosty", "Frigid", "Frozen", "Gelid", "Glacial", "Freaking Cold", "Arctic", "Absolute Zero"],
 			icon: "glyphicon glyphicon-oil",
 			newStuff: []
 		},
@@ -2191,12 +2350,12 @@ var toReturn = {
 				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
 				return prettify(this.evaluate()) + " total";
 			},
-			breakpoints: [5e5, 1e6, 5e6, 2.5e7, 2e9],
+			breakpoints: [5e5, 1e6, 5e6, 2.5e7, 2e9, 1e12],
 			display: function () {
 				return (game.global.highestLevelCleared >= 99);
 			},
-			tiers: [3, 4, 5, 6, 7],
-			names: ["Daytermined", "Daydicated", "Daystiny", "Daylighted", "Daystroyer"],
+			tiers: [3, 4, 5, 6, 7, 8],
+			names: ["Daytermined", "Daydicated", "Daystiny", "Daylighted", "Daystroyer", "Daylusional"],
 			icon: "icomoon icon-sun",
 			newStuff: []
 		},
@@ -2220,9 +2379,9 @@ var toReturn = {
 			},
 			earnable: true,
 			lastZone: -1,
-			breakpoints: [5, 50, 100, 150, 200, 250, 300, 350],
-			tiers: [1, 4, 5, 6, 7, 7, 7, 7],
-			names: ["Sitter", "Watchdog", "Nanny", "Caretaker", "Supervisor", "Advocate", "Savior", "Trimp Lover"],
+			breakpoints: [5, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500],
+			tiers: [1, 4, 5, 6, 7, 7, 7, 7, 8, 8, 8],
+			names: ["Sitter", "Watchdog", "Nanny", "Caretaker", "Supervisor", "Advocate", "Guardian", "Coddler", "Savior", "Defender", "Trimp Lover"],
 			icon: "glyphicon glyphicon-eye-open",
 			newStuff: [],
 		},
@@ -2231,7 +2390,7 @@ var toReturn = {
 			title: "Speed: The Block",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear The Block in " + number + " or less from start of run";
+				return "Clear The Block in less than " + number + " from start of run";
 			},
 			evaluate: function () {
 				return getMinutesThisPortal();
@@ -2256,7 +2415,7 @@ var toReturn = {
 			title: "Speed: The Wall",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear The Wall in " + number + " or less from start of run";
+				return "Clear The Wall in less than " + number + " from start of run";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 10 && (game.global.totalPortals >= 1 || this.finished >= 1));
@@ -2281,7 +2440,7 @@ var toReturn = {
 			title: "Speed: Anger",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear DoA in " + number + " or less from start of run";
+				return "Clear DoA in less than " + number + " from start of run";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 14 && (game.global.totalPortals >= 1 || this.finished >= 1));
@@ -2295,9 +2454,9 @@ var toReturn = {
 			highest: 0,
 			reverse: true,
 			showAll: true,
-			breakpoints: [480, 240, 120, 60],//In minutes
-			tiers: [2, 2, 3, 3],
-			names: ["Angry Jogger", "Angry Runner", "Angry Sprinter", "Angry Racer"],
+			breakpoints: [480, 240, 120, 60, 1],//In minutes
+			tiers: [2, 2, 3, 3, 8],
+			names: ["Angry Jogger", "Angry Runner", "Angry Sprinter", "Angry Racer", "Angry Teleporter"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
@@ -2306,7 +2465,7 @@ var toReturn = {
 			title: "Speed: Doom",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear ToD in " + number + " or less from start of run";
+				return "Clear ToD in less than " + number + " from start of run";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 19 && (game.global.totalPortals >= 1 || this.finished >= 1));
@@ -2331,7 +2490,7 @@ var toReturn = {
 			title: "Speed: The Prison",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "Clear Prison in " + number + " or less from start of run";
+				return "Clear Prison in less than " + number + " from start of run";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 32 && (game.global.totalPortals >= 1 || this.finished >= 1));
@@ -2345,9 +2504,9 @@ var toReturn = {
 			highest: 0,
 			reverse: true,
 			showAll: true,
-			breakpoints: [480, 360, 240, 180, 150, 120, 105, 90], //In minutes
-			tiers: [3, 4, 4, 5, 5, 5, 6, 6],
-			names: ["Prison Odyssey", "Prison Expedition", "Prison Adventure", "Prison Trek", "Prison Tour", "Prison Road Trip", "Prison Hike", "Quick Prison Visit"],
+			breakpoints: [480, 360, 240, 180, 150, 120, 105, 90, 10], //In minutes
+			tiers: [3, 4, 4, 5, 5, 5, 6, 6, 8],
+			names: ["Prison Odyssey", "Prison Expedition", "Prison Adventure", "Prison Trek", "Prison Tour", "Prison Road Trip", "Prison Hike", "Prison Jog", "Prison Sprint"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
@@ -2356,7 +2515,7 @@ var toReturn = {
 			title: "Speed: Bionic",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Bionic Wonderland in " + number + " or less from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Bionic Wonderland in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 79);
@@ -2381,7 +2540,7 @@ var toReturn = {
 			title: "Speed: Star",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Imploding Star in " + number + " or less from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Imploding Star in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 124);
@@ -2395,9 +2554,9 @@ var toReturn = {
 			highest: 0,
 			reverse: true,
 			showAll: true,
-			breakpoints: [1680, 1080, 390, 180, 150, 50], //In minutes
-			tiers: [5, 5, 5, 6, 6, 7],
-			names: ["Cosmic Curiosity", "Star Struck", "Space Speeder", "Intense Inertia", "Stellar Striker", "Instant Implosion"],
+			breakpoints: [1680, 1080, 390, 180, 150, 50, 5], //In minutes
+			tiers: [5, 5, 5, 6, 6, 7, 8],
+			names: ["Cosmic Curiosity", "Star Struck", "Space Speeder", "Intense Inertia", "Stellar Striker", "Insane Imploder", "Born Imploded"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
@@ -2406,7 +2565,7 @@ var toReturn = {
 			title: "Speed: Spire",
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear The Spire in " + number + " or less from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Spire 1 in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 169);
@@ -2447,8 +2606,8 @@ var toReturn = {
 		values: [10, 20, 30, 50, 150, 300, 800, 2000],
 		defaultSteps: [[1, 2, 1], [2, 3, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8], [128, 320, 16]],
 		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal', 'Magmatic'],
-		rarities:[[7500,2500,-1,-1,-1,-1,-1, -1],[2000,6500,1500,-1,-1,-1,-1, -1],[500,4500,5000,-1,-1,-1,-1, -1],[-1,3200,4300,2500,-1,-1,-1, -1],[-1,1600,3300,5000,100,-1,-1, -1],[-1,820,2400,6500,200,80,-1, -1],[-1,410,1500,7500,400,160,30, -1],[-1,200,600,8000,800,320,80, -1],[-1,-1,-1,7600,1600,640,160, -1], [-1,-1,-1,3500,5000,1200, 300, -1], [-1, -1, -1, -1, 8000, 1570, 350, 80], [-1, -1, -1, -1, 6000, 3170, 680, 150]],
-		rarityBreakpoints: [41, 60, 80, 100, 125, 146, 166, 181, 201, 230, 300],
+		rarities:[[7500,2500,-1,-1,-1,-1,-1, -1],[2000,6500,1500,-1,-1,-1,-1, -1],[500,4500,5000,-1,-1,-1,-1, -1],[-1,3200,4300,2500,-1,-1,-1, -1],[-1,1600,3300,5000,100,-1,-1, -1],[-1,820,2400,6500,200,80,-1, -1],[-1,410,1500,7500,400,160,30, -1],[-1,200,600,8000,800,320,80, -1],[-1,-1,-1,7600,1600,640,160, -1], [-1,-1,-1,3500,5000,1200, 300, -1], [-1, -1, -1, -1, 8000, 1570, 350, 80], [-1, -1, -1, -1, 6000, 3170, 680, 150], [-1, -1, -1, -1, 3000, 5000, 1650, 350]],
+		rarityBreakpoints: [41, 60, 80, 100, 125, 146, 166, 181, 201, 230, 300, 400],
 		Staff: {
 			metalDrop: {
 				name: "Metal Drop Rate",
@@ -2689,9 +2848,70 @@ var toReturn = {
 		},
 		w251: "You asked that Omnipotrimp nicely not to explode after you killed it, but it exploded anyways. Pretty rude.",
 		w255: "Your Trimps continue to lose strength as you press through the zones, but they seem to be adapting well in spirits. It seems like each generation likes the heat more and more.",
-		w265: "You're determined to repair the planet, though you feel like it's not yet possible. Either way, you know you're gaining strength and that your Trimps would follow you anywhere."
+		w265: "You're determined to repair the planet, though you feel like it's not yet possible. Either way, you know you're gaining strength and that your Trimps would follow you anywhere.",
+		w270: "This planet is really freaking big. You feel like you've been walking around it for years and still haven't seen everything there is to offer. Shouldn't there be another spire around here or something?",
+		w277: "It's starting to smell purple again. You must be getting close to another spire.",
+		get w283() {
+			var soldiers = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
+			return "During a boring night while waiting to cross a particularly rough Magma river, you managed to teach your Trimps how to stack on eachother to create some funny shapes. You almost feel bad for the first Snimp to come across " + prettify(soldiers) + " Trimps stuck together in the shape of a humongous Moongooseimp.";
+		},
+		w285: "You can finally see it, clear as day. No more than 15 zones in the distance stands a giant spire, even more menacing than the first. A loud, echoing voice booms from the tower, matching the tone and cadence of Druopitee himself. It's a little far away to hear perfectly, but it sounds like he's asking you nicely to please leave him be.",
+		w286: "You hear the voice again, and can tell there's definitely something weird about it - as if it was coming from a ghost or something. Though you suppose that makes sense, since you've already killed Druopitee.",
+		w290: "As you get closer and closer to the spire, the voice gets clearer and clearer. You can pick up notes of terror from whatever being is up there, as if he wants to just be left alone to destroy the world. You don't feel much sympathy though.",
+		w295: "You're now so close to this new spire that you can taste it, literally. These things are gross.",
+		w298: "The derranged spirit in the tower is now begging that you stay back. It obviously knows you destroyed the last tower and doesn't want you taking out another. Too bad, buddy. You're coming.",
+		get w303() {
+			if (game.global.spireRows >= 15) return "You're glad you have Fluffy around now. He seems to be getting along well with the other Trimps, and seems happy to have found others like him. He doesn't seem to be any smarter than a normal Trimp so you're sure you'll get some entertainment out of him.";
+			return "You wish you had a pet.";
+		},
+		get w315(){
+			if (game.global.lastSpireCleared == 2) return "These healthy spots of land seem to be increasing as the Spire pumps more and more in to the air! Hopefully that's a good thing. You ask Fluffy what he thinks and he nods in approval.";
+			return "Geeze, this Corruption is starting to look pretty nasty. Those Spires need to fall soon...";
+		},
+		w340: "Watch your step, there's some Magma on the ground over there.",
+		w350: "If Druopitee has really immortalized himself in an infinite amount of Spires, you might be here for a while.",
+		get w360(){
+			if (game.global.spireRows >= 15) return "You attempt to put Fluffy through your rigorous Scientist training program, but he doesn't want to. He wouldn't have any trouble, but he doesn't want the label. You still couldn't be happier to have the little guy around!";
+			return "You really feel like something is missing from your life. Everything feels hollow and sad.";
+		},
+		w375: "Should be coming up on another Spire zone soon. You stop and sit beside a beautiful Magma river and wonder what kinds of crazy stuff could be waiting for you up there. Then you realize it's probably just another Spire, so you get up and keep moving.",
+		w385: "Some familiar Spirish odors begin hitting your nostrils again and you sneeze, hilariously startling a few billion Trimps. Never gets old.",
+		get w390(){
+			if (game.global.lastSpireCleared == 2) return "You can finally see the next Spire in the distance, a thick purple cloud boiling out of the top. Hard to believe there's an infinite amount of these things, how big even is this planet?";
+			return "Weird, you feel like you should be able to see the next Spire by now, but it's not there. Maybe you should have checked the other Spires a bit more thoroughly.";
+		},
+		get w395(){
+			if (game.global.lastSpireCleared == 2) return "Ahh, that gross old taste of Spire. You'll never get used to that. Most of your Trimps are trying to stay under trees, but Fluffy is running around with his tongue out as if he was trying to catch snowflakes.";
+			return "Did you leave the oven on? Oh yeah, you don't have an oven. Now you wonder what an oven even is. Oh well.";
+		},
+		get w405(){
+			if (game.global.lastSpireCleared == 3) return "It really seemed like you weakened Druopitee back there. Maybe you'll be able to at least shut off any last conscious parts of him with just one more Spire?";
+			return "You can't shake the feeling like you forgot to do something.";
+		},
+		get w415(){
+			if (game.global.lastSpireCleared == 3) return "The Healthy mutation is starting to spread nicely now. The bad guys hurt quite a bit more, but you're pretty sure you're doing the right thing which kinda makes you feel good.";
+			if (game.global.lastSpireCleared == 2) return "It seems like the Healthy mutation has stopped spreading. That's alright though, some other version of you will probably take care of it.";
+			if (game.global.spireRows >= 15) return "The land sure looks terrible and corrupted, but at least you have Fluffy.";
+			return "What do you have against Fluffy?";
+		},
+		w430: "The Trimps tried tieing two Turkimps to this tall tree, then the Turkimps thrashed those three trillion Trimps, throwing the Trimps tumbling towards the tall tree. The Trimps truly tried. Those Turkimps though... they tough.",
+		w440: "Wow, you've gotten pretty far. You would have never guessed there'd be this many zones out there, but here you are.",
+		w450: "It's just about time for another Spire, don't you think?",
+		w460: "This part of the world seems to be at a much higher elevation than any other part that you've been at. The air is strangely clear, and you can see more of the planet sprawled out around you than ever before. It feels good to see everything you're fighting for and feel like it's worth it.",
+		w470: "This part of the world seems to be at a really low elevation, and lots of Corruption is building up in it. Gross.",
+		get w485(){
+			if (game.global.lastSpireCleared == 3) return "Once again, you can taste the Spire, it must just be over that next hill now. Fluffy seems excited.";
+			return "Hey! Is that... oh, nope, just some dirt.";
+		},
+		get w495(){
+			if (game.global.lastSpireCleared == 3) return "It's time. He's weak. You've got this. Time to make this planet Healthy again.";
+			return "You're feeling rather itchy today. You ask some Trimps to scratch your back but they don't really want to.";
+		},
+		get w505(){
+			if (game.global.lastSpireCleared == 4) return "Well you've totally 100% eradicated Druopitee's consciousness, now you figure it's just time to clear the rest of his brainless Echoes out of the Spires. There may not be anything new and exciting to see <b>yet</b>, but bragging rights are always nice.";
+			return "Druopitee is just over there getting stronger, someone should really do something about him.";
+		}
 	},
-
 	trimpDeathTexts: ["ceased to be", "bit the dust", "took a dirt nap", "expired", "kicked the bucket", "evaporated", "needed more armor", "exploded", "melted", "fell over", "swam the river Styx", "turned in to jerky", "forgot to put armor on", "croaked", "flatlined", "won't follow you to battle again", "died. Lame", "lagged out", "imp-loded"],
 	badGuyDeathTexts: ["slew", "killed", "destroyed", "extinguished", "liquidated", "vaporized", "demolished", "ruined", "wrecked", "obliterated"],
 
@@ -2760,16 +2980,6 @@ var toReturn = {
 			max: -1
 		}
 	},
-
-	magma: {
-		buffs: {
-			attack: 0,
-			crit: 0,
-			health: 0,
-			potency: 0
-		}
-	},
-
 	equipment: {
 		Shield: {
 			locked: 1,
@@ -2951,6 +3161,16 @@ var toReturn = {
 	},
 
 	badGuys: {
+		Liquimp: {
+			location: "None",
+			locked: 1,
+			attack: 3,
+			health: 200,
+			fast: true,
+			loot: function () {
+				rewardLiquidZone();
+			}
+		},
 		Presimpt: {
 			location: "World",
 			locked: 1,
@@ -3234,13 +3454,24 @@ var toReturn = {
 				var percentage = 1;
 				if (game.global.world >= mutations.Corruption.start(true)){
 					percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
-					percentage *= mutations.Corruption.cellCount() * 2;
-					percentage += 2;
+					var corrCount = mutations.Corruption.cellCount();
+					if (mutations.Healthy.active()) corrCount -= mutations.Healthy.cellCount();
+					percentage *= corrCount;
+					if (mutations.Healthy.active()){
+						amt *= ((mutations.Healthy.cellCount() * 0.45) + percentage + 1);
+					}
+					else {
+						amt *= (percentage + 1);
+					}
 				}
+				if (game.talents.voidSpecial.purchased){
+					amt *= ((Math.floor(game.global.lastPortal / 100) * 0.25) + 1);
+				}
+				
 				if (game.global.runningChallengeSquared)
 					amt = 0;
 				else
-					amt = rewardResource("helium", amt, level, false, percentage);
+					amt = rewardResource("helium", amt, level, false, 2);
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";
 				if (game.options.menu.repeatVoids.enabled && game.global.totalVoidMaps > 1){
 					msg += "the next Void map";
@@ -3555,6 +3786,9 @@ var toReturn = {
 			health: 6,
 			fast: true,
 			loot: function (level) {
+				if (game.global.spireActive){
+					return;
+				}
 				if (!game.global.runningChallengeSquared){
 					amt = rewardResource("helium", 30, level);
 					message("You managed to steal " + prettify(amt) + " Helium canisters from that Omnipotrimp. That'll teach it.", "Loot", "oil", 'helium', 'helium');
@@ -4765,6 +4999,7 @@ var toReturn = {
 			lastAt: 150,
 			level: 54,
 			icon: "book",
+			displayAs: "Gymystic",
 			message: "Trimp cave paintings predicted the existence of a book such as this one, you had no idea it actually existed. It smells dusty.",
 			title: "Some old, dusty book",
 			fire: function () {
@@ -4920,6 +5155,7 @@ var toReturn = {
 			lastAt: 78,
 			level: 19,
 			icon: "*make-group",
+			displayAs: "Gigastation",
 			title: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
@@ -4935,6 +5171,7 @@ var toReturn = {
 			level: 19,
 			icon: "*make-group",
 			title: "Gigastation",
+			displayAs: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
 			}
@@ -4949,6 +5186,7 @@ var toReturn = {
 			level: 19,
 			icon: "*make-group",
 			title: "Gigastation",
+			displayAs: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
 			}
@@ -4962,6 +5200,7 @@ var toReturn = {
 			lastAt: 229,
 			level: 19,
 			icon: "*make-group",
+			displayAs: "Gigastation",
 			title: "Gigastation",
 			fire: function () {
 				unlockUpgrade("Gigastation");
@@ -5230,13 +5469,17 @@ var toReturn = {
 			}
 		},
 		spireMetals: {
-			world: 200,
+			world: -1,
+			start: 200,
 			level: [1,4],
 			repeat: 4,
 			fire: function (level) {
 				if (!game.global.spireActive) return;
 				var amt = rewardResource("metal", 25, level);
 				message("There sure is a lot of metal just tossed around in this Spire! You just found " + prettify(amt) + " more!", "Loot", "*safe", "spireMetalsMsg", "primary");
+			},
+			specialFilter: function (){
+				return checkIfSpireWorld();
 			},
 			title: "Spire Metal",
 			icon: "*safe",
@@ -5621,6 +5864,7 @@ var toReturn = {
 			allowAutoFire: true,
 			get tooltip(){
 				var timeOnZone = Math.floor((new Date().getTime() - game.global.zoneStarted) / 60000);
+				if (game.talents.magmamancer.purchased) timeOnZone += 5;
 				var bonus = (this.getBonusPercent() - 1) * 100;
 				var timeStr;
 				if (timeOnZone >= 120)
@@ -5652,7 +5896,9 @@ var toReturn = {
 				var timeOnZone;
 				if (typeof forceTime === 'undefined'){
 					var timeOnZone = new Date().getTime() - game.global.zoneStarted;
+					if (game.talents.magmamancer.purchased) timeOnZone++;
 					timeOnZone = Math.floor(timeOnZone / 600000);
+					
 					if (timeOnZone > 12) timeOnZone = 12;
 					else if (timeOnZone <= 0) return 1;
 				}
@@ -5760,6 +6006,7 @@ var toReturn = {
 				fadeIn("equipmentTab", 10);
 				fadeIn("battleContainer", 10);
 				buildGrid();
+				liquifyZone();
 				drawGrid();
 				game.global.BattleClock = -1;
 				fadeIn("metal", 10);

@@ -128,7 +128,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Well Fed"){
-		var tBonus = (game.talents.turkimp3.purchased) ? 75 : 50;
+		var tBonus = 50;
+		if (game.talents.turkimp4.purchased) tBonus = 100;
+		else if (game.talents.turkimp3.purchased) tBonus = 75;
 		tooltipText = "That Turkimp was delicious, and you have leftovers. If you set yourself to gather Food, Wood, or Metal while this buff is active, you can share with your workers to increase their gather speed by " + tBonus + "%";
 		costText = "";
 	}
@@ -161,8 +163,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var selectedPerc = (setting) ? setting.value : 0.1;
 			var checked = (setting && setting.enabled) ? "checked='true' " : "";
 			var options = "<option value='0.1'" + ((selectedPerc == 0.1) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == 1) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == 5) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == 10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == 25) ? " selected" : "") + ">25%</option>";
-			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'><input id='structConfig" + item + "' " + checked + "class='structConfigCheckbox' type='checkbox' />&nbsp;&nbsp;<span>" + item + "</span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select  id='structSelect" + item + "'>" + options + "</select></div><div class='col-xs-5 lowPad'>Up To: <input class='structConfigQuantity' id='structQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></div></div></td>";
+			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'><input id='structConfig" + item + "' " + checked + "class='structConfigCheckbox' type='checkbox' />&nbsp;&nbsp;<span>" + item + "</span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select  id='structSelect" + item + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'>Up To: <input class='structConfigQuantity' id='structQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></div></div></td>";
 			count++;
+		}
+		if (game.global.highestLevelCleared >= 229){
+			var nurserySetting = (typeof game.global.autoStructureSetting.NurseryZones !== 'undefined') ? game.global.autoStructureSetting.NurseryZones : 1;
+			tooltipText += "</tr><tr><td>&nbsp;</td><td><div class='row'><div class='col-xs-12' style='text-align: right; padding-right: 5px;'>Don't buy Nurseries Until Z: <input style='width: 20.8%; margin-right: 4%;' class='structConfigQuantity' id='structZoneNursery' type='number' value='" + nurserySetting + "'></div></div></td>";
 		}
 		tooltipText += "</tr></tbody></table>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='saveAutoStructureConfig()'>Apply</div><div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
@@ -1051,8 +1057,10 @@ function getPsString(what, rawNum) {
 	}
 	//Add player
 	if (game.global.playerGathering == what){
-		if (game.global.turkimpTimer > 0 && (what == "food" || what == "wood" || what == "metal")){
-			var tBonus = (game.talents.turkimp3.purchased) ? 75 : 50;
+		if ((game.talents.turkimp4.purchased || game.global.turkimpTimer > 0) && (what == "food" || what == "wood" || what == "metal")){
+			var tBonus = 50;
+			if (game.talents.turkimp4.purchased) tBonus = 100;
+			else if (game.talents.turkimp3.purchased) tBonus = 75;
 			currentCalc *= (1 + (tBonus / 100));
 			textString += "<tr><td class='bdTitle'>Sharing Food</td><td class='bdPercent'>+ " + tBonus + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 		}
@@ -1085,7 +1093,7 @@ function getZoneStats(event, update) {
 		textString += "<tr><td class='bdTitle bdZoneTitle' colspan='3'>" + map.name + ", Level " + map.level + ", Cell " + (game.global.lastClearedMapCell + 2) + "</td></tr>";
 		textString += '<tr><td><span class="' + getMapIcon(map) + '"></span> ' + ((map.location == "Void") ? voidBuffConfig[game.global.voidBuff].title : getMapIcon(map, true)) + '</td><td><span class="icomoon icon-gift2"></span>' + Math.floor(map.loot * 100) + '%</span> <span class="icomoon icon-cube2"></span>' + map.size + ' <span class="icon icon-warning"></span>' + Math.floor(map.difficulty * 100) + '%</td><td>' + ((map.location == "Void") ? '&nbsp' : ('Items: ' + addSpecials(true, true, map))) + '</td></tr>';
 		textString += "<tr><td colspan='3'>You have been on this map for " + formatMinutesForDescriptions((new Date().getTime() - game.global.mapStarted) / 1000 / 60) + "</td></tr>";
-		if (map.location == "Void") textString += "<tr><td colspan='3'>You have " + game.global.totalVoidMaps + " Void Maps.</td></tr>";
+		if (map.location == "Void") textString += "<tr><td colspan='3'>You have " + game.global.totalVoidMaps + " Void Map" + ((game.global.totalVoidMaps == 1) ? "" : "s") + ".</td></tr>";
 	}
 	textString += "</tbody></table>";
 	if (update) {
@@ -1407,9 +1415,25 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Golden Battle</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
 	if (what != "block" && game.talents.voidPower.purchased && game.global.voidBuff){
-		amt = (game.talents.voidPower2.purchased) ? 35 : 15;
+		amt = (game.talents.voidPower2.purchased) ? ((game.talents.voidPower3.purchased) ? 65 : 35) : 15;
 		currentCalc *= (1 + (amt / 100));
-		textString += "<tr><td class='bdTitle'>Void Power (Mastery)</td><td></td><td>" + ((game.talents.voidPower2.purchased) ? 2 : 1) + "</td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>Void Power (Mastery)</td><td></td><td>" + ((game.talents.voidPower2.purchased) ? ((game.talents.voidPower3.purchased) ? "III" : "II") : "I") + "</td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+	}
+	if (game.talents.magmamancer.purchased && what == "attack" && game.jobs.Magmamancer.getBonusPercent()){
+		amt = game.jobs.Magmamancer.getBonusPercent();
+		currentCalc *= amt;
+		textString += "<tr><td class='bdTitle'>Magmamancermancy</td><td></td><td></td><td>+ " + prettify((amt - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+	}
+	if (game.talents.stillRowing2.purchased && what == "attack" && game.global.spireRows >= 1){
+		amt = game.global.spireRows * 0.06;
+		currentCalc *= (amt + 1);
+		textString += "<tr><td class='bdTitle'>Still Rowing II</td><td>6%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+	}
+	if (game.talents.healthStrength.purchased && what == "attack" && mutations.Healthy.active()){
+		var cellCount = mutations.Healthy.cellCount();
+		amt = (0.15 * cellCount);
+		currentCalc *= (amt + 1);
+		textString += "<tr><td class='bdTitle'>Strength in Health</td><td>15%</td><td>" + cellCount + "</td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	//Magma
 	if (mutations.Magma.active() && (what == "attack" || what == "health")){
@@ -1424,6 +1448,7 @@ function getBattleStatBd(what) {
 		currentCalc *= (1 + (amt / 100));
 		textString += "<tr><td class='bdTitle'>Challenge² Rewards</td><td></td><td></td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>"
 	}
+
 	//Ice
 	if (what == "attack" && getEmpowerment() == "Ice"){
 		amt = 1 - game.empowerments.Ice.getCombatModifier();
@@ -1608,8 +1633,12 @@ function getLootBd(what) {
 				amt = avgSec * 5;
 			amt = (amt * .8) + ((amt * .002) * (cell + 1));
 			currentCalc = amt;
-			if (game.global.turkimpTimer > 0 && (game.global.playerGathering == "food" || game.global.playerGathering == "metal" || game.global.playerGathering == "wood")){
-				currentCalc *= (game.talents.turkimp3.purchased) ? 1.249 : 1.166;
+			if ((game.talents.turkimp4.purchased || game.global.turkimpTimer > 0) && (game.global.playerGathering == "food" || game.global.playerGathering == "metal" || game.global.playerGathering == "wood")){
+				//Average the bonus out amongst all 3 resources. I can't remember why turkimp3 is 1.249 instead of 1.25 but at this point I'm too scared to change it
+				var tBonus = 1.166;
+				if (game.talents.turkimp4.purchased) tBonus = 1.333;
+				else if (game.talents.turkimp3.purchased) tBonus = 1.249;
+				amt *= tBonus;
 			}
 			textString += "<tr><td class='bdTitle'>Base</td><td></td><td></td><td>" + prettify(amt) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 			amt = game.resources.trimps.realMax() * 0.16;
@@ -1749,9 +1778,15 @@ function getLootBd(what) {
 		}
 	}
 	if (game.global.spireRows > 0){
-		amt = game.global.spireRows * 0.02;
+		var spireRowBonus = (game.talents.stillRowing.purchased) ? 0.03 : 0.02;
+		amt = game.global.spireRows * spireRowBonus;
 		currentCalc *= (1 + amt);
-		textString += "<tr><td class='bdTitle'>Spire Rows</td><td>+ 2%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Spire Rows</td><td>+ " + Math.floor(spireRowBonus * 100) + "%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.voidBuff && what == "Helium" && game.talents.voidSpecial.purchased){
+		amt = (Math.floor(game.global.lastPortal / 100) * 0.25);
+		currentCalc *= (1 + amt);
+		textString += "<tr><td class='bdTitle'>Void Special</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (getEmpowerment() == "Wind" && (what != "Helium" || !game.global.mapsActive)){
 		var windMod;
@@ -1811,20 +1846,51 @@ function getLootBd(what) {
 		currentCalc = 0;
 		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge²</td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
+	//Corruption - World
 	if (what == "Helium" && !game.global.voidBuff && (game.global.world >= mutations.Corruption.start())){
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
 		var corrCount = mutations.Corruption.cellCount();
+		if (mutations.Healthy.active()) corrCount -= mutations.Healthy.cellCount();
 		var corrCalc = (corrVal / 100) * currentCalc;
 		textString += "<tr class='corruptedCalcRow'><td class='bdTitle' style='vertical-align: middle'>Corruption Value</td><td>" + corrVal + "%<br/>" + corrCount + " Cells</td><td>Per Cell:<br/>" + prettify(corrCalc) + "</td><td>Per Zone:<br/>" + prettify(corrCalc * corrCount) + "</td><td style='vertical-align: middle'>" + prettify(currentCalc + (corrCalc * corrCount)) + "</td></tr>";
 		//<tr><td class='bdTitle'>Total Per Zone</td><td></td><td></td><td></td><td>" + prettify(currentCalc + (corrCalc * corrVal)) + "</td></tr>
 	}
+	//Corruption - Void Maps
 	else if (what == "Helium" && game.global.voidBuff && game.global.world >= mutations.Corruption.start(true)) {
 		//5.71m
+
+	}
+	//Healthy - World
+	if (what == "Helium" && mutations.Healthy.active() && !game.global.voidBuff){
+		var healthyCount = mutations.Healthy.cellCount();
+		var healthyVal = 45;
+		var healthyCalc = (healthyVal / 100) * currentCalc;
+		textString += "<tr class='healthyCalcRow'><td class='bdTitle' style='vertical-align: middle'>Healthy Value</td><td>" + healthyVal + "%<br/>" + healthyCount + " Cells</td><td>Per Cell:<br/>" + prettify(healthyCalc) + "</td><td>Per Zone:<br/>" + prettify(healthyCalc * healthyCount) + "</td><td style='vertical-align: middle'>" + prettify(currentCalc + (healthyCalc * healthyCount)) + "</td></tr>";		
+	}
+	//Healthy - Void Maps
+
+	if (what == "Helium" && game.global.voidBuff && mutations.Corruption.active()){
 		var corruptedCells = mutations.Corruption.cellCount();
+		if (mutations.Healthy.active()) corruptedCells -= mutations.Healthy.cellCount();
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
-		var percent = (((corrVal / 100) * (corruptedCells)) + 1);
-		currentCalc *= percent;
-		textString += "<tr class='corruptedCalcRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td>" + corruptedCells + "</td><td>X " + prettify(percent) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+		var percent = ((corrVal / 100) * (corruptedCells));
+		
+
+		if (mutations.Healthy.active()){
+			textString += "<tr class='corruptedCalcRow mutationSumRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td>" + corruptedCells + "</td><td>+ " + prettify(percent * 100) + "%</td><td></td></tr>";
+			var healthyCells = mutations.Healthy.cellCount();
+			var healthyVal = 45;
+			var healthyPercent = ((healthyVal / 100) * (healthyCells));
+			textString += "<tr class='healthyCalcRow mutationSumRow'><td class='bdTitle'>Healthy Value</td><td>" + healthyVal + "%</td><td>" + healthyCells + "</td><td>+ " + prettify(healthyPercent * 100) + "%</td><td></td></tr>";
+			var mutationPercent = (percent + healthyPercent);
+			currentCalc *= (mutationPercent + 1);
+			textString += "<tr class='mutationSumRow mutationTotalRow'><td class='bdTitle'>Mutation Total</td><td></td><td>" + (healthyCells + corruptedCells) + "</td><td>+ " + prettify(mutationPercent * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		}
+		else {
+			percent++;
+			currentCalc *= percent;
+			textString += "<tr class='corruptedCalcRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td>" + corruptedCells + "</td><td>X " + prettify(percent) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+		}
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
@@ -1858,7 +1924,7 @@ function prettify(number) {
 		else {
 			var suf2 = (base % suffices.length) - 1;
 			if (suf2 < 0) suf2 = suffices.length - 1;
-			suffix = suffices[Math.floor(base / suffices.length) - 1] + suffices[suf2];
+			suffix = suffices[Math.ceil(base / suffices.length) - 2] + suffices[suf2];
 		}
 	}
 	else {
@@ -2015,6 +2081,7 @@ function resetGame(keepPortal) {
 	document.getElementById("mapCreditsLeft").innerHTML = "";
 	document.getElementById("swapToCurrentChallengeBtn").style.display = "none";
 	document.getElementById('autoGoldenBtn').style.display = "none";
+	document.getElementById('scienceCollectBtn').style.display = "block";
 	lookingAtCurrentChallenge = false;
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));
@@ -2099,6 +2166,7 @@ function resetGame(keepPortal) {
 	var autoGolden;
 	var heirloomSeed;
 	var empowerments;
+	var spiresCompleted;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -2171,6 +2239,7 @@ function resetGame(keepPortal) {
 		pauseFightMember = game.global.pauseFight;
 		autoGolden = game.global.autoGolden;
 		empowerments = game.empowerments;
+		spiresCompleted = game.global.spiresCompleted;
 		if (!game.global.canMagma) {
 			if (highestLevel > 229) highestLevel = 229;
 			if (roboTrimp > 8) roboTrimp = 8;
@@ -2237,6 +2306,7 @@ function resetGame(keepPortal) {
 		game.global.autoStructureSetting = autoStructureSetting;
 		game.global.pauseFight = pauseFightMember;
 		game.empowerments = empowerments;
+		game.global.spiresCompleted = spiresCompleted;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined' && !statItem.noAdd) statItem.valueTotal += statItem.value;
@@ -2308,6 +2378,7 @@ function resetGame(keepPortal) {
 	checkChallengeSquaredAllowed();
 	initTalents();
 	countChallengeSquaredReward();
+	displayGoldenUpgrades();
 	game.options.menu.tinyButtons.onToggle();
 	if (keepPortal) checkAchieve("portals");
 	document.getElementById("goodGuyAttack").innerHTML = "";
@@ -2317,6 +2388,14 @@ function resetGame(keepPortal) {
 	document.getElementById("goodGuyHealthMax").innerHTML = "0";
 	document.getElementById("trimpsFighting").innerHTML = "1";
 	document.getElementById("critSpan").innerHTML = "";
+	if (game.global.autoGolden != -1)
+		lastAutoGoldenToggle = new Date().getTime() + 26000;
+	if (game.talents.voidSpecial.purchased){
+		var mapsToGive = Math.floor(lastPortal / 100);
+		for (var x = 0; x < mapsToGive; x++){
+			createVoidMap();
+		}
+	}
 }
 
 function enableImprovedAutoStorage(){
@@ -2392,7 +2471,11 @@ var pendingLogs = {
     RAF: null
 };
 
+var messageLock = false;
 function message(messageString, type, lootIcon, extraClass, extraTag, htmlPrefix) {
+if (messageLock && type !== "Notices"){
+	return;
+}
 if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !game.global.messages[type][extraTag]) return;
     var log = document.getElementById("log");
     var displayType = (game.global.messages[type].enabled) ? "block" : "none";
@@ -2417,7 +2500,8 @@ if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !
         if (type == "Combat") messageString = "<span class='glyphicon glyphicon-flag'></span> " + messageString;
         if (type == "Loot" && lootIcon) messageString = "<span class='" + prefix + lootIcon + "'></span> " + messageString;
         if (type == "Notices"){
-            messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
+			if (lootIcon !== null) messageString = "<span class='" + prefix + lootIcon + "'></span> " + messageString;
+			else messageString = "<span class='glyphicon glyphicon-off'></span> " + messageString;
         }
     }
     else messageString = htmlPrefix + " " + messageString;
@@ -2858,8 +2942,11 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			}
 			psText = calcHeirloomBonus("Staff", jobName + "Speed", psText);
 			if (game.global.playerGathering == increase){
-				if (game.global.turkimpTimer > 0 && increase != "science"){
-					psText *= game.talents.turkimp3.purchased ? 1.75 : 1.5;
+				if ((game.talents.turkimp4.purchased || game.global.turkimpTimer > 0) && increase != "science"){
+					var tBonus = 1.5;
+					if (game.talents.turkimp4.purchased) tBonus = 2;
+					else if (game.talents.turkimp3.purchased) tBonus = 1.75;
+					psText *= tBonus;
 				}
 			psText += getPlayerModifier();
 		}
@@ -3459,7 +3546,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 				if (evalProperty < achievement.breakpoints[achievement.finished]) return;
 			}
 			else {
-				if (evalProperty > achievement.breakpoints[achievement.finished]) return;
+				if (evalProperty >= achievement.breakpoints[achievement.finished]) return;
 			}
 		}
 		else if (evalProperty != achievement.breakpoints[achievement.finished]) return;
@@ -3637,6 +3724,10 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		}
 		var html = "You will find one Golden Upgrade every " + freq + " zones.";
 		if (tier < tiers.length) html += " Frequency increases at " + tiers[tier] + "% bonus damage.";
+		else {
+			var count = countExtraAchievementGoldens();
+			html += " Start with 1 additional free Golden Upgrade after each Portal for every 500% earned above 2000%. Currently gaining " + count + " extra Golden Upgrade" + ((count == 1) ? "" : "s") + ".";
+		}
 		elem.innerHTML = html;
 	}
 
@@ -3649,6 +3740,10 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 		else if (percent < 1000) return 4;
 		else if (percent < 2000) return 5;
 		return 6;
+	}
+
+	function countExtraAchievementGoldens(){
+		return Math.floor((game.global.achievementBonus - 2000) / 500);
 	}
 
 	var trimpAchievementHelpOn = false;

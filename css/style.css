@@ -15,6 +15,29 @@ overflow-x: hidden;
 	background-color: #2E0854;
 }
 
+.spire ul li.spireCell.cellColorNotBeaten.Healthy{
+	background-color: #3D2C15;
+}
+
+.spire ul li.spireCell.cellColorNotBeaten.Magma{
+	background-color: #8c0000;
+	color: #FFDDDD;
+}
+
+.liquid ul li{
+	border: 0;
+	background: yellow;
+}
+
+.liquid{
+	border: 3px solid black;
+}
+
+.LiquimpMessage{
+	background-color: #5A5ADF !important;
+	color: white !important;
+}
+
 .progress-bar {
     -webkit-transition: width .1s ease;
     transition: width .1s ease;
@@ -357,6 +380,7 @@ overflow-x: hidden;
 	padding: 1%;
 	line-height: normal;
 	border-width: 1px;
+	margin-right: 10%;
 }
 
 .incrementBtn {
@@ -1114,8 +1138,6 @@ overflow-x: hidden;
 	text-align: center;
 }
 
-.collecting {}
-
 #log {
     height: calc(100% - 2.1vw);
     width: 100%;
@@ -1123,10 +1145,6 @@ overflow-x: hidden;
     padding-left: 5px;
     padding-top: 2px;
     padding-right: 5px;
-}
-
-#settings {
-
 }
 
 #tooltipDiv {
@@ -1225,6 +1243,7 @@ overflow-x: hidden;
 	overflow: auto;
     font-size: 1.1em;
 	max-height: 1.55em;
+	display: inline-block;
 }
 
 .badBadge {
@@ -1930,6 +1949,39 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	border: 1px solid white !important;
 }
 
+.healthyCalcRow td{
+	border: 1px solid white !important;
+}
+
+.healthyCalcRow{
+	background-color: #3D2C15 !important;
+	color: #FFFFFF !important;
+}
+
+.mutationSumRow td{
+	border: 0 !important;
+}
+
+.mutationSumRow{
+	border: 2px solid black;
+}
+
+.mutationSumRow.corruptedCalcRow{
+	border-bottom: 0;
+}
+
+.mutationSumRow.healthyCalcRow{
+	border-top: 0;
+	border-bottom: 2px solid #2E0854;;
+}
+
+.mutationSumRow.mutationTotalRow{
+	border-top: 0;
+}
+
+
+
+
 .heirloomMod{
 	cursor: pointer;
 	padding: 0.2vw 0.4vw 0.2vw 0.4vw;
@@ -2382,6 +2434,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 /* MUTATIONS HERE */
+
+.badNameMutation.Healthy, .badge.Healthy, .battleCell.Healthy, .message.Healthy{
+	background-color: #3D2C15;
+	color: white;
+}
 
 .badNameMutation.Corruption{
 	background-color: #2f006d;
@@ -3067,7 +3124,7 @@ background-color: rgba(255,255,255,0.25);
 .btn-new {
 	color: white;
 	font-weight: bold;
-	background: linear-gradient(to right, rgba(50,150,50,1) 0%, rgba(60,75,130,1) 50%, rgba(50,50,200,1) 100%);
+	background-color: #3D2C15;
 }
 
 .btn-new:hover,
@@ -3076,8 +3133,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: white;
-	background: linear-gradient(to right, rgba(50,50,200,1) 0%, rgba(50,150,50,1) 50%, rgba(60,75,130,1) 100%);
+	color: #3D2C15;
+	background-color: white;;
 }
 .btn-new:active,
 .btn-new.active,
