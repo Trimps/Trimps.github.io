@@ -3743,7 +3743,8 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 	}
 
 	function countExtraAchievementGoldens(){
-		return Math.floor((game.global.achievementBonus - 2000) / 500);
+		var extraAchievements =  Math.floor((game.global.achievementBonus - 2000) / 500);
+		return (extraAchievements > 0) ? extraAchievements : 0;
 	}
 
 	var trimpAchievementHelpOn = false;
