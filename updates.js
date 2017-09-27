@@ -1419,7 +1419,7 @@ function getBattleStatBd(what) {
 		currentCalc *= (1 + (amt / 100));
 		textString += "<tr><td class='bdTitle'>Void Power (Mastery)</td><td></td><td>" + ((game.talents.voidPower2.purchased) ? ((game.talents.voidPower3.purchased) ? "III" : "II") : "I") + "</td><td>+ " + amt + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
-	if (game.talents.magmamancer.purchased && what == "attack" && game.jobs.Magmamancer.getBonusPercent()){
+	if (game.talents.magmamancer.purchased && what == "attack" && game.jobs.Magmamancer.getBonusPercent() > 1){
 		amt = game.jobs.Magmamancer.getBonusPercent();
 		currentCalc *= amt;
 		textString += "<tr><td class='bdTitle'>Magmamancermancy</td><td></td><td></td><td>+ " + prettify((amt - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
@@ -1847,25 +1847,22 @@ function getLootBd(what) {
 		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge²</td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Corruption - World
+	var fullCorVal = currentCalc;
 	if (what == "Helium" && !game.global.voidBuff && (game.global.world >= mutations.Corruption.start())){
 		var corrVal = (game.global.challengeActive == "Corrupted") ? 7.5 : 15;
 		var corrCount = mutations.Corruption.cellCount();
 		if (mutations.Healthy.active()) corrCount -= mutations.Healthy.cellCount();
 		var corrCalc = (corrVal / 100) * currentCalc;
-		textString += "<tr class='corruptedCalcRow'><td class='bdTitle' style='vertical-align: middle'>Corruption Value</td><td>" + corrVal + "%<br/>" + corrCount + " Cells</td><td>Per Cell:<br/>" + prettify(corrCalc) + "</td><td>Per Zone:<br/>" + prettify(corrCalc * corrCount) + "</td><td style='vertical-align: middle'>" + prettify(currentCalc + (corrCalc * corrCount)) + "</td></tr>";
+		fullCorVal = currentCalc + (corrCalc * corrCount);
+		textString += "<tr class='corruptedCalcRow'><td class='bdTitle' style='vertical-align: middle'>Corruption Value</td><td>" + corrVal + "%<br/>" + corrCount + " Cells</td><td>Per Cell:<br/>" + prettify(corrCalc) + "</td><td>Per Zone:<br/>" + prettify(corrCalc * corrCount) + "</td><td style='vertical-align: middle'>" + prettify(fullCorVal) + "</td></tr>";
 		//<tr><td class='bdTitle'>Total Per Zone</td><td></td><td></td><td></td><td>" + prettify(currentCalc + (corrCalc * corrVal)) + "</td></tr>
-	}
-	//Corruption - Void Maps
-	else if (what == "Helium" && game.global.voidBuff && game.global.world >= mutations.Corruption.start(true)) {
-		//5.71m
-
 	}
 	//Healthy - World
 	if (what == "Helium" && mutations.Healthy.active() && !game.global.voidBuff){
 		var healthyCount = mutations.Healthy.cellCount();
 		var healthyVal = 45;
 		var healthyCalc = (healthyVal / 100) * currentCalc;
-		textString += "<tr class='healthyCalcRow'><td class='bdTitle' style='vertical-align: middle'>Healthy Value</td><td>" + healthyVal + "%<br/>" + healthyCount + " Cells</td><td>Per Cell:<br/>" + prettify(healthyCalc) + "</td><td>Per Zone:<br/>" + prettify(healthyCalc * healthyCount) + "</td><td style='vertical-align: middle'>" + prettify(currentCalc + (healthyCalc * healthyCount)) + "</td></tr>";		
+		textString += "<tr class='healthyCalcRow'><td class='bdTitle' style='vertical-align: middle'>Healthy Value</td><td>" + healthyVal + "%<br/>" + healthyCount + " Cells</td><td>Per Cell:<br/>" + prettify(healthyCalc) + "</td><td>Per Zone:<br/>" + prettify(healthyCalc * healthyCount) + "</td><td style='vertical-align: middle'>" + prettify(fullCorVal + (healthyCalc * healthyCount)) + "</td></tr>";		
 	}
 	//Healthy - Void Maps
 

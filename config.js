@@ -893,7 +893,7 @@ var toReturn = {
 		},
 		mapLoot: {
 			description: "Reduces the starting point of the Low Map Level Loot Penalty by 1 level. This allows you to earn the same amount of loot by doing a map at your current world number, or at your current world number minus 1.",
-			name: "Map Reducer",
+			name: "Map Reducer I",
 			tier: 3,
 			purchased: false,
 			icon: "*gift2"
@@ -2853,13 +2853,13 @@ var toReturn = {
 		w277: "It's starting to smell purple again. You must be getting close to another spire.",
 		get w283() {
 			var soldiers = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
-			return "During a boring night while waiting to cross a particularly rough Magma river, you managed to teach your Trimps how to stack on eachother to create some funny shapes. You almost feel bad for the first Snimp to come across " + prettify(soldiers) + " Trimps stuck together in the shape of a humongous Moongooseimp.";
+			return "During a boring night while waiting to cross a particularly rough Magma river, you managed to teach your Trimps how to stack on each other to create some funny shapes. You almost feel bad for the first Snimp to come across " + prettify(soldiers) + " Trimps stuck together in the shape of a humongous Moongooseimp.";
 		},
 		w285: "You can finally see it, clear as day. No more than 15 zones in the distance stands a giant spire, even more menacing than the first. A loud, echoing voice booms from the tower, matching the tone and cadence of Druopitee himself. It's a little far away to hear perfectly, but it sounds like he's asking you nicely to please leave him be.",
 		w286: "You hear the voice again, and can tell there's definitely something weird about it - as if it was coming from a ghost or something. Though you suppose that makes sense, since you've already killed Druopitee.",
 		w290: "As you get closer and closer to the spire, the voice gets clearer and clearer. You can pick up notes of terror from whatever being is up there, as if he wants to just be left alone to destroy the world. You don't feel much sympathy though.",
 		w295: "You're now so close to this new spire that you can taste it, literally. These things are gross.",
-		w298: "The derranged spirit in the tower is now begging that you stay back. It obviously knows you destroyed the last tower and doesn't want you taking out another. Too bad, buddy. You're coming.",
+		w298: "The deranged spirit in the tower is now begging that you stay back. It obviously knows you destroyed the last tower and doesn't want you taking out another. Too bad, buddy. You're coming.",
 		get w303() {
 			if (game.global.spireRows >= 15) return "You're glad you have Fluffy around now. He seems to be getting along well with the other Trimps, and seems happy to have found others like him. He doesn't seem to be any smarter than a normal Trimp so you're sure you'll get some entertainment out of him.";
 			return "You wish you had a pet.";
