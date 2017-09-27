@@ -162,6 +162,7 @@ var toReturn = {
 		spireRows: 0,
 		goldenUpgrades: 0,
 		voidDeaths: 0,
+		essenceThisPortal: 0,
 		essence: 0,
 		spentEssence: 0,
 		skeleSeed: Math.floor(Math.random() * 1000000),
@@ -2017,6 +2018,24 @@ var toReturn = {
 			},
 			value: 0,
 			valueTotal: 0
+		},
+        totalDarkEssence: {
+			title: "Dark Essence Earned",
+			display: function () {
+				return (game.global.essence + game.global.spentEssence > 0);
+			},
+			valueTotal: function () {
+				return game.global.essence + game.global.spentEssence;
+			}
+		},
+        darkEssence: {
+			title: "Dark Essence Earned",
+			display: function () {
+				return (game.global.essenceThisPortal > 0);
+			},
+			value: function () {
+				return game.global.essenceThisPortal;
+			}
 		},
 		trimpsGenerated: {
 			title: "Trimps from Generator",
