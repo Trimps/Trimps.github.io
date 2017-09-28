@@ -3763,7 +3763,7 @@ var toReturn = {
 					if (game.global.challengeActive == "Corrupted" && !game.challenges.Corrupted.hiredGenes && game.jobs.Geneticist.owned == 0) giveSingleAchieve(22);
 					if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400) giveSingleAchieve(17);
 					var reward = (game.challenges[challenge].heliumMultiplier) ? game.challenges[challenge].heliumMultiplier : 2;
-					reward = game.challenges[challenge].heldHelium * reward;
+					reward = Math.floor(game.challenges[challenge].heldHelium * reward);
 					message("You have completed the " + challenge + " challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
 					game.challenges[challenge].heldHelium = 0;
 					game.global.challengeActive = "";
