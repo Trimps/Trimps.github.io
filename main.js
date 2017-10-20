@@ -2135,7 +2135,10 @@ function addHelium(amt){
 }
 
 function addResCheckMax(what, number, noStat, fromGather, nonFilteredLoot) {
-    var res = game.resources[what];
+	var res = game.resources[what];
+	if (nonFilteredLoot && game.options.menu.useAverages.enabled){
+		addAvg(what, number);
+	}
 	if (res.max == -1) {
 		res.owned += number;
 		if (!noStat && what == "gems") game.stats.gemsCollected.value += number;
@@ -2155,9 +2158,6 @@ function addResCheckMax(what, number, noStat, fromGather, nonFilteredLoot) {
 		}
 		else
 			res.owned = newMax;
-	}
-	if (nonFilteredLoot && game.options.menu.useAverages.enabled){
-		addAvg(what, number);
 	}
 }
 
@@ -2740,6 +2740,7 @@ function addGeneticist(amount){
 	if (owned < amount)
 		amount = owned;
 	if (workspaces <= 0) {
+		if (!game.options.menu.gaFire.enabled) return;
 		//try to free up a workspace if possible
 		if (!freeWorkspace(amount)){
 			amount = 1;
@@ -3637,7 +3638,7 @@ function setVoidBuffTooltip(){
 	var buff = voidBuffConfig[game.global.voidBuff];
 	var stackCount = "";
 	var elem = document.getElementById('voidBuff');
-	elem.innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + buff.title + '\', \'customText\', event, \'' + buff.text + '\')" onmouseout="tooltip(\'hide\')"><span class="' + buff.icon + '"></span></span>';
+	elem.innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + buff.title + '\', \'customText\', event, \'' + buff.text + '\')" onmouseout="tooltip(\'hide\')"><span class="' + buff.icon + '"></span></span>&nbsp;';
 }
 
 var heirloomsShown = false;
@@ -5096,21 +5097,6 @@ var mutations = {
 		effects: ['healthyDbl', 'healthyBleed', 'healthyStrong', 'healthyTough', 'healthyCrit'],
 		namePrefix: 'Healthy'
 	},
-	Pumpkimp: {
-		active: function (){
-			return false;
-		},
-		pattern: function(currentArray) {
-			var loc = getRandomIntSeeded(game.global.mutationSeed++, 0, 4);
-			var design = [1,2,3,4,5,10,11,12,13,14,15,16,20,21,25,26,30,32,33,34,36,40,41,42,44,45,46,50,51,52,53,54,55,56,60,61,63,65,66,71,72,73,74,75,82,83,84,93];
-			for (var x = 0; x < 100 - loc; x++){
-				if (currentArray[x + loc] == "" && design.indexOf(x) != -1) currentArray[x + loc] = "Pumpkimp";
-			}
-            return currentArray;
-        },
-		effects: ['none'],
-		namePrefix: 'Hallowed'
-	},
 	TrimpmasSnow: {
 		active: function() {
 			return false;
@@ -5221,6 +5207,25 @@ var mutationEffects = {
 		icon: '',
 		text: '',
 		title: ''
+	}
+}
+
+var visualMutations = {
+	Pumpkimp: {
+		active: function (){
+			if (game.global.world == 1) return false;
+			if (checkIfSpireWorld()) return false;
+			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 5);
+		},
+		pattern: function(currentArray) {
+			var loc = getRandomIntSeeded(game.global.mutationSeed++, 0, 4);
+			var design = [1,2,3,4,5,10,11,12,13,14,15,16,20,21,25,26,30,32,33,34,36,40,41,42,44,45,46,50,51,52,53,54,55,56,60,61,63,65,66,71,72,73,74,75,82,83,84,93];
+			for (var x = 0; x < 100 - loc; x++){
+				if (currentArray[x + loc] == "" && design.indexOf(x) != -1) currentArray[x + loc] = "Pumpkimp";
+			}
+            return currentArray;
+		},
+		highlightMob: "Pumpkimp"
 	}
 }
 
@@ -5591,6 +5596,15 @@ function buildGrid() {
 			corrupteds = mutations[item].pattern(corrupteds);
 		}
 	}
+	var vms = [];
+	for (var y = 0; y < 100; y++){
+		vms.push("");
+	}
+	for (var vmItem in visualMutations){
+		if (visualMutations[vmItem].active()){
+			vms = visualMutations[vmItem].pattern(vms);
+		}
+	}
 	var needsEmpower = false;
 	if (game.global.world > 236 && game.global.world % 5 == 1)
 		needsEmpower = true;
@@ -5602,11 +5616,14 @@ function buildGrid() {
             attack: -1,
             special: "",
             text: "",
-            name: getRandomBadGuy(null, i + 1, 100, world, imports, corrupteds[i])
+            name: getRandomBadGuy(null, i + 1, 100, world, imports, corrupteds[i], vms[i])
         };
 		if (corrupteds[i] != "") {
 			newCell.mutation = corrupteds[i];
 			newCell.corrupted = getSeededRandomFromArray(game.global.mutationSeed++, mutations[corrupteds[i]].effects);
+		}
+		if (vms[i] != "") {
+			newCell.vm = vms[i];
 		}
 		if ((i >= 50 && needsEmpower && typeof newCell.corrupted === 'undefined') || (i == 98 && needsEmpower)){
 			newCell.empowerment = getEmpowerment(-1);
@@ -5667,9 +5684,10 @@ function setVoidCorruptionIcon(regularMap){
 	document.getElementById('corruptionBuff').innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + title + '\', \'customText\', event, \'' + text + '\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-plus"></span></span>&nbsp;';
 }
 
-function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation) {
+function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation, visualMutation) {
 	var selected;
 	var force = false;
+	var enemySeed = (mapSuffix) ? Math.floor(Math.random() * 10000000) : game.global.enemySeed;
     var badGuysArray = [];
     for (var item in game.badGuys) {
 		var badGuy = game.badGuys[item];
@@ -5691,31 +5709,45 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation)
 			badGuysArray.push(item);
 		}
 	}
-	if (!mapSuffix && canSkeletimp && !force && (getRandomIntSeeded(game.global.enemySeed++, 0, 100) < 5)) {canSkeletimp = false; return (getRandomIntSeeded(game.global.skeleSeed++, 0, 100) < ((game.talents.skeletimp.purchased) ? 20 : 10)) ? "Megaskeletimp" : "Skeletimp";}
-	if (imports.length && !force && (getRandomIntSeeded(game.global.enemySeed++, 0, 100) < (imports.length * 3))) return imports[getRandomIntSeeded(game.global.enemySeed++, 0, imports.length)];
+	if (!mapSuffix && canSkeletimp && !force && (getRandomIntSeeded(enemySeed++, 0, 100) < 5)) {
+		canSkeletimp = false;
+		game.global.enemySeed = enemySeed;
+		return (getRandomIntSeeded(game.global.skeleSeed++, 0, 100) < ((game.talents.skeletimp.purchased) ? 20 : 10)) ? "Megaskeletimp" : "Skeletimp";
+	}
+	if (imports.length && !force && (getRandomIntSeeded(enemySeed++, 0, 100) < (imports.length * 3))){
+		game.global.enemySeed = enemySeed;
+		return imports[getRandomIntSeeded(enemySeed++, 0, imports.length)];
+	}
 	if (!mapSuffix && !force) {
 		var chance = .35 * (1 / (100 - 1 - (3 * imports.length)));
 
 		chance = Math.round(chance * 100000);
 		if (game.talents.turkimp2.purchased) chance *= 1.33;
-		var roll = getRandomIntSeeded(game.global.enemySeed++, 0, 100000);
+		var roll = getRandomIntSeeded(enemySeed++, 0, 100000);
 		if (roll < chance) {
+			if (!mapSuffix) game.global.enemySeed = enemySeed;
 			return "Turkimp";
 		}
 	}
 	//Halloween
-	if (!mapSuffix && !force && mutation == 'Pumpkimp'){
-		if (getRandomIntSeeded(game.global.enemySeed++, 0, 10) < 5) return "Pumpkimp";
+	if (!mapSuffix && !force && visualMutation == 'Pumpkimp'){
+		if (getRandomIntSeeded(enemySeed++, 0, 10) < 5){
+			game.global.enemySeed = enemySeed;
+			 return "Pumpkimp";
+		}
 	}
 	if (game.global.challengeActive == "Daily"  && typeof game.global.dailyChallenge.mutimps !== 'undefined' && !mapSuffix && !force){
 		var mutStr = game.global.dailyChallenge.mutimps.strength;
 		if (level <= dailyModifiers.mutimps.getMaxCellNum(mutStr)){
 			var mobName = mutStr < 6 ? "Mutimp" : "Hulking_Mutimp";
-			if (getRandomIntSeeded(game.global.enemySeed++, 0, 10) < 4)
+			if (getRandomIntSeeded(enemySeed++, 0, 10) < 4){
+				game.global.enemySeed = enemySeed;
 				return mobName;
+			}
 		}
 	}
-    if (!force) selected = badGuysArray[getRandomIntSeeded(game.global.enemySeed++, 0, badGuysArray.length)];
+	if (!force) selected = badGuysArray[getRandomIntSeeded(enemySeed++, 0, badGuysArray.length)];
+	if (!mapSuffix) game.global.enemySeed = enemySeed;
 	return selected;
 
 }
@@ -5959,6 +5991,7 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
 			if (!maps && game.global.gridArray[counter].mutation) className += " " + game.global.gridArray[counter].mutation;
+			if (!maps && game.global.gridArray[counter].vm) className += " " + game.global.gridArray[counter].vm;
 			if (!maps && game.global.gridArray[counter].empowerment){
 				className += " empoweredCell" + game.global.gridArray[counter].empowerment;
 				cell.title = "Token of " + game.global.gridArray[counter].empowerment;
@@ -6508,7 +6541,11 @@ function startFight() {
 	if (displayedName == "Mutimp" || displayedName == "Hulking Mutimp"){
 		displayedName = "<span class='Mutimp'>" + displayedName + "</span>";
 	}
-	if (cell.mutation) {
+	if (cell.vm && visualMutations[cell.vm].highlightMob && (displayedName == visualMutations[cell.vm].highlightMob)){
+		var tempName = (cell.mutation) ? mutations[cell.mutation].namePrefix + " " + displayedName : displayedName;
+		badName = "<span class='badNameMutation " + cell.vm + "'>" + tempName + "</span>";
+	}
+	else if (cell.mutation) {
 		badName = "<span class='badNameMutation " + cell.mutation + "'>" + mutations[cell.mutation].namePrefix + " " + displayedName + "</span>";
 	}
 	else
@@ -6925,6 +6962,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 		if (game.talents.healthStrength.purchased && mutations.Healthy.active()){
 			number *= ((0.15 * mutations.Healthy.cellCount()) + 1);
 		}
+		if (game.global.sugarRush > 0){
+			number *= sugarRush.getAttackStrength();
+		}
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
 				if (minFluct == -1) minFluct = fluctuation;
@@ -7274,6 +7314,7 @@ function rewardLiquidZone(){
 }
 
 function liquifyZone(){
+	if (game.options.menu.liquification.enabled == 0) return;
 	var spireCount = game.global.spiresCompleted;
 	if (game.talents.liquification.purchased) spireCount++;
 	if (game.talents.liquification2.purchased) spireCount++;
@@ -7564,7 +7605,8 @@ function deadInSpire(){
 		return;
 	}
 	var s = (game.global.spireDeaths > 1) ? "s" : "";
-	message(game.global.spireDeaths + " group" + s + " of Trimps have perished in the Spire.", "Notices");
+	var has = (game.global.spireDeaths > 1) ? "have" : "has";
+	message(game.global.spireDeaths + " group" + s + " of Trimps " + has + " perished in the Spire.", "Notices");
 }
 
 function endSpire(cancelEarly){
@@ -10030,26 +10072,104 @@ function onPurchaseResult(result) {
 	}
 }
 
+var sugarRush = {
+	getAttackStrength: function () {
+		return (2 + Math.floor((game.global.world - 200) / 100));
+	},
+	icon: 'icomoon icon-bag',
+	timeEach: 600,
+	maxTime: 1500,
+	iconEnabled: false,
+	start: function () {
+		game.global.sugarRush += this.timeEach;
+		if (game.global.sugarRush > this.maxTime)
+			game.global.sugarRush = this.maxTime;
+		this.enableIcon();
+	},
+	getIconElement: function (){
+		return document.getElementById('sugarRushBuff');
+	},
+	enableIcon: function () {
+		var elem = this.getIconElement();
+		if (!elem){
+			document.getElementById('goodGuyName').innerHTML += ' <span class="badge antiBadge sugarRushBadge" id="sugarRushBuff" onmouseover="tooltip(\'Sugar Rush\', \'customText\', event, sugarRush.tooltipText())" onmouseout="tooltip(\'hide\')"><span class="' + this.icon + '"></span></span>';			
+			return;
+		}
+		elem.style.display = 'inline-block';
+		this.iconEnabled = true;
+	},
+	disableIcon: function () {
+		var elem = this.getIconElement();
+		if (!elem)
+			return;
+		elem.style.display = 'none';
+		this.iconEnabled = false;
+	},
+	tick: function () {
+		game.global.sugarRush--;
+		if (game.global.sugarRush <= 0){
+			game.global.sugarRush = 0;
+			this.disableIcon();
+			return;
+		}
+		if (!this.iconEnabled) this.enableIcon();
+	},
+	tooltipText: function () {
+		var timeLeft = game.global.sugarRush;
+		if (timeLeft < 60) {
+			timeLeft += " second" + ((timeLeft == 1) ? "" : "s");
+		}
+		else {
+			timeLeft = Math.floor(timeLeft / 60);
+			timeLeft += " minute" + ((timeLeft == 1) ? "" : "s");
+		}
+		return "Trimps are not at all used to sugar, but they seem to be really enjoying it! <b>Attack is increased " + this.getAttackStrength() + "X for the next " + timeLeft + "</b>.";
+	}
+}
+
 function givePumpkimpLoot(){
-	var elligible = ["food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal", "science"];
+	var elligible = ["food", "food", "food", "nothing", "nothing", "nothing", "nothing", "nothing", "wood", "metal"];
 	var success = [
 		"Oops, that Pumpkimp just wanted to give you some candy. You found ",
 		"When checking the Pumpkimp for loot, you find a pouch that says to take one. You take all ",
 		"That Pumpkimp gave you ",
+		"Right before you finish the Pumkimp off, it throws a large bag at you and rolls away. Inside, you find ",
+		"This Pumkimp was still in pretty good shape, so you let your Trimps carve it. Inside, they found ",
 		"That Pumpkimp was so smashed that he gave you ",
-		"You're not wearing a costume, but you'll still take this "];
+		"You dig through what's left of the Pumpkimp and find ",
+		"Aww man, there's seeds and orange stuff everywhere. At least you found ",
+		"You're not wearing a costume, but you'll still take this "
+	];
 	var failures = [
 		"That Pumpkimp gave you nothing! What a jerk!",
+		"Lame, this one just has stringy stuff in it.",
+		"You crack open your newly captured Pumkimp and find... Nothing!",
+		"Right before you finish the Pumkimp off, it winks at you and rolls away. That was pretty weird.",
 		"As the Pumpkimp takes his final breath, he manages to mutter the word 'Trick'. No loot here.",
 		"You search the Pumpkimp for loot, but find nothing. Someone wasn't in the holiday spirit!",
-		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."];
+		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."
+	];
+	var attackBuff = [
+		"The Pumpkimp suddenly bursts, spewing huge amounts of candy in to the air. Your Trimps scramble about to pick up all they can and gain Sugar Rush!",
+		"This Pumpkimp was so large that your Trimps could feast for weeks on all the candy inside. Oh, nope, looks like they'll be done in about 10 minutes. In the mean time, they should have a bit of extra energy!",
+		"This Pumkimp was totally stuffed with various types of sugary things. You give them all to your Trimps, which results in a huge boost of energy!",
+		"Your Trimps have begun carrying pillowcases with them in hopes of a legendary Pumpkimp like the one you just found. Filled to the brim with sugary goodies, this Pumpkimp should sate your Trimps for a few minutes!"
+	];
 	if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
 	if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments");
-	var roll = Math.floor(Math.random() * elligible.length);
+	if (game.global.world > 200 && !game.global.mapsActive) elligible.push("attack");
+	//I really wanted to call it Pumpkin Seed, but this can probably be useful for other holidays without bogging down the save file more.
+	var roll = (game.global.mapsActive) ? Math.floor(Math.random() * elligible.length) : getRandomIntSeeded(game.global.holidaySeed++, 0, elligible.length);
 	var item = elligible[roll];
 	if (item == "nothing") {
 		var failNumber = Math.floor(Math.random() * failures.length);
 		message(failures[failNumber], "Loot", "*magic-wand", "pumpkimp", "events");
+		return;
+	}
+	if (item == "attack"){
+		sugarRush.start();
+		var rollNumber = Math.floor(Math.random() * attackBuff.length);
+		message(attackBuff[rollNumber], "Loot", "*bag", "pumpkimp", "events");
 		return;
 	}
 	var lootStrength = (game.global.mapsActive) ? 3 : 20;
@@ -10163,6 +10283,22 @@ function formatMinutesForDescriptions(number){
 		text = hours + " hour" + s;
 	}
 	return text;
+}
+
+function formatSecondsForDescriptions(number){
+	var text;
+	var seconds = Math.round(number % 60);
+	var minutes = Math.floor(number / 60);
+	if (minutes == 0) text = seconds + " sec" + ((seconds == 1) ? "" : "s");
+	else if (seconds > 0) {
+		if (seconds < 10) seconds = "0" + seconds;
+		text = minutes + ":" + seconds;
+	}
+	else {
+		var s = (minutes > 1) ? "s" : "";
+		text = minutes + " min" + s;
+	}
+	return text;	
 }
 
 function getMinutesThisPortal(){
@@ -11072,6 +11208,7 @@ function updatePortalTimer(justGetTime) {
 		if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
 		if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
 		if (game.global.selectedChallenge == "Daily") updateDailyClock();
+		if (game.global.sugarRush > 0) sugarRush.tick();
 	}
 	document.getElementById("portalTime").textContent = timeString;
 	setTimeout(updatePortalTimer, 1000);

@@ -1,0 +1,292 @@
+  .battleCell.cellColorNotBeaten.Corruption
+  {
+    background: -webkit-linear-gradient(top, #33095b 0%,#23063f 100%) !important;
+  }
+
+  .battleCell.cellColorBeaten.Corruption
+  {
+    background: -webkit-linear-gradient(top, #8114ff 0%,#6e10cc 100%) !important;
+  }
+
+  .battleCell.cellColorBeaten
+  {
+    background: -webkit-linear-gradient(top, #008d00 0%, #006c00 100%) !important;
+  }
+
+  #grid .battleRow
+  {
+    background: -webkit-linear-gradient(top, #999999 0%,#686868 90%) !important;
+  }
+
+  #mapGrid
+  {
+    background: rgba(0,0,0,0) !important;
+  }
+
+  #mapGrid .cellColorNotBeaten
+  {
+    background: -webkit-linear-gradient(top, #b9b9b9 0%,#686868 100%) !important;
+  }
+
+  #innerWrapper
+  {
+    background: -webkit-linear-gradient(left, #323341 12%,#626368 29.5%,#727275 47%,#727275 53%,#4c4d56 70.5%,#323341 88%) !important;
+  }
+
+  .cellColorOverkill
+  {
+    background: -webkit-linear-gradient(top, #74e800 0%,#5ab500 100%) !important;
+  }
+
+  .cellColorOverkill.voidCell
+  {
+    background: -webkit-linear-gradient(top, #845def 0%,#7251d6 100%) !important;
+  }
+
+  .cellColorBeaten.voidCell
+  {
+    background: -webkit-linear-gradient(top, #8114ff 0%,#6e10cc 100%) !important;
+  }
+
+  #mapGrid .battleCell.cellColorNotBeaten.voidCell
+  {
+    background: -webkit-linear-gradient(top, #33095b 0%,#23063f 100%) !important;
+  }
+
+  .battleCell.cellColorOverkill.Corruption
+  {
+    background: -webkit-linear-gradient(top, #845def 0%,#7251d6 100%) !important;
+  }
+
+  .spireCell.cellColorNotBeaten
+  {
+    background: -webkit-linear-gradient(top, #9b96b7 0%,#85819e 100%) !important;
+  }
+
+  .battleCell.Magma.cellColorNotBeaten
+  {
+    background: -webkit-linear-gradient(top, #960000 0%,#7c0000 100%) !important;
+  }
+
+  .battleCell.Magma.cellColorBeaten
+  {
+    background: -webkit-linear-gradient(top, #633300 0%,#492600 100%) !important;
+  }
+
+  .battleCell.Magma.cellColorOverkill
+  {
+    background: -webkit-linear-gradient(top, #895000 0%,#704100 100%) !important;
+  }
+
+  .battleCell.empoweredCellPoison
+  {
+    background: -webkit-linear-gradient(top,rgba(60, 180, 60, 0.75) 0%, rgba(45, 135, 45, 0.75) 100%) !important;
+  }
+
+  .battleCell.empoweredCellPoison.cellColorBeaten
+  {
+    background: -webkit-linear-gradient(top,rgba(40, 135, 40, 0.75) 0%, rgba(30, 90, 30, 0.75) 100%) !important;
+  }
+
+  .battleCell.empoweredCellPoison.cellColorOverkill
+  {
+    background: -webkit-linear-gradient(top,rgba(90, 220, 90, 0.75) 0%, rgba(50, 150, 50, 0.75) 100%) !important;
+  }
+
+  .battleCell.empoweredCellWind
+  {
+    background: -webkit-linear-gradient(top,rgba(72, 90, 156, 0.75) 0%, rgba(54, 68, 117, 0.75) 100%) !important;
+  }
+
+  .battleCell.empoweredCellWind.cellColorBeaten
+  {
+    background: -webkit-linear-gradient(top,rgba(33, 46, 165, 0.75) 0%, rgba(23, 33, 110, 0.75) 100%) !important;
+  }
+
+  .battleCell.empoweredCellWind.cellColorOverkill
+  {
+    background: -webkit-linear-gradient(top,rgba(124, 150, 208, 0.75) 0%, rgba(93, 116, 156, 0.75) 100%) !important;
+  }
+
+  .battleCell.empoweredCellIce
+  {
+    background: -webkit-linear-gradient(top,rgba(60, 60, 240, 0.75) 0%, rgba(45, 45, 180, 0.75) 100%) !important;
+  }
+
+  .battleCell.empoweredCellIce.cellColorBeaten
+  {
+    background: -webkit-linear-gradient(top,rgba(60, 60, 180, 0.75) 0%, rgba(40, 40, 120, 0.75) 100%) !important;
+  }
+
+  .battleCell.empoweredCellIce.cellColorOverkill
+  {
+    background: -webkit-linear-gradient(top,rgba(125, 125, 250, 0.75) 0%, rgba(83, 83, 165, 0.75) 100%) !important;
+  }
+
+  #grid.liquid ul#row9 li
+  {
+    background: -webkit-linear-gradient(top, #ffff00 0%,#f7f700 100%) !important;
+  }
+
+  #grid.liquid ul#row8 li
+  {
+    background: -webkit-linear-gradient(top, #f7f700 0%,#f0f000 100%) !important;
+  }
+
+  #grid.liquid ul#row7 li
+  {
+    background: -webkit-linear-gradient(top, #f0f000 0%,#e8e800 100%) !important;
+  }
+
+  #grid.liquid ul#row6 li
+  {
+    background: -webkit-linear-gradient(top, #e8e800 0%,#e0e000 100%) !important;
+  }
+
+  #grid.liquid ul#row5 li
+  {
+    background: -webkit-linear-gradient(top, #e0e000 0%,#d9d900 100%) !important;
+  }
+
+  #grid.liquid ul#row4 li
+  {
+    background: -webkit-linear-gradient(top, #d9d900 0%,#d1d100 100%) !important;
+  }
+
+  #grid.liquid ul#row3 li
+  {
+    background: -webkit-linear-gradient(top, #d1d100 0%,#c9c900 100%) !important;
+  }
+
+  #grid.liquid ul#row2 li
+  {
+    background: -webkit-linear-gradient(top, #c9c900 0%,#c1c100 100%) !important;
+  }
+
+  #grid.liquid ul#row1 li
+  {
+    background: -webkit-linear-gradient(top, #c1c100 0%,#baba00 100%) !important;
+  }
+
+  #grid.liquid ul#row0 li
+  {
+    background: -webkit-linear-gradient(top, #baba00 0%,#b2b200 100%) !important;
+  }
+
+  .battleCell.cellColorBeaten.Healthy
+  {
+    background: -webkit-linear-gradient(top, #38829b 0%,#246267 100%) !important;
+  }
+
+  .battleCell.cellColorOverkill.Healthy
+  {
+    background: -webkit-linear-gradient(top, #38a2bb 0%,#248287 100%) !important;
+  }
+
+  .battleCell.cellColorNotBeaten.Healthy
+  {
+    background: -webkit-linear-gradient(top, #493519 0%,#312311 100%) !important;
+  }
+
+  #mapGrid .battleCell.cellColorNotBeaten.mapPumpkimp
+  {
+    background: -webkit-linear-gradient(top, #BF6000 0%,#8C4600 100%) !important;
+  }
+
+  #mapGrid .cellColorBeaten.mapPumpkimp
+  {
+    background: -webkit-linear-gradient(top, #CF8600 0%,#9C6200 100%) !important;
+  }
+
+  #mapGrid .cellColorOverkill.mapPumpkimp
+  {
+    background: -webkit-linear-gradient(top, #F2AA00 0%,#BF8600 100%) !important;
+  }
+
+  .battleCell.cellColorNotBeaten.Pumpkimp
+  {
+    background: -webkit-linear-gradient(top, #F27900, #BF5F00) !important;
+  }
+
+  .battleCell.cellColorBeaten.Pumpkimp
+  {
+    background: -webkit-linear-gradient(top, #BF8C00 0%, #8C6700 100%) !important;
+  }
+
+  .battleCell.cellColorOverkill.Pumpkimp
+  {
+    background: -webkit-linear-gradient(top, #F2B200 0%, #BF8C00 100%) !important;
+  }
+
+  #row9 .battleCell.cellColorNotBeaten.Pumpkimp
+  {
+    background: -webkit-linear-gradient(top, #008000, #004D00) !important;
+  }
+
+  #row9 .battleCell.cellColorBeaten.Pumpkimp
+  {
+    background: -webkit-linear-gradient(top, #007300 0%, #005c00 100%) !important;
+  }
+
+  #row9 .battleCell.cellColorOverkill.Pumpkimp
+  {
+    background: -webkit-linear-gradient(top, #67CF00 0%,#4D9C00 100%) !important;
+  }
+
+  .battleCell.cellColorCurrent, .battleCell.empoweredCellIce.cellColorCurrent, .battleCell.empoweredCellPoison.cellColorCurrent, .battleCell.empoweredCellWind.cellColorCurrent
+  {
+    background: -webkit-linear-gradient(top, #ffff00 0%,#b2b200 100%) !important;
+  }
+
+  .battleCell.cellColorNotBeaten.Pumpkimp.Corruption
+  {
+    background: -webkit-linear-gradient(top, #803345, #4D1E2A) !important;
+  }
+
+  .battleCell.cellColorNotBeaten.Pumpkimp.Healthy
+  {
+    background: -webkit-linear-gradient(top, #A65B0D, #733F09) !important;
+  }
+
+  .battleCell.cellColorNotBeaten.Pumpkimp.Magma
+  {
+    background: -webkit-linear-gradient(top, #BF2903, #8C1E03) !important;
+  }
+
+  .battleCell.cellColorBeaten.Pumpkimp.Healthy
+  {
+    background: -webkit-linear-gradient(top, #658567 0%, #476445 100%) !important;
+  }
+
+  .battleCell.cellColorOverkill.Pumpkimp.Healthy
+  {
+    background: -webkit-linear-gradient(top, #76A77D 0%, #58855A 100%) !important;
+  }
+
+  .battleCell.cellColorBeaten.Pumpkimp.Magma
+  {
+    background: -webkit-linear-gradient(top, #823100 0%, #5F1C00 100%) !important;
+  }
+
+  .battleCell.cellColorOverkill.Pumpkimp.Magma
+  {
+    background: -webkit-linear-gradient(top, #AC4100 0%, #8A2A00 100%) !important;
+  }
+
+  .battleCell.cellColorOverkill.Pumpkimp.Corruption
+  {
+    background: -webkit-linear-gradient(top, #AB7878 0%, #895F6B 100%) !important;
+  }
+
+  .battleCell.cellColorBeaten.Pumpkimp.Corruption
+  {
+    background: -webkit-linear-gradient(top, #A05080 0%, #7D3C66 100%) !important;
+  }
+
+  #grid.liquid ul#row0 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row1 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row2 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row3 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row4 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row5 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row6 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row7 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row8 li.battleCell.cellColorNotBeaten.Pumpkimp {
+     background: -webkit-linear-gradient(top, #F27900, #BF5F00) !important;
+  }
+
+  #grid.liquid ul#row9 li.battleCell.cellColorNotBeaten.Pumpkimp {
+     background: -webkit-linear-gradient(top, #008000, #004D00) !important;
+  }

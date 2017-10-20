@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.5,
+		version: 4.51,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -190,6 +190,8 @@ var toReturn = {
 		passive: true,
 		spiresCompleted: 0,
 		lastSpireCleared: 0,
+		sugarRush: 0,
+		holidaySeed: Math.floor(Math.random() * 100000),
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
@@ -534,35 +536,35 @@ var toReturn = {
 			darkTheme: {
 				extraTags: "general",
 				enabled: 1,
-				description: "Toggle between the default Trimps theme, a custom dark theme made by u/Grabarz19, and the default theme with a black background.",
-				titles: ["Black Background", "Default Theme", "Dark Theme"],
-				onToggle: function () {
-					var link;
-					if (this.enabled == 2){
-						link = document.createElement('link');
-						link.type = 'text/css';
-						link.rel = 'stylesheet';
-						link.href = 'css/dark.css';
-						link.id = 'darkTheme';
-						document.head.appendChild(link);
-						return;
-					}
-					if (this.enabled == 0) {
-						document.getElementById("innerWrapper").style.backgroundColor = "black";
-						link = document.getElementById("darkTheme");
-						if (!link) return;
-						link.disabled = true;
+				description: "Toggle between the default Trimps theme, a custom dark theme made by u/Grabarz19, a gradient theme by u/k1d_5h31d0n, and the default theme with a black background.",
+				titles: ["Black Background", "Default Theme", "Dark Theme", "Gradient Theme"],
+				//styleName index should always be equal to title index minus 2, and should match the css file name
+				styleNames: ["dark", "gradient"],
+				removeStyles: function () {
+					for (var x = 0; x < this.styleNames.length; x++){
+						var link = document.getElementById(this.styleNames[x] + "Theme");
+						if (!link) continue;
 						document.head.removeChild(link);
-						return;
 					}
 					document.getElementById("innerWrapper").style.backgroundColor = "initial";
 				},
-				restore: function () {
-					document.getElementById("innerWrapper").style.backgroundColor = "initial";
-					link = document.getElementById("darkTheme");
-					if (!link) return;
-					link.disabled = true;
-					document.head.removeChild(link);
+				applyStyle: function (titleIndex){
+					var styleName = this.styleNames[titleIndex - 2];
+					var link = document.createElement('link');
+					link.type = 'text/css';
+					link.rel = 'stylesheet';
+					link.href = 'css/' + styleName + '.css';
+					link.id = styleName + 'Theme';
+					document.head.appendChild(link);
+				},
+				onToggle: function () {
+					this.removeStyles();
+					if (this.enabled == 1) return;
+					if (this.enabled == 0){
+						document.getElementById("innerWrapper").style.backgroundColor = "black";
+						return;
+					}
+					this.applyStyle(this.enabled);
 				}
 			},
 			fadeIns: {
@@ -635,6 +637,16 @@ var toReturn = {
 					return (game.global.Geneticistassist);
 				}
 			},
+			liquification: {
+				enabled: 1,
+				extraTags: "general",
+				description: "Enable or disable Liquification. Nothing in game should be impossible to complete with Liquification enabled, but if you just want to slow things down then you have every right to do so.",
+				titles: ["Liquification Off", "Liquification On"],
+				lockUnless: function () {
+					return (game.global.spiresCompleted > 0);
+				}
+
+			},
 			overkillColor: {
 				enabled: 1,
 				extraTags: "layout",
@@ -676,6 +688,15 @@ var toReturn = {
 				extraTags: "qol",
 				description: "Choose whether or not to display timestamps in the message log. <b>Local Timestamps</b> will log the current time according to your computer, <b>Run Timestamps</b> will log how long it has been since your run started. Note that toggling this setting will not add or remove timestamps from previous messages, but will add or remove them to or from any new ones.",
 				titles: ["No Timestamps", "Local Timestamps", "Run Timestamps"]
+			},
+			gaFire: {
+				enabled: 1,
+				extraTags: "qol",
+				description: "When enabled, Geneticistassist will fire a Farmer, Lumberjack, or Miner if it wants to hire a new Geneticist and no extra workers are available. When disabled, Geneticistassist will never fire anything other than Geneticists.",
+				titles: ["No Geneticistassist Fire", "Geneticistassist Fire"],
+				lockUnless: function () {
+					return game.global.Geneticistassist
+				}
 			},
 			tinyButtons: {
 				enabled: 0,
@@ -2894,7 +2915,7 @@ var toReturn = {
 			if (game.global.spireRows >= 15) return "The land sure looks terrible and corrupted, but at least you have Fluffy.";
 			return "What do you have against Fluffy?";
 		},
-		w430: "The Trimps tried tieing two Turkimps to this tall tree, then the Turkimps thrashed those three trillion Trimps, throwing the Trimps tumbling towards the tall tree. The Trimps truly tried. Those Turkimps though... they tough.",
+		w430: "The Trimps tried tying two Turkimps to this tall tree, then the Turkimps thrashed those three trillion Trimps, throwing the Trimps tumbling towards the tall tree. The Trimps truly tried. Those Turkimps though... they tough.",
 		w440: "Wow, you've gotten pretty far. You would have never guessed there'd be this many zones out there, but here you are.",
 		w450: "It's just about time for another Spire, don't you think?",
 		w460: "This part of the world seems to be at a much higher elevation than any other part that you've been at. The air is strangely clear, and you can see more of the planet sprawled out around you than ever before. It feels good to see everything you're fighting for and feel like it's worth it.",
@@ -3196,7 +3217,7 @@ var toReturn = {
 			}
 		},
 		Pumpkimp: {
-			location: "None",
+			location: "Maps",
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
@@ -3452,7 +3473,9 @@ var toReturn = {
 				var amt = (game.global.world >= 60) ? 10 : 2;
 				if (mutations.Magma.active()) amt *= 3;
 				var percentage = 1;
+				var rewardPercent = 1;
 				if (game.global.world >= mutations.Corruption.start(true)){
+					rewardPercent = 2;
 					percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
 					var corrCount = mutations.Corruption.cellCount();
 					if (mutations.Healthy.active()) corrCount -= mutations.Healthy.cellCount();
@@ -3471,7 +3494,7 @@ var toReturn = {
 				if (game.global.runningChallengeSquared)
 					amt = 0;
 				else
-					amt = rewardResource("helium", amt, level, false, 2);
+					amt = rewardResource("helium", amt, level, false, rewardPercent);
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";
 				if (game.options.menu.repeatVoids.enabled && game.global.totalVoidMaps > 1){
 					msg += "the next Void map";

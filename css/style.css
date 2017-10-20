@@ -1264,6 +1264,11 @@ overflow-x: hidden;
 	font-size: .8em;
 }
 
+.sugarRushBadge{
+	background-color: #d96c00;
+	color: black;
+}
+
 #determinedBuff{
 	color: orange;
 	padding: 6px 7px 2px 7px;
@@ -2455,21 +2460,42 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	color: #FFDDDD;
 }
 
-.battleCell.Pumpkimp, .badge.Pumpkimp, .badNameMutation.Pumpkimp{
+.battleCell.Pumpkimp, .badge.Pumpkimp{
 	background-color: #d96c00;
 	color: white;
 }
 
+.battleCell.Pumpkimp.Corruption{
+	background-color: #672938;
+	color: white; 
+}
+
+.battleCell.Pumpkimp.Magma{
+	background-color: #A62400;
+	color: white;
+}
+
+.battleCell.Pumpkimp.Healthy{
+	background-color: #8B4C0B;
+	color: white;
+}
+
 .badNameMutation.Pumpkimp{
-	background-color: #a65300;	
+	background-color: #d96c00;
+	color: black;	
+}
+
+.pumpkimpRow{
+	background-color: #d96c00 !important;
+	color: black;	
+}
+
+.cellColorNotBeaten.battleCell.mapPumpkimp{
+	background-color: #d96c00;	
 }
 
 #row9 .battleCell.Pumpkimp{
 	background-color: #006600;
-}
-
-.battleCell.mapPumpkimp{
-	background-color: #a65300;	
 }
 
 .easterEgg0{
@@ -3122,9 +3148,9 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	color: white;
+	color: #d96c00;
 	font-weight: bold;
-	background-color: #3D2C15;
+	background-color: black;
 }
 
 .btn-new:hover,
@@ -3133,8 +3159,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: #3D2C15;
-	background-color: white;;
+	color: black;
+	background-color: #d96c00;
 }
 .btn-new:active,
 .btn-new.active,

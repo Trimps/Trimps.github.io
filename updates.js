@@ -1435,6 +1435,11 @@ function getBattleStatBd(what) {
 		currentCalc *= (amt + 1);
 		textString += "<tr><td class='bdTitle'>Strength in Health</td><td>15%</td><td>" + cellCount + "</td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
+	//Pumpkimp buff
+	if (game.global.sugarRush > 0){
+		currentCalc *= sugarRush.getAttackStrength();
+		textString += "<tr class='pumpkimpRow'><td class='bdTitle'>Sugar Rush</td><td>&nbsp;</td><td>&nbsp;</td><td>x " + sugarRush.getAttackStrength() + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";		
+	}
 	//Magma
 	if (mutations.Magma.active() && (what == "attack" || what == "health")){
 		mult = mutations.Magma.getTrimpDecay();
@@ -2348,8 +2353,8 @@ function resetGame(keepPortal) {
 		}
 	}
 	else {
-		game.options.menu.darkTheme.enabled = 0;
-		game.options.menu.darkTheme.restore();
+		game.options.menu.darkTheme.enabled = 1;
+		game.options.menu.darkTheme.removeStyles();
 		game.options.menu.usePlayFab.enabled = 0;
 		toggleSetting("usePlayFab", null, false, true);
 		playFabId = -1;
