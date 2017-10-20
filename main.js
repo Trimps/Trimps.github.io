@@ -11128,6 +11128,8 @@ function gameLoop(makeUp, now) {
 			tooltip("Trustworthy Trimps", null, "update", savedOfflineText);
 			savedOfflineText = "";
 		}
+		if (game.global.autoStorage == true) autoStorage();
+		if (game.global.sugarRush > 0) sugarRush.tick();
 	}
 	if (loops % 5 == 0){
 		if (game.global.autoUpgradesAvailable) autoUpgrades();
@@ -11202,13 +11204,11 @@ function updatePortalTimer(justGetTime) {
 		checkAchieve("totalGems");
 		if (trimpStatsDisplayed) displayAllStats();
 		if (game.options.menu.useAverages.enabled && Math.floor(timeSince % 3) == 0) curateAvgs();
-		if (game.resources.helium.owned > 0) game.stats.bestHeliumHourThisRun.evaluate();
-		if (game.global.autoStorage == true) autoStorage();
+		if (game.resources.helium.owned > 0) game.stats.bestHeliumHourThisRun.evaluate();	
 		if (game.resources.helium.owned) document.getElementById("heliumPh").innerHTML = prettify(game.stats.heliumHour.value()) + "/hr";
 		if (Math.floor(game.stats.heliumHour.value()) == 1337) giveSingleAchieve(4);
 		if (game.buildings.Trap.owned > 1000000) giveSingleAchieve(1);
 		if (game.global.selectedChallenge == "Daily") updateDailyClock();
-		if (game.global.sugarRush > 0) sugarRush.tick();
 	}
 	document.getElementById("portalTime").textContent = timeString;
 	setTimeout(updatePortalTimer, 1000);
