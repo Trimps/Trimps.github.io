@@ -10133,8 +10133,8 @@ function givePumpkimpLoot(){
 		"Oops, that Pumpkimp just wanted to give you some candy. You found ",
 		"When checking the Pumpkimp for loot, you find a pouch that says to take one. You take all ",
 		"That Pumpkimp gave you ",
-		"Right before you finish the Pumkimp off, it throws a large bag at you and rolls away. Inside, you find ",
-		"This Pumkimp was still in pretty good shape, so you let your Trimps carve it. Inside, they found ",
+		"Right before you finish the Pumpkimp off, it throws a large bag at you and rolls away. Inside, you find ",
+		"This Pumpkimp was still in pretty good shape, so you let your Trimps carve it. Inside, they found ",
 		"That Pumpkimp was so smashed that he gave you ",
 		"You dig through what's left of the Pumpkimp and find ",
 		"Aww man, there's seeds and orange stuff everywhere. At least you found ",
@@ -10143,8 +10143,8 @@ function givePumpkimpLoot(){
 	var failures = [
 		"That Pumpkimp gave you nothing! What a jerk!",
 		"Lame, this one just has stringy stuff in it.",
-		"You crack open your newly captured Pumkimp and find... Nothing!",
-		"Right before you finish the Pumkimp off, it winks at you and rolls away. That was pretty weird.",
+		"You crack open your newly captured Pumpkimp and find... Nothing!",
+		"Right before you finish the Pumpkimp off, it winks at you and rolls away. That was pretty weird.",
 		"As the Pumpkimp takes his final breath, he manages to mutter the word 'Trick'. No loot here.",
 		"You search the Pumpkimp for loot, but find nothing. Someone wasn't in the holiday spirit!",
 		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."
@@ -10152,7 +10152,7 @@ function givePumpkimpLoot(){
 	var attackBuff = [
 		"The Pumpkimp suddenly bursts, spewing huge amounts of candy in to the air. Your Trimps scramble about to pick up all they can and gain Sugar Rush!",
 		"This Pumpkimp was so large that your Trimps could feast for weeks on all the candy inside. Oh, nope, looks like they'll be done in about 10 minutes. In the mean time, they should have a bit of extra energy!",
-		"This Pumkimp was totally stuffed with various types of sugary things. You give them all to your Trimps, which results in a huge boost of energy!",
+		"This Pumpkimp was totally stuffed with various types of sugary things. You give them all to your Trimps, which results in a huge boost of energy!",
 		"Your Trimps have begun carrying pillowcases with them in hopes of a legendary Pumpkimp like the one you just found. Filled to the brim with sugary goodies, this Pumpkimp should sate your Trimps for a few minutes!"
 	];
 	if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
