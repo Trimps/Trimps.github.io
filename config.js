@@ -797,7 +797,6 @@ var toReturn = {
 						game.global.lastOnline = now;
 						game.global.start = now;
 						setTimeout(gameTimeout, (100));
-						setTimeout(updatePortalTimer, 1000);
 						swapClass("timer", "timerNotPaused", document.getElementById("portalTimer"));
 					}
 				},
