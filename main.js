@@ -1001,6 +1001,7 @@ function displayChallenges() {
 }
 
 function selectChallenge(what) {
+	cancelTooltip();
 	displayChallenges();
 	document.getElementById("challenge" + what).className += " cBorderOn";
 	document.getElementById('activatePortalBtn').style.display = 'inline-block';
