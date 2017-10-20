@@ -28,10 +28,14 @@
     background: -webkit-linear-gradient(top, #b9b9b9 0%,#686868 100%) !important;
   }
 
-  #innerWrapper
-  {
-    background: -webkit-linear-gradient(left, #323341 12%,#626368 29.5%,#727275 47%,#727275 53%,#4c4d56 70.5%,#323341 88%) !important;
+  #wrapper.wrapperBroken #innerWrapper{ 
+    background: -webkit-linear-gradient(left, #323341 12%,#626368 29.5%,#727275 47%,#727275 53%,#4c4d56 70.5%,#323341 88%); 
   }
+
+  #wrapper.wrapperUnbroken #innerWrapper{
+    background: -webkit-linear-gradient(top, #323341 12%,#626368 29.5%,#727275 47%,#727275 53%,#4c4d56 70.5%,#323341 88%);
+  }
+  
 
   .cellColorOverkill
   {

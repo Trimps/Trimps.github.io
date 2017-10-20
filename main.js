@@ -661,6 +661,7 @@ function load(saveString, autoLoad, fromPf) {
 	if (game.global.challengeActive != "Scientist") document.getElementById("scienceCollectBtn").style.display = "block";
 	if (game.global.brokenPlanet) {
 		document.getElementById("wrapper").style.background = "url(css/bg2_vert.png) center repeat-y";
+		document.getElementById("wrapper").className = "wrapperBroken";
 		if (game.global.roboTrimpLevel > 0) displayRoboTrimp();
 	}
 	if (game.global.challengeActive == "Balance"){
@@ -9445,6 +9446,7 @@ function planetBreaker(){
 	game.stats.planetsBroken.valueTotal++;
 	game.global.brokenPlanet = true;
 	document.getElementById("wrapper").style.background = "url(css/bg2_vert.png) center repeat-y";
+	document.getElementById("wrapper").className = "wrapperBroken";
 	tooltip("The Improbability", null, 'update');
 	if (!game.global.autoUpgradesAvailable){
 		game.global.autoUpgradesAvailable = true;

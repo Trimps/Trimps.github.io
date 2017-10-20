@@ -2055,6 +2055,7 @@ function resetGame(keepPortal) {
 	document.getElementById("mapsCreateRow").style.display = "none";
 	document.getElementById("worldName").innerHTML = "Zone";
 	document.getElementById("wrapper").style.background = "url(css/bg2.png) center repeat-x";
+	document.getElementById("wrapper").className = "wrapperUnbroken"
 	document.getElementById("turkimpBuff").style.display = "none";
 	document.getElementById("statsBtnRow").style.display = "block";
 	document.getElementById("mapsBtn").innerHTML = "Maps";
