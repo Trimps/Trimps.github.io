@@ -3087,7 +3087,7 @@ function breed() {
 				if (!genDif.isFinite()) genDif = new Decimal(-1);
 				swapClass("state", "stateFiring", GAElem);
 				GAIndicator.innerHTML = " (-)";
-				if (genDif.cmp(0) < 0){
+				if (genDif.cmp(0) < 0 && game.options.menu.gaFire.enabled != 2){
 					if (genDif.cmp(-10) < 0) genDif = new Decimal(-10);
 					removeGeneticist(genDif.abs().toNumber());
 				}

@@ -692,8 +692,8 @@ var toReturn = {
 			gaFire: {
 				enabled: 1,
 				extraTags: "qol",
-				description: "When enabled, Geneticistassist will fire a Farmer, Lumberjack, or Miner if it wants to hire a new Geneticist and no extra workers are available. When disabled, Geneticistassist will never fire anything other than Geneticists.",
-				titles: ["No Geneticistassist Fire", "Geneticistassist Fire"],
+				description: "<p>Toggle between <b>Limited GA Firing</b>, <b>Geneticistassist Fire</b> and <b>No GA Firing</b>.</p><p><b>Limited GA Firing</b> will prevent Geneticistassist from firing Farmers, Lumberjacks, or Miners.</p><p><b>Geneticistassist Fire</b> is the default value, and allows Geneticistassist to fire anything.</p><p><b>No GA Firing</b> prevents your Geneticistassist from being able to fire anything at all, including other Geneticists.</p>",
+				titles: ["Limited GA Firing", "Geneticistassist Fire", "No GA Firing"],
 				lockUnless: function () {
 					return game.global.Geneticistassist
 				}
