@@ -8543,7 +8543,9 @@ function handleFinishDailyBtn(){
 	document.getElementById('finishDailyBtnContainer').style.display = display;
 }
 
+//Use abandonChallenge(), not abandonDaily(). abandonChallenge will already call this function, and will also clean up other challenge things.
 function abandonDaily(){
+	if (Object.keys(game.global.dailyChallenge).length === 0) return;
 	for (var item in game.global.dailyChallenge){
 		if (item == "seed") continue;
 		if (typeof dailyModifiers[item].abandon !== 'undefined') dailyModifiers[item].abandon(game.global.dailyChallenge[item].strength, game.global.dailyChallenge[item].stacks);
