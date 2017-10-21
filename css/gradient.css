@@ -194,7 +194,7 @@
 
   #mapGrid .battleCell.cellColorNotBeaten.mapPumpkimp
   {
-    background: -webkit-linear-gradient(top, #BF6000 0%,#8C4600 100%) !important;
+    background: -webkit-linear-gradient(top, #F27900 0%,#BF5F00 100%) !important;
   }
 
   #mapGrid .cellColorBeaten.mapPumpkimp
