@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.51,
+		version: 4.511,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -659,7 +659,11 @@ var toReturn = {
 			forceQueue: {
 				enabled: 0,
 				extraTags: "qol",
-				description: "Choose whether or not to force instant-craft buildings to use the queue. Currently applies only to Warpstation. May be useful for double checking prices before building!",
+				get description() {
+					var appliesTo = " only to Warpstation";
+					if (game.global.improvedAutoStorage) appliesTo = " to Warpstation and AutoStorage";
+					return "Choose whether or not to force instant-craft buildings to use the queue. Currently applies " + appliesTo + ". May be useful for double checking prices before building!";
+				},
 				titles: ["Not Forcing Queue", "Forcing Queue"],
 				lockUnless: function () {
 					return (game.global.sLevel >= 4);
@@ -739,6 +743,12 @@ var toReturn = {
 				description: "Disable the snow effect in the world. <b>This will take effect on the next zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
 				titles: ["No Snow", "Show Snow"]
 			}, */
+			showHoliday: {
+				enabled: 1,
+				extraTags: "general",
+				description: "<p>Choose between <b>Show Pumpkimps</b>, <b>Bordered Pumpkimps</b>, and <b>No Pumpkimps</b>. This setting applies only to the visual effect of Pumpkimp zones in the world, does not apply to maps, and has no impact on how many Pumpkimps or Pumpkimp Zones actually spawn. This setting is temporary and will rot away after the Pumpkimp season!</p><p><b>Show Pumpkimps</b> is the default, and displays Pumpkimp Zones as normal.</p><p><b>Bordered Pumpkimps</b> displays Pumpkimp cells by changing the border color instead of the background color.</p><p><b>No Pumpkimps</b> will not show any indicator at all that a world zone is a Pumpkimp Zone. Pumpkimps will still spawn at the same rate.</p>",
+				titles: ["No Pumpkimps", "Show Pumpkimps", "Bordered Pumpkimps"]
+			},
 			geneSend: {
 				enabled: 0,
 				extraTags: "other",

@@ -562,6 +562,9 @@ function load(saveString, autoLoad, fromPf) {
 		game.global.b += 20;
 		message("Welcome to Patch 4.5! Since you have already cleared Spire I, you have been given 20 bones and earned 5% zone Liqufication. Click 'What's New' to see what's new!", "Story");
 	}
+	if (oldVersion < 4.511 && game.global.version == 4.511){
+		addNewSetting('showHoliday');
+	}
 	//End compatibility
 
 	//Test server only
@@ -5993,7 +5996,14 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
 			if (!maps && game.global.gridArray[counter].mutation) className += " " + game.global.gridArray[counter].mutation;
-			if (!maps && game.global.gridArray[counter].vm) className += " " + game.global.gridArray[counter].vm;
+			if (!maps && game.global.gridArray[counter].vm && game.options.menu.showHoliday.enabled != 0){
+				if (game.options.menu.showHoliday.enabled == 2){
+					className += " " + game.global.gridArray[counter].vm + "Bordered";
+				}
+				else{
+					className += " " + game.global.gridArray[counter].vm;
+				}
+			}
 			if (!maps && game.global.gridArray[counter].empowerment){
 				className += " empoweredCell" + game.global.gridArray[counter].empowerment;
 				cell.title = "Token of " + game.global.gridArray[counter].empowerment;
@@ -6554,7 +6564,7 @@ function startFight() {
 		badName = displayedName;
 	if (cell.empowerment){
 		badName = getEmpowerment(-1, true) + " " + badName;
-		badName = "<span class='badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
+		badName = "<span class='badNameMutation badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
 	}
 	if (game.global.challengeActive == "Coordinate"){
 		badCoord = getBadCoordLevel();
@@ -8431,7 +8441,8 @@ var dailyModifiers = {
 		},
 		mirrored: {
 			description: function (str) {
-				return "Enemies have a" + (str.toString()[0] == '8' ? 'n' : '') + " " + prettify(this.getReflectChance(str)) + "% chance to reflect an attack, dealing " + prettify(this.getMult(str) * 100) + "% of damage taken back to your Trimps.";
+				var reflectChance = this.getReflectChance(str);
+				return "Enemies have a" + (reflectChance.toString()[0] == '8' ? 'n' : '') + " " + prettify(reflectChance) + "% chance to reflect an attack, dealing " + prettify(this.getMult(str) * 100) + "% of damage taken back to your Trimps.";
 			},
 			getReflectChance: function(str){
 				return (Math.ceil(str / 10)) * 10;

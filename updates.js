@@ -1436,7 +1436,7 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Strength in Health</td><td>15%</td><td>" + cellCount + "</td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	//Pumpkimp buff
-	if (game.global.sugarRush > 0){
+	if (game.global.sugarRush > 0 && what == "attack"){
 		currentCalc *= sugarRush.getAttackStrength();
 		textString += "<tr class='pumpkimpRow'><td class='bdTitle'>Sugar Rush</td><td>&nbsp;</td><td>&nbsp;</td><td>x " + sugarRush.getAttackStrength() + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";		
 	}

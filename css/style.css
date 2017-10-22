@@ -2462,7 +2462,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .battleCell.Pumpkimp, .badge.Pumpkimp{
 	background-color: #d96c00;
-	color: white;
+	color: black;
+}
+
+.battleCell.PumpkimpBordered {
+	border: 1px solid #d96c00;
 }
 
 .battleCell.Pumpkimp.Corruption{
@@ -2491,11 +2495,16 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .cellColorNotBeaten.battleCell.mapPumpkimp{
-	background-color: #d96c00;	
+	background-color: #d96c00;
+	color: black;
 }
 
 #row9 .battleCell.Pumpkimp{
 	background-color: #006600;
+}
+
+#row9 .battleCell.PumpkimpBordered{
+	border: 1px solid #006600;
 }
 
 .easterEgg0{
