@@ -2466,7 +2466,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .battleCell.PumpkimpBordered {
-	border: 1px solid #d96c00;
+    box-shadow: inset 0px 0px 5px #d96c00;
 }
 
 .battleCell.Pumpkimp.Corruption{
@@ -2503,8 +2503,8 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	background-color: #006600;
 }
 
-#row9 .battleCell.PumpkimpBordered{
-	border: 1px solid #006600;
+#row9 .battleCell.PumpkimpBordered {
+    box-shadow: inset 0px 0px 5px #006600;
 }
 
 .easterEgg0{
