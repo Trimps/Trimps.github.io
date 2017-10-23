@@ -3660,6 +3660,9 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 			f3: function (){
 				return (game.global.world < 10 && game.stats.trimpsKilled.value <= 5);
 			},
+			f5: function () {
+				return (game.global.totalPortals >= 5);
+			},
 			f6: function () {
 				return (game.global.world < 60 && game.stats.trimpsKilled.value <= 1000);
 			},
@@ -3671,6 +3674,9 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 			},
 			f11: function () {
 				return (game.global.world < 60 && getHighestPrestige() <= 3);
+			},
+			f13: function () {
+				return (game.global.totalPortals >= 5);
 			},
 			f14: function () {
 				return (game.global.challengeActive == "Crushed" && game.challenges.Crushed.critsTaken == 0);
