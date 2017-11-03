@@ -4663,8 +4663,14 @@ var mutations = {
 			message(text, "Loot", "oil", "voidMessage", "helium");
 		},
 		tooltip: function (effectName) {
-			var text = "All corrupted enemies currently deal " + prettify(this.statScale(3)) + "X damage and have " + prettify(this.statScale(10)) + "X health. In addition, ";
-			text += mutationEffects[effectName].text;
+			var mutText = mutationEffects[effectName].text;
+			var text = "";
+			if (game.global.spireActive){
+				text = mutText[0].toUpperCase() + mutText.substring(1);
+			}
+			else {
+				text = "All corrupted enemies currently deal " + prettify(this.statScale(3)) + "X damage and have " + prettify(this.statScale(10)) + "X health. In addition, " + mutText;
+			}
 			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this zone.";
 			return text;
 		},
@@ -5094,8 +5100,14 @@ var mutations = {
 			message(text, "Loot", "oil", "Healthy", "helium");
 		},
 		tooltip: function (effectName) {
-			var text = "All Healthy enemies currently deal " + prettify(this.statScale(5)) + "X damage and have " + prettify(this.statScale(14)) + "X health. In addition, ";
-			text += mutationEffects[effectName].text;
+			var mutText = mutationEffects[effectName].text;
+			var text = "";
+			if (game.global.spireActive){
+				text = mutText[0].toUpperCase() + mutText.substring(1);
+			}
+			else {
+				text = "All Healthy enemies currently deal " + prettify(this.statScale(5)) + "X damage and have " + prettify(this.statScale(14)) + "X health. In addition, " + mutText;
+			}
 			text += " It will also drop 45% of the helium you would normally get from completing this zone.";
 			return text;
 		},
@@ -5218,6 +5230,8 @@ var mutationEffects = {
 var visualMutations = {
 	Pumpkimp: {
 		active: function (){
+			return false;
+
 			if (game.global.world == 1) return false;
 			if (checkIfSpireWorld()) return false;
 			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 5);
@@ -8359,7 +8373,8 @@ var dailyModifiers = {
 		},
 		empower: {
 			description: function (str) {
-				return "All enemies gain " + str + " stacks of Empower whenever your Trimps die in the World. Empower increases the attack and health of bad guys in the World by 0.2% per stack, can stack to 9999, and never resets.";
+				var s = (str == 1) ? "" : "s";
+				return "All enemies gain " + str + " stack" + s + " of Empower whenever your Trimps die in the World. Empower increases the attack and health of bad guys in the World by 0.2% per stack, can stack to 9999, and never resets.";
 			},
 			getWeight: function (str) {
 				return (str / 6) * 2;
@@ -9110,13 +9125,13 @@ function fight(makeUp) {
 		wasAttacked = true;
         if (game.global.soldierHealth > 0) {
 			if (!badDodge){
-				if (trimpAttack >= cell.health) {
-					overkill = trimpAttack - cell.health;
-					if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
-				}
 				if (getEmpowerment() == "Poison"){
 					cell.health -= game.empowerments.Poison.currentDebuffPower;
 					stackPoison(trimpAttack);
+				}
+				if (trimpAttack >= cell.health) {
+					overkill = trimpAttack - cell.health;
+					if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
 				}
 				cell.health -= trimpAttack;
 				attacked = true;
@@ -9134,13 +9149,13 @@ function fight(makeUp) {
 	else {
 		if (game.global.soldierHealth > 0){
 			if (!badDodge){
-				if (trimpAttack >= cell.health){
-					overkill = trimpAttack - cell.health;
-					if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
-				}
 				if (getEmpowerment() == "Poison"){
 					cell.health -= game.empowerments.Poison.currentDebuffPower;
 					stackPoison(trimpAttack);
+				}
+				if (trimpAttack >= cell.health){
+					overkill = trimpAttack - cell.health;
+					if (cell.name == "Improbability" && cell.health == cell.maxHealth) giveSingleAchieve(12);
 				}
 				cell.health -= trimpAttack;
 				attacked = true;

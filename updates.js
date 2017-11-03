@@ -1731,7 +1731,7 @@ function getLootBd(what) {
 		}
 		//Add map loot bonus
 		currentCalc = Math.round(currentCalc * map.loot);
-		textString += "<tr><td class='bdTitle'>Map Loot</td><td></td><td></td><td>+ " + Math.floor((map.loot  - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Map Loot</td><td></td><td></td><td>+ " + Math.round((map.loot - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.portal.Looting.level){
 		amt = (1 + (game.portal.Looting.level * game.portal.Looting.modifier));
@@ -1787,7 +1787,7 @@ function getLootBd(what) {
 		var spireRowBonus = (game.talents.stillRowing.purchased) ? 0.03 : 0.02;
 		amt = game.global.spireRows * spireRowBonus;
 		currentCalc *= (1 + amt);
-		textString += "<tr><td class='bdTitle'>Spire Rows</td><td>+ " + Math.floor(spireRowBonus * 100) + "%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Spire Rows</td><td>+ " + Math.round(spireRowBonus * 100) + "%</td><td>" + game.global.spireRows + "</td><td>+ " + prettify(amt * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.global.voidBuff && what == "Helium" && game.talents.voidSpecial.purchased){
 		amt = (Math.floor(game.global.lastPortal / 100) * 0.25);
@@ -1860,7 +1860,7 @@ function getLootBd(what) {
 		if (mutations.Healthy.active()) corrCount -= mutations.Healthy.cellCount();
 		var corrCalc = (corrVal / 100) * currentCalc;
 		fullCorVal = currentCalc + (corrCalc * corrCount);
-		textString += "<tr class='corruptedCalcRow'><td class='bdTitle' style='vertical-align: middle'>Corruption Value</td><td>" + corrVal + "%<br/>" + corrCount + " Cells</td><td>Per Cell:<br/>" + prettify(corrCalc) + "</td><td>Per Zone:<br/>" + prettify(corrCalc * corrCount) + "</td><td style='vertical-align: middle'>" + prettify(fullCorVal) + "</td></tr>";
+		textString += "<tr class='corruptedCalcRow'><td class='bdTitle' style='vertical-align: middle'>Corruption Value</td><td>" + corrVal + "%<br/>" + corrCount + " Cells</td><td>Per Cell:<br/>" + prettify(corrCalc) + "</td><td>Per Zone:<br/>" + prettify(Math.round(corrCalc * corrCount)) + "</td><td style='vertical-align: middle'>" + prettify(fullCorVal) + "</td></tr>";
 		//<tr><td class='bdTitle'>Total Per Zone</td><td></td><td></td><td></td><td>" + prettify(currentCalc + (corrCalc * corrVal)) + "</td></tr>
 	}
 	//Healthy - World
@@ -1868,7 +1868,7 @@ function getLootBd(what) {
 		var healthyCount = mutations.Healthy.cellCount();
 		var healthyVal = 45;
 		var healthyCalc = (healthyVal / 100) * currentCalc;
-		textString += "<tr class='healthyCalcRow'><td class='bdTitle' style='vertical-align: middle'>Healthy Value</td><td>" + healthyVal + "%<br/>" + healthyCount + " Cells</td><td>Per Cell:<br/>" + prettify(healthyCalc) + "</td><td>Per Zone:<br/>" + prettify(healthyCalc * healthyCount) + "</td><td style='vertical-align: middle'>" + prettify(fullCorVal + (healthyCalc * healthyCount)) + "</td></tr>";		
+		textString += "<tr class='healthyCalcRow'><td class='bdTitle' style='vertical-align: middle'>Healthy Value</td><td>" + healthyVal + "%<br/>" + healthyCount + " Cells</td><td>Per Cell:<br/>" + prettify(healthyCalc) + "</td><td>Per Zone:<br/>" + prettify(Math.round(healthyCalc * healthyCount)) + "</td><td style='vertical-align: middle'>" + prettify(fullCorVal + (healthyCalc * healthyCount)) + "</td></tr>";		
 	}
 	//Healthy - Void Maps
 
@@ -1880,14 +1880,14 @@ function getLootBd(what) {
 		
 
 		if (mutations.Healthy.active()){
-			textString += "<tr class='corruptedCalcRow mutationSumRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td>" + corruptedCells + "</td><td>+ " + prettify(percent * 100) + "%</td><td></td></tr>";
+			textString += "<tr class='corruptedCalcRow mutationSumRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td>" + corruptedCells + "</td><td>+ " + prettify(Math.round(percent * 100)) + "%</td><td></td></tr>";
 			var healthyCells = mutations.Healthy.cellCount();
 			var healthyVal = 45;
 			var healthyPercent = ((healthyVal / 100) * (healthyCells));
-			textString += "<tr class='healthyCalcRow mutationSumRow'><td class='bdTitle'>Healthy Value</td><td>" + healthyVal + "%</td><td>" + healthyCells + "</td><td>+ " + prettify(healthyPercent * 100) + "%</td><td></td></tr>";
+			textString += "<tr class='healthyCalcRow mutationSumRow'><td class='bdTitle'>Healthy Value</td><td>" + healthyVal + "%</td><td>" + healthyCells + "</td><td>+ " + prettify(Math.round(healthyPercent * 100)) + "%</td><td></td></tr>";
 			var mutationPercent = (percent + healthyPercent);
 			currentCalc *= (mutationPercent + 1);
-			textString += "<tr class='mutationSumRow mutationTotalRow'><td class='bdTitle'>Mutation Total</td><td></td><td>" + (healthyCells + corruptedCells) + "</td><td>+ " + prettify(mutationPercent * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+			textString += "<tr class='mutationSumRow mutationTotalRow'><td class='bdTitle'>Mutation Total</td><td></td><td>" + (healthyCells + corruptedCells) + "</td><td>+ " + prettify(Math.round(mutationPercent * 100)) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 		}
 		else {
 			percent++;

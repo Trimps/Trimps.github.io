@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.511,
+		version: 4.512,
 		isBeta: false,
 		killSavesBelow: 0.13,
 		playerGathering: "",
@@ -747,7 +747,8 @@ var toReturn = {
 				enabled: 1,
 				extraTags: "general",
 				description: "<p>Choose between <b>Show Pumpkimps</b>, <b>Bordered Pumpkimps</b>, and <b>No Pumpkimps</b>. This setting applies only to the visual effect of Pumpkimp zones in the world, does not apply to maps, and has no impact on how many Pumpkimps or Pumpkimp Zones actually spawn. This setting is temporary and will rot away after the Pumpkimp season!</p><p><b>Show Pumpkimps</b> is the default, and displays Pumpkimp Zones as normal.</p><p><b>Bordered Pumpkimps</b> displays Pumpkimp cells by changing the border color instead of the background color.</p><p><b>No Pumpkimps</b> will not show any indicator at all that a world zone is a Pumpkimp Zone. Pumpkimps will still spawn at the same rate.</p>",
-				titles: ["No Pumpkimps", "Show Pumpkimps", "Bordered Pumpkimps"]
+				titles: ["No Pumpkimps", "Show Pumpkimps", "Bordered Pumpkimps"],
+				locked: true
 			},
 			geneSend: {
 				enabled: 0,
@@ -1168,6 +1169,7 @@ var toReturn = {
 			name: "Still Rowing II",
 			tier: 8,
 			purchased: false,
+			requires: "stillRowing",
 			icon: "align-justify"
 		},
 		//don't forget to add new talent tier to getHighestTalentTier()
@@ -3226,7 +3228,7 @@ var toReturn = {
 			}
 		},
 		Pumpkimp: {
-			location: "Maps",
+			location: "None",
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
