@@ -565,11 +565,29 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 4.511 && game.global.version == 4.511){
 		addNewSetting('showHoliday');
 	}
+	
 	//End compatibility
 
 	//Test server only
 	//End test server only
 	//Temporary until next patch
+	//End Temporary
+
+	if (document.getElementById("boneBtn") !== null){
+		noOfflineTooltip = true;
+		var btnText = "<div class='btn btn-info btn-lg' onclick='cancelTooltip()'>My Save Is Backed Up</div>&nbsp;<div class='btn btn-lg btn-warning' onclick='cancelTooltip(); tooltip(\"Export\", null, \"update\")'>Export Save</div>";
+		var warningText = "<p>WARNING: On November 13th, Kongregate will be doing some updates to the way it hosts Trimps and other games, which <b style='color: red'>may result in your save file disappearing</b>.</p><p><b>Please make sure you keep your save file properly backed up!</b> I recommend exporting your file and saving it to your desktop AND enabling cloud saving for the most safety.</p>";
+		if (game.options.menu.usePlayFab.enabled == 0){
+			warningText += "<p>It looks like <b style='color: red'>you currently DO NOT have PlayFab cloud saving enabled</b>. Click the blue button below to enable it, which will back up your save file to the cloud.</p>";
+			btnText += "&nbsp;<div class='btn btn-info btn-lg pFabEnable' onclick='cancelTooltip(); toggleSetting(\"usePlayFab\");'>Enable Cloud Saving</div>";
+		}
+		tooltip("ATTENTION KONGREGATE PLAYER", "customText", "update", warningText, btnText);
+		game.global.lockTooltip = true;
+		var tooltipElem = document.getElementById('tooltipDiv');
+		tooltipElem.style.left = "33.75%";
+		tooltipElem.style.top = "25%";
+	}
+
 	if (!getCurrentMapObject()) {
 		game.global.currentMapId = "";
 		game.global.mapGridArray = []

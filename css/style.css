@@ -3516,12 +3516,13 @@ sup{
 	display: inline-block;
 }
 
-#toggleusePlayFab.settingBtn0{
-	background-color: #00008c;
+#toggleusePlayFab.settingBtn0, .pFabEnable{
+	background-color: #00008c !important;
 }
 
-#toggleusePlayFab.settingBtn0:hover{
-	background-color: #00005a;
+#toggleusePlayFab.settingBtn0:hover, .pFabEnable:hover{
+	background-color: #00005a !important;
+	color: white !important;
 }
 
 #tooltipDiv.tooltipExtraLg{
