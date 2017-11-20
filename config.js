@@ -6340,7 +6340,7 @@ var toReturn = {
 		UberHut: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each Hut by 2x.",
+				tooltip: "This book will increase the space gained from each Hut by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6357,7 +6357,7 @@ var toReturn = {
 		UberHouse: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each House by 2x.",
+				tooltip: "This book will increase the space gained from each House by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6374,7 +6374,7 @@ var toReturn = {
 		UberMansion: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each Mansion by 2x.",
+				tooltip: "This book will increase the space gained from each Mansion by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6391,7 +6391,7 @@ var toReturn = {
 		UberHotel: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each Hotel by 2x.",
+				tooltip: "This book will increase the space gained from each Hotel by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6408,7 +6408,7 @@ var toReturn = {
 		UberResort: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each Resort by 2x.",
+				tooltip: "This book will increase the space gained from each Resort by 100%.",
 				done: 0,
 				cost: {
 					resources: {
