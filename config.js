@@ -4767,7 +4767,7 @@ var toReturn = {
 					}
 				}
 				var copy = (booksNeeded == 1) ? "copy" : booksNeeded + " copies";
-				message("The " + copy + " of 'Speedexplorer' under these bushes will certainly be useful!", "Unlocks", null, null, 'repeated', "book");
+				message("The " + copy + " of 'Speedexplorer' under these bushes will certainly be useful!", "Unlocks", null, null, 'repeated', convertUnlockIconToSpan(this));
 			}
 		},
 		TheBlock: {
