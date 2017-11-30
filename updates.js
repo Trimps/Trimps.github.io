@@ -3645,7 +3645,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 			document.getElementById("achievement" + location).style.display = "block";
 			document.getElementById("achievement" + location + "IconContainer").innerHTML = '<span class="achieveTier' + achievement.tiers[displayNumber] + ' icomoon icon-locked achievementPopupIcon"></span>';
 			titleElem.innerHTML = "Locked";
-			titleElem.className = 'achievementTitle tier' + achievement.tiers[displayNumber];
+			titleElem.className = 'achieveTier' + achievement.tiers[displayNumber];
 			document.getElementById("achievement" + location + "Description").innerHTML = "Locked";
 			document.getElementById("achievement" + location + "Reward").innerHTML = '<b>Reward:</b> +' + game.tierValues[achievement.tiers[displayNumber]] + "% Damage";
 			prog.innerHTML = "";
