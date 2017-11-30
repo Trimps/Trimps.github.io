@@ -1473,9 +1473,15 @@ overflow-x: hidden;
 	padding-bottom: 1vw;
 	margin-right: 1px;
 }
+
 #advMapsTitle{
 	font-size: 1.2vw;
 }
+
+.advMapsTitle{
+	display: inline-block;
+}
+
 #selectedMapName {
     text-decoration: underline;
 	padding-top: 10px;

@@ -595,7 +595,11 @@ function load(saveString, autoLoad, fromPf) {
 		addNewFeats([3, 6, 19, 20, 25, 26, 30, 31, 32, 33, 34, 35]);
 		countChallengeSquaredReward();
 		if (checkLowestHeirloom() >= 7) giveSingleAchieve("Swagmatic");
-	}	
+	}
+	else if (oldVersion < 4.601) {
+		//only run if game was already on 4.6
+		game.mapUnlocks.Speedexplorer.next -= 10;
+	}
 	//End compatibility
 	
 	//Test server only
@@ -4046,7 +4050,7 @@ function createVoidMap() {
 		voidBuff: voidSpecials[prefixNum]
 	});
 	if (game.talents.voidPower3.purchased)
-		map.buff = 'fa';	
+		map.bonus = 'fa';	
 	game.global.mapsOwnedArray.push(map);
 	game.global.totalVoidMaps++;
 	message("A chill runs down your spine, and the bad guy quickly frosts over. A purple glow radiates from the ground in front of you, and a Void Map appears.", "Loot", "th-large", "voidMessage", 'secondary');
@@ -5676,13 +5680,13 @@ var mutations = {
 			return base;
 		},
 		reward: function (effect) {
+			if (game.empowerments.Wind.currentDebuffPower == 200) giveSingleAchieve("Mother Lode");
 			if (game.global.world < 20 || game.global.runningChallengeSquared) return;
 			var percentage = 0.45;
 			var baseValue = 30;
 			var amt = rewardResource("helium", baseValue, 99, false, percentage);
 			var text = "The land looks even healthier now that the Bad Guy is dead! <span class='helium'>You find " + prettify(amt) + " canisters of Helium and figure it was worth it.</span>";
 			message(text, "Loot", "oil", "Healthy", "helium");
-			if (game.empowerments.Wind.currentDebuffPower == 200) giveSingleAchieve("Mother Lode");
 		},
 		tooltip: function (effectName) {
 			var mutText = mutationEffects[effectName].text;
@@ -7036,12 +7040,12 @@ function runMap() {
     game.global.preMapsActive = false;
     game.global.mapsActive = true;
     game.global.currentMapId = mapId;
-    mapsSwitch(true);
+	mapsSwitch(true);
+	var mapObj = getCurrentMapObject();
+	if (mapObj.bonus){
+		game.global.mapExtraBonus = mapObj.bonus;
+	}
     if (game.global.lastClearedMapCell == -1) {
-		var mapObj = getCurrentMapObject();
-		if (mapObj.bonus){
-			game.global.mapExtraBonus = mapObj.bonus;
-		}
         buildMapGrid(mapId);
         drawGrid(true);
 		

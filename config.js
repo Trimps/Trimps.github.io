@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.6,
+		version: 4.601,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -4755,7 +4755,7 @@ var toReturn = {
 			level: [10, 20],
 			icon: "book",
 			title: "A well-hidden book",
-			next: 20,
+			next: 10,
 			fire: function () {
 				if (!getCurrentMapObject() || !getCurrentMapObject().level) return;
 				var mapLevel = getCurrentMapObject().level;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 4.6 (Kongregate Version)</title>
+	<title>Trimps 4.601 (Kongregate Version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
@@ -871,6 +871,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div class="advMapsTitle" onmouseover="tooltip('Loot', 'advMaps', event)" onmouseout="tooltip('hide')">
 										Loot
 									</div>
+									<br/>
 									<input value="0" id="lootAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
 									<div id="lootAdvMapsText"></div>
 								</div>
@@ -878,6 +879,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div class="advMapsTitle" onmouseover="tooltip('Size', 'advMaps', event)" onmouseout="tooltip('hide')">
 										Size
 									</div>
+									<br/>
 									<input value="0" id="sizeAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
 									<div id="sizeAdvMapsText"></div>
 								</div>
@@ -885,6 +887,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div class="advMapsTitle" onmouseover="tooltip('Difficulty', 'advMaps', event)" onmouseout="tooltip('hide')">
 										Difficulty
 									</div>
+									<br/>
 									<input value="0" id="difficultyAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
 									<div id="difficultyAdvMapsText"></div>
 								</div>
@@ -892,6 +895,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div class="advMapsTitle">
 										Biome
 									</div>
+									<br/>
 									<select id="biomeAdvMapsSelect" class="advSelect" onchange="updateMapCost()">
 										<option value="Random">Random</option>
 										<option value="Mountain">Mountain</option>
@@ -907,6 +911,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<div class="advMapsTitle" onmouseover="tooltip('Special Modifier', 'advMaps', event)" onmouseout="tooltip('hide')">
 										Special Modifier
 									</div>
+									<br/>
 									<select id="advSpecialSelect" class="advSelect" onchange="updateMapCost()">
 									</select>
 								</div>
@@ -921,6 +926,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 										<div class="advMapsTitle" onmouseover="tooltip('Perfect Sliders', 'advMaps', event)" onmouseout="tooltip('hide')">
 											Perfect Sliders
 										</div>
+										<br/>
 										<input id="advPerfectCheckbox" type="checkbox" onchange="updateMapNumbers()">
 									</div>
 								</div>
@@ -935,6 +941,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 										<div class="advMapsTitle" onmouseover="tooltip('Extra Zones', 'advMaps', event)" onmouseout="tooltip('hide')">
 											Extra Zones
 										</div>
+										<br/>
 										<select id="advExtraLevelSelect" class="advSelect" onchange="updateMapCost()"></select>
 									</div>
 								</div>
