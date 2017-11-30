@@ -180,6 +180,10 @@
     background: -webkit-linear-gradient(top, #baba00 0%,#b2b200 100%);
   }
 
+  .liquid .battleCell.cellColorCurrent {
+    background: -webkit-linear-gradient(top, rgb(186, 186, 0) 0%, rgb(178, 178, 0) 100%) !important;
+}
+
   .battleCell.cellColorBeaten.Healthy
   {
     background: -webkit-linear-gradient(top, #38829b 0%,#246267 100%) !important;
