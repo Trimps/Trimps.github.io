@@ -545,6 +545,7 @@ input, button, select, textarea{
 .miscDesc,
 .table-striped > tbody > tr:nth-of-type(2n+1),
 #tooltipDiv,
+#tooltipDiv2,
 .progress {
 	background-color: #202020;
 }
@@ -590,7 +591,7 @@ input, button, select, textarea{
  color: #fff;
 }
 
-#tooltipDiv {
+#tooltipDiv, #tooltipDiv2 {
 	border-color: #002B3B;
 }
 
@@ -600,6 +601,10 @@ input, button, select, textarea{
 
 #animationDiv{
 	background-color: #002B3B;
+}
+
+.advSelect {
+    color: #C8C8C8;
 }
 
 #grid,
@@ -613,6 +618,7 @@ input, button, select, textarea{
 .settingBtn2,
 #boneWrapper,
 #tooltipDiv,
+#tooltipDiv2,
 input, button, select, textarea,
 #trimpsTimeToFill,
 #foodTimeToFill,

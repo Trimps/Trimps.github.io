@@ -35,7 +35,10 @@
   #wrapper.wrapperUnbroken #innerWrapper{
     background: -webkit-linear-gradient(top, #323341 12%,#626368 29.5%,#727275 47%,#727275 53%,#4c4d56 70.5%,#323341 88%);
   }
-  
+
+  #autoPrestigeBtn.settingBtn4 {
+    background: -webkit-linear-gradient(-45deg, #5a00d2 0%, #8a00ff 10%, #5a00d2 20%, #8a00ff 30%, #5a00d2 40%, #8a00ff 50%, #5a00d2 60%, #8a00ff 70%, #5a00d2 80%, #8a00ff 90%, #5a00d2 100%);
+  }
 
   .cellColorOverkill
   {
@@ -129,52 +132,52 @@
 
   #grid.liquid ul#row9 li
   {
-    background: -webkit-linear-gradient(top, #ffff00 0%,#f7f700 100%) !important;
+    background: -webkit-linear-gradient(top, #ffff00 0%,#f7f700 100%);
   }
 
   #grid.liquid ul#row8 li
   {
-    background: -webkit-linear-gradient(top, #f7f700 0%,#f0f000 100%) !important;
+    background: -webkit-linear-gradient(top, #f7f700 0%,#f0f000 100%);
   }
 
   #grid.liquid ul#row7 li
   {
-    background: -webkit-linear-gradient(top, #f0f000 0%,#e8e800 100%) !important;
+    background: -webkit-linear-gradient(top, #f0f000 0%,#e8e800 100%);
   }
 
   #grid.liquid ul#row6 li
   {
-    background: -webkit-linear-gradient(top, #e8e800 0%,#e0e000 100%) !important;
+    background: -webkit-linear-gradient(top, #e8e800 0%,#e0e000 100%);
   }
 
   #grid.liquid ul#row5 li
   {
-    background: -webkit-linear-gradient(top, #e0e000 0%,#d9d900 100%) !important;
+    background: -webkit-linear-gradient(top, #e0e000 0%,#d9d900 100%);
   }
 
   #grid.liquid ul#row4 li
   {
-    background: -webkit-linear-gradient(top, #d9d900 0%,#d1d100 100%) !important;
+    background: -webkit-linear-gradient(top, #d9d900 0%,#d1d100 100%);
   }
 
   #grid.liquid ul#row3 li
   {
-    background: -webkit-linear-gradient(top, #d1d100 0%,#c9c900 100%) !important;
+    background: -webkit-linear-gradient(top, #d1d100 0%,#c9c900 100%);
   }
 
   #grid.liquid ul#row2 li
   {
-    background: -webkit-linear-gradient(top, #c9c900 0%,#c1c100 100%) !important;
+    background: -webkit-linear-gradient(top, #c9c900 0%,#c1c100 100%);
   }
 
   #grid.liquid ul#row1 li
   {
-    background: -webkit-linear-gradient(top, #c1c100 0%,#baba00 100%) !important;
+    background: -webkit-linear-gradient(top, #c1c100 0%,#baba00 100%);
   }
 
   #grid.liquid ul#row0 li
   {
-    background: -webkit-linear-gradient(top, #baba00 0%,#b2b200 100%) !important;
+    background: -webkit-linear-gradient(top, #baba00 0%,#b2b200 100%);
   }
 
   .battleCell.cellColorBeaten.Healthy
@@ -285,12 +288,4 @@
   .battleCell.cellColorBeaten.Pumpkimp.Corruption
   {
     background: -webkit-linear-gradient(top, #A05080 0%, #7D3C66 100%) !important;
-  }
-
-  #grid.liquid ul#row0 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row1 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row2 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row3 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row4 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row5 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row6 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row7 li.battleCell.cellColorNotBeaten.Pumpkimp, #grid.liquid ul#row8 li.battleCell.cellColorNotBeaten.Pumpkimp {
-     background: -webkit-linear-gradient(top, #F27900, #BF5F00) !important;
-  }
-
-  #grid.liquid ul#row9 li.battleCell.cellColorNotBeaten.Pumpkimp {
-     background: -webkit-linear-gradient(top, #008000, #004D00) !important;
   }
