@@ -357,7 +357,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Geneticistassist Settings"){
-		if (isItIn == null){ 
+		if (isItIn == null){
+			geneMenuOpen = true;
 			elem = document.getElementById('tooltipDiv2');
 			tip2 = true;
 			var steps = game.global.GeneticistassistSteps;
@@ -981,11 +982,16 @@ function messageConfigHover(what, event){
 	tooltip(title, 'customText', event, text);
 }
 
+var geneMenuOpen = false;
+
 // Correct function to call to cancel the current tooltip
 function cancelTooltip(ignore2){
 	unlockTooltip();
 	tooltip("hide");
-	if (!ignore2) document.getElementById('tooltipDiv2').style.display = 'none';
+	if (!ignore2){
+		 document.getElementById('tooltipDiv2').style.display = 'none';
+		 geneMenuOpen = false;
+	}
 	tooltipUpdateFunction = "";
 	document.getElementById("tipCost").innerHTML = "";
 	customUp = 0;
