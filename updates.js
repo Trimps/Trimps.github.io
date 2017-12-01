@@ -1440,7 +1440,7 @@ function getBattleStatBd(what) {
 	//Add challenges
 	if (what == "health" && game.global.challengeActive == "Life"){
 		currentCalc *= game.challenges.Life.getHealthMult();
-		textString += "<tr><td class='bdTitle'>Unliving (Life)</td><td>1%</td><td>" + game.challenges.Life.stacks + "</td><td>+ " + game.challenges.Life.getHealthMult(true) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Unliving (Life)</td><td>10%</td><td>" + game.challenges.Life.stacks + "</td><td>+ " + game.challenges.Life.getHealthMult(true) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (what == "attack" && game.global.challengeActive == "Life"){
 		currentCalc *= game.challenges.Life.getHealthMult();
