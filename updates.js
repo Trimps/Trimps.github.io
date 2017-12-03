@@ -377,8 +377,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var name = toCheck[x];
 			tooltipText += "<div class='col-xs-4'><span class='messageConfigTitle'>" + toCheck[x] + "</span><br/>";
 			for (var item in msgs[name]){
-				if (item == "essence" && game.global.highestLevelCleared <= 179) continue;
-				if (item == "magma" && game.global.highestLevelCleared <= 229) continue;
+				if (item == "essence" && game.global.highestLevelCleared < 179) continue;
+				if (item == "magma" && game.global.highestLevelCleared < 229) continue;
+				if (item == "cache" && game.global.highestLevelCleared < 59) continue;
 				if (item == 'enabled') continue;
 				tooltipText += "<span class='messageConfigContainer'><span class='messageCheckboxHolder'><input id='" + name + item + "'" + ((msgs[name][item]) ? " checked='true'" : "") + "' type='checkbox' /></span><span onmouseover='messageConfigHover(\"" + name + item + "\", event)' onmouseout='tooltip(\"hide\")' class='messageNameHolder'> - " + item.charAt(0).toUpperCase() + item.substr(1) + "</span></span><br/>";
 			}
@@ -1570,7 +1571,7 @@ function getBattleStatBd(what) {
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getBattleStatBd('" + what + "')", name, "Refresh", true);
-	if (what == "attack"){
+	if (what == "attack" || what == "health"){
 		verticalCenterTooltip(true);
 	}
 }

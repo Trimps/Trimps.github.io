@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.601,
+		version: 4.602,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -235,7 +235,8 @@ var toReturn = {
 				essence: true,
 				token: true,
 				magma: true,
-				events: true
+				events: true,
+				cache: true
 			},
 			Unlocks: {
 				enabled: true,
@@ -506,7 +507,7 @@ var toReturn = {
 			},
 			repeatUntil: {
 				enabled: 0,
-				description: "<b>Repeat Forever</b> will cause the map to continually repeat if Repeat Maps is enabled. <b>Repeat to 10</b> will exit the map after 10 stacks, if the map's level is high enough. <b>Repeat for Items</b> will exit the map once there are no more special items left for that level of map. <b>Repeat for Any</b> will repeat until you have all items AND 10 stacks. <br/><br/><b>This setting only matters if Repeat is on. Toggling Repeat off will still leave the map when it is finished no matter what.</b>",
+				description: "<p><b>Repeat Forever</b> will cause the map to continually repeat if Repeat Maps is enabled.</p><p><b>Repeat to 10</b> will repeat unless you have 10 Map Bonus stacks.</p><p><b>Repeat for Items</b> will repeat unless there are no more special items left for that level of map.</p><p><b>Repeat for Any</b> will repeat unless there are no special items available AND you can not earn more Map Bonus stacks.</p><p><b>This setting only matters if Repeat is on. Toggling Repeat off will still leave the map when it is finished no matter what.</b></p>",
 				titles: ["Repeat Forever", "Repeat to 10", "Repeat for Items", "Repeat for Any"],
 				locked: true
 			},

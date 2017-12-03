@@ -600,6 +600,9 @@ function load(saveString, autoLoad, fromPf) {
 		//only run if game was already on 4.6
 		game.mapUnlocks.Speedexplorer.next -= 10;
 	}
+	if (oldVersion < 4.602){
+		game.global.messages.Loot.cache = true;
+	}
 	//End compatibility
 	
 	//Test server only
@@ -3615,7 +3618,7 @@ function resetAdvMaps(fromClick) {
 	var biomeElem = document.getElementById("biomeAdvMapsSelect");
 	if (game.global.decayDone && document.getElementById('gardenOption') === null) 
 		biomeElem.innerHTML += "<option id='gardenOption' value='Plentiful'>Gardens</option>";
-	biomeElem.value = (game.global.sessionMapValues.biome) ? game.global.sessionMapValues.biome : "Random";
+	biomeElem.value = (game.global.sessionMapValues.biome && !fromClick) ? game.global.sessionMapValues.biome : "Random";
 	//bottom row
 	hideAdvMaps(true);
 	document.getElementById('advSpecialSelect').value = (!fromClick && game.global.sessionMapValues.specMod) ? game.global.sessionMapValues.specMod : "0";
@@ -3880,7 +3883,7 @@ function cacheReward(resourceName, time, cacheName){
 	var amt = simpleSeconds(resourceName, time);
 	amt = scaleToCurrentMap(amt);
 	addResCheckMax(resourceName, amt, null, null, true);
-	message("You open the " + cacheName + " at the end of the map to find " + prettify(amt) + " " + resourceName + "!", "Loot", "*dice", "primary");
+	message("You open the " + cacheName + " at the end of the map to find " + prettify(amt) + " " + resourceName + "!", "Loot", "*dice", null, "cache");
 }
 
 function updateMapCost(getValue){
@@ -6876,7 +6879,8 @@ function mapsSwitch(updateOnly, fromRecycle) {
 		else game.global.preMapsActive = true;
 		resetEmpowerStacks();
 	}
-	game.global.mapExtraBonus = "";
+	if (!updateOnly)
+		game.global.mapExtraBonus = "";
 
 	var currentMapObj;
 	if (game.global.spireActive) handleExitSpireBtn();
@@ -9679,12 +9683,14 @@ function fight(makeUp) {
 			game.stats.mapsCleared.value++;
 			checkAchieve("totalMaps");
 			var shouldRepeat = (game.global.repeatMap);
-			if ((currentMapObj.level >= (game.global.world - game.portal.Siphonology.level)) && game.global.mapBonus < 10) game.global.mapBonus += 1;
+			var mapBonusEarned = 0;
+			if ((currentMapObj.level >= (game.global.world - game.portal.Siphonology.level)) && game.global.mapBonus < 10) mapBonusEarned = 1;
+			game.global.mapBonus += mapBonusEarned;
 			var mapBonusReached = (game.global.mapBonus == 10);
 			var allItemsEarned = (addSpecials(true, true, mapObj) == 0);
 			if (game.options.menu.repeatUntil.enabled == 1 && mapBonusReached) shouldRepeat = false;
 			else if (game.options.menu.repeatUntil.enabled == 2 && allItemsEarned) shouldRepeat = false;
-			else if (game.options.menu.repeatUntil.enabled == 3 && allItemsEarned && mapBonusReached) shouldRepeat = false;
+			else if (game.options.menu.repeatUntil.enabled == 3 && allItemsEarned && (mapBonusReached || mapBonusEarned == 0)) shouldRepeat = false;
 			if (mapObj.bonus && mapSpecialModifierConfig[mapObj.bonus].onCompletion){
 				mapSpecialModifierConfig[mapObj.bonus].onCompletion();
 			}
@@ -9725,6 +9731,7 @@ function fight(makeUp) {
 				game.global.mapGridArray = [];
 				game.global.fighting = false;
 				game.global.switchToMaps = false;
+				game.global.mapExtraBonus = "";
 				mapsSwitch(true);
 				if (doNextVoid !== false){
 					game.global.lookingAtMap = doNextVoid;
