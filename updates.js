@@ -981,9 +981,11 @@ function messageConfigHover(what, event){
 		case 'Loottoken':
 			text = "Log Nature Tokens.";
 			title = "Token";
+			break;
 		case 'Lootcache':
 			text = "Log drops from Caches in maps.";
 			title = "Cache";
+			break;
 		default: return;
 	}
 	document.getElementById('messageConfigMessage').innerHTML = "<b>" + title + "</b> - " + text;
