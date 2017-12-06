@@ -603,6 +603,9 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 4.602){
 		game.global.messages.Loot.cache = true;
 	}
+	if (oldVersion < 4.603){
+		game.global.messages.Loot.token = true;
+	}
 	//End compatibility
 	
 	//Test server only
@@ -10489,20 +10492,25 @@ function scaleToCurrentMap(amt, ignoreBonuses) {
     var map = getCurrentMapObject();
 	var world = map.level;
 	var compare = game.global.world;
-	if (game.talents.mapLoot.purchased)
-		compare--;
+	if (world > compare && map.location != "Bionic"){
+		amt *= Math.pow(1.1, (world - compare));
+	}
+	else {
+		if (game.talents.mapLoot.purchased)
+			compare--;
 		if (world < compare){
 			//-20% loot compounding for each level below world
 			amt *= Math.pow(0.8, (compare - world));
 		}
-		//Add map loot bonus
-		amt = Math.round(amt * map.loot);
-		if (ignoreBonuses) return amt;
-		if (game.unlocks.impCount.Magnimp) amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
-		if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
-		if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
-		if (game.global.formation == 4 && !game.global.waitToScry) amt *= 2;
-		return amt;
+	}
+	//Add map loot bonus
+	amt = Math.round(amt * map.loot);
+	if (ignoreBonuses) return amt;
+	if (game.unlocks.impCount.Magnimp) amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
+	if (game.portal.Looting.level) amt += (amt * game.portal.Looting.level * game.portal.Looting.modifier);
+	if (game.portal.Looting_II.level) amt *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
+	if (game.global.formation == 4 && !game.global.waitToScry) amt *= 2;
+	return amt;
 }
 
 //12 - 43200

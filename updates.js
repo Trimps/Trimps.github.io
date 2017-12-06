@@ -380,13 +380,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				if (item == "essence" && game.global.highestLevelCleared < 179) continue;
 				if (item == "magma" && game.global.highestLevelCleared < 229) continue;
 				if (item == "cache" && game.global.highestLevelCleared < 59) continue;
+				if (item == "token" && game.global.highestLevelCleared < 235) continue;
 				if (item == 'enabled') continue;
 				tooltipText += "<span class='messageConfigContainer'><span class='messageCheckboxHolder'><input id='" + name + item + "'" + ((msgs[name][item]) ? " checked='true'" : "") + "' type='checkbox' /></span><span onmouseover='messageConfigHover(\"" + name + item + "\", event)' onmouseout='tooltip(\"hide\")' class='messageNameHolder'> - " + item.charAt(0).toUpperCase() + item.substr(1) + "</span></span><br/>";
 			}
 			tooltipText += "</div>";
 		}
 		tooltipText += "</div>";
-
+		ondisplay = function () {verticalCenterTooltip();};
 		game.global.lockTooltip = true;
 		elem.style.top = "25%";
 		elem.style.left = "25%";
@@ -977,6 +978,12 @@ function messageConfigHover(what, event){
 			text = "Log drops from Magma cells, including Fuel and Magmite.";
 			title = "Magma";
 			break;
+		case 'Loottoken':
+			text = "Log Nature Tokens.";
+			title = "Token";
+		case 'Lootcache':
+			text = "Log drops from Caches in maps.";
+			title = "Cache";
 		default: return;
 	}
 	document.getElementById('messageConfigMessage').innerHTML = "<b>" + title + "</b> - " + text;
@@ -2607,7 +2614,10 @@ if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !
     if (messageString == "Game Saved!" || extraClass == 'save') {
         addId = " id='saveGame'";
         if (document.getElementById('saveGame') !== null){
-            log.removeChild(document.getElementById('saveGame'));
+			var oldElem = document.getElementById('saveGame');
+			log.removeChild(oldElem);
+			log.appendChild(oldElem);
+			return;
         }
     }
     if (game.options.menu.timestamps.enabled){
@@ -3569,7 +3579,7 @@ function getSettingHtml(optionItem, item, forceClass){
 	return "<div class='optionContainer" + forceClass + "'><div id='toggle" + item + "' class='noselect settingsBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\", this)' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
 }
 
-function toggleSetting(setting, elem, fromPortal, updateOnly){
+function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 	if (setting == "GeneticistassistTarget") {
 		tooltip('Geneticistassist Settings', null, 'update');
 		return;
@@ -3588,10 +3598,16 @@ function toggleSetting(setting, elem, fromPortal, updateOnly){
 	}
 	var toggles = menuOption.titles.length;
 	if (!updateOnly){
-		if (toggles == 2)	menuOption.enabled = (menuOption.enabled) ? 0 : 1;
+		if (backwards && toggles > 2){
+			menuOption.enabled--;
+			if (menuOption.enabled < 0) menuOption.enabled = toggles - 1;
+		}
 		else {
-			menuOption.enabled++;
-			if (menuOption.enabled >= toggles) menuOption.enabled = 0;
+			if (toggles == 2)	menuOption.enabled = (menuOption.enabled) ? 0 : 1;
+			else {
+				menuOption.enabled++;
+				if (menuOption.enabled >= toggles) menuOption.enabled = 0;
+			}
 		}
 		if (menuOption.onToggle) menuOption.onToggle();
 	}
