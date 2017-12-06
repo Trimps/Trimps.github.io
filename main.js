@@ -603,7 +603,7 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 4.602){
 		game.global.messages.Loot.cache = true;
 	}
-	if (oldVersion < 4.603){
+	if (oldVersion < 4.603 && typeof game.global.messages.Loot.token === 'undefined'){
 		game.global.messages.Loot.token = true;
 	}
 	//End compatibility
