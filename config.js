@@ -1610,7 +1610,7 @@ var toReturn = {
 		},
 		Scientist: {
 			get description (){
-				var is5 = (game.global.highestLevelCleared >= 124 && game.global.sLevel >= 4);
+				var is5 = (game.global.highestLevelCleared >= 129 && game.global.sLevel >= 4);
 				return "Attempt modifying the portal to " + ((is5) ? "retain positive qualities from previous dimensions" : "harvest resources when travelling") + ". Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists" + ((is5) ? " and <b style='color: maroon'>all enemy damage will be 10X higher</b>" : "") + ". Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal."
 			},
 			mustRestart: true,
