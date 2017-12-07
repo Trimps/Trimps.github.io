@@ -777,7 +777,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var text = ".";
 			if (percentIncrease > 0){
 				percentIncrease += 4;
-				text = " and increase the base block of all other Gyms by " + percentIncrease + "%.";
+				text = " and increases the base block of all Gyms by " + percentIncrease + "% (compounding).";
 			}
 			tooltipText = tooltipText.replace('~', text);
 		}
