@@ -130,6 +130,11 @@ overflow-x: hidden;
 	border: 1px solid white;
 }
 
+.talentLocked{
+	cursor: default;
+	font-size: 1.75vw;
+}
+
 .talentRowLocked .talentNotPurchased{
 	background-color: grey;
 	color: white;
@@ -214,7 +219,7 @@ overflow-x: hidden;
  }
  
 .resourceRow{
-	height: 49.9%;
+	height: 50%;
 	padding-right: .25vw;
 }
 
@@ -818,12 +823,17 @@ overflow-x: hidden;
 	margin-bottom: 0;
 }
 
+.noTopMarg{
+	margin-top: 0;
+}
+
 
 #disableOnUnlockCheck{
 	height: 1vw;
 	width: 1vw;
 	line-height: 1vw;
 	margin: 0;
+	transform: scale(1.25);
 }
 
 #GADisableCheck{
@@ -851,12 +861,24 @@ overflow-x: hidden;
 	background: rgba(0,0,0,0);
 }
 
+#Geneticistassist.stateHappy.thingColorCtrl{
+	background: radial-gradient(#444 45%, rgba(0,0,0,0) 60%);
+}
+
 #Geneticistassist.stateHiring{
 	background: rgba(0,166,41,0.4);
 }
 
+#Geneticistassist.stateHiring.thingColorCtrl{
+	background: radial-gradient(black 45%, rgba(0,166,41,0.4) 60%);
+}
+
 #Geneticistassist.stateFiring{
 	background: rgba(140,35,0,0.4);
+}
+
+#Geneticistassist.stateFiring.thingColorCtrl{
+	background: radial-gradient(#444 45%, rgba(140,35,0,0.4) 60%);
 }
 
 #battleContainer {
@@ -983,6 +1005,10 @@ overflow-x: hidden;
 	background-color: #47008c;
 }
 
+.settingBtn0, .settingBtn1, .settingBtn3, .settingBtn4 {
+    color: white;
+}
+
 .optionContainer {
 	display: inline-block;
 	vertical-align: top;
@@ -990,6 +1016,11 @@ overflow-x: hidden;
 	margin-right: 2vw;
 	margin-bottom: 1vw;
 	width: 15.5vw;
+}
+
+.maxCenter .optionContainer{
+	margin: 0 2.5%;
+	width: 45%;
 }
 
 #talentsEssenceTotal{
@@ -1069,6 +1100,20 @@ overflow-x: hidden;
 	width: 100%;
 }
 
+#mapsHere.mapSize0{
+	height: calc(100vh - 31.5vw + 3.25vw - 90px);
+}
+
+#mapsHere.mapSize2{
+	height: calc(100vh - 31.5vw - 2.5vw - 90px);
+}
+
+#equipmentTitleDiv .lowPad, #buildingsTitleDiv .lowPad:nth-child(2) {
+    cursor: default;
+}
+
+
+
 #settingsTable {
     width: 100%;
 }
@@ -1124,6 +1169,7 @@ overflow-x: hidden;
     text-align: left;
 	list-style: none;
 	padding-left: 0;
+	cursor: default;
 }
 
 .battleRow{
@@ -1147,7 +1193,7 @@ overflow-x: hidden;
     padding-right: 5px;
 }
 
-#tooltipDiv {
+#tooltipDiv, #tooltipDiv2 {
     width: 32.5vw;
     position: absolute;
     background: lightgrey;
@@ -1156,6 +1202,10 @@ overflow-x: hidden;
     border: 2px solid blue;
     font-size: 0.9vw;
 	z-index: 7;
+}
+
+#tooltipDiv2{
+	z-index: 6;
 }
 
 #tooltipDiv.tooltipExtraHeirloom{
@@ -1203,7 +1253,7 @@ overflow-x: hidden;
 	text-align: center;
 }
 
-#tipTitle {
+#tipTitle, #tipTitle2 {
     font-size: 1.2em;
     text-align: center;
 }
@@ -1351,8 +1401,16 @@ overflow-x: hidden;
     user-select: none;
 }
 
+.trimpsInfoPopup a{
+	font-weight: bold;
+}
+
 .logFlt {
     border-radius: 0;
+}
+
+.battleStatsTitle {
+    cursor: default;
 }
 
 #preMapsTitle {
@@ -1384,19 +1442,46 @@ overflow-x: hidden;
 	text-align: center;
 	font-size: 1vw;
 	background-color: rgba(0, 0, 0, 0.5);
-	padding-top: 1vw;
+	padding-top: 1.1vw;
 	margin-right: 1px;
 }
-#advMapsRow{
+
+
+.advSelect {
+	color: black;
+}
+
+#advPerfectCheckbox{
+	transform: scale(1.5);
+}
+
+#advMapsControlBtns{
+	position: absolute;
+	left: 0.1vw;
+	top: 0;
+	cursor: default;
+}
+
+#advMapsControlBtns span {
+	width: 25%;
+}
+
+#advMapsRow, #advMapsRow2{
 	text-align: center;
 	font-size: .9vw;
 	background-color: rgba(0,0,0,0.5);
 	padding-bottom: 1vw;
 	margin-right: 1px;
 }
+
 #advMapsTitle{
 	font-size: 1.2vw;
 }
+
+.advMapsTitle{
+	display: inline-block;
+}
+
 #selectedMapName {
     text-decoration: underline;
 	padding-top: 10px;
@@ -2114,6 +2199,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	border-style: solid;
 	border-width: 0.1vw;
 	border-left-width: 1vw;
+	cursor: default;
 }
 
 .achievementTitle{
@@ -2272,7 +2358,6 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .achievementPopupIcon{
 	font-size: 3.8em;
-	color: #151535;
 }
 
 #achievementPopupDescription, #achievementHoverDescription{
@@ -2290,7 +2375,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 #achievementPopupTitle, #achievementHoverTitle{
 	font-weight: bold;
-	color: #318696;
+	display: inline-block;
 }
 
 .achievementBtns{
@@ -2312,6 +2397,65 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	margin-right: 0.1vw;
 }
 
+#achievementHover .row .col-xs-8 {
+	text-align: center;
+}
+
+
+
+.achieveTier1 {
+	color: #155515;
+	border-color: #155515;
+}
+
+.achieveTier2 {
+	color: #151565;
+	border-color: #151565;
+}
+
+.achieveTier3 {
+	color: #551555;
+	border-color: #551555;
+}
+
+.achieveTier4 {
+	color: #954515;
+	border-color: #954515;
+}
+
+.achieveTier5 {
+	color: #651515;
+	border-color: #651515;
+}
+
+.achieveTier6 {
+	color: #951545;
+	border-color: #951545;
+}
+
+.achieveTier7 {
+	color: #35a5a5;
+	border-color: #35a5a5;
+}
+
+.achieveTier8 {
+	color: #d58565;
+	border-color: #d58565;
+}
+
+.achieveTier9 {
+	border-image: linear-gradient(to top, #2286ad 0%,#000000 30%,#661310 50%,#000000 80%,#2286ad 100%);
+	border-image-slice: 3;
+}
+
+.achievementPopupIcon.achieveTier9, #achievementHoverTitle.achieveTier9, #achievementPopupTitle.achieveTier9 {
+	background-image: radial-gradient(ellipse at center, #2286ad 0%,#000000 30%,#661310 50%,#000000 80%,#2286ad 100%);
+	color: black;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	border-radius: 25px;
+}
 
 
 #statsTitle{
@@ -2371,10 +2515,6 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 .inPortalBtnSm{
 	font-size: 1.3vw !important;
 	margin-bottom: .5vw;
-}
-
-#biomeAdvMapsSelect{
-	color: black;
 }
 
 .NoticesMessage {
@@ -2439,6 +2579,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 /* MUTATIONS HERE */
+
+.battleCell.cellColorNotBeaten.Living, .battleCell.cellColorBeaten.Living, .badge.Living, .badNameMutation.Living{
+	background-color: black !important;
+	color: white !important;
+}
 
 .badNameMutation.Healthy, .badge.Healthy, .battleCell.Healthy, .message.Healthy{
 	background-color: #3D2C15;
@@ -2568,6 +2713,16 @@ color: #DDDDFF !important;
 
 .sizeSecReduced{
 	font-size: 1.1em !important;
+	margin-top: 0.2em;
+}
+
+#resourceColumn .sizeSecReduced{
+	letter-spacing: -0.04em;
+	margin-left: -3%;
+}
+
+#miscColumn .sizeSecReduced{
+	letter-spacing: -0.05em;
 }
 
 .seventhColumn{
@@ -2609,6 +2764,10 @@ color: #DDDDFF !important;
 }
 .dangerColor, .colorDanger, .stateDanger{
 	background-color: #d9534f;
+}
+
+.stateDanger.thingColorCtrl{
+	background: radial-gradient(black 45%, #d9534f 60%);
 }
 
 .autoUpgradeBtn.colorSuccess:hover, .dailyTop.colorSuccess:hover, .colorSuccess.hoverColor:hover {
@@ -3007,10 +3166,18 @@ background-color: rgba(255,255,255,0.25);
 	min-height: 10vw;
 	overflow-y: auto;
 	overflow-x: hidden;
-	max-height: 14.3vw;
 	margin: 0.5vw;
 	color: #318696;
 	background-color: #d0d0d0;
+}
+
+#specificChallengeDescription.challengeDescriptionLg{
+	max-height: 14.3vw;	
+}
+
+#specificChallengeDescription.challengeDescriptionSm{
+	max-height: 14.05vw;
+	margin-top: -0.1vw;
 }
 
 #challenges{
@@ -3157,9 +3324,8 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	color: #d96c00;
-	font-weight: bold;
-	background-color: black;
+	background: linear-gradient(45deg, #2286ad 0%,#000000 30%,#661310 50%,#000000 80%,#2286ad 100%);
+	color: white;
 }
 
 .btn-new:hover,
@@ -3168,8 +3334,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: black;
-	background-color: #d96c00;
+	background: linear-gradient(45deg, #661310 0%,#000000 30%,#2286ad 50%,#000000 80%,#661310 100%);
+	color: white;
 }
 .btn-new:active,
 .btn-new.active,
@@ -3239,6 +3405,7 @@ input::-webkit-inner-spin-button {
 
 .thingColorSquared:hover {
 	background-color: #800080 !important;
+	background-color: #2E0854;
 	color: white !important;
 }
 
@@ -3765,4 +3932,8 @@ sup{
 	height: 10%;
 	border-radius: 50%;
 	border: 1px solid black;
+}
+
+#donateForm input[type="image"]{
+	background-color: initial !important;
 }

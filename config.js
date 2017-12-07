@@ -21,8 +21,9 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.512,
+		version: 4.603,
 		isBeta: false,
+		betaV: 0,
 		killSavesBelow: 0.13,
 		playerGathering: "",
 		playerModifier: 1,
@@ -192,11 +193,17 @@ var toReturn = {
 		lastSpireCleared: 0,
 		sugarRush: 0,
 		holidaySeed: Math.floor(Math.random() * 100000),
+		hideMapRow: false,
+		mapExtraBonus: "",
+		realBreedTime: 0,
 		sessionMapValues: {
 			loot: 0,
 			difficulty: 0,
 			size: 0,
-			biome: "Random"
+			biome: "Random",
+			specMod: "0",
+			perf: false,
+			extra: 0
 		},
 		lootAvgs: {
 			food: [0],
@@ -228,7 +235,8 @@ var toReturn = {
 				essence: true,
 				token: true,
 				magma: true,
-				events: true
+				events: true,
+				cache: true
 			},
 			Unlocks: {
 				enabled: true,
@@ -410,8 +418,8 @@ var toReturn = {
 			standardNotation: {
 				enabled: 1,
 				extraTags: "layout",
-				description: "Swap between Standard Formatting (12.7M, 540B), Engineering Notation (12.7e6, 540e9), Scientific Notation (1.27e7, 5.40e11), or Alphabetic Notation (12.7b, 540c).",
-				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation", "Alphabetic Notation"],
+				description: "Swap between Standard Formatting (12.7M, 540B), Engineering Notation (12.7e6, 540e9), Scientific Notation (1.27e7, 5.40e11), Alphabetic Notation (12.7b, 540c), and Hybrid Notation (Standard up to e96, then Engineering. Mimics Standard pre 4.6).",
+				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation", "Alphabetic Notation", "Hybrid Notation"],
 			},
 			tooltips: {
 				enabled: 1,
@@ -499,8 +507,8 @@ var toReturn = {
 			},
 			repeatUntil: {
 				enabled: 0,
-				description: "<b>Repeat Forever</b> will cause the map to continually repeat if Repeat Maps is enabled. <b>Repeat to 10</b> will exit the map after 10 stacks, if the map's level is high enough. <b>Repeat for Items</b> will exit the map once there are no more special items left for that level of map. <br/><br/><b>This setting only matters if Repeat is on. Toggling Repeat off will still leave the map when it is finished no matter what.</b>",
-				titles: ["Repeat Forever", "Repeat to 10", "Repeat for Items"],
+				description: "<p><b>Repeat Forever</b> will cause the map to continually repeat if Repeat Maps is enabled.</p><p><b>Repeat to 10</b> will repeat unless you have 10 Map Bonus stacks.</p><p><b>Repeat for Items</b> will repeat unless there are no more special items left for that level of map.</p><p><b>Repeat for Any</b> will repeat unless there are no special items available AND you can not earn more Map Bonus stacks.</p><p><b>This setting only matters if Repeat is on. Toggling Repeat off will still leave the map when it is finished no matter what.</b></p>",
+				titles: ["Repeat Forever", "Repeat to 10", "Repeat for Items", "Repeat for Any"],
 				locked: true
 			},
 			exitTo: {
@@ -631,7 +639,7 @@ var toReturn = {
 				enabled: 0,
 				disableOnUnlock: false,
 				extraTags: "popular general",
-				description: "Customize your three available Geneticistassist targets, and decide whether or not Geneticistassist should start automatically when unlocked each run.",
+				description: "Customize your three available Geneticistassist targets, choose options for firing and sending, and decide whether or not Geneticistassist should start automatically when unlocked each run.",
 				titles: ["Geneticistassist Settings"],
 				lockUnless: function () {
 					return (game.global.Geneticistassist);
@@ -695,6 +703,7 @@ var toReturn = {
 			},
 			gaFire: {
 				enabled: 1,
+				locked: true,
 				extraTags: "qol",
 				description: "<p>Toggle between <b>Limited GA Firing</b>, <b>Geneticistassist Fire</b> and <b>No GA Firing</b>.</p><p><b>Limited GA Firing</b> will prevent Geneticistassist from firing Farmers, Lumberjacks, or Miners.</p><p><b>Geneticistassist Fire</b> is the default value, and allows Geneticistassist to fire anything.</p><p><b>No GA Firing</b> prevents your Geneticistassist from being able to fire anything at all, including other Geneticists.</p>",
 				titles: ["Limited GA Firing", "Geneticistassist Fire", "No GA Firing"],
@@ -724,6 +733,23 @@ var toReturn = {
 					updateTalentNumbers();
 				}
 			},
+			bigPopups: {
+				enabled: 1,
+				lockUnless: function () {
+					return (game.global.highestLevelCleared >= 79);
+				},
+				get description(){
+					var text = "<p>This setting applies to big popups that occur after hitting certain milestones each portal. This setting will currently block: the Improbability popup";
+					if (game.global.highestLevelCleared >= 199) text += ", the popup at Corruption";
+					if (game.global.highestLevelCleared >= 219) text += ", the popup at The Spire";
+					if (game.global.highestLevelCleared >= 249) text += ", and the popup on reaching Magma.";
+					text += "</p><p>Note that this setting only blocks large popups once your Highest Zone Reached is 20 zones past the location of the popup</p>";
+					return text;
+				},
+				extraTags: "alerts popups",
+				titles: ["Block Big Popups", "Allow Big Popups"]
+
+			},
 			generatorStart: {
 				enabled: 0,
 				extraTags: "general",
@@ -752,6 +778,7 @@ var toReturn = {
 			},
 			geneSend: {
 				enabled: 0,
+				locked: true,
 				extraTags: "other",
 				description: "<p>When <b>Using Gene Send</b> is enabled, as long as you have one Geneticist, AutoFight will automatically send soldiers to fight if they have been breeding for longer than your Geneticistassist setting.</p><p>When <b>Enforce Gene Send</b> is enabled, as long as you have one Geneticist, AutoFight will never send a group of Trimps to fight unless you are at max population or you have reached your set Geneticistassist timer.</p>",
 				titles: ["No Gene Sending", "Using Gene Send", "Enforce Gene Send"]
@@ -836,8 +863,14 @@ var toReturn = {
 	},
 	talents: {
 		bionic: {
-			description: "Automatically pick up each level of Bionic Wonderland as you pass that zone, as long as you have already earned any available ones before that zone and have earned the RoboTrimp from all currently owned maps.",
+			description: "<p>Automatically pick up each level of Bionic Wonderland (BW) as you pass a BW zone. Will not work if you have already missed any BWs this run, or if you reach a zone higher than any BW you have ever cleared before.</p><p>In addition, give all current and future copies of Bionic Wonderland the 'Fast Attacks' special modifier.</p>",
 			name: "Bionic Magnet",
+			onPurchase: function (clear) {
+				addMapModifier('Bionic', 'fa');
+			},
+			onRespec: function () {
+				addMapModifier('Bionic', null, true);
+			},
 			tier: 1,
 			purchased: false,
 			icon: "magnet"
@@ -1040,8 +1073,14 @@ var toReturn = {
 			requires: "skeletimp"
 		},
 		voidPower3: {
-			description: "Your Trimps gain an additional 30% attack and health inside Void Maps",
+			description: "Your Trimps gain an additional 30% attack and health inside Void Maps, and all current and future Void Maps gain the 'Fast Attacks' special modifier.",
 			name: "Void Power III",
+			onPurchase: function (clear) {
+				addMapModifier('Void', 'fa');
+			},
+			onRespec: function () {
+				addMapModifier('Void', null, true);
+			},
 			tier: 6,
 			purchased: false,
 			icon: "*heart5",
@@ -1130,7 +1169,7 @@ var toReturn = {
 			icon: "align-justify"
 		},
 		voidSpecial: {
-			description: "Receive 1 free Void Map after using your Portal for each 100 zones cleared last run. Helium from Void Maps is also increased by 25% for each 100 zones cleared last run.",
+			description: "Receive 1 free Void Map after using your Portal for each 100 zones cleared last run. Helium from Void Maps is also increased by 0.25% for each zone cleared last run.",
 			name: "Void Specialization",
 			tier: 8,
 			purchased: false,
@@ -1421,9 +1460,25 @@ var toReturn = {
 			tooltip: "Walk back through the empty zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%.",
 			level: 0
 		},
-
 	},
-
+	c2: {
+		Discipline: 0,
+		Metal: 0,
+		Size: 0,
+		Balance: 0,
+		Meditate: 0,
+		Trimp: 0,
+		Trapper: 0,
+		Electricity: 0,
+		Coordinate: 0,
+		Slow: 0,
+		Nom: 0,
+		Mapology: 0,
+		Toxicity: 0,
+		Watch: 0,
+		Lead: 0,
+		Obliterated: 0
+	},
 	challenges: {
 		Daily: {
 			get description(){
@@ -1448,7 +1503,6 @@ var toReturn = {
 			},
 			allowSquared: true,
 			squaredDescription: "Tweak the portal to bring you back to a universe where Trimps are less disciplined, in order to teach you how to be a better Trimp trainer. Your Trimps' minimum damage will be drastically lower, but their high end damage will be considerably higher.",
-			highestSquared: 0,
 			unlocks: "Range",
 			unlockString: "have 30 total helium"
 		},
@@ -1479,7 +1533,6 @@ var toReturn = {
 			},
 			allowSquared: true,
 			squaredDescription: "Tweak the portal to bring you to alternate reality, where the concept of Miners does not exist, to force yourself to become frugal with equipment crafting strategies.",
-			highestSquared: 0,
 			fireAbandon: false,
 			heldBooks: 0,
 			heldMegaBooks: 0,
@@ -1507,7 +1560,6 @@ var toReturn = {
 			},
 			allowSquared: true,
 			squaredDescription: "Tweak the portal to bring you to an alternate reality, where Trimps are bigger and stronger, to force yourself to figure out a way to build larger housing. Your Trimps will gather 50% more resources, but your housing will fit 50% fewer Trimps.",
-			highestSquared: 0,
 			fireAbandon: true,
 			unlocks: "Carpentry",
 			unlockString: "reach Zone 35"
@@ -1526,6 +1578,7 @@ var toReturn = {
 					game.global.soldierHealthMax *= 0.99;
 					if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
 				}
+				if (this.balanceStacks > this.highestStacks) this.highestStacks = this.balanceStacks;
 			},
 			removeStack: function () {
 				this.balanceStacks--;
@@ -1549,7 +1602,7 @@ var toReturn = {
 			},
 			allowSquared: true,
 			squaredDescription: "Your scientists have discovered a chaotic dimension filled with unharvestable but pretty helium. All enemies have 100% more health, enemies in world deal 17% more damage, and enemies in maps deal 135% more damage. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250.",
-			highestSquared: 0,
+			highestStacks: 0,
 			fireAbandon: true,
 			heldHelium: 0,
 			heliumThrough: 40,
@@ -1557,9 +1610,10 @@ var toReturn = {
 		},
 		Scientist: {
 			get description (){
-				var is5 = (game.global.highestLevelCleared >= 124 && game.global.sLevel >= 4);
+				var is5 = (game.global.highestLevelCleared >= 129 && game.global.sLevel >= 4);
 				return "Attempt modifying the portal to " + ((is5) ? "retain positive qualities from previous dimensions" : "harvest resources when travelling") + ". Until you perfect the technique, you will start with <b>_</b> science but will be unable to research or hire scientists" + ((is5) ? " and <b style='color: maroon'>all enemy damage will be 10X higher</b>" : "") + ". Choose your upgrades wisely! Clearing <b>'The Block' (11)</b> with this challenge active will cause you to * each time you use your portal."
 			},
+			mustRestart: true,
 			completed: false,
 			heldBooks: 0,
 			filter: function (fromCheck) {
@@ -1617,7 +1671,6 @@ var toReturn = {
 			},
 			allowSquared: true,
 			squaredDescription: "Visit a dimension where everything is stronger, in an attempt to learn how to better train your Trimps. All enemies will have +100% health and +50% attack, but your Trimps will gather 25% faster.",
-			highestSquared: 0,
 			unlocks: "Meditation",
 			unlockString: "reach Zone 45"
 		},
@@ -1641,7 +1694,6 @@ var toReturn = {
 			fireAbandon: true,
 			allowSquared: true,
 			squaredDescription: "Tweak the portal to bring you to a dimension where Trimps explode if more than 1 fights at a time. You will not be able to learn Coordination.",
-			highestSquared: 0,
 			replaceSquareThresh: 40,
 			replaceSquareReward: 3,
 			replaceSquareGrowth: 3,
@@ -1664,14 +1716,20 @@ var toReturn = {
 			fireAbandon: true,
 			allowSquared: true,
 			squaredDescription: "Travel to a dimension where Trimps refuse to breed in captivity, good luck!",
-			highestSquared: 0,
 			replaceSquareThresh: 50,
 			replaceSquareGrowth: 2,
 			unlocks: "Anticipation",
 			filter: function () {
 				return (game.global.highestLevelCleared >= 69);
 			},
+			start: function () {
+				document.getElementById('trimpsBreedingTitle').innerHTML = "bored";
+			},
+			onLoad: function () {
+				this.start();
+			},
 			abandon: function () {
+				document.getElementById('trimpsBreedingTitle').innerHTML = "breeding";
 				for (var x = 0; x < game.challenges.Trapper.heldBooks; x++){
 					unlockUpgrade("Potency");
 				}
@@ -1693,9 +1751,9 @@ var toReturn = {
 			heldHelium: 0,
 			heliumThrough: 79,
 			allowSquared: true,
+			attacksInARow: 0,
 			squaredDescription: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack.",
 			stacks: 0,
-			highestSquared: 0,
 			unlockString: "clear 'The Prison' at Zone 80"
 		},
 		Frugal: {
@@ -1720,6 +1778,33 @@ var toReturn = {
 			},
 			unlockString: "reach Zone 100"
 		},
+		Life: {
+			description: "Explore a dimension that is normally populated by the Undead, but is currently plagued by a quickly moving virus that can bring things back to life. All enemies in this dimension have 500% extra attack and 1000% extra health. Attacking a normal undead enemy gives your Trimps 1 stack of Unliving, which increases Trimp attack and health by 10% (additive) per stack. Trimps can have a maximum of 150 stacks of Unliving, and attacking a Living enemy will remove 5 stacks of Unliving. Completing <b>Zone 110</b> will reward you with an additional 400% of all helium earned up to that point. This is repeatable!",
+			completed: false,
+			filter: function () {
+				return (game.global.highestLevelCleared >= 109)
+			},
+			heliumMultiplier: 4,
+			heldHelium: 0,
+			heliumThrough: 110,
+			unlockString: "reach Zone 110",
+			stacks: 150,
+			maxStacks: 150,
+			fireAbandon: true,
+			lowestStacks: 150,
+			getHealthMult: function(forDisplay){
+				var mult = (this.stacks / 10);
+				if (forDisplay) return (prettify(mult * 100) + "%");
+				return 1 + mult;
+			},
+			arrayHolder: [[]],
+			start: function () {
+				updateLivingStacks();
+			},
+			abandon: function () {
+				if (document.getElementById('livingBuff')) document.getElementById('goodGuyName').removeChild(document.getElementById('livingBuff'));
+			}
+		},
 		Mapocalypse: {
 			description: "Experience a slightly distorted version of the 'Electricity' dimension, to help understand the relationship between maps and the world. Everything will work exactly the same as Electricity, but all maps will have an extra 300% difficulty. Clearing <b>'The Prison' (80)</b> will cause the world to return to normal. You <b>will</b> receive the Helium reward from Electricity.",
 			completed: false,
@@ -1741,7 +1826,6 @@ var toReturn = {
 			completed: false,
 			allowSquared: true,
 			squaredDescription: "Visit a dimension where Bad Guys are Coordinated but never fast, chip 'em down!",
-			highestSquared: 0,
 			replaceSquareFreq: 3,
 			replaceSquareThresh: 30,
 			filter: function () {
@@ -1751,7 +1835,7 @@ var toReturn = {
 			unlockString: "reach Zone 120"
 		},
 		Crushed: {
-			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with an additional 100% of all helium earned up to but not including Z125. This challenge is repeatable.",
+			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with an additional 300% of all helium earned up to but not including Z125. This challenge is repeatable.",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 124);
@@ -1771,18 +1855,17 @@ var toReturn = {
 			completed: false,
 			allowSquared: true,
 			squaredDescription: "Legends tell of a dimension inhabited by incredibly fast bad guys, and you seem to want to go there to prove something. All bad guys will attack first in this dimension, watch your health!",
-			highestSquared: 0,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 129);
 			},
 			unlockString: "reach Zone 130"
 		},
 		Nom: {
-			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with an additional 200% of all helium earned up to that point. This is repeatable!",
+			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with an additional 300% of all helium earned up to that point. This is repeatable!",
 			completed: false,
 			allowSquared: true,
 			squaredDescription: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first.",
-			highestSquared: 0,
+			heliumMultiplier: 3,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 144);
 			},
@@ -1799,7 +1882,6 @@ var toReturn = {
 			fireAbandon: true,
 			allowSquared: true,
 			squaredDescription: "Travel to a dimension where maps are scarce, in an attempt to learn to be more resourceful. You will earn one map Credit for each World Zone you clear, and it costs 1 credit to run 1 map. <b>The mastery Blacksmithery will not function while this challenge is active.</b>",
-			highestSquared: 0,
 			abandon: function (){
 				document.getElementById("mapCreditsLeft").innerHTML = "";
 			},
@@ -1819,13 +1901,13 @@ var toReturn = {
 			highestStacks: 0,
 			heldHelium: 0,
 			heliumThrough: 165,
+			heliumMultiplier: 2,
 			stacks: 0,
 			maxStacks: 1500, //Changing this breaks the feat spaghetti
 			stackMult: 0.997,
 			lootMult: 0.15,
 			allowSquared: true,
 			squaredDescription: "Travel to a dimension filled with the glory that comes from killing toxic bad guys. All bad guys have 5x attack and 2x health. Each time you attack a bad guy, your Trimps lose 5% of their health, and toxins are released into the air which reduce the breeding speed of your Trimps by 0.3% (of the current amount), but also increase all loot found by 0.15%, stacking up to 1500 times. These stacks will reset when you clear a zone.",
-			highestSquared: 0,
 			unlockString: "reach Zone 165"
 		},
 		Devastation: {
@@ -1839,30 +1921,28 @@ var toReturn = {
 			unlockString: "reach Zone 170"
 		},
 		Watch: {
-			description: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 150% of all helium earned up to that point.",
+			description: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 200% of all helium earned up to that point.",
 			filter: function () {
 				return (game.global.highestLevelCleared >= 179);
 			},
 			allowSquared: true,
 			squaredDescription: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Relax and let the Trimps figure it out for themselves, you know you want to.",
-			highestSquared: 0,
-			heliumMultiplier: 1.5,
+			heliumMultiplier: 2,
 			heldHelium: 0,
 			heliumThrough: 180,
 			unlockString: "reach Zone 180",
 			enteredMap: false
 		},
 		Lead: {
-			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 250% of all helium earned up to that point.",
+			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 300% of all helium earned up to that point.",
 			filter: function () {
 				return (game.global.highestLevelCleared >= 179);
 			},
-			heliumMultiplier: 2.5,
+			heliumMultiplier: 3,
 			stacks: 0,
 			heldHelium: 0,
 			allowSquared: true,
 			squaredDescription: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack.",
-			highestSquared: 0,
 			heliumThrough: 180,
 			unlockString: "reach Zone 180",
 			fireAbandon: true,
@@ -1871,15 +1951,31 @@ var toReturn = {
 			}
 		},
 		Corrupted: {
-			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 100% helium earned from any source up to that point, and will instantly transport you back to your normal dimension."},
+			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 200% helium earned from any source up to that point, and will instantly transport you back to your normal dimension."},
 			filter: function () {
 				return (game.global.highestLevelCleared >= 189);
 			},
-			heliumMultiplier: 1,
+			heliumMultiplier: 2,
 			heldHelium: 0,
 			heliumThrough: 190,
 			hiredGenes: false,
 			unlockString: "reach Zone 190"
+		},
+		Obliterated: {
+			get squaredDescription() {
+				var num = prettify(1e12);
+				return "Against your better judgement, travel to a dimension that's simply just not very friendly. Liquimps are unable to liquify, enemies have " + num + "x attack and health and equipment is " + num + "x more expensive. Every 10 zones, enemy attack and health will increase by another 10x."
+			},
+			filter: function () {
+				return (game.global.highestLevelCleared >= 424);
+			},
+			replaceSquareFreq: 1,
+			replaceSquareThresh: 10,
+			onlySquared: true,
+			allowSquared: true,
+			fireAbandon: true,
+			unlockString: "reach Zone 425",
+			mustRestart: true
 		}
 	},
 	stats:{
@@ -2074,7 +2170,6 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		}
-
 	},
 	generatorUpgrades: {
 		Efficiency: {
@@ -2171,9 +2266,10 @@ var toReturn = {
 			owned: false
 		}
 	},
-	//Total 2100.5% after 4.1
-	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80],
-	colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5", "#d58565"], //handwritten hex colors make the best hex colors
+	//Total 4448% after 4.6
+	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80, 160],
+	//rip colorsList, 11/28/15 - 11/28/17. He served us well until it became obvious that CSS was better.
+	//colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5", "#d58565", "#d53535"],
 	achievements: {
 		zones: {
 			finished: 0,
@@ -2188,7 +2284,7 @@ var toReturn = {
 			evaluate: function () { return game.global.highestLevelCleared},
 			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 350, 400, 450, 500],
 			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8],
-			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator", "Heat Maker", "Heat Hater", "Heat Breaker", "Heat Slayer", "Heat Expert", "Heat Bender", "Volcanic", "Magma Master", "Acre of Nature", "Inspired", "Insane", "Spire Master"],
+			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator", "Heat Maker", "Heat Hater", "Heat Breaker", "Heat Slayer", "Heat Expert", "Heat Bender", "Volcanic", "Magma Master", "Acre of Nature", "Aspirer", "Insane", "Spire Master"],
 			icon: "icomoon icon-compass2",
 			newStuff: []
 		},
@@ -2332,7 +2428,7 @@ var toReturn = {
 				return "Collect " + prettify(number) + " Heirloom" + s;
 			},
 			progress: function () {
-				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
+				if (this.breakpoints.length > this.finished) return this.evaluate() + " / " + this.breakpoints[this.finished];
 				return prettify(this.evaluate()) + " total";
 			},
 			evaluate: function () {
@@ -2617,18 +2713,93 @@ var toReturn = {
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
+		spire2Timed: {
+			finished: 0,
+			title: "Speed: Spire II",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "<span style='font-size: .8em'>Clear Spire II in less than " + number + " from start of run</span>";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 269);
+			}, 
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
+			reverse: true,
+			showAll: true,
+			breakpoints: [500, 200, 120, 60],
+			tiers: [6, 7, 8, 8],
+			names: ["Toxic Treader", "Toxic Trotter", "Toxic Traveller", "Toxic Tempo"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		spire3Timed: {
+			finished: 0,
+			title: "Speed: Spire III",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "<span style='font-size: .8em'>Clear Spire III in less than " + number + " from start of run</span>";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 369);
+			}, 
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
+			reverse: true,
+			showAll: true,
+			breakpoints: [480, 240, 120, 80],
+			tiers: [6, 7, 8, 8],
+			names: ["Chillin", "Arctic Accelerator", "Rimy Runner", "Subzero Sprinter"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
+		spire4Timed: {
+			finished: 0,
+			title: "Speed: Spire IV",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "<span style='font-size: .8em'>Clear Spire IV in less than " + number + " from start of run</span>";
+			},
+			display: function () {
+				return (game.global.highestLevelCleared >= 469);
+			}, 
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			highest: 0,
+			reverse: true,
+			showAll: true,
+			breakpoints: [4320, 2880, 1440],
+			tiers: [8, 8, 9],
+			names: ["Windy Walker", "Zippy Zephyr", "Temporal Tempest"],
+			icon: "icomoon icon-alarmclock",
+			newStuff: []
+		},
 		oneOffs: {
 			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare
-			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
-			descriptions: ["Reach Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over 250k total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Reach Z60 without hiring a single Trimp", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths"],
-			tiers: [3, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7],
+			descriptions: ["Reach Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Attack 20 times without dying in Electricity", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over 250k total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Reach Z60 without hiring a single Trimp", "Complete a zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your zone number", "Beat the Spire with no respec and less than 100M He Spent", "Defeat an enemy on Obliterated"],
+			tiers: [3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8],
 			description: function (number) {
 				return this.descriptions[number];
 			},
-			filters: [29, 29, -1, 59, -1, 124, 59, 119, 74, -1, -1, 59, 59, 59, 124, 144, 59, 164, 59, -1, 179, 179, 189, 199],
+			filters: [29, 29, -1, 39, 59, -1, 79, 124, 59, 119, 74, -1, -1, 59, 59, 59, 124, 144, 59, 109, -1, 164, 59, -1, 179, 229, 245, 179, 189, 199, 229, 300, 65, 169, 199, 424],
 			icon: "icomoon icon-flag",
-			names: ["Underachiever", "Hoarder", "Needs Block", "Peacekeeper", "Elite Feat", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Holey", "Shaggy", "One-Hit Wonder", "Survivor", "Thick Skinned", "Great Host", "Unemployment", "Trimp is Poison", "Realtor", "Gotta Go Fast", "Grindless", "Unsatisfied Customer", "Organic Trimps", "Invincible"],
+			names: ["Underachiever", "Hoarder", "Needs Block", "Underbalanced", "Peacekeeper", "Elite Feat", "Grounded", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Holey", "Shaggy", "One-Hit Wonder", "Survivor", "Thick Skinned", "Great Host", "Unemployment", "Very Sneaky", "Extra Crispy", "Trimp is Poison", "Realtor", "Gotta Go Fast", "Grindless", "Swagmatic", "Brr", "Unsatisfied Customer", "Organic Trimps", "Invincible", "Mighty", "Mother Lode", "Challenged", "Bionic Sniper", "Nerfed", "Obliterate"],
 			newStuff: []
 		}
 	},
@@ -3463,6 +3634,7 @@ var toReturn = {
 					amt = rewardResource("helium", 1, level);
 					message("You were able to extract " + prettify(amt) + " Helium canisters from that Blimp!", "Loot", "oil", "helium", "helium");
 					if (game.global.world >= 40 && game.global.challengeActive == "Balance") {
+						if (game.challenges.Balance.highestStacks <= 100) giveSingleAchieve("Underbalanced");
 						var reward = game.challenges.Balance.heldHelium;
 						message("You have completed the Balance challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
 						game.challenges.Balance.abandon();
@@ -3499,7 +3671,7 @@ var toReturn = {
 					}
 				}
 				if (game.talents.voidSpecial.purchased){
-					amt *= ((Math.floor(game.global.lastPortal / 100) * 0.25) + 1);
+					amt *= ((game.global.lastPortal * 0.0025) + 1);
 				}
 				
 				if (game.global.runningChallengeSquared)
@@ -3640,17 +3812,19 @@ var toReturn = {
 			health: 2.9,
 			fast: false,
 			loot: function (level) {
+				var mapLevel = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
+				if (mapLevel >= game.global.world + 45) giveSingleAchieve("Bionic Sniper");
 				checkAchieve("bionicTimed");
 				var amt1 = rewardResource("wood", 1, level, true);
 				var amt2 = rewardResource("food", 1, level, true);
 				message("Robotrimp discombobulated. Loot inspection reveals: " + prettify(amt1) + " wood and " + prettify(amt2) + " food. Splendiferous.", "Loot", "*cogs", null, 'primary');
 				if (game.global.challengeActive == "Crushed") {
-					var heliumAdded = game.challenges.Crushed.heldHelium;
+					var heliumAdded = (game.challenges.Crushed.heldHelium * 3);
 					message("You have completed the Crushed challenge! You have been rewarded with " + prettify(heliumAdded) + " Helium.", "Notices");
 					game.challenges.Crushed.heldHelium = 0;
 					game.global.challengeActive = "";
 					addHelium(heliumAdded);
-					if (game.challenges.Crushed.critsTaken == 0) giveSingleAchieve(14);
+					if (game.challenges.Crushed.critsTaken == 0) giveSingleAchieve("Thick Skinned");
 					game.challenges.Crushed.abandon();
 				}
 			}
@@ -3790,12 +3964,16 @@ var toReturn = {
 					}
 					game.global.slowDone = true;
 				}
-				else if ((game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165) || ((game.global.challengeActive == "Watch" || game.global.challengeActive == "Lead") && game.global.world >= 180) || (game.global.challengeActive == "Corrupted" && game.global.world >= 190)){
+				else if ((game.global.challengeActive == "Life" && game.global.world == 110) || (game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165) || ((game.global.challengeActive == "Watch" || game.global.challengeActive == "Lead") && game.global.world >= 180) || (game.global.challengeActive == "Corrupted" && game.global.world >= 190)){
 					var challenge = game.global.challengeActive;
-					if (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap && game.buildings.Nursery.purchased == 0) giveSingleAchieve(20);
-					if (game.global.challengeActive == "Lead" && game.upgrades.Gigastation.done <= 1) giveSingleAchieve(21);
-					if (game.global.challengeActive == "Corrupted" && !game.challenges.Corrupted.hiredGenes && game.jobs.Geneticist.owned == 0) giveSingleAchieve(22);
-					if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400) giveSingleAchieve(17);
+					if (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap && game.buildings.Nursery.purchased == 0) giveSingleAchieve("Grindless");
+					if (game.global.challengeActive == "Lead" && game.upgrades.Gigastation.done <= 1) giveSingleAchieve("Unsatisfied Customer");
+					if (game.global.challengeActive == "Corrupted" && !game.challenges.Corrupted.hiredGenes && game.jobs.Geneticist.owned == 0) giveSingleAchieve("Organic Trimps");
+					if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400) giveSingleAchieve("Trimp is Poison");
+					if (game.global.challengeActive == "Life"){
+						if (game.challenges.Life.lowestStacks == 150) giveSingleAchieve("Very Sneaky");
+						game.challenges.Life.abandon();
+					}
 					var reward = (game.challenges[challenge].heliumMultiplier) ? game.challenges[challenge].heliumMultiplier : 2;
 					reward = game.challenges[challenge].heldHelium * reward;
 					message("You have completed the " + challenge + " challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
@@ -3968,11 +4146,10 @@ var toReturn = {
 			fast: false,
 			dropDesc: "45 seconds of production for 1 random resource",
 			loot: function () {
-				var elligible = ["food", "wood", "metal", "science"];
-				if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-				if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments");
-				var roll = Math.floor(Math.random() * elligible.length);
-				var item = elligible[roll];
+				var eligible = ["food", "wood", "metal", "science"];
+				if (game.jobs.Dragimp.owned > 0) eligible.push("gems");
+				var roll = Math.floor(Math.random() * eligible.length);
+				var item = eligible[roll];
 				var amt = simpleSeconds(item, 45);
 				amt = scaleToCurrentMap(amt);
 				addResCheckMax(item, amt);
@@ -4008,18 +4185,17 @@ var toReturn = {
 			fast: false,
 			dropDesc: "5 seconds of production for all basic resources",
 			loot: function () {
-				var elligible = ["food", "wood", "metal", "science"];
-				if (game.jobs.Dragimp.owned > 0) elligible.push("gems");
-				if (game.upgrades.Explorers.allowed > 0) elligible.push("fragments");
+				var eligible = ["food", "wood", "metal", "science"];
+				if (game.jobs.Dragimp.owned > 0) eligible.push("gems");
 				var cMessage = "That Chronoimp dropped ";
-				for (var x = 0; x < elligible.length; x++){
-					var item = elligible[x];
+				for (var x = 0; x < eligible.length; x++){
+					var item = eligible[x];
 					var amt = simpleSeconds(item, 5);
 					amt = scaleToCurrentMap(amt);
 					addResCheckMax(item, amt, null, null, true);
 					cMessage += prettify(amt) + " " + item;
-					if (x == (elligible.length - 1)) cMessage += "!";
-					else if (x == (elligible.length - 2)) cMessage += ", and ";
+					if (x == (eligible.length - 1)) cMessage += "!";
+					else if (x == (eligible.length - 2)) cMessage += ", and ";
 					else cMessage += ", ";
 				}
 				message(cMessage, "Loot", "hourglass", "exotic", "exotic");
@@ -4282,7 +4458,7 @@ var toReturn = {
 			canRunWhenever: true,
 			fire: function () {
 				createHeirloom();
-				if (game.global.world >= 60 && game.global.voidDeaths == 0 && game.global.voidBuff == "bleed") giveSingleAchieve(13);
+				if (game.global.world >= 60 && game.global.voidDeaths == 0 && game.global.voidBuff == "bleed") giveSingleAchieve("Survivor");
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
 			}
 		},
@@ -4568,6 +4744,31 @@ var toReturn = {
 			last: 5,
 			fire: function () {
 				unlockUpgrade("GambesOP");
+			}
+		},
+		Speedexplorer: {
+			world: -1,
+			specialFilter: function (mapLevel) {
+				var booksNeeded = Math.floor((mapLevel - this.next) / 10);
+				return (booksNeeded > 0);
+			},
+			addToCount: true,
+			level: [10, 20],
+			icon: "book",
+			title: "A well-hidden book",
+			next: 10,
+			fire: function () {
+				if (!getCurrentMapObject() || !getCurrentMapObject().level) return;
+				var mapLevel = getCurrentMapObject().level;
+				var booksNeeded = Math.floor((mapLevel - this.next) / 10);
+				if (booksNeeded > 0){
+					for (var x = 0; x < booksNeeded; x++) {
+						unlockUpgrade("Speedexplorer");
+						this.next += 10;
+					}
+				}
+				var copy = (booksNeeded == 1) ? "copy" : booksNeeded + " copies";
+				message("The " + copy + " of 'Speedexplorer' under these bushes will certainly be useful!", "Unlocks", null, null, 'repeated', convertUnlockIconToSpan(this));
 			}
 		},
 		TheBlock: {
@@ -5874,7 +6075,7 @@ var toReturn = {
 				food: [15000, 1.1]
 			},
 			increase: "fragments",
-			modifier: 0.1
+			modifier: 0.4
 		},
 		Dragimp: {
 			locked: 1,
@@ -6340,7 +6541,7 @@ var toReturn = {
 		UberHut: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each Hut by 2x.",
+				tooltip: "This book will increase the space gained from each Hut by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6357,7 +6558,7 @@ var toReturn = {
 		UberHouse: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each House by 2x.",
+				tooltip: "This book will increase the space gained from each House by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6374,7 +6575,7 @@ var toReturn = {
 		UberMansion: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each Mansion by 2x.",
+				tooltip: "This book will increase the space gained from each Mansion by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6391,7 +6592,7 @@ var toReturn = {
 		UberHotel: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each Hotel by 2x.",
+				tooltip: "This book will increase the space gained from each Hotel by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6408,7 +6609,7 @@ var toReturn = {
 		UberResort: {
 				locked: 1,
 				allowed: 0,
-				tooltip: "This book will increase the space gained from each Resort by 2x.",
+				tooltip: "This book will increase the space gained from each Resort by 100%.",
 				done: 0,
 				cost: {
 					resources: {
@@ -6738,6 +6939,21 @@ var toReturn = {
 			},
 			fire: function () {
 				game.jobs.Scientist.modifier *= 1.25;
+			}
+		},
+		Speedexplorer: {
+			locked: 1,
+			allowed: 0,
+			tooltip: "This book will teach your Trimps how to explore 300% more efficiently!",
+			done: 0,
+			cost: {
+				resources: {
+					science: [200, 28.9],
+					fragments: [500, 4]
+				}
+			},
+			fire: function () {
+				game.jobs.Explorer.modifier *= 4;
 			}
 		},
 		Megaminer: {

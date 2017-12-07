@@ -35,11 +35,102 @@
 		margin-left: -20px;
 		padding: 5px 0 5px 0;
 		color: #00008B;
-	} 
+	}
 </style>
 <body>
 <div id="wrapper">
 <span style="font-size: 1.3em; font-weight: bold; display: block; width: 100%; text-align: center">Trimps Updates!</span>
+<ul class="betterList">
+	<li>4.603 - 12/06/17</li>
+	<ul>
+		<li>Bug Fixes</li>
+		<li>The 'Game Saved!' message should no longer appear more than once in the message log</li>
+		<li>Added missing descriptions to 'Cache' and 'Token' loot filters in the message config window</li>
+		<li>The message config window now does a better job of centering itself</li>
+		<li>The filter for tokens seemed to be hidden on old saves and shown on new saves, both of which have been corrected</li>
+		<li>Jestimp, Chronoimp, and Cache loot now properly scales off of the 'Extra Zones' loot bonus </li>
+	</ul>
+</ul>
+<ul class="betterList">
+	<li>4.602 - 12/02/17</li>
+	<ul>
+		<li>UI/QOL</li>
+		<li>Added an option to toggle off Cache reward messages in the message config</li>
+		<li>"Repeat for Any" no longer repeats on a map that has items but is too low to earn a map stack</li>
+		<li>Reworded some things in the map repeat options tooltip for clarity, and spaced it out a bit to be easier to read</li>
+		<li>Moved the 'Clear All Perks' button that shows up when respeccing down to the row with the other buttons. This gives some more space to this window for smaller screens, and the perk UI no longer jumps down when you click respec.</li>
+		<li>The health breakdown now vertically centers like the attack breakdown. This should keep it from getting pushed off the screen when it has lots of stuff in it.</li>		
+	</ul>
+	<ul>
+		<li>Bug Fixes</li>
+		<li>The 'Reset Map Settings' button now properly resets Biome</li>
+	</ul>
+</ul>
+<ul class="betterList">
+	<li>4.601 - 11/30/17</li>
+	<ul>
+		<li>UI/QOL</li>
+		<li>The tooltips in the map chamber now have a smaller trigger area, and only display if you mouse over the text</li>	
+	</ul>
+	<ul>
+		<li>Bug Fixes</li>
+		<li>Speedexplorer was intended to start dropping at Z20, and loading to 4.6 gave you books as if you had started earning Speedexplorer at Z20. However, on the next portal it wouldn't start dropping until Z30. Speedexplorer now properly starts dropping at Z20. If you were affected by this bug, you'll find an extra Speedexplorer in the next max level map you run after updating to this version.</li>
+		<li>Void Power III now actually really does gain Fast Attacks</li>
+		<li>The Fast Attacks modifier now stays on maps if you abandon and then continue them</li>
+		<li>Mother Lode can now properly be earned while running a Challenge<sup>2</sup></li>
+		<li>The book icon now properly displays in the Speedexplorer unlock message</li>
+	</ul>
+</ul>
+<ul class="betterList">
+	<li>4.6 - 11/29/17</li>
+	<ul>
+		<li>Content</li>
+		<li>Added a new challenge at Z110</li>
+		<li>Added 12 Feat achievements (one is hiding)</li>
+		<li>Added Spire Speedrun achievements for later Spires!</li>		
+		<li>Added a new Challenge<sup>2</sup> at Z425. This challenge is really hard btw.</li>
+		<li>Totally overhauled drop rates of fragments, added SpeedExplorer books that drop in maps every 10 zones, and changed the fragment costs of maps.</li>
+		<li>Added 3 new map customization options! The first unlocks at Z60, the second at Z110, and the third at Z210</li>
+		<li>The mastery "Bionic Magnet" now also gives all Bionic Wonderland maps something useful.</li>
+		<li>The mastery "Void Power III" now also gives all Void Maps something useful.</li>
+		<li>The mastery "Void Special" now adds +0.25% helium to void maps per zone cleared last run, instead of +25% per 100.</li>
+		<li>Increased Crushed's helium reward from +100% to +300%</li>
+		<li>Increased Nom's helium reward from +200% to +300%</li>
+		<li>Increased Watch's helium reward from +150% to +200%</li>
+		<li>Increased Lead's helium reward from +250% to +300%</li>
+		<li>Increased Corrupted's helium reward from +100% to +200%</li>
+	</ul>
+	<ul>
+		<li>UI/QOL</li>
+		<li>Added a "Trimps Info" button to the stats page</li>
+		<li>On the Challenge<sup>2</sup> selection screen, the background colors of challenges now change based on how far you've gotten in each one compared to your highest zone reached</li>
+		<li>Creating a map no longer saves your map configuration settings. Instead, added a save button to the top of the map window. Every time you enter the map chamber, your last saved settings will load</li>
+		<li>Added a button to the top of the map chamber to reset all map configuration settings (this does not clear your saved settings, and they will still load the next time you come in)</li>
+		<li>Added a button to minimize the map configuration options to the top of the map chamber</li>
+		<li>Moved the "Recycle All" button so it could hang out with the other map control buttons</li>
+		<li>Added tooltips to all headers in the map chamber</li>
+		<li>Reduced the amount of text in the portal screen after you complete your first Scientist Challenge</li>
+		<li>Standard Notation now has suffixes up to e308 (thanks k1d_5h31d0n for the list)</li>
+		<li>Added a new toggle to the notation selection, "Hybrid Notation", which formats Standard up to e96 and then switches to Engineering. This mimics the behavior of Standard Notation pre 4.6.</li>
+		<li>Turned some text cursors back in to default pointers</li>
+		<li>Added a new setting to block the big popups for the Improbability, Corruption, Spire, and Magma.</li>
+		<li>You can now Ctrl+click Geneticistassist as a shortcut to the 'Customize Targets' setting. The option in settings is still available for those without keyboards</li>
+		<li>Added a new toggle to the map repeat options, "Repeat for Any". This option will continue repeating until you have all items AND all stacks</li>
+		<li>Searching in settings can now properly find settings by all of their different toggle option names. For example, you can search for "Less Map Buttons" or "Extra Map Buttons" to see that option regardless of current setting.</li>
+		<li>You can now only ever see one mastery tier above what you can afford. This counts as quality of life because nobody wants spoilers!</li>
+		<li>You can now see how many of each golden upgrade you've purchased this run, and what your current bonus is by mousing over the AutoGolden button</li>		
+	</ul>
+	<ul>
+		<li>Bug Fixes</li>
+		<li>Time on zone (for things like Magmamancer or Meditation) no longer increases while offline with the "No Offline Progress" setting enabled.</li>
+		<li>AutoStructure now runs correctly in a background tab</li>
+		<li>The "Swag" achievement no longer rewards credit if you don't have a Shield equipped</li>
+		<li>Pluralized enemy names during the Coordinate challenge</li>
+		<li>/sec text in the resource boxes should no longer ever spill out of the boxes on any supported resolutions</li>
+		<li>Fixed the resource column being 0.1% shorter than it should have been</li>
+		<li>The Trimps resource box no longer says 'breeding' next to your inactive Trimps during the Trapper challenge</li>		
+	</ul>
+</ul>
 <ul class="betterList">
 	<li>4.512 - 11/3/17</li>
 	<ul>
