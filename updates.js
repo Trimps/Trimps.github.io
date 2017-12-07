@@ -2704,6 +2704,7 @@ function nodeToArray(nodeList){
 }
 
 function trimMessages(what){
+	var log = document.getElementById("log");
 	var toChange = document.getElementsByClassName(what + "Message");
 	toChange = nodeToArray(toChange);
 	var messageCount = toChange.length;
