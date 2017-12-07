@@ -266,7 +266,7 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	savegame.global.version = game.global.version;
 	savegame.global.betaV = game.global.betaV;
-	//Compatibility to new message filter config. Separated from other compatibility as it needs to go in to effect before game has the old booleans copied over it.
+	//Compatibility to new message filter config. Separated from other compatibility as it needs to go into effect before game has the old booleans copied over it.
 	if (oldVersion < 3.51){
 		if (savegame.portal.Siphonology && !savegame.portal.Siphonology.locked) addNewSetting("siphonologyMapLevel");
 		addNewSetting("timestamps");
@@ -453,7 +453,7 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	if (oldVersion < 2.9){
 		if (game.options.menu.showFullBreed.enabled == 2) game.options.menu.showFullBreed.enabled = 1;
-		if (game.global.totalPortals >= 5) message("Heavy use of the portal has created a chance for the Void to seep in to your world. Be alert.", "Story", null, "voidMessage");
+		if (game.global.totalPortals >= 5) message("Heavy use of the portal has created a chance for the Void to seep into your world. Be alert.", "Story", null, "voidMessage");
 	}
 	if (oldVersion < 3){
 		game.global.heirloomSeed = getRandomIntSeeded(game.global.voidSeed, 0, 1000000);
@@ -8365,7 +8365,7 @@ function getSpireStory(spireNum, row){
 			r4: "The vibrations within the walls grow stronger with each step you take towards the top. The air has become noticeably warmer, and you expect the walls to start talking to you again soon. ",
 			r6: "<span class='spirePoem'>WHAT<br/>WHO<br/>How...</span>That didn't seem very coherent. It seems like destroying his Echo in the last Spire has made some sort of impact. ",
 			r7: "<span class='spirePoem'>I see that you're attempting some planetary healing<br/>Leaving me steaming in an unappealing feeling<br/>Your freewheeling and stealing has just reached the ceiling<br/>Now commence kneeling or be sent off reeling</span>At least he's gained enough consciousness back to continue with the threats. You know that now is not the time to back down. ",
-			r8: "<span class='spirePoem'>It's obvious that you want the Corruption to slow<br/>So I'll point out something you might not yet know<br/>My Spires are infinite, there is no plateau<br/>You are doomed and you've been so since long long ago</span>His Spires might be infinite, but it's not possible for his consciousness to be. You decide you'll worry about the rest of the spires once you've beaten Druopitee in to nothingness. ",
+			r8: "<span class='spirePoem'>It's obvious that you want the Corruption to slow<br/>So I'll point out something you might not yet know<br/>My Spires are infinite, there is no plateau<br/>You are doomed and you've been so since long long ago</span>His Spires might be infinite, but it's not possible for his consciousness to be. You decide you'll worry about the rest of the spires once you've beaten Druopitee into nothingness. ",
 			r9: "<span class='spirePoem'>Still you climb on, won't your strength ever waver?<br/>You're determined to be this planet's true savior?<br/>Stop to reconsider, we could be something greater<br/>Or continue your path as a time traveling slaver</span>Slaver?! Your Trimps all know that they're free to leave whenever they want. He's just trying to get under your skin! ",
 			r10: "Well, that's one Druopitee and two Echoes of Druopitee down now. He says that he has infinite Spires and infinite versions of himself, but you could tell at the end there that his Echoes are losing power. You might be able to knock the sentience out of all of his Spires by just clearing one more! You set your sights 100 zones forward, turn some more nozzles to spread some more Health around the world, you take your helium, spit on the floor of the Spire, and move on. "
 		},
@@ -8376,7 +8376,7 @@ function getSpireStory(spireNum, row){
 			r7: "<span class='spirePoem'>Please just go around, there's nothing to see<br/>Why is my demise something you must guarantee?<br/>I beg you once more, please hear my plea<br/>We could rule for all time, just you and me</span>No thanks, Druopitee. It's kinda nice to see him scared though! ",
 			r8: "<span class='spirePoem'>Well here is something I wouldn't normally say<br/>Since it seems like you won't be going away<br/>Each of my Echoes you slay makes my mind decay<br/>I may not be able to communicate after today</span>Yes, that was becoming pretty obvious. His mind must really be decaying fast if he thought this admission would be anything other than motivating. ",
 			r9: "<span class='spirePoem'>Why don't you care that you're making things harder?<br/>To repair the planet you'd give enemies armor?<br/>When I brought you here, I thought you'd be smarter<br/>But it seems like there's no room left to barter</span>No, there's not. You're almost there. ",
-			r10: "As this third Echo of Druopitee falls, the Spire suddenly feels twice as cold. Druopitee told you that he placed infinite versions of himself in infinite Spires, but his will should no longer be conscious in any of them. You turn another set of knobs to release some more of the Healthy mutation in to the world, and you figure there's nothing better to do than to keep looking for more to release. You just wouldn't be surprised to not hear from Druopitee again, at least not in this timeline. "
+			r10: "As this third Echo of Druopitee falls, the Spire suddenly feels twice as cold. Druopitee told you that he placed infinite versions of himself in infinite Spires, but his will should no longer be conscious in any of them. You turn another set of knobs to release some more of the Healthy mutation into the world, and you figure there's nothing better to do than to keep looking for more to release. You just wouldn't be surprised to not hear from Druopitee again, at least not in this timeline. "
 		}
 	}
 	var spire = spires['spire' + spireNum];
@@ -8409,7 +8409,7 @@ function giveSpireReward(level){
 			break;
 		case(50):
 			if (spireWorld == 2){
-				message("Out of the corner of your eye, you notice a creature who doesn't seem like he belongs. You walk up closer and notice that it's a Trimp! Only this Trimp is purple instead of blue, obviously a result of some experiments by Druopitee. You let him know not to worry, and that you'll keep him safe. You name him Fluffy, and vow to never send him in to battle. <b>Gained 1 Trimp!</b>", "Story");
+				message("Out of the corner of your eye, you notice a creature who doesn't seem like he belongs. You walk up closer and notice that it's a Trimp! Only this Trimp is purple instead of blue, obviously a result of some experiments by Druopitee. You let him know not to worry, and that you'll keep him safe. You name him Fluffy, and vow to never send him into battle. <b>Gained 1 Trimp!</b>", "Story");
 				//I know that adding 1 trimp doesn't do anything at all, but I'm no liar (on purpose)
 				game.resources.trimps.owned++;
 			}
@@ -8544,7 +8544,7 @@ function rewardSpire1(level){
 				updateSkeleBtn();
 				game.global.spiresCompleted = 1;
 			}
-			text += " You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption in to the planet. Maybe the statues would be bigger if you stayed and helped out?";
+			text += " You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption into the planet. Maybe the statues would be bigger if you stayed and helped out?";
 			message(text, "Story");
 			game.portal.Looting_II.locked = false;
 			checkAchieve("spireTimed");
@@ -9050,7 +9050,7 @@ var dailyModifiers = {
 				else size = "the first " + prettify(size * 2) + " rows of";
 
 				var name = (str < 4) ? "Mutimps" : "Hulking Mutimps";
-				return "40% of bad guys in " + size + " the World will be mutated in to " + name + ".";
+				return "40% of bad guys in " + size + " the World will be mutated into " + name + ".";
 			},
 			getWeight: function (str) {
 				return (str / 10) * 1.5;
@@ -10928,7 +10928,7 @@ function givePumpkimpLoot(){
 		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."
 	];
 	var attackBuff = [
-		"The Pumpkimp suddenly bursts, spewing huge amounts of candy in to the air. Your Trimps scramble about to pick up all they can and gain Sugar Rush!",
+		"The Pumpkimp suddenly bursts, spewing huge amounts of candy into the air. Your Trimps scramble about to pick up all they can and gain Sugar Rush!",
 		"This Pumpkimp was so large that your Trimps could feast for weeks on all the candy inside. Oh, nope, looks like they'll be done in about 10 minutes. In the mean time, they should have a bit of extra energy!",
 		"This Pumpkimp was totally stuffed with various types of sugary things. You give them all to your Trimps, which results in a huge boost of energy!",
 		"Your Trimps have begun carrying pillowcases with them in hopes of a legendary Pumpkimp like the one you just found. Filled to the brim with sugary goodies, this Pumpkimp should sate your Trimps for a few minutes!"
