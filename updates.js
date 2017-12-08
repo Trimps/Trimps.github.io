@@ -2616,9 +2616,13 @@ if (extraTag && typeof game.global.messages[type][extraTag] !== 'undefined' && !
     if (messageString == "Game Saved!" || extraClass == 'save') {
         addId = " id='saveGame'";
         if (document.getElementById('saveGame') !== null){
+			var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
 			var oldElem = document.getElementById('saveGame');
 			log.removeChild(oldElem);
 			log.appendChild(oldElem);
+			if (messageString != "Game Saved!") messageString = "<span class='glyphicon glyphicon-off'></span>" + messageString;
+			oldElem.innerHTML = messageString;
+			if (needsScroll) log.scrollTop = log.scrollHeight;
 			return;
         }
     }
