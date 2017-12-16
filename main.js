@@ -572,9 +572,6 @@ function load(saveString, autoLoad, fromPf) {
 		game.global.b += 20;
 		message("Welcome to Patch 4.5! Since you have already cleared Spire I, you have been given 20 bones and earned 5% zone Liqufication. Click 'What's New' to see what's new!", "Story");
 	}
-	if (oldVersion < 4.511 && game.global.version == 4.511){
-		addNewSetting('showHoliday');
-	}
 	if (oldVersion < 4.6){
 		if (game.global.highestLevelCleared >= 79) addNewSetting('bigPopups');
 		if (game.talents.bionic.purchased) game.talents.bionic.onPurchase();
@@ -605,6 +602,9 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	if (oldVersion < 4.603 && typeof game.global.messages.Loot.token === 'undefined'){
 		game.global.messages.Loot.token = true;
+	}
+	if (oldVersion < 4.61){
+		addNewSetting('showSnow');
 	}
 	//End compatibility
 	
@@ -4810,7 +4810,7 @@ function buildMapGrid(mapId) {
 		}
 	}
     for (var i = 0; i < map.size; i++) {
-        array.push({
+        var cell = {
             level: i + 1,
             maxHealth: -1,
             health: -1,
@@ -4818,7 +4818,9 @@ function buildMapGrid(mapId) {
             special: "",
             text: "",
             name: getRandomBadGuy(map.location, i + 1, map.size, map.level, imports)
-        });
+		};
+		if (game.badGuys.Presimpt.locked == 0 && game.options.menu.showSnow.enabled) cell.vm = "TrimpmasSnow";
+		array.push(cell);
     }
     game.global.mapGridArray = array;
     addSpecials(true);
@@ -5708,54 +5710,6 @@ var mutations = {
 		},
 		effects: ['healthyDbl', 'healthyBleed', 'healthyStrong', 'healthyTough', 'healthyCrit'],
 		namePrefix: 'Healthy'
-	},
-	TrimpmasSnow: {
-		active: function() {
-			return false;
-		},
-		pattern: function(currentArray) {
-			var winner, i, l = currentArray.length;
-			for(i = 0; i < l; i++) {
-				winner = "";
-				if (currentArray[i] === ""){
-					if ((i % 10) > 0 && currentArray[i - 1]){
-						winner = currentArray[i - 1];
-					}
-					if (winner != "Magma" && i > 9 && currentArray[i - 10]){
-						winner = currentArray[i - 10];
-					}
-					if (winner != "Magma" && i < 90 && currentArray[i + 10]){
-						winner = currentArray[i + 10];
-					}
-					if (winner != "Magma" && (i % 10 < 9) && currentArray[i + 1]){
-						winner = currentArray[i + 1];
-					}
-					if (winner == "Magma")
-						winner = "HotSnow";
-					else if (winner == "Corruption")
-						winner = "CorruptSnow";
-					else winner = "";
-					currentArray[i] = (winner) ? winner : "TrimpmasSnow";
-				}
-			}
-			return currentArray;
-		},
-		effects: ['none'],
-		namePrefix: 'Snowy'
-	},
-	CorruptSnow: {
-		active: function () {
-			return false;
-		},
-		effects: ['none'],
-		namePrefix: 'Snowy'
-	},
-	HotSnow: {
-		active: function () {
-			return false;
-		},
-		effects: ['none'],
-		namePrefix: 'Snowy'
 	}
 }
 
@@ -5840,7 +5794,62 @@ var visualMutations = {
             return currentArray;
 		},
 		highlightMob: "Pumpkimp"
-	}
+	},
+	TrimpmasSnow: {
+		active: function() {
+			return (game.options.menu.showSnow.enabled);
+		},
+		pattern: function(currentArray, mutationArray) {
+			var winner, i, l = currentArray.length;
+			for(i = 0; i < l; i++) {
+				winner = "";
+				if (mutationArray[i] === ""){
+					if ((i % 10) > 0 && mutationArray[i - 1]){
+						winner = mutationArray[i - 1];
+					}
+					if (winner != "Healthy" && i > 9 && mutationArray[i - 10]){
+						winner = mutationArray[i - 10];
+					}
+					if (winner != "Healthy" && i < 90 && mutationArray[i + 10]){
+						winner = mutationArray[i + 10];
+					}
+					if (winner != "Healthy" && (i % 10 < 9) && mutationArray[i + 1]){
+						winner = mutationArray[i + 1];
+					}
+					if (winner == "Healthy")
+						winner = "HealthySnow";
+					else if (winner == "Magma")
+						winner = "HotSnow";
+					else if (winner == "Corruption")
+						winner = "CorruptSnow";
+					else winner = "";
+					currentArray[i] = (winner) ? winner : "TrimpmasSnow";
+				}
+				else currentArray[i] = "TrimpmasSnow";
+			}
+			return currentArray;
+		},
+		namePrefix: "Snowy"
+	},
+	CorruptSnow: {
+		active: function () {
+			return false;
+		},
+		namePrefix: "Snowy"
+	},
+	HotSnow: {
+		active: function () {
+			return false;
+		},
+		namePrefix: "Snowy"
+	},
+	HealthySnow: {
+		active: function () {
+			return false;
+		},
+		namePrefix: "Snowy"
+	},
+	
 }
 
 function startTheMagma(){
@@ -6216,7 +6225,7 @@ function buildGrid() {
 	}
 	for (var vmItem in visualMutations){
 		if (visualMutations[vmItem].active()){
-			vms = visualMutations[vmItem].pattern(vms);
+			vms = visualMutations[vmItem].pattern(vms, corrupteds);
 		}
 	}
 	var needsEmpower = false;
@@ -6639,13 +6648,8 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
 			if (!maps && game.global.gridArray[counter].mutation) className += " " + game.global.gridArray[counter].mutation;
-			if (!maps && game.global.gridArray[counter].vm && game.options.menu.showHoliday.enabled != 0){
-				if (game.options.menu.showHoliday.enabled == 2){
-					className += " " + game.global.gridArray[counter].vm + "Bordered";
-				}
-				else{
-					className += " " + game.global.gridArray[counter].vm;
-				}
+			if (game.global.gridArray[counter].vm){
+				className += " " + game.global.gridArray[counter].vm;
 			}
 			if (!maps && game.global.gridArray[counter].empowerment){
 				className += " empoweredCell" + game.global.gridArray[counter].empowerment;
@@ -7213,6 +7217,9 @@ function startFight() {
 	}
 	else if (cell.mutation) {
 		badName = "<span class='badNameMutation " + cell.mutation + "'>" + mutations[cell.mutation].namePrefix + " " + displayedName + "</span>";
+	}
+	else if (cell.vm && visualMutations[cell.vm].namePrefix){
+		badName = "<span class='badNameMutation " + cell.vm + "'>" + visualMutations[cell.vm].namePrefix + " " + displayedName + "</span>"
 	}
 	else
 		badName = displayedName;
@@ -10996,11 +11003,21 @@ function givePresimptLoot(){
 	if (new Date().getTime() > (game.global.lastBonePresimpt + boneTime))
 		eligible.push("bones");
 	var success = [
+		"You run to the motionless Presimpt and give him a good shake. Sounds like ",
+		"One of your Trimps excitedly grabs the Presimpt and brings it to you. You let him open it to find ",
+		"Nothing like some global conquest during the Holidays! You open your Presimpt and find ",
+		"You're a bit curious as to where the Presimpts hide during the rest of the year, but you forget about it when you see your new shiny ",
+		"You'll never complain about free stuff, and this Presimpt is full of it! Found ",
 		"You hurriedly open up the Presimpt, and find ",
 		"Ooh look, a Presimpt! You tear it open and receive ",
 		"Nifty! That Presimpt was carrying around ",
-		"Presimpts for everyone! Wait there's only one. Then Presimpt just for you! With ",
+		"Presimpts for everyone! Wait there's only one. Presimpt for you! With ",
 		"This Presimpt has little snowman markings all over it! Inside, you find "];
+	if (game.global.spireRows >= 15){
+		success.push("Fluffy seems really excited about all the Presimpts, so you let him open this one to find ");
+		success.push("Without even a second of pause, Fluffy zooms to the Presimpt and tears it open. He brings you back the ");
+		success.push("Fluffy is too busy eating the purple snow to open this one, so you do it yourself. Inside, you find ");
+	}
 	if (game.jobs.Dragimp.owned > 0) eligible.push("gems", "gems", "gems", "gems");
 	else eligible.push("food", "food", "wood", "metal");
 	if (game.upgrades.Explorers.allowed > 0) eligible.push("fragments", "fragments", "fragments");

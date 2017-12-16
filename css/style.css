@@ -1504,21 +1504,6 @@ overflow-x: hidden;
 	color: #ff6519;
 }
 
-.battleCell.TrimpmasSnow, .badge.TrimpmasSnow, .badge.CorruptSnow, .badge.HotSnow, .badNameMutation.TrimpmasSnow, .badNameMutation.CorruptSnow, .badNameMutation.HotSnow{
-    color: #0082bc;
-    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(189,255,255,0.8));
-}
-
-.battleCell.CorruptSnow{
-    color: #6082bc;
-    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(221,175,255,0.8));
-}
-
-.battleCell.HotSnow{
-    color: #b0828c;
-    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(253,175,175,0.8));
-}
-
 #portalWrapper{
 	color: black;
 	width: 100vw;
@@ -2578,31 +2563,31 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	padding: 0px 0.2vw;
 }
 
-/* MUTATIONS HERE */
+/* VISUAL MUTATIONS HERE */
 
-.battleCell.cellColorNotBeaten.Living, .battleCell.cellColorBeaten.Living, .badge.Living, .badNameMutation.Living{
-	background-color: black !important;
-	color: white !important;
+.battleCell.TrimpmasSnow, .badNameMutation.TrimpmasSnow{
+    color: #0082bc;
+    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(189,255,255,0.8));
 }
 
-.badNameMutation.Healthy, .badge.Healthy, .battleCell.Healthy, .message.Healthy{
-	background-color: #3D2C15;
-	color: white;
+.battleCell.CorruptSnow{
+    color: #6082bc;
+    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(221,175,255,0.8));
 }
 
-.badNameMutation.Corruption{
-	background-color: #2f006d;
-	color: white;
+.battleCell.HotSnow{
+    color: #b0828c;
+    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(253,175,175,0.8));
 }
 
-.battleCell.Corruption, .badge.Corruption{
-	background-color: #2E0854;
-	color: #DDDDFF;
+.battleCell.HealthySnow{
+    color: #313D36;
+    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(214, 214, 175, 0.8));
 }
 
-.battleCell.Magma, .badge.Magma, .badNameMutation.Magma, .message.Magma {
-	background-color: #8c0000;
-	color: #FFDDDD;
+.liquid ul li.TrimpmasSnow{
+	color: black;
+	background: yellow;
 }
 
 .battleCell.Pumpkimp, .badge.Pumpkimp{
@@ -2650,6 +2635,37 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 #row9 .battleCell.PumpkimpBordered {
     box-shadow: inset 0px 0px 5px #006600;
+}
+
+/* MUTATIONS HERE */
+
+.battleCell.cellColorNotBeaten.Living, .battleCell.cellColorBeaten.Living, .badge.Living, .badNameMutation.Living{
+	background-color: black !important;
+	color: white !important;
+}
+
+.badNameMutation.Healthy, .badge.Healthy, .battleCell.Healthy, .message.Healthy{
+	background: initial;
+	background-color: #3D2C15;
+	color: white;
+}
+
+.badNameMutation.Corruption{
+	background: initial;
+	background-color: #2f006d;
+	color: white;
+}
+
+.battleCell.Corruption, .badge.Corruption{
+	background: initial;
+	background-color: #2E0854;
+	color: #DDDDFF;
+}
+
+.battleCell.Magma, .badge.Magma, .badNameMutation.Magma, .message.Magma {
+	background: initial;
+	background-color: #8c0000;
+	color: #FFDDDD;
 }
 
 .easterEgg0{

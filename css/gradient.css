@@ -1,3 +1,7 @@
+  #mapGrid ul li.battleCell.TrimpmasSnow{
+    color: #0082bc;
+    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(189,255,255,0.8)) !important;
+  }
   .battleCell.cellColorNotBeaten.Corruption
   {
     background: -webkit-linear-gradient(top, #33095b 0%,#23063f 100%) !important;
@@ -8,7 +12,7 @@
     background: -webkit-linear-gradient(top, #8114ff 0%,#6e10cc 100%) !important;
   }
 
-  .battleCell.cellColorBeaten
+  .battleCell.cellColorBeaten, #mapGrid ul li.battleCell.cellColorBeaten
   {
     background: -webkit-linear-gradient(top, #008d00 0%, #006c00 100%) !important;
   }
@@ -40,7 +44,7 @@
     background: -webkit-linear-gradient(-45deg, #5a00d2 0%, #8a00ff 10%, #5a00d2 20%, #8a00ff 30%, #5a00d2 40%, #8a00ff 50%, #5a00d2 60%, #8a00ff 70%, #5a00d2 80%, #8a00ff 90%, #5a00d2 100%);
   }
 
-  .cellColorOverkill
+  .cellColorOverkill, #mapGrid ul li.battleCell.cellColorOverkill
   {
     background: -webkit-linear-gradient(top, #74e800 0%,#5ab500 100%) !important;
   }
@@ -293,3 +297,4 @@
   {
     background: -webkit-linear-gradient(top, #A05080 0%, #7D3C66 100%) !important;
   }
+
