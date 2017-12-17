@@ -2570,17 +2570,17 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
     background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(189,255,255,0.8));
 }
 
-.battleCell.CorruptSnow{
+.battleCell.CorruptSnow, .badNameMutation.CorruptSnow{
     color: #6082bc;
     background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(221,175,255,0.8));
 }
 
-.battleCell.HotSnow{
+.battleCell.HotSnow, .badNameMutation.HotSnow{
     color: #b0828c;
     background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(253,175,175,0.8));
 }
 
-.battleCell.HealthySnow{
+.battleCell.HealthySnow, .badNameMutation.HealthySnow{
     color: #313D36;
     background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(214, 214, 175, 0.8));
 }
