@@ -5177,9 +5177,10 @@ var mutations = {
 				}
 				if (wasAlive && !isAlive){
 					var elem = document.getElementById('cell' + y);
-					var className = elem.className;
-					className = className.split(' Living');
-					elem.className = className[0];
+					var oldClassName = elem.className.split(' Living');
+					var newClassName = oldClassName[0];
+					if (oldClassName.length > 1) newClassName += oldClassName[1];
+					elem.className = newClassName;
 					game.global.gridArray[y].mutation = "";
 					if (game.global.lastClearedCell + 1 == y){
 						var elem = document.getElementById('livingMutationContainer');

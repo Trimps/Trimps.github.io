@@ -2640,7 +2640,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 /* MUTATIONS HERE */
 
 .battleCell.cellColorNotBeaten.Living, .battleCell.cellColorBeaten.Living, .badge.Living, .badNameMutation.Living{
-	background-color: black !important;
+	background: black !important;
 	color: white !important;
 }
 
