@@ -48,7 +48,7 @@
     margin-right: 0px;
 }
 
-.battleCell.TrimpmasSnow, .badge.TrimpmasSnow, .badge.CorruptSnow, .badge.HotSnow, .badNameMutation.TrimpmasSnow, .badNameMutation.CorruptSnow, .badNameMutation.HotSnow{
+.battleCell.TrimpmasSnow, .badge.TrimpmasSnow, .badge.CorruptSnow, .badge.HotSnow, .badNameMutation.TrimpmasSnow, .badNameMutation.CorruptSnow, .badNameMutation.HotSnow, .badNameMutation.Healthy{
     color: #003a54;
     background: linear-gradient(45deg, rgba(255, 255, 255, 0.6), rgba(189, 255, 255, 0.6));
 }
@@ -56,6 +56,11 @@
 .battleCell.CorruptSnow {
     color: #2E0854;
    background: linear-gradient(45deg, rgba(255, 255, 255, 0.6), rgba(221, 175, 255, 0.6));
+}
+
+.battleCell.HealthySnow{
+    color: #313D36;
+    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(214, 214, 175, 0.6));
 }
 
 .battleCell.HotSnow {
