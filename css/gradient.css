@@ -49,12 +49,12 @@
     background: -webkit-linear-gradient(top, #74e800 0%,#5ab500 100%) !important;
   }
 
-  .cellColorOverkill.voidCell
+  #mapGrid ul li.battleCell.cellColorOverkill.voidCell
   {
     background: -webkit-linear-gradient(top, #845def 0%,#7251d6 100%) !important;
   }
 
-  .cellColorBeaten.voidCell
+  #mapGrid ul li.battleCell.cellColorBeaten.voidCell
   {
     background: -webkit-linear-gradient(top, #8114ff 0%,#6e10cc 100%) !important;
   }
@@ -62,6 +62,11 @@
   #mapGrid .battleCell.cellColorNotBeaten.voidCell
   {
     background: -webkit-linear-gradient(top, #33095b 0%,#23063f 100%) !important;
+  }
+
+  #mapGrid ul li.voidCell.cellColorNotBeaten.CorruptSnow{
+    color: #6082bc;
+    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(221,175,255,0.8)) !important;
   }
 
   .battleCell.cellColorOverkill.Corruption
@@ -248,7 +253,7 @@
     background: -webkit-linear-gradient(top, #67CF00 0%,#4D9C00 100%) !important;
   }
 
-  .battleCell.cellColorCurrent, .battleCell.empoweredCellIce.cellColorCurrent, .battleCell.empoweredCellPoison.cellColorCurrent, .battleCell.empoweredCellWind.cellColorCurrent
+  .battleCell.cellColorCurrent, .battleCell.empoweredCellIce.cellColorCurrent, .battleCell.empoweredCellPoison.cellColorCurrent, .battleCell.empoweredCellWind.cellColorCurrent, #mapGrid .battleCell.TrimpmasSnow.cellColorCurrent
   {
     background: -webkit-linear-gradient(top, #ffff00 0%,#b2b200 100%) !important;
   }

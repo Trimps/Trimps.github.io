@@ -4819,7 +4819,10 @@ function buildMapGrid(mapId) {
             text: "",
             name: getRandomBadGuy(map.location, i + 1, map.size, map.level, imports)
 		};
-		if (game.badGuys.Presimpt.locked == 0 && game.options.menu.showSnow.enabled) cell.vm = "TrimpmasSnow";
+		if (game.badGuys.Presimpt.locked == 0 && game.options.menu.showSnow.enabled){
+			if (map.location == "Void") cell.vm = "CorruptSnow";
+			else cell.vm = "TrimpmasSnow"
+		}
 		array.push(cell);
     }
     game.global.mapGridArray = array;
@@ -6649,8 +6652,11 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
 			if (!maps && game.global.gridArray[counter].mutation) className += " " + game.global.gridArray[counter].mutation;
-			if (game.global.gridArray[counter].vm){
+			if (!maps && game.global.gridArray[counter].vm){
 				className += " " + game.global.gridArray[counter].vm;
+			}
+			else if (maps && game.global.mapGridArray[counter].vm){
+				className += " " + game.global.mapGridArray[counter].vm;
 			}
 			if (!maps && game.global.gridArray[counter].empowerment){
 				className += " empoweredCell" + game.global.gridArray[counter].empowerment;
