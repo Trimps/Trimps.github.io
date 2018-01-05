@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.61,
+		version: 4.611,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -763,12 +763,12 @@ var toReturn = {
 					return (game.global.highestLevelCleared >= 229);
 				}
 			},
-			showSnow: {
-				enabled: 1,
-				extraTags: "general",
-				description: "Disable the snow effect in the world. <b>This will take effect on the next zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
-				titles: ["No Snow", "Show Snow"]
-			},
+			// showSnow: {
+			// 	enabled: 1,
+			// 	extraTags: "general",
+			// 	description: "Disable the snow effect in the world. <b>This will take effect on the next zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
+			// 	titles: ["No Snow", "Show Snow"]
+			// },
 /*			showHoliday: {
 				enabled: 1,
 				extraTags: "general",
@@ -2506,7 +2506,7 @@ var toReturn = {
 				return "Still Earnable!";
 			},
 			earnable: true,
-			lastZone: -1,
+			lastZone: 0,
 			breakpoints: [5, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500],
 			tiers: [1, 4, 5, 6, 7, 7, 7, 7, 8, 8, 8],
 			names: ["Sitter", "Watchdog", "Nanny", "Caretaker", "Supervisor", "Advocate", "Guardian", "Coddler", "Savior", "Defender", "Trimp Lover"],
@@ -3376,7 +3376,7 @@ var toReturn = {
 		},
 		Presimpt: {
 			location: "World",
-			locked: 0,
+			locked: 1,
 			attack: 1.1,
 			health: 1.5,
 			fast: false,

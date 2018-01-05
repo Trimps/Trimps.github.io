@@ -545,6 +545,7 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	if (oldVersion < 4.1){
 		game.achievements.humaneRun.earnable = false;
+		game.achievements.humaneRun.lastZone = -1;
 	}
 	if (oldVersion < 4.2){
 		if (game.global.highestLevelCleared > 64){
@@ -602,9 +603,6 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	if (oldVersion < 4.603 && typeof game.global.messages.Loot.token === 'undefined'){
 		game.global.messages.Loot.token = true;
-	}
-	if (oldVersion < 4.61){
-		addNewSetting('showSnow');
 	}
 	//End compatibility
 	
@@ -4587,7 +4585,10 @@ function upgradeMod(confirmed){
 		mod[2] = 0;
 		mod[3] = 1;
 	}
-	game.heirlooms[heirloom.type][heirloom.mods[selectedMod][0]].currentBonus = newBonus;
+	console.log(game.global.selectedHeirloom[1])
+	if (game.global.selectedHeirloom[1] == "ShieldEquipped" || game.global.selectedHeirloom[1] == "StaffEquipped"){
+		game.heirlooms[heirloom.type][heirloom.mods[selectedMod][0]].currentBonus = newBonus;
+	}
 	displaySelectedHeirloom();
 	selectHeirloom(game.global.selectedHeirloom[0], game.global.selectedHeirloom[1]);
 	selectMod(selectedMod);
@@ -5801,6 +5802,7 @@ var visualMutations = {
 	},
 	TrimpmasSnow: {
 		active: function() {
+			return false;
 			return (game.options.menu.showSnow.enabled);
 		},
 		pattern: function(currentArray, mutationArray) {
