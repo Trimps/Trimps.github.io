@@ -3048,7 +3048,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		var toUpdate = game.equipment[itemD];
 		if (toUpdate.locked == 1) continue;
 		if (document.getElementById(itemD) === null) drawAllEquipment();
-		document.getElementById(itemD + "Owned").innerHTML = toUpdate.level;
+		document.getElementById(itemD + "Owned").textContent = toUpdate.level;
 	}
 }
 
@@ -3123,14 +3123,14 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 
 function updateSideTrimps(){
 	var trimps = game.resources.trimps;
-	document.getElementById("trimpsEmployed").innerHTML = prettify(trimps.employed);
+	document.getElementById("trimpsEmployed").textContent = prettify(trimps.employed);
 	var breedCount = (trimps.owned - trimps.employed > 2) ? prettify(Math.floor(trimps.owned - trimps.employed)) : 0;
-	document.getElementById("trimpsUnemployed").innerHTML = breedCount;
-	document.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.realMax() / 2));
+	document.getElementById("trimpsUnemployed").textContent = breedCount;
+	document.getElementById("maxEmployed").textContent = prettify(Math.ceil(trimps.realMax() / 2));
 	var free = (Math.ceil(trimps.realMax() / 2) - trimps.employed);
 	if (free < 0) free = 0;
 	var s = (free > 1) ? "s" : "";
-	document.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " workspace" + s;
+	document.getElementById("jobsTitleUnemployed").textContent = prettify(free) + " workspace" + s;
 }
 
 function unlockBuilding(what) {
