@@ -1267,6 +1267,7 @@ overflow-x: hidden;
 }
 
 .shrinkBtnText div:first-child{
+	margin-top: 0.19vw;
 	font-size: 0.9vw !important;
 }
 
@@ -2948,6 +2949,7 @@ color: #DDDDFF !important;
 #mapsBtn{
 	overflow: hidden;
 	padding: 0;
+	height: 1.9em;
 }
 
 #mapsBtn div{
@@ -2966,7 +2968,7 @@ color: #DDDDFF !important;
 	background-color: grey;
 	float: right;
 	padding-top: 0.2em;
-	height: 1.75em;
+	height: 1.9em;
 }
 
 #mapsBtn div:nth-child(2):hover{
