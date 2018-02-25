@@ -568,6 +568,7 @@ overflow-x: hidden;
 	color: #DDDDFF;
 }
 
+
 #foremenCount,
 #buildSpeed {
     font-size: 1.12em;
@@ -1266,8 +1267,12 @@ overflow-x: hidden;
 	display: block;
 }
 
+#mapsBtnText{
+	margin-top: 0.08em;
+}
+
 .shrinkBtnText div:first-child{
-	margin-top: 0.19vw;
+	margin-top: 0.3em !important;
 	font-size: 0.9vw !important;
 }
 

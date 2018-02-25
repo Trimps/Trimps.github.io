@@ -305,6 +305,7 @@ function load(saveString, autoLoad, fromPf) {
 		if (a == "options" && savegame.options){
 			for (var itemO in savegame.options.menu){
 				if (game.options.menu[itemO]) game.options.menu[itemO].enabled = savegame.options.menu[itemO].enabled;
+				if (itemO == "mapAtZone") game.options.menu.mapAtZone.setZone = savegame.options.menu.mapAtZone.setZone;
 			}
 			if (typeof savegame.options.menu.GeneticistassistTarget !== 'undefined' && savegame.options.menu.GeneticistassistTarget.disableOnUnlock) game.options.menu.GeneticistassistTarget.disableOnUnlock = true;
 			if (savegame.options.menu.pauseGame && savegame.options.menu.pauseGame.timeAtPause) game.options.menu.pauseGame.timeAtPause = savegame.options.menu.pauseGame.timeAtPause;
@@ -8319,7 +8320,7 @@ function nextWorld() {
 	}
 	game.stats.zonesCleared.value++;
 	checkAchieve("totalZones");
-	if (game.options.menu.mapAtZone.enabled && game.global.world == game.options.menu.mapAtZone.setZone){
+	if (game.options.menu.mapAtZone.enabled && game.global.world == game.options.menu.mapAtZone.setZone && game.global.canMapAtZone){
 		if (!game.global.preMapsActive)
 			mapsClicked(true);
 	}
