@@ -6012,7 +6012,7 @@ function getGeneratorUpgradeHtml(){
 		}
 		tooltipText += "<div class='generatorUpgradeTitle'>One and Done Upgrades</div>";
 		for (var item in game.permanentGeneratorUpgrades){
-			tooltipText += "<div class='thing pointer noselect thingColor' style='width: 19.5%' onclick='showGeneratorUpgradeInfo(\"" + item + "\", true)' id='generatorUpgrade" + item + "'></div>";
+			tooltipText += "<div class='thing pointer noselect thingColor thing5' onclick='showGeneratorUpgradeInfo(\"" + item + "\", true)' id='generatorUpgrade" + item + "'></div>";
 		}
 		tooltipText += "<br/><div id='generatorUpgradeDescription' class='noselect'><b>Click an upgrade to learn more about it!</b><br/></div>";
 		tooltipText += "</div>";

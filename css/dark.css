@@ -266,6 +266,11 @@
     border-color: #5D5D5D;
 }
 
+.thing5 {
+	width: 20%;
+	margin-left: 0;
+}
+
 #generatorWindow{
 	width: calc(100% + 1px);
 }

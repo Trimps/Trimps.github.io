@@ -2485,7 +2485,7 @@ var toReturn = {
 			},
 			progress: function () {
 				if (this.breakpoints.length > this.finished) return this.evaluate() + " / " + this.breakpoints[this.finished];
-				return this.evaluate() + " total";
+				return prettify(this.evaluate()) + " total";
 			},
 			breakpoints: [30, 70, 130, 200, 400, 777, 1000, 1500, 10000, 50000],//total zones according to stats
 			tiers: [2, 2, 3, 3, 3, 4, 4, 5, 7, 7],
