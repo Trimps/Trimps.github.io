@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 4.611</title>
+	<title>Trimps 4.7</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?55" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?1" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -308,6 +308,11 @@
 						<div class="col-xs-6">
 							<div class="maxCenter">
 								<span id="trimpTitle" class="title">???</span>													
+							</div>
+						</div>
+						<div class="col-xs-3" style="padding-left: 0">
+							<div id="fluffyBox" style="display: none" onmouseover="tooltip('Fluffy', null, event)" onmouseout="tooltip('hide')" onclick="tooltip('Fluffy', null, 'update')">
+								<span class="fluffyIcon glyphicon glyphicon-user"></span>&nbsp;Lv<span id='fluffyLevel'></span><br/><div class="progress" id="fluffyExpContainer"><span class="progress-bar noTransition" id="fluffyExp">&nbsp;</span></div>
 							</div>
 						</div>
 					</div>
@@ -704,9 +709,10 @@
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-warning fightBtn" id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" onclick="mapsClicked()" style="display: none">
-									Maps
-								</span>
+								<div id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" style="display: none">
+									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div><div onclick="tooltip('Configure Maps', null, 'update')">
+										<span class='glyphicon glyphicon-cog'></span></div>
+								</div>
 							</div>
 							<div class="battleSideBtnContainer">
 								<span class="btn voidMessage fightBtn" id="voidMapsBtn" onclick="toggleVoidMaps()" style="display: none">
@@ -749,6 +755,9 @@
 							<div style="display: none" id="mapsCreateRow" class="row">
 								<div id='advMapsControlBtns'>
 									<span id='advMapsHideBtn' class='icomoon icon-minus-circle pointer' onclick='hideAdvMaps()' onmouseover="tooltip('Show/Hide Map Config', 'advMaps', event)" onmouseout="tooltip('hide')"></span>
+									<span id='advMapsPreset1' class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(1)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">1</span>
+									<span id='advMapsPreset2' class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(2)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">2</span>
+									<span id='advMapsPreset3' class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(3)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">3</span>
 									<span id='advMapsSaveBtn' class='icomoon icon-save pointer' onclick='saveAdvMaps()' onmouseover="tooltip('Save Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')"></span>	
 									<span id='advMapsResetBtn' class='icomoon icon-refresh pointer' onclick='resetAdvMaps(true)' onmouseover="tooltip('Reset Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')"></span>											
 									<span id='advMapsRecycleBtn' class="icomoon icon-trash-o pointer iconStateBad" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" onclick="recycleBelow(false)"></span>
@@ -911,11 +920,15 @@
 							<div class="battleSideBtnContainer">
 								<span class="btn settingBtn1 fightBtn" id="toggleexitTo" onmouseout="tooltip('hide')" onclick="toggleSetting('exitTo')">
 								</span>
-							</div>									
+							</div>
+							<div class="battleSideBtnContainer">
+								<span class="btn settingBtn1 fightBtn" id="togglemapAtZone2" onmouseout="tooltip('hide')" onclick="toggleSetting('mapAtZone')">
+								</span>
+							</div>							
 							<div class="battleSideBtnContainer" style="display: none" id="repeatVoidsContainer">
 								<span class="btn settingBtn1 fightBtn" id="togglerepeatVoids" onmouseout="tooltip('hide')" onclick="toggleSetting('repeatVoids')">
 								</span>
-							</div>							
+							</div>					
 						</div>
 					</div>
 				</div>
@@ -994,6 +1007,7 @@
 				<div>
 					<div id="portalHelium"><span id="portalHeliumOwned">0</span> Helium Canisters</div>
 					<div id="portalTotalHelium"><span id="totalHeliumEarned">0</span> Earned All Time</div>
+					<div id="portalTotalSpent"><span id="totalHeliumSpent">0</span> Spent on Perks</div>
 					<div id="portalTotalPortals"><span id="totalPortals">0</span> Portals Used</div>		
 				</div>
 			</div>
@@ -1049,7 +1063,7 @@
 						</li>
 					</ul>
 				</div>		
-				<div id="portalUpgradesHere"></div>
+				<div id="portalUpgradesHere" class="niceScroll"></div>
 			</div>
 			<div id="challengeCol" class="col-xs-5">
 				<div id="viewChallenge" style="display: none">
@@ -1252,9 +1266,9 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?97"></script>
-	<script type="text/javascript" src="updates.js?97"></script>
-	<script type="text/javascript" src="main.js?97"></script>
+	<script type="text/javascript" src="config.js?1"></script>
+	<script type="text/javascript" src="updates.js?1"></script>
+	<script type="text/javascript" src="main.js?1"></script>
 	
 </body>
 

@@ -40,6 +40,20 @@
     background-color:#574800;
 }
 
+#fluffyBox {
+    border: none;
+    color: #b72cb7;
+    background-color: #2b112b;
+}
+
+.fluffyIcon {
+    text-shadow: -1px -1px 0 #b72cb7, 1px -1px 0 #b72cb7, -1px 1px 0 #b72cb7, 1px 1px 0 #b72cb7;
+}
+
+.red {
+    color: #AD2A2A;
+}
+
 .talentItem {
     border-color: #5d5d5d;
 	    margin-left: -1px;

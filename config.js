@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.611,
+		version: 4.7,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -196,14 +196,39 @@ var toReturn = {
 		hideMapRow: false,
 		mapExtraBonus: "",
 		realBreedTime: 0,
-		sessionMapValues: {
-			loot: 0,
-			difficulty: 0,
-			size: 0,
-			biome: "Random",
-			specMod: "0",
-			perf: false,
-			extra: 0
+		fluffyExp: 0,
+		fluffyPrestige: 0,
+		selectedMapPreset: 1,
+		genPaused: false,
+		canMapAtZone: false,
+		mapPresets: {
+			p1: {
+				loot: 0,
+				difficulty: 0,
+				size: 0,
+				biome: "Random",
+				specMod: "0",
+				perf: false,
+				extra: 0
+			},
+			p2: {
+				loot: 0,
+				difficulty: 0,
+				size: 0,
+				biome: "Random",
+				specMod: "0",
+				perf: false,
+				extra: 0				
+			},
+			p3: {
+				loot: 0,
+				difficulty: 0,
+				size: 0,
+				biome: "Random",
+				specMod: "0",
+				perf: false,
+				extra: 0
+			}
 		},
 		lootAvgs: {
 			food: [0],
@@ -230,6 +255,7 @@ var toReturn = {
 				enabled: true,
 				primary: true,
 				secondary: true,
+				bone: true,
 				exotic: true,
 				helium: true,
 				essence: true,
@@ -317,7 +343,7 @@ var toReturn = {
 	empowerments: {
 		Poison: {
 			description: function () {
-				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing it to take <b>" + this.formatModifier(this.getModifier()) + "%</b> of the damage you dealt every turn until it dies. Each attack by your Trimps will further add to the poison effect.";
+				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing it to take <b>" + this.formatModifier(this.getModifier()) + "%</b> of the damage you dealt every attack until it dies. Each attack by your Trimps will further add to the poison effect.";
 			},
 			upgradeDescription: function () {
 				return "Increases the percentage of damage that sticks to enemies as poison during the Empowerment of Poison by <b>" + this.formatModifier(this.baseModifier) + "%</b>. You currently poison for <b>" + this.formatModifier(this.getModifier()) + "%</b>, and next level will cause you to poison for <b>" + this.formatModifier(this.getModifier(1)) + "%</b>.";
@@ -420,6 +446,9 @@ var toReturn = {
 				extraTags: "layout",
 				description: "Swap between Standard Formatting (12.7M, 540B), Engineering Notation (12.7e6, 540e9), Scientific Notation (1.27e7, 5.40e11), Alphabetic Notation (12.7b, 540c), and Hybrid Notation (Standard up to e96, then Engineering. Mimics Standard pre 4.6).",
 				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation", "Alphabetic Notation", "Hybrid Notation"],
+				onToggle: function () {
+					document.getElementById("tab5Text").innerHTML = "+" + prettify(game.global.lastCustomAmt);
+				}
 			},
 			tooltips: {
 				enabled: 1,
@@ -464,6 +493,12 @@ var toReturn = {
 				description: "Toggle on or off large number formatting for Perk levels.",
 				titles: ["No Perk Formatting", "Formatting Perk Levels"]
 			},
+			smallPerks: {
+				extraTags: "layout",
+				enabled: 0,
+				description: "Shrink the size of perk buttons in the Portal and View Perks windows. <b>Large Perk Buttons</b> is default and fits 5 buttons per row. <b>Small Perk Buttons</b> shrinks the size to fit 6 per row, and <b>Tiny Perk Buttons</b> fits 7 per row.",
+				titles: ["Large Perk Buttons", "Small Perk Buttons", "Tiny Perk Buttons"]
+			},
 			progressBars: {
 				enabled: 1,
 				extraTags: "performance",
@@ -503,19 +538,21 @@ var toReturn = {
 				extraTags: "qol",
 				description: "<p>Choose which upgrades you want first if it has been a while since you last ran maps.</p><p><b>Tier first</b> will cause maps to drop all items for the lowest tier before moving to the next. (Greatsword II -> Breastplate II -> Shield III)</p><p><b>Equip first</b> will start from Shield and drop all available Shield prestiges before continuing to Dagger and so on. (Shield III -> Shield IV -> Dagger III)</p>",
 				titles: ["Tier First", "Equip First"],
-				secondLocation: "togglemapLoot2",
+				secondLocation: ["togglemapLoot2", "togglemapLootCM"]
 			},
 			repeatUntil: {
 				enabled: 0,
 				description: "<p><b>Repeat Forever</b> will cause the map to continually repeat if Repeat Maps is enabled.</p><p><b>Repeat to 10</b> will repeat unless you have 10 Map Bonus stacks.</p><p><b>Repeat for Items</b> will repeat unless there are no more special items left for that level of map.</p><p><b>Repeat for Any</b> will repeat unless there are no special items available AND you can not earn more Map Bonus stacks.</p><p><b>This setting only matters if Repeat is on. Toggling Repeat off will still leave the map when it is finished no matter what.</b></p>",
 				titles: ["Repeat Forever", "Repeat to 10", "Repeat for Items", "Repeat for Any"],
-				locked: true
+				locked: true,
+				secondLocation: ['togglerepeatUntilCM']
 			},
 			exitTo: {
 				enabled: 0,
 				description: "Choose whether to go to the Maps Screen or World after completing a map.",
 				titles: ["Exit to Maps", "Exit to World"],
-				locked: true
+				locked: true,
+				secondLocation: ['toggleexitToCM']
 			},
 			repeatVoids: {
 				enabled: 0,
@@ -658,8 +695,8 @@ var toReturn = {
 			overkillColor: {
 				enabled: 1,
 				extraTags: "layout",
-				description: "Choose if you would like to see a different cell color for cells that you overkilled. Toggle between off, showing both cells involved in the overkill, or just showing the 1 cell that was skipped.",
-				titles: ["No Overcolors", "1 Overkill Cell", "2 Overkill Cells"],
+				description: "Choose if you would like to see a different cell color for cells that you overkilled. <b>No Overcolors</b> will not change any colors based on Overkill. <b>Normal Overkill Colors</b> is the default setting, and shows a special color for cells that were Overkilled. <b>Connected Overkill Colors</b> will show the Overkill cell colors for all cells while Overkilling.",
+				titles: ["No Overcolors", "Normal Overkill Colors", "Connected Overkill Colors"],
 				lockUnless: function () {
 					return (!game.portal.Overkill.locked)
 				},
@@ -684,6 +721,20 @@ var toReturn = {
 				titles: ["Keep Fighting at Spires", "Map at Spires", "Map at Top 2 Spires", "Map at Top Spire"],
 				lockUnless: function () {
 					return (game.global.highestLevelCleared >= 199);
+				},
+				secondLocation: ["togglemapsOnSpireCM"]
+			},
+			mapAtZone: {
+				enabled: 0,
+				extraTags: "other",
+				description: "When enabled, you will automatically abandon your Trimps in the World and enter the Map Chamber as soon as you hit your specified Zone number.",
+				get titles(){
+					return ["No Map At Zone", "Map At Z" + this.setZone];
+				},
+				setZone: 200,
+				secondLocation: ["togglemapAtZone2", "togglemapAtZoneCM"],
+				lockUnless: function () {
+					return game.global.canMapAtZone;
 				}
 			},
 			siphonologyMapLevel: {
@@ -724,8 +775,8 @@ var toReturn = {
 			masteryTab: {
 				enabled: 1,
 				extraTags: "alerts",
-				description: "Choose what you would like to see on your Mastery Tab! <b>No Mastery Info</b> will keep the tab clean and static. <b>Alert Mastery</b> will show an alert on the tab as soon as a new Mastery becomes affordable. <b>Show Essence</b> will always show your total amount of unspent essence on the tab.",
-				titles: ["No Mastery Info", "Alert Mastery", "Show Essence"],
+				description: "Choose what you would like to see on your Mastery Tab! <b>No Mastery Info</b> will keep the tab clean and static. <b>Alert Mastery</b> will show an alert on the tab as soon as a new Mastery becomes affordable. <b>Show Essence</b> will always show your total amount of unspent essence on the tab. <b>Hybrid Essence</b> will show your total amount of unspent essence on the tab, but will switch to the alert icon once you have enough essence for a new Mastery.",
+				titles: ["No Mastery Info", "Alert Mastery", "Show Essence", "Hybrid Alerts"],
 				lockUnless: function () {
 					return (game.global.highestLevelCleared >= 180)
 				},
@@ -780,8 +831,8 @@ var toReturn = {
 				enabled: 0,
 				locked: true,
 				extraTags: "other",
-				description: "<p>When <b>Using Gene Send</b> is enabled, as long as you have one Geneticist, AutoFight will automatically send soldiers to fight if they have been breeding for longer than your Geneticistassist setting.</p><p>When <b>Enforce Gene Send</b> is enabled, as long as you have one Geneticist, AutoFight will never send a group of Trimps to fight unless you are at max population or you have reached your set Geneticistassist timer.</p>",
-				titles: ["No Gene Sending", "Using Gene Send", "Enforce Gene Send"]
+				description: "<p>When <b>Using Gene Send</b> is enabled, as long as you have one Geneticist, AutoFight will automatically send soldiers to fight if they have been breeding for longer than your Geneticistassist setting.</p><p>When <b>Enforce Gene Send</b> is enabled, as long as you have one Geneticist, AutoFight will never send a group of Trimps to fight unless you are at max population or you have reached your set Geneticistassist timer.</p><p>Finally, if you choose <b>Wait For Gene Send</b> and have at least one Geneticist, AutoFight will only send Trimps to fight after they have been breeding long enough to reach your set Geneticistassist timer. This guarantees that Anticipation and Geneticist levels build up for as long as your set timer, but may result in no soldiers being sent for some time while you sit at full population.</p>",
+				titles: ["No Gene Sending", "Using Gene Send", "Enforce Gene Send", "Wait For Gene Send"]
 			},
 			fireForJobs: {
 				enabled: 0,
@@ -1076,6 +1127,7 @@ var toReturn = {
 			description: "Your Trimps gain an additional 30% attack and health inside Void Maps, and all current and future Void Maps gain the 'Fast Attacks' special modifier.",
 			name: "Void Power III",
 			onPurchase: function (clear) {
+				if(game.global.world > 1)
 				addMapModifier('Void', 'fa');
 			},
 			onRespec: function () {
@@ -1106,7 +1158,15 @@ var toReturn = {
 		liquification: {
 			get description () {
 				var text = (this.purchased) ? "This mastery is increasing " : "This mastery would increase ";
-				return "Increase your Liquification bonus by 5%, as if you had completed 1 extra Spire. You have currently completed " + game.global.spiresCompleted + " unique Spire" + ((game.global.spiresCompleted == 1) ? "" : "s") + ", giving you " + (game.global.spiresCompleted * 5) + "% of your highest Zone reached (through Z" + Math.floor((game.global.spiresCompleted / 20) * (game.global.highestLevelCleared + 1)) + "). " + text + " your bonus to " + ((game.global.spiresCompleted + 1) * 5) + "% of your highest Zone reached (through Z" + Math.floor(((game.global.spiresCompleted + 1) / 20) * (game.global.highestLevelCleared + 1)) + ").";
+				var totalSpires = game.global.spiresCompleted;
+				var fluffyCount = Fluffy.isRewardActive("liquid");
+				var fluffyText = "Y";
+				if (fluffyCount > 0){
+					if (fluffyCount == 1) fluffyText = "Counting your Fluffy bonus as half of a Spire, y";
+					else fluffyText = "Counting your two Fluffy bonuses as one Spire, y"
+					totalSpires += (fluffyCount * 0.5);
+				}
+				return "Increase your Liquification bonus by 5%, as if you had completed 1 extra Spire. " + fluffyText + "ou have completed " + totalSpires + " unique Spire" + ((totalSpires == 1) ? "" : "s") + ", giving you " + (totalSpires * 5) + "% of your highest Zone reached (through Z" + Math.floor((totalSpires / 20) * (game.global.highestLevelCleared + 1)) + "). " + text + " your bonus to " + ((totalSpires + 1) * 5) + "% of your highest Zone reached (through Z" + Math.floor(((totalSpires + 1) / 20) * (game.global.highestLevelCleared + 1)) + ").";
 			},
 			name: "Liquification I",
 			tier: 6,
@@ -1169,7 +1229,15 @@ var toReturn = {
 			icon: "align-justify"
 		},
 		voidSpecial: {
-			description: "Receive 1 free Void Map after using your Portal for each 100 zones cleared last run. Helium from Void Maps is also increased by 0.25% for each zone cleared last run.",
+			get description() {
+				var text = "Receive 1 free Void Map after using your Portal for each 100 zones cleared last run. Helium from Void Maps is also increased by 0.25% for each zone cleared last run.";
+				var amt = (game.global.lastPortal * 0.0025);
+				text += " You reached Z" + game.global.lastPortal + " last Portal, ";
+				if (this.purchased) text += " earning you a bonus of ";
+				else text += " which would earn you a bonus of ";
+				text +=  prettify(amt * 100) + "% extra Helium."
+				return text;
+			},
 			name: "Void Specialization",
 			tier: 8,
 			purchased: false,
@@ -1195,7 +1263,14 @@ var toReturn = {
 				var text = (this.purchased) ? "This mastery is increasing " : "This mastery would increase ";
 				var totalSpires = game.global.spiresCompleted;
 				if (game.talents.liquification.purchased) totalSpires++;
-				return "Increase your Liquification bonus by another 5%, as if you had completed 1 extra Spire. Counting Liquification I, you have currently completed " + totalSpires + " unique Spire" + ((totalSpires == 1) ? "" : "s") + ", giving you " + (totalSpires * 5) + "% of your highest Zone reached (through Z" + Math.floor((totalSpires / 20) * (game.global.highestLevelCleared + 1)) + "). " + text + " your bonus to " + ((totalSpires + 1) * 5) + "% of your highest Zone reached (through Z" + Math.floor(((totalSpires + 1) / 20) * (game.global.highestLevelCleared + 1)) + ").";
+				var fluffyCount = Fluffy.isRewardActive("liquid");
+				var fluffyText = "";
+				if (fluffyCount > 0){
+					if (fluffyCount == 1) fluffyText = " and your Fluffy bonus as half of a Spire";
+					else fluffyText += " and your two Fluffy bonuses as another"
+					totalSpires += (fluffyCount * 0.5);
+				}
+				return "Increase your Liquification bonus by another 5%, as if you had completed 1 extra Spire. Counting Liquification I as one Spire" + fluffyText + ", you have completed the equivalent of " + totalSpires + " unique Spire" + ((totalSpires == 1) ? "" : "s") + ", giving you " + (totalSpires * 5) + "% of your highest Zone reached (through Z" + Math.floor((totalSpires / 20) * (game.global.highestLevelCleared + 1)) + "). " + text + " your bonus to " + ((totalSpires + 1) * 5) + "% of your highest Zone reached (through Z" + Math.floor(((totalSpires + 1) / 20) * (game.global.highestLevelCleared + 1)) + ").";
 			},
 			name: "Liquification II",
 			tier: 8,
@@ -1264,6 +1339,38 @@ var toReturn = {
 			additive: true,
 			additiveInc: 500,
 			modifier: 0.01
+		},
+		Capable: {
+			level: 0,
+			locked: true,
+			priceBase: 1e8,
+			heliumSpent: 0,
+			tooltip: "You can sense great power within Fluffy, but he'll need some training. Each level of Capable allows Fluffy to gain 1 level of experience. Respeccing to remove Capable will temporarily remove any bonuses associated with Fluffy's level and experience, but all exp will be saved until you add points back. Each level of Capable is 10x more expensive than the last, and buying the first level will allow Fluffy to take Portals with you.",
+			max: 10,
+			specialGrowth: 10,
+			onChange: function(){
+				Fluffy.handleBox();
+			}
+		},
+		Cunning: {
+			level: 0,
+			locked: true,
+			modifier: 0.25,
+			priceBase: 1e11,
+			heliumSpent: 0,
+			get tooltip(){
+				return "Fluffy demands more helium! Each level of Cunning will increase the final amount of experience Fluffy gains from each zone by " + Math.round(this.modifier * 100) + "% (additive)."
+			}
+		},
+		Curious: {
+			level: 0,
+			locked: true,
+			modifier: 30,
+			priceBase: 1e14,
+			heliumSpent: 0,
+			get tooltip() {
+				return "Fluffy is coming along, but he's coming along slowly. Each point of Curious will speed up Fluffy's progression by adding " + this.modifier + " exp to the base amount he gains per zone clear."
+			}
 		},
 		Overkill: {
 			level: 0,
@@ -1835,7 +1942,7 @@ var toReturn = {
 			unlockString: "reach Zone 120"
 		},
 		Crushed: {
-			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with an additional 300% of all helium earned up to but not including Z125. This challenge is repeatable.",
+			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with an additional 400% of all helium earned up to but not including Z125. This challenge is repeatable.",
 			completed: false,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 124);
@@ -2264,6 +2371,17 @@ var toReturn = {
 			description: "Reduce the rate of fuel consumption per tick by 0.1, from 0.5 to 0.4",
 			cost: 1875,
 			owned: false
+		},
+		Supervision: {
+			description: "Gain the ability to pause the Dimensional Generator, opening up new strategic possibilities!",
+			cost: 2000,
+			owned: false,
+			onPurchase: function() {
+				var elem = document.getElementById('generatorWindow');
+				if (elem != null)
+					elem.innerHTML = getGeneratorHtml();
+				updateGeneratorInfo();
+			}
 		}
 	},
 	//Total 4448% after 4.6
@@ -2417,6 +2535,28 @@ var toReturn = {
 			tiers: [1, 2, 3, 4, 5, 6, 6, 7, 7, 7, 8, 8],
 			names: ["Cool", "Crisp", "Brisk", "Chilly", "Frosty", "Frigid", "Frozen", "Gelid", "Glacial", "Freaking Cold", "Arctic", "Absolute Zero"],
 			icon: "glyphicon glyphicon-oil",
+			newStuff: []
+		},
+		heliumHour: {
+			finished: 0,
+			title: "Helium Per Hour",
+			description: function (number) {
+				return "Reach " + prettify(this.breakpoints[number]) + " Helium Per Hour";
+			},
+			progress: function () {
+				if (this.breakpoints.length > this.finished) return prettify(Math.floor(this.evaluate() * 10000) / 10000) + " / " + prettify(this.breakpoints[this.finished]);
+				return prettify(this.evaluate()) + " total";
+			},
+			evaluate: function () {
+				return game.stats.heliumHour.value();
+			},
+			display: function () {
+				return (game.global.totalHeliumEarned > 0);
+			},
+			breakpoints: [10, 100, 1e3, 1e4, 1e5, 1e6, 1e7, 1e9, 1e11, 1e13, 1e15, 5e17],
+			tiers: [2, 3, 3, 4, 4, 5, 6, 7, 7, 8, 8, 9],
+			names: ["Coldlector", "Centelium", "Frosty Tanker", "Blimp Snatcher", "Squeaky Dasher", "Quick N Cool", "Hour Bender", "Acquired Frost", "Vacuum", "Levitator", "Soarer", "Cool Runnings"],
+			icon: "icomoon icon-cloudy2",
 			newStuff: []
 		},
 		totalHeirlooms: {
@@ -2792,7 +2932,9 @@ var toReturn = {
 			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare
 			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
-			descriptions: ["Reach Z30 with no respec and 60 or less He spent", "Have over 1M traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Attack 20 times without dying in Electricity", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over 250k total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Reach Z60 without hiring a single Trimp", "Complete a zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your zone number", "Beat the Spire with no respec and less than 100M He Spent", "Defeat an enemy on Obliterated"],
+			get descriptions () {
+				return ["Reach Z30 with no respec and 60 or less He spent", "Have over " + prettify(1e6) + " traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Attack 20 times without dying in Electricity", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over " + prettify(250e3) + " total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Reach Z60 without hiring a single Trimp", "Complete a zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your zone number", "Beat the Spire with no respec and less than " + prettify(100e6) + " He Spent", "Defeat an enemy on Obliterated"];
+			},
 			tiers: [3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8],
 			description: function (number) {
 				return this.descriptions[number];
@@ -3058,11 +3200,31 @@ var toReturn = {
 			var soldiers = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
 			return "During a boring night while waiting to cross a particularly rough Magma river, you managed to teach your Trimps how to stack on each other to create some funny shapes. You almost feel bad for the first Snimp to come across " + prettify(soldiers) + " Trimps stuck together in the shape of a humongous Moongooseimp.";
 		},
-		w285: "You can finally see it, clear as day. No more than 15 zones in the distance stands a giant spire, even more menacing than the first. A loud, echoing voice booms from the tower, matching the tone and cadence of Druopitee himself. It's a little far away to hear perfectly, but it sounds like he's asking you nicely to please leave him be.",
-		w286: "You hear the voice again, and can tell there's definitely something weird about it - as if it was coming from a ghost or something. Though you suppose that makes sense, since you've already killed Druopitee.",
-		w290: "As you get closer and closer to the spire, the voice gets clearer and clearer. You can pick up notes of terror from whatever being is up there, as if he wants to just be left alone to destroy the world. You don't feel much sympathy though.",
-		w295: "You're now so close to this new spire that you can taste it, literally. These things are gross.",
-		w298: "The deranged spirit in the tower is now begging that you stay back. It obviously knows you destroyed the last tower and doesn't want you taking out another. Too bad, buddy. You're coming.",
+		get w285(){
+			if (game.global.spireRows >= 10)
+				return "You can finally see it, clear as day. No more than 15 zones in the distance stands a giant spire, even more menacing than the first. A loud, echoing voice booms from the tower, matching the tone and cadence of Druopitee himself. It's a little far away to hear perfectly, but it sounds like he's asking you nicely to please leave him be.";
+			return "Something feels wrong, but you can't quite figure out what. You eventually find a pebble in your shoe and everything seems much better!";
+		},
+		get w286() {
+			if (game.global.spireRows >= 10)
+				return "You hear the voice again, and can tell there's definitely something weird about it - as if it was coming from a ghost or something. Though you suppose that makes sense, since you've already killed Druopitee.";
+			return "You hear something rustling in a bush and get totally psyched up for something new and exciting. As you walk cautiously towards the bush, a Rabbimp quickly runs out and away."
+		},
+		get w290() {
+			if (game.global.spireRows >= 10)
+				return "As you get closer and closer to the spire, the voice gets clearer and clearer. You can pick up notes of terror from whatever being is up there, as if he wants to just be left alone to destroy the world. You don't feel much sympathy though.";
+			return "You trip over a rock and stumble a bit, but fix your footing before totally falling over. You glance around and it doesn't seem like any of the Trimps noticed!";
+		},
+		get w295() {
+			if (game.global.spireRows >= 10)
+				return "You're now so close to this new spire that you can taste it, literally. These things are gross.";
+			return "You wonder if you could get your scientists to invent chewing gum..."
+		},
+		get w298() {
+			if (game.global.spireRows >= 10)
+				return "The deranged spirit in the tower is now begging that you stay back. It obviously knows you destroyed the last tower and doesn't want you taking out another. Too bad, buddy. You're coming.";
+			return "A voice in the back of your mind tells you there should be something big soon, but you see nothing. Oh well."
+		},
 		get w303() {
 			if (game.global.spireRows >= 15) return "You're glad you have Fluffy around now. He seems to be getting along well with the other Trimps, and seems happy to have found others like him. He doesn't seem to be any smarter than a normal Trimp so you're sure you'll get some entertainment out of him.";
 			return "You wish you had a pet.";
@@ -3490,7 +3652,21 @@ var toReturn = {
 			health: 1.4,
 			fast: false
 		},
+		//Honorary Imps
+		Kittimp: {
+			//Designed by K1d_5h31d0n
+			location: "Forest",
+			location2: "Mountain",
+			attack: 1,
+			health: 0.85,
+			fast: true,
+			loot: function (level) {
+				var amt = rewardResource("food", 0.5, level, true);
+				message("You hear nearby Kittimps running away in fear and decide to check out their former home. There, you find a prey pile with " + prettify(amt) + " food!", "Loot", "apple", null, 'primary');
+			}
+		},
 		Grimp: {
+			//Designed by Grabarz
 			location: "Forest",
 			attack: 1.1,
 			health: 1.5,
@@ -3500,7 +3676,35 @@ var toReturn = {
 				message("That Grimp dropped " + prettify(amt) + " wood!", "Loot", "tree-deciduous", null, 'primary');
 			}
 		},
+		Golimp: {
+			//Designed by Syc_Golem
+			location: "Depths",
+			attack: 1.2,
+			health: 1.4,
+			fast: false,
+			loot: function (level) {
+				var random = Math.floor(Math.random() * 5);
+				var amt;
+				var res;
+				var icon;
+				var tag;
+				if (random === 0) {
+					amt = rewardResource("fragments", 1, level, true);
+					res = "fragments";
+					icon = "th";
+					tag = "secondary";
+				}
+				else {
+					amt = rewardResource("metal", 0.3, level, true);
+					res = "bars of metal";
+					icon = "*cubes";
+					tag = "primary";
+				}
+				message("The Golimp fell to pieces! You manage to grab " + prettify(amt) + " " + res + " before it begins pulling itself together.", "Loot", icon, null, tag);
+			}
+		},
 		Seirimp: {
+			//Designed by Seiyria
 			location: "Mountain",
 			attack: 1.15,
 			health: 1.4,
@@ -3528,32 +3732,6 @@ var toReturn = {
 			loot: function (level) {
 				var amt = rewardResource("metal", 0.2, level, true);
 				message("The Moltimp thanked you for the combat, and handed you " + prettify(amt) + " bars of metal! Then he died.", "Loot", "*cubes", null, 'primary');
-			}
-		},
-		Golimp: {
-			location: "Depths",
-			attack: 1.2,
-			health: 1.4,
-			fast: false,
-			loot: function (level) {
-				var random = Math.floor(Math.random() * 5);
-				var amt;
-				var res;
-				var icon;
-				var tag;
-				if (random === 0) {
-					amt = rewardResource("fragments", 1, level, true);
-					res = "fragments";
-					icon = "th";
-					tag = "secondary";
-				}
-				else {
-					amt = rewardResource("metal", 0.3, level, true);
-					res = "bars of metal";
-					icon = "*cubes";
-					tag = "primary";
-				}
-				message("The Golimp fell to pieces! You manage to grab " + prettify(amt) + " " + res + " before it begins pulling itself together.", "Loot", icon, null, tag);
 			}
 		},
 		Lavimp: {
@@ -3651,7 +3829,7 @@ var toReturn = {
 			attack: 2,
 			health: 5,
 			fast: true,
-			loot: function (level) {
+			loot: function (level, fromFluffy) {
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 				var amt = (game.global.world >= 60) ? 10 : 2;
 				if (mutations.Magma.active()) amt *= 3;
@@ -3673,12 +3851,20 @@ var toReturn = {
 				if (game.talents.voidSpecial.purchased){
 					amt *= ((game.global.lastPortal * 0.0025) + 1);
 				}
+				if (fromFluffy) amt *= 1.5;
 				
 				if (game.global.runningChallengeSquared)
 					amt = 0;
 				else
 					amt = rewardResource("helium", amt, level, false, rewardPercent);
-				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";
+				game.stats.highestVoidMap.evaluate();
+				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";				
+				if (fromFluffy){
+					msg = "Before you even realized you were in a new Void Map, Fluffy snuck to the end and quickly stole all the loot.";
+					if (!game.global.runningChallengeSquared) msg += " You gained another " + prettify(amt) + " Helium!";
+					message(msg, "Loot", "oil", "helium", "helium");
+					return;
+				}
 				if (game.options.menu.repeatVoids.enabled && game.global.totalVoidMaps > 1){
 					msg += "the next Void map";
 				}
@@ -3688,7 +3874,7 @@ var toReturn = {
 				if (game.global.runningChallengeSquared) msg += ".";
 				else msg += " with an extra " + prettify(amt) + " Helium!";
 				message(msg, "Loot", "oil", "helium", "helium");
-				game.stats.highestVoidMap.evaluate();
+				
 			}
 		},
 		Shadimp: {
@@ -4096,8 +4282,13 @@ var toReturn = {
 				game.unlocks.impCount.TauntimpAdded += amt;
 				if (game.portal.Carpentry.level) amt *= Math.pow((1 + game.portal.Carpentry.modifier), game.portal.Carpentry.level);
 				if (game.portal.Carpentry_II.level > 0) amt *= (1 + (game.portal.Carpentry_II.modifier * game.portal.Carpentry_II.level));
-				message("It's nice, warm, and roomy in that dead Tauntimp. It's big enough for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic", "exotic");
-
+				if (game.global.challengeActive != "Trapper"){
+					game.resources.trimps.owned += amt;
+					message("It's nice, warm, and roomy in that dead Tauntimp. You found " + prettify(amt) + " Trimps inside, and they all seem content to stay living there!", "Loot", "gift", "exotic", "exotic");
+				}
+				else {
+					message("It's nice, warm, and roomy in that dead Tauntimp. There's enough room for " + prettify(amt) + " Trimps to live inside!", "Loot", "gift", "exotic", "exotic");
+				}
 			}
 		},
 		Whipimp: {
@@ -4225,7 +4416,7 @@ var toReturn = {
 			health: 2,
 			fast: false,
 			loot: function () {
-				message("Your Trimps managed to pull 1 perfectly preserved bone from that Skeletimp!", "Loot", "italic", null, "secondary");
+				message("Your Trimps managed to pull 1 perfectly preserved bone from that Skeletimp!", "Loot", "italic", null, "bone");
 				game.global.b++;
 				game.global.lastSkeletimp = new Date().getTime();
 				updateSkeleBtn();
@@ -4239,7 +4430,7 @@ var toReturn = {
 			health: 2.5,
 			fast: false,
 			loot: function () {
-				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic", null, "secondary");
+				message("That was a pretty big Skeletimp. Your Trimps scavenged the remains and found 2 perfectly preserved bones!", "Loot", "italic", null, "bone");
 				game.global.b += 2;
 				game.global.lastSkeletimp  = new Date().getTime();
 				updateSkeleBtn();
@@ -4306,7 +4497,7 @@ var toReturn = {
 			},
 			Void: {
 				resourceType: "Any",
-				upgrade: ["AutoStorage", "Heirloom", "ImprovedAutoStorage"]
+				upgrade: ["AutoStorage", "Heirloom", "ImprovedAutoStorage", "MapAtZone"]
 			},
 			Star: {
 				resourceType: "Metal"
@@ -4427,6 +4618,25 @@ var toReturn = {
 				var text = "<p>From the void, an auspicious presence reaches out and fills your mind. You feel at peace with the world. It asks you what you desire most. Wait... hasn't this happened before? Last time you asked for your Trimps to be smart enough to manage storage structures on their own. You can make it better this time! You excitedly ask for your Trimps to waste less resources when managing resources on their own. The presence lets you know that it is done, then dissipates. You get serious déjà-vu while regretting not asking to go home.</p><p style='font-weight: bold'>From now on, storage facilities will be constructed instantly. If you collect more resources from one source than you can hold, the extra resources will be used to build new storage facilities without wasting any resources. You may not be home, but your Trimps are now quite talented!</p>";
 				tooltip('confirm', null, 'update', text, null, 'Auspicious Presence Part II', null, null, true);
 				enableImprovedAutoStorage();
+				createHeirloom();
+				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
+			}
+		},
+		MapAtZone: {
+			world: 225,
+			level: "last",
+			icon: "*eye4",
+			title: "Auspicious Presence Part III",
+			canRunOnce: true,
+			filterUpgrade: true,
+			specialFilter: function(world) {
+				return !game.global.canMapAtZone;
+			},
+			fire: function(){
+				var text = "<p>From the void, an auspicious presence reaches out and fills your mind. You feel at peace with the world. It asks you what you desire most. Wait... how many times has this happened now? You're fairly positive that there was something you regretted not asking last time, but you can't quite remember. You've asked for Trimps to be able to manage storage structures, and you've asked for them to be better at managing those structures. Even though you're content with your storage solutions, you suddenly realize the perfect request! You wish the Trimps would stop pushing so far through the zones while you're sleeping, so you ask for a way to tell the Trimps to stop fighting at a Zone of your choosing. The presence lets you know that it is done, then dissipates. As usual, you get serious déjà-vu while regretting not asking to go home.</p><p style='font-weight: bold'>From now on, you have access to the Map At Zone setting. This setting can be accessed through the Map Sidebar, Settings, or the 'Configure Maps' popup!</p>";
+				tooltip('confirm', null, 'update', text, null, 'Auspicious Presence Part III', null, null, true);
+				game.global.canMapAtZone = true;
+				addNewSetting("mapAtZone");
 				createHeirloom();
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
 			}
@@ -6142,6 +6352,36 @@ var toReturn = {
 				if (justStacks) return timeOnZone;
 				return 1 + ((((1 - Math.pow(boostMult, this.owned)) * boostMax)) * (Math.pow(expInc, timeOnZone) - 1));
 			}
+		},
+		Amalgamator: {
+			locked: 1,
+			owned: 0,
+			allowAutoFire: true,
+			get tooltip(){
+				return "Doubles your soldiers, doubles your health.";
+			},
+			cost: {
+				gems: [1e60, 1.01]
+			},
+			increase: "custom",
+			modifier: 1,
+			getBonusPercent: function (justStacks, forceTime) {
+				var boostMult = 0.9999;
+				var boostMax = 3;
+				var expInc = 1.2;
+				var timeOnZone;
+				if (typeof forceTime === 'undefined'){
+					var timeOnZone = new Date().getTime() - game.global.zoneStarted;
+					if (game.talents.magmamancer.purchased) timeOnZone += 300000;
+					timeOnZone = Math.floor(timeOnZone / 600000);
+					
+					if (timeOnZone > 12) timeOnZone = 12;
+					else if (timeOnZone <= 0) return 1;
+				}
+				else timeOnZone = forceTime;
+				if (justStacks) return timeOnZone;
+				return 1 + ((((1 - Math.pow(boostMult, this.owned)) * boostMax)) * (Math.pow(expInc, timeOnZone) - 1));
+			}			
 		}
 	},
 

@@ -161,7 +161,7 @@ overflow-x: hidden;
 	margin: 0 0.15%;
 }
 
-#GATargetError{
+#GATargetError, #mapAtZoneErrorText{
 	text-align: center;
 	color: red;
 	font-size: 1.2em;
@@ -1082,7 +1082,8 @@ overflow-x: hidden;
 }
 
 #numTabs > ul > li > a {
-    padding: 3px;
+	padding: 3px;
+	border-radius: 0;
 }
 
 #buyTabsUl > li > a {
@@ -1265,7 +1266,7 @@ overflow-x: hidden;
 	display: block;
 }
 
-.shrinkBtnText{
+.shrinkBtnText div:first-child{
 	font-size: 0.9vw !important;
 }
 
@@ -1482,6 +1483,22 @@ overflow-x: hidden;
 	display: inline-block;
 }
 
+.mapPreset{
+	position: relative;
+	top: -0.1em;
+}
+
+.presetSelectionOn{
+	color: #109409;
+	text-shadow:
+	-1px -1px 0 black,  
+		1px -1px 0 black,
+	-1px 1px 0 black,
+		1px 1px 0 black;
+	font-weight: bold;
+	text-decoration: underline;
+}
+
 #selectedMapName {
     text-decoration: underline;
 	padding-top: 10px;
@@ -1550,6 +1567,7 @@ overflow-x: hidden;
  .portalMk5 #portalError,
  .portalMk5 #portalHelium,
  .portalMk5 #portalTotalHelium,
+ .portalMk5 #portalTotalSpent,
  .portalMk5 #portalTotalPortals,
  .portalMk5 .challengeTitle{
   color: white !important;
@@ -1562,6 +1580,7 @@ overflow-x: hidden;
  .portalMk6 #portalError,
  .portalMk6 #portalHelium,
  .portalMk6 #portalTotalHelium,
+ .portalMk6 #portalTotalSpent,
  .portalMk6 #portalTotalPortals,
  .portalMk6 .challengeTitle{
   color: white !important;
@@ -1592,7 +1611,6 @@ overflow-x: hidden;
 #titleCol2{
 	position: absolute;
 	left: 47%;
-	
 }
 
 .perkColorOn{
@@ -1607,14 +1625,59 @@ overflow-x: hidden;
 	background-color: #696980;
 }
 
+.portalThing.detailed{
+	font-size: 0.96vw;
+	line-height: 1.1vw;
+}
+
 .portalThing{
 	width: 19.3%;
 	font-size: 1.1vw;
 }
 
-.portalThing.detailed{
+.portalThing.tinyPerk{
+	width: 13.78%;
 	font-size: 0.96vw;
-	line-height: 1.1vw;
+	height: 3.3em;
+}
+
+.portalThing.tinyPerk.detailed{
+	height: 5.2em;
+}
+
+.portalThing.smallPerk{
+	width: 16.16%;
+	letter-spacing: -0.01em;
+	height: 3.3em;
+	padding-top: calc(0.2vh + 0.02em);
+}
+
+.portalThing.smallPerk.detailed{
+	height: 5.2em;
+}
+
+.portalThing.smallPerk.changingOn{
+	line-height: 0.85em;
+	padding-top: calc(0.2vh + 0.05em);
+}
+
+.portalThing.tinyPerk.changingOn{
+	line-height: 0.78em;
+	padding-top: calc(0.2vh + 0.16em);
+}
+
+.portalThing.smallPerk.detailed.changingOn, .portalThing.tinyPerk.detailed.changingOn{
+	line-height: 0.88em;
+	padding-top: calc(0.2vh + 0.06em);
+	padding-bottom: calc(0.2vh + 0.09em);
+}
+
+.portalThing.tinyPerk .thingName{
+	letter-spacing: -0.01em;
+}
+
+.portalThing.detailed.tinyPerk{
+	font-size: 0.96vw;
 }
 
 .portalThing .thingName{
@@ -2474,6 +2537,8 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 #portalUpgradesHere{
 	display: inline-block;
+	max-height: calc(100vh - 21.3vw);
+	overflow-y: auto;
 }
 
 #portalTitle{
@@ -2485,12 +2550,12 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 #portalHelium{
 	font-size: 2vw;
+	line-height: 2.8vw;
 }
-#portalTotalHelium{
+
+#portalTotalPortals, #portalTotalSpent, #portalTotalHelium{
 	font-size: 1.3vw;
-}
-#portalTotalPortals{
-	font-size: 1.3vw;
+	line-height: 1.7vw;
 }
 
 .inPortalBtn{
@@ -2692,13 +2757,122 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	color: white;
 }
 
-#turkimpBuff{
+.fluffyEvolveText{
+	display: inline-block;
+	width: 100%;
+	text-align: center;
+	background-color: #740774;
+	color: white;
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+.fluffFormDaily{
+	color: #9a7300;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.fluffFormZone{
+	color: #040675;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.fluffFormCurious{
+	color: #69043F;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.fluffFormCunning{
+	color: #044D22;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.fluffFormSpecial{
+	color: #085B70;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#fluffyExpBreakdown{
+	min-height: calc(1.5em + 1vw);
+	padding: 0.5vw 1.5vw;
+}
+
+#fluffyExpBreakdown:not(:empty){
+	font-style: italic;
+	background-color: #474747;
+	color: #dadada;
+}
+
+.fluffyThird{
+	width: 33%;
+	display: inline-block;
+	text-align: center;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+#fluffyLevelBreakdown{
+	border: 1px solid black;
+	font-size: 0.8em;
+	width: 100%;
+}
+
+#fluffyLevelBreakdown tbody tr td:first-child{
+	width: 8%;
+	text-align: center;
+}
+
+#fluffyLevelBreakdown tbody tr td:nth-child(2){
+	padding: 0.5em;
+}
+
+#fluffyLevelBreakdown tbody tr td{
+	border: 1px solid black;
+}
+
+#turkimpBuff, #fluffyBox{
 	width: 100%;
 	text-align: center;
 	background: rgba(102, 51, 0, 0.7);
 	color: #CC6600;
 	font-size: .8em;
 	padding-top: .2vw;
+	height: 3em;
+}
+
+#fluffyBox{
+	font-size: .7em;
+	height: 3.44em;
+	font-weight: bold;
+	cursor: pointer;
+    color: #b72cb7;
+    background-color: #2b112b;
+}
+
+.fluffyIcon{
+	color: black;
+	text-shadow: -1px -1px 0 #b72cb7, 1px -1px 0 #b72cb7, -1px 1px 0 #b72cb7, 1px 1px 0 #b72cb7;
+}
+
+#fluffyExpContainer{
+	height: 0.8em;
+	float: bottom;
+	margin-top: 0.3em;
+}
+
+#fluffyExp{
+	width: 50%;
+	background-color: green;
 }
 
 .turkimp{
@@ -2768,6 +2942,40 @@ color: #DDDDFF !important;
 #voidMapsBtn:hover{
 	background-color: #1f0539;
 	color: #FFF;
+}
+
+
+#mapsBtn{
+	overflow: hidden;
+	padding: 0;
+}
+
+#mapsBtn div{
+	display: inline-block;
+	text-align: center; 
+}
+
+#mapsBtn div:first-child{
+	width: 80%;
+	padding: 0.15vw 0.3vw;
+	float: left;
+}
+
+#mapsBtn div:nth-child(2){
+	width: 20%; 
+	background-color: grey;
+	float: right;
+	padding-top: 0.2em;
+	height: 1.75em;
+}
+
+#mapsBtn div:nth-child(2):hover{
+	background-color: #666666;
+}
+
+#mapsBtn div:nth-child(2) span{
+	line-height: 1.2em;
+	font-size: 1.1em;
 }
 
 .voidBadge{
@@ -3340,8 +3548,9 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	background: linear-gradient(45deg, #2286ad 0%,#000000 30%,#661310 50%,#000000 80%,#2286ad 100%);
-	color: white;
+    color: #b72cb7;
+	background-color: #2b112b;
+	font-weight: bold;
 }
 
 .btn-new:hover,
@@ -3350,8 +3559,13 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	background: linear-gradient(45deg, #661310 0%,#000000 30%,#2286ad 50%,#000000 80%,#661310 100%);
-	color: white;
+	color: #2b112b;
+	background-color: black;
+	text-shadow:
+ -1px -1px 0 #b72cb7,  
+  1px -1px 0 #b72cb7,
+ -1px 1px 0 #b72cb7,
+  1px 1px 0 #b72cb7;
 }
 .btn-new:active,
 .btn-new.active,
@@ -3489,6 +3703,14 @@ input::-webkit-inner-spin-button {
 	border-bottom: 0;
 }
 
+#buyTabs .tabSelected a {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.tabSelected.buyTab {
+    background: rgba(255,255,255,0.25);
+}
+
 .natureUpgradeLevel{
 	position: absolute;
 	font-size: 0.7vw;
@@ -3512,16 +3734,28 @@ input::-webkit-inner-spin-button {
 	color: white;
 }
 
-.empowerTabPoison, .empoweredCellPoison, .tabColPoison, .badNamePoison, #poisonEmpowermentIcon{
+.empowerTabPoison a, .empoweredCellPoison, .tabColPoison, .badNamePoison, #poisonEmpowermentIcon{
 	background: rgba(50, 150, 50, 0.75) !important;
 }
 
-.empowerTabWind, .empoweredCellWind, .tabColWind, .badNameWind, #windEmpowermentIcon{
+.empowerTabWind a, .empoweredCellWind, .tabColWind, .badNameWind, #windEmpowermentIcon{
 	background: rgba(60, 75, 130, 0.75) !important;
 }
 
-.empowerTabIce, .empoweredCellIce, .tabColIce, .badNameIce, #iceEmpowermentIcon{
+.empowerTabIce a, .empoweredCellIce, .tabColIce, .badNameIce, #iceEmpowermentIcon{
 	background: rgba(50, 50, 200, 0.75) !important;
+}
+
+.empowerTabIce.tabSelected a, .empowerTabIce a:hover {
+    background: rgba(30, 30, 120, 0.75) !important;
+}
+
+.empowerTabWind.tabSelected a, .empowerTabWind a:hover {
+    background: rgba(36, 45, 78, 0.75) !important;
+}
+
+.empowerTabPoison.tabSelected a, .empowerTabPoison a:hover {
+    background: rgba(30, 90, 30, 0.75) !important;
 }
 
 .empowerCellIce, .empowerCellPoison, .empowerCellWind{
@@ -3747,6 +3981,46 @@ sup{
 	width: 20% !important;
 }
 
+#generatorPauseBtn{
+	font-size: 0.8em;
+	display: inline-block;
+	padding: 0 5%;
+}
+
+#generatorProducingColumn.hasPause{
+	cursor: pointer;
+}
+
+#generatorProducingColumn.hasPause:hover #generatorPauseBtn{
+	font-weight: bold;
+	font-size: 0.9em;
+}
+
+.generatorStatePassive #genGaugeContainer #generatorProducingColumn.hasPause:hover #generatorPauseBtn,
+.generatorStatePassive #genGaugeContainer #generatorProducingColumn.hasPause #generatorPauseBtn.btnPaused{
+	background-color: #8c0000;
+	color: #000040;
+}
+
+.generatorStateActive #genGaugeContainer #generatorProducingColumn.hasPause:hover #generatorPauseBtn{
+	background-color: #000040;
+	color: #8c0000;
+}
+
+.generatorStateHybridActive #genGaugeContainer #generatorProducingColumn.hasPause:hover #generatorPauseBtn{
+	background-color: #318696;
+	color: #8c0000;
+}
+
+.generatorStateHybridPassive #genGaugeContainer #generatorProducingColumn.hasPause:hover #generatorPauseBtn{
+	background-color: #318696;
+	color: #000040;
+}
+
+#generatorProducingColumn.hasPause:hover #generatorPauseBtn.btnPaused{
+	color: white !important;
+}
+
 #magmiteOwned, #generatorUpgradeTitle{
 	font-size: 1.2em;
 	font-weight: bold;
@@ -3814,7 +4088,11 @@ sup{
 
 #generatorProducingContainer{
 	font-size: 1.1em;
-	padding-top: 10%;
+	padding-top: 10%;	
+}
+
+#generatorProducingColumn.hasPause #generatorProducingContainer{
+	padding-top: 5%;
 }
 
 #generatorTickContainer{
