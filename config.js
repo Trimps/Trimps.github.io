@@ -1968,11 +1968,11 @@ var toReturn = {
 			unlockString: "reach Zone 130"
 		},
 		Nom: {
-			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with an additional 300% of all helium earned up to that point. This is repeatable!",
+			description: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with an additional 350% of all helium earned up to that point. This is repeatable!",
 			completed: false,
 			allowSquared: true,
 			squaredDescription: "Travel to a dimension where bad guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the bad guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the bad guys are too big and slow to attack first.",
-			heliumMultiplier: 3,
+			heliumMultiplier: 3.5,
 			filter: function () {
 				return (game.global.highestLevelCleared >= 144);
 			},
@@ -4005,7 +4005,7 @@ var toReturn = {
 				var amt2 = rewardResource("food", 1, level, true);
 				message("Robotrimp discombobulated. Loot inspection reveals: " + prettify(amt1) + " wood and " + prettify(amt2) + " food. Splendiferous.", "Loot", "*cogs", null, 'primary');
 				if (game.global.challengeActive == "Crushed") {
-					var heliumAdded = (game.challenges.Crushed.heldHelium * 3);
+					var heliumAdded = (game.challenges.Crushed.heldHelium * 4);
 					message("You have completed the Crushed challenge! You have been rewarded with " + prettify(heliumAdded) + " Helium.", "Notices");
 					game.challenges.Crushed.heldHelium = 0;
 					game.global.challengeActive = "";
