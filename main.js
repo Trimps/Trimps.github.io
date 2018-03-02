@@ -613,6 +613,21 @@ function load(saveString, autoLoad, fromPf) {
 		if (game.options.menu.masteryTab.lockUnless()) addNewSetting("masteryTab");
 		game.global.messages.Loot.bone = true;
 	}
+	if (oldVersion < 4.71){
+		if (game.global.challengeActive == "Trimp" && game.global.world >= 230){
+			if (game.upgrades.Coordination.done > 0){
+				game.global.capTrimp = true;
+				message("I'm terribly sorry, but your Trimp<sup>2</sup> run appears to have more than one Trimp fighting, which kinda defeats the purpose. Your score for this Challenge<sup>2</sup> will be capped at 230.", "Notices")
+			}
+			else {
+				game.upgrades.Coordination.allowed = 0;
+				game.upgrades.Coordination.locked = true;
+				game.challenges.Trimp.heldBooks += 100;
+			}
+		}
+		if (game.c2.Trimp > 230) game.c2.Trimp = 230;
+		countChallengeSquaredReward();
+	}
 	//End compatibility
 	
 	//Test server only
@@ -1207,6 +1222,7 @@ function abandonChallenge(restart){
 		fadeIn("helium", 10);
 		if (game.global.world > game.c2[game.global.challengeActive])
 			game.c2[game.global.challengeActive] = game.global.world;
+		if (game.global.capTrimp && game.c2.Trimp > 230) game.c2.Trimp = 230;
 		countChallengeSquaredReward();
 	}
 	game.global.runningChallengeSquared = false;
@@ -2031,6 +2047,7 @@ function activatePortal(){
 		if (game.global.world > game.c2[game.global.challengeActive])
 			game.c2[game.global.challengeActive] = game.global.world;
 		game.global.challengeActive = "";
+		if (game.global.capTrimp && game.c2.Trimp > 230) game.c2.Trimp = 230;
 	}
 	game.global.runningChallengeSquared = (game.global.selectedChallenge) ? challengeSquaredMode : false;
 	var refund = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
@@ -5693,7 +5710,7 @@ var mutations = {
 			var mutText = mutationEffects[effectName].text;
 			var text = "";
 			if (game.global.spireActive){
-				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this zone.";
+				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop 45% of the helium you would normally get from completing this zone.";
 				text = mutText[0].toUpperCase() + mutText.substring(1);
 			}
 			else {
@@ -5861,7 +5878,9 @@ function startTheMagma(){
 		}
 	}
 	drawAllBuildings();
-	game.upgrades.Coordination.allowed += 100;
+	if (game.global.challengeActive != 'Trimp')
+		game.upgrades.Coordination.allowed += 100;
+	else game.challenges.Trimp.heldBooks += 100;
 	drawAllUpgrades();
 }
 
@@ -7040,9 +7059,15 @@ function repeatClicked(updateOnly){
 	if (!updateOnly) game.global.repeatMap = !game.global.repeatMap;
 	var color = (game.global.repeatMap) ? "btn-success" : "btn-danger";
 	var elem = document.getElementById("repeatBtn");
+	var elem2 = document.getElementById("repeatBtn2");
 	elem.className = "";
 	elem.className = "btn fightBtn " + color;
 	elem.innerHTML = (game.global.repeatMap) ? "Repeat On" : "Repeat Off";
+	if (elem2 !== null){
+		color = (game.global.repeatMap) ? "settingBtn1" : "settingBtn0"; 
+		swapClass("settingBtn", color, elem2);
+		elem2.innerHTML = (game.global.repeatMap) ? "Repeat On" : "Repeat Off";
+	}
 }
 
 function selectMap(mapId, force) {
@@ -8324,6 +8349,7 @@ function nextWorld() {
 		if (!game.global.preMapsActive)
 			mapsClicked(true);
 	}
+	if (game.global.capTrimp) message("I'm terribly sorry, but your Trimp<sup>2</sup> run appears to have more than one Trimp fighting, which kinda defeats the purpose. Your score for this Challenge<sup>2</sup> will be capped at 230.", "Notices");
 }
 
 function purgeBionics(){

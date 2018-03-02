@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.7,
+		version: 4.71,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -201,6 +201,7 @@ var toReturn = {
 		selectedMapPreset: 1,
 		genPaused: false,
 		canMapAtZone: false,
+		capTrimp: false,
 		mapPresets: {
 			p1: {
 				loot: 0,
@@ -453,7 +454,7 @@ var toReturn = {
 			tooltips: {
 				enabled: 1,
 				extraTags: "alerts",
-				description: "Hide button tooltips unless shift is held.",
+				description: "<p><b>Showing Tooltips<b> will ensure that all tooltips are shown when you mouse over them.</p><p><b>Shift for Tooltips</b> will hide most tooltips by default, unless you are holding your shift key. Keep this setting in mind when unlocking new things to do, as much of the game is explained in tooltips!</p>",
 				titles: ["Shift for Tooltips", "Showing Tooltips"]
 			},
 			tooltipPosition: {
@@ -558,7 +559,8 @@ var toReturn = {
 				enabled: 0,
 				description: "Decide if you want to continue running the rest of your Void Maps after finishing one.",
 				titles: ["One Void Map", "Finish All Voids"],
-				locked: true
+				locked: true,
+				secondLocation: ['togglerepeatVoidsCM']
 			},
 			boneAlerts: {
 				enabled: 1,

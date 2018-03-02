@@ -415,6 +415,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				tooltipText += getSettingHtml(game.options.menu.mapLoot, 'mapLoot', null, "CM");
 				settingCount++;
 			}
+			if (game.global.totalPortals >= 5){
+				tooltipText += getSettingHtml(game.options.menu.repeatVoids, 'repeatVoids', null, "CM");
+				settingCount++;
+			}
+			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
+			tooltipText += '<div class="optionContainer"><div class="noselect settingsBtn ' + ((game.global.repeatMap) ? "settingBtn1" : "settingBtn0") + '" id="repeatBtn2" onmouseover="tooltip(\'Repeat Map\', null, event)" onmouseout="tooltip(\'hide\')" onclick="repeatClicked()">' + ((game.global.repeatMap) ? "Repeat On" : "Repeat Off") + '</div></div>';
+			settingCount++;
+			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
 			tooltipText += getSettingHtml(game.options.menu.repeatUntil, 'repeatUntil', null, "CM");
 			settingCount++;
 			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
