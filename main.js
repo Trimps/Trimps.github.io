@@ -1219,13 +1219,15 @@ function abandonChallenge(restart){
 	var challengeName = game.global.challengeActive;
 	var challenge = game.challenges[challengeName];
 	if (game.global.runningChallengeSquared){
-		fadeIn("helium", 10);
 		if (game.global.world > game.c2[game.global.challengeActive])
 			game.c2[game.global.challengeActive] = game.global.world;
 		if (game.global.capTrimp && game.c2.Trimp > 230) game.c2.Trimp = 230;
 		countChallengeSquaredReward();
+		if (!restart) {
+			fadeIn("helium", 10);
+			game.global.runningChallengeSquared = false;
+		}
 	}
-	game.global.runningChallengeSquared = false;
 	game.global.challengeActive = "";
 	if (challenge.fireAbandon && typeof challenge.abandon !== 'undefined') challenge.abandon();
 	cancelPortal();
