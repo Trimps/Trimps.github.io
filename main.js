@@ -1839,6 +1839,68 @@ function loadPerkPreset(){
 	document.getElementById("totalHeliumSpent").innerHTML = prettify(countHeliumSpent(true));
 }
 
+function importPerks() {
+	var levels;
+	
+	try {
+		levels = JSON.parse(LZString.decompressFromBase64(document.getElementById('perkImportBox').value.replace(/\s/gm, '')));
+	} catch (e) { }
+
+	if (!levels)
+		return "This doesn't look like a valid perk string.";
+
+	// Check that everything is in order. Don't touch anything yet.
+	var respecNeeded = false;
+	var heNeeded = 0;
+	var changeAmt = {};
+	var price = {};
+
+	for (var perk in levels) {
+		if (perk == "global")
+			return "This looks like a save string, rather than a perk string. To import a save string, use the Import button on the main screen.";
+
+		// parseInt parses "1e6" as 1, so we use parseFloat then floor as a replacement
+		var level = Math.floor(parseFloat(levels[perk]));
+
+		if (!game.portal[perk])
+			return "Perk \"" + perk + "\" doesn't exist.";
+
+		if (game.portal[perk].locked || level > game.portal[perk].max || isNumberBad(level))
+			return "Cannot set " + perk + " to level " + level + ".";
+
+		if (level < game.portal[perk].level)
+			respecNeeded = true;
+
+		changeAmt[perk] = level - game.portal[perk].level - game.portal[perk].levelTemp;
+		price[perk] = changeAmt[perk] > 0 ? getPortalUpgradePrice(perk, false, changeAmt[perk]) :
+		              changeAmt[perk] < 0 ? -getPortalUpgradePrice(perk, true, -changeAmt[perk]) : 0;
+		heNeeded += price[perk];
+	}
+
+	if (heNeeded > game.resources.helium.respecMax - game.resources.helium.totalSpentTemp)
+		return "You don't have enough Helium to afford this perk setup.";
+
+	if (respecNeeded && !game.global.canRespecPerks)
+		return "This perk setup would require a respec, but you don't have one available.";
+
+	// Okay, now we can actually set the perks.
+	cancelTooltip();
+	if (respecNeeded && !game.global.respecActive)
+		respecPerks();
+
+	for (perk in levels) {
+		game.portal[perk].levelTemp += changeAmt[perk];
+		game.resources.helium.totalSpentTemp += price[perk];
+		game.portal[perk].heliumSpentTemp += price[perk];
+		updatePerkLevel(perk);
+	}
+
+	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax - game.resources.helium.totalSpentTemp);
+	enablePerkConfirmBtn();
+	updateAllPerkColors();
+	document.getElementById("totalHeliumSpent").innerHTML = prettify(countHeliumSpent(true));
+}
+
 function removePerk(what) {
 	if (isNumberBad(game.global.buyAmt)){
 		console.log("Buy Amount is " + game.global.buyAmt);
