@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 4.71 (Kongregate Version)</title>
+	<title>Trimps 4.72 (Kongregate Version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
@@ -1139,6 +1139,12 @@ var kongregate = parent.kongregateAPI.getAPI();
 						<li role="presentation" class="tabNotEnabled" id="presetTabRename" onclick="renamePerkPreset(true)" onmouseover="tooltip('Perk Preset', null, event, 'Rename')" onmouseout="tooltip('hide')">
 							<a>Rename</a>
 						</li>
+						<li role="presentation" class="tabNotEnabled" id="presetTabExport" onclick="tooltip('Export Perks', null, 'update')" onmouseover="tooltip('Perk Preset', null, event, 'Export')" onmouseout="tooltip('hide')">
+							<a>Export</a>
+						</li>
+						<li role="presentation" class="tabNotEnabled" id="presetTabImport" onclick="tooltip('Import Perks', null, 'update')" onmouseover="tooltip('Perk Preset', null, event, 'Import')" onmouseout="tooltip('hide')">
+							<a>Import</a>
+						</li>
 				</ul>
 			</div>
 				<div id="pnumTabs" class="numTabs">
@@ -1369,9 +1375,9 @@ var kongregate = parent.kongregateAPI.getAPI();
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?2"></script>
-	<script type="text/javascript" src="updates.js?2"></script>
-	<script type="text/javascript" src="main.js?2"></script>
+	<script type="text/javascript" src="config.js?3"></script>
+	<script type="text/javascript" src="updates.js?3"></script>
+	<script type="text/javascript" src="main.js?3"></script>
 	<script type="text/javascript">
 		document.body.addEventListener('DOMMouseScroll', onWheel, true);
 		document.body.addEventListener('mousewheel', onWheel, true);

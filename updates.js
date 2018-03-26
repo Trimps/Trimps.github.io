@@ -322,6 +322,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			what = "Import Perk Preset";
 			tooltipText = "Click to import a perk setup from a text string";
 		}
+		else if (textString == "Export"){
+			what = "Export Perk Setup";
+			tooltipText = "Click to export a copy of your current perk setup to share with friends, or to save and import later!"
+		}
 		else if (textString > 0 && textString <= 3){
 			var preset = game.global["perkPreset" + textString];
 			if (typeof preset === 'undefined') return;
@@ -663,6 +667,18 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else
 		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
+		if (document.queryCommandSupported('copy')){
+			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
+		}
+		costText += "</div>";
+		ondisplay = tooltips.handleCopyButton();
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+	}
+	if (what == "Export Perks"){
+		tooltipText = "It may not look like much, but all of your perks are in here! You can share this string with friends, or save it to your computer to import later!<br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + exportPerks() + "</textarea>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";

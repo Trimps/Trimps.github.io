@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.71,
+		version: 4.72,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -5845,7 +5845,7 @@ var toReturn = {
 		},
 		easterEgg: {
 			world: -1,
-			locked: true,
+			locked: false,
 			level: [0, 99],
 			title: "Colored Egg",
 			icon: "*droplet",

@@ -1839,31 +1839,53 @@ function loadPerkPreset(){
 	document.getElementById("totalHeliumSpent").innerHTML = prettify(countHeliumSpent(true));
 }
 
+function exportPerks(){
+	//First, make a blank object to hold the perk info
+	var exportPerks = {};
+	for (var item in game.portal){
+		//For smaller strings and backwards compatibility, perks not added to the object will be treated as if the perk is supposed to be level 0.
+		if (game.portal[item].locked || game.portal[item].level <= 0) continue;
+		//Add the perk to the object with the desired level
+		exportPerks[item] = game.portal[item].level;
+	}
+
+	//At this point you should have an object like this:
+	//{
+	//	Looting: 10,
+	//	Toughness: 5,
+	//	Power: 7
+	//} This would set Looting to 10, Toughness to 5, Power to 7, and all other unlocked perks to level 0.
+
+	//JSON.stringify() the object
+	exportPerks = JSON.stringify(exportPerks);
+	//And finally, compress it to base 64 with LZString. I suggest grabbing a copy of LZString.js from github.com/trimps to ensure there are no differences between our versions (beta 1.5).
+	return LZString.compressToBase64(exportPerks);
+}
+
 function importPerks() {
+	//This function was written by the brilliant Grimy. Thanks Grimy!
 	var levels;
-	
 	try {
 		levels = JSON.parse(LZString.decompressFromBase64(document.getElementById('perkImportBox').value.replace(/\s/gm, '')));
-	} catch (e) { }
-
+	} catch (e) { return "Something went really wrong, what did you even just try to do?!"}
 	if (!levels)
 		return "This doesn't look like a valid perk string.";
-
+	if (levels.global)
+		return "This looks like a save string, rather than a perk string. To import a save string, use the Import button on the main screen.";
 	// Check that everything is in order. Don't touch anything yet.
 	var respecNeeded = false;
 	var heNeeded = 0;
 	var changeAmt = {};
 	var price = {};
 
-	for (var perk in levels) {
-		if (perk == "global")
-			return "This looks like a save string, rather than a perk string. To import a save string, use the Import button on the main screen.";
-
+	for (var perk in game.portal) {
+		if (!levels[perk]){
+			if (game.portal[perk].locked) continue;
+			if (game.portal[perk].level + game.portal[perk].levelTemp == 0) continue;
+			levels[perk] = 0;
+		}
 		// parseInt parses "1e6" as 1, so we use parseFloat then floor as a replacement
 		var level = Math.floor(parseFloat(levels[perk]));
-
-		if (!game.portal[perk])
-			return "Perk \"" + perk + "\" doesn't exist.";
 
 		if (game.portal[perk].locked || level > game.portal[perk].max || isNumberBad(level))
 			return "Cannot set " + perk + " to level " + level + ".";
@@ -1873,10 +1895,9 @@ function importPerks() {
 
 		changeAmt[perk] = level - game.portal[perk].level - game.portal[perk].levelTemp;
 		price[perk] = changeAmt[perk] > 0 ? getPortalUpgradePrice(perk, false, changeAmt[perk]) :
-		              changeAmt[perk] < 0 ? -getPortalUpgradePrice(perk, true, -changeAmt[perk]) : 0;
+					  changeAmt[perk] < 0 ? -getPortalUpgradePrice(perk, true, -changeAmt[perk]) : 0;
 		heNeeded += price[perk];
 	}
-
 	if (heNeeded > game.resources.helium.respecMax - game.resources.helium.totalSpentTemp)
 		return "You don't have enough Helium to afford this perk setup.";
 
@@ -1888,7 +1909,7 @@ function importPerks() {
 	if (respecNeeded && !game.global.respecActive)
 		respecPerks();
 
-	for (perk in levels) {
+	for (perk in changeAmt) {
 		game.portal[perk].levelTemp += changeAmt[perk];
 		game.resources.helium.totalSpentTemp += price[perk];
 		game.portal[perk].heliumSpentTemp += price[perk];
@@ -7378,7 +7399,7 @@ function startFight() {
 			cell.corrupted = "none";
 		}
 		else if (Fluffy.isRewardActive("purifier")){
-			if (Math.floor(Math.random() * 100) < 50) cell.corrupted = "none";
+			if (getRandomIntSeeded(game.global.mutationSeed++, 0, 100) < 50) cell.corrupted = "none";
 		}
 	}
 	if (cell.mutation)
