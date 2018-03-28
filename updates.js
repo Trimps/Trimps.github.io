@@ -318,6 +318,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			tooltipText = "Click to load your currently selected perk preset.";
 			if (!game.global.respecActive) tooltipText += " <p class='red'>You must have your Respec active to load a preset!</p>";
 		}
+		else if (textString == "Import"){
+			what = "Import Perk Preset";
+			tooltipText = "Click to import a perk setup from a text string";
+		}
+		else if (textString == "Export"){
+			what = "Export Perk Setup";
+			tooltipText = "Click to export a copy of your current perk setup to share with friends, or to save and import later!"
+		}
 		else if (textString > 0 && textString <= 3){
 			var preset = game.global["perkPreset" + textString];
 			if (typeof preset === 'undefined') return;
@@ -669,6 +677,18 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
+	if (what == "Export Perks"){
+		tooltipText = "It may not look like much, but all of your perks are in here! You can share this string with friends, or save it to your computer to import later!<br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + exportPerks() + "</textarea>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
+		if (document.queryCommandSupported('copy')){
+			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
+		}
+		costText += "</div>";
+		ondisplay = tooltips.handleCopyButton();
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+	}
 	if (what == "Import"){
 		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea spellcheck='false' id='importBox' style='width: 100%' rows='5'></textarea>";
 		costText="<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); load(true);'>Import</div>"
@@ -680,6 +700,18 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		ondisplay = function () {
 			document.getElementById('importBox').focus();
 		}
+	}
+	if (what == "Import Perks"){
+		tooltipText = "Import your perks from a text string!<br/><br/><textarea spellcheck='false' id='perkImportBox' style='width: 100%' rows='5'></textarea>";
+		costText = "<p class='red'></p>";
+		costText += "<div id='confirmTooltipBtn' class='btn btn-info' onclick='this.previousSibling.innerText = importPerks()'>Import</div>";
+		costText += "<div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+		ondisplay = function () {
+			document.getElementById('perkImportBox').focus();
+		};
 	}
 	if (what == "AutoPrestige"){
 		tooltipText = '<p>Your scientists have come a long way since you first crashed here, and can now purchase prestige upgrades automatically for you with hardly any catastrophic mistakes. They understand the word "No" and the following three commands: </p><p><b>AutoPrestige All</b> will always purchase the cheapest prestige available first.</p><p><b>Weapons Only</b> as you may be able to guess, will only purchase Weapon prestiges.</p><p><b>Weapons First</b> will only purchase Weapon prestiges unless the cheapest Armor prestige is less than 5% of the cost of the cheapest Weapon.</p>';
