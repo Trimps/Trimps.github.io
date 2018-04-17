@@ -445,8 +445,8 @@ var toReturn = {
 			standardNotation: {
 				enabled: 1,
 				extraTags: "layout",
-				description: "Swap between Standard Formatting (12.7M, 540B), Engineering Notation (12.7e6, 540e9), Scientific Notation (1.27e7, 5.40e11), Alphabetic Notation (12.7b, 540c), and Hybrid Notation (Standard up to e96, then Engineering. Mimics Standard pre 4.6).",
-				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation", "Alphabetic Notation", "Hybrid Notation"],
+				description: "Swap between Standard Formatting (12.7M, 540B), Engineering Notation (12.7e6, 540e9), Scientific Notation (1.27e7, 5.40e11), Alphabetic Notation (12.7b, 540c), Hybrid Notation (Standard up to e96, then Engineering. Mimics Standard pre 4.6) and Metric Notation (12.7M, 540G).",
+				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation", "Alphabetic Notation", "Hybrid Notation", "Metric Notation"],
 				onToggle: function () {
 					document.getElementById("tab5Text").innerHTML = "+" + prettify(game.global.lastCustomAmt);
 				}

@@ -2198,11 +2198,16 @@ function prettify(number) {
             'Nog', 'Na', 'Un', 'Dn', 'Tn', 'Qan', 'Qin', 'Sxn', 'Spn', 'On',
             'Nn', 'Ct', 'Uc'
 		];
+		var metric_prefixes = [
+			'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'
+		];
 		var suffix;
-		if (game.options.menu.standardNotation.enabled == 2 || (game.options.menu.standardNotation.enabled == 1 && base > suffices.length) || (game.options.menu.standardNotation.enabled == 4 && base > 31))
-			suffix = "e" + ((base) * 3);
-		else if (game.options.menu.standardNotation.enabled && base <= suffices.length)
+		if ((game.options.menu.standardNotation.enabled == 1 || (game.options.menu.standardNotation == 4 && base <= 31)) && base <= suffices.length)
 			suffix = suffices[base-1];
+		else if (game.options.menu.standardNotation.enabled == 5 && base <= metric_prefixes.length)
+			suffix = metric_prefixes[base-1];
+		else if (game.options.menu.standardNotation.enabled != 0)
+			suffix = "e" + ((base) * 3);
 		else
 		{
 			var exponent = parseFloat(numberTmp).toExponential(2);
