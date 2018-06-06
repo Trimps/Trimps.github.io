@@ -29,12 +29,17 @@
 	.betterList > ul > li {
 		list-style: disc;
 	}
-	.betterList > ul > li:first-child {
+	.betterList > ul > li:first-child, .contentSplitter {
 		font-weight: bold;
-		list-style: none;
+		list-style: none !important;
 		margin-left: -20px;
 		padding: 5px 0 5px 0;
 		color: #00008B;
+	}
+	.contentSplitter{
+		margin-left: 0px;
+		font-size: 1.1em;
+		color: #065f0b;
 	}
 	.r{
 		color: #8F0B0B;
@@ -46,6 +51,63 @@
 <body>
 <div id="wrapper">
 <span style="font-size: 1.3em; font-weight: bold; display: block; width: 100%; text-align: center">Trimps Updates!</span>
+<ul class="betterList">
+	<li>4.8 - 6/5/18</li>
+	<ul>
+		<li>Content</li>
+		<li class="contentSplitter">Stuff for everyone!</li>
+		<li>Added support for crit chance above 100%. Above 100%, you'll have a chance to see <span style='color: orange; background-color: black; padding: 2px;'>CRIT!</span>s pop up that deal 5x the damage of a normal <span style='color: yellow; background-color: black; padding: 2px;'>Crit!</span>. Above 200%, you'll have a chance to see <span style='color: red; background-color: black; padding: 2px;'>CRIT!!</span>s, which compound another 5x on top of the orange version.</li>
+		<li>Added two new Daily Challenge modifiers, one that adds Trimp crit chance, and one that subtracts it. Negative crit chance gives your Trimps a chance to do a <span style='color: cyan; background-color: black; padding: 2px;'>Weak!</span> hit for 20% damage.</li>
+		<li>Some Daily Challenge modifiers are now incompatible with other Daily modifiers. The new +crit chance mod won't pair with -crit chance, +resources will no longer pair with -resources, and modifiers that cause quick Trimp deaths will no longer show up with modifiers that affect long-living Trimps.</li>
+		<li>Slightly increased the minimum reward on Daily Challenges</li>
+		<li>Added two new single-run purchases to the Bone Trader! For 25 bones, you can gain +50% Trimp Attack, and for 100 bones you can gain +25% Helium. These both last until next portal.</li>
+		<li>Added 14 new achievements! 6 are Feats (one is hidden), and 8 fill into other existing categories such as Humane Run and Spire Speedruns.</li>
+		<li class="contentSplitter">Stuff for really high zones (300+)!</li>
+		<li>Added a new Heirloom tier, which can be earned starting at Z500. It's different than the other heirlooms.</li>		
+		<li>Mysterious new Trimps can now automatically join your town if you have considerably more population than army size. These mysterious Trimps will help bring your army size up, and while they will positively impact your health and damage, they mostly prevent some weird bugs with breeding that some very high level players were starting to see. Breeding/anticipation/gene health should all be considerably easier to maintain.</li>
+		<li>Buffed the AutoStructure mastery. It now causes all housing (except DG, see below) and battle territory bonuses to come with ready-to-fight Trimps inside. This is another change to make late-game breeding/geneticists less of a headache.</li>
+		<li>Added a sixth permanent generator upgrade, which causes your Trimps to be cloned into the new dimensions that open up. With these 3 changes, you should be able to give your Geneticistassist permission to fire again!</li>
+		<li>Bone Portals now track and reward Fluffy Exp (not counting Daily Challenge bonuses) and Nature Tokens! Tracking for best Fluffy Exp and best token count were just now implemented, so you will not see these bonuses until after your first portal of this patch.</li>
+		<li>Added stats for Best Fluffy Exp and Most Tokens, which reflect the bonuses you'll get from the new Bone Portals (the token reward for each token will always be your Best Tokens ever divided by 3).</li>
+		<li>Fluffy now has a new E4 bonus!</li>
+		<li>Fluffy now has an E5 bonus!</li>
+		<li>Spire IV+ now have higher Nu rewards, and Spires III+ now reward Fluffy Exp.</li>
+		<li>In addition to pausing, Supervision now adds a slider to the DG window that allows you to adjust your maximum fuel capacity.</li>
+	</ul>
+	<ul>
+		<li>UI/QOL</li>
+		<li>You can now hold Ctrl when converting Nature Tokens to spend all!</li>
+		<li>New Heirlooms now always drop with mods in alphabetical order (except for Empty, which is always at the bottom)</li>
+		<li>You can now add up to 5 comma-separated zone numbers to the "Map at Zone" option. In addition, opening up this option to customize your setting now highlights the text.</li>
+		<li>Heirloom mods that have a max amount of upgrades now do a better job at letting you know what the max is</li>
+		<li>You now have the option to purchase 10 Heirloom mod upgrades at a time</li>
+		<li>Added a tooltip to the "Mastery" tab, so you can check your Dark Essence quickly if you don't like having the number always displayed.</li>
+		<li>The Dimensional Generator upgrade window now keeps itself vertically centered, to avoid falling off the screen.</li>
+		<li>The message log no longer spams you about how you shouldn't read the Coordination book when liquifying zones during the Trimp challenge</li>
+		<li>The amount of Trimp deaths in Spires now shows in the "World Info" tooltip</li>
+		<li>Added some more helpful info to the Geneticist tooltip</li>
+		<li>Added a few more useful stats to track Fluffy Exp progress! You can now see Fluffy Exp/Hour for current run, best Fluffy Exp/Hour for current run (including which zone you were at, just like He/hr has), and a stat for best Fluffy Exp/hr over all runs. The first two stats only show in the "Current Run" tab, and the third only shows in the "Total" tab.</li>
+		<li>Large numbers in the Fluffy tooltip are now properly formatted</li>
+		<li>The Statistics page now fits 4 stats per row instead of 3</li>
+		<li>Added some extra information to the Scryer Formation tooltip, allowing you to see if you will be getting credit for your current enemy or map Cache (if applicable).</li>
+		<li>The Dimensional Generator "Pause" button now lives inside the clock.</li>
+		<li>Changed the wording on some achievement "Progress" lines</li>
+	</ul>
+	<ul>
+		<li>Bug Fixes</li>
+		<li>The Exit Spire button now properly shows up if you're not mapping at that Spire</li>
+		<li>Fixed a bug that was causing Mapocalypse to occasionally not dispense any extra helium</li>
+		<li>Fixed a bug that could cause Geneticist credit to be lost with a breed timer of less than 0.2 seconds</li>
+		<li>The "Fire" button no longer breaks popup windows</li>
+		<li>Added a little bit of forgiveness to the cost vs Dark Essence comparison when purchasing a Mastery. This ensures that you can always repurchase the same amount of Masteries after a respec.</li>
+		<li>It's no longer possible to earn tiny amounts of Dark Essence from low zones after you've purchased all Masteries</li>
+		<li>The Housing line in the Max Trimps breakdown no longer displays negative numbers when it means to say 0</li>
+		<li>Switching to Scryer formation right at the end of a map no longer grants the Scryer bonus to map Caches. You now must have Scryer formation active before the first enemy of the map dies to earn credit.</li>
+		<li>Added a max height and a scroll bar if needed to the "Extra Heirlooms" box</li>
+		<li>Fixed an inconsistency between displayed number of Storage buildings and actual Storage buildings when Liquifying with Improved AutoStorage (numbers will still be inconsistent until next portal)</li>
+		<li>Fixed two different situations that could cause the Scryer bonus per enemy to apply when it shouldn't</li>
+	</ul>
+</ul>
 <ul class="betterList">
 	<li>4.72 - 3/25/18</li>
 	<ul>
@@ -78,7 +140,7 @@
 	<li>4.7 - 2/24/18</li>
 	<ul>
 		<li>Content</li>
-		<li>Fluffy can now gain experience. Complete Spire II to see what Fluffy has to offer!</li>
+		<li>Fluffy can now gain Experience. Complete Spire II to see what Fluffy has to offer!</li>
 		<li>Added a new row of achievements for Helium per hour</li>
 		<li>Tauntimps now come with their own Trimps inside! (They now increase current population in addition to max population)</li>
 		<li>Added a new QOL bonus as a reward for completing a Z225+ Void Map</li>

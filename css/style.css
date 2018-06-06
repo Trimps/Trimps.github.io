@@ -1709,8 +1709,8 @@ overflow-x: hidden;
 	height: 100vh;
 	padding: 20px;
 	text-align: center;
-	padding-left: 10vw;
-	padding-right: 10vw;
+	padding-left: 5vw;
+	padding-right: 5vw;
 	font-size: 1.5vw;
 	color: white;
 }
@@ -1720,7 +1720,7 @@ overflow-x: hidden;
 	font-size: 1.2vw;
 	padding: 0.25vw;
 	padding-top: 0.6vw;
-	height: 5.7vw;
+	height: 7vw;
 }
 
 #addCarriedBtn, #recycleAllHeirloomsBtn{
@@ -1754,11 +1754,23 @@ overflow-x: hidden;
 	opacity: 0.5;
 }
 
-#modReplaceBtn, #modUpgradeBtn{
+#modReplaceBtn{
 	padding: 0.25vw;
 	width: 90%;
 	margin-left: 5%;
+	margin-top: 2%;
 	display: block;
+}
+
+.modUpgradeBtn{
+	width: 45%;
+	display: inline-block;
+	font-size: 0.8em;
+	padding: 0.25vw;
+}
+
+#modCantReplace{
+	margin-top: 1vw;
 }
 
 .portalError{
@@ -1798,7 +1810,8 @@ overflow-x: hidden;
 
 #modReplaceSelect{
 	background-color: black;
-	pointer: cursor;
+	cursor: pointer;
+	margin-top: 2%;
 	border: 0.2vw solid purple;
 	margin-left: -0.2vw;
 	margin-bottom: 0.25vw;
@@ -1954,6 +1967,95 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	background-color: initial;
 }
 
+.heirloomRare8{
+	color: #0e5a07;
+	text-shadow: 
+			1px 1px 2px rgba(15, 158, 74, 0.7), 
+			0 0 25px rgba(43, 64, 185, 0.7), 
+			0 0 5px rgba(33, 114, 51, 0.7), 
+			-0.17vw -0.17vw 0.17vw rgba(70, 3, 82, 0.1),  
+			  0.17vw -0.17vw 0.17vw rgba(37, 80, 12, 0.1),
+			 -0.17vw 0.17vw 0.17vw rgba(124, 126, 9, 0.1),
+			  0.17vw 0.17vw 0.3vw rgba(33, 9, 36, 0.1);	
+}
+
+.specDesc8{
+	color: #0f9e4a;
+}
+
+.heirloomRare8.heirloomThing, .heirloomRare8 div .selectedHeirloomIcon{
+	color: #083604;
+	animation: heirRare8Animated 30s infinite;
+}
+
+@keyframes heirRare8Animated{
+	0% {
+		text-shadow: 
+			1px 1px 2px #0f9e4a, 
+			0 0 25px #2a40bb, 
+			0 0 5px #217233, 
+			-0.17vw -0.17vw 0.17vw rgba(70, 3, 82, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(37, 80, 12, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(124, 126, 9, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(33, 9, 36, 0.72);	
+			  animation-timing-function: ease-out;
+		transform: rotate(0deg);
+	}
+	50% {
+		text-shadow: 
+			1px 1px 8px #0f9e4a, 
+			0 0 50px #2a40bb, 
+			0 0 25px #217233, 
+			-0.17vw -0.17vw 0.17vw rgba(70, 3, 82, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(37, 80, 12, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(124, 126, 9, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(33, 9, 36, 0.72);	
+			  animation-timing-function: ease-in;
+		transform: rotate(180deg);
+	}
+	100% {
+	text-shadow: 
+			1px 1px 2px #0f9e4a, 
+			0 0 25px #2a40bb, 
+			0 0 5px #217233, 
+			-0.17vw -0.17vw 0.17vw rgba(70, 3, 82, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(37, 80, 12, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(124, 126, 9, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(33, 9, 36, 0.72);
+		transform: rotate(360deg);
+	}
+}
+
+
+
+.heirloomRare8 .heirloomMod:hover, .heirloomRare8.rarityBdBox{
+	border: 0.2vw solid #0e5a07;
+}
+
+.heirloomRare8 .heirloomMod{
+	background-color: initial;
+}
+
+.upgradeCostTextMax{
+	font-size: 0.7em;
+	margin-top: -2.5%;
+	display: block;
+}
+
+.upgradeCostTextMax span:first-child{
+	font-size: 1.1em;
+	display: block;
+}
+
+.upgradeCostTextMax span:nth-child(2){
+	display: block;
+}
+
+#specialModDescription{
+	font-size: 0.9vw;
+	margin-bottom: 0.65vw;
+}
+
 #heirRare{
 	background-color: #111;
 	font-size: 1.1vw;
@@ -2055,6 +2157,13 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	font-size: 1vw;
 	line-height: 1.3vw;
 	display: inline-block;
+}
+
+#extraHeirloomsHere{
+	max-height: 17vw;
+	overflow-y: auto;
+	padding: 0.5vw;
+	
 }
 
 .heirloomModBtn{
@@ -2280,6 +2389,10 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .tripleTall{
 	line-height: 6.4vw;
+}
+
+.quadTall{
+	line-height: 9.2vw;
 }
 
 #achievementPopup{
@@ -2661,6 +2774,14 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	background: yellow;
 }
 
+.liquid ul li.battleCell.cellColorCurrent.Corruption {
+    background-color: #2E0854 !important;
+}
+
+.liquid ul li.battleCell.cellColorCurrent.Living {
+    background: black !important;
+}
+
 .battleCell.Pumpkimp, .badge.Pumpkimp{
 	background-color: #d96c00;
 	color: black;
@@ -2795,7 +2916,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .fluffFormCunning{
-	color: #044D22;
+	color: #37770d;
 	font-weight: bold;
 	text-decoration: underline;
 	cursor: pointer;
@@ -2803,6 +2924,17 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .fluffFormSpecial{
 	color: #085B70;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.fluffFormStaff{
+	color: #0e5a07;
+	text-shadow: 
+	1px 1px 2px rgba(15, 158, 74, 0.2), 
+	0 0 25px rgba(43, 64, 185, 0.2), 
+	0 0 5px rgba(33, 114, 51, 0.2);
 	font-weight: bold;
 	text-decoration: underline;
 	cursor: pointer;
@@ -3073,6 +3205,24 @@ background-color: rgba(255,255,255,0.25);
 	padding: .5vw 2vw;
 }
 
+#singleRunBonuses{
+	margin-top: -2.5%;
+	border: 2px solid #636262;
+	margin-bottom: 1%;
+
+}
+
+#singleRunBonuses div .boneBtn{
+	font-size: 0.95em;
+}
+
+.singleBonusBox{
+	width: 50%;
+	display: inline-block;
+	padding: 2%;
+	border: 1px solid #636262;
+}
+
 #minusRes{
 	color: red;
 	border: 1px solid red;
@@ -3135,7 +3285,6 @@ background-color: rgba(255,255,255,0.25);
 .importLocation{
 	text-align: center;
 	text-decoration: underline;
-	text-color: grey;
 	font-size: .8em;
 	font-weight: bold;
 }
@@ -3240,6 +3389,10 @@ background-color: rgba(255,255,255,0.25);
 
 .thing5{
 	width: 19.5%;
+}
+
+.permGenUpgrade{
+	width: 32.5%;
 }
 
 .importPreviewName{
@@ -3559,8 +3712,12 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-    color: #b72cb7;
-	background-color: #2b112b;
+	color: #0e5a07;
+	text-shadow: 
+			1px 1px 2px rgba(15, 158, 74, 0.2), 
+			0 0 25px rgba(43, 64, 185, 0.3), 
+			0 0 25px rgba(33, 114, 51, 0.3);
+	background-color: black;
 	font-weight: bold;
 }
 
@@ -3570,14 +3727,34 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: #2b112b;
-	background-color: black;
-	text-shadow:
- -1px -1px 0 #b72cb7,  
-  1px -1px 0 #b72cb7,
- -1px 1px 0 #b72cb7,
-  1px 1px 0 #b72cb7;
+	color: black;
+	background-color: #0e5a07;
+	text-shadow: 
+			1px 1px 2px rgba(0, 0, 0, 0.2), 
+			0 0 25px rgba(81, 11, 90, 0.3), 
+			0 0 25px rgba(0, 0, 0, 0.3);
+	font-weight: bold;
 }
+
+.btn-new:hover #versionNumber{
+	animation: newBtnAnimated 30s infinite;
+	display: inline-block;
+}
+
+@keyframes newBtnAnimated{
+	0% {	
+		animation-timing-function: ease-out;
+		transform: rotate(0deg);
+	}
+	50% {	
+		animation-timing-function: ease-in;
+		transform: rotate(180deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
@@ -3646,7 +3823,6 @@ input::-webkit-inner-spin-button {
 
 .thingColorSquared:hover {
 	background-color: #800080 !important;
-	background-color: #2E0854;
 	color: white !important;
 }
 
@@ -3886,13 +4062,16 @@ input::-webkit-inner-spin-button {
 	color: white;
 }
 
-.psColorOrange {
+.psColorOrange, .attackColorOrange, .hePhColorOrange {
 	color: orange;
 }
 
 sup{
+	/*nm, u?*/
 	top: -0.3em;
 }
+
+
 
 .autoUpgradeBtn{
 	border: 1px solid white;
@@ -3998,38 +4177,8 @@ sup{
 	padding: 0 5%;
 }
 
-#generatorProducingColumn.hasPause{
+#generatorSlider{
 	cursor: pointer;
-}
-
-#generatorProducingColumn.hasPause:hover #generatorPauseBtn{
-	font-weight: bold;
-	font-size: 0.9em;
-}
-
-.generatorStatePassive #genGaugeContainer #generatorProducingColumn.hasPause:hover #generatorPauseBtn,
-.generatorStatePassive #genGaugeContainer #generatorProducingColumn.hasPause #generatorPauseBtn.btnPaused{
-	background-color: #8c0000;
-	color: #000040;
-}
-
-.generatorStateActive #genGaugeContainer #generatorProducingColumn.hasPause:hover #generatorPauseBtn{
-	background-color: #000040;
-	color: #8c0000;
-}
-
-.generatorStateHybridActive #genGaugeContainer #generatorProducingColumn.hasPause:hover #generatorPauseBtn{
-	background-color: #318696;
-	color: #8c0000;
-}
-
-.generatorStateHybridPassive #genGaugeContainer #generatorProducingColumn.hasPause:hover #generatorPauseBtn{
-	background-color: #318696;
-	color: #000040;
-}
-
-#generatorProducingColumn.hasPause:hover #generatorPauseBtn.btnPaused{
-	color: white !important;
 }
 
 #magmiteOwned, #generatorUpgradeTitle{
@@ -4245,4 +4394,8 @@ sup{
 
 #donateForm input[type="image"]{
 	background-color: initial !important;
+}
+
+.icon-controller-play{
+	font-size: 1.4em;
 }

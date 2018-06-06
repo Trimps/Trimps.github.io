@@ -189,6 +189,10 @@
     background: -webkit-linear-gradient(top, #baba00 0%,#b2b200 100%);
   }
 
+  .liquid ul li.battleCell.cellColorCurrent.Corruption {
+    background: -webkit-linear-gradient(top, #33095b 0%,#23063f 100%) !important;
+}
+
   .liquid .battleCell.cellColorCurrent {
     background: -webkit-linear-gradient(top, rgb(186, 186, 0) 0%, rgb(178, 178, 0) 100%) !important;
 }

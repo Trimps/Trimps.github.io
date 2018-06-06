@@ -719,7 +719,7 @@ input, button, select, textarea,
 	background-color: #202020;
 }
 
-.psColorOrange {
+.psColorOrange, .attackColorOrange, .hePhColorOrange {
 	color: #B9B416;
 }
 
@@ -1062,4 +1062,8 @@ color:#8F8F00
 	background: initial;
 	background-color: #8c0000;
 	color: #FFDDDD;
+}
+
+.permGenUpgrade {
+	width: calc(33.33333333% + 1px);
 }

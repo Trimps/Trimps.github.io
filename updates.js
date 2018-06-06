@@ -166,6 +166,30 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			costText = "Click for more detailed info"
 		}
 	}
+	if (what == "Scryer Formation"){
+		tooltipText = "<p>Trimps lose half of their attack, health and block but gain 2x resources from loot (not including Helium) and have a chance to find Dark Essence above Z180 in the world. This formation must be active for the entire fight to receive any bonus from enemies, and must be active for the entire map to earn a bonus from a Cache. (Hotkeys: S or 5)</p>";
+		if (game.global.formation == 4){
+			if (!isScryerBonusActive()) tooltipText += "<p>You recently switched to Scryer and will <b>not</b> earn a bonus from this enemy.</p>";
+			else tooltipText += "<p>You will earn a bonus from this enemy!</p>";
+			if (game.global.mapsActive){
+				var currentMap = getCurrentMapObject();
+				if (currentMap.bonus && mapSpecialModifierConfig[currentMap.bonus].cache){
+					if (game.global.canScryCache) tooltipText += "<p>You will earn a bonus from the Cache at the end of this map!</p>";
+					else tooltipText += "<p>You completed some of this map outside of Scryer, and will <b>not</b> earn a bonus from the Cache.</p>";
+				}
+			}
+		}
+		costText = "";
+	}
+	if (what == "First Amalgamator"){
+		tooltipText = "<p><b>You found your first Amalgamator! You can view this tooltip again and track how many Amalgamators you currently have under 'Jobs'.</b></p>";
+		tooltipText += game.jobs.Amalgamator.tooltip;
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Thanks for the help, tooltip, but you can go now.</div></div>";
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+		noExtraCheck = true;
+	}
 	if (what == "Empowerments of Nature"){
 		var active = getEmpowerment();
 		if (!active) return;
@@ -198,10 +222,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Heirloom"){
 		//attachFunction == location, numCheck == index
-		tooltipText = displaySelectedHeirloom(false, 0, true, numCheck, attachFunction)
+		tooltipUpdateFunction = "";
+		tooltipText = displaySelectedHeirloom(false, 0, true, numCheck, attachFunction);
 		costText = "";
 		renameBtn = what;
 		what = "";
+		if (getSelectedHeirloom(numCheck, attachFunction).rarity == 8){
+			ondisplay = function() {
+				document.getElementById('tooltipHeirloomIcon').style.animationDelay = "-" + ((new Date().getTime() / 1000) % 30).toFixed(1) + "s";
+			}
+		}
 		swapClass("tooltipExtra", "tooltipExtraHeirloom", elem);
 		noExtraCheck = true;
 	}
@@ -453,11 +483,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 	}
 	if (what == "Set Map At Zone"){
-		tooltipText = "Enter a number between 10 and 1000. Next time you reach this Zone number, you will automatically be pulled into the Map Chamber.<div id='mapAtZoneErrorText'></div><br/><br/><input id='mapAtZoneInput' value='" + game.options.menu.mapAtZone.setZone + "'/>";
+		tooltipText = "Enter up to 5 numbers between 10 and 1000, separated by commas. Next time you reach any of those Zone numbers, you will automatically be pulled into the Map Chamber.<div id='mapAtZoneErrorText'></div><br/><input style='width: 50%; margin-left: 25%' id='mapAtZoneInput' value='" + game.options.menu.mapAtZone.setZone + "'/>";
 		costText = "<div class='maxCenter'><span class='btn btn-success btn-md' id='confirmTooltipBtn' onclick='saveMapAtZone()'>Confirm</span><span class='btn btn-danger btn-md' onclick='cancelTooltip(true)'>Cancel</span>"
 		game.global.lockTooltip = true;
 		elem.style.top = "25%";
 		elem.style.left = "25%";
+		ondisplay = function(){
+			document.getElementById('mapAtZoneInput').select();
+		}
 	}
 	if (what == "Message Config"){
 		tooltipText = "<div id='messageConfigMessage'>Here you can finely tune your message settings, to see only what you want from each category. Mouse over the name of a filter for more info.</div>";
@@ -506,10 +539,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			costText = "<span style='color: red'>Requires " + game.talents[talent.requires].name + "</span>";
 		else if (talent.purchased)
 			costText = "<span style='color: green'>Purchased</span>";
-		else if (game.global.essence < nextTalCost)
+		else if (game.global.essence < nextTalCost && prettify(game.global.essence) != prettify(nextTalCost))
 			costText = "<span style='color: red'>" + prettify(nextTalCost) + " Dark Essence (Use Scrying Formation to earn more)</span>";
 		else costText = prettify(nextTalCost) + " Dark Essence";
 		what = talent.name;
+		noExtraCheck = true;
+	}
+	if (what == "Mastery"){
+		tooltipText = "<p>Click to view your masteries.</p><p>You currently have " + prettify(game.global.essence) + "</b> Dark Essence.</p>"
 	}
 	if (what == "The Improbability"){
 		if (!game.options.menu.bigPopups.enabled) return;		
@@ -596,9 +633,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Fight"){
 		tooltipText = "Send your poor Trimps to certain doom in the battlefield. You'll get cool stuff though, they'll understand. (Hotkey: F)";
-		var soldiers = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
-		costText = (soldiers > 1) ? "s" : "";
-		costText = prettify(soldiers) + " Trimp" + costText;
+		var currentSend = game.resources.trimps.getCurrentSend();
+		costText = (currentSend > 1) ? "s" : "";
+		costText = prettify(currentSend) + " Trimp" + costText;
 	}
 	if (what == "AutoFight"){
 		tooltipText = "Allow the Trimps to start fighting on their own whenever their town gets overcrowded (Hotkey: A)";
@@ -619,6 +656,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 		ondisplay = function(){
 			updateGeneratorUpgradeHtml();
+			verticalCenterTooltip();
 		};
 		titleText = "<div id='generatorUpgradeTitle'>Upgrade Generator</div><div id='magmiteOwned'></div>";
 	}
@@ -779,6 +817,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			costText = getTooltipJobText(what, buyAmt);
 		}
 		if (buyAmt > 1) what += " X " + prettify(buyAmt);
+		if (what == "Amalgamator") {
+			noExtraCheck = true;
+			costText = "";
+		}
 	}
 	if (isItIn == "buildings"){
 		costText = canAffordBuilding(what, false, true);
@@ -835,10 +877,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var coordReplace = (game.portal.Coordinated.level) ? (25 * Math.pow(game.portal.Coordinated.modifier, game.portal.Coordinated.level)).toFixed(3) : 25;
 			tooltipText = tooltipText.replace('<coord>', coordReplace);
 			if (!canAffordCoordinationTrimps()){
-				var nextCount = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
-				var amtToGo = Math.floor((nextCount * 3) - game.resources.trimps.realMax());
+				var currentSend = game.resources.trimps.getCurrentSend();
+				var amtToGo = Math.floor((currentSend * 3) - game.resources.trimps.realMax());
 				var s = (amtToGo == 1) ? "" : "s";
-				tooltipText += " <b>You need enough room for " + prettify(nextCount * 3) + " max Trimps. You are short " + prettify(Math.floor(amtToGo)) + " Trimp" + s + ".</b>";
+				tooltipText += " <b>You need enough room for " + prettify(currentSend * 3) + " max Trimps. You are short " + prettify(Math.floor(amtToGo)) + " Trimp" + s + ".</b>";
 			}
 		}
 	}
@@ -1311,6 +1353,7 @@ function getZoneStats(event, update) {
 	var textString =  "<table class='bdTable table table-striped'><tbody>";
 	textString += "<tr><td class='bdTitle bdZoneTitle' colspan='3'>Zone "  + game.global.world + ", Cell " + (game.global.lastClearedCell + 2) + "</td></tr>";
 	textString += "<tr><td colspan='3'>You have been in this Zone for " + formatMinutesForDescriptions((new Date().getTime() - game.global.zoneStarted) / 1000 / 60) + "</td></tr>";
+	if (game.global.spireActive) textString += "<tr><td colspan='3'>" + game.global.spireDeaths + " group of Trimps" + ((game.global.spireDeaths == 1) ? " has" : " have") + " died in this Spire.</td></tr>";
 	if ((game.global.mapsActive || game.global.preMapsActive) && game.global.currentMapId){
 		var map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
 		textString += "<tr><td class='bdTitle bdZoneTitle' colspan='3'>" + map.name + ", Level " + map.level;
@@ -1385,7 +1428,7 @@ function getTrimpPs() {
 		textString += "<tr style='color: red'><td class='bdTitle'>Geneticist</td><td class='bdPercent'>X  " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add quick trimps
-	if (game.unlocks.quickTrimps){
+	if (game.singleRunBonuses.quickTrimps.owned){
 		currentCalc *= 2;
 		textString += "<tr><td class='bdTitle'>Quick Trimps</td><td class='bdPercent'>+ 100%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
@@ -1704,12 +1747,64 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Fluffy</td><td></td><td></td><td>+ " + prettify((amt -1 ) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
 		
 	}
+	//Amalgamator health
+	if (what == "health" && game.jobs.Amalgamator.owned > 0){
+		amt = game.jobs.Amalgamator.getHealthMult();
+		currentCalc *= amt;
+		textString += "<tr><td class='bdTitle'>Amalgamator</td><td>x " + prettify(game.jobs.Amalgamator.healthModifier) + "</td><td class='bdNumberSm'>" + prettify(game.jobs.Amalgamator.owned) + "</td><td class='bdNumberSm'>x " + prettify(amt) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td></tr>";
+	}
 
-	var critChance = getPlayerCritChance();
-	if (what == "attack" && critChance){
-		var critMult = getPlayerCritDamageMult();
-		currentCalc *= critMult;
-		textString += "<tr class='critRow'><td class='bdTitle'>Crit Chance</td><td>" + prettify(critChance * 100) + "%</td><td class='bdTitle'>Crit Damage</td><td>+ " + prettify((critMult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+	if (what == "attack" && game.jobs.Amalgamator.owned > 0){
+		amt = game.jobs.Amalgamator.getDamageMult();
+		currentCalc *= amt;
+		textString += "<tr><td class='bdTitle'>Amalgamator</td><td>+ " + prettify(game.jobs.Amalgamator.damageModifier * 100) + "%</td><td>" + game.jobs.Amalgamator.owned + "</td><td>+ " + prettify((amt -1 ) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
+		
+	}
+	if (what == "attack" && game.singleRunBonuses.sharpTrimps.owned){
+		currentCalc *= 1.5;
+		textString += "<tr><td class='bdTitle'>Sharp Trimps</td><td></td><td></td><td>+ 50%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
+		
+	}
+	if (what == "attack"){
+		var critChance = getPlayerCritChance();
+		var thisCritChance = 0;
+		var critCalc = 0;
+		var critMult = 0;
+		var baseCritMult = getPlayerCritDamageMult();
+		if (critChance < 0){
+			//From reduced crit chance daily or maybe other stuff later
+			critMult = 1;
+			critCalc = currentCalc;
+			textString += "<tr class='critRow'><td class='bdTitle'><span style='color: yellow;'>Crit!</span> Chance</td><td>0% (" + (critChance * 100).toFixed(1) + "% Total)</td><td class='bdTitle'><span style='color: yellow;'>Crit!</span> Damage</td><td>+ " + prettify((critMult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(critCalc) + "</td>" + getFluctuation(critCalc, minFluct, maxFluct) + "</tr>";
+			textString += "<tr class='critRow'><td class='bdTitle'><span style='color: cyan;'>Weak!</span> Chance</td><td>" + (Math.abs(critChance) * 100).toFixed(1) + "%</td><td class='bdTitle'><span style='color: cyan;'>Weak!</span> Damage</td><td>x 0.2</td><td class='bdNumberSm'>" + prettify(currentCalc * 0.2) + "</td>" + getFluctuation((currentCalc * 0.2), minFluct, maxFluct) + "</tr>";
+		}
+		else {
+			if (critChance > 0){
+				critMult = baseCritMult;
+				if (critChance >= 2) thisCritChance = 0;
+				else if (critChance >= 1) thisCritChance = 1 - (critChance % 1);
+				else thisCritChance = critChance;
+				critCalc = currentCalc * critMult;
+				textString += "<tr class='critRow'><td class='bdTitle'><span style='color: yellow;'>Crit!</span> Chance</td><td>" + (thisCritChance * 100).toFixed(1) + "%";
+				if (critChance > 1) textString += " (" + (critChance * 100).toFixed(1) + "% Total)";
+				textString += "</td><td class='bdTitle'><span style='color: yellow;'>Crit!</span> Damage</td><td>+ " + prettify((critMult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(critCalc) + "</td>" + getFluctuation(critCalc, minFluct, maxFluct) + "</tr>";
+			}
+			if (critChance > 1){
+				if (critChance >= 2) thisCritChance = 1 - (critChance % 1);
+				else if (critChance >= 3) thisCritChance = 0;
+				else thisCritChance = critChance - 1;
+				critMult = getMegaCritDamageMult(2);
+				critCalc = currentCalc * critMult * baseCritMult;
+				textString += "<tr class='critRow'><td class='bdTitle'><span style='color: orange;'>CRIT!</span> Chance</td><td>" + (thisCritChance * 100).toFixed(1) + "%</td><td class='bdTitle'><span style='color: orange;'>CRIT!</span> Damage</td><td><span style='color: yellow;'>Crit!</span> x " + prettify(critMult) + "</td><td class='bdNumberSm'>" + prettify(critCalc) + "</td>" + getFluctuation(critCalc, minFluct, maxFluct) + "</tr>";
+			}
+			if (critChance > 2){
+				if (critChance >= 3) thisCritChance = 1;
+				else thisCritChance = critChance - 2;
+				critMult = getMegaCritDamageMult(3);
+				critCalc = currentCalc * critMult * baseCritMult;
+				textString += "<tr class='critRow'><td class='bdTitle'><span style='color: red;'>CRIT!!</span> Chance</td><td>" + (thisCritChance * 100).toFixed(1) + "%</td><td class='bdTitle'><span style='color: red;'>CRIT!!</span> Damage</td><td><span style='color: yellow;'>Crit!</span> x " + prettify(critMult) + "</td><td class='bdNumberSm'>" + prettify(critCalc) + "</td>" + getFluctuation(critCalc, minFluct, maxFluct) + "</tr>";
+			}
+		}
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
@@ -1747,6 +1842,7 @@ function getMaxTrimps() {
 	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + base + "</td></tr>";
 	//Add job count
 	var housing = trimps.max - game.global.totalGifts - game.unlocks.impCount.TauntimpAdded - base - game.global.trimpsGenerated;
+	if (housing < 0) housing = 0;
 	var currentCalc = housing + base;
 	textString += "<tr><td class='bdTitle'>Housing</td><td class='bdPercent'>+ " + prettify(housing) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	//Add generatorUpgrades
@@ -2061,7 +2157,7 @@ function getLootBd(what) {
 		currentCalc *= (1 + windMod);
 		textString += "<tr><td class='bdTitle'>Swiftness (Wind)</td><td>" + prettify(baseMod) + "%</td><td>" + prettify(game.empowerments.Wind.currentDebuffPower) + "</td><td class='bdPercent'>+ " + prettify(windMod * 100) +"%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
-	if (what != "Helium" && game.global.formation == 4 && !game.global.waitToScry){
+	if (what != "Helium" && isScryerBonusActive()){
 		currentCalc *= 2;
 		textString += "<tr><td class='bdTitle'>Formation</td><td></td><td></td><td>X 2</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
@@ -2105,6 +2201,10 @@ function getLootBd(what) {
 	if (game.global.runningChallengeSquared && what == "Helium"){
 		currentCalc = 0;
 		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge²</td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.singleRunBonuses.heliumy.owned && what == "Helium"){
+		currentCalc *= 1.25;
+		textString += "<tr><td class='bdTitle'>Heliumy</td><td>25%</td><td></td><td>+ 25%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Corruption - World
 	var fullCorVal = currentCalc;
@@ -2335,7 +2435,7 @@ function resetGame(keepPortal) {
 	document.getElementById("voidMapsHere").innerHTML = "";
 	document.getElementById("heirloomWrapper").style.display = "none";
 	document.getElementById("heirloomBtnContainer").style.display = "none";
-	document.getElementById("goodGuyName").innerHTML = 'Trimps (<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span>';
+	document.getElementById("goodGuyName").innerHTML = '<span id="realTrimpName">Trimps</span>&nbsp;(<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span>';
 	document.getElementById("autoStorageBtn").style.display = "none";
 	document.getElementById("repeatVoidsContainer").style.display = "none";
 	document.getElementById('corruptionBuff').innerHTML = "";
@@ -2359,7 +2459,6 @@ function resetGame(keepPortal) {
 	heirloomsShown = false;
 	goldenUpgradesShown = false;
 	game.global.selectedHeirloom = [];
-	resetOnePortalRewards();
 	playFabLoginErrors = 0;
 
 	setFormation("0");
@@ -2438,6 +2537,7 @@ function resetGame(keepPortal) {
 	var fluffyExp;
 	var fluffyPrestige;
 	var canMapAtZone;
+	var supervisionSetting;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -2458,6 +2558,9 @@ function resetGame(keepPortal) {
 		bestHelium = (game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
 		if (game.stats.bestHeliumHour.valueTotal < game.stats.heliumHour.value(true)){
 			game.stats.bestHeliumHour.valueTotal = game.stats.heliumHour.value(true);
+		}
+		if (game.stats.bestFluffyExp.value > 0 && game.stats.bestFluffyExpHour.valueTotal < game.stats.fluffyExpHour.value()){
+			game.stats.bestFluffyExpHour.valueTotal = game.stats.fluffyExpHour.value();
 		}
 		stats = game.stats;
 		repeat = game.global.repeatMap;
@@ -2515,6 +2618,7 @@ function resetGame(keepPortal) {
 		fluffyExp = game.global.fluffyExp;
 		fluffyPrestige = game.global.fluffyPrestige;
 		canMapAtZone = game.global.canMapAtZone;
+		supervisionSetting = game.global.supervisionSetting;
 		if (!game.global.canMagma) {
 			if (highestLevel > 229) highestLevel = 229;
 			if (roboTrimp > 8) roboTrimp = 8;
@@ -2586,6 +2690,7 @@ function resetGame(keepPortal) {
 		game.global.fluffyExp = fluffyExp;
 		game.global.fluffyPrestige = fluffyPrestige;
 		game.global.canMapAtZone = canMapAtZone;
+		game.global.supervisionSetting = supervisionSetting;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined' && !statItem.noAdd) statItem.valueTotal += statItem.value;
@@ -2612,7 +2717,6 @@ function resetGame(keepPortal) {
 			pres = "food";
 		}
 		game.global.presimptStore = pres;
-		swapClass("psColor", "psColorWhite", document.getElementById("trimpsPs"));
 		for (var heirItem in heirloomStuff){
 			game.global[heirItem] = heirloomStuff[heirItem];
 		}
@@ -2679,6 +2783,21 @@ function resetGame(keepPortal) {
 		for (var x = 0; x < mapsToGive; x++){
 			createVoidMap();
 		}
+	}
+	resetSingleBonusColors();
+}
+
+function resetSingleBonusColors(){
+	for (var item in game.singleRunBonuses){
+		item = game.singleRunBonuses[item];
+		if (item.reset) item.reset();
+	}
+}
+
+function loadSingleBonusColors(){
+	for (var item in game.singleRunBonuses){
+		item = game.singleRunBonuses[item];
+		if (item.owned && item.load) item.load();
 	}
 }
 
@@ -3266,9 +3385,6 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 /*		var color = (psText < 0) ? "red" : "green";
 		if (psText == 0) color = "black"; */
 		psText = "+" + psText + "/sec";
-		if (trimps && game.unlocks.quickTrimps) {
-			psText += " (x2!)";
-		}
 		elem.textContent = psText;
 		swapClass('sizeSec', ((psText.replace('.','').length >= 11) ? 'sizeSecReduced' : 'sizeSecRegular'), elem);
 }
@@ -3392,7 +3508,7 @@ function getMapIcon(mapObject, nameOnly) {
 function unlockMap(what) { //what here is the array index
 	var item = game.global.mapsOwnedArray[what];
 	var btnClass = "mapElementNotSelected thing noselect pointer mapThing";
-	if (game.unlocks.goldMaps && !item.noRecycle) btnClass += " goldMap";
+	if (game.singleRunBonuses.goldMaps.owned && !item.noRecycle) btnClass += " goldMap";
 	var level = item.level;
 	var tooltip = "";
 	var loc = "mapsHere";
@@ -3521,6 +3637,7 @@ function checkButtons(what) {
 }
 
 function updateButtonColor(what, canAfford, isJob) {
+	if (what == "Amalgamator") return;
 	var elem = document.getElementById(what);
 	if (elem === null){
 		return;
@@ -3745,20 +3862,40 @@ function saveMapAtZone(){
 	if (elem == null){
 		cancelTooltip(true);
 		return;
-	} 
-	var value = parseInt(elem.value);
-	if (isNaN(value)) {
-		if (errText) errText.innerHTML = elem.value + " is not a number.";
-		return;
 	}
-	if (value < 10 || value > 1000) {
-		if (errText) errText.innerHTML = value + " is not between 10 and 1000.";
-		return;
+	if (errText) errText.innerHTML = "";
+	var value = elem.value.replace(' ', '');
+	value = value.split(',');
+	var newValue = [];
+	var count = value.length;
+	var errors = 0;
+	if (count > 5) count = 5;
+	for (var x = 0; x < count; x++){
+		var thisItem = parseInt(value[x]);
+		if (newValue.indexOf(thisItem) >= 0) continue;
+		if (isNaN(thisItem)){
+			if (errText) {
+				errText.innerHTML += value[x] + " is not a number. ";
+				errors++;
+			}
+		}
+		else if (thisItem < 10 || thisItem > 1000){
+			if (errText){
+				errText.innerHTML += thisItem + " is not between 10 and 1000. ";
+				errors++;
+			}
+		}
+		else{
+			newValue.push(thisItem);
+		}
 	}
-	game.options.menu.mapAtZone.setZone = value;
-	game.options.menu.mapAtZone.enabled = 1;
-	toggleSetting('mapAtZone', null, false, true);
-	cancelTooltip(true);
+	if (errors <= 0){
+		newValue.sort(function(a, b){return a - b});
+		game.options.menu.mapAtZone.setZone = newValue;
+		game.options.menu.mapAtZone.enabled = 1;
+		toggleSetting('mapAtZone', null, false, true);
+		cancelTooltip(true);
+	}
 }
 
 function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
@@ -3870,8 +4007,13 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 		titleElem.className = 'achieveTier' + achievement.tiers[displayNumber];
 		document.getElementById("achievement" + location + "Description").innerHTML = achievement.description(displayNumber);
 		document.getElementById("achievement" + location + "Reward").innerHTML = '<b>Reward:</b> +' + game.tierValues[achievement.tiers[displayNumber]] + "% Damage";
-		if (forHover && typeof achievement.progress !== 'undefined' && (typeof achievement.highest === 'undefined' || achievement.highest > 0)){
-			prog.innerHTML = "Progress: " + achievement.progress();
+		if (forHover && typeof achievement.progress !== 'undefined' && (typeof achievement.highest === 'undefined' || (achievement.highest > 0 || achievement.finished > 0))){
+			if (!one && achievement.tiers.length == achievement.finished){
+				prog.innerHTML = "Row Finished! (" + achievement.progress() + ")";
+			}
+			else{
+				prog.innerHTML = "Progress: " + achievement.progress();
+			}
 		}
 		else
 			prog.innerHTML = "";
@@ -3940,7 +4082,9 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 			var amount = achievement.tiers.length;
 			var one = (typeof achievement.finished !== 'number');
 			var titleClass = 'class="achievementTitle';
-			if (amount > 24)
+			if (amount > 36)
+				titleClass += ' quadTall';
+			else if (amount > 24)
 				titleClass += ' tripleTall';
 			else if (amount > 12)
 				titleClass += ' doubleTall';
@@ -4060,9 +4204,19 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 			},
 			Obliterate: function () {
 				return (game.global.challengeActive == "Obliterated");
+			},
+			M_Algamator: function () {
+				return (game.global.world == 1);
+			},
+			Hypercoordinated: function () {
+				return (game.global.challengeActive == "Coordinate")
+			},
+			Forgot_Something: function () {
+				return (game.upgrades.Bounty.done == 0)
 			}
+
 		};
-		which = which.replace(/ /g, '_');
+		which = which.replace(/ /g, '_').replace("'", '_');
 		if (typeof failables[which] === 'function') return failables[which]();
 		else return true;
 	}
