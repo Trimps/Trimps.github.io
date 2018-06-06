@@ -650,6 +650,9 @@ function load(saveString, autoLoad, fromPf) {
 		addNewFeats([0, 33, 38, 39, 40, 41]);
 		calculateAchievementBonus();
 	}
+	if (oldVersion < 4.801){
+		if (countPurchasedTalents() == 40) game.global.essence = 0;
+	}
 	//End compatibility
 	//Test server only
 	//End test server only
@@ -7531,13 +7534,13 @@ function startFight() {
     swapClass("cellColor", "cellColorCurrent", cellElem);
 	var badName;
 	var displayedName;
-	if ((cell.name == "Improbability" || cell.name == "Omnipotrimp") && game.global.spireActive){
+	if ((cell.name == "Improbability") && game.global.spireActive){
 		displayedName = "Druopitee";
 		if (game.global.challengeActive == "Coordinate") displayedName = "Druopitee and Pals";
 	}
 	else if (cell.name == "Omnipotrimp" && game.global.spireActive){
 		displayedName = "Echo of Druopitee";
-		if (game.global.challengeActive == "Coordinate") displayedName = "Echoes of Druopitee";
+		if (game.global.challengeActive == "Coordinate") displayedName = "Echoes of Druopitee and Pals";
 	}
 	else if (cell.name == "Improbability" && game.global.challengeActive == "Coordinate") {
 		displayedName = "Improbabilities";
@@ -12353,7 +12356,7 @@ var Fluffy = {
 				elem.innerHTML = this.specialModifierReason;
 				return;
 			case "staff":
-				elem.innerHTML = 'The bonus modifier applied from "Fluffy Exp" on a Plagued Staff. Currently ' + (1 + (game.heirlooms.Staff.FluffyExp.currentBonus / 100)) + '.';
+				elem.innerHTML = 'The bonus modifier applied from "Fluffy Exp" on a Plagued Staff. Currently ' + (1 + (game.heirlooms.Staff.FluffyExp.currentBonus / 100)).toFixed(2) + '.';
 		}
 	},
 	tooltip: function (big){

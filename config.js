@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.8,
+		version: 4.801,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -970,6 +970,7 @@ var toReturn = {
 						game.global.zoneStarted += dif;
 						game.global.mapStarted += dif;
 						game.global.lastGeneratorTick += dif;
+						game.global.lastSoldierSentAt += dif;
 						this.timeAtPause = 0;
 						game.global.time = 0;
 						game.global.lastOnline = now;
@@ -3408,7 +3409,7 @@ var toReturn = {
 		w270: "This planet is really freaking big. You feel like you've been walking around it for years and still haven't seen everything there is to offer. Shouldn't there be another spire around here or something?",
 		w277: "It's starting to smell purple again. You must be getting close to another spire.",
 		get w283() {
-			var soldiers = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
+			var soldiers = game.resources.trimps.getCurrentSend();
 			return "During a boring night while waiting to cross a particularly rough Magma river, you managed to teach your Trimps how to stack on each other to create some funny shapes. You almost feel bad for the first Snimp to come across " + prettify(soldiers) + " Trimps stuck together in the shape of a humongous Moongooseimp.";
 		},
 		get w285(){

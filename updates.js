@@ -1809,6 +1809,7 @@ function getBattleStatBd(what) {
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
+	document.getElementById('tipText').className = "";
 	tooltip('confirm', null, 'update', textString, "getBattleStatBd('" + what + "')", name, "Refresh", true);
 	if (what == "attack" || what == "health"){
 		verticalCenterTooltip(true);
