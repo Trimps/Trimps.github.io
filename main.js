@@ -8931,10 +8931,10 @@ function giveSpireReward(level){
 			game.global.nullifium += nuReward;
 			message(getSpireStory(spireWorld, 6) + "You found " + nuReward + " Nullifium!</span>", "Story");
 			break;
-		case(70):
-			message(getSpireStory(spireWorld, 7) + "You found a Z400 Heirloom!", "Story");
+		case(70):			
 			var heirloomLevel = 400;
 			if (spireWorld > 3) heirloomLevel = ((spireWorld + 1) * 100);
+			message(getSpireStory(spireWorld, 7) + "You found a Z" + heirloomLevel + " Heirloom!", "Story");
 			createHeirloom(heirloomLevel);
 			break;
 		case(80):
