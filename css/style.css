@@ -4027,6 +4027,10 @@ input::-webkit-inner-spin-button {
 	font-size: 0.8vw;
 }
 
+#natureContainer .row{
+	overflow: hidden;
+}
+
 .cellColorBeaten{
 	background: green !important;
 	color: black !important;

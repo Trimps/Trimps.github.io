@@ -5111,7 +5111,7 @@ function updateEmpowerCosts(){
 
 function checkAndFormatTokens(tokenCost, empowerment){
 	var canAfford = (game.empowerments[empowerment].tokens >= tokenCost);
-	return "<span class='" + ((canAfford) ? "green" : "red") + "'>" + prettify(tokenCost) + " Tokens</span>";
+	return "<span class='" + ((canAfford) ? "green" : "red") + "'>" + prettify(tokenCost) + "&nbsp;Tokens</span>";
 }
 
 function getRetainModifier(empowerment){
