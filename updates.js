@@ -189,6 +189,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 		noExtraCheck = true;
+		ondisplay = function () { verticalCenterTooltip() };
 	}
 	if (what == "Empowerments of Nature"){
 		var active = getEmpowerment();
