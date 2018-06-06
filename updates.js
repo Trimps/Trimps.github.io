@@ -3353,9 +3353,16 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			if (game.global.challengeActive == "Decay"){
 				psText *= 10 * (Math.pow(0.995, game.challenges.Decay.stacks));
 			}
-			if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.famine !== 'undefined' && increase != "fragments" && increase != "science"){
-				psText *= dailyModifiers.famine.getMult(game.global.dailyChallenge.famine.strength);
+			if (game.global.challengeActive == "Daily"){
+				if (typeof game.global.dailyChallenge.famine !== 'undefined' && increase != "fragments" && increase != "science"){
+					psText *= dailyModifiers.famine.getMult(game.global.dailyChallenge.famine.strength);
+				}
+				if (typeof game.global.dailyChallenge.dedication !== 'undefined'){
+					psText *= dailyModifiers.dedication.getMult(game.global.dailyChallenge.dedication.strength);
+				}
 			}
+			if (typeof game.global.dailyChallenge.dedication !== 'undefined')
+					perSec *= dailyModifiers.dedication.getMult(game.global.dailyChallenge.dedication.strength);
 			if (game.global.challengeActive == "Watch") psText /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) psText *= 2;
 			if (jobName != "Explorer" && getEmpowerment() == "Wind"){
