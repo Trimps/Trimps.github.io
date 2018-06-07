@@ -12234,9 +12234,11 @@ var Fluffy = {
 	},
 	rewardExp: function(count){
 		if (!this.canGainExp()) return;
-		if (game.global.world < 301) return;
-		game.global.fluffyExp += this.getExpReward(true, count);
+		if (game.global.world < 301 && !count) return;
+		var reward = this.getExpReward(true, count);
+		game.global.fluffyExp += reward;
 		this.handleBox();
+		return reward;
 	},
 	getExpReward: function(givingExp, count) {
 		var reward = (this.baseExp + (game.portal.Curious.level * game.portal.Curious.modifier)) * Math.pow(this.expGrowth, game.global.world - 300) * (1 + (game.portal.Cunning.level * game.portal.Cunning.modifier));
