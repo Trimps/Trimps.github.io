@@ -2123,7 +2123,7 @@ function canCommitCarpentry(){ //Uh, and Coordinated. This checks coordinated to
 	var error = document.getElementById("portalError");
 	error.innerHTML = "";
 	var good = true;
-	var soldiers = game.resources.trimps.getCurrentSend();
+	var soldiers = game.resources.trimps.getCurrentSend(true);
     if (newMax < (soldiers * 2.4)) {
         error.innerHTML += "You do not have enough max Trimps with this Perk setup to sustain your Coordination. ";
 		error.style.display = "block";

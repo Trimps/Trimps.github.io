@@ -3538,8 +3538,8 @@ var toReturn = {
 			},
 			soldiers: 0,
 			maxSoldiers: 1,
-			getCurrentSend: function () {
-				var amt = (game.portal.Coordinated.level) ? game.portal.Coordinated.currentSend : game.resources.trimps.maxSoldiers;
+			getCurrentSend: function (checkLevelTemp) {
+				var amt = (game.portal.Coordinated.level) ? ((checkLevelTemp) ? game.portal.Coordinated.onChange(true) : game.portal.Coordinated.currentSend) : game.resources.trimps.maxSoldiers;
 				if (game.jobs.Amalgamator.owned > 0) {
 					amt *= game.jobs.Amalgamator.getPopulationMult();
 				}
