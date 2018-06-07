@@ -3362,7 +3362,7 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 				}
 			}
 			if (typeof game.global.dailyChallenge.dedication !== 'undefined')
-					perSec *= dailyModifiers.dedication.getMult(game.global.dailyChallenge.dedication.strength);
+					psText *= dailyModifiers.dedication.getMult(game.global.dailyChallenge.dedication.strength);
 			if (game.global.challengeActive == "Watch") psText /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) psText *= 2;
 			if (jobName != "Explorer" && getEmpowerment() == "Wind"){
