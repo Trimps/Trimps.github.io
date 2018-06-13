@@ -33,6 +33,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (game.global.lockTooltip && isItIn && event == 'update') return;
 	var elem = document.getElementById("tooltipDiv");
 	swapClass("tooltipExtra", "tooltipExtraNone", elem);
+	document.getElementById('tipText').className = "";
 	var ondisplay = null; // if non-null, called after the tooltip is displayed
 	openTooltip = null;
 	if (what == "hide"){

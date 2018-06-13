@@ -1985,6 +1985,10 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .heirloomRare8.heirloomThing, .heirloomRare8 div .selectedHeirloomIcon{
 	color: #083604;
+	animation: heirRare8NoSpin 30s infinite;
+}
+
+.heirloomRare8.animated.heirloomThing, .heirloomRare8.animated div .selectedHeirloomIcon{
 	animation: heirRare8Animated 30s infinite;
 }
 
@@ -2023,6 +2027,41 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 			 -0.17vw 0.17vw 0.17vw rgba(124, 126, 9, 0.58),
 			  0.17vw 0.17vw 0.3vw rgba(33, 9, 36, 0.72);
 		transform: rotate(360deg);
+	}
+}
+
+@keyframes heirRare8NoSpin{
+	0% {
+		text-shadow: 
+			1px 1px 2px #0f9e4a, 
+			0 0 25px #2a40bb, 
+			0 0 5px #217233, 
+			-0.17vw -0.17vw 0.17vw rgba(70, 3, 82, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(37, 80, 12, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(124, 126, 9, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(33, 9, 36, 0.72);	
+			  animation-timing-function: ease-out;
+	}
+	50% {
+		text-shadow: 
+			1px 1px 8px #0f9e4a, 
+			0 0 50px #2a40bb, 
+			0 0 25px #217233, 
+			-0.17vw -0.17vw 0.17vw rgba(70, 3, 82, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(37, 80, 12, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(124, 126, 9, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(33, 9, 36, 0.72);	
+			  animation-timing-function: ease-in;
+	}
+	100% {
+	text-shadow: 
+			1px 1px 2px #0f9e4a, 
+			0 0 25px #2a40bb, 
+			0 0 5px #217233, 
+			-0.17vw -0.17vw 0.17vw rgba(70, 3, 82, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(37, 80, 12, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(124, 126, 9, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(33, 9, 36, 0.72);
 	}
 }
 

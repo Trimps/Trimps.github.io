@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.801,
+		version: 4.802,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -937,6 +937,15 @@ var toReturn = {
 					return (game.global.highestLevelCleared >= 60);
 				},
 				titles: ["Dynamic Giga Ctrl", "Always Giga Ctrl"]
+			},
+			showHeirloomAnimations: {
+				enabled: 1,
+				extraTags: "performance",
+				description: "Enable/Disable animations on Heirlooms.",
+				lockUnless: function () {
+					return (game.global.highestLevelCleared >= 499);
+				},
+				titles: ["No Heirloom Animations", "Heirloom Animations"]
 			},
 			hotkeys: {
 				enabled: 1,
@@ -2203,6 +2212,14 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		},
+		gemsCollected: {
+			title: "Gems Collected",
+			value: 0,
+			valueTotal: 0,
+			display: function () {
+				return ((this.value + this.valueTotal) > 0)
+			}
+		},
 		mapsCleared: {
 			title: "Maps Cleared",
 			value: 0,
@@ -2213,14 +2230,6 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		},
-		gemsCollected: {
-			title: "Gems Collected",
-			value: 0,
-			valueTotal: 0,
-			display: function () {
-				return ((this.value + this.valueTotal) > 0)
-			}
-		},
 		trimpsFired: {
 			title: "Trimps Fired",
 			value: 0,
@@ -2229,34 +2238,18 @@ var toReturn = {
 			//Open maybe 10/21/16ish
 			display: function () {return false;}
 		},
-		highestLevel: {
-			title: "Highest Zone",
-			valueTotal: function () {
-				return game.global.highestLevelCleared + 1;
-			}
-		},
-		totalPortals: {
-			title: "Total Portals Used",
-			display: function () {
-				return (game.global.totalPortals > 0);
-			},
-			valueTotal: function () {
-				return game.global.totalPortals;
-			}
-		},
-		totalHelium: {
-			title: "Total Helium Earned",
-			display: function () {
-				return (game.global.totalHeliumEarned > 0);
-			},
-			valueTotal: function () {
-				return game.global.totalHeliumEarned;
-			}
-		},
 		spentOnWorms: {
 			title: "Wormholed Helium",
 			display: function () {
 				return ((this.value + this.valueTotal) > 0)
+			},
+			value: 0,
+			valueTotal: 0
+		},
+		goldenUpgrades: {
+			title: "Golden Upgrades",
+			display: function () {
+				return (this.value > 0 || this.valueTotal > 0);
 			},
 			value: 0,
 			valueTotal: 0
@@ -2297,6 +2290,15 @@ var toReturn = {
 			},
 			noFormat: true
 		},
+		totalHelium: {
+			title: "Total Helium Earned",
+			display: function () {
+				return (game.global.totalHeliumEarned > 0);
+			},
+			valueTotal: function () {
+				return game.global.totalHeliumEarned;
+			}
+		},
 		bestHeliumHour: {
 			title: "Best He/Hour all Runs",
 			display: function () {
@@ -2304,11 +2306,12 @@ var toReturn = {
 			},
 			valueTotal: 0
 		},
-		planetsBroken: {
-			title: "Planets Broken",
+		dailyBonusHelium: {
+			title: "Daily Challenge Helium",
 			display: function () {
-				return (this.valueTotal > 0);
+				return (this.value >0 || this.valueTotal > 0);
 			},
+			value: 0,
 			valueTotal: 0
 		},
 		highestVoidMap: {
@@ -2324,26 +2327,10 @@ var toReturn = {
 				if (game.global.world > this.valueTotal) this.valueTotal = game.global.world;
 			}
 		},
-		goldenUpgrades: {
-			title: "Golden Upgrades",
-			display: function () {
-				return (this.value > 0 || this.valueTotal > 0);
-			},
-			value: 0,
-			valueTotal: 0
-		},
 		totalHeirlooms: { //added from createHeirloom to value
 			title: "Heirlooms Found",
 			display: function () {
 				return (this.value > 0 || this.valueTotal > 0);
-			},
-			value: 0,
-			valueTotal: 0
-		},
-		dailyBonusHelium: {
-			title: "Daily Challenge Helium",
-			display: function () {
-				return (this.value >0 || this.valueTotal > 0);
 			},
 			value: 0,
 			valueTotal: 0
@@ -2375,6 +2362,27 @@ var toReturn = {
 		zonesLiquified: {
 			title: "Zones Liquified",
 			display: function() {
+				return (this.value > 0 || this.valueTotal > 0)
+			},
+			value: 0,
+			valueTotal: 0
+		},
+		bestTokens: {
+			get title () {
+				if (game.global.statsMode == "current") return "Tokens This Run"
+				return "Most Tokens";
+			},
+			display: function () {
+				return (this.value > 0 || this.valueTotal > 0)
+			},
+			value: 0,
+			valueTotal: 0,
+			noAdd: true,
+			keepHighest: true
+		},
+		amalgamators: {
+			title: "Amalgamators Befriended",
+			display: function () {
 				return (this.value > 0 || this.valueTotal > 0)
 			},
 			value: 0,
@@ -2435,27 +2443,28 @@ var toReturn = {
 			},
 			valueTotal: 0
 		},
-		bestTokens: {
-			get title () {
-				if (game.global.statsMode == "current") return "Tokens This Run"
-				return "Most Tokens";
-			},
-			display: function () {
-				return (this.value > 0 || this.valueTotal > 0)
-			},
-			value: 0,
-			valueTotal: 0,
-			noAdd: true,
-			keepHighest: true
+		highestLevel: {
+			title: "Highest Zone",
+			valueTotal: function () {
+				return game.global.highestLevelCleared + 1;
+			}
 		},
-		amalgamators: {
-			title: "Amalgamators Befriended",
+		totalPortals: {
+			title: "Total Portals Used",
 			display: function () {
-				return (this.value > 0 || this.valueTotal > 0)
+				return (game.global.totalPortals > 0);
 			},
-			value: 0,
+			valueTotal: function () {
+				return game.global.totalPortals;
+			}
+		},
+		planetsBroken: {
+			title: "Planets Broken",
+			display: function () {
+				return (this.valueTotal > 0);
+			},
 			valueTotal: 0
-		}
+		},
 	},
 	generatorUpgrades: {
 		Efficiency: {
@@ -6588,7 +6597,7 @@ var toReturn = {
 			get tooltip(){
 				var ratio = this.getTriggerThresh();
 				var currentRatio = (game.resources.trimps.realMax() / game.resources.trimps.getCurrentSend());
-				var text = "<p>Amalgamators cannot be hired or fired manually. They are magical beings that could barely be considered Trimps anymore, and they will automatically show up to your town whenever your army size to total population ratio falls below <b>1:" + prettify(ratio) + "</b>. Completing Spires II through V will each divide this minimum ratio by 10. If your ratio ever rises above 1:" + prettify(1e3) + ", an Amalgamator will leave. Your current ratio is <b>1:" + prettify(currentRatio) + "</b>.</p><p>Amalgamators fuse some of your spare Trimps to other soldiers, greatly strengthening them. Each Amalgamator increases the amount of Trimps that must be sent into each battle by 1000x (compounding), increases health by 40x (compounding), and increases damage by 50% (additive).</p><p>In addition, having at least one Amalgamator will cause Anticipation stacks to increase based on when the last soldiers were sent, rather than being based on time spent actually breeding.</p>";
+				var text = "<p>Amalgamators cannot be hired or fired manually. They are magical beings that could barely be considered Trimps anymore, and they will automatically show up to your town whenever your total population to army size ratio rises above <b>" + prettify(ratio) + ":1</b>. Completing Spires II through V will each divide this ratio by 10. If your ratio ever falls below " + prettify(1e3) + ":1, an Amalgamator will leave. Your current ratio is <b>" + prettify(currentRatio) + ":1</b>.</p><p>Amalgamators fuse some of your spare Trimps to other soldiers, greatly strengthening them. Each Amalgamator increases the amount of Trimps that must be sent into each battle by 1000x (compounding), increases health by 40x (compounding), and increases damage by 50% (additive).</p><p>In addition, having at least one Amalgamator will cause Anticipation stacks to increase based on when the last soldiers were sent, rather than being based on time spent actually breeding.</p>";
 				if (game.global.challengeActive == "Trimp"){
 					text += "<p><i>" + toZalgo("This particular Universe</b> seems to directly conflict with the Amalgamators, yet they're here and the Trimps they Amalgamate seem immune to the dimensional restrictions. Things are getting weird though.", 1, Math.ceil(game.global.world / 100)) + "</i></p>";
 				}
