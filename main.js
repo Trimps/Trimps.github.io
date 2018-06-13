@@ -2321,6 +2321,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 			amt = avgSec * 10 * baseAmt;
 	}
 	else if (what == "fragments"){
+		if (game.options.menu.useAverages.enabled && document.getElementById("fragmentsPs").style.opacity == 0) fadeIn("fragmentsPs", 10);
 		amt = Math.floor(Math.pow(1.15, game.global.world) * game.global.world * game.global.world * 0.02);
 		if (baseAmt > 1) {
 			amt *= baseAmt;
