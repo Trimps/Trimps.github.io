@@ -8183,17 +8183,17 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
     var max = Math.ceil(number + (number * maxFluct));
     if (buildString) {
 		if (isTrimp) {
-			if (!noCheckAchieve) checkAchieve("damage", max);
-			else return max;
-		}
-		var critChance = getPlayerCritChance();
-		if (critChance >= 1){
-			var critDamage = getPlayerCritDamageMult();
-			number *= critDamage;
-			if (critChance >= 3) number *= getMegaCritDamageMult(3);
-			else if (critChance >= 2) number *= getMegaCritDamageMult(2);
-			min = Math.floor(number * (1 - minFluct));
-			max = Math.ceil(number + (number * maxFluct));
+			if (noCheckAchieve) return max;
+			var critChance = getPlayerCritChance();
+			if (critChance >= 1){
+				var critDamage = getPlayerCritDamageMult();
+				number *= critDamage;
+				if (critChance >= 3) number *= getMegaCritDamageMult(3);
+				else if (critChance >= 2) number *= getMegaCritDamageMult(2);
+				min = Math.floor(number * (1 - minFluct));
+				max = Math.ceil(number + (number * maxFluct));
+			}
+			checkAchieve("damage", max);
 		}
 		return prettify(min) + "-" + prettify(max);
     }
