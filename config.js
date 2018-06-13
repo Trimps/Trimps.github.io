@@ -2738,7 +2738,7 @@ var toReturn = {
 			},
 			progress: function () {
 				if (this.breakpoints.length > this.finished) return prettify(Math.floor(this.evaluate() * 10000) / 10000) + " / " + prettify(this.breakpoints[this.finished]);
-				return "Record of " + prettify(this.evaluate());
+				return "Currently at " + prettify(this.evaluate());
 			},
 			evaluate: function () {
 				return game.stats.heliumHour.value();
