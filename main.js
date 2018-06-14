@@ -2192,6 +2192,8 @@ function cancelPortal(keep){
 	}
 	game.global.viewingUpgrades = false;
 	game.global.respecActive = false;
+	if (!keep)
+		game.global.selectedChallenge = "";
 	resetPresets();
 	document.getElementById("clearPerksBtn").style.display = "none";
 	document.getElementById("respecPortalBtn").style.display = "none";
@@ -4012,17 +4014,9 @@ function getRandomMapValue(what) { //sliders only. what can be loot, size or dif
 	var advValue = getMapSliderValue(what);
 	if (advValue > 9) advValue = 9;
 	else if (advValue < 0) advValue = 0;
-	var min;
-	var max;
-	if (advValue > 0){
-		var minMax = getMapMinMax(what, advValue);
-		min = minMax[0];
-		max = minMax[1];
-	}
-	else{
-		min = amt - range;
-		max = amt + range;
-	}
+	var minMax = getMapMinMax(what, advValue);
+	var min = minMax[0];
+	var max = minMax[1];
 	if (checkPerfectChecked()) {
 		if (what == "loot") return max;
 		return min;
@@ -11374,6 +11368,8 @@ function purchaseMisc(what){
 }
 
 function purchaseSingleRunBonus(what){
+	if (what == "heliumy" && game.global.runningChallengeSquared) return;
+	if (what == "quickTrimps" && game.global.challengeActive == "Trapper") return;
 	var bonus = game.singleRunBonuses[what];
 	if (!bonus) return;
 	if (bonus.owned) return;
@@ -11403,14 +11399,24 @@ function displaySingleRunBonuses(){
 			 btnText = 'Active!';
 		}
 		else {
-			if (game.global.b < bonus.cost)
-				btnClass = 'boneBtnStateOff'
-			else 
-				btnClass = 'boneBtnStateOn';
-			btnText = bonus.name + " (" + bonus.cost + " bones)";
+			if (item == "heliumy" && game.global.runningChallengeSquared){
+				btnClass = 'boneBtnStateOff';
+				btnText = "Disabled on C<sup>2</sup>";
+			}
+			else if (item == "quickTrimps" && game.global.challengeActive == "Trapper"){
+				btnClass = 'boneBtnStateOff';
+				btnText = "Disabled on Trapper";
+			}
+			else{
+				if (game.global.b < bonus.cost)
+					btnClass = 'boneBtnStateOff'
+				else 
+					btnClass = 'boneBtnStateOn';
+				btnText = bonus.name + " (" + bonus.cost + " bones)";
+			}
 		}
 		html += "<div class='boneBtn " + btnClass + " pointer noselect' id='" + item + "PurchaseBtn'";
-		if (!bonus.owned && game.global.b >= bonus.cost)
+		if (btnClass == 'boneBtnStateOn')
 			html += " onclick='tooltip(\"Confirm Purchase\", null, \"update\", \"" + bonus.confirmation + "\", \"purchaseSingleRunBonus(&#39;" + item + "&#39;)\", 20)'>" + btnText + "</div>";
 		else
 			html += ">" + btnText + "</div>";
