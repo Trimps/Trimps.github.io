@@ -10902,7 +10902,7 @@ function restoreGrid(){
 }
 
 function setFormation(what) {
-	if (game.options.menu.pauseGame.enabled) return;
+		if (game.options.menu.pauseGame.enabled) return;
 	if (what) {
 		what = parseInt(what, 10);
 		swapClass("formationState", "formationStateDisabled", document.getElementById("formation" + game.global.formation));
