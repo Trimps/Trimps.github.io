@@ -4969,7 +4969,7 @@ function getRandomMapName() {
 
 function buildMapGrid(mapId) {
 	if (game.global.formation == 4) game.global.canScryCache = true;
-	game.global.mapStarted = new Date().getTime();
+	game.global.mapStarted = getGameTime();
     var map = game.global.mapsOwnedArray[getMapIndex(mapId)];
     var array = [];
 	var imports = [];
@@ -5190,6 +5190,7 @@ function rewardToken(empowerment){
 	if (game.global.buyTab == "nature")
 		updateNatureInfoSpans();
 	game.stats.bestTokens.value += tokens;
+	return tokens;
 }
 
 function updateNatureInfoSpans(){
@@ -7762,14 +7763,14 @@ function startFight() {
 	var currentSend = game.resources.trimps.getCurrentSend();
     if (game.global.soldierHealth <= 0) {
 		game.global.battleCounter = 0;
-		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[2]) {
+		if (cell.name == "Voidsnimp" && !game.achievements.oneOffs.finished[game.achievements.oneOffs.names.indexOf("Needs Block")]) {
 			if (!cell.killCount) cell.killCount = 1;
 			else cell.killCount++;
 			if (cell.killCount >= 50) giveSingleAchieve("Needs Block");
 		}
 		if (game.global.realBreedTime >= 600000 && game.jobs.Geneticist.owned >= 1) giveSingleAchieve("Extra Crispy");
 		if (game.portal.Anticipation.level){
-			game.global.antiStacks = (game.jobs.Amalgamator.owned > 0) ? Math.floor((new Date().getTime() - game.global.lastSoldierSentAt) / 1000) : Math.floor(game.global.lastBreedTime / 1000);
+			game.global.antiStacks = (game.jobs.Amalgamator.owned > 0) ? Math.floor((getGameTime() - game.global.lastSoldierSentAt) / 1000) : Math.floor(game.global.lastBreedTime / 1000);
 			if (game.talents.patience.purchased){
 				if (game.global.antiStacks >= 45)
 					game.global.antiStacks = 45;
@@ -7777,7 +7778,7 @@ function startFight() {
 			else if (game.global.antiStacks >= 30) game.global.antiStacks = 30;
 			updateAntiStacks();
 		}
-		game.global.lastSoldierSentAt = new Date().getTime();
+		game.global.lastSoldierSentAt = getGameTime();
 		game.global.lastBreedTime = 0;
 		game.global.realBreedTime = 0;
 		if ((game.global.challengeActive == "Electricity" || game.global.challengeActive == "Mapocalypse")) {
@@ -8165,9 +8166,8 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 		}
 		//Keep ice last for achievements
 		if (getEmpowerment() == "Ice"){
-
 			number *= game.empowerments.Ice.getCombatModifier();
-			if (number < 1 && !game.global.mapsActive) giveSingleAchieve("Brr");
+			if (number >= 0 && number < 1 && !game.global.mapsActive) giveSingleAchieve("Brr");
 		}
 	}
 	if (minFluct > 1) minFluct = 1;
@@ -8408,7 +8408,8 @@ function rewardLiquidZone(){
 	var metal = game.resources.metal.owned;
 	var helium = game.resources.helium.owned;
 	var fragments = game.resources.fragments.owned;
-	var trimpsCount = game.resources.trimps.realMax(); 
+	var trimpsCount = game.resources.trimps.realMax();
+	var tokText;
 	var trackedImps = {
 		Feyimp: 0,
 		Magnimp: 0,
@@ -8441,6 +8442,12 @@ function rewardLiquidZone(){
 			}
 		}
 		if (cell.mutation && typeof mutations[cell.mutation].reward !== 'undefined') mutations[cell.mutation].reward(cell.corrupted);
+		if (cell.empowerment){
+			var tokReward = rewardToken(cell.empowerment);
+			if (game.global.messages.Loot.token && game.global.messages.Loot.enabled){
+				tokText = "<span class='message empoweredCell" + cell.empowerment + "'>Found " + prettify(tokReward) + " Token" + ((tokReward == 1) ? "" : "s") + " of " + cell.empowerment + "!</span>";
+			}
+		}
 		if (typeof game.badGuys[cell.name].loot !== 'undefined') game.badGuys[cell.name].loot(cell.level);
 		if (typeof trackedImps[cell.name] !== 'undefined'){
 			trackedImps[cell.name]++;
@@ -8498,6 +8505,9 @@ function rewardLiquidZone(){
 	if (bones != "" && game.global.messages.Loot.bone && game.global.messages.Loot.enabled){
 		bones = "Found a " + bones + "!<br/>";
 		text += bones;
+	}
+	if (tokText != null){
+		text += tokText + "<br/>";
 	}
 	if (text){
 		text = "You liquified a Liquimp!<br/>" + text;
@@ -8586,7 +8596,7 @@ function nextWorld() {
 	if (game.worldText["w" + game.global.world]) message(game.worldText["w" + game.global.world], "Story");
 	if (game.global.canMagma) checkAchieve("zones");
 
-	game.global.zoneStarted = new Date().getTime();
+	game.global.zoneStarted = getGameTime();
 
 	if (game.global.challengeActive == "Mapology") {
 		game.challenges.Mapology.credits++;
@@ -10892,6 +10902,7 @@ function restoreGrid(){
 }
 
 function setFormation(what) {
+	if (game.options.menu.pauseGame.enabled) return;
 	if (what) {
 		what = parseInt(what, 10);
 		swapClass("formationState", "formationStateDisabled", document.getElementById("formation" + game.global.formation));
@@ -11769,7 +11780,7 @@ function updateTurkimpTime() {
 
 function formatMinutesForDescriptions(number){
 	var text;
-	var minutes = Math.round(number % 60);
+	var minutes = Math.floor(number % 60);
 	var hours = Math.floor(number / 60);
 	if (hours == 0) text = minutes + " min" + ((minutes == 1) ? "" : "s");
 	else if (minutes > 0) {
@@ -11800,7 +11811,7 @@ function formatSecondsForDescriptions(number){
 }
 
 function getMinutesThisPortal(){
-	var timeSince = new Date().getTime() - game.global.portalTime;
+	var timeSince = getGameTime() - game.global.portalTime;
 	timeSince /= 1000;
 	return Math.floor(timeSince / 60);
 }
@@ -13015,6 +13026,10 @@ function runEverySecond(){
 	updatePortalTimer();
 }
 
+function getGameTime(){
+	return game.global.start + game.global.time;
+}
+
 
 function gameTimeout() {
 	if (game.options.menu.pauseGame.enabled) return;
@@ -13060,8 +13075,7 @@ function runGameLoop(makeUp, now) {
 }
 function updatePortalTimer(justGetTime) {
 	if (game.global.portalTime < 0) return;
-	var timeSince = new Date().getTime() - game.global.portalTime;
-	if (game.options.menu.pauseGame.enabled) timeSince -= new Date().getTime() - game.options.menu.pauseGame.timeAtPause;
+	var timeSince = getGameTime() - game.global.portalTime;
 	timeSince /= 1000;
 	var days = Math.floor(timeSince / 86400);
 	var hours = Math.floor( timeSince / 3600) % 24;

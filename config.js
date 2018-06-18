@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.803,
+		version: 4.804,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -956,7 +956,7 @@ var toReturn = {
 			offlineProgress: {
 				enabled: 1,
 				extraTags: "other",
-				description: "Disables or enables earning resources while offline. <b>Warning: If this is toggled off, no resources will be earned from Trustworthy Trimps when coming back to the game after being offline.</b> This can be helpful if you are analysing stats and do not want resources counted when there is no timer running",
+				description: "Disables or enables earning resources while offline. <b>Warning: If this is toggled off, no resources will be earned from Trustworthy Trimps when coming back to the game after being offline.</b> This also stops the current run timer when offline and can be helpful if you are analysing stats and do not want resources counted when there is no timer running",
 				titles: ["No Offline Progress", "Offline Progress"]
 			},
 			pauseGame: {
@@ -1555,7 +1555,7 @@ var toReturn = {
 			max: 7,
 			tooltip: "Your experiences in the Dimension of Strong Things have taught you the value of taking your time. Every level of Meditation will increase your Trimps' gather speed by 1% for every 10 minutes spent on the same zone, up to 1 hour, even when offline. This bonus is reset after clearing the current zone. Maximum of 7 levels.",
 			getBonusPercent: function (justStacks) {
-				var timeOnZone = new Date().getTime() - game.global.zoneStarted;
+				var timeOnZone = getGameTime() - game.global.zoneStarted;
 				timeOnZone = Math.floor(timeOnZone / 600000);
 				if (timeOnZone > 6) timeOnZone = 6;
 				else if (timeOnZone <= 0) return 0;
@@ -6546,7 +6546,7 @@ var toReturn = {
 			owned: 0,
 			allowAutoFire: true,
 			get tooltip(){
-				var timeOnZone = Math.floor((new Date().getTime() - game.global.zoneStarted) / 60000);
+				var timeOnZone = Math.floor((getGameTime() - game.global.zoneStarted) / 60000);
 				if (game.talents.magmamancer.purchased) timeOnZone += 5;
 				var bonus = (this.getBonusPercent() - 1) * 100;
 				var timeStr;
@@ -6561,7 +6561,7 @@ var toReturn = {
 				var currentMag = (((1 - Math.pow(0.9999, this.owned)) * 3));
 				var nextMag = (((1 - Math.pow(0.9999, this.owned + 1)) * 3));
 				var nextBonus = (1 - (currentMag / nextMag)) * 100;
-				var textString = "<p>Train a Magmamancer to craft pickaxe heads infused with Gems and Magma, custom for the unique rocks in each zone. The more Magmamancers you have and the longer you spend in one zone, the more Metal your Trimps will be able to gather!</p><p>For each 10 minutes you spend in a zone with Magmamancers up to 2 hours, your Magmamancer bonus will increase by 20% (compounding). Your current bonus is <b>" + prettify(bonus) + "%</b>, and you've been on this zone for " + timeStr + ".</p>";
+				var textString = "<p>Train a Magmamancer to craft pickaxe heads infused with Gems and Magma, custom for the unique rocks in each zone. The more Magmamancers you have and the longer you spend in one zone, the more Metal your Trimps will be able to gather!</p><p>For each 10 minutes you spend in a zone with Magmamancers up to 2 hours, your Magmamancer bonus will increase by 20% (compounding). Your current bonus is <b>" + prettify(bonus) + "%</b>, and " + ((game.talents.magmamancer.purchased) ? "counting your Magmamancermancy Mastery " : "") + "you've been on this zone for " + timeStr + ".</p>";
 				if (this.owned > 0) textString += "<p>Your next Magmamancer will increase the total bonus by " + prettify(nextBonus) + "% (compounding, hold Ctrl to see formula)</p>";
 				else textString += "<p>After training your first Magmamancer, your bonus metal will be " + prettify((nextMag * (Math.pow(1.2, this.getBonusPercent(true)) - 1)) * 100) + "%. (Hold Ctrl to see formula)</p>";
 				if (ctrlPressed) textString += "<b><p>M = Magmamancer count. T = Time on zone in minutes, divided by 10, rounded down.</p><p>Metal/Sec *= 1 + (((1 - (0.9999 ^ M)) * 3) * ((1.2 ^ T) - 1))</p><b>";
@@ -6578,7 +6578,7 @@ var toReturn = {
 				var expInc = 1.2;
 				var timeOnZone;
 				if (typeof forceTime === 'undefined'){
-					var timeOnZone = new Date().getTime() - game.global.zoneStarted;
+					var timeOnZone = getGameTime() - game.global.zoneStarted;
 					if (game.talents.magmamancer.purchased) timeOnZone += 300000;
 					timeOnZone = Math.floor(timeOnZone / 600000);
 					
@@ -6597,13 +6597,12 @@ var toReturn = {
 			get tooltip(){
 				var ratio = this.getTriggerThresh();
 				var currentRatio = (game.resources.trimps.realMax() / game.resources.trimps.getCurrentSend());
-				var text = "<p>Amalgamators cannot be hired or fired manually. They are magical beings that could barely be considered Trimps anymore, and they will automatically show up to your town whenever your total population to army size ratio rises above <b>" + prettify(ratio) + ":1</b>. Completing Spires II through V will each divide this ratio by 10. If your ratio ever falls below " + prettify(1e3) + ":1, an Amalgamator will leave. Your current ratio is <b>" + prettify(currentRatio) + ":1</b>.</p><p>Amalgamators fuse some of your spare Trimps to other soldiers, greatly strengthening them. Each Amalgamator increases the amount of Trimps that must be sent into each battle by 1000x (compounding), increases health by 40x (compounding), and increases damage by 50% (additive).</p><p>In addition, having at least one Amalgamator will cause Anticipation stacks to increase based on when the last soldiers were sent, rather than being based on time spent actually breeding.</p>";
+				var text = "<p>Amalgamators cannot be hired or fired manually. They are magical beings that could barely be considered Trimps anymore, and they will automatically show up to your town whenever your total population to army size ratio rises above <b>" + prettify(ratio) + ":1</b>. Completing Spires II through V will each divide this ratio by 10. If your ratio ever falls below " + prettify(1e3) + ":1, an Amalgamator will leave. Your current ratio is <b>" + prettify(currentRatio) + ":1</b>. At your current army size, you need <b>" + prettify(ratio * game.resources.trimps.getCurrentSend()) + "</b> total Trimps to trigger the next Amalgamator.</p></p><p>Amalgamators fuse some of your spare Trimps to other soldiers, greatly strengthening them. Each Amalgamator increases the amount of Trimps that must be sent into each battle by 1000x (compounding), increases health by 40x (compounding), and increases damage by 50% (additive).</p><p>In addition, having at least one Amalgamator will cause Anticipation stacks to increase based on when the last soldiers were sent, rather than being based on time spent actually breeding.</p>";
 				if (game.global.challengeActive == "Trimp"){
 					text += "<p><i>" + toZalgo("This particular Universe</b> seems to directly conflict with the Amalgamators, yet they're here and the Trimps they Amalgamate seem immune to the dimensional restrictions. Things are getting weird though.", 1, Math.ceil(game.global.world / 100)) + "</i></p>";
 				}
 				else
 					text += "<p><i>Some say the Amalgamators are a curse, some say they're a blessing. The Amalgamators themselves mostly just say \"Blerghhhh\".</i></p>";
-
 				return text;
 			},
 			cost: {
