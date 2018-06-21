@@ -4313,6 +4313,12 @@ function displayExtraHeirlooms(){
 	var s = (extraExtraText > 1) ? "s" : "";
 	document.getElementById("extraHeirloomsText").innerHTML = " - " + extraExtraText + " Heirloom" + s + ", recycled for " + recycleAllExtraHeirlooms(true) + " Nu on Portal";
 	document.getElementById("recycleAllHeirloomsBtn").style.display = (game.global.heirloomsExtra.length) ? "inline-block" : "none";
+	if (game.options.menu.showHeirloomAnimations.enabled){
+		var fidgetSpinners = document.getElementById("extraHeirloomsHere").getElementsByClassName('heirloomRare8');
+		for (var x = 0; x < fidgetSpinners.length; x++){
+			fidgetSpinners[x].style.animationDelay = "-" + ((new Date().getTime() / 1000) % 30).toFixed(1) + "s";
+		}
+	}
 }
 
 function selectHeirloom(number, location, elem){
@@ -4755,7 +4761,13 @@ function replaceMod(confirmed){
 	mod[2] = steps[1];
 	mod[3] = 0;
 	if (!game.heirlooms.canReplaceMods[heirloom.rarity]) {
-		heirloom.mods.sort(function(a, b){return a[0] > b[0]});
+		heirloom.mods.sort(function(a, b){
+			a = a[0].toLowerCase();
+			b = b[0].toLowerCase();
+			if (a == "empty") return 1;
+			if (b == "empty" || b > a) return -1;
+			return a > b
+		})
 		var newIndex = heirloom.mods.indexOf(mod);
 		if (newIndex >= 0) selectedMod = newIndex;
 	}
@@ -4845,6 +4857,10 @@ function createHeirloom(zone, fromBones){
 	//{name: "", type: "", rarity: #, mods: [[ModName, value, createdStepsFromCap, upgradesPurchased, seed]]}
 	var buildHeirloom = {name: name, type: type, repSeed: getRandomIntSeeded(seed++, 1, 10e6), rarity: rarity, mods: []};
 	var x = 0;
+	if (!game.heirlooms.canReplaceMods[rarity]){
+		x++;
+		buildHeirloom.mods.push(["empty", 0, 0, 0, getRandomIntSeeded(seed++, 0, 1000)]);
+	}
 	for (x; x < slots; x++){
 		var roll = getRandomIntSeeded(seed++, 0, eligible.length);
 		var thisMod = eligible[roll];
@@ -6996,6 +7012,7 @@ function easterEggClicked(){
 
 function fightManual() {
 	if (game.options.menu.pauseGame.enabled) return;
+	if (game.global.time < 1000) return;
     battle(true);
 }
 
@@ -7871,7 +7888,7 @@ function startFight() {
 		if (game.global.challengeActive == "Lead") manageLeadStacks();
     }
 	else {
-		if (game.global.challengeActive == "Lead") manageLeadStacks(!game.global.mapsActive && madeBadGuy);
+		if (game.global.challengeActive == "Lead") manageLeadStacks();
 
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
@@ -8514,6 +8531,10 @@ function rewardLiquidZone(){
 		text = text.slice(0, -5);
 		message(text, "Notices", "star", "LiquimpMessage");
 	}
+	if (game.global.challengeActive == "Lead"){
+		game.challenges.Lead.stacks -= 100;
+		manageLeadStacks();
+	}
 	game.stats.zonesLiquified.value++;
 	nextWorld();
 }
@@ -8615,7 +8636,7 @@ function nextWorld() {
 		assignExtraWorkers()
 	}
 	if (game.global.challengeActive == "Lead"){
-		if ((game.global.world % 2) == 0) game.challenges.Lead.stacks = game.challenges.Lead.stacks = 201;
+		if ((game.global.world % 2) == 0) game.challenges.Lead.stacks = 200;
 		manageLeadStacks();
 	}
 	if (game.global.challengeActive == "Decay"){
@@ -10184,6 +10205,7 @@ function fight(makeUp) {
 		}
 
 		//Challenge Shenanigans
+		if (game.global.challengeActive == "Lead" && cell.name != "Liquimp") manageLeadStacks(!game.global.mapsActive);
 		if (game.global.challengeActive == "Balance" && game.global.world >= 6){
 			if (game.global.mapsActive) game.challenges.Balance.removeStack();
 			else game.challenges.Balance.addStack();

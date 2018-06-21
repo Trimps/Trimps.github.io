@@ -2022,7 +2022,7 @@ function getLootBd(what) {
 			level *= 1.35;
 			if (level < 0) level = 0;
 			var baseAmt = 0;
-			if (game.global.world < 59) baseAmt = 1;
+			if (game.global.world < 60) baseAmt = 1;
 			else if (game.global.world < mutations.Corruption.start(true)) baseAmt = 5;
 			else baseAmt = 10;
 			var amt = Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
