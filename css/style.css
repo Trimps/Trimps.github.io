@@ -1282,8 +1282,6 @@ overflow-x: hidden;
 	}
 }
 
-
-
 #lootBdTabs{
 	background-color: black;
 }
@@ -1297,7 +1295,7 @@ overflow-x: hidden;
 }
 
 .battleStatsTitle {
-	overflow: auto;
+	overflow: hidden;
     font-size: 1.1em;
 	max-height: 1.55em;
 	display: inline-block;
