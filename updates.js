@@ -1542,7 +1542,7 @@ function getBattleStatBd(what) {
 		if (trainer.owned > 0){
 			var trainerStrength = trainer.owned * (trainer.modifier / 100);
 			trainerStrength = calcHeirloomBonus("Shield", "trainerEfficiency", trainerStrength);
-			currentCalc  *= (trainerStrength + 1);
+			currentCalc  = Math.floor(currentCalc * (trainerStrength + 1));
 			trainerStrength = prettify(trainerStrength * 100) + "%";
 			textString += "<tr><td class='bdTitle'>Trainers</td><td>" + prettify(calcHeirloomBonus("Shield", "trainerEfficiency", trainer.modifier)) + "%</td><td>" + prettify(trainer.owned) + "</td><td>+ " + trainerStrength + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 		}
