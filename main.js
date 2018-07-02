@@ -2402,7 +2402,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 	}
 	if (what == "helium"){
-		if (game.singleRunBonuses.heliumy.owned) amt *= 1.5;
+		if (game.singleRunBonuses.heliumy.owned) amt *= 1.25;
 		if (game.global.sLevel >= 5) amt *= Math.pow(1.005, game.global.world);
 		if (game.goldenUpgrades.Helium.currentBonus > 0) amt *= 1 + game.goldenUpgrades.Helium.currentBonus;
 		var fluffyBonus = Fluffy.isRewardActive("helium");
@@ -7889,7 +7889,21 @@ function startFight() {
     }
 	else {
 		if (game.global.challengeActive == "Lead") manageLeadStacks();
-
+		if (game.resources.trimps.soldiers != currentSend && game.global.maxSoldiersAtStart > 0){
+			var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
+			var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
+			var requiredTrimps = (currentSend - game.resources.trimps.soldiers);
+			if (freeTrimps >= requiredTrimps) {
+				game.resources.trimps.owned -= requiredTrimps;
+				var oldHealth = game.global.soldierHealthMax;
+				game.global.soldierHealthMax *= newTrimps;
+				game.global.soldierHealth += (game.global.soldierHealthMax - oldHealth);
+				game.global.soldierCurrentAttack *= newTrimps;
+				game.global.soldierCurrentBlock *= newTrimps;
+				game.resources.trimps.soldiers = currentSend;
+				game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
+			}
+		}
 		//Check differences in equipment, apply perks, bonuses, and formation
 		if (game.global.difs.health !== 0) {
 			var healthTemp = trimpsFighting * game.global.difs.health * ((game.portal.Toughness.modifier * game.portal.Toughness.level) + 1);
@@ -7941,21 +7955,6 @@ function startFight() {
 			blockTemp = calcHeirloomBonus("Shield", "trimpBlock", blockTemp);
 			game.global.soldierCurrentBlock += blockTemp;
 			game.global.difs.block = 0;
-		}
-		if (game.resources.trimps.soldiers != currentSend && game.global.maxSoldiersAtStart > 0){
-			var freeTrimps = (game.resources.trimps.owned - game.resources.trimps.employed);
-			var newTrimps = ((game.resources.trimps.maxSoldiers - game.global.maxSoldiersAtStart)  / game.global.maxSoldiersAtStart) + 1;
-			var requiredTrimps = (currentSend - game.resources.trimps.soldiers);
-			if (freeTrimps >= requiredTrimps) {
-				game.resources.trimps.owned -= requiredTrimps;
-				var oldHealth = game.global.soldierHealthMax;
-				game.global.soldierHealthMax *= newTrimps;
-				game.global.soldierHealth += (game.global.soldierHealthMax - oldHealth);
-				game.global.soldierCurrentAttack *= newTrimps;
-				game.global.soldierCurrentBlock *= newTrimps;
-				game.resources.trimps.soldiers = currentSend;
-				game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
-			}
 		}
 	}
 	if (!instaFight) updateAllBattleNumbers(game.resources.trimps.soldiers < currentSend);
