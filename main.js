@@ -659,6 +659,24 @@ function load(saveString, autoLoad, fromPf) {
 			if (game.global.gridArray[x].mutation == "TrimpmasSnow") delete game.global.gridArray[x].mutation;
 		}
 	}
+        if (oldVersion < 4.814) {
+            var resources = ['food', 'wood', 'metal', 'gems', 'fragments'];
+            var newAvgs = {};
+            for (var res of resources) {
+                newAvgs[res] = {
+                    accumulator: 0,
+                    average: game.global.lootAvgs[res].reduce(function(a, b) {
+                        return a + b;
+                    }, 0)
+                    / (game.global.lootAvgs[res].length || 1)
+                };
+            }
+            game.global.lootAvgs = newAvgs;
+            game.settings.ewma_alpha = 0.05;
+            game.settings.ewma_ticks = 10;
+
+        }
+
 	//End compatibility
 	//Test server only
 	//End test server only
@@ -2481,29 +2499,40 @@ function getMaxForResource(what){
 	return newMax;
 }
 
+// Exponentially weighted moving average is less jumpy than a normal
+// moving average, so we can include jestimps.
+// https://en.wikipedia.org/wiki/Moving_average
+//
+// Averaging smoothness is controlled by `game.settings.ewma_alpha`,
+// which should be between 0 and 1 (exclusive). Lower values provide
+// more smoothness, higher values have less lag. Default value of 0.10
+//
+// The time between average updates is now controlled by
+// `game.settings.ewma_ticks`, which is the number of ticks between
+// updates. The default value is 30, i.e. every 3 seconds.
+
 function addAvg(what, number) {
 	var avgA = game.global.lootAvgs[what];
-	if (typeof avgA === 'undefined' || typeof game.global.lootAvgs[what + "Total"] === 'undefined') return;
-	avgA[avgA.length - 1] += number;
-	game.global.lootAvgs[what + "Total"] += number;
+	if (typeof avgA === 'undefined') return;
+	avgA.accumulator += number;
 }
 
 function getAvgLootSecond(what) {
 	var avgA = game.global.lootAvgs[what];
-	if (typeof avgA === 'undefined' || typeof game.global.lootAvgs[what + "Total"] === 'undefined') return 0;
-	return (game.global.lootAvgs[what + "Total"] / avgA.length / 3);
+	if (typeof avgA === 'undefined') return 0;
+	return game.global.lootAvgs[what].average;
 }
 
 function curateAvgs() {
 	for (var what in game.global.lootAvgs) {
-		if (!Array.isArray(game.global.lootAvgs[what])) continue;
-		var avgA = game.global.lootAvgs[what];
-		while (avgA.length >= 60) {
-			game.global.lootAvgs[what + "Total"] -= avgA[0];
-			if (game.global.lootAvgs[what + "Total"] <= 0) game.global.lootAvgs[what + "Total"] = 0;
-			avgA.splice(0, 1);
-		}
-		avgA.push(0);
+            if (typeof game.global.lootAvgs[what] !== 'object') continue;
+            var avgA = game.global.lootAvgs[what];
+            avgA.average = avgA.average * (1 - game.settings.ewma_alpha)
+                         + avgA.accumulator
+                           * game.settings.ewma_alpha
+                           / game.settings.ewma_ticks
+                           * game.settings.speed;
+            avgA.accumulator = 0;
 	}
 }
 
@@ -13019,8 +13048,8 @@ function gameLoop(makeUp, now) {
 			mutations.Living.change();
 		}
 	}
-	//every 3 seconds
-	if (loops % 30 == 0){
+	//every 1 second
+        if (loops % game.settings.ewma_ticks == 0){
 		if (game.options.menu.useAverages.enabled) curateAvgs();
 	}
 

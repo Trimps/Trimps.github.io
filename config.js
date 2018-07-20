@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.813,
+		version: 4.814,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -241,16 +241,11 @@ var toReturn = {
 			}
 		},
 		lootAvgs: {
-			food: [0],
-			foodTotal: 0,
-			wood: [0],
-			woodTotal: 0,
-			metal: [0],
-			metalTotal: 0,
-			gems: [0],
-			gemsTotal: 0,
-			fragments: [0],
-			fragmentsTotal: 0
+			food: {average:0, accumulator: 0},
+			wood: {average:0, accumulator: 0},
+			metal: {average:0, accumulator: 0},
+			gems: {average:0, accumulator: 0},
+			fragments: {average:0, accumulator: 0},
 		},
 		menu: {
 			buildings: true,
@@ -706,12 +701,14 @@ var toReturn = {
 			useAverages: {
 				extraTags: "popular general",
 				enabled: 0,
-				description: "Toggle whether or not loot from maps and the world should be counted in the loot breakdown and tooltip calculations. Calculates the average of the last two minutes of loot. If you want to clear the last 2 minutes, try toggling it off and on again.",
+				description: "Toggle whether or not loot from maps and the world should be counted in the loot breakdown and tooltip calculations. Calculates a moving average of the loot. If you want to clear the average, try toggling it off and on again.",
 				titles: ["Not Averaging", "Averaging"],
 				onToggle: function () {
 					for (var item in game.global.lootAvgs){
-						if (Array.isArray(game.global.lootAvgs[item])) game.global.lootAvgs[item] = [0];
-						else game.global.lootAvgs[item] = 0;
+						game.global.lootAvgs[item] = {
+							average: 0,
+							accumulator: 0
+						};
 					}
 				}
 			},
@@ -3505,6 +3502,8 @@ var toReturn = {
 		speed: 10,
 		speedTemp: 0,
 		slowdown: false,
+                ewma_alpha: 0.05,
+                ewma_ticks: 10, // 1 second
 	},
 
 	resources: {
@@ -4574,7 +4573,7 @@ var toReturn = {
 				var item = eligible[roll];
 				var amt = simpleSeconds(item, 45);
 				amt = scaleToCurrentMap(amt);
-				addResCheckMax(item, amt);
+				addResCheckMax(item, amt, null, null, true);
 				message("That Jestimp gave you " + prettify(amt) + " " + item + "!", "Loot", "*dice", "exotic", "exotic");
 				game.unlocks.impCount.Jestimp++;
 			}
