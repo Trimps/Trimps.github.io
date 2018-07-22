@@ -3490,6 +3490,15 @@ function refreshMaps(){
 }
 
 function getUniqueColor(item){
+	if (!game.global.runningChallengeSquared) {
+		if (item.name == "The Prison" && game.global.challengeActive == "Electricity")
+			return " noRecycle";
+		if (item.name == "The Prison" && game.global.challengeActive == "Mapocalypse")
+			return " noRecycle";
+		if (item.name == "Imploding Star" && game.global.challengeActive == "Devastation")
+			return " noRecycle";
+	}
+
 	if (item.location && game.mapConfig.locations[item.location].upgrade){
 			var upgrade = game.mapConfig.locations[item.location].upgrade;
 			upgrade = (typeof upgrade === 'object') ? upgrade[0] : upgrade;
@@ -4195,7 +4204,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 				for (var job in game.jobs) {
 					jobCount += game.jobs[job].owned;
 				}
-				return (game.global.world < 60 && jobCount - game.jobs.Dragimp.owned == 0 && game.stats.trimpsFired.value == 0);
+				return (game.global.world < 60 && jobCount - game.jobs.Dragimp.owned - game.jobs.Amalgamator.owned == 0 && game.stats.trimpsFired.value == 0);
 			},
 			Trimp_is_Poison: function () {
 				return (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400);
