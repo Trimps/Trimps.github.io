@@ -4211,6 +4211,7 @@ var toReturn = {
 					addHelium(reward);
 					game.challenges.Electricity.stacks = 0;
 					updateElectricityStacks();
+					refreshMaps();
 				}
 			}
 		},
@@ -4315,6 +4316,7 @@ var toReturn = {
 					game.global.challengeActive = "";
 					game.portal.Overkill.locked = false;
 					addNewSetting('overkillColor');
+					refreshMaps();
 				}
 			}
 		},
@@ -5242,7 +5244,6 @@ var toReturn = {
 			title: "The Prison",
 			fire: function () {
 				game.global.mapsUnlocked = true;
-				unlockMapStuff();
 				createMap(80, "The Prison", "Prison", 2.6, 100, 2.6, true);
 				message("You found The Prison! You have a bad feeling about going in...", "Story");
 			}
@@ -7040,7 +7041,7 @@ var toReturn = {
 					}
 				},
 				fire: function () {
-					game.resources.trimps.max += ((game.buildings.Hut.owned) * game.buildings.Hut.increase.by);
+					addMaxHousing(game.buildings.Hut.owned * game.buildings.Hut.increase.by, game.talents.autoStructure.purchased);
 					game.buildings.Hut.increase.by *= 2;
 				}
 			},
@@ -7057,7 +7058,7 @@ var toReturn = {
 					}
 				},
 				fire: function () {
-					game.resources.trimps.max += ((game.buildings.House.owned) * game.buildings.House.increase.by);
+					addMaxHousing(game.buildings.House.owned * game.buildings.House.increase.by, game.talents.autoStructure.purchased);
 					game.buildings.House.increase.by *= 2;
 				}
 			},
@@ -7074,7 +7075,7 @@ var toReturn = {
 					}
 				},
 				fire: function () {
-					game.resources.trimps.max += ((game.buildings.Mansion.owned) * game.buildings.Mansion.increase.by);
+					addMaxHousing(game.buildings.Mansion.owned * game.buildings.Mansion.increase.by, game.talents.autoStructure.purchased);
 					game.buildings.Mansion.increase.by *= 2;
 				}
 			},
@@ -7091,7 +7092,7 @@ var toReturn = {
 					}
 				},
 				fire: function () {
-					game.resources.trimps.max += ((game.buildings.Hotel.owned) * game.buildings.Hotel.increase.by);
+					addMaxHousing(game.buildings.Hotel.owned * game.buildings.Hotel.increase.by, game.talents.autoStructure.purchased);
 					game.buildings.Hotel.increase.by *= 2;
 				}
 			},
@@ -7108,7 +7109,7 @@ var toReturn = {
 					}
 				},
 				fire: function () {
-					game.resources.trimps.max += ((game.buildings.Resort.owned) * game.buildings.Resort.increase.by);
+					addMaxHousing(game.buildings.Resort.owned * game.buildings.Resort.increase.by, game.talents.autoStructure.purchased);
 					game.buildings.Resort.increase.by *= 2;
 				}
 			},

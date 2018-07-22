@@ -1303,6 +1303,7 @@ function abandonChallenge(restart){
 	}
 	if (challengeName != "Daily")
 		message("Your challenge has been abandoned.", "Notices");
+	refreshMaps();
 }
 
 function checkChallengeSquaredAllowed(){
@@ -3443,7 +3444,7 @@ function breed() {
 	var remainingTime = timeRemaining;
 	timeRemaining += " Secs";
 		//Display full breed time if desired
-	var totalTimeText = totalTime.toFixed(1);
+	var totalTimeText = Math.ceil(totalTime * 10) / 10;
 	if (game.options.menu.showFullBreed.enabled){
 		fullBreed = totalTimeText + " Secs";
 		timeRemaining += " / " + fullBreed;
@@ -4936,8 +4937,8 @@ function getRandomBySteps(steps, mod, fromBones){
 		var possible = ((steps[1] - steps[0]) / steps[2]);
 		var roll = getRandomIntSeeded(seed, 0, possible + 1);
 		var result = steps[0] + (roll * steps[2]);
-		result = Math.floor(result * 100) / 100;
-		return ([result, (possible - roll)]);
+		result = Math.round(result * 100) / 100;
+		return ([result, Math.round(possible - roll)]);
 }
 
 function getHeirloomZoneBreakpoint(zone){
@@ -6488,8 +6489,8 @@ function generatorTick(fromOverclock){
 function addMaxHousing(amt, giveTrimps){
 	var wasFull = (game.resources.trimps.owned == game.resources.trimps.realMax());
 	game.resources.trimps.max += amt;
-	if (game.global.challengeActive == "Trapper") return amt;
 	amt = scaleNumberForBonusHousing(amt);
+	if (game.global.challengeActive == "Trapper") return amt;
 	if (!giveTrimps) return amt;
 	if (wasFull){
 		game.resources.trimps.owned = game.resources.trimps.realMax();
@@ -8751,7 +8752,7 @@ function nextWorld() {
 		//Without Hiring Anything
 		var jobCount = 0;
 		for (var job in game.jobs) jobCount += game.jobs[job].owned; //Dragimp adds 1
-		if (jobCount - game.jobs.Dragimp.owned == 0 && game.stats.trimpsFired.value == 0) giveSingleAchieve("Unemployment");
+		if (jobCount - game.jobs.Dragimp.owned - game.jobs.Amalgamator.owned == 0 && game.stats.trimpsFired.value == 0) giveSingleAchieve("Unemployment");
 	}
 	else if (game.global.world == 65) checkChallengeSquaredAllowed();
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve("Tent City");
@@ -10829,7 +10830,9 @@ function updateAntiStacks(){
 	if (game.global.antiStacks > 0){
 		var number = ((game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier));
 		number = Math.floor(number * 100);
-		elem.innerHTML = '<span class="badge antiBadge" onmouseover="tooltip(\'Anticipation\', \'customText\', event, \'Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' seconds to populate.\')" onmouseout="tooltip(\'hide\')">' + game.global.antiStacks + '<span class="icomoon icon-target2"></span></span>';
+		var verb = game.jobs.Amalgamator.owned > 0 ? "prepare" : "populate";
+		var s = game.global.antiStacks == 1 ? '' : 's';
+		elem.innerHTML = '<span class="badge antiBadge" onmouseover="tooltip(\'Anticipation\', \'customText\', event, \'Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' second' + s + ' to ' + verb + '.\')" onmouseout="tooltip(\'hide\')">' + game.global.antiStacks + '<span class="icomoon icon-target2"></span></span>';
 	}
 	else elem.innerHTML = "";
 }
