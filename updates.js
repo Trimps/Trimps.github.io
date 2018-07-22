@@ -712,7 +712,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 		}
-		costText += "<a id='downloadLink' target='_blank' download='Trimps Save P" + game.global.totalPortals + " Z" + game.global.world + "', href=";
+		costText += "<a id='downloadLink' target='_blank' download='Trimps Save P" + game.global.totalPortals + " Z" + game.global.world + ".txt', href=";
 		if (Blob !== null) {
 			var blob = new Blob([saveText], {type: 'text/plain'});
 			var uri = URL.createObjectURL(blob);

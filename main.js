@@ -7441,7 +7441,8 @@ function battleCoordinator(makeUp) {
 function battle(force) {
 	var trimps = game.resources.trimps;
 	var trimpsMax = trimps.realMax();
-    if (game.global.fighting) return;
+	if (game.global.fighting) return;
+	if (game.global.soldierHealth <= 0) document.getElementById('critSpan').innerHTML = "";
     if ((game.global.switchToMaps || game.global.switchToWorld) && trimps.soldiers === 0) {
         mapsSwitch();
         return;
@@ -10503,7 +10504,6 @@ function fight(makeUp) {
 	var thisKillsTheTrimp = function() {
 		impOverkill -= game.global.soldierHealth;
 		game.global.soldierHealth = 0;
-		critTier = 0;
 	};
 	var thisKillsTheBadGuy = function() {
 		cell.health = 0;
