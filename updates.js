@@ -701,16 +701,26 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 	}
 	if (what == "Export"){
+		var saveText = save(true);
 		if (textString){
-			tooltipText = textString + "<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
+			tooltipText = textString + "<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>" + saveText + "</textarea>";
 			what = "Thanks!";
 		}
 		else
-		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + save(true) + "</textarea>";
+		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + saveText + "</textarea>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 		}
+		costText += "<a id='downloadLink' target='_blank' download='Trimps Save P" + game.global.totalPortals + " Z" + game.global.world + "', href=";
+		if (Blob !== null) {
+			var blob = new Blob([saveText], {type: 'text/plain'});
+			var uri = URL.createObjectURL(blob);
+			costText += uri;
+		} else {
+			costText += 'data:text/plain,' + encodeURIComponent(saveText);
+		}
+		costText += " ><div class='btn btn-danger' id='downloadBtn'>Download as File</div></a>";
 		costText += "</div>";
 		ondisplay = tooltips.handleCopyButton();
 		game.global.lockTooltip = true;
@@ -1338,7 +1348,7 @@ function getPsString(what, rawNum) {
 	//Add Loot	ALWAYS LAST
 	if (game.options.menu.useAverages.enabled){
 		var avg = getAvgLootSecond(what);
-		if (avg > 0) {
+		if (avg > 0.001) {
 			currentCalc += avg;
 			textString += "<tr><td class='bdTitle'>Average Loot</td><td class='bdPercent'>+ " + prettify(avg) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 		}
@@ -2716,7 +2726,10 @@ function resetGame(keepPortal) {
 		if (sLevel >= 1) applyS1();
 		if (sLevel >= 2) applyS2();
 		if (sLevel >= 3) applyS3();
-		if (sLevel >= 4) game.buildings.Warpstation.craftTime = 0;
+		if (sLevel >= 4) {
+			game.buildings.Warpstation.craftTime = 0;
+			document.getElementById("autoPrestigeBtn").style.display = "block";
+		}
 		if (sLevel >= 5) applyS5();
 		if (game.global.autoUpgradesAvailable) document.getElementById("autoUpgradeBtn").style.display = "block";
 		if (game.global.autoStorageAvailable) {
@@ -4417,7 +4430,7 @@ var tooltips = {};
  */
 tooltips.showError = function (textString) {
 	var tooltip = "<p>Well this is embarrassing. Trimps has encountered an error. Try refreshing the page.</p>";
-	tooltip += "<p>It would be awesome if you post the following to the <a href='reddit.com/r/Trimps/'>trimps subreddit</a> or email it to trimpsgame@gmail.com</p>";
+	tooltip += "<p>It would be awesome if you post the following to the <a href='https://reddit.com/r/Trimps/'>trimps subreddit</a> or email it to trimpsgame@gmail.com</p>";
 	tooltip += "Note: Saving has been disabled.<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>";
 	var bugReport = "--BEGIN ERROR STACK--\n";
 	bugReport += textString + '\n';

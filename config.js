@@ -429,10 +429,7 @@ var toReturn = {
 			owned: false,
 			fire: function () {
 				game.unlocks.goldMaps = true;
-				for (var item in game.global.mapsOwnedArray){
-					game.global.mapsOwnedArray[item].loot = parseFloat(game.global.mapsOwnedArray[item].loot) + 1;
-					if (!game.global.mapsOwnedArray[item].noRecycle) document.getElementById(game.global.mapsOwnedArray[item].id).className += " goldMap";
-				}
+				refreshMaps();
 			}
 		},
 		quickTrimps: {
@@ -1850,7 +1847,7 @@ var toReturn = {
 						game.buildings.Warpstation.craftTime = 0;
 						addNewSetting('forceQueue');
 					}
-					if (game.global.autoUpgrades) document.getElementById("autoPrestigeBtn").style.display = "block";
+					document.getElementById("autoPrestigeBtn").style.display = "block";
 				}
 			},
 			start: function () {

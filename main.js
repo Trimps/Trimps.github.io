@@ -460,8 +460,7 @@ function load(saveString, autoLoad, fromPf) {
 		game.buildings.Wormhole.increase.by = 1500;
 	}
 	if (oldVersion < 2.81 && typeof game.global.lootAvgs !== 'undefined'){
-		game.global.lootAvgs.fragments = [0];
-		game.global.lootAvgs.fragmentsTotal = 0;
+		game.global.lootAvgs.fragments = {average:0, accumulator: 0}
 	}
 	if (oldVersion < 2.9){
 		if (game.options.menu.showFullBreed.enabled == 2) game.options.menu.showFullBreed.enabled = 1;
@@ -659,23 +658,24 @@ function load(saveString, autoLoad, fromPf) {
 			if (game.global.gridArray[x].mutation == "TrimpmasSnow") delete game.global.gridArray[x].mutation;
 		}
 	}
-        if (oldVersion < 4.814) {
-            var resources = ['food', 'wood', 'metal', 'gems', 'fragments'];
-            var newAvgs = {};
-            for (var res of resources) {
-                newAvgs[res] = {
-                    accumulator: 0,
-                    average: game.global.lootAvgs[res].reduce(function(a, b) {
-                        return a + b;
-                    }, 0)
-                    / (game.global.lootAvgs[res].length || 1)
-                };
-            }
-            game.global.lootAvgs = newAvgs;
-            game.settings.ewma_alpha = 0.05;
-            game.settings.ewma_ticks = 10;
-
-        }
+	if (oldVersion < 4.814) {
+		if (oldVersion > 2.8){
+			var resources = ['food', 'wood', 'metal', 'gems', 'fragments'];
+			var newAvgs = {};
+			for (var res of resources) {
+				newAvgs[res] = {
+					accumulator: 0,
+					average: game.global.lootAvgs[res].reduce(function(a, b) {
+						return a + b;
+					}, 0)
+					/ (game.global.lootAvgs[res].length || 1)
+				};
+			}
+			game.global.lootAvgs = newAvgs;
+		}
+		game.settings.ewma_alpha = 0.05;
+		game.settings.ewma_ticks = 10;
+	}
 
 	//End compatibility
 	//Test server only
@@ -806,6 +806,10 @@ function load(saveString, autoLoad, fromPf) {
 	if (game.global.autoUpgradesAvailable){
 		document.getElementById("autoUpgradeBtn").style.display = "block";
 		toggleAutoUpgrades(true);
+	}
+	if (game.global.sLevel >= 4){
+		document.getElementById("autoPrestigeBtn").style.display = "block";
+		toggleAutoPrestiges(true);
 	}
 	if (game.global.autoStorageAvailable){
 		document.getElementById("autoStorageBtn").style.display = "block";
@@ -1255,7 +1259,7 @@ function getScientistInfo(number, reward){
 			return (reward) ? "start with full Trimps and 200% player efficiency" : 1500;
 		}
 		case 4: {
-			return (reward) ? "earn two levels of each prestige upgrade per map, unlock AutoPrestiges, and your Warpstations will build instantly, skipping the queue" : 70;
+			return (reward) ? "earn two levels of each prestige upgrade per map, unlock AutoPrestiges, and your Warpstations will build instantly, skipping the queue. This bonus will apply" : 70;
 		}
 		case 5: {
 			return (reward) ? "permanently increase all helium found by 0.5% to the power of your current zone number. You'll also start with 1000% player efficiency and 50 Barns, Sheds, and Forges" : 1500;
@@ -2505,11 +2509,11 @@ function getMaxForResource(what){
 //
 // Averaging smoothness is controlled by `game.settings.ewma_alpha`,
 // which should be between 0 and 1 (exclusive). Lower values provide
-// more smoothness, higher values have less lag. Default value of 0.10
+// more smoothness, higher values have less lag. Default value of 0.05
 //
 // The time between average updates is now controlled by
 // `game.settings.ewma_ticks`, which is the number of ticks between
-// updates. The default value is 30, i.e. every 3 seconds.
+// updates. The default value is 10, i.e. every 1 second.
 
 function addAvg(what, number) {
 	var avgA = game.global.lootAvgs[what];
@@ -11447,8 +11451,8 @@ function purchaseSingleRunBonus(what){
 		return;
 	}
 	game.global.b -= bonus.cost;
-	if (bonus.fire) bonus.fire();
 	bonus.owned = true;
+	if (bonus.fire) bonus.fire();
 	updateBones();
 	successPurchaseFlavor();
 	displaySingleRunBonuses();
@@ -12066,20 +12070,11 @@ function toggleAutoUpgrades(noChange){
 	if (game.global.autoUpgrades){
 		swapClass("color", "colorSuccess", elem);
 		elem.innerHTML = "AutoUpgrade On";
-
 	}
 	else {
 		swapClass("color", "colorDanger", elem);
 		elem.innerHTML = "AutoUpgrade Off";
 	}
-	if (game.global.autoUpgrades && game.global.sLevel >= 4){
-		document.getElementById("autoPrestigeBtn").style.display = "block";
-	}
-	else {
-		game.global.autoPrestiges = 0;
-		document.getElementById("autoPrestigeBtn").style.display = "none";
-	}
-	toggleAutoPrestiges(true);
 }
 
 var lastAutoPrestigeToggle = -1;
@@ -12099,7 +12094,7 @@ function toggleAutoPrestiges(noChange){
 
 function autoUpgrades() {
 	autoGoldenUpgrades();
-	if (!game.global.autoUpgrades) return;
+	if (!game.global.autoUpgrades && !game.global.autoPrestiges) return;
 	if (game.options.menu.pauseGame.enabled == 1) return;
 	var timerCheck = (lastAutoPrestigeToggle == -1 || (new Date().getTime() - lastAutoPrestigeToggle >= 2000));
 	if (timerCheck) lastAutoPrestigeToggle = -1;
@@ -12115,6 +12110,7 @@ function autoUpgrades() {
 			equipmentAvailable[type].push(item);
 			continue;
 		}
+		if (!game.global.autoUpgrades) continue;
 		if ((!boughtUpgrade || game.global.gridArray[0].name == "Liquimp") && autoBuyUpgrade(item)){
 			if (game.global.autoPrestiges != 0 && timerCheck)
 				boughtUpgrade = true;
@@ -13048,8 +13044,8 @@ function gameLoop(makeUp, now) {
 			mutations.Living.change();
 		}
 	}
-	//every 1 second
-        if (loops % game.settings.ewma_ticks == 0){
+	//loot averages
+	if (loops % game.settings.ewma_ticks == 0){
 		if (game.options.menu.useAverages.enabled) curateAvgs();
 	}
 
