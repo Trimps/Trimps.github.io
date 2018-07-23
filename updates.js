@@ -4429,6 +4429,23 @@ function timeToDegrees(currentSeconds, totalSeconds){
 	return degrees % 360;
 }
 
+document.body.addEventListener('dragover', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+});
+
+document.body.addEventListener('drop', function(e) {
+	e.stopPropagation();
+	e.preventDefault();
+	let file = e.dataTransfer.files[0];
+	let reader = new FileReader();
+	reader.onload = function(data) {
+		load(data.target.result);
+	}
+	reader.readAsText(file);
+});
+
 // 431741580's code
 
 var tooltips = {};
