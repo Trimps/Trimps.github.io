@@ -660,18 +660,17 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	if (oldVersion < 4.814) {
 		if (oldVersion > 2.8){
-			var resources = ['food', 'wood', 'metal', 'gems', 'fragments'];
-			var newAvgs = {};
-			for (var res of resources) {
-				newAvgs[res] = {
-					accumulator: 0,
-					average: game.global.lootAvgs[res].reduce(function(a, b) {
-						return a + b;
-					}, 0)
-					/ (game.global.lootAvgs[res].length || 1)
-				};
+			for (var res in game.global.lootAvgs) {
+				if (Array.isArray(game.global.lootAvgs[res]))
+					game.global.lootAvgs[res] = {
+						accumulator: 0,
+						average: game.global.lootAvgs[res].reduce(function(a, b) {
+							return a + b;
+						}, 0) / (game.global.lootAvgs[res].length || 1),
+					};
+				else
+					delete game.global.lootAvgs[res];
 			}
-			game.global.lootAvgs = newAvgs;
 		}
 		game.settings.ewma_alpha = 0.05;
 		game.settings.ewma_ticks = 10;
