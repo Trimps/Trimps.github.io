@@ -662,7 +662,8 @@ function load(saveString, autoLoad, fromPf) {
 		if (oldVersion > 2.8){
 			var resources = ['food', 'wood', 'metal', 'gems', 'fragments'];
 			var newAvgs = {};
-			for (var res of resources) {
+			for (var x = 0; x < resources.length; x++) {
+				var res = resources[x];
 				newAvgs[res] = {
 					accumulator: 0,
 					average: game.global.lootAvgs[res].reduce(function(a, b) {
