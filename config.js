@@ -589,7 +589,7 @@ var toReturn = {
 				enabled: 1,
 				extraTags: "alerts",
 				description: "Toggles on or off the confirmation popup on scary purchases like Wormholes.",
-				titles: ["Not Confirming", "Confirming"],
+				titles: ["No Confirmation", "Confirm All", "Only Wormholes"],
 			},
 			lockOnUnlock: {
 				enabled: 0,

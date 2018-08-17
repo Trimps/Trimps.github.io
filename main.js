@@ -2858,10 +2858,10 @@ function buyBuilding(what, confirmed, fromAuto, forceAmt) {
 	var purchaseAmt = 1;
 	if (forceAmt) purchaseAmt = Math.min(forceAmt, calculateMaxAfford(toBuy, true, false, false, true));
 	else if (!toBuy.percent) purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy, true, false) : game.global.buyAmt;
-    if (typeof toBuy === 'undefined') return false;
-    var canAfford = ((forceAmt) ? canAffordBuilding(what, false, false, false, false, purchaseAmt) : canAffordBuilding(what));
+	if (typeof toBuy === 'undefined') return false;
+	var canAfford = ((forceAmt) ? canAffordBuilding(what, false, false, false, false, purchaseAmt) : canAffordBuilding(what));
 	if (canAfford){
-		if (what == "Wormhole" && !confirmed && game.options.menu.confirmhole.enabled && !fromAuto){
+		if (what == "Wormhole" && !confirmed && (game.options.menu.confirmhole.enabled == 1 || game.options.menu.confirmhole.enabled == 2) && !fromAuto){
 			tooltip('Confirm Purchase', null, 'update', 'You are about to purchase ' + purchaseAmt + ' Wormholes, <b>which cost helium</b>. Make sure you can earn back what you spend!', 'buyBuilding(\'Wormhole\', true, false, ' + purchaseAmt + ')');
 			return false;
 		}
@@ -3275,43 +3275,43 @@ function canAffordCoordinationTrimps(){
 function buyUpgrade(what, confirmed, noTip, heldCtrl) {
 	if (game.options.menu.pauseGame.enabled) return;
 	if (!confirmed && !noTip && game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
-    if (what == "Coordination") {
-       if (!canAffordCoordinationTrimps()) return false;
-    }
-    var upgrade = game.upgrades[what];
+	if (what == "Coordination") {
+	   if (!canAffordCoordinationTrimps()) return false;
+	}
+	var upgrade = game.upgrades[what];
 	if (upgrade.locked == 1) return;
-    var canAfford = canAffordTwoLevel(upgrade);
-    if (!canAfford) return false;
-	var usingCtrl = (typeof heldCtrl !== 'undefined') ? heldCtrl : (game.options.menu.ctrlGigas.enabled && what == "Gigastation") ? true : ctrlPressed;
-	if (what == "Gigastation" && !confirmed && game.options.menu.confirmhole.enabled){
+	var canAfford = canAffordTwoLevel(upgrade);
+	if (!canAfford) return false;
+	var usingCtrl = (typeof heldCtrl !== 'undefined') ? heldCtrl : (game.options.menu.ctrlGigas.enabled == 1 && what == "Gigastation") ? true : ctrlPressed;
+	if (what == "Gigastation" && !confirmed && game.options.menu.confirmhole.enabled == 1){ // Zxv: added support for extra confirmhole settings
 		tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a Gigastation, <b>which is not a renewable upgrade</b>. Make sure you have purchased all of the Warpstations you can afford first!', 'buyUpgrade(\'Gigastation\', true, false, ' + usingCtrl + ')');
 		return;
 	}
-	if (what == "Shieldblock" && !confirmed && game.options.menu.confirmhole.enabled && game.global.highestLevelCleared >= 30){
+	if (what == "Shieldblock" && !confirmed && game.options.menu.confirmhole.enabled == 1 && game.global.highestLevelCleared >= 30){
 		tooltip('Confirm Purchase', null, 'update', 'You are about to modify your Shield, causing it to block instead of grant health until your next portal. Are you sure?', 'buyUpgrade(\'Shieldblock\', true)');
 		return;
 	}
 	canAfford = canAffordTwoLevel(upgrade, true);
-    upgrade.fire(usingCtrl);
+	upgrade.fire(usingCtrl);
 	upgrade.done++;
 	if (upgrade.prestiges){
 		var resName = (what == "Supershield") ? "wood" : "metal";
 		upgrade.cost.resources[resName] = getNextPrestigeCost(what);
 	}
 	if ((upgrade.allowed - upgrade.done) <= 0) upgrade.locked = 1;
-    var dif = upgrade.allowed - upgrade.done;
-    if (dif > 1) {
+	var dif = upgrade.allowed - upgrade.done;
+	if (dif > 1) {
 		dif -= 1;
-        document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
+		document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
 		if (!noTip) tooltip(what, "upgrades", "update");
-        return true;
-    } else if (dif == 1) {
+		return true;
+	} else if (dif == 1) {
 		if (!noTip) tooltip(what, "upgrades", "update");
-        document.getElementById(what + "Owned").innerHTML = upgrade.done;
-        return true;
-    }
-    document.getElementById("upgradesHere").removeChild(document.getElementById(what));
-    if (!noTip) tooltip("hide");
+		document.getElementById(what + "Owned").innerHTML = upgrade.done;
+		return true;
+	}
+	document.getElementById("upgradesHere").removeChild(document.getElementById(what));
+	if (!noTip) tooltip("hide");
 	return true;
 }
 
