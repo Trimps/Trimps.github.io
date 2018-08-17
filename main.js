@@ -3283,7 +3283,7 @@ function buyUpgrade(what, confirmed, noTip, heldCtrl) {
 	var canAfford = canAffordTwoLevel(upgrade);
 	if (!canAfford) return false;
 	var usingCtrl = (typeof heldCtrl !== 'undefined') ? heldCtrl : (game.options.menu.ctrlGigas.enabled == 1 && what == "Gigastation") ? true : ctrlPressed;
-	if (what == "Gigastation" && !confirmed && game.options.menu.confirmhole.enabled == 1){ // Zxv: added support for extra confirmhole settings
+	if (what == "Gigastation" && !confirmed && game.options.menu.confirmhole.enabled == 1){
 		tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a Gigastation, <b>which is not a renewable upgrade</b>. Make sure you have purchased all of the Warpstations you can afford first!', 'buyUpgrade(\'Gigastation\', true, false, ' + usingCtrl + ')');
 		return;
 	}
