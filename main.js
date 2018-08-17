@@ -3696,6 +3696,7 @@ function saveAdvMaps(){
 	preset.specMod = getSpecialModifierSetting();
 	preset.perf = checkPerfectChecked();
 	preset.extra = getExtraMapLevels();
+	preset.lowerLevel = game.global.world - document.getElementById("mapLevelInput").value;
 }
 
 function getMapPreset(){
@@ -3719,7 +3720,7 @@ function resetAdvMaps(fromClick) {
 	//if !fromClick, loads saved map settings. Otherwise resets to 0
 	var preset = getMapPreset();
 	//level
-	document.getElementById("mapLevelInput").value = (game.options.menu.siphonologyMapLevel.enabled) ? game.global.world - game.portal.Siphonology.level : game.global.world;
+	document.getElementById("mapLevelInput").value = Math.max((game.options.menu.siphonologyMapLevel.enabled) ? game.global.world - game.portal.Siphonology.level: game.global.world - preset.lowerLevel, 6);
 	//sliders
 	var inputs = ["loot", "difficulty", "size"];
 	for (var x = 0; x < inputs.length; x++){

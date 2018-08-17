@@ -219,7 +219,8 @@ var toReturn = {
 				biome: "Random",
 				specMod: "0",
 				perf: false,
-				extra: 0
+				extra: 0,
+				lowerLevel: 0
 			},
 			p2: {
 				loot: 0,
@@ -228,7 +229,8 @@ var toReturn = {
 				biome: "Random",
 				specMod: "0",
 				perf: false,
-				extra: 0				
+				extra: 0,
+				lowerLevel: 0
 			},
 			p3: {
 				loot: 0,
@@ -237,7 +239,8 @@ var toReturn = {
 				biome: "Random",
 				specMod: "0",
 				perf: false,
-				extra: 0
+				extra: 0,
+				lowerLevel: 0
 			}
 		},
 		lootAvgs: {
