@@ -8265,6 +8265,7 @@ function tryScry(){
 	if (roll < 50 || roll > 52) return;
 	var reward = calculateScryingReward();
 	if (reward <= 0) return;
+	var essenceBefore = game.global.essence;
 	game.global.essence += reward;
 	var maxCost = getTotalTalentCost();
 	var talentCount = countPurchasedTalents();
@@ -8282,6 +8283,7 @@ function tryScry(){
 	else {
 		message("You found " + prettify(reward) + " Dark Essence!", "Loot", "*cloud3", "essenceMessage", "essence");
 	}
+	game.global.essenceThisPortal += game.global.essence - essenceBefore;
 	updateTalentNumbers();
 	return reward;
 }
