@@ -707,7 +707,7 @@ function load(saveString, autoLoad, fromPf) {
 				mapsRemoved++;
 			}
 			for (var y = 0; y < mapsRemoved; y++){
-				createVoidMap();
+				createVoidMap(false, false, true);
 			}
 		}
 	}
