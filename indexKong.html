@@ -855,7 +855,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 									<span id='advMapsRecycleBtn' class="icomoon icon-trash-o pointer iconStateBad" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" onclick="recycleBelow(false)"></span>
 								</div>
 								<div id="mapLevelContainer" class="col-xs-4">
-									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
+									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput" onfocusout="checkMapLevelInput(this)"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
 								</div>
 								<div id="mapCostContainer" class="col-xs-4 lowPad">
 									<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>

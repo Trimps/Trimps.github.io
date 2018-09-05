@@ -3881,6 +3881,14 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
     unlockMap(game.global.mapsOwnedArray.length - 1);
 }
 
+function checkMapLevelInput(elem){
+	var value = parseInt(elem.value, 10);
+	if (isNaN(value)) elem.value = game.global.world;
+	if (value < 6) elem.value = 6;
+	if (value > game.global.world) elem.value = game.global.world;
+	updateMapCost();
+}
+
 function incrementMapLevel(amt){
 	var elem = document.getElementById("mapLevelInput");
 	var newNum = parseInt(elem.value, 10) + amt;
