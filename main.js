@@ -13813,6 +13813,16 @@ function mapLevelHotkey(up){
 	var extraLevelsAvailable = (game.global.highestLevelCleared >= 209);
 	var extraElem = document.getElementById('advExtraLevelSelect');
 	var extraSetting = parseInt(extraElem.value, 10);
+	if (worldInput > game.global.world) {
+		document.getElementById("mapLevelInput").value = game.global.world;
+		updateMapCost();
+		return;
+	}
+	if (worldInput < 6){
+		document.getElementById("mapLevelInput").value = 6;
+		updateMapCost();
+		return;
+	}
 	if (up){
 		if (worldInput < game.global.world) incrementMapLevel(1);
 		else if (extraLevelsAvailable && extraSetting < 10) {
@@ -13961,3 +13971,8 @@ costUpdatesTimeout();
 setTimeout(gameTimeout, (1000 / game.settings.speed));
 
 preventZoom(document.getElementById('talentsContainer'));
+document.getElementById('mapLevelInput').addEventListener('keydown', function(e) {
+    if (e.which === 38 || e.which === 40) {
+        e.preventDefault();
+    }
+});
