@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.814,
+		version: 4.9,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -188,6 +188,7 @@ var toReturn = {
 		firstCustomExact: -1,
 		autoGolden: -1,
 		autoStructureSetting: {enabled: false},
+		autoJobsSetting: {enabled: false},
 		passive: true,
 		spiresCompleted: 0,
 		lastSpireCleared: 0,
@@ -211,6 +212,8 @@ var toReturn = {
 		canScryCache: false,
 		waitToScry: false,
 		waitToScryMaps: false,
+		freeTalentRespecs: 3,
+		genStateConfig: [],
 		mapPresets: {
 			p1: {
 				loot: 0,
@@ -219,7 +222,8 @@ var toReturn = {
 				biome: "Random",
 				specMod: "0",
 				perf: false,
-				extra: 0
+				extra: 0,
+				offset: 'd'
 			},
 			p2: {
 				loot: 0,
@@ -228,7 +232,8 @@ var toReturn = {
 				biome: "Random",
 				specMod: "0",
 				perf: false,
-				extra: 0				
+				extra: 0,
+				offset: 'd'	
 			},
 			p3: {
 				loot: 0,
@@ -237,7 +242,8 @@ var toReturn = {
 				biome: "Random",
 				specMod: "0",
 				perf: false,
-				extra: 0
+				extra: 0,
+				offset: 'd'
 			}
 		},
 		lootAvgs: {
@@ -707,6 +713,7 @@ var toReturn = {
 							accumulator: 0
 						};
 					}
+					document.getElementById('gemsPs').style.display = 'block';
 				}
 			},
 			voidPopups: {
@@ -820,15 +827,6 @@ var toReturn = {
 					return game.global.canMapAtZone;
 				}
 			},
-			siphonologyMapLevel: {
-				enabled: 0,
-				extraTags: "qol",
-				description: "When entering the Maps screen, by default the Level Selector starts at your current world number. Toggling this setting on will force this number to default to your minimum Siphonology level instead.",
-				titles: ["Use World Number", "Use Siphonology Level"],
-				lockUnless: function () {
-					return (!game.portal.Siphonology.locked)
-				}
-			},
 			timestamps: {
 				enabled: 0,
 				extraTags: "qol",
@@ -887,7 +885,11 @@ var toReturn = {
 			generatorStart: {
 				enabled: 0,
 				extraTags: "general",
-				description: "Choose what mode the Dimensional Generator should start each run on. <b>Default Generator</b> will continue with whatever setting you were using at the end of your last run. <b>The Rest of The Settings<b> are named by what mode will be set to active at the start of each run.",
+				get description(){
+					var text = "<p>Choose what mode the Dimensional Generator should start each run on. <b>Default Generator</b> will continue with whatever setting you were using at the end of your last run. <b>The Rest of The Settings<b> are named by what mode will be set to active at the start of each run.</p>";
+					if (game.permanentGeneratorUpgrades.Supervision.owned) text += "<p><b>Hold Ctrl while clicking to open the Generator State Configuration menu</b></p>";
+					return text;
+				},
 				get titles () {
 					var arr = ["Default Generator", "Gain Fuel", "Gain Mi"];
 					if (game.permanentGeneratorUpgrades.Hybridization.owned) arr.push("Hybrid");
@@ -895,7 +897,8 @@ var toReturn = {
 				},
 				lockUnless: function () {
 					return (game.global.highestLevelCleared >= 229);
-				}
+				},
+				secondLocation: ["togglegeneratorStartPopup"]
 			},
 			// showSnow: {
 			// 	enabled: 1,
@@ -964,6 +967,7 @@ var toReturn = {
 						this.timeAtPause = new Date().getTime();
 						if (game.options.menu.autoSave.enabled == 1) save(false, true);
 						swapClass("timer", "timerPaused", document.getElementById("portalTimer"));
+						handlePauseMessage(true);
 					}
 					else if (this.timeAtPause) {
 						var now = new Date().getTime();
@@ -978,8 +982,8 @@ var toReturn = {
 						game.global.time = 0;
 						game.global.lastOnline = now;
 						game.global.start = now;
-						setTimeout(gameTimeout, (100));
 						swapClass("timer", "timerNotPaused", document.getElementById("portalTimer"));
+						handlePauseMessage(false);
 					}
 				},
 				locked: true
@@ -1006,9 +1010,16 @@ var toReturn = {
 		}
 	},
 	talents: {
+		portal: {
+			description: "Unlock Portal immediately after clearing Z20.",
+			name: "Portal Generator",
+			tier: 1,
+			purchased: false,
+			icon: "eye-open",
+		},
 		bionic: {
 			description: "<p>Automatically pick up each level of Bionic Wonderland (BW) as you pass a BW zone. Will not work if you have already missed any BWs this run, or if you reach a zone higher than any BW you have ever cleared before.</p><p>In addition, give all current and future copies of Bionic Wonderland the 'Fast Attacks' special modifier.</p>",
-			name: "Bionic Magnet",
+			name: "Bionic Magnet I",
 			onPurchase: function (clear) {
 				addMapModifier('Bionic', 'fa');
 			},
@@ -1018,13 +1029,6 @@ var toReturn = {
 			tier: 1,
 			purchased: false,
 			icon: "magnet"
-		},
-		portal: {
-			description: "Unlock Portal immediately after clearing Z20.",
-			name: "Portal Generator",
-			tier: 1,
-			purchased: false,
-			icon: "eye-open",
 		},
 		bounty: {
 			description: "Unlock Bounty immediately after clearing Z15.",
@@ -1046,6 +1050,13 @@ var toReturn = {
 			tier: 1,
 			purchased: false,
 			icon: "*spoon-knife"
+		},
+		explorers: {
+			description: "Automatically picks up SpeedExplorer books when you pass their zone.",
+			name: "Explorer Aura I",
+			tier: 1,
+			purchased: false,
+			icon: "*map-signs"
 		},
 		voidPower: {
 			description: "Your Trimps gain 15% attack and health inside Void Maps.",
@@ -1091,6 +1102,15 @@ var toReturn = {
 			requires: "turkimp",
 			icon: "*spoon-knife"
 		},
+		scry: {
+			get description(){
+				return "When fighting Corrupted " + ((game.global.spiresCompleted >= 2) ? "or Healthy " : "") + "cells in Scryer Formation, grants 50% more Dark Essence and doubles your attack.";
+			},
+			name: "Scryhard I",
+			tier: 2,
+			purchased: false,
+			icon: "*spinner9"
+		},
 		voidPower2: {
 			description: "Your Trimps gain an additional 20% attack and health inside Void Maps.",
 			name: "Void Power II",
@@ -1127,6 +1147,13 @@ var toReturn = {
 			tier: 3,
 			purchased: false,
 			icon: "italic",
+		},
+		daily: {
+			description: "Gain +50% attack when running a Daily Challenge.",
+			name: "Legs for Days",
+			tier: 3,
+			purchased: false,
+			icon: "*calendar4"
 		},
 		hyperspeed: {
 			description: "Reduce the time in between fights and attacks by 100ms.",
@@ -1168,7 +1195,6 @@ var toReturn = {
 				toggleAutoStructure(true);
 			},
 			onRespec: function () {
-				game.global.autoStructureSetting.enabled = false;
 				toggleAutoStructure(true, true);
 			}
 		},
@@ -1180,6 +1206,19 @@ var toReturn = {
 			requires: "turkimp2",
 			icon: "*spoon-knife"
 		},
+		autoJobs: {
+			description: "Unlock the Job Automator, the envy of Human Resourceimps across the Universe.",
+			name: "AutoJobs",
+			tier: 4,
+			purchased: false,
+			icon: "*group",
+			onPurchase: function () {
+				toggleAutoJobs(true);
+			},
+			onRespec: function () {
+				toggleAutoJobs(true, true);
+			}
+		},
 		hyperspeed2: {
 			get description(){
 				return "Reduce the time in between fights and attacks by an additional 100ms through Z" + Math.floor((game.global.highestLevelCleared + 1) * 0.5) + " (50% of your highest zone reached)";
@@ -1187,6 +1226,7 @@ var toReturn = {
 			name: "Hyperspeed II",
 			tier: 5,
 			purchased: false,
+			requires: "hyperspeed",
 			icon: "fast-forward"
 		},
 		blacksmith2: {
@@ -1220,6 +1260,14 @@ var toReturn = {
 			purchased: false,
 			icon: "italic",
 			requires: "skeletimp"
+		},
+		explorers2: {
+			description: "Start with an extra SpeedExplorer book after each Portal.",
+			name: "Explorer Aura II",
+			tier: 5,
+			purchased: false,
+			requires: "explorers",
+			icon: "*map-signs"
 		},
 		voidPower3: {
 			description: "Your Trimps gain an additional 30% attack and health inside Void Maps, and all current and future Void Maps gain the 'Fast Attacks' special modifier.",
@@ -1289,6 +1337,14 @@ var toReturn = {
 
 			}
 		},
+		scry2: {
+			description: "Complete an entire Void Map in Scryer Formation to earn an additional 50% Helium.",
+			name: "Scryhard II",
+			tier: 6,
+			purchased: false,
+			icon: "*spinner9",
+			requires: "scry"
+		},
 		magmamancer: {
 			description: "Magmamancers will now increase Trimp Attack by the same amount that they increase Metal. In addition, start every post-magma zone with 5 minutes of credit already applied to your Magmamancers.",
 			name: "Magmamancermancy",
@@ -1312,6 +1368,21 @@ var toReturn = {
 			requires: "nature",
 			icon: "*tree3"
 		},
+		deciBuild: {
+			description: "Buildings in the queue are constructed 10 at a time. In addition, buildings added to the queue via AutoStructure are added 10 at a time if needed.",
+			name: "Deca Build",
+			tier: 7,
+			purchased: false,
+			icon: "*hammer",
+			requires: "doubleBuild"
+		},
+		stillRowing: {
+			description: "Increase the looting bonus for completing a full row in a Spire by 50%, from 2% extra loot to 3%.",
+			name: "Still Rowing I",
+			tier: 7,
+			purchased: false,
+			icon: "align-justify"
+		},
 		patience: {
 			description: "Anticipation can now reach 45 stacks.",
 			name: "Patience",
@@ -1319,24 +1390,17 @@ var toReturn = {
 			purchased: false,
 			icon: "*clock2"
 		},
-		stillRowing: {
-			description: "Increase the bonus for completing a full row in a Spire by 50%, from 2% extra loot to 3%.",
-			name: "Still Rowing I",
-			tier: 7,
-			purchased: false,
-			icon: "align-justify"
-		},
 		voidSpecial: {
 			get description() {
-				var text = "Receive 1 free Void Map after using your Portal for each 100 zones cleared last run. Helium from Void Maps is also increased by 0.25% for each zone cleared last run.";
+				var text = "<p>Receive 1 free Void Map after using your Portal for each 100 zones cleared last run. Helium from Void Maps is also increased by 0.25% for each zone cleared last run.</p>";
 				var amt = (game.global.lastPortal * 0.0025);
-				text += " You reached Z" + game.global.lastPortal + " last Portal, ";
+				text += "<p>You reached <b>Z" + game.global.lastPortal + "</b> last Portal, ";
 				if (this.purchased) text += " earning you a bonus of ";
 				else text += " which would earn you a bonus of ";
-				text +=  prettify(amt * 100) + "% extra Helium."
+				text +=  prettify(amt * 100) + "% extra Helium and " + Math.floor(game.global.lastPortal / 100) + " Void Maps.</p>"
 				return text;
 			},
-			name: "Void Specialization",
+			name: "Void Specialization I",
 			tier: 8,
 			purchased: false,
 			icon: "*feed"
@@ -1384,6 +1448,77 @@ var toReturn = {
 			requires: "stillRowing",
 			icon: "align-justify"
 		},
+		amalg: {
+			description: "Causes the 50% damage bonus from each Amalgamator to be compounding rather than additive.",
+			name: "Amalgagreater",
+			tier: 8,
+			purchased: false,
+			icon: "scale"
+		},
+		voidSpecial2: {
+			get description(){
+				 var text = "<p>Gain a second Void Map per 100 zones cleared last run, but the first one is earned at Z50 (then 150, 250 etc). In addition, if Fluffy's level 6 bonus is active, this allows Fluffy to stack 1 additional Void Map, adding another 50% Helium bonus to the stack.</p>";
+				 text += "<p>You reached <b>Z" + game.global.lastPortal + "</b> last Portal,";
+				 if (this.purchased) text += " earning you a bonus of ";
+				 else text += " which would earn you a bonus of ";
+				 var maps = Math.floor((game.global.lastPortal + 50) / 100);
+				 text += maps + " more Void Maps (" + (maps + Math.floor((game.global.lastPortal) / 100)) + " including Void Specialization I).</p>"
+				 return text;
+			},
+			name: "Void Specialization II",
+			tier: 9,
+			purchased: false,
+			icon: "*feed",
+			requires: "voidSpecial"
+		},
+		bionic2: {
+			description: "Adds Prestigious to Bionic Wonderland maps. This will add two Prestige upgrades to every Bionic Wonderland map, including your first run with the RoboTrimp upgrade.",
+			name: "Bionic Magnet II",
+			tier: 9,
+			purchased: false,
+			onPurchase: function () {
+				refreshMaps();
+			},
+			afterRespec: function () {
+				refreshMaps();
+			},
+			icon: "magnet"
+		},
+		fluffyExp: {
+			get description(){
+				return "Fluffy gains +25% more Exp per zone for each completed Evolution. Fluffy has Evolved " + game.global.fluffyPrestige + " time" + needAnS(game.global.fluffyPrestige) + ", " + ((this.purchased) ? "earning" : "which would earn") + " you a bonus of +" + prettify(game.global.fluffyPrestige * 25) + "% Exp.";
+			},
+			name: "Flufffocus",
+			tier: 9,
+			purchased: false,
+			icon: "*library"
+		},
+		fluffyAbility: {
+			description: "Gain one extra Fluffy ability. This works as if Fluffy Evolved, but doesn't increase Fluffy's damage bonus.",
+			name: "Flufffinity",
+			tier: 9,
+			purchased: false,
+			icon: "*infinity"
+		},
+		overkill: {
+			description: "Allows you to Overkill yet another cell.",
+			name: "Excessive",
+			tier: 9,
+			purchased: false,
+			icon: "*fighter-jet"
+		},
+		crit: {
+			get description(){
+				var text = "<p>Adds +1 to your MegaCrit modifier, and adds 50% of your Shield Heirloom's Crit Chance to your Crit Chance again.</p>";
+				if (game.heirlooms.Shield.critChance.currentBonus > 0) text += "<p>Your Shield currently has a bonus of " + game.heirlooms.Shield.critChance.currentBonus + "%, so this Mastery " + ((this.purchased) ? "is giving you" : "would give you") + " +" + (game.heirlooms.Shield.critChance.currentBonus / 2) + "% additional Crit Chance.</p>";
+				else text += "<p>However, you do not currently have Crit Chance on your Shield.</p>";
+				return text;
+			},
+			name: "Charged Crits",
+			tier: 9,
+			purchased: false,
+			icon: "*power"
+		}
 		//don't forget to add new talent tier to getHighestTalentTier()
 	},
 	//portal
@@ -1468,6 +1603,18 @@ var toReturn = {
 			heliumSpent: 0,
 			get tooltip() {
 				return "Fluffy is coming along, but he's coming along slowly. Each point of Curious will speed up Fluffy's progression by adding " + this.modifier + " Exp to the base amount he gains per zone clear."
+			}
+		},
+		Classy: {
+			level: 0,
+			locked: true,
+			modifier: 2,
+			priceBase: 1e17,
+			heliumSpent: 0,
+			max: 50,
+			get tooltip() {
+				var level = (this.levelTemp) ? this.level + this.levelTemp : this.level;
+				return "Reduce the zone that Fluffy can start earning Experience at by " + this.modifier + "." + " With " + level + " level" + needAnS(level) + " in Classy, Fluffy will start earning Experience at Z" + (301 - (level * this.modifier)) + ".";
 			}
 		},
 		Overkill: {
@@ -2555,7 +2702,7 @@ var toReturn = {
 			owned: false
 		},
 		Supervision: {
-			description: "Gain the ability to pause the Dimensional Generator by clicking the clock, <b>AND</b> add a Slider to your Generator window, allowing you to lower your maximum fuel capacity and gain greater control over Overclocker. Lowering your capacity below your stored amount of fuel will not waste any fuel, but the first time Overclocker is triggered, all extra fuel will be consumed.",
+			description: "<p>Gain 3 Automation/Micromanagement tools for your Generator!</p><ul><li>Gain the ability to pause the Dimensional Generator by clicking the clock.</li><li>Get a sweet button to configure specific zones to switch Generator states at. You'll also gain the ability to Ctrl + Click the Generator Start setting in the Settings menu to open up the same interface.</li><li>Add a Slider to your Generator window, allowing you to lower your maximum fuel capacity and gain greater control over Overclocker. Lowering your capacity below your stored amount of fuel will not waste any fuel, but the first time Overclocker is triggered, all extra fuel will be consumed.</li></ul>",
 			cost: 2000,
 			owned: false,
 			onPurchase: function() {
@@ -3084,9 +3231,9 @@ var toReturn = {
 			highest: 0,
 			reverse: true,
 			showAll: true,
-			breakpoints: [480, 240, 120, 80],
-			tiers: [6, 7, 8, 8],
-			names: ["Chillin", "Arctic Accelerator", "Rimy Runner", "Subzero Sprinter"],
+			breakpoints: [480, 240, 120, 80, 20],
+			tiers: [6, 7, 8, 8, 9],
+			names: ["Chillin", "Arctic Accelerator", "Rimy Runner", "Subzero Sprinter", "Frigid and Furious"],
 			icon: "icomoon icon-alarmclock",
 			newStuff: []
 		},
@@ -3117,18 +3264,18 @@ var toReturn = {
 		},
 		oneOffs: {
 			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare
-			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
 			get descriptions () {
-				return ["Complete the Dimension of Anger before buying Bounty", "Reach Z30 with no respec and 60 or less He spent", "Have over " + prettify(1e6) + " traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Attack 20 times without dying in Electricity", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over " + prettify(250e3) + " total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Reach Z60 without hiring a single Trimp", "Complete a zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Build up a Poison debuff that's 1000x higher than your attack", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your zone number", "Beat the Spire with no respec and less than " + prettify(100e6) + " He Spent", "Defeat an enemy on Obliterated", "Find an Amalgamator on Z1", "Get 10 Red Crits in a row", "Complete a Bionic Wonderland map 200 levels higher than your Zone number", "Complete Spire II on the Coordinate challenge"];
+				return ["Complete the Dimension of Anger before buying Bounty", "Reach Z30 with no respec and 60 or less He spent", "Have over " + prettify(1e6) + " traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Attack 20 times without dying in Electricity", "Create a perfect Map", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over " + prettify(250e3) + " total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Break the Planet with 5 or fewer lost battles", "Reach Z60 without hiring a single Trimp", "Complete a zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Complete Lead with 100 or fewer lost battles", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Build up a Poison debuff that's 1000x higher than your attack", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your zone number", "Beat the Spire with no respec and " + prettify(100e6) + " or less He Spent", "Defeat an enemy on Obliterated", "Find an Amalgamator on Z1", "Get 10 Red Crits in a row", "Beat Z75 on the Scientist V challenge", "Complete a Bionic Wonderland map 200 levels higher than your Zone number", "Complete Spire II on the Coordinate challenge", "Beat Spire II with " + prettify(1e9) + " or less He spent", "Beat Imploding Star on Obliterated"];
 			},
-			tiers: [2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 9, 9],
+			tiers: [2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9],
 			description: function (number) {
 				return this.descriptions[number];
 			},
-			filters: [19, 29, 29, -1, 39, 59, -1, 79, 124, 59, 119, 74, -1, -1, 59, 59, 59, 124, 144, 59, 109, -1, 164, 59, -1, 179, 229, 245, 179, 189, 199, 229, 300, 300, 65, 169, 199, 424, 349, -1, 324, 299],
+			filters: [19, 29, 29, -1, 39, 59, -1, 79, -1, 124, 59, 119, 74, -1, -1, 59, 59, 59, 124, 144, 59, 59, 109, -1, 164, 59, -1, 179, 179, 229, 245, 179, 189, 199, 229, 299, 299, 65, 169, 199, 424, 349, -1, 129, 324, 299, 299, 424],
 			icon: "icomoon icon-flag",
-			names: ["Forgot Something", "Underachiever", "Hoarder", "Needs Block", "Underbalanced", "Peacekeeper", "Elite Feat", "Grounded", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Holey", "Shaggy", "One-Hit Wonder", "Survivor", "Thick Skinned", "Great Host", "Unemployment", "Very Sneaky", "Extra Crispy", "Trimp is Poison", "Realtor", "Gotta Go Fast", "Grindless", "Swagmatic", "Brr", "Unsatisfied Customer", "Organic Trimps", "Invincible", "Mighty", "Mother Lode", "Infected", "Challenged", "Bionic Sniper", "Nerfed", "Obliterate", "M'Algamator", "Critical Luck", "Bionic Nuker", "Hypercoordinated"],
+			names: ["Forgot Something", "Underachiever", "Hoarder", "Needs Block", "Underbalanced", "Peacekeeper", "Elite Feat", "Grounded", "Maptastic", "Swag", "Workplace Safety", "No Time for That", "Tent City", "Consolation Prize", "Holey", "Shaggy", "One-Hit Wonder", "Survivor", "Thick Skinned", "Great Host", "Unbroken", "Unemployment", "Very Sneaky", "Extra Crispy", "Trimp is Poison", "Realtor", "Gotta Go Fast", "Grindless", "Leadership", "Swagmatic", "Brr", "Unsatisfied Customer", "Organic Trimps", "Invincible", "Mighty", "Mother Lode", "Infected", "Challenged", "Bionic Sniper", "Nerfed", "Obliterate", "M'Algamator", "Critical Luck", "AntiScience", "Bionic Nuker", "Hypercoordinated", "Nerfeder", "Imploderated"],
 			newStuff: []
 		}
 	},
@@ -4053,7 +4200,7 @@ var toReturn = {
 			attack: 2,
 			health: 5,
 			fast: true,
-			loot: function (level, fromFluffy) {
+			loot: function (level, fromFluffy, fluffyCount) {
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 				var amt = (game.global.world >= 60) ? 10 : 2;
 				if (mutations.Magma.active()) amt *= 3;
@@ -4075,17 +4222,31 @@ var toReturn = {
 				if (game.talents.voidSpecial.purchased){
 					amt *= ((game.global.lastPortal * 0.0025) + 1);
 				}
-				if (fromFluffy) amt *= 1.5;
+				if (fromFluffy){
+					 amt *= (1 + (0.5 * fluffyCount));
+					amt *= fluffyCount;
+				}
+
+				if (game.talents.scry2.purchased && game.global.canScryCache) amt *= 1.5;
+
+				//Void map helium modifiers above here
 				
 				if (game.global.runningChallengeSquared)
 					amt = 0;
 				else
 					amt = rewardResource("helium", amt, level, false, rewardPercent);
+				
 				game.stats.highestVoidMap.evaluate();
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";				
-				if (fromFluffy){
+				if (fromFluffy && fluffyCount == 1){
 					msg = "Before you even realized you were in a new Void Map, Fluffy snuck to the end and quickly stole all the loot.";
 					if (!game.global.runningChallengeSquared) msg += " You gained another " + prettify(amt) + " Helium!";
+					message(msg, "Loot", "oil", "helium", "helium");
+					return;
+				}
+				else if (fromFluffy){
+					msg = "Before you even realize what's happening, Fluffy has entered and cleared the remaining " + fluffyCount + " Void Maps and quickly stole all the loot!";
+					if (!game.global.runningChallengeSquared) msg += " After earning a bonus on each of +" + prettify(50 * fluffyCount) + "% Helium, you've earned an additional " + prettify(amt) + " Helium!";
 					message(msg, "Loot", "oil", "helium", "helium");
 					return;
 				}
@@ -4202,7 +4363,6 @@ var toReturn = {
 					if (game.global.challengeActive == "Electricity") message("You have completed the Electricity challenge! You have been rewarded with " + prettify(reward) + " Helium, and you may repeat the challenge.", "Notices");
 					else if (game.global.challengeActive == "Mapocalypse") {
 						message("You have completed the Mapocalypse challenge! You have unlocked the 'Siphonology' Perk, and have been rewarded with " + prettify(reward) + " Helium.", "Notices");
-						if (game.portal.Siphonology.locked) addNewSetting('siphonologyMapLevel');
 						game.portal.Siphonology.locked = false;
 						game.challenges.Mapocalypse.abandon();
 					}
@@ -4318,6 +4478,9 @@ var toReturn = {
 					addNewSetting('overkillColor');
 					refreshMaps();
 				}
+				if (game.global.challengeActive == "Obliterated"){
+					giveSingleAchieve("Imploderated")
+				}
 			}
 		},
 		Fusimp: {
@@ -4382,6 +4545,7 @@ var toReturn = {
 					var challenge = game.global.challengeActive;
 					if (game.global.challengeActive == "Watch" && !game.challenges.Watch.enteredMap && game.buildings.Nursery.purchased == 0) giveSingleAchieve("Grindless");
 					if (game.global.challengeActive == "Lead" && game.upgrades.Gigastation.done <= 1) giveSingleAchieve("Unsatisfied Customer");
+					if (game.global.challengeActive == "Lead" && game.stats.battlesLost.value <= 100) giveSingleAchieve("Leadership");
 					if (game.global.challengeActive == "Corrupted" && !game.challenges.Corrupted.hiredGenes && game.jobs.Geneticist.owned == 0) giveSingleAchieve("Organic Trimps");
 					if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.highestStacks <= 400) giveSingleAchieve("Trimp is Poison");
 					if (game.global.challengeActive == "Life"){
@@ -4586,7 +4750,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "+100% damage for 30 seconds in maps",
 			loot: function () {
-				var timeRemaining = parseInt(game.global.titimpLeft);
+				var timeRemaining = parseInt(game.global.titimpLeft, 10);
 				if (timeRemaining > 0) {
 					timeRemaining += 30;
 					if (timeRemaining > 45) timeRemaining = 45;
@@ -4773,7 +4937,7 @@ var toReturn = {
 			},
 			fire: function (fromTalent) {
 				var level = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
-				var bionicTier = parseInt(((level - 125) / 15)) + 1;
+				var bionicTier = parseInt(((level - 125) / 15), 10) + 1;
 				if (bionicTier == game.global.bionicOwned) {
 					this.createMap(bionicTier);
 				}
@@ -5196,18 +5360,24 @@ var toReturn = {
 			icon: "book",
 			title: "A well-hidden book",
 			next: 10,
-			fire: function () {
-				if (!getCurrentMapObject() || !getCurrentMapObject().level) return;
-				var mapLevel = getCurrentMapObject().level;
+			fire: function (unused, fromAuto) {
+				var mapLevel;
+				if (!fromAuto){
+					if (!getCurrentMapObject() || !getCurrentMapObject().level) return;
+					var mapLevel = getCurrentMapObject().level;
+				}
+				else{
+					mapLevel = game.global.world;
+				}
 				var booksNeeded = Math.floor((mapLevel - this.next) / 10);
 				if (booksNeeded > 0){
 					for (var x = 0; x < booksNeeded; x++) {
 						unlockUpgrade("Speedexplorer");
 						this.next += 10;
 					}
+					var copy = (booksNeeded == 1) ? "copy" : booksNeeded + " copies";
+					message("The " + copy + " of 'Speedexplorer' under these bushes will certainly be useful!", "Unlocks", null, null, 'repeated', convertUnlockIconToSpan(this));
 				}
-				var copy = (booksNeeded == 1) ? "copy" : booksNeeded + " copies";
-				message("The " + copy + " of 'Speedexplorer' under these bushes will certainly be useful!", "Unlocks", null, null, 'repeated', convertUnlockIconToSpan(this));
 			}
 		},
 		TheBlock: {
@@ -6597,7 +6767,7 @@ var toReturn = {
 			get tooltip(){
 				var ratio = this.getTriggerThresh();
 				var currentRatio = (game.resources.trimps.realMax() / game.resources.trimps.getCurrentSend());
-				var text = "<p>Amalgamators cannot be hired or fired manually. They are magical beings that could barely be considered Trimps anymore, and they will automatically show up to your town whenever your total population to army size ratio rises above <b>" + prettify(ratio) + ":1</b>. Completing Spires II through V will each divide this ratio by 10. If your ratio ever falls below " + prettify(1e3) + ":1, an Amalgamator will leave. Your current ratio is <b>" + prettify(currentRatio) + ":1</b>. At your current army size, you need <b>" + prettify(ratio * game.resources.trimps.getCurrentSend()) + "</b> total Trimps to trigger the next Amalgamator.</p></p><p>Amalgamators fuse some of your spare Trimps to other soldiers, greatly strengthening them. Each Amalgamator increases the amount of Trimps that must be sent into each battle by 1000x (compounding), increases health by 40x (compounding), and increases damage by 50% (additive).</p><p>In addition, having at least one Amalgamator will cause Anticipation stacks to increase based on when the last soldiers were sent, rather than being based on time spent actually breeding.</p>";
+				var text = "<p>Amalgamators cannot be hired or fired manually. They are magical beings that could barely be considered Trimps anymore, and they will automatically show up to your town whenever your total population to army size ratio rises above <b>" + prettify(ratio) + ":1</b>. Completing Spires II through V will each divide this ratio by 10. If your ratio ever falls below " + prettify(1e3) + ":1, an Amalgamator will leave. Your current ratio is <b>" + prettify(currentRatio) + ":1</b>. At your current army size, you need <b>" + prettify(ratio * game.resources.trimps.getCurrentSend()) + "</b> total Trimps to trigger the next Amalgamator.</p></p><p>Amalgamators fuse some of your spare Trimps to other soldiers, greatly strengthening them. Each Amalgamator increases the amount of Trimps that must be sent into each battle by 1000x (compounding), increases health by 40x (compounding), and increases damage by 50% " + ((game.talents.amalg.purchased) ? "(compounding)" : "(additive)") + ".</p><p>In addition, having at least one Amalgamator will cause Anticipation stacks to increase based on when the last soldiers were sent, rather than being based on time spent actually breeding.</p>";
 				if (game.global.challengeActive == "Trimp"){
 					text += "<p><i>" + toZalgo("This particular Universe seems to directly conflict with the Amalgamators, yet they're here and the Trimps they Amalgamate seem immune to the dimensional restrictions. Things are getting weird though.", 1, Math.ceil(game.global.world / 100)) + "</i></p>";
 				}
@@ -6630,6 +6800,7 @@ var toReturn = {
 				return Math.pow(this.populationModifier, this.owned);
 			},
 			getDamageMult: function () {
+				if (game.talents.amalg.purchased) return Math.pow((1 + this.damageModifier), this.owned);
 				return (this.owned * this.damageModifier) + 1;
 			}
 		}
@@ -6739,6 +6910,10 @@ var toReturn = {
 				if (game.global.slowDone) {
 					unlockEquipment("Gambeson");
 					unlockEquipment("Arbalest");
+				}
+				if (game.talents.autoJobs.purchased){
+					unlockJob("Lumberjack");
+					buyAutoJobs(true);
 				}
 			}
 		},

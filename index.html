@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 4.814</title>
+	<title>Trimps 4.9</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?12" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?13" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -379,7 +379,7 @@
 					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="tabNotSelected buyTab"><a id="jobsA"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
 					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="tabNotSelected buyTab"><a id="upgradesA"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
 					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>		
-					<li role="presentation" id="talentsTab"  style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab" onmouseover="tooltip('Mastery', null, event)" onmouseout="tooltip('hide')"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
+					<li role="presentation" id="talentsTab" style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab" onmouseover="tooltip('Mastery', null, event)" onmouseout="tooltip('hide')"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
 					<li role="presentation" id="natureTab" style='display: none'  onclick="filterTabs('nature')" class="tabNotSelected buyTab empowerTabNone" onmouseover="tooltip('Empowerments of Nature', null, event)" onmouseout="tooltip('hide')"><a id="natureA">Nature</a></li>		
 				</ul>
 				</div>
@@ -402,7 +402,7 @@
 								<a id="tab5Text" onclick="numTab(5)">+1</a>
 								<a id="tab5Text2" onclick="tooltip('Custom', null, 'update')">Custom</a>
 							</li>
-							<li role="presentation" class="tabNotSelected" id="tab6" onclick="numTab('6')" onmouseover="tooltip('Buy Max', 'customText', event, 'Switching to this option will spend the majority of your resources with each purchase. <b>Click twice to customize.</b>')" onmouseout="tooltip('hide')" >
+							<li role="presentation" class="tabNotSelected" id="tab6" onclick="numTab(6)" onmouseover="tooltip('Buy Max', 'customText', event, 'Switching to this option will spend the majority of your resources with each purchase. <b>Click twice to customize.</b>')" onmouseout="tooltip('hide')" >
 								<a id="tab6Text">Max</a>
 							</li>
 						</ul>
@@ -420,7 +420,7 @@
 										</div>
 										<div class="col-xs-3 lowPad">&nbsp;</div>
 										<div class="col-xs-3 lowPad">
-											<div id="autoStructureBtn" onmouseover='tooltip("AutoStructure", null, event)' onmouseout='tooltip("hide")' class="pointer noselect colorDanger autoUpgradeBtn">
+											<div id="autoStructureBtn" onmouseover='tooltip("AutoStructure", null, event)' onmouseout='tooltip("hide")' class="toggleConfigBtn pointer noselect colorDanger autoUpgradeBtn">
 												<div id='autoStructureText' onclick="toggleAutoStructure()">AutoStructure</div><div onclick="tooltip('Configure AutoStructure', null, 'update')">
 													<span class='glyphicon glyphicon-cog'></span></div>
 											</div>
@@ -439,14 +439,18 @@
 										<div class="col-xs-3" style="padding-right: 5px">
 											<span id="jobsTitleSpan" class="titleSpan">Jobs</span>
 										</div>
-										<div class="col-xs-6 lowPad">
+										<div class="col-xs-3 lowPad">
 											<span id="jobsTitleUnemployed" class="titleSpan"></span>
+										</div>
+										<div class="col-xs-3 lowPad">
+											<div id="autoJobsBtn" onmouseover='tooltip("AutoJobs", null, event)' onmouseout='tooltip("hide")' class="toggleConfigBtn pointer noselect colorDanger autoUpgradeBtn">
+												<div id='autoJobsText' onclick="toggleAutoJobs()">AutoJobs</div><div onclick="tooltip('Configure AutoJobs', null, 'update')">
+													<span class='glyphicon glyphicon-cog'></span></div>
+											</div>
 										</div>
 										<div class="col-xs-3" style="padding-left: 5px">
 											<div id="fireBtn" class="pointer noselect fireBtnNotFiring" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
 										</div>
-									</div>
-									<div class="row">
 									</div>
 								</div>
 								<div class="buyBox" id="jobsHere">
@@ -498,13 +502,11 @@
 										</div>
 									</div>
 									<div class='col-xs-3 lowPad'>
-										<div class='pointer noselect colorDanger' onclick='respecTalents()' id='talentRespecBtn'>Respec (20 bones)</div>
+										<div class='pointer noselect colorDanger' onmouseover='tooltip("Respec Masteries", null, event)' onmouseout='tooltip("hide")' onclick='respecTalents()' id='talentRespecBtn'>Respec (20 bones)</div>
 									</div>
 								</div>
-								<div id="talentsCost">Your next mastery costs <span id='talentsNextCost'>0</span>. Next tier in <span id='talentsNeeded'>0</span>.</div>
-								<div id="talentsHere">
-								
-								</div>
+								<div id="talentsCost">Your next mastery costs <span id='talentsNextCost'>0</span>.</div>
+								<div id="talentsHere" onload="preventZoom(this)"></div>
 							</div>
 							<div id="natureContainer" style="display: none; height: 100%;">
 								<div class='row noMarg' style="height: 100%;">
@@ -819,7 +821,7 @@
 											Perfect Sliders
 										</div>
 										<br/>
-										<input id="advPerfectCheckbox" type="checkbox" onchange="updateMapNumbers()">
+										<span id="advPerfectCheckbox" class="icomoon icon-checkbox-unchecked niceCheckbox" data-checked="false" onclick="swapNiceCheckbox(this); updateMapNumbers()"></span>
 									</div>
 								</div>
 								<div class="col-xs-3 advContainer lowPad">
@@ -1047,6 +1049,9 @@
 						<li role="presentation"  class="tabNotSelected" id="ptab5" onclick="tooltip('Custom', null, 'update', true)">
 							<a id="ptab5Text">Custom</a>
 						</li>
+						<li role="presentation" class="tabNotSelected" id="ptab6" onclick="numTab(6, true)" onmouseover="tooltip('Buy Max', 'customText', event, 'Switching to this option will spend the majority of your Helium with each purchase. <b>Click twice to customize.</b>')" onmouseout="tooltip('hide')">
+							<a id="ptab6Text">Max</a>
+						</li>
 						<li role="presentation" class="tabNotSelected pointer" id="ptabInfo" onclick="toggleSetting('detailedPerks', null, true)">
 							<a id="ptabInfoText">More Info</a>
 						</li>
@@ -1261,9 +1266,9 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?12"></script>
-	<script type="text/javascript" src="updates.js?12"></script>
-	<script type="text/javascript" src="main.js?12"></script>
+	<script type="text/javascript" src="config.js?13"></script>
+	<script type="text/javascript" src="updates.js?13"></script>
+	<script type="text/javascript" src="main.js?13"></script>
 	
 </body>
 

@@ -99,7 +99,7 @@
 }
 
 .talentItem {
-    width: calc(20% + 1px);
+    width: calc(16.666666667% + 1px);
 }
 
 #battleContainer {
@@ -1066,4 +1066,23 @@ color:#8F8F00
 
 .permGenUpgrade {
 	width: calc(33.33333333% + 1px);
+}
+
+#lootBdBtn{
+	color: #1e4c74;
+	text-shadow:
+	-1px -1px 0 #b8b8b8,  
+		1px -1px 0 #969696,
+	-1px 1px 0 #969696,
+		1px 1px 0 #969696;
+	font-size: 1.6vw;
+}
+
+#lootBdBtn:hover{
+	color: #173753;
+	text-shadow:
+	-1px -1px 0 #969696,  
+		1px -1px 0 #969696,
+	-1px 1px 0 #969696,
+		1px 1px 0 #969696;
 }
