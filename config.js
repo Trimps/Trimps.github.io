@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.9,
+		version: 4.901,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -2001,6 +2001,8 @@ var toReturn = {
 				document.getElementById("scienceCollectBtn").style.display = "none";
 				game.resources.science.owned = getScientistInfo(getScientistLevel());
 				game.global.autoUpgrades = false;
+				game.global.autoPrestiges = 0;
+				toggleAutoPrestiges(true);
 				toggleAutoUpgrades(true);
 			},
 			onLoad: function () {
