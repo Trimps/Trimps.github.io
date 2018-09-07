@@ -3302,6 +3302,7 @@ function numTab(what, p) {
 			}
 		}
 		else num = game.global.lastCustomAmt;
+		if (num == 0) num = 1;
 		if (!isNumberBad(num)) {
 			var text = "+" + prettify(num);
 			document.getElementById("tab5Text").innerHTML = text;
