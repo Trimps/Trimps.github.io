@@ -3865,7 +3865,9 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
 		loot: (lootOverride) ? lootOverride : lootg,
 		noRecycle: setNoRecycle ? true : false
 	};
-	if (!nameOverride && newMap.difficulty == getMapMinMax('difficulty', 0)[0] && newMap.size == getMapMinMax('size', 0)[0] && newMap.loot == getMapMinMax('loot', 0)[1])
+	var maxLoot = getMapMinMax('loot', 0)[1];
+	if (game.singleRunBonuses.goldMaps.owned) maxLoot++;
+	if (!nameOverride && newMap.difficulty == getMapMinMax('difficulty', 0)[0] && newMap.size == getMapMinMax('size', 0)[0] && newMap.loot == maxLoot)
 		giveSingleAchieve('Maptastic')
 	if (newMap.location == 'Plentiful' && game.global.decayDone){
 		newMap.loot += .25;
@@ -8879,7 +8881,7 @@ function checkAffordableTalents(){
 	var totalEssence = game.global.spentEssence + game.global.essence;
 	var talentCount = Object.keys(game.talents).length;
 	var totalPrice = 0;
-	for (var x = 0; x < talentCount - 1; x++){
+	for (var x = 0; x < talentCount; x++){
 		totalPrice += getNextTalentCost(x);
 		if (totalPrice > totalEssence) return x;
 	}
@@ -13188,7 +13190,7 @@ var Fluffy = {
 			description: "Adds 2.5% to your liquification bonus (half of a Spire)."
 		},
 		voidance: {
-			description: "Each Portal, start with a double stacked Void Map."
+			description: "Each Portal, start with two double stacked Void Maps."
 		},
 		dailies: {
 			description: "Adds 100% to the helium modifier of all Daily Challenges."
