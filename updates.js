@@ -194,6 +194,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				}
 			}
 		}
+		var essenceRemaining = countRemainingEssenceDrops();
+		tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current world is" : "enemies in your current world are") + " holding Dark Essence.</b></p>"
 		costText = "";
 	}
 	if (what == "First Amalgamator"){
@@ -1890,6 +1892,10 @@ function getBattleStatBd(what) {
 		currentCalc *= (amt + 1);
 		textString += "<tr><td class='bdTitle'>Strength in Health</td><td>15%</td><td>" + cellCount + "</td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
+	if (what == "attack" && game.global.mapsActive && game.talents.bionic2.purchased && getCurrentMapObject().level > game.global.world){
+		currentCalc *= 1.5;
+		textString += "<tr><td class='bdTitle'>Bionic Magnet II</td><td>+50%</td><td></td><td>+ 50%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+	}
 	//Pumpkimp buff
 	if (game.global.sugarRush > 0 && what == "attack"){
 		currentCalc *= sugarRush.getAttackStrength();
@@ -2450,6 +2456,7 @@ function getLootBd(what) {
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getLootBd('" + what + "')", what + " Loot Breakdown", "Refresh", true);
+	verticalCenterTooltip();
 }
 
 function swapNotation(updateOnly){

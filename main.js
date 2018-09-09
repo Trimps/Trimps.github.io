@@ -902,7 +902,7 @@ function load(saveString, autoLoad, fromPf) {
 	handleWindDebuff();
 	setEmpowerTab();
 	refreshMaps();
-	if (game.global.totalVoidMaps > 0) addVoidAlert();
+	if (game.global.totalVoidMaps > 0 && !game.global.mapsActive) addVoidAlert();
 	return true;
 }
 
@@ -1403,7 +1403,7 @@ function getSquaredDescriptionInRun(hideDesc){
 	var challenge = game.challenges[game.global.challengeActive];
 	var description = "";
 	if (!hideDesc){
-		description = challenge.squaredDescription + " " + getSpecialSquaredRewards(challenge);
+		description = "\"" + challenge.squaredDescription + "\" " + getSpecialSquaredRewards(challenge);
 	}
 	description += "<b>You are currently at Zone " + game.global.world;
 	var portalText = (game.global.viewingUpgrades) ? "abandon the challenge " : "use the portal ";
@@ -1512,7 +1512,7 @@ function getCurrentChallengePane(){
 		description = description.replace('*', getScientistInfo(sciLevel, true));
 	}
 	challengeText = "You have the ";
-	challengeText += (game.global.challengeActive == "Daily") ? formatDailySeedDate() + " " + game.global.challengeActive + " challenge active. " + description : game.global.challengeActive + " challenge active. \"" + description + "\"";
+	challengeText += (game.global.challengeActive == "Daily") ? formatDailySeedDate() + " " + game.global.challengeActive + " challenge active. " + description : game.global.challengeActive + " challenge active. " + description;
 	return challengeText;
 }
 
@@ -8512,6 +8512,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 		if (game.singleRunBonuses.sharpTrimps.owned){
 			number *= 1.5;
 		}
+		if (game.global.mapsActive && game.talents.bionic2.purchased && getCurrentMapObject().level > game.global.world){
+			number *= 1.5;
+		}
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
 				if (minFluct == -1) minFluct = fluctuation;
@@ -8622,7 +8625,7 @@ function updateForemenCount(){
 }
 
 function tryScry(){
-	var roll = getRandomIntSeeded(game.global.voidSeed, 0, 100);
+	var roll = getRandomIntSeeded(game.global.scrySeed, 0, 100);
 	if (roll < 50 || roll > 52) return;
 	var reward = calculateScryingReward();
 	if (reward <= 0) return;
@@ -8645,6 +8648,17 @@ function tryScry(){
 	}
 	updateTalentNumbers();
 	return reward;
+}
+
+function countRemainingEssenceDrops(){
+	var cellsRemaining = 100 - game.global.lastClearedCell - 1;
+	var count = 0;
+	for (var x = 0; x < cellsRemaining; x++){
+		var roll = getRandomIntSeeded(game.global.scrySeed + x, 0, 100);
+		if (roll < 50 || roll > 52) continue;
+		count++;
+	}
+	return count;
 }
 
 function calculateScryingReward(){
@@ -8943,6 +8957,7 @@ function rewardLiquidZone(){
 	var hiddenUpgrades = ["fiveTrimpMax", "Map", "fruit", "groundLumber", "freeMetals", "Foreman", "FirstMap"];
 	for (var x = 1; x < 100; x++){
 		game.global.voidSeed++;
+		game.global.scrySeed++;
 		if (isScryerBonusActive()) tryScry();
 		if (checkVoidMap() == 1) voidMaps++;
 		var cell = game.global.gridArray[x];
@@ -9641,7 +9656,7 @@ function rewardSpire1(level){
 			}
 			if (game.portal.Looting_II.locked) text += " Your skills at salvaging things from this Spire have helped you <b>unlock Looting II</b>.";
 			if (game.global.spiresCompleted < 1){
-				text += " You notice a small timeworn chest in the back of the room, where Druopitee had been storing the Skeletimp bones that he had collected over many timelines. You open it and find <b>20 Perfect Skeletimp Bones!</b>. You can tell though that these bones won't be here next time. Your Portal has also modified itself to now Liquify zones equal to 5% of your highest Zone reached, and the Spire's power grants you a permanent 4x bonus to all Dark Essence you collect. You're not quite sure what that means, but you're excited to find out! "
+				text += " You notice a small timeworn chest in the back of the room, where Druopitee had been storing the Skeletimp bones that he had collected over many timelines. You open it and find <b>20 Perfect Skeletimp Bones!</b>. You can tell though that these bones won't be here next time. The Spire's power grants you a permanent 4x bonus to all Dark Essence you collect, and your Portal has also modified itself to now Liquify zones equal to 5% of your highest Zone reached. You're not quite sure what that means, but you're excited to find out! "
 				game.global.b += 20;
 				updateSkeleBtn();
 				game.global.spiresCompleted = 1;
@@ -10721,7 +10736,10 @@ function fight(makeUp) {
     }
     if (cell.health <= 0 || !isFinite(cell.health)) {
 		game.stats.battlesWon.value++;
-		if (!game.global.mapsActive) game.global.voidSeed++;
+		if (!game.global.mapsActive){
+			game.global.voidSeed++;
+			game.global.scrySeed++;
+		}
 		if (game.global.formation == 4 && !game.global.mapsActive && !game.global.waitToScry) tryScry();
 		if (game.global.challengeActive == "Nom" && cell.nomStacks == 100) giveSingleAchieve("Great Host");
 		if (game.global.challengeActive == "Obliterated") giveSingleAchieve("Obliterate");		

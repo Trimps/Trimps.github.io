@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.902,
+		version: 4.91,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -132,6 +132,7 @@ var toReturn = {
 		voidBuff: "",
 		lastVoidMap: 0,
 		voidSeed: Math.floor(Math.random() * 1000000),
+		scrySeed: Math.floor(Math.random() * 1000000),
 		heirloomSeed: Math.floor(Math.random() * 1000000),
 		heirloomBoneSeed: Math.floor(Math.random() * 1000000),
 		eggSeed: Math.floor(Math.random() * 1000000),
@@ -1472,7 +1473,7 @@ var toReturn = {
 			requires: "voidSpecial"
 		},
 		bionic2: {
-			description: "Adds Prestigious to Bionic Wonderland maps. This will add two Prestige upgrades to every Bionic Wonderland map, including your first run with the RoboTrimp upgrade.",
+			description: "Adds Prestigious to Bionic Wonderland maps. This will make every Bionic Wonderland have two Prestige upgrades, including your first run that normally just has a RoboTrimp upgrade. In addition, gain +50% attack whenever you're in a map that is higher than your current World.",
 			name: "Bionic Magnet II",
 			tier: 9,
 			purchased: false,
