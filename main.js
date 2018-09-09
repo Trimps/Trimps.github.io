@@ -4612,6 +4612,7 @@ function displayExtraHeirlooms(){
 }
 
 function selectHeirloom(number, location, noScreenUpdate){
+	hideHeirloomSelectButtons();
 	game.global.selectedHeirloom = [number, location];
 	if (!noScreenUpdate) populateHeirloomWindow();
 	var heirloom = game.global[location];
@@ -4709,6 +4710,7 @@ function unequipHeirloom(heirloom, toLocation, noScreenUpdate){
 
 function equipHeirloom(noScreenUpdate){
 	var heirloom = getSelectedHeirloom();
+	if (heirloom == game.global.ShieldEquipped || heirloom == game.global.StaffEquipped) return;
 	if (game.global.selectedHeirloom[1] == "heirloomsExtra") game.global.heirloomsExtra.splice(game.global.selectedHeirloom[0], 1);
 	else game.global.heirloomsCarried.splice(game.global.selectedHeirloom[0], 1);
 	if (typeof game.global[heirloom.type + "Equipped"].name !== 'undefined') unequipHeirloom(game.global[heirloom.type + "Equipped"], game.global.selectedHeirloom[1], noScreenUpdate);
