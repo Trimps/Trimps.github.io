@@ -194,8 +194,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				}
 			}
 		}
-		var essenceRemaining = countRemainingEssenceDrops();
-		tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current world is" : "enemies in your current world are") + " holding Dark Essence.</b></p>"
+		if (game.global.world >= 180){
+			var essenceRemaining = countRemainingEssenceDrops();
+			tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current World is" : "enemies in your current World are") + " holding Dark Essence.</b></p>"
+		}
 		costText = "";
 	}
 	if (what == "First Amalgamator"){
