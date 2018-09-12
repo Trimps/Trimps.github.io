@@ -194,7 +194,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				}
 			}
 		}
-		if (game.global.world >= 180){
+		if (game.global.world > 180){
 			var essenceRemaining = countRemainingEssenceDrops();
 			tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current World is" : "enemies in your current World are") + " holding Dark Essence.</b></p>"
 		}
