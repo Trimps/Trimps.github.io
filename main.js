@@ -7322,10 +7322,12 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			var cell = document.createElement("li");
 			cell.setAttribute("id", idText + counter);
 			row.appendChild(cell);
-			cell.style.width = (100 / cols) + "%";
-			cell.style.paddingTop = ((100 / cols) / 19)+ "vh";
-			cell.style.paddingBottom = ((100 / cols) / 19) + "vh";
-			cell.style.fontSize = ((cols / 14) + 1) + "vh";
+			Object.assign(cell.style, {
+			    width: 100 / cols + "%",
+			    paddingTop: 100 / cols / 19 + "vh",
+			    paddingBottom: 100 / cols / 19 + "vh",
+			    fontSize: cols / 14 + 1 + "vh"
+			});
 			var className = "battleCell cellColorNotBeaten"
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
