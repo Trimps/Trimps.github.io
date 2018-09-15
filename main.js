@@ -7311,12 +7311,9 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
     var idText = (maps) ? "mapCell" : "cell";
     var size = 0;
     if (maps) size = game.global.mapGridArray.length;
+    var rowHTMLs = [];
     for (var i = 0; i < rows; i++) {
         if (maps && counter >= size) return;
-        var row = document.createElement("ul");
-		grid.insertBefore(row, grid.childNodes[0]);
-        row.setAttribute("id", "row" + i);
-		row.className = "battleRow";
         var cellHTMLs = [];
         for (var x = 0; x < cols; x++) {
 
@@ -7348,8 +7345,16 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 	    		cellHTMLs.push(cell);
 			counter++;
         }
-        row.innerHTML = cellHTMLs.join('');
-        Array.from(row.children).forEach(function(cell) {
+        rowHTMLs.push(
+            '<ul id="row' + i + '" class="battleRow">'
+                + cellHTMLs.join('')
+                + '</ul>'
+        );
+    }
+    // The grid has row 0 at the bottom, so reverse
+    grid.innerHTML = rowHTMLs.reverse().join('');
+    Array.from(document.querySelectorAll(".battleCell"))
+        .forEach(function(cell) {
             Object.assign(cell.style, {
 		width: 100 / cols + "%",
 		paddingTop: 100 / cols / 19 + "vh",
@@ -7357,7 +7362,6 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 		fontSize: cols / 14 + 1 + "vh"
 	    });
         });
-    }
 }
 
 function easterEggClicked(){
