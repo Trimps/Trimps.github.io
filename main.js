@@ -7317,17 +7317,12 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 		grid.insertBefore(row, grid.childNodes[0]);
         row.setAttribute("id", "row" + i);
 		row.className = "battleRow";
+        var cellHTMLs = [];
         for (var x = 0; x < cols; x++) {
+
+            var title, onclick;
+
             if (maps && counter >= size) return;
-			var cell = document.createElement("li");
-			cell.setAttribute("id", idText + counter);
-			row.appendChild(cell);
-			Object.assign(cell.style, {
-			    width: 100 / cols + "%",
-			    paddingTop: 100 / cols / 19 + "vh",
-			    paddingBottom: 100 / cols / 19 + "vh",
-			    fontSize: cols / 14 + 1 + "vh"
-			});
 			var className = "battleCell cellColorNotBeaten"
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
@@ -7340,19 +7335,28 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			}
 			if (!maps && game.global.gridArray[counter].empowerment){
 				className += " empoweredCell" + game.global.gridArray[counter].empowerment;
-				cell.title = "Token of " + game.global.gridArray[counter].empowerment;
+				title = "Token of " + game.global.gridArray[counter].empowerment;
 			}
 			else if (!maps && checkIfSpireWorld() && game.global.spireActive) className += " spireCell";
-            cell.className = className;
-            cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
-			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";
+
 			if (!maps && game.global.gridArray[counter].special == "easterEgg"){
-				cell.onclick = function () { easterEggClicked(); };
+				onclick = ' onclick="easterEggClicked();"';
 				game.global.eggLoc = counter;
-				cell.className += " eggCell";
+				className += " eggCell";
 			}
+			var cell = "<li id=\"" + (idText + counter) + "\" class=\"" + className + "\" \"" + (title || "") + (onclick || "") + ">" + ((maps ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text) || "&nbsp") + "</li>";
+	    		cellHTMLs.push(cell);
 			counter++;
         }
+        row.innerHTML = cellHTMLs.join('');
+        Array.from(row.children).forEach(function(cell) {
+            Object.assign(cell.style, {
+		width: 100 / cols + "%",
+		paddingTop: 100 / cols / 19 + "vh",
+		paddingBottom: 100 / cols / 19 + "vh",
+		fontSize: cols / 14 + 1 + "vh"
+	    });
+        });
     }
 }
 
