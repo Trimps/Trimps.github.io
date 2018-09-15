@@ -8377,11 +8377,11 @@ function updateAllBattleNumbers (skipNum) {
     document.getElementById("goodGuyHealthMax").innerHTML = prettify(game.global.soldierHealthMax);
 	updateGoodBar();
 	updateBadBar(cell);
-	document.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth);
-	if (!skipNum && game.global.challengeActive == "Trimp" && game.jobs.Amalgamator.owned > 0) document.getElementById("trimpsFighting").innerHTML = toZalgo(prettify(game.resources.trimps.getCurrentSend()), game.global.world);
-	else if (!skipNum) document.getElementById("trimpsFighting").innerHTML = prettify(game.resources.trimps.getCurrentSend());
-	document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
-	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true, true);
+	document.getElementById("badGuyHealthMax").textContent = prettify(cell.maxHealth);
+	if (!skipNum && game.global.challengeActive == "Trimp" && game.jobs.Amalgamator.owned > 0) document.getElementById("trimpsFighting").textContent = toZalgo(prettify(game.resources.trimps.getCurrentSend()), game.global.world);
+	else if (!skipNum) document.getElementById("trimpsFighting").textContent = prettify(game.resources.trimps.getCurrentSend());
+	document.getElementById("goodGuyBlock").textContent = prettify(game.global.soldierCurrentBlock);
+	document.getElementById("goodGuyAttack").textContent = calculateDamage(game.global.soldierCurrentAttack, true, true);
 	var badAttackElem = document.getElementById("badGuyAttack");
 	badAttackElem.innerHTML = calculateDamage(cell.attack, true, false, false, cell);
 	if (game.global.usingShriek) {
