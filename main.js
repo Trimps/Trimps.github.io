@@ -12339,7 +12339,8 @@ function updateTurkimpTime() {
 	var timeRemaining = game.global.turkimpTimer;
 	var elem = document.getElementById("turkimpTime");
 	if (game.talents.turkimp4.purchased){
-		elem.innerHTML = "<span class='icomoon icon-infinity'></span>";
+		if (!elem.querySelector('.icomoon.icon-infinity'))
+			elem.innerHTML = "<span class='icomoon icon-infinity'></span>";
 		return;
 	}
 	if (timeRemaining <= 0) {
