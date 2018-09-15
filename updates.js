@@ -3810,22 +3810,24 @@ function unlockUpgrade(what, displayOnly) {
 
 function drawAllUpgrades(){
 	var elem = document.getElementById("upgradesHere");
-	elem.innerHTML = "";
+	// Batch all HTML manipulation into one operation to save on the parsing
+	elem.innerHTML = Object.keys(game.upgrades)
+		.filter(what => game.upgrades[what].locked != 1)
+		.map(upgradeDivHTML)
+		.join('');
 	for (var item in game.upgrades){
 		if (game.upgrades[item].locked == 1) continue;
-		drawUpgrade(item, elem);
 		if (game.upgrades[item].alert && game.options.menu.showAlerts.enabled){
-			document.getElementById("upgradesAlert").innerHTML = "!";
-			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
+			document.getElementById("upgradesAlert").textContent = "!";
+			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").textContent = "!";
 		}
 	}
 	goldenUpgradesShown = false;
 	displayGoldenUpgrades();
 }
 
-
-
-function drawUpgrade(what, where){
+function upgradeDivHTML(what) {
+    div = document.createElement('div');
 	var upgrade = game.upgrades[what];
 	if (upgrade.prestiges && (!upgrade.cost.resources[metal] || !upgrade.cost.resources[wood])){
 		var resName = (what == "Supershield") ? "wood" : "metal";
@@ -3834,9 +3836,10 @@ function drawUpgrade(what, where){
 	var done = upgrade.done;
 	var dif = upgrade.allowed - done;
 	if (dif >= 1) dif -= 1;
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
-	if (dif >= 1) document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
+    return '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + ((dif >= 1) ? ('(+' + dif + ')') : '') + '</span></div>';
+    return div;
 }
+
 
 function checkButtons(what) {
 	var where = game[what];
