@@ -11347,7 +11347,17 @@ function updateAntiStacks(){
 		number = Math.floor(number * 100);
 		var verb = game.jobs.Amalgamator.owned > 0 ? "prepare" : "populate";
 		var s = game.global.antiStacks == 1 ? '' : 's';
-		elem.innerHTML = '<span class="badge antiBadge" onmouseover="tooltip(\'Anticipation\', \'customText\', event, \'Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' second' + s + ' to ' + verb + '.\')" onmouseout="tooltip(\'hide\')">' + game.global.antiStacks + '<span class="icomoon icon-target2"></span></span>';
+		var span = elem.querySelector('span.badge.antiBadge');
+		var antiTooltip = function(event){tooltip('Anticipation', 'customText', event, 'Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' second' + s + ' to ' + verb + '.');};
+		var hideTooltip = function() {tooltip('hid');};
+		if (span) {
+			span.onmouseover = antiTooltip;
+			span.onmouseout = hideTooltip;
+			if (game.global.antistacks)
+				span.childNodes[0].textContent = game.global.antistacks.toString();
+		} else {
+			elem.innerHTML = '<span class="badge antiBadge" onmouseover="tooltip(\'Anticipation\', \'customText\', event, \'Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' second' + s + ' to ' + verb + '.\')" onmouseout="tooltip(\'hide\')">' + game.global.antiStacks + '<span class="icomoon icon-target2"></span></span>';
+		}
 	}
 	else elem.innerHTML = "";
 }
