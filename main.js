@@ -3662,7 +3662,7 @@ function breed() {
 			if (remainingTime == 0.0)
 				updateGenes = true;
 		}
-		document.getElementById("trimpsTimeToFill").innerHTML = (fullBreed) ? fullBreed : "";
+		document.getElementById("trimpsTimeToFill").textContent = (fullBreed) ? fullBreed : "";
 		if (updateGenes || (!game.global.fighting && totalTimeText == "0.0")){
 			updateStoredGenInfo(breeding.toNumber());
 		}

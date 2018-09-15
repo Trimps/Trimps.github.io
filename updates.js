@@ -3503,13 +3503,13 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			toUpdate.owned = parseFloat(toUpdate.owned);
 			if (!(toUpdate.owned > 0)) toUpdate.owned = 0;
 		}
-		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned));
+		document.getElementById(item + "Owned").textContent = prettify(Math.floor(toUpdate.owned));
 		if (toUpdate.max == -1 || document.getElementById(item + "Max") === null) continue;
 		var newMax = toUpdate.max;
 		if (item != "trimps")
 			newMax = calcHeirloomBonus("Shield", "storageSize", (newMax * (game.portal.Packrat.modifier * game.portal.Packrat.level + 1)));
 		else if (item == "trimps") newMax = toUpdate.realMax();
-		document.getElementById(item + "Max").innerHTML = prettify(newMax);
+		document.getElementById(item + "Max").textContent = prettify(newMax);
 		var bar = document.getElementById(item + "Bar");
 		if (game.options.menu.progressBars.enabled){
 			var percentToMax = ((toUpdate.owned / newMax) * 100);
@@ -3527,12 +3527,12 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			unlockBuilding(itemA);
 			elem = document.getElementById(itemA + "Owned");
 		}
-		elem.innerHTML = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
+		elem.textContent = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
 		if (itemA == "Trap") {
 			var trap1 = document.getElementById("trimpTrapText")
-			if (trap1) trap1.innerHTML = prettify(toUpdate.owned);
+			if (trap1) trap1.textContent = prettify(toUpdate.owned);
 			var trap2 = document.getElementById("trimpTrapText2")
-			if (trap2) trap2.innerHTML = prettify(toUpdate.owned);
+			if (trap2) trap2.textContent = prettify(toUpdate.owned);
 		}
 	}
 	//Jobs, check PS here and stuff. Trimps per second is handled by breed() function
@@ -3545,7 +3545,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			continue;
 		}
 		if (document.getElementById(itemB) === null) unlockJob(itemB);
-		document.getElementById(itemB + "Owned").innerHTML = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
+		document.getElementById(itemB + "Owned").textContent = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
 		var perSec = (toUpdate.owned * toUpdate.modifier);
 		updatePs(toUpdate, false, itemB);
 	}
@@ -3565,7 +3565,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		var toUpdate = game.equipment[itemD];
 		if (toUpdate.locked == 1) continue;
 		if (document.getElementById(itemD) === null) drawAllEquipment();
-		document.getElementById(itemD + "Owned").innerHTML = toUpdate.level;
+		document.getElementById(itemD + "Owned").textContent = toUpdate.level;
 	}
 }
 
@@ -3642,14 +3642,14 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 
 function updateSideTrimps(){
 	var trimps = game.resources.trimps;
-	document.getElementById("trimpsEmployed").innerHTML = prettify(trimps.employed);
+	document.getElementById("trimpsEmployed").textContent = prettify(trimps.employed);
 	var breedCount = (trimps.owned - trimps.employed > 2) ? prettify(Math.floor(trimps.owned - trimps.employed)) : 0;
-	document.getElementById("trimpsUnemployed").innerHTML = breedCount;
-	document.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.realMax() / 2));
+	document.getElementById("trimpsUnemployed").textContent = breedCount;
+	document.getElementById("maxEmployed").textContent = prettify(Math.ceil(trimps.realMax() / 2));
 	var free = (Math.ceil(trimps.realMax() / 2) - trimps.employed);
 	if (free < 0) free = 0;
 	var s = (free > 1) ? "s" : "";
-	document.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " workspace" + s;
+	document.getElementById("jobsTitleUnemployed").textContent = prettify(free) + " workspace" + s;
 }
 
 function unlockBuilding(what) {
