@@ -132,6 +132,7 @@ function save(exportThis, fromManual) {
 		delete achievement.icon;
 		delete achievement.newStuff;
 		delete achievement.filters;
+		delete achievement.timed;
 	}
 	delete saveGame.heirlooms.values;
 	delete saveGame.heirlooms.defaultSteps;
@@ -8655,7 +8656,7 @@ function tryScry(){
 function countRemainingEssenceDrops(){
 	var cellsRemaining = 100 - game.global.lastClearedCell - 1;
 	var count = 0;
-	for (var x = 0; x < cellsRemaining; x++){
+	for (var x = 1; x <= cellsRemaining; x++){
 		var roll = getRandomIntSeeded(game.global.scrySeed + x, 0, 100);
 		if (roll < 50 || roll > 52) continue;
 		count++;
@@ -9350,7 +9351,7 @@ function startSpire(confirmed){
 				mapsSwitch();
 				if (spireNum == 1){
 					cancelTooltip();
-					tooltip("Spire", null, 'update');
+					tooltip("The Spire", null, 'update');
 				}
 			}
 			else handleExitSpireBtn();

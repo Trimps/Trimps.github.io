@@ -701,7 +701,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
-	if (what == "Spire"){	
+	if (what == "The Spire"){	
 		tooltipText = "<span class='planetBreakMessage'>The Spire looms menacingly above you, and you take in a deep breath of corruption. You take a look back at your Trimps to help gather some courage, and you push the door open. You slowly walk inside and are greeted by an incredibly loud, deep, human voice.<br/><br/><b>Do you know what you face? If you are defeated ten times in this place, you shall be removed from this space. If you succeed, then you shall see the light of knowledge that you seek.</b><span>";
 		tooltipText += "<br/><hr/><span class='planetBreakDescription'><span class='bad'>This zone is considerably more difficult than the previous and next zones. If 10 groups of Trimps die in combat while in the spire, the world will return to normal.</span> <span class='good'>Each cell gives more and more helium. Every 10th cell gives a larger reward, and increases all loot gained until your next portal by 2% (including helium).</span>";
 		if (game.options.menu.mapsOnSpire.enabled) tooltipText += "<br/><hr/>You were moved to Maps to protect your limited chances at the spire. You can disable this in settings!";
@@ -2951,6 +2951,9 @@ function resetGame(keepPortal) {
 		for (var cItem in c2s){
 			game.c2[cItem] = c2s[cItem];
 		}
+		if (game.global.challengeActive == "Trapper"){
+			game.global.autoJobsSetting.enabled = false;
+		}
 	}
 	else {
 		game.options.menu.darkTheme.enabled = 1;
@@ -4294,6 +4297,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 		if (id == "housing" && checkHousing() >= 100) giveSingleAchieve("Realtor");
 		var achievement = game.achievements[id];
 		if (typeof achievement.evaluate !== 'undefined') evalProperty = achievement.evaluate();
+		if (achievement.timed && evalProperty < 0) return;
 		if (typeof achievement.highest !== 'undefined') {
 			if (achievement.reverse) {
 				if (achievement.highest === 0 || evalProperty < achievement.highest) achievement.highest = evalProperty;
