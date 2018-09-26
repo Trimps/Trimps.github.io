@@ -216,7 +216,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var emp = game.empowerments[active];
 		if (typeof emp.description === 'undefined') return;
 		var lvlsLeft = ((5 - ((game.global.world - 1) % 5)) + (game.global.world - 1)) + 1;
-		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
+		var nextTokenAmount = (game.global.world - 221) % 15;
+		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn " + (nextTokenAmount > 1 ? nextTokenAmount.toString() : "a") + " Token" + (nextTokenAmount > 1 ? "s" : "") + " of " + active + ".</p>";
 		costText = "";
 
 	}
