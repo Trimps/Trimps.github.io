@@ -415,11 +415,11 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 2.3){
 		if (game.global.highestLevelCleared >= 80) game.global.prisonClear++;
 		if (game.global.world >= 70) {
-			message("Welcome to 2.3! Since you are currently past zone 70, you have automatically unlocked the new Challenge - 'Trapper' and the new Job - 'Geneticist'", "Notices");
+			message("Welcome to 2.3! Since you are currently past Zone 70, you have automatically unlocked the new Challenge - 'Trapper' and the new Job - 'Geneticist'", "Notices");
 			unlockJob("Geneticist");
 		}
 		else if (game.global.highestLevelCleared >= 69){
-			message("Welcome to 2.3! Since you have previously cleared up to at least zone 70, you have unlocked the new Challenge - 'Trapper'!", "Notices");
+			message("Welcome to 2.3! Since you have previously cleared up to at least Zone 70, you have unlocked the new Challenge - 'Trapper'!", "Notices");
 		}
 	}
 	if (oldVersion < 2.7){
@@ -579,7 +579,7 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 4.5 && typeof game.portal.Looting_II !== 'undefined' && game.portal.Looting_II.locked == false){
 		game.global.spiresCompleted = 1;
 		game.global.b += 20;
-		message("Welcome to Patch 4.5! Since you have already cleared Spire I, you have been given 20 bones and earned 5% zone Liqufication. Click 'What's New' to see what's new!", "Story");
+		message("Welcome to Patch 4.5! Since you have already cleared Spire I, you have been given 20 bones and earned 5% Zone Liqufication. Click 'What's New' to see what's new!", "Story");
 	}
 	if (oldVersion < 4.6){
 		if (game.global.highestLevelCleared >= 79) addNewSetting('bigPopups');
@@ -872,7 +872,7 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 2){
 		if (game.global.world == 59){
 			game.global.gridArray[99].name = "Improbability";
-			message("Your Scientists have detected an anomaly at the end of this zone. Exercise caution.", "Notices");
+			message("Your Scientists have detected an anomaly at the end of this Zone. Exercise caution.", "Notices");
 		}
 		else if (game.global.world == 60 && game.global.lastClearedCell <= 10){
 			planetBreaker();
@@ -1276,7 +1276,7 @@ function selectChallenge(what) {
 	desc += "<b>";
 	if (challengeSquaredMode) {
 		var reward = getIndividualSquaredReward(what);
-		desc += " Your highest zone reached for this Challenge<sup>2</sup> is Z" + game.c2[what] + ", earning you " + prettify(reward) + "% extra attack and health, and " + prettify(reward / 10) + "% more Helium from all sources.";
+		desc += " Your highest Zone reached for this Challenge<sup>2</sup> is Z" + game.c2[what] + ", earning you " + prettify(reward) + "% extra attack and health, and " + prettify(reward / 10) + "% more Helium from all sources.";
 	}
 	else if (game.portal[game.challenges[what].unlocks]) desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
 	else if (what == "Scientist") {
@@ -1323,7 +1323,7 @@ function getScientistInfo(number, reward){
 			return (reward) ? "earn two levels of each prestige upgrade per map, unlock AutoPrestiges, and your Warpstations will build instantly, skipping the queue. This bonus will apply" : 70;
 		}
 		case 5: {
-			return (reward) ? "permanently increase all helium found by 0.5% to the power of your current zone number. You'll also start with 1000% player efficiency and 50 Barns, Sheds, and Forges" : 1500;
+			return (reward) ? "permanently increase all helium found by 0.5% to the power of your current Zone number. You'll also start with 1000% player efficiency and 50 Barns, Sheds, and Forges" : 1500;
 		}
 	}
 }
@@ -1387,8 +1387,8 @@ function getSpecialSquaredRewards(challenge){
 		var rewardIncrease = (challenge.replaceSquareGrowth) ? challenge.replaceSquareGrowth : squaredConfig.rewardGrowth;
 		description += "<span class='colorSquared'>This challenge issues rewards differently than most other Challenge<sup>2</sup>s.";
 		description += ((challenge.replaceSquareReward) ? "<b>" : "")  + " You will gain " + reward + "% attack and health, and " + prettify(reward / 10) + "% Helium" + ((challenge.replaceSquareReward) ? "</b>" : "");
-		description += ((challenge.replaceSquareFreq) ? "<b>" : "") + " for every " + freq + " zone" + needAnS(freq) + " reached." + ((challenge.replaceSquareFreq) ? "</b>" : "");
-		description += ((challenge.replaceSquareThresh) ? "<b>" : "") + " Every " + threshes + " zone" + needAnS(threshes) + " reached," + ((challenge.replaceSquareThresh) ? "</b>" : "");
+		description += ((challenge.replaceSquareFreq) ? "<b>" : "") + " for every " + freq + " Zone" + needAnS(freq) + " reached." + ((challenge.replaceSquareFreq) ? "</b>" : "");
+		description += ((challenge.replaceSquareThresh) ? "<b>" : "") + " Every " + threshes + " Zone" + needAnS(threshes) + " reached," + ((challenge.replaceSquareThresh) ? "</b>" : "");
 		description += ((challenge.replaceSquareGrowth) ? "<b>" : "") + " this bonus will increase by " + rewardIncrease + "% attack and health, and " + prettify(rewardIncrease / 10) + "% Helium.</span> " + ((challenge.replaceSquareGrowth) ? "</b>" : "");
 	}
 	return description;
@@ -1694,6 +1694,10 @@ function checkOfflineProgress(noTip){
 				if (loops == 12)
 					amt += (toAlter * game.jobs.Magmamancer.getBonusPercent());
 			}
+		}
+		if (game.global.challengeActive == "Decay"){
+			amt *= 10;
+			amt *= Math.pow(0.995, game.challenges.Decay.stacks);
 		}
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		if (game.global.challengeActive == "Balance") amt *= game.challenges.Balance.getGatherMult();
@@ -2470,7 +2474,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 		amt += Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
 		amt += Math.round(baseAmt * level);
 	}
-	//Scale 20% across the zone, depending on cell number
+	//Scale 20% across the Zone, depending on cell number
 	if (what != "helium" && what != "fragments"){
 		amt = (amt * .8) + ((amt * .002) * (cell + 1));
 	}
@@ -4313,7 +4317,7 @@ function buyMap() {
 	var cost = updateMapCost(true);
 	var newLevel = parseInt(document.getElementById("mapLevelInput").value, 10);
 	if (!newLevel || newLevel <= 5 || newLevel > game.global.world || isNaN(newLevel) || isNaN(cost)) {
-		message("You must create a map between level 6 and your highest zone, " + game.global.world + ".", "Notices");
+		message("You must create a map between level 6 and your highest Zone, " + game.global.world + ".", "Notices");
 		return -1;
 	}
 	if (cost > 0 && game.resources.fragments.owned >= cost){
@@ -5245,7 +5249,7 @@ function getHeirloomRarityRanges(zone){
 	return newRarities;
 }
 
-function getHeirloomRarity(zone, seed){ //zone is optional, and will override world
+function getHeirloomRarity(zone, seed){ //Zone is optional, and will override world
 	if (!zone) zone = game.global.world;
 	var rarities = getHeirloomRarityRanges(zone);
 	var nextTest = 0;
@@ -5762,13 +5766,13 @@ var mutations = {
 			var mutText = mutationEffects[effectName].text;
 			var text = "";
 			if (game.global.spireActive){
-				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this zone.";
+				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this Zone.";
 				text = mutText[0].toUpperCase() + mutText.substring(1);
 			}
 			else {
 				text = "All corrupted enemies currently deal " + prettify(this.statScale(3)) + "X damage and have " + prettify(this.statScale(10)) + "X health. In addition, " + mutText;
 			}
-			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this zone.";
+			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this Zone.";
 			return text;
 		},
 		effects: ['corruptDbl', 'corruptBleed', 'corruptStrong', 'corruptTough', 'corruptDodge', 'corruptCrit'],
@@ -6201,13 +6205,13 @@ var mutations = {
 			var mutText = mutationEffects[effectName].text;
 			var text = "";
 			if (game.global.spireActive){
-				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop 45% of the helium you would normally get from completing this zone.";
+				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop 45% of the helium you would normally get from completing this Zone.";
 				text = mutText[0].toUpperCase() + mutText.substring(1);
 			}
 			else {
 				text = "All Healthy enemies currently deal " + prettify(this.statScale(5)) + "X damage and have " + prettify(this.statScale(14)) + "X health. In addition, " + mutText;
 			}
-			text += " It will also drop 45% of the helium you would normally get from completing this zone.";
+			text += " It will also drop 45% of the helium you would normally get from completing this Zone.";
 			return text;
 		},
 		effects: ['healthyDbl', 'healthyBleed', 'healthyStrong', 'healthyTough', 'healthyCrit'],
@@ -6971,7 +6975,7 @@ function setVoidCorruptionIcon(regularMap){
 	var text = "This " + ((regularMap) ? "map" : "Void Map") + " has become unstable due to Corruption. Enemy attack increased by " + prettify(attackScale) + "X, and health increased by " + prettify(healthScale) + "X.";
 	var title = "";
 	if (!regularMap){
-		text += " Helium at the end of the map is now double what you would earn from a World zone, including Corrupted cells!";
+		text += " Helium at the end of the map is now double what you would earn from a World Zone, including Corrupted cells!";
 		title = "Void Corruption";
 	}
 	else title = "Map Corruption";
@@ -7735,7 +7739,7 @@ function runMap() {
 	if (game.global.challengeActive == "Watch") game.challenges.Watch.enteredMap = true;
 	if (game.global.challengeActive == "Mapology" && !game.global.currentMapId) {
 		if (game.challenges.Mapology.credits < 1){
-			message("You are all out of Map Credits! Clear some more zones to earn some more.", "Notices");
+			message("You are all out of Map Credits! Clear some more Zones to earn some more.", "Notices");
 			return;
 		}
 		game.challenges.Mapology.credits--;
@@ -8668,8 +8672,8 @@ function calculateScryingReward(){
 	var scryableLevels = game.global.world - 180;
 	if (scryableLevels <= 0) return 0;
 	var modAmt = (game.global.canMagma) ? 1.1683885 : 1.11613; //4.0 compatibility
-	var num = Math.floor((1 * Math.pow(modAmt, scryableLevels)) / 3);
-	if (game.talents.scry.purchased && !game.global.mapsActive){
+	var num = (1 * Math.pow(modAmt, scryableLevels)) / 3;
+		if (game.talents.scry.purchased && !game.global.mapsActive){
 		var worldCell = getCurrentWorldCell();
 		if (worldCell.mutation == "Corruption" || worldCell.mutation == "Healthy"){
 			num *= 1.5;
@@ -8678,6 +8682,7 @@ function calculateScryingReward(){
 	if (game.global.spiresCompleted >= 1){
 		num *= Math.pow(4, game.global.spiresCompleted);
 	}
+	num = Math.floor(num);
 	return (num < 1) ? 1 : num;
 }
 
@@ -9444,7 +9449,7 @@ function getSpireStory(spireNum, row){
 			r7: "<span class='spirePoem'>I see that you're attempting some planetary healing<br/>Leaving me steaming in an unappealing feeling<br/>Your freewheeling and stealing has just reached the ceiling<br/>Now commence kneeling or be sent off reeling</span>At least he's gained enough consciousness back to continue with the threats. You know that now is not the time to back down. ",
 			r8: "<span class='spirePoem'>It's obvious that you want the Corruption to slow<br/>So I'll point out something you might not yet know<br/>My Spires are infinite, there is no plateau<br/>You are doomed and you've been so since long long ago</span>His Spires might be infinite, but it's not possible for his consciousness to be. You decide you'll worry about the rest of the spires once you've beaten Druopitee into nothingness. ",
 			r9: "<span class='spirePoem'>Still you climb on, won't your strength ever waver?<br/>You're determined to be this planet's true savior?<br/>Stop to reconsider, we could be something greater<br/>Or continue your path as a time traveling slaver</span>Slaver?! Your Trimps all know that they're free to leave whenever they want. He's just trying to get under your skin! ",
-			r10: "Well, that's one Druopitee and two Echoes of Druopitee down now. He says that he has infinite Spires and infinite versions of himself, but you could tell at the end there that his Echoes are losing power. You might be able to knock the sentience out of all of his Spires by just clearing one more! You set your sights 100 zones forward, turn some more nozzles to spread some more Health around the world, you take your helium, spit on the floor of the Spire, and move on. "
+			r10: "Well, that's one Druopitee and two Echoes of Druopitee down now. He says that he has infinite Spires and infinite versions of himself, but you could tell at the end there that his Echoes are losing power. You might be able to knock the sentience out of all of his Spires by just clearing one more! You set your sights 100 Zones forward, turn some more nozzles to spread some more Health around the world, you take your helium, spit on the floor of the Spire, and move on. "
 		},
 		spire4: {
 			r2: "As you guessed before you even stepped in, this Spire is in even worse condition than the one before. The air is colder, the walls are more still, and there's a feeling of vacancy. Might as well look for stuff to take! ",
@@ -9659,7 +9664,7 @@ function rewardSpire1(level){
 			}
 			if (game.portal.Looting_II.locked) text += " Your skills at salvaging things from this Spire have helped you <b>unlock Looting II</b>.";
 			if (game.global.spiresCompleted < 1){
-				text += " You notice a small timeworn chest in the back of the room, where Druopitee had been storing the Skeletimp bones that he had collected over many timelines. You open it and find <b>20 Perfect Skeletimp Bones!</b>. You can tell though that these bones won't be here next time. The Spire's power grants you a permanent 4x bonus to all Dark Essence you collect, and your Portal has also modified itself to now Liquify zones equal to 5% of your highest Zone reached. You're not quite sure what that means, but you're excited to find out! "
+				text += " You notice a small timeworn chest in the back of the room, where Druopitee had been storing the Skeletimp bones that he had collected over many timelines. You open it and find <b>20 Perfect Skeletimp Bones!</b>. You can tell though that these bones won't be here next time. The Spire's power grants you a permanent 4x bonus to all Dark Essence you collect, and your Portal has also modified itself to now Liquify Zones equal to 5% of your highest Zone reached. You're not quite sure what that means, but you're excited to find out! "
 				game.global.b += 20;
 				updateSkeleBtn();
 				game.global.spiresCompleted = 1;
@@ -10034,7 +10039,7 @@ var dailyModifiers = {
         },
 		oddTrimpNerf: {
             description: function (str) {
-                return "Trimps have " + prettify(100 - (this.getMult(str) * 100)) + "% less attack on odd numbered zones";
+                return "Trimps have " + prettify(100 - (this.getMult(str) * 100)) + "% less attack on odd numbered Zones";
             },
             getMult: function (str) {
                 return 1 - (str * 0.02);
@@ -10047,7 +10052,7 @@ var dailyModifiers = {
         },
         evenTrimpBuff: {
             description: function (str) {
-                return "Trimps have " + prettify((this.getMult(str) * 100) - 100) + "% more attack on even numbered zones";
+                return "Trimps have " + prettify((this.getMult(str) * 100) - 100) + "% more attack on even numbered Zones";
             },
             getMult: function (str) {
                 return 1 + (str * 0.2);
@@ -10060,7 +10065,7 @@ var dailyModifiers = {
         },
 		karma: {
 			description: function (str) {
-				return 'Gain a stack after killing an enemy, increasing all non Helium loot by ' + prettify((this.getMult(str, 1) * 100) - 100) + '%. Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a zone.';
+				return 'Gain a stack after killing an enemy, increasing all non Helium loot by ' + prettify((this.getMult(str, 1) * 100) - 100) + '%. Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a Zone.';
 			},
 			stackDesc: function (str, stacks){
 				return "Your Trimps are finding " + prettify((this.getMult(str, stacks) * 100) - 100) + "% more loot!";
@@ -10081,7 +10086,7 @@ var dailyModifiers = {
 		},
 		toxic: {
 			description: function (str) {
-				return "Gain a stack after killing an enemy, reducing breed speed by " + prettify(100 - (this.getMult(str, 1) * 100)) + '% (compounding). Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a zone.';
+				return "Gain a stack after killing an enemy, reducing breed speed by " + prettify(100 - (this.getMult(str, 1) * 100)) + '% (compounding). Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a Zone.';
 			},
 			stackDesc: function (str, stacks){
 				return "Your Trimps are breeding " + prettify(100 - (this.getMult(str, stacks) * 100)) + "% slower.";
@@ -10163,7 +10168,7 @@ var dailyModifiers = {
 		},
 		slippery: {
 			description: function (str) {
-				return "Enemies have a " + prettify(this.getMult(str) * 100) + "% chance to dodge your attacks on " + ((str <= 15) ? "odd" : "even") + " zones.";
+				return "Enemies have a " + prettify(this.getMult(str) * 100) + "% chance to dodge your attacks on " + ((str <= 15) ? "odd" : "even") + " Zones.";
 			},
 			getMult: function (str){
 				if (str > 15) str -= 15;
@@ -10246,7 +10251,7 @@ var dailyModifiers = {
 		},
 		pressure: {
 			description: function (str) {
-				return "Trimps gain a stack of Pressure every " + Math.round(this.timePerStack(str)) + " seconds. Each stack of pressure reduces Trimp health by 1%. Max of " + Math.round(this.getMaxStacks(str)) + " stacks, stacks reset after clearing a zone.";
+				return "Trimps gain a stack of Pressure every " + Math.round(this.timePerStack(str)) + " seconds. Each stack of pressure reduces Trimp health by 1%. Max of " + Math.round(this.getMaxStacks(str)) + " stacks, stacks reset after clearing a Zone.";
 			},
 			getWeight: function(str){
 				var time = (105 - this.timePerStack(str));
@@ -12146,7 +12151,7 @@ function onPurchaseResult(result) {
 		hidePurchaseBones();
 		var num = (split[0] > 0) ? split[0] : "";
 		var tooltipText = "Your purchase of ";
-		tooltipText += (split[0] > 0) ? split[0] + " bones has completed successfully!" : "the Exotic Imp-Ort Bundle has completed successfully, and your new bad guys will start spawning in your next zone/map!";
+		tooltipText += (split[0] > 0) ? split[0] + " bones has completed successfully!" : "the Exotic Imp-Ort Bundle has completed successfully, and your new bad guys will start spawning in your next Zone/map!";
 		tooltipText += " Below is the export code for your save file. <b>Please copy, paste, and back this up to somewhere safe, just in case.</b> Thank you for your support!";
 		tooltip('Export', null, 'update', tooltipText);
 		boneTemp.waitingFor = "";
@@ -13072,7 +13077,7 @@ var Fluffy = {
 				elem.innerHTML = 'The amount of levels placed in the Curious Perk. Currently ' + game.portal.Curious.level + '.';
 				return;
 			case "classy":
-				elem.innerHTML = 'The zone Fluffy can start earning Experience at. This value is normally 301, and is currently reduced by ' + Math.floor(game.portal.Classy.level * game.portal.Classy.modifier) + ' thanks to ' + ((game.portal.Classy.modifier > 1) ? game.portal.Classy.level + " level" + ((game.portal.Classy.level == 1) ? "" : "s") + " of " : "") + 'Classy.';
+				elem.innerHTML = 'The Zone Fluffy can start earning Experience at. This value is normally 301, and is currently reduced by ' + Math.floor(game.portal.Classy.level * game.portal.Classy.modifier) + ' thanks to ' + ((game.portal.Classy.modifier > 1) ? game.portal.Classy.level + " level" + ((game.portal.Classy.level == 1) ? "" : "s") + " of " : "") + 'Classy.';
 				return;
 			case "special":
 				elem.innerHTML = this.specialModifierReason;
@@ -13112,8 +13117,8 @@ var Fluffy = {
 			if (savedLevel > fluffyInfo[0]) topText += "<span class='red'>- Fluffy's level and damage bonus are currently reduced. Fluffy will return to level " + savedLevel + " when points are placed back in Capable.</span>";
 			else if (!Fluffy.canGainExp()) topText += "<span class='red'>- Fluffy needs " + ((game.portal.Capable.level == 0) ? " at least one point of Capable to gain any Exp" + ((game.portal.Capable.locked) ? ". Complete Spire II to unlock Capable!" : "") : " more points in Capable to gain Exp above level " + game.portal.Capable.level + ".") + "</span>";
 			else {
-				if (game.global.world < minZoneForExp) topText += "<span class='red'>- Fluffy cannot gain any Experience from zones lower than " + minZoneForExp + "</span>";
-				else topText += "- Fluffy is earning " + prettify(Fluffy.getExpReward()) + " Exp per zone. " + Fluffy.getFluff();
+				if (game.global.world < minZoneForExp) topText += "<span class='red'>- Fluffy cannot gain any Experience from Zones lower than " + minZoneForExp + "</span>";
+				else topText += "- Fluffy is earning " + prettify(Fluffy.getExpReward()) + " Exp per Zone. " + Fluffy.getFluff();
 			}
 			
 		}
@@ -13125,7 +13130,7 @@ var Fluffy = {
 		if (Fluffy.currentLevel == 10 && game.global.fluffyPrestige < Fluffy.prestigeRewards.length)
 			topText += "<span class='fluffyEvolveText'>Fluffy is ready to Evolve! This will reset his damage bonus and most abilities back to level 0, but he will regrow to be stronger than ever. You can cancel this Evolution at any point to return to level 10.<br/><span class='btn btn-md btn-success' onclick='Fluffy.prestige(); Fluffy.refreshTooltip(true);'>Evolve!</span></span><br/>";
 		if (Fluffy.canGainExp() && game.global.world >= minZoneForExp) {
-			topText += "- Fluffy's Exp gain at the end of each zone is equal to: ";
+			topText += "- Fluffy's Exp gain at the end of each Zone is equal to: ";
 			var fluffFormula = "<br/><span style='padding-left: 5em'>";
 			var startNumber = Fluffy.getMinZoneForExp();
 			if (!game.portal.Classy.locked) startNumber = '<span class="fluffFormClassy" onmouseover="Fluffy.expBreakdown(\'classy\')" onmouseout="Fluffy.expBreakdown(\'clear\')">' + (startNumber + 1) + "</span> - 1";
