@@ -6285,11 +6285,9 @@ var mutationEffects = {
 var visualMutations = {
 	Pumpkimp: {
 		active: function (){
-			return false;
-
 			if (game.global.world == 1) return false;
 			if (checkIfSpireWorld()) return false;
-			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 5);
+			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 10);
 		},
 		pattern: function(currentArray) {
 			var loc = getRandomIntSeeded(game.global.mutationSeed++, 0, 4);
@@ -8960,7 +8958,8 @@ function rewardLiquidZone(){
 		Venimp: 0,
 		Whipimp: 0,
 		Skeletimp: 0,
-		Megaskeletimp: 0
+		Megaskeletimp: 0,
+		Pumpkimp: 0
 	};
 	var hiddenUpgrades = ["fiveTrimpMax", "Map", "fruit", "groundLumber", "freeMetals", "Foreman", "FirstMap"];
 	for (var x = 1; x < 100; x++){
@@ -9034,6 +9033,7 @@ function rewardLiquidZone(){
 	var bones = "";
 	for (var item in trackedImps){
 		if (trackedImps[item] > 0){
+			if (item == "Pumpkimp" && !game.global.messages.Loot.events) continue;
 			if (item == "Skeletimp" || item == "Megaskeletimp"){
 				bones = item;
 				continue;
@@ -9043,8 +9043,11 @@ function rewardLiquidZone(){
 		}
 	}
 	if (trackedList != "" && game.global.messages.Loot.exotic && game.global.messages.Loot.enabled){
-		trackedList = "Rare Imps: " + trackedList + "<br/>";
-		text += trackedList;
+		trackedList = "Rare Imps: " + trackedList;
+		text += trackedList + "<br/>";
+	}
+	else if (trackedImps.Pumpkimp > 0  && game.global.messages.Loot.events && game.global.messages.Loot.enabled){
+		text += "Found Pumpkimps - " + trackedImps.Pumpkimp + "<br/>";
 	}
 	if (bones != "" && game.global.messages.Loot.bone && game.global.messages.Loot.enabled){
 		bones = "Found a " + bones + "!<br/>";
@@ -12243,7 +12246,10 @@ function givePumpkimpLoot(){
 	];
 	if (game.jobs.Dragimp.owned > 0) eligible.push("gems");
 	if (game.upgrades.Explorers.allowed > 0) eligible.push("fragments");
-	if (game.global.world > 200 && !game.global.mapsActive) eligible.push("attack");
+	if (!game.global.mapsActive){
+		if (game.global.world > 200) eligible.push("attack");
+		if (Fluffy.isActive() && Fluffy.canGainExp() && (game.global.world > Fluffy.getMinZoneForExp()) && getRandomIntSeeded(game.global.holidaySeed++, 0, 2) == 0) eligible.push("fluffy");
+	}
 	//I really wanted to call it Pumpkin Seed, but this can probably be useful for other holidays without bogging down the save file more.
 	var roll = (game.global.mapsActive) ? Math.floor(Math.random() * eligible.length) : getRandomIntSeeded(game.global.holidaySeed++, 0, eligible.length);
 	var item = eligible[roll];
@@ -12258,18 +12264,26 @@ function givePumpkimpLoot(){
 		message(attackBuff[rollNumber], "Loot", "*bag", "pumpkimp", "events");
 		return;
 	}
-	var lootStrength = (game.global.mapsActive) ? 3 : 20;
-	var minRoll = (game.global.mapsActive) ? 1 : 30;
-	var seconds = Math.floor(Math.random() * lootStrength) + minRoll;
-	var lootRoll = Math.floor(Math.random() * lootStrength) + minRoll;
-	var amt = simpleSeconds(item, seconds);
-	if (item != "science") amt += rewardResource(item, 0.5 * lootRoll, 50);
-	if (game.global.mapsActive){
-		amt = scaleToCurrentMap(amt, true);
+	var messageText = "";
+	if (item == "fluffy"){
+		var reward = Fluffy.rewardExp(0.5);
+		messageText = "<b style='font-size: 1.2em'>Fluffy assessed this particular Pumpkimp as a threat, and has decided to smash it himself. Dealing with the released evil spirits granted " + prettify(reward) + " Exp for Fluffy!</b>";
 	}
-	addResCheckMax(item, amt);
-	var messageNumber = Math.floor(Math.random() * success.length);
-	message(success[messageNumber] + prettify(amt) + " " + item + "!", "Loot", "*magic-wand", "pumpkimp", "events");
+	else{
+		var lootStrength = (game.global.mapsActive) ? 3 : 20;
+		var minRoll = (game.global.mapsActive) ? 1 : 30;
+		var seconds = Math.floor(Math.random() * lootStrength) + minRoll;
+		var lootRoll = Math.floor(Math.random() * lootStrength) + minRoll;
+		var amt = simpleSeconds(item, seconds);
+		if (item != "science") amt += rewardResource(item, 0.5 * lootRoll, 50);
+		if (game.global.mapsActive){
+			amt = scaleToCurrentMap(amt, true);
+		}
+		addResCheckMax(item, amt);
+		var messageNumber = Math.floor(Math.random() * success.length);
+		messageText = success[messageNumber] + prettify(amt) + " " + item + "!";
+	}
+	message(messageText, "Loot", "*magic-wand", "pumpkimp", "events");
 }
 
 function activateTurkimpPowers() {
