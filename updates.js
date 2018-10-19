@@ -2448,12 +2448,12 @@ function getLootBd(what) {
 			textString += "<tr class='corruptedCalcRow'><td class='bdTitle'>Corruption Value</td><td>" + corrVal + "%</td><td>" + corruptedCells + "</td><td>x " + prettify(percent) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 		}
 	}
-	if (what == "Helium" && game.global.mapsActive && game.global.voidBuff && map.stacked > 1){
+	if (what == "Helium" && game.global.mapsActive && game.global.voidBuff && map.stacked >= 1){
 		var stacks = map.stacked;
 		var bonusMod = (1 + (0.5 * stacks));
 		var flatBonus = currentCalc * bonusMod * stacks;
 		currentCalc += flatBonus;
-		textString += "<tr class='fluffyCalcRow'><td class='bdTitle'>Stacked Maps (Fluffy)</td><td>+ " + prettify((bonusMod - 1) * 100) + "%</td><td>" + stacks + " extra</td><td>+ " + prettify(flatBonus) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr class='fluffyCalcRow'><td class='bdTitle'>Stacked Map" + needAnS(stacks) + " (Fluffy)</td><td>+ " + prettify((bonusMod - 1) * 100) + "%</td><td>" + stacks + " extra</td><td>+ " + prettify(flatBonus) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
