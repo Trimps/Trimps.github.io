@@ -11753,7 +11753,7 @@ function simpleSeconds(what, seconds) {
 			amt *= 10;
 			amt *= Math.pow(0.995, game.challenges.Decay.stacks);
 		}
-		if (getEmpowerment() == "Wind"){
+		if (getEmpowerment() == "Wind" && what != "fragments"){
 			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
 		}
 		amt = calcHeirloomBonus("Staff", jobName + "Speed", amt);
