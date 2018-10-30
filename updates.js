@@ -3281,9 +3281,9 @@ function setMax(amount, forPortal){
 	if (forPortal) displayPortalUpgrades(true);
 }
 
-function numTab(what, p) {
+function numTab(what, forPortal) {
 	var num = 0;
-	if (what == 6 && game.global.buyAmt == "Max") tooltip('Max', null, 'update', true);
+	if (what == 6 && game.global.buyAmt == "Max") tooltip('Max', null, 'update', forPortal);
 	if (what == 5){
 		unlockTooltip();
 		tooltip('hide');
@@ -3337,7 +3337,7 @@ function numTab(what, p) {
 	if (typeof what === 'undefined') what = game.global.numTab;
 	else
 	game.global.numTab = what;
-	var tabType = (p) ? "ptab" : "tab";
+	var tabType = (forPortal) ? "ptab" : "tab";
 	var count = 6;
 	for (var x = 1; x <= count; x++){
 		var thisTab = document.getElementById(tabType + x);
@@ -3365,7 +3365,7 @@ function numTab(what, p) {
 		if (x == what) game.global.buyAmt = num;
 	}
 	document.getElementById(tabType + "6Text").innerHTML = (what == 6 && game.global.maxSplit != 1) ? game.global.maxSplit : "Max";
-	if (p) {
+	if (forPortal) {
 		displayPortalUpgrades(true);
 	}
 }
