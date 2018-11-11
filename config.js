@@ -21,7 +21,7 @@
 function newGame () {
 var toReturn = {
 	global: {
-		version: 4.913,
+		version: 4.914,
 		isBeta: false,
 		betaV: 0,
 		killSavesBelow: 0.13,
@@ -3946,7 +3946,7 @@ var toReturn = {
 			}
 		},
 		Pumpkimp: {
-			location: "Maps",
+			location: "None",
 			attack: 0.9,
 			health: 1.5,
 			fast: false,

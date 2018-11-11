@@ -6285,6 +6285,7 @@ var mutationEffects = {
 var visualMutations = {
 	Pumpkimp: {
 		active: function (){
+			return false;
 			if (game.global.world == 1) return false;
 			if (checkIfSpireWorld()) return false;
 			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 10);
