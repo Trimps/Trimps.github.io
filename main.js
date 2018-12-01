@@ -13805,7 +13805,7 @@ function gameTimeout() {
         runGameLoop(true, now);
         dif -= tick;
         game.global.time += tick;
-		ctrlPressed = false;
+        ctrlReleased();
     }
     runGameLoop(null, now);
     updateLabels();
@@ -13997,21 +13997,32 @@ document.addEventListener('keydown', function (e) {
 			break;
 	}
 }, true);
+function shiftReleased() {
+	if (game.options.menu.tooltips.enabled == false) tooltip('hide');
+	shiftPressed = false;
+}
+function ctrlReleased() {
+	if (!ctrlPressed) return;
+	ctrlPressed = false;
+	checkButtons("upgrades");
+	toggleGeneticistassist(true);
+	if (game.global.buyTab == "nature")
+		updateNatureInfoSpans();
+	if (game.global.buyTab == "talents")
+		displayTalents();
+}
 document.addEventListener('keyup', function(e) {
 	if (e.keyCode == 16){
-		if (game.options.menu.tooltips.enabled == false) tooltip('hide');
-		shiftPressed = false;
+		shiftReleased();
 	}
 	if (e.keyCode == 17 || e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93){
-		ctrlPressed = false;
-		checkButtons("upgrades");
-		toggleGeneticistassist(true);
-		if (game.global.buyTab == "nature")
-			updateNatureInfoSpans();
-		if (game.global.buyTab == "talents") 
-			displayTalents();
+		ctrlReleased();
 	}
 
+}, true);
+document.addEventListener('blur', function(e) {
+	shiftReleased();
+	ctrlReleased();
 }, true);
 
 
