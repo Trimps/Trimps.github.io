@@ -441,7 +441,7 @@
 	background-color: #318696 !important;
 }
 
-#buyTabsUl > li > a {
+.buyTabsUl > li > a {
 	border: 1px solid #212121;
 	border-bottom: 1px solid rgb(221, 221, 221);
 }
@@ -655,7 +655,7 @@ input, button, select, textarea,
 .badge,
 .dmgColorWhite,
 .formationBtn,
-#buyTabsUl > li > a,
+.buyTabsUl > li > a,
 #numTabs > ul > li > a,
 .queueItem,
 .tealColor,
@@ -1085,4 +1085,36 @@ color:#8F8F00
 		1px -1px 0 #969696,
 	-1px 1px 0 #969696,
 		1px 1px 0 #969696;
+}
+
+#playerSpireSpirePanel{
+	border: 2px solid #c8c8c8;
+}
+
+#playerSpireInfoPanel{
+	color: #c8c8c8;
+}
+
+#playerSpireSmallPanel{
+	color: #c8c8c8;
+}
+
+.playerSpireCell{
+	border: 1px solid #c8c8c8;
+}
+
+.playerSpireEnemy{
+	color: #c8c8c8;
+}
+
+.spireTrapBox{
+	border: 2px solid #c8c8c8;
+}
+
+.spireTrapBoxSmall{
+	border: 2px solid #c8c8c8;
+}
+
+#playerSpireTab a{
+	background-color: #5a4603;
 }

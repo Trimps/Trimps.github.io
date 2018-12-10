@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 4.914</title>
+	<title>Trimps 4.10.0</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?15" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?16" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -134,7 +134,7 @@
 						</table>
 					</div>
 					<div id="purchaseContainerImports">
-						<div class="boneBtn boneBtnStateOff pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new bad guy will begin spawning in your next Zone or Map at about an average of 3 spawns per 100 squares. Is this what you wanted to do?', 'purchaseImport()', 50)"></div>
+						<div class="boneBtn boneBtnStateOff pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new Bad Guy will begin spawning in your next Zone or Map at about an average of 3 spawns per 100 squares. Is this what you wanted to do?', 'purchaseImport()', 50)"></div>
 					</div>
 				</div>
 
@@ -372,16 +372,19 @@
 					</div>
 				</div>
 				<div id="outerBuyContainer">	
-					<div id="buyTabs">
-				<ul id="buyTabsUl" class="nav nav-tabs nav-justified">
-					<li role="presentation" id="allTab" onclick="filterTabs('all')" class="tabNotSelected buyTab"><a id="allA">All</a></li>
-					<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="tabNotSelected buyTab"><a id="buildingsA"><span id="buildingsAlert" class="alert badge"></span>Buildings</a></li>
-					<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="tabNotSelected buyTab"><a id="jobsA"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
-					<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="tabNotSelected buyTab"><a id="upgradesA"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
-					<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>		
-					<li role="presentation" id="talentsTab" style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab" onmouseover="tooltip('Mastery', null, event)" onmouseout="tooltip('hide')"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
-					<li role="presentation" id="natureTab" style='display: none'  onclick="filterTabs('nature')" class="tabNotSelected buyTab empowerTabNone" onmouseover="tooltip('Empowerments of Nature', null, event)" onmouseout="tooltip('hide')"><a id="natureA">Nature</a></li>		
-				</ul>
+				<div id="buyTabs">
+					<ul id="buyTabsUl" class="nav nav-tabs nav-justified buyTabsUl">
+						<li role="presentation" id="allTab" onclick="filterTabs('all')" class="tabNotSelected buyTab"><a id="allA">All</a></li>
+						<li role="presentation" id="buildingsTab" onclick="filterTabs('buildings')" class="tabNotSelected buyTab"><a id="buildingsA"><span id="buildingsAlert" class="alert badge"></span>Buildings</a></li>
+						<li role="presentation" id="jobsTab" style="visibility: hidden" onclick="filterTabs('jobs')" class="tabNotSelected buyTab"><a id="jobsA"><span id="jobsAlert" class="alert badge"></span>Jobs</a></li>
+						<li role="presentation" id="upgradesTab" style="visibility: hidden" onclick="filterTabs('upgrades')" class="tabNotSelected buyTab"><a id="upgradesA"><span id="upgradesAlert" class="alert badge"></span>Upgrades</a></li>
+						<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>		
+					</ul>
+					<ul id="buyTabsUl2" class="nav nav-tabs nav-justified buyTabsUl">
+						<li role="presentation" id="talentsTab" style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab" onmouseover="tooltip('Mastery', null, event)" onmouseout="tooltip('hide')"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
+						<li role="presentation" id="natureTab" style='display: none'  onclick="filterTabs('nature')" class="tabNotSelected buyTab empowerTabNone" onmouseover="tooltip('Empowerments of Nature', null, event)" onmouseout="tooltip('hide')"><a id="natureA">Nature</a></li>		
+						<li role="presentation" id="playerSpireTab" style='display: none' onclick="playerSpire.openPopup()" class="tabNotSelected buyTab"><a id="spireA">Spire</a></li>		
+					</ul>
 				</div>
 
 					<div id="numTabs" class="numTabs">
@@ -460,11 +463,11 @@
 								<div id="upgradesTitleDiv" style="display: none" class="titleDiv">
 									<div class="row">
 										<div class="col-xs-3" style="padding-right: 5px">
-											<span id="upgradesTitleSpan" class="titleSpan">Upgrades (research first)</span>
+											<span id="upgradesTitleSpan" class="titleSpan">Upgrades<br/>(Research first)</span>
 										</div>
 										<div class="col-xs-3 lowPad">								
-											<div id="autoGoldenBtn" onmouseover="tooltip('AutoGolden', null, event)" onmouseout="tooltip('hide')" class="pointer noselect settingBtn0 autoUpgradeBtn">
-												<div id='autoGoldenText' onclick="toggleAutoGolden()">AutoGolden</div>
+											<div id="autoGoldenBtn" onmouseover="tooltip('AutoGold', null, event)" onmouseout="tooltip('hide')" class="pointer noselect settingBtn0 autoUpgradeBtn">
+												<div id='autoGoldenText' onclick="toggleAutoGolden()">AutoGold</div>
 											</div>
 										</div>
 										<div class="col-xs-3 lowPad">
@@ -1263,12 +1266,26 @@
 		<hr/>
 		<div id="tipCost2"></div>
 	</div>
+	<div id='playerSpirePopout' style='display: none'>
+		<div id='playerSpireSpirePanel'>
+			<div id='playerSpireSpireSpirePanel' class='noselect'>
+				&nbsp;
+			</div><div id='floatingCombatText'>
+			</div>
+			&nbsp;
+		</div><div id='playerSpireSmallPanel' class='niceScroll'>
+			&nbsp;
+		</div><div id='playerSpireInfoPanel' class='niceScroll'>
+			&nbsp;
+		</div>
+	</div>
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?15"></script>
-	<script type="text/javascript" src="updates.js?15"></script>
-	<script type="text/javascript" src="main.js?15"></script>
+	<script type="text/javascript" src="config.js?16"></script>
+	<script type="text/javascript" src="updates.js?16"></script>
+	<script type="text/javascript" src="playerSpire.js?16"></script>
+	<script type="text/javascript" src="main.js?16"></script>
 	
 </body>
 
