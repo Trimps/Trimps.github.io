@@ -392,12 +392,18 @@ var playerSpire = {
         }
         this.nextTrap = cheapestTrap;
     },
-    buyUpgrade: function(trapName){
+    buyUpgrade: function(trapName, confirmed){
         var trapObj = playerSpireTraps[trapName];
         if (!trapObj.upgrades || trapObj.upgrades.length < trapObj.level) return;
         var upgrade = trapObj.upgrades[trapObj.level - 1];
         if (this.runestones < upgrade.cost) return;
         if (game.global.highestLevelCleared + 1 < upgrade.unlockAt) return;
+        if (!confirmed){
+            var trapText = trapName + ((trapObj.isTower) ? " Tower" : " Trap");
+            var tipText = "Are you sure you want to upgrade your " + trapText + "? This upgrade is non-refundable!<br/><br/><i>\"" + upgrade.description + "\"</i><br/><br/><b>Cost: " + prettify(upgrade.cost) + " Rs</b>";
+            tooltip("confirm", null, "update", tipText, "playerSpire.buyUpgrade('" + trapName + "', true)", "Upgrade " + trapText + "?");
+            return;
+        }
         this.runestones -= upgrade.cost;
         this.spentOnUpgrades += upgrade.cost;
         if (this.runestones + this.getCurrentLayoutPrice() < 200) this.runestones = 200 - this.getCurrentLayoutPrice();

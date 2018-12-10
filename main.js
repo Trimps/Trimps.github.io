@@ -13387,8 +13387,10 @@ var Fluffy = {
 				else{
 					var remainingXp = fluffyInfo[2] - fluffyInfo[1];
 					var xpReward = Fluffy.getExpReward();
-					var remainingRuns = Math.ceil(remainingXp / xpReward);
-					topText += "- Fluffy is earning " + prettify(xpReward) + " Exp per Zone. Fluffy needs " + prettify(remainingXp) + " more Exp to level, equivalent to clearing this zone about " + prettify(remainingRuns) + " time" + needAnS(remainingRuns) + ".";
+					var remainingRuns = (game.stats.bestFluffyExp.value > 0) ? Math.ceil(remainingXp / game.stats.bestFluffyExp.value) : -1;
+					topText += "- Fluffy is earning " + prettify(xpReward) + " Exp per Zone. Fluffy needs " + prettify(remainingXp) + " more Exp to level";
+					if (remainingRuns > -1) topText += ", equivalent to repeating your current run to this zone about " + prettify(remainingRuns) + " more time" + needAnS(remainingRuns) + ".";
+					else topText += ".";
 					topText += "<br/>- " + Fluffy.getFluff();
 				}
 			}
@@ -14169,8 +14171,9 @@ document.addEventListener('keydown', function (e) {
 		return game.options.menu.hotkeys.enabled == 1 && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown && !game.options.displayed && !portalWindowOpen && !trimpStatsDisplayed && !trimpAchievementsOpen;
 	};
 	switch(e.keyCode){
-		case 27:
+		case 27: //escape
 			cancelTooltip();
+			if (playerSpire.popupOpen) playerSpire.closePopup();
 			break;
 		case 16:
 			shiftPressed = true;
@@ -14290,6 +14293,11 @@ document.addEventListener('keydown', function (e) {
 				fightManual();
 			}
 			break;
+		case 80: //p for sPire
+			if (playerSpire.initialized){
+				if (playerSpire.popupOpen) playerSpire.closePopup();
+				else playerSpire.openPopup();
+			}
 		case 38: 
 			//Up arrow for map levels
 			mapLevelHotkey(true);
