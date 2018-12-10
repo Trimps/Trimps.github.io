@@ -4671,7 +4671,7 @@ sup{
 }
 
 .playerSpireCell{
-    width: calc(20% + 1px);
+    width: calc(20%);
     height: calc(5% + 1px);
     margin-left: -1px;
     margin-top: -1px;
