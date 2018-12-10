@@ -14294,7 +14294,7 @@ document.addEventListener('keydown', function (e) {
 			}
 			break;
 		case 80: //p for sPire
-			if (playerSpire.initialized){
+			if (checkLettersOk() && playerSpire.initialized){
 				if (playerSpire.popupOpen) playerSpire.closePopup();
 				else playerSpire.openPopup();
 			}
