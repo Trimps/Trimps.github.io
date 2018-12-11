@@ -5675,8 +5675,8 @@ function updateNatureInfoSpans(){
 		document.getElementById('infoSpan' + item).innerHTML = "<span class='icomoon icon-info2'></span>&nbsp" + emp.formatModifier(emp.getModifier(0, true)) + "%";
 		document.getElementById('tokenCount' + item).innerHTML = prettify(emp.tokens);
 		var bonusLevels = (game.talents.nature3.purchased) ? 5 : 0;
-		if (item == "Poison" && Fluffy.isRewardActive('naturesWrath')) bonusLevels += 10;
 		document.getElementById('natureUpgrade' + item + 'Level').innerHTML = "Lv: " + prettify(emp.level + bonusLevels);
+		if (item == "Poison" && Fluffy.isRewardActive('naturesWrath')) bonusLevels += 10;
 		document.getElementById('natureStackTransfer' + item + 'Level').innerHTML = "Lv: " + prettify(emp.retainLevel + bonusLevels);
 	}
 	updateEmpowerCosts();
