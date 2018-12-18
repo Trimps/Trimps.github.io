@@ -746,7 +746,11 @@ function load(saveString, autoLoad, fromPf) {
 		//check if old version was before 4.10.2 and enable snow
 		if (game.options.menu.showSnow) game.options.menu.showSnow.enabled = 1;
 		addNewSetting("showSnow");
-		if (game.global.spiresCompleted >= 1 && !playerSpire.initialized) playerSpire.init();
+		if (game.global.spiresCompleted >= 1 && !playerSpire.initialized){
+			playerSpire.init();
+			playerSpire.spirestones = 20;
+			playerSpire.openPopup();
+		}
 	}
 	//End compatibility
 	//Test server only
