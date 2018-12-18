@@ -4841,6 +4841,14 @@ sup{
 	background-color: #6d5403;
 }
 
+#playerSpireTab.pausedSpire a{
+	background-color: #ca0505;
+}
+
+#playerSpireTab.pausedSpire a:hover{
+	background-color: #6b0202;
+}
+
 #playerSpireTutorial{
 	color: #dadada;
 	font-weight: bold;

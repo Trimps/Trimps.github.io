@@ -432,6 +432,7 @@ var playerSpire = {
     togglePause: function(){
         this.paused = !this.paused;
         this.drawInfo();
+        this.updateTabColor();
     },
     infoTooltip: function(what, event){
         var tooltipText = "";
@@ -458,6 +459,7 @@ var playerSpire = {
         }
 
         tooltip(what, 'customText', event, tooltipText, "");
+        tooltipUpdateFunction = function(){playerSpire.infoTooltip(what, event)};
     },
     drawInfo: function(){
         if (!this.popupOpen) return;
@@ -594,9 +596,14 @@ var playerSpire = {
         this.drawInfo();
 
     },
+    updateTabColor: function(){
+        var tabClass = (this.paused) ? 'pausedSpire' : 'pausedSpireNo';
+        swapClass('pausedSpire', tabClass, document.getElementById('playerSpireTab'));
+    },
     closePopup: function() {
         this.popupOpen = false;
         document.getElementById('playerSpirePopout').style.display = 'none';
+        this.updateTabColor();
     },
     openPopup: function(){
         this.popupOpen = true;
@@ -1408,6 +1415,7 @@ var playerSpire = {
         this.drawInfo();
         this.initalized = true;
         document.getElementById('playerSpireTab').style.display = 'table-cell';
+        this.updateTabColor();
     }
 
 }
