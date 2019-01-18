@@ -28,7 +28,7 @@ if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== 
 	boneBtn.style.backgroundColor = "#d9534f";
 	document.getElementById("getBundleBtn").style.display = "none";
 }
-document.getElementById("versionNumber").innerHTML = game.global.version;
+document.getElementById("versionNumber").innerHTML = game.global.stringVersion;
 
 function autoSave() {
     if (game.options.menu.autoSave.enabled) save();
@@ -120,7 +120,11 @@ function save(exportThis, fromManual) {
 		delete challenge.replaceSquareReward;
 		delete challenge.replaceSquareThresh;
 		delete challenge.replaceSquareGrowth;
+		delete challenge.zoneScaling;
+		delete challenge.scaleModifier;
+		delete challenge.zoneScaleFreq;
 		delete challenge.description;
+		delete challenge.heliumThrough;
 	}
 	for (var itemG in saveGame.achievements){
 		var achievement = saveGame.achievements[itemG];
@@ -132,6 +136,7 @@ function save(exportThis, fromManual) {
 		delete achievement.icon;
 		delete achievement.newStuff;
 		delete achievement.filters;
+		delete achievement.timed;
 	}
 	delete saveGame.heirlooms.values;
 	delete saveGame.heirlooms.defaultSteps;
@@ -180,6 +185,7 @@ function save(exportThis, fromManual) {
 		itemStat = saveGame.stats[itemStat];
 		delete itemStat.title;
 	}
+	saveGame.playerSpire = playerSpire.save();
     saveString = LZString.compressToBase64(JSON.stringify(saveGame));
     if (exportThis) return saveString;
 	if (disableSaving) {
@@ -206,7 +212,7 @@ function save(exportThis, fromManual) {
 
 	if (game.options.menu.usePlayFab.enabled == 1 && playFabId){
 		var timeSinceSave = performance.now() - lastOnlineSave;
-		if (timeSinceSave < 1800000 && !fromManual){
+		if ((timeSinceSave < 1800000 && !fromManual) || timeSinceSave < 60000){
 			return;
 		}
 		saveToPlayFab(saveString);
@@ -215,8 +221,10 @@ function save(exportThis, fromManual) {
 }
 
 function load(saveString, autoLoad, fromPf) {
-    var savegame;
+	var savegame;
+	//oldVersion mostly deprecated, but still used for compat with saves from before stringVersion
 	var oldVersion = 0;
+	var oldStringVersion = '';
 	var betaV = -1;
 	var fromImport = false;
 	if (saveString === true) fromImport = true
@@ -254,13 +262,14 @@ function load(saveString, autoLoad, fromPf) {
 		return false;
 	}
 	oldVersion = savegame.global.version;
+	oldStringVersion = (savegame.global.stringVersion) ? savegame.global.stringVersion.split('.') : null;
 	betaV = savegame.global.betaV;
 	if (savegame.global.isBeta && !game.global.isBeta){
 		message("You can't import a save from the beta version to this version!", "Notices");
 		return false;
 	}
-	if (oldVersion > game.global.version) {
-		message("Your save file is from a newer version of Trimps (v" + oldVersion + ") than what your computer is running (v" + game.global.version + "). Refresh or restart your browser!", "Notices");
+	if ((oldStringVersion && oldStringVersion.length && (compareVersion(oldStringVersion, game.global.stringVersion.split('.'), true)))) {
+		message("Your save file is from a newer version of Trimps (v" + savegame.global.stringVersion + ") than what your computer is running (v" + game.global.stringVersion + "). Refresh or restart your browser!", "Notices");
 		return false;
 	}
 	resetGame();
@@ -279,10 +288,10 @@ function load(saveString, autoLoad, fromPf) {
 		savegame.global.isBeta = true;
 	}
 	savegame.global.version = game.global.version;
+	savegame.global.stringVersion = game.global.stringVersion;
 	savegame.global.betaV = game.global.betaV;
 	//Compatibility to new message filter config. Separated from other compatibility as it needs to go into effect before game has the old booleans copied over it.
 	if (oldVersion < 3.51){
-		if (savegame.portal.Siphonology && !savegame.portal.Siphonology.locked) addNewSetting("siphonologyMapLevel");
 		addNewSetting("timestamps");
 		var oldMsg = savegame.global.messages;
 		savegame.global.messages = game.global.messages;
@@ -365,7 +374,8 @@ function load(saveString, autoLoad, fromPf) {
         }
     }
 	game.global.lockTooltip = false;
-
+	playerSpire.resetToDefault();
+	if (savegame.playerSpire) playerSpire.load(savegame.playerSpire)
 	//Compatibility
 
 	if (oldVersion === 1.0){
@@ -415,11 +425,11 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 2.3){
 		if (game.global.highestLevelCleared >= 80) game.global.prisonClear++;
 		if (game.global.world >= 70) {
-			message("Welcome to 2.3! Since you are currently past zone 70, you have automatically unlocked the new Challenge - 'Trapper' and the new Job - 'Geneticist'", "Notices");
+			message("Welcome to 2.3! Since you are currently past Zone 70, you have automatically unlocked the new Challenge - 'Trapper' and the new Job - 'Geneticist'", "Notices");
 			unlockJob("Geneticist");
 		}
 		else if (game.global.highestLevelCleared >= 69){
-			message("Welcome to 2.3! Since you have previously cleared up to at least zone 70, you have unlocked the new Challenge - 'Trapper'!", "Notices");
+			message("Welcome to 2.3! Since you have previously cleared up to at least Zone 70, you have unlocked the new Challenge - 'Trapper'!", "Notices");
 		}
 	}
 	if (oldVersion < 2.7){
@@ -579,7 +589,7 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 4.5 && typeof game.portal.Looting_II !== 'undefined' && game.portal.Looting_II.locked == false){
 		game.global.spiresCompleted = 1;
 		game.global.b += 20;
-		message("Welcome to Patch 4.5! Since you have already cleared Spire I, you have been given 20 bones and earned 5% zone Liqufication. Click 'What's New' to see what's new!", "Story");
+		message("Welcome to Patch 4.5! Since you have already cleared Spire I, you have been given 20 bones and earned 5% Zone Liqufication. Click 'What's New' to see what's new!", "Story");
 	}
 	if (oldVersion < 4.6){
 		if (game.global.highestLevelCleared >= 79) addNewSetting('bigPopups');
@@ -677,9 +687,72 @@ function load(saveString, autoLoad, fromPf) {
 		game.settings.ewma_alpha = 0.05;
 		game.settings.ewma_ticks = 10;
 	}
-
+	if (oldVersion < 4.9){
+		if (game.global.spentEssence > 0){
+			respecTalents(true, true);
+			message("<span style='color: #1ab1d6; font-size: 1.2em;'>WELCOME TO 4.9!</span> Due to a rework of the current Masteries, all of your spent Dark Essence has been refunded for free! Don't forget to repurchase your Masteries!", "Notices", null, "patchNotice");
+		}
+		if (game.global.spiresCompleted >= 5){
+			game.portal.Classy.locked = false;
+			message("Since you've previously cleared Spire V, you've unlocked the brand new <b>Classy</b> perk!", "Notices", null, "patchNotice");
+		}
+		game.global.mapPresets.p1.offset = 'd';
+		game.global.mapPresets.p2.offset = 'd';
+		game.global.mapPresets.p3.offset = 'd';
+		addNewFeats([8, 20, 28, 43, 46, 47]);
+		if (game.global.spiresCompleted >= 1){
+			var bonus = Math.pow(4, game.global.spiresCompleted);
+			message("Since you've previously cleared " + game.global.spiresCompleted + " Spires, you've gained a " + bonus + "x bonus to all Dark Essence drops! Each new Spire you clear will increase this by another 4x.", "Notices", null, "patchNotice");
+		}
+		Fluffy.calculateInfo();
+		if (Fluffy.isRewardActive('void')){
+			var mapsRemoved = 0;
+			for (var x = game.global.mapsOwnedArray.length; x >= 0; x--){
+				var thisMap = game.global.mapsOwnedArray[x];
+				if (!thisMap) continue;
+				if (game.global.lookingAtMap == thisMap.id || game.global.currentMapId == thisMap.id) continue;
+				if (thisMap.location != "Void") continue;
+				game.global.totalVoidMaps--;
+				game.global.mapsOwnedArray.splice(x, 1);
+				game.global.mapsOwned--;
+				mapsRemoved++;
+			}
+			for (var y = 0; y < mapsRemoved; y++){
+				createVoidMap(false, false, true);
+			}
+		}
+	}
+	if (oldStringVersion == null){
+		//Last version was pre 4.10.0. Run compat code for 4.10.0
+		if (game.global.spiresCompleted >= 1){
+			playerSpire.init();
+			playerSpire.spirestones = 20;
+			playerSpire.openPopup();
+		}
+		if (game.achievements.oneOffs.finished.length < 48){
+			for (var x = game.achievements.oneOffs.finished.length; x < 48; x++){
+				game.achievements.oneOffs.finished[x] = false;
+			}
+		}
+		addNewFeats([9, 30, 31, 36, 48, 49, 50, 51, 56, 57, 58, 59]);
+		if (game.global.recentDailies.length >= 7) giveSingleAchieve("Now What");
+		oldStringVersion = [4, 10, 0];
+	}
+	else {
+		oldStringVersion = [parseInt(oldStringVersion[0], 10), parseInt(oldStringVersion[1], 10), parseInt(oldStringVersion[2], 10)];
+	}
+	//Last version was at least 4.10.0, continue as normal
+	if (compareVersion([4, 10, 2], oldStringVersion)){
+		//Bug fix for a few missing spires
+		if (game.global.spiresCompleted >= 1 && !playerSpire.initialized){
+			playerSpire.init();
+			playerSpire.spirestones = 20;
+			playerSpire.openPopup();
+		}
+	}
 	//End compatibility
 	//Test server only
+
 	//End test server only
 	//Temporary until next patch
 	//End Temporary
@@ -733,6 +806,7 @@ function load(saveString, autoLoad, fromPf) {
     checkTriggers(true);
 	toggleAutoTrap(true);
 	toggleAutoStructure(true);
+	toggleAutoJobs(true);
 	toggleAutoGolden(true);
     setGather(game.global.playerGathering);
     numTab(1);
@@ -748,7 +822,7 @@ function load(saveString, autoLoad, fromPf) {
 	if (game.global.portalActive) {fadeIn("portalBtn", 10); fadeIn("helium", 10);}
 	else if (game.resources.helium.owned > 0) fadeIn("helium", 10);
 	if (game.jobs.Explorer.locked === 0) fadeIn("fragmentsPs", 10);
-	if (game.buildings.Tribute.locked === 0) fadeIn("gemsPs", 10);
+	if (game.buildings.Tribute.locked === 0 || game.options.menu.useAverages.enabled) fadeIn("gemsPs", 10);
     if (game.global.autoCraftModifier > 0)
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
     if (game.global.fighting) startFight();
@@ -764,8 +838,11 @@ function load(saveString, autoLoad, fromPf) {
 		}
 	}
 	//If paused, set clock pulse
-	else
+	else {
+		handlePauseMessage(true);
+		updatePortalTimer();
 		document.getElementById("portalTimer").className = "timerPaused";
+	}
 	if (game.options.menu.darkTheme.enabled != 1) game.options.menu.darkTheme.onToggle();
 	updateLabels();
 	if (game.global.viewingUpgrades){
@@ -833,7 +910,7 @@ function load(saveString, autoLoad, fromPf) {
 	if (oldVersion < 2){
 		if (game.global.world == 59){
 			game.global.gridArray[99].name = "Improbability";
-			message("Your Scientists have detected an anomaly at the end of this zone. Exercise caution.", "Notices");
+			message("Your Scientists have detected an anomaly at the end of this Zone. Exercise caution.", "Notices");
 		}
 		else if (game.global.world == 60 && game.global.lastClearedCell <= 10){
 			planetBreaker();
@@ -863,7 +940,44 @@ function load(saveString, autoLoad, fromPf) {
 	handleIceDebuff();
 	handleWindDebuff();
 	setEmpowerTab();
+	refreshMaps();
+	if (game.global.totalVoidMaps > 0 && !game.global.mapsActive) addVoidAlert();
 	return true;
+}
+
+function compareVersion(compareTo, compare, parseFirst){
+	if (parseFirst){
+		compareTo = [parseInt(compareTo[0], 10), parseInt(compareTo[1], 10), parseInt(compareTo[2], 10)];
+		compare = [parseInt(compare[0], 10), parseInt(compare[1], 10), parseInt(compare[2], 10)];
+	}
+	//Returns true if compare (old version) is older than compareTo (new version)
+	//Use case like 'compareVersion([4,11,0], [4,10,0])' to see if compat code for 4.11.0 should run on a save from 4.10.0. Would be true.
+	if (compare[0] < compareTo[0]) return true;
+	if (compare[0] > compareTo[0]) return false;
+	if (compare[1] < compareTo[1]) return true;
+	if (compare[1] > compareTo[1]) return false;
+	if (compare[2] < compareTo[2]) return true;
+	return false;
+}
+
+function handlePauseMessage(send){
+	//post the message
+	if (send){
+		postMessages();
+		if (document.getElementsByClassName('pauseMsg').length == 0){
+			var text = "<b>YOUR GAME IS PAUSED!</b> Click the flashing timer in the bottom right" + ((game.options.menu.hotkeys.enabled) ? ", or press the spacebar" : "") + " to unpause.";
+			message(text, "Notices", null, 'pauseMsg');
+			postMessages();
+		}
+		return;
+	}
+	//clear the message
+	postMessages();
+	var pauseMsgs = document.getElementsByClassName('pauseMsg');
+	var log = document.getElementById('log');
+	for (var x = 0; x < pauseMsgs.length; x++){
+		log.removeChild(pauseMsgs[x]);
+	}
 }
 
 function reevaluateTimedAchieve(achieveName){
@@ -904,7 +1018,6 @@ function loadGigastations() {
 }
 
 function addMapModifier(location, modifier, clear){
-	var modObj =  mapSpecialModifierConfig[modifier];
 	for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
 		var map = game.global.mapsOwnedArray[x];
 		if (map.location != location) continue;
@@ -966,7 +1079,7 @@ function magnetoShriek() {
 	game.global.useShriek = !game.global.useShriek;
 	displayRoboTrimp();
 	if (game.global.useShriek && !game.global.mapsActive){
-        var cell = game.global.gridArray[game.global.lastClearedCell + 1];
+        var cell = getCurrentWorldCell();
 		if (cell.name == "Improbability" || cell.name  == "Omnipotrimp"){
 			activateShriek();
 		}
@@ -1101,7 +1214,7 @@ function portalClicked() {
 	displayPortalUpgrades();
 	game.global.removingPerks = false;
 	if (game.global.canRespecPerks && game.global.totalPortals > 0)
-		respecPerks();
+		respecPerks(true);
 }
 
 function toggleChallengeSquared(){
@@ -1181,8 +1294,8 @@ function displayChallenges() {
 
 function getChallengeSquaredButtonColor(challenge){
 	var percent = game.c2[challenge] / game.global.highestLevelCleared;
-	var r = parseInt(255 - (percent * 102));
-	var g = parseInt(255 - (percent * 255));
+	var r = parseInt(255 - (percent * 102), 10);
+	var g = parseInt(255 - (percent * 255), 10);
 	//var b = parseInt(255 - (percent * 102)); commenting this out and reusing r is technically an optimization
 	var rgb = "rgb(" + r + "," + g + "," + r + ")";
 	if (percent < .5) rgb += "; color: black; border-color: black";
@@ -1216,7 +1329,7 @@ function selectChallenge(what) {
 	desc += "<b>";
 	if (challengeSquaredMode) {
 		var reward = getIndividualSquaredReward(what);
-		desc += " Your highest zone reached for this Challenge<sup>2</sup> is Z" + game.c2[what] + ", earning you " + prettify(reward) + "% extra attack and health, and " + prettify(reward / 10) + "% more Helium from all sources.";
+		desc += " Your highest Zone reached for this Challenge<sup>2</sup> is Z" + game.c2[what] + ", earning you " + prettify(reward) + "% extra attack and health, and " + prettify(reward / 10) + "% more Helium from all sources.";
 	}
 	else if (game.portal[game.challenges[what].unlocks]) desc += (game.portal[game.challenges[what].unlocks].locked) ? " You will also earn a new Perk!" : " You will not earn a new perk.";
 	else if (what == "Scientist") {
@@ -1263,7 +1376,7 @@ function getScientistInfo(number, reward){
 			return (reward) ? "earn two levels of each prestige upgrade per map, unlock AutoPrestiges, and your Warpstations will build instantly, skipping the queue. This bonus will apply" : 70;
 		}
 		case 5: {
-			return (reward) ? "permanently increase all helium found by 0.5% to the power of your current zone number. You'll also start with 1000% player efficiency and 50 Barns, Sheds, and Forges" : 1500;
+			return (reward) ? "permanently increase all helium found by 0.5% to the power of your current Zone number. You'll also start with 1000% player efficiency and 50 Barns, Sheds, and Forges" : 1500;
 		}
 	}
 }
@@ -1327,8 +1440,8 @@ function getSpecialSquaredRewards(challenge){
 		var rewardIncrease = (challenge.replaceSquareGrowth) ? challenge.replaceSquareGrowth : squaredConfig.rewardGrowth;
 		description += "<span class='colorSquared'>This challenge issues rewards differently than most other Challenge<sup>2</sup>s.";
 		description += ((challenge.replaceSquareReward) ? "<b>" : "")  + " You will gain " + reward + "% attack and health, and " + prettify(reward / 10) + "% Helium" + ((challenge.replaceSquareReward) ? "</b>" : "");
-		description += ((challenge.replaceSquareFreq) ? "<b>" : "") + " for every " + freq + " zone" + needAnS(freq) + " reached." + ((challenge.replaceSquareFreq) ? "</b>" : "");
-		description += ((challenge.replaceSquareThresh) ? "<b>" : "") + " Every " + threshes + " zone" + needAnS(threshes) + " reached," + ((challenge.replaceSquareThresh) ? "</b>" : "");
+		description += ((challenge.replaceSquareFreq) ? "<b>" : "") + " for every " + freq + " Zone" + needAnS(freq) + " reached." + ((challenge.replaceSquareFreq) ? "</b>" : "");
+		description += ((challenge.replaceSquareThresh) ? "<b>" : "") + " Every " + threshes + " Zone" + needAnS(threshes) + " reached," + ((challenge.replaceSquareThresh) ? "</b>" : "");
 		description += ((challenge.replaceSquareGrowth) ? "<b>" : "") + " this bonus will increase by " + rewardIncrease + "% attack and health, and " + prettify(rewardIncrease / 10) + "% Helium.</span> " + ((challenge.replaceSquareGrowth) ? "</b>" : "");
 	}
 	return description;
@@ -1344,7 +1457,7 @@ function getSquaredDescriptionInRun(hideDesc){
 	var challenge = game.challenges[game.global.challengeActive];
 	var description = "";
 	if (!hideDesc){
-		description = challenge.squaredDescription + " " + getSpecialSquaredRewards(challenge);
+		description = "\"" + challenge.squaredDescription + "\" " + getSpecialSquaredRewards(challenge);
 	}
 	description += "<b>You are currently at Zone " + game.global.world;
 	var portalText = (game.global.viewingUpgrades) ? "abandon the challenge " : "use the portal ";
@@ -1453,7 +1566,7 @@ function getCurrentChallengePane(){
 		description = description.replace('*', getScientistInfo(sciLevel, true));
 	}
 	challengeText = "You have the ";
-	challengeText += (game.global.challengeActive == "Daily") ? formatDailySeedDate() + " " + game.global.challengeActive + " challenge active. " + description : game.global.challengeActive + " challenge active. \"" + description + "\"";
+	challengeText += (game.global.challengeActive == "Daily") ? formatDailySeedDate() + " " + game.global.challengeActive + " challenge active. " + description : game.global.challengeActive + " challenge active. " + description;
 	return challengeText;
 }
 
@@ -1519,11 +1632,12 @@ function updatePerkColor(what){
 	}
 	else
 	{
-		var price = getPortalUpgradePrice(what);
-		var canSpend = game.resources.helium.respecMax;
-		if (perk.max && (perk.max < perk.level + perk.levelTemp + game.global.buyAmt)) perkClass = "perkColorMaxed";
+		var buyAmt = (game.global.buyAmt == "Max") ? 1 : game.global.buyAmt;
+		var price = getPortalUpgradePrice(what, false, buyAmt);
+		var canSpend = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
+		if (perk.max && (perk.max < perk.level + perk.levelTemp + buyAmt)) perkClass = "perkColorMaxed";
 		else
-		perkClass = ((canSpend >= game.resources.helium.totalSpentTemp + price)) ? "perkColorOn" : "perkColorOff";
+		perkClass = ((canSpend >= price)) ? "perkColorOn" : "perkColorOff";
 	}
 	swapClass("perkColor", perkClass, elem);
 }
@@ -1634,6 +1748,10 @@ function checkOfflineProgress(noTip){
 					amt += (toAlter * game.jobs.Magmamancer.getBonusPercent());
 			}
 		}
+		if (game.global.challengeActive == "Decay"){
+			amt *= 10;
+			amt *= Math.pow(0.995, game.challenges.Decay.stacks);
+		}
 		if (game.global.challengeActive == "Meditate") amt *= 1.25;
 		if (game.global.challengeActive == "Balance") amt *= game.challenges.Balance.getGatherMult();
 		if (game.global.challengeActive == "Daily"){
@@ -1694,11 +1812,19 @@ function checkOfflineProgress(noTip){
 		textString = textString.slice(0, -2);
 	}
 	textString += ".";
+	if (playerSpire.initialized && playerSpire.lootAvg.average){
+		var avg = playerSpire.getRsPs();
+		if (!isNumberBad(avg)){
+			var rsReward = (dif * 0.75 * avg);
+			playerSpire.runestones += rsReward;
+			textString += "<br/>Your Spire Traps and Towers have also produced <b>" + prettify(rsReward) + "</b> Runestones while you were away!";
+		}
+	}
 	if (!noTip) tooltip("Trustworthy Trimps", null, "update", textString);
 	else savedOfflineText = textString;
 }
 
-function respecPerks(){
+function respecPerks(fromPortal){
 	if (!game.global.canRespecPerks) return;
 	//if (!game.global.viewingUpgrades) return;
 	game.global.respecActive = true;
@@ -1707,8 +1833,10 @@ function respecPerks(){
 	game.resources.helium.respecMax = (game.global.viewingUpgrades) ? game.global.heliumLeftover : game.global.heliumLeftover + game.resources.helium.owned;
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax - game.resources.helium.totalSpentTemp);
 	document.getElementById("respecPortalBtn").style.display = "none";
-	document.getElementById("portalStory").innerHTML = "You can only respec once per run. Clicking cancel will not consume this use.";
-	document.getElementById("portalTitle").innerHTML = "Respec Perks";
+	if (!fromPortal){
+		document.getElementById("portalStory").innerHTML = "You can only respec once per run. Clicking cancel will not consume this use.";
+		document.getElementById("portalTitle").innerHTML = "Respec Perks";
+	}
 	document.getElementById("ptabRemove").style.display = "table-cell";
 	document.getElementById("clearPerksBtn").style.display = "inline-block";
 	if (selectedPreset)
@@ -1728,9 +1856,8 @@ function clearPerks(){
 		game.resources.helium.respecMax += portUpgrade.heliumSpent;
 		portUpgrade.heliumSpentTemp = 0;
 		portUpgrade.heliumSpentTemp -= portUpgrade.heliumSpent;
-		updatePerkLevel(item);
-		updatePerkColor(item);
 	}
+	displayPortalUpgrades(true);
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax);
 	if (game.global.viewingUpgrades) {
 		document.getElementById("respecPortalBtn").style.display = "none";
@@ -1780,7 +1907,7 @@ function activateClicked(){
 		newText += "<div class='heirloomRecycleWarning portalError'>You have " + game.global.heirloomsExtra.length + " extra Heirloom" + s + ", which will be recycled for " + prettify(recycleAllExtraHeirlooms(true)) + " Nullifium if you portal now. Make sure you carry any that you want to save!</div>";
 	}
 	if (game.global.world >= 230 && canAffordGeneratorUpgrade()){
-		newText += "<div class='magmiteError portalError'>You have " + prettify(game.global.magmite) + " Magmite, which is enough purchase an upgrade for your Dimensional Generator! If you portal now, " + ((game.permanentGeneratorUpgrades.Shielding.owned) ? "20" : "30") + "% of your Magmite will decay.</div>";
+		newText += "<div class='magmiteError portalError'>You have " + prettify(game.global.magmite) + " Magmite, which is enough purchase an upgrade for your Dimensional Generator! If you portal now, " + ((game.permanentGeneratorUpgrades.Shielding.owned) ? "20" : "30") + "% of your Magmite will decay.<div style='text-align: center'><span onclick='cancelTooltip(); tooltip(\"Upgrade Generator\", null, \"update\")' class='btn btn-lg btn-success'>Spend Magmite</span></div></div><br/>";
 	}
 	var btnText = "<div class='btn btn-info btn-lg' onclick='activatePortal()'>Let's do it.</div>&nbsp;<div class='btn btn-lg btn-warning' onclick='cancelTooltip()'>Wait, I'm not ready!</div>";
 	tooltip('Activate Portal', 'customText', 'update', newText, btnText);
@@ -1796,34 +1923,73 @@ function enablePerkConfirmBtn(){
 	document.getElementById("activatePortalBtn").style.display = "inline-block";
 }
 
+function getPerkBuyCount(perkName){
+	var perk = game.portal[perkName];
+	if (!perk) return 0;
+	if (game.global.buyAmt != "Max") return game.global.buyAmt;
+	var heliumAvailable = (game.resources.helium.respecMax - game.resources.helium.totalSpentTemp) * game.global.maxSplit;
+	var toBuy = 0;
+	if (!perk.additive){
+		var growth = (perk.specialGrowth) ? perk.specialGrowth : 1.3;
+		var toSpend = 0;
+		var currentLevel = perk.level + perk.levelTemp;
+		var priceBase = perk.priceBase;
+		while (toBuy < 1000 && toSpend < heliumAvailable){
+			if (toBuy > 1000) return Infinity;
+			var nextLevel = currentLevel + toBuy;
+			toSpend += Math.ceil(((nextLevel) / 2) + priceBase * Math.pow(growth, nextLevel));
+			if (isNumberBad(toSpend)) return 1;
+			toBuy++;
+		}
+		toBuy--;
+	}
+	else {
+		//Let it be known that buy max on additive perks only exists because The Amazing GhostFrog is a math wizard. 
+		//I spent hours bashing my head against a wall trying to figure it out, and she came up with this formula in a few minutes.
+		var levels = perk.level + perk.levelTemp;
+		var increase = perk.additiveInc
+		var nextPurchaseCost = perk.priceBase + (levels * increase);
+		var A = (increase / 2);
+		var B = (nextPurchaseCost - A);
+		var C = heliumAvailable * -1;
+		var affordableLevels = ((B * -1) + Math.sqrt(Math.pow(B, 2) - (4 * A * C))) / (2 * A);
+		toBuy = Math.floor(affordableLevels);
+	}
+	if (toBuy <= 0) toBuy = 1;
+	if (perk.max && ((perk.level + perk.levelTemp + toBuy) > perk.max)) toBuy = perk.max - perk.level - perk.levelTemp;
+	return toBuy;
+}
+
 function buyPortalUpgrade(what){
 	if (!game.global.kongBonusMode && !game.global.portalActive && !game.global.respecActive && !game.global.viewingUpgrades) return;
-	if (isNaN(game.global.buyAmt)) {
+	if (game.global.buyAmt != "Max" && isNaN(game.global.buyAmt)) {
 		numTab(1);
 		return;
 	}
 	var toBuy = game.portal[what];
-		if (game.global.removingPerks){
-			removePerk(what);
-			updateAllPerkColors();
-			enablePerkConfirmBtn();
-			document.getElementById("totalHeliumSpent").innerHTML = prettify(countHeliumSpent(true));
-			return;
+	if (game.global.removingPerks){
+		removePerk(what);
+		updateAllPerkColors();
+		enablePerkConfirmBtn();
+		document.getElementById("totalHeliumSpent").innerHTML = prettify(countHeliumSpent(true));
+		return;
 	}
-	if (toBuy.max < toBuy.level + toBuy.levelTemp + game.global.buyAmt) return;
-	var price = getPortalUpgradePrice(what);
-	//var canSpend = (game.global.viewingUpgrades) ? game.resources.helium.respecMax :  (game.resources.helium.owned + game.global.heliumLeftover);
-	var canSpend = game.resources.helium.respecMax;
-	if (canSpend >= (game.resources.helium.totalSpentTemp + price)){
+	var levelsToAdd = getPerkBuyCount(what);
+	if (toBuy.max < toBuy.level + toBuy.levelTemp + levelsToAdd) return;
+	var price = getPortalUpgradePrice(what, false, levelsToAdd);
+	var canSpend = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
+	if (canSpend >= price){
 		document.getElementById("ptabRemove").style.display = "table-cell";
-		toBuy.levelTemp += game.global.buyAmt;
+		toBuy.levelTemp += levelsToAdd;
 		game.resources.helium.totalSpentTemp += price;
 		toBuy.heliumSpentTemp += price;
+		canSpend -= price;
 		updatePerkLevel(what);
 		tooltip(what, "portal", "update");
-		document.getElementById("portalHeliumOwned").innerHTML = prettify(canSpend - game.resources.helium.totalSpentTemp);
+		document.getElementById("portalHeliumOwned").innerHTML = prettify(canSpend);
 		enablePerkConfirmBtn();
-		updateAllPerkColors();
+		if (game.global.buyAmt == "Max") displayPortalUpgrades(true);
+		else updateAllPerkColors();
 	}
 	document.getElementById("totalHeliumSpent").innerHTML = prettify(countHeliumSpent(true));
 }
@@ -1988,13 +2154,14 @@ function importPerks() {
 }
 
 function removePerk(what) {
-	if (isNumberBad(game.global.buyAmt)){
-		console.log("Buy Amount is " + game.global.buyAmt);
+	var removeAmt = game.global.buyAmt;
+	if (removeAmt == "Max") removeAmt = Math.ceil((game.portal[what].level + game.portal[what].levelTemp) * game.global.maxSplit);
+	if (isNumberBad(removeAmt)){
+		console.log("Remove Amount is " + removeAmt);
 		return;
 	}
 	var toBuy = game.portal[what];
 	var realTemp = (game.global.respecActive) ? toBuy.levelTemp + toBuy.level : toBuy.levelTemp;
-	var removeAmt = game.global.buyAmt;
 	var forceZeroSpent = false;
 	if (realTemp < removeAmt) removeAmt = realTemp;
 	var refund = getPortalUpgradePrice(what, true, removeAmt);
@@ -2025,6 +2192,14 @@ function removePerk(what) {
 		toBuy.heliumSpentTemp = toBuy.heliumSpent * -1;
 		toBuy.levelTemp = toBuy.level * -1;
 	}
+	if (toBuy.levelTemp + toBuy.level == 0){
+		var roundingError = toBuy.heliumSpentTemp + toBuy.heliumSpent;
+		if (roundingError){
+			console.log('rounding error of ' + roundingError + ', adding to refund');
+			refund += roundingError;
+			toBuy.heliumSpentTemp = toBuy.heliumSpent * -1;
+		}
+	}
 	game.resources.helium.totalSpentTemp -= refund;
 	updatePerkLevel(what);
 	tooltip(what, "portal", "update");
@@ -2042,7 +2217,6 @@ function updatePerkLevel(what){
 	var spentElem = document.getElementById(what + "Spent");
 	var perkElem = document.getElementById(what);
 	var toBuy = game.portal[what];
-	var num = 0;
 	var text = toBuy.level + toBuy.levelTemp;
 	if (game.options.menu.formatPerkLevels.enabled) text = prettify(text);
 	if (toBuy.levelTemp){
@@ -2091,7 +2265,7 @@ function getPortalUpgradePrice(what, removing, forceAmt){
 	var nextLevel;
 	var toAmt;
 	if (!removing){
-		toAmt = (forceAmt) ? forceAmt : game.global.buyAmt;
+		toAmt = (forceAmt) ? forceAmt : getPerkBuyCount(what);
 		nextLevel = tempLevel + toAmt;
 	}
 	tempLevel = toCheck.level + toCheck.levelTemp;
@@ -2371,7 +2545,7 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 		amt += Math.round(baseAmt * Math.pow(1.23, Math.sqrt(level)));
 		amt += Math.round(baseAmt * level);
 	}
-	//Scale 20% across the zone, depending on cell number
+	//Scale 20% across the Zone, depending on cell number
 	if (what != "helium" && what != "fragments"){
 		amt = (amt * .8) + ((amt * .002) * (cell + 1));
 	}
@@ -2425,23 +2599,25 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	if (getEmpowerment() == "Wind"){
 		if (what == "helium"){
 			if (!game.global.mapsActive){
-				amt *= (1 + game.empowerments.Wind.getCombatModifier());
+				amt *= (1 + game.empowerments.Wind.getCombatModifier(true));
 			}
 		}
 		else if (what != "fragments")
-			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
+			amt *= (1 + (game.empowerments.Wind.getCombatModifier()));
 	}
 	if (what == "helium"){
 		if (game.singleRunBonuses.heliumy.owned) amt *= 1.25;
 		if (game.global.sLevel >= 5) amt *= Math.pow(1.005, game.global.world);
 		if (game.goldenUpgrades.Helium.currentBonus > 0) amt *= 1 + game.goldenUpgrades.Helium.currentBonus;
+		if (playerSpireTraps.Condenser.owned) amt *= (1 + (playerSpireTraps.Condenser.getWorldBonus() / 100));
 		var fluffyBonus = Fluffy.isRewardActive("helium");
 		amt += (amt * (fluffyBonus * 0.25));
 	}
 	if (givePercentage > 0) amt *= givePercentage;
 	amt = Math.floor(amt);
-	if (what == "helium")
+	if (what == "helium"){
 		addHelium(amt);
+	}
 	else
 		addResCheckMax(what, amt);
 	if (game.options.menu.useAverages.enabled){
@@ -2526,7 +2702,7 @@ function addAvg(what, number) {
 function getAvgLootSecond(what) {
 	var avgA = game.global.lootAvgs[what];
 	if (typeof avgA === 'undefined') return 0;
-	return game.global.lootAvgs[what].average;
+	return (avgA.average > 0.01) ? avgA.average : 0;
 }
 
 function curateAvgs() {
@@ -2557,6 +2733,7 @@ function fireMode(noChange) {
 }
 
 function setGather(what, updateOnly) {
+	if (what == "science" && game.global.challengeActive == "Scientist") return;
 	if (game.options.menu.pauseGame.enabled && !updateOnly) return;
     var toGather = game.resources[what];
     var colorOn = "workColorOn";
@@ -2644,7 +2821,7 @@ function gather() {
 			if (game.global.challengeActive == "Watch") perSec /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) perSec*= 2;
 			if (job != "Explorer" && getEmpowerment() == "Wind"){
-				perSec *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
+				perSec *= (1 + (game.empowerments.Wind.getCombatModifier()));
 			}
 			perSec = calcHeirloomBonus("Staff", job + "Speed", perSec);
 		}
@@ -2750,6 +2927,10 @@ function canAffordTwoLevel(whatObj, takeEm) {
 			if (game.global.challengeActive == "Obliterated"){
 				artMult = (artMult == -1) ? 1e12 : (1e12 * artMult);
 			}
+			if (game.global.challengeActive == "Eradicated"){
+				var mod = game.challenges.Eradicated.scaleModifier
+				artMult = (artMult == -1) ? mod : (mod * artMult);
+			}
 			if (whatObj.prestiges && (res == "metal" || res == "wood")) cost *= artMult;
             if (group[res].owned < cost) return false;
             if (takeEm) group[res].owned -= cost;
@@ -2794,6 +2975,10 @@ function canAffordBuilding(what, take, buildCostString, isEquipment, updatingLab
 			}
 			if (game.global.challengeActive == "Obliterated"){
 				artMult = (artMult == -1) ? 1e12 : (1e12 * artMult);
+			}
+			if (game.global.challengeActive == "Eradicated"){
+				var mod = game.challenges.Eradicated.scaleModifier
+				artMult = (artMult == -1) ? mod : (mod * artMult);
 			}
 			price = Math.ceil(price * artMult);
 		}
@@ -2858,8 +3043,9 @@ function buyBuilding(what, confirmed, fromAuto, forceAmt) {
 	var purchaseAmt = 1;
 	if (forceAmt) purchaseAmt = Math.min(forceAmt, calculateMaxAfford(toBuy, true, false, false, true));
 	else if (!toBuy.percent) purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy, true, false) : game.global.buyAmt;
-	if (typeof toBuy === 'undefined') return false;
+    if (typeof toBuy === 'undefined') return false;
 	var canAfford = ((forceAmt) ? canAffordBuilding(what, false, false, false, false, purchaseAmt) : canAffordBuilding(what));
+	if (purchaseAmt == 0) return false;
 	if (canAfford){
 		if (what == "Wormhole" && !confirmed && (game.options.menu.confirmhole.enabled == 1 || game.options.menu.confirmhole.enabled == 2) && !fromAuto){
 			tooltip('Confirm Purchase', null, 'update', 'You are about to purchase ' + purchaseAmt + ' Wormholes, <b>which cost helium</b>. Make sure you can earn back what you spend!', 'buyBuilding(\'Wormhole\', true, false, ' + purchaseAmt + ')');
@@ -2929,19 +3115,19 @@ function craftBuildings(makeUp) {
 		var percent = 1 - (game.global.timeLeftOnCraft / getCraftTime(game.buildings[game.global.crafting]));
 
 		var timeLeft = (game.global.timeLeftOnCraft / modifier).toFixed(1);
-		if (timeLeft < 0.1) timeLeft = 0.1;
-        if (timeRemaining) timeRemaining.innerHTML = " - " + timeLeft + " Seconds";
+		if (timeLeft < 0.1 || isNumberBad(timeLeft)) timeLeft = 0.1;
+        if (timeRemaining) timeRemaining.textContent = " - " + timeLeft + " Seconds";
 		if (game.options.menu.queueAnimation.enabled) buildingsBar.style.opacity = percent;
 		else buildingsBar.style.opacity = "0";
         if (game.global.timeLeftOnCraft > 0) return;
     }
-    buildBuilding(game.global.crafting);
+	buildBuilding(game.global.crafting);
+	if (game.global.trapBuildToggled && game.global.trapBuildAllowed && game.global.buildingsQueue.length == 1 && game.global.buildingsQueue[0] == "Trap.1"){
+		autoTrap();
+		return;
+	}
     removeQueueItem("first");
 	if (game.global.buildingsQueue.length === 0){
-		if (game.global.trapBuildToggled && game.global.trapBuildAllowed) {
-			autoTrap();
-			return;
-		}
 		checkEndOfQueue();
 	}
 	else{
@@ -2989,8 +3175,12 @@ function setNewCraftItem() {
     game.global.timeLeftOnCraft = getCraftTime(game.buildings[queueItem]);
 	var elem = document.getElementById("queueItemsHere").firstChild;
 	var timeLeft = (game.global.timeLeftOnCraft / (game.global.autoCraftModifier + getPlayerModifier())).toFixed(1);
-
-	if (elem && !document.getElementById("queueTimeRemaining")) elem.innerHTML += "<span id='queueTimeRemaining'> - " + timeLeft + " Seconds</span><div id='animationDiv'></div>";
+	if (elem){
+		var timeElem = document.getElementById("queueTimeRemaining");
+		if (timeLeft < 0.1 || isNumberBad(timeLeft)) timeLeft = 0.1;
+		if (!timeElem) elem.innerHTML += "<span id='queueTimeRemaining'> - " + timeLeft + " Seconds</span><div id='animationDiv'></div>";
+		else timeElem.textContent = " - " + timeLeft + " Seconds";
+	}
 	if (elem && timeLeft <= 0.1) {timeLeft = 0.1; if (game.options.menu.queueAnimation.enabled) document.getElementById("animationDiv").style.opacity = '1'}
 }
 
@@ -3027,6 +3217,107 @@ function trapThings() {
         if (TrapOwned) TrapOwned.innerHTML = trap.owned;
     }
     if (game.options.menu.progressBars.enabled) document.getElementById("trappingBar").style.width = (100 - ((game.global.timeLeftOnTrap / trimps.speed) * 100)) + "%";
+}
+
+
+function toggleAutoJobsHelp(){
+	var btnElem = document.getElementById('autoJobsHelpBtn');
+	var helpElem = document.getElementById('autoJobsHelpDiv');
+	if (!btnElem || !helpElem) return;
+	if (helpElem.style.display == "block"){
+		helpElem.style.display = "none";
+		btnElem.innerHTML = "Help";
+	}
+	else {
+		helpElem.style.display = "block";
+		btnElem.innerHTML = "Hide Help";
+	}
+	verticalCenterTooltip();
+}
+
+var lastAutoJob = 0;
+function buyAutoJobs(allowRatios){
+	if (game.options.menu.pauseGame.enabled)
+		return;
+	var setting = game.global.autoJobsSetting;
+	if (!setting.enabled || !game.talents.autoJobs.purchased) return;
+	if (new Date().getTime() - lastAutoJob < 2000) return;
+	if (allowRatios) lastAutoJob = new Date().getTime();
+	var trimps = game.resources.trimps;
+	var breedCount = (trimps.owned - trimps.employed > 2) ? Math.floor(trimps.owned - trimps.employed) : 0;
+	var workspaces = game.workspaces;
+	if (breedCount < workspaces) workspaces = Math.floor(breedCount * 0.1);
+	//Non-ratio jobs
+	var others = ["Trainer", "Explorer", "Magmamancer"];
+	for (var x = 0; x < others.length; x++){
+		var thisSetting = setting[others[x]];
+		if (!thisSetting || !thisSetting.enabled) continue;
+		var item = others[x];
+		if (game.jobs[item].locked) continue;
+		autoBuyJob(item, false, thisSetting.value, thisSetting.buyMax);
+	}
+	//Ratio jobs
+	if (!allowRatios || workspaces <= 0) return;
+	var ratios = ["Farmer", "Lumberjack", "Miner", "Scientist"];
+	var totalRatio = 0;
+	//Check all settings and calculate total ratio
+	for (var x = 0; x < ratios.length; x++){
+		if (game.jobs[ratios[x]].locked) continue;
+		var thisSetting = setting[ratios[x]];
+		if (!thisSetting || !thisSetting.enabled) continue;
+		if (ratios[x] == "Scientist" && thisSetting.buyMax && game.jobs.Scientist.owned >= thisSetting.buyMax) continue;
+		totalRatio += thisSetting.ratio;
+	}
+	//Assign ratio jobs
+	for (var x = 0; x < ratios.length; x++){
+		var thisSetting = setting[ratios[x]];
+		if (!thisSetting || !thisSetting.enabled) continue;
+		var item = ratios[x];
+		if (game.jobs[item].locked) continue;
+		var toBuy = workspaces * (setting[item].ratio / totalRatio);
+		if (isNumberBad(toBuy)) {
+			console.log('wanted to buy ' + toBuy + ' ' + ratios[x] + 's.');
+			continue;
+		}
+		var useMax = (ratios[x] == "Scientist" && thisSetting.buyMax) ? thisSetting.buyMax : false; 
+		autoBuyJob(item, true, Math.floor(toBuy), useMax);
+	}
+}
+
+function autoBuyJob(what, isRatio, purchaseAmt, max){
+	var owned = game.jobs[what].owned;
+	var job = game.jobs[what];
+	if (max && owned >= max) return;
+	var buyAmt = (isRatio) ? purchaseAmt : calculateMaxAfford(job, false, false, true, false, purchaseAmt);
+	if (buyAmt <= 0) return;
+	var workspaces = game.workspaces;
+	var checkAndFix = false;
+	var fireAmt = 0;
+	if (max && (owned + buyAmt > max)) buyAmt = max - owned;
+	if (!isRatio && workspaces < buyAmt) {
+		workspaces = game.workspaces;
+		fireAmt = buyAmt - workspaces;
+		// Check to see if there are enough workers to fire
+		if (!((game.jobs.Miner.owned + game.jobs.Farmer.owned + game.jobs.Lumberjack.owned) < fireAmt)) {
+			var freed = freeWorkspace(fireAmt);
+			if (!freed) {
+				return;
+			}
+			if (workspaces < buyAmt && freed){
+				workspaces = buyAmt;
+				checkAndFix = true;
+			}	
+		}
+	}
+	for (var costItem in job.cost) {
+        if (checkJobItem(what, true, costItem, null, buyAmt) !== true) return false;
+    }
+	job.owned += buyAmt;
+	if (checkAndFix){
+		workspaces = game.workspaces;
+		if (workspaces < 0)
+			freeWorkspace(Math.abs(workspaces));
+	}
 }
 
 function buyJob(what, confirmed, noTip) {
@@ -3144,7 +3435,7 @@ function freeWorkspace(amount, getAmtFreed){
 
 
 
-function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob, forceMax){ //don't use forceMax for jobs until you fix that second return
+function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob, forceMax, forceRatio){ //don't use forceMax for jobs until you fix that second return. forceMax and forceRatio indicate that they're from an auto, and ignore firing
 	if (!itemObj.cost){
 		console.log("no cost");
 		return 1;
@@ -3152,14 +3443,15 @@ function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob, forceMax){ 
 	var mostAfford = -1;
 	var currentOwned = (itemObj.purchased) ? itemObj.purchased : ((itemObj.level) ? itemObj.level : itemObj.owned);
 	if (!currentOwned) currentOwned = 0;
-	if (isJob && game.global.firing) return Math.floor(currentOwned * game.global.maxSplit);
+	if (isJob && game.global.firing && !forceRatio) return Math.floor(currentOwned * game.global.maxSplit);
 	//if (itemObj == game.equipment.Shield) console.log(currentOwned);
 	for (var item in itemObj.cost){
 		var price = itemObj.cost[item];
 		var toBuy;
 		var resource = game.resources[item];
 		var resourcesAvailable = resource.owned;
-		if (game.global.maxSplit != 1 && !forceMax) resourcesAvailable = Math.floor(resourcesAvailable * game.global.maxSplit);
+		if (game.global.maxSplit != 1 && !forceMax && !forceRatio) resourcesAvailable = Math.floor(resourcesAvailable * game.global.maxSplit);
+		else if (forceRatio) resourcesAvailable = Math.floor(resourcesAvailable * forceRatio);
 		if (!resource || typeof resourcesAvailable === 'undefined'){
 			console.log("resource " + item + " not found");
 			return 1;
@@ -3173,6 +3465,10 @@ function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob, forceMax){ 
 				}
 				if (game.global.challengeActive == "Obliterated"){
 					artMult = (artMult == -1) ? 1e12 : (1e12 * artMult);
+				}
+				if (game.global.challengeActive == "Eradicated"){
+					var mod = game.challenges.Eradicated.scaleModifier
+					artMult = (artMult == -1) ? mod : (mod * artMult);
 				}
 				start = Math.ceil(start * artMult);
 			}
@@ -3189,6 +3485,7 @@ function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob, forceMax){ 
 		}
 		if (mostAfford == -1 || mostAfford > toBuy) mostAfford = toBuy;
 	}
+	if (forceRatio && (mostAfford <= 0 || isNaN(mostAfford))) return 0;
 	if (isBuilding && mostAfford > 1000000000) return 1000000000;
 	if (mostAfford <= 0) return 1;
 	return mostAfford;
@@ -3208,8 +3505,8 @@ function getTooltipJobText(what, toBuy) {
     return fullText;
 }
 
-function canAffordJob(what, take, workspaces, updatingLabel) {
-	var ignoreWorkspaces = (game.jobs[what].allowAutoFire && game.options.menu.fireForJobs.enabled && updatingLabel);
+function canAffordJob(what, take, workspaces, updatingLabel, fromAuto) {
+	var ignoreWorkspaces = (game.jobs[what].allowAutoFire && ((game.options.menu.fireForJobs.enabled && updatingLabel) || fromAuto));
 	if (workspaces <= 0 && !ignoreWorkspaces) return false;
     var trimps = game.resources.trimps;
 	var toBuy = 1;
@@ -3280,10 +3577,10 @@ function buyUpgrade(what, confirmed, noTip, heldCtrl) {
 	}
 	var upgrade = game.upgrades[what];
 	if (upgrade.locked == 1) return;
-	var canAfford = canAffordTwoLevel(upgrade);
-	if (!canAfford) return false;
-	var usingCtrl = (typeof heldCtrl !== 'undefined') ? heldCtrl : (game.options.menu.ctrlGigas.enabled == 1 && what == "Gigastation") ? true : ctrlPressed;
-	if (what == "Gigastation" && !confirmed && game.options.menu.confirmhole.enabled == 1){
+    var canAfford = canAffordTwoLevel(upgrade);
+    if (!canAfford) return false;
+	var usingCtrl = (typeof heldCtrl !== 'undefined') ? heldCtrl : (game.options.menu.ctrlGigas.enabled && what == "Gigastation") ? true : ctrlPressed;
+	if (what == "Gigastation" && !confirmed && !noTip && game.options.menu.confirmhole.enabled){
 		tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a Gigastation, <b>which is not a renewable upgrade</b>. Make sure you have purchased all of the Warpstations you can afford first!', 'buyUpgrade(\'Gigastation\', true, false, ' + usingCtrl + ')');
 		return;
 	}
@@ -3292,7 +3589,7 @@ function buyUpgrade(what, confirmed, noTip, heldCtrl) {
 		return;
 	}
 	canAfford = canAffordTwoLevel(upgrade, true);
-	upgrade.fire(usingCtrl);
+    upgrade.fire(usingCtrl, noTip);
 	upgrade.done++;
 	if (upgrade.prestiges){
 		var resName = (what == "Supershield") ? "wood" : "metal";
@@ -3536,8 +3833,9 @@ function customizeGATargets(){
 	var toKeep = [-1];
 	var disableCheck = document.getElementById('disableOnUnlockCheck');
 	if (disableCheck != null){
-		game.options.menu.GeneticistassistTarget.disableOnUnlock = disableCheck.checked;
-		if (disableCheck.checked && game.jobs.Geneticist.locked) game.global.GeneticistassistSetting = -1;
+		var checked = readNiceCheckbox(disableCheck);
+		game.options.menu.GeneticistassistTarget.disableOnUnlock = checked;
+		if (checked && game.jobs.Geneticist.locked) game.global.GeneticistassistSetting = -1;
 	}
 	for (var x = 1; x <= 3; x++){
 		var elem = document.getElementById('target' + x);
@@ -3554,8 +3852,8 @@ function customizeGATargets(){
 			error = elem.value + " seconds would be really difficult to target. Could you pick a slightly more... numerical number?";
 			break;
 		}
-		if (val > 60 || val < 0.5) {
-			error = "All numbers must be between 0.5 and 60. " + elem.value + " is not within that range.";
+		if (val < 0.5) {
+			error = "All numbers must be greater than 0.5. " + elem.value + " is not.";
 			break;
 		}
 		toKeep.push(val);
@@ -3661,7 +3959,11 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
         size: (sizeOverride) ? sizeOverride : Math.floor(getRandomMapValue("size")),
 		loot: (lootOverride) ? lootOverride : lootg,
 		noRecycle: setNoRecycle ? true : false
-    };
+	};
+	var maxLoot = getMapMinMax('loot', 0)[1];
+	if (game.singleRunBonuses.goldMaps.owned) maxLoot++;
+	if (!nameOverride && newMap.difficulty == getMapMinMax('difficulty', 0)[0] && newMap.size == getMapMinMax('size', 0)[0] && newMap.loot == maxLoot)
+		giveSingleAchieve('Maptastic')
 	if (newMap.location == 'Plentiful' && game.global.decayDone){
 		newMap.loot += .25;
 	}
@@ -3675,6 +3977,14 @@ function createMap(newLevel, nameOverride, locationOverride, lootOverride, sizeO
 	game.global.mapsOwnedArray.push(newMap);
     if (!messageOverride) message("You just made " + mapName[0] + "!", "Loot", "th-large", null, 'secondary');
     unlockMap(game.global.mapsOwnedArray.length - 1);
+}
+
+function checkMapLevelInput(elem){
+	var value = parseInt(elem.value, 10);
+	if (isNaN(value)) elem.value = game.global.world;
+	if (value < 6) elem.value = 6;
+	if (value > game.global.world) elem.value = game.global.world;
+	updateMapCost();
 }
 
 function incrementMapLevel(amt){
@@ -3696,7 +4006,7 @@ function saveAdvMaps(){
 	preset.specMod = getSpecialModifierSetting();
 	preset.perf = checkPerfectChecked();
 	preset.extra = getExtraMapLevels();
-	preset.lowerLevel = game.global.world - document.getElementById("mapLevelInput").value;
+	preset.offset = getMapZoneOffset();
 }
 
 function getMapPreset(){
@@ -3716,11 +4026,20 @@ function updatePresetColor(){
 	}
 }
 
+function getMapZoneOffset(){
+	var worldInput = (parseInt(document.getElementById('mapLevelInput').value, 10));
+	var offset = worldInput - game.global.world;
+	return offset;
+}
+
 function resetAdvMaps(fromClick) {
 	//if !fromClick, loads saved map settings. Otherwise resets to 0
 	var preset = getMapPreset();
 	//level
-	document.getElementById("mapLevelInput").value = Math.max((game.options.menu.siphonologyMapLevel.enabled) ? game.global.world - game.portal.Siphonology.level: game.global.world - preset.lowerLevel, 6);
+	var levelValue = game.global.world;
+	if (!fromClick && preset.offset != 'd') levelValue += preset.offset;
+	if (fromClick) preset.offset = 'd';
+	document.getElementById("mapLevelInput").value = levelValue;
 	//sliders
 	var inputs = ["loot", "difficulty", "size"];
 	for (var x = 0; x < inputs.length; x++){
@@ -3735,7 +4054,7 @@ function resetAdvMaps(fromClick) {
 	//bottom row
 	hideAdvMaps(true);
 	document.getElementById('advSpecialSelect').value = (!fromClick && preset.specMod) ? preset.specMod : "0";
-	document.getElementById('advPerfectCheckbox').checked = (!fromClick && preset.perf);
+	swapNiceCheckbox(document.getElementById('advPerfectCheckbox'), (!fromClick && preset.perf));
 	document.getElementById('advExtraLevelSelect').value = (!fromClick && preset.extra > 0) ? preset.extra.toString() : "0";
 	updatePresetColor();
 	updateMapNumbers();
@@ -3803,14 +4122,15 @@ function populateSpecialModifiers(){
 }
 
 function setAdvExtraZoneText(){
-	var enabled = (parseInt(document.getElementById('mapLevelInput').value) == game.global.world);
+	var enabled = (parseInt(document.getElementById('mapLevelInput').value, 10) == game.global.world);
 	var elem = document.getElementById('advExtraLevelSelect');
 	elem.style.display = enabled ? 'inline-block' : 'none';
 	if (!enabled) return;
 	if (elem.innerHTML == ""){
 		var text = ""
 		for (var x = 0; x <= 10; x++){
-			text += '<option id="advExtra' + x + '" value="'+ x + '">+' + x + '</option>';
+			var className = (affordMaxLevelsPerfect(x)) ? "mapExtraAfford1" : ((affordMaxLevelsCheap(x) ? "mapExtraAfford2" : "mapExtraNoAfford"));
+			text += '<option class="' + className + '" id="advExtra' + x + '" value="'+ x + '">+' + x + '</option>';
 		}
 		elem.innerHTML = text;
 	}
@@ -3819,9 +4139,35 @@ function setAdvExtraZoneText(){
 	}
 }
 
+function updateExtraLevelColors(){
+	for (var x = 0; x <= 10; x++){
+		var elem = document.getElementById('advExtra' + x);
+		if (!elem) continue;
+		var className = (affordMaxLevelsPerfect(x)) ? "mapExtraAfford1" : ((affordMaxLevelsCheap(x) ? "mapExtraAfford2" : "mapExtraNoAfford"));
+		swapClass('mapExtra', className, elem);
+	}
+}
+
+function affordMaxLevelsPerfect(levels){
+	var baseCost = 0;
+	baseCost += 27; //sliders
+	baseCost *= (game.global.world >= 60) ? 0.74 : 1;
+	baseCost += 6; //perfect checkbox
+	if (levels > 0) baseCost += (10 * levels);
+	if (game.resources.fragments.owned >= updateMapCost(true, baseCost)) return true;
+	return false;
+}
+
+function affordMaxLevelsCheap(levels){
+	var baseCost = 0;
+	if (levels > 0) baseCost += (10 * levels);
+	if (game.resources.fragments.owned >= updateMapCost(true, baseCost)) return true;
+	return false;
+}
+
 function getMapSliderValue(what){
 	//returns 0-9 as an int
-	var val = parseInt(document.getElementById(what + "AdvMapsRange").value);
+	var val = parseInt(document.getElementById(what + "AdvMapsRange").value, 10);
 	if (val >= 0 && val <= 9)
 		return val;
 	return 0
@@ -3846,16 +4192,16 @@ function checkPerfectChecked(){
 	//Returns true or false
 	if (game.global.highestLevelCleared < 109) return false;
 	if (!checkSlidersForPerfect()) return false;
-	return (document.getElementById('advPerfectCheckbox').checked);
+	return (readNiceCheckbox(document.getElementById('advPerfectCheckbox')));
 }
 
 function getExtraMapLevels(){
 	//Returns an int, 0-10
 	if (game.global.highestLevelCleared < 209) return 0;
-	if (parseInt(document.getElementById('mapLevelInput').value) != game.global.world) return 0;
+	if (parseInt(document.getElementById('mapLevelInput').value, 10) != game.global.world) return 0;
 	var value = document.getElementById('advExtraLevelSelect').value;
 	if (!value) return 0;
-	return parseInt(value);
+	return parseInt(value, 10);
 }
 
 function checkSlidersForPerfect(){
@@ -4013,34 +4359,40 @@ function cacheReward(resourceName, time, cacheName){
 	}
 }
 
-function updateMapCost(getValue){
+function updateMapCost(getValue, forceBaseCost){
 	var mapLevel =  parseInt(document.getElementById("mapLevelInput").value, 10);
 	var baseCost = 0;
 	if (mapLevel > game.global.world || mapLevel < 6 || isNaN(mapLevel)) return;
-	//Sliders: 27 total * 0.74 = ~20
-	baseCost += getMapSliderValue("size");
-	baseCost += getMapSliderValue("loot");
-	baseCost += getMapSliderValue("difficulty");
-	baseCost *= (game.global.world >= 60) ? 0.74 : 1;
+	if (getValue && forceBaseCost != null){
+		baseCost = forceBaseCost;
+	}
+	else{
+		//Sliders: 27 total * 0.74 = ~20
+		baseCost += getMapSliderValue("size");
+		baseCost += getMapSliderValue("loot");
+		baseCost += getMapSliderValue("difficulty");
+		baseCost *= (game.global.world >= 60) ? 0.74 : 1;
+		//Perfect Checkbox
+		if (checkPerfectChecked()){
+			baseCost += 6;
+		}
+		//Extra Levels
+		var extraLevels = getExtraMapLevels();
+		if (extraLevels > 0){
+			baseCost += (10 * extraLevels);
+		}
+	}
 	//Special Modifier
 	var specialModifier = getSpecialModifierSetting();
 	if (specialModifier != "0"){
 		baseCost += mapSpecialModifierConfig[specialModifier].costIncrease;
-	}
-	//Perfect Checkbox
-	if (checkPerfectChecked()){
-		baseCost += 6;
-	}
-	//Extra Levels
-	var extraLevels = getExtraMapLevels();
-	if (extraLevels > 0){
-		baseCost += (10 * extraLevels);
 	}
 	baseCost += mapLevel;
 	baseCost = Math.floor((((baseCost / 150) * (Math.pow(1.14, baseCost - 1))) * mapLevel * 2) * Math.pow((1.03 + (mapLevel / 50000)), mapLevel));
 	if (document.getElementById("biomeAdvMapsSelect").value != "Random") baseCost *= 2;
 	if (getValue) return baseCost;
 	document.getElementById("mapCostFragmentCost").innerHTML = prettify(baseCost);
+	if (game.global.highestLevelCleared >= 209) updateExtraLevelColors();
 }
 
 function checkMaxSliders(){
@@ -4050,9 +4402,7 @@ function checkMaxSliders(){
 }
 
 
-function getRandomMapValue(what) { //sliders only. what can be loot, size or difficulty
-    var amt = game.mapConfig[what + "Base"];
-	var range = game.mapConfig[what + "Range"];
+function getRandomMapValue(what) { //sliders only. what can be loot, size or difficulty;
 	var advValue = getMapSliderValue(what);
 	if (advValue > 9) advValue = 9;
 	else if (advValue < 0) advValue = 0;
@@ -4090,7 +4440,7 @@ function buyMap() {
 	var cost = updateMapCost(true);
 	var newLevel = parseInt(document.getElementById("mapLevelInput").value, 10);
 	if (!newLevel || newLevel <= 5 || newLevel > game.global.world || isNaN(newLevel) || isNaN(cost)) {
-		message("You must create a map between level 6 and your highest zone, " + game.global.world + ".", "Notices");
+		message("You must create a map between level 6 and your highest Zone, " + game.global.world + ".", "Notices");
 		return -1;
 	}
 	if (cost > 0 && game.resources.fragments.owned >= cost){
@@ -4144,7 +4494,7 @@ function getRandomIntSeeded(seed, minIncl, maxExcl) {
 	return (toReturn === maxExcl) ? minIncl : toReturn;
 }
 
-function createVoidMap(forcePrefix, forceSuffix) {
+function createVoidMap(forcePrefix, forceSuffix, skipMessage) {
 	var prefixes = ['Deadly', 'Poisonous', 'Heinous', 'Destructive']; //Must match size of void specials
 	var suffixes = ['Nightmare', 'Void', 'Descent', 'Pit'];
 	//Size/loot/dif
@@ -4159,25 +4509,51 @@ function createVoidMap(forcePrefix, forceSuffix) {
 		profiles[1] -= 1;
 	}
 	if (game.global.challengeActive == "Mapocalypse") profiles[2] = profiles[2] + game.challenges.Mapocalypse.difficultyIncrease;
-	var map = ({
-		id: "map" + game.global.totalMapsEarned,
-		name: prefixes[prefixNum] + " " + suffixes[suffixNum],
-		location: "Void",
-		clears: 0,
-		level: -1,
-		size: profiles[0],
-		loot: (game.singleRunBonuses.goldMaps.owned) ? (profiles[1] + 1) : profiles[1],
-		difficulty: profiles[2],
-		noRecycle: true,
-		voidBuff: voidSpecials[prefixNum]
-	});
-	if (game.talents.voidPower3.purchased)
-		map.bonus = 'fa';	
-	game.global.mapsOwnedArray.push(map);
+	var mapName = prefixes[prefixNum] + " " + suffixes[suffixNum];
+	var stackedMap = false;
+	var stackCount = Fluffy.getVoidStackCount();
+	if (game.global.totalVoidMaps > 0 && stackCount > 1){
+		for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
+			var newMap = game.global.mapsOwnedArray[x];
+			if (newMap.location != "Void" || newMap.name != mapName || (newMap.stacked + 1) >= stackCount) continue;
+			newMap.stacked = (newMap.stacked) ? newMap.stacked + 1 : 1;
+			stackedMap = true;
+			var mapElem = document.getElementById(newMap.id);
+			if (mapElem){
+				var innerElem = mapElem.getElementsByClassName('stackedVoids');
+				if (innerElem.length){
+					innerElem[0].innerHTML = "(x" + (newMap.stacked + 1) + ") ";
+				}
+			}
+			break;
+		}
+	}
+	if (!stackedMap){
+		var map = ({
+			id: "map" + game.global.totalMapsEarned,
+			name: mapName,
+			location: "Void",
+			clears: 0,
+			level: -1,
+			size: profiles[0],
+			loot: (game.singleRunBonuses.goldMaps.owned) ? (profiles[1] + 1) : profiles[1],
+			difficulty: profiles[2],
+			noRecycle: true,
+			voidBuff: voidSpecials[prefixNum],
+			stacked: 0
+		});
+		if (game.talents.voidPower3.purchased)
+			map.bonus = 'fa';	
+		game.global.mapsOwnedArray.push(map);
+	}
 	game.global.totalVoidMaps++;
-	message("A chill runs down your spine, and the bad guy quickly frosts over. A purple glow radiates from the ground in front of you, and a Void Map appears.", "Loot", "th-large", "voidMessage", 'secondary');
-	addVoidAlert();
-	unlockMap(game.global.mapsOwnedArray.length - 1);
+	if (!skipMessage){
+		message("A chill runs down your spine, and the Bad Guy quickly frosts over. A purple glow radiates from the ground in front of you, and a Void Map appears.", "Loot", "th-large", "voidMessage", 'secondary');
+		addVoidAlert();
+	}
+	if (!stackedMap)
+		unlockMap(game.global.mapsOwnedArray.length - 1);
+	return mapName;
 }
 
 function buffVoidMaps(){
@@ -4196,7 +4572,7 @@ function buffVoidMaps(){
 }
 
 function addVoidAlert(){
-	if (game.global.switchToMaps) return;
+	if (game.global.switchToMaps || game.global.preMapsActive) return;
 	var alert = document.getElementById('voidAlert')
 	if (alert !== null) {
 		alert.innerHTML = game.global.totalVoidMaps;
@@ -4208,7 +4584,7 @@ function addVoidAlert(){
 var voidBuffConfig = {
 		doubleAttack: {
 			icon: 'icomoon icon-pushpin',
-			text: 'This bad guy attacks twice - once before you, and once again after you.',
+			text: 'This Bad Guy attacks twice - once before you, and once again after you.',
 			title: 'Void Attack',
 		},
 		slowBreed: {
@@ -4218,12 +4594,12 @@ var voidBuffConfig = {
 		},
 		getCrit: {
 			icon: 'icomoon icon-heart6',
-			text: 'This bad guy has a 25% chance to crit you for 400% extra damage.',
+			text: 'This Bad Guy has a 25% chance to crit you for 400% extra damage.',
 			title: 'Void Strength',
 		},
 		bleed: {
 			icon: "icomoon icon-drop",
-			text: 'Every time this bad guy attacks, you will lose an additional 20% of your <b>current</b> health.',
+			text: 'Every time this Bad Guy attacks, you will lose an additional 20% of your <b>current</b> health.',
 			title: 'Void Bleed',
 		}
 }
@@ -4363,9 +4739,10 @@ function displayExtraHeirlooms(){
 	}
 }
 
-function selectHeirloom(number, location, elem){
+function selectHeirloom(number, location, noScreenUpdate){
+	hideHeirloomSelectButtons();
 	game.global.selectedHeirloom = [number, location];
-	populateHeirloomWindow();
+	if (!noScreenUpdate) populateHeirloomWindow();
 	var heirloom = game.global[location];
 	if (number > -1) heirloom = heirloom[number];
 	switch (location){
@@ -4440,8 +4817,14 @@ function recalculateHeirloomBonuses(){
 }
 
 
-function unequipHeirloom(heirloom, toLocation){
+function unequipHeirloom(heirloom, toLocation, noScreenUpdate){
+	if (!noScreenUpdate) cancelTooltip();
 	if (!heirloom) heirloom = getSelectedHeirloom();
+	if (!toLocation) toLocation = "heirloomsCarried";
+	if (toLocation == "heirloomsCarried" && game.global.heirloomsCarried.length >= game.global.maxCarriedHeirlooms){
+		tooltip("Unequip Heirloom", null, 'update');
+		return;
+	}
 	game.global[heirloom.type + "Equipped"] = {};
 	if (toLocation == "heirloomsCarried") game.global.heirloomsCarried.push(heirloom);
 	else game.global.heirloomsExtra.push(heirloom);
@@ -4449,20 +4832,22 @@ function unequipHeirloom(heirloom, toLocation){
 	for (var item in game.heirlooms[heirloom.type]){
 		game.heirlooms[heirloom.type][item].currentBonus = 0;
 	}
-	populateHeirloomWindow();
+	if (!noScreenUpdate) populateHeirloomWindow();
+
 }
 
-function equipHeirloom(){
+function equipHeirloom(noScreenUpdate){
 	var heirloom = getSelectedHeirloom();
+	if (heirloom == game.global.ShieldEquipped || heirloom == game.global.StaffEquipped) return;
 	if (game.global.selectedHeirloom[1] == "heirloomsExtra") game.global.heirloomsExtra.splice(game.global.selectedHeirloom[0], 1);
 	else game.global.heirloomsCarried.splice(game.global.selectedHeirloom[0], 1);
-	if (typeof game.global[heirloom.type + "Equipped"].name !== 'undefined') unequipHeirloom(game.global[heirloom.type + "Equipped"], game.global.selectedHeirloom[1]);
+	if (typeof game.global[heirloom.type + "Equipped"].name !== 'undefined') unequipHeirloom(game.global[heirloom.type + "Equipped"], game.global.selectedHeirloom[1], noScreenUpdate);
 	game.global[heirloom.type + "Equipped"] = heirloom;
 	//Add bonuses
 	for (var item in heirloom.mods){
 		game.heirlooms[heirloom.type][heirloom.mods[item][0]].currentBonus += heirloom.mods[item][1];
 	}
-	populateHeirloomWindow();
+	if (!noScreenUpdate) populateHeirloomWindow();
 	if (checkLowestHeirloom() >= 5) giveSingleAchieve("Swag");
 	if (checkLowestHeirloom() >= 7) giveSingleAchieve("Swagmatic");
 }
@@ -4521,12 +4906,21 @@ function generateHeirloomIcon(heirloom, location, number){
 }
 
 function htmlEncode(text) {
-	text = text.replace("&", "&amp;");
-	text = text.replace("'", "&apos;");
-	text = text.replace('"', "&quot;");
-	text = text.replace("<", "&lt;");
-	text = text.replace(">", "&gt;");
+	text = replaceAll(text, "&", "&amp;");
+	text = replaceAll(text, "'", "&apos;");
+	text = replaceAll(text, '"', "&quot;");
+	text = replaceAll(text, "<", "&lt;");
+	text = replaceAll(text, ">", "&gt;");
 	return text;
+}
+
+//from stackoverflow.com/questions/1144783
+function escapeRegExp(str) {
+    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+function replaceAll(str, find, replace) {
+    return str.replace(new RegExp(escapeRegExp(find), 'g'), replace);
 }
 
 var lastDisplayedHeirloom = new Date().getTime();
@@ -4540,7 +4934,7 @@ function displaySelectedHeirloom(modSelected, selectedIndex, fromTooltip, locati
 	html += ')" id="selectedHeirloomTitle">' + heirloom.name + '</span> '
 	if (!fromTooltip) html += '<span id="renameContainer"></span>';
 	html+= '</div></div>';
-	if (!fromTooltip && (game.global.selectedHeirloom[1] == "StaffEquipped" || game.global.selectedHeirloom[1] == "ShieldEquipped")) html += '<span class="heirloomEquipped">Equipped</span><br/>';
+	if (!fromPopup && !fromTooltip && (game.global.selectedHeirloom[1] == "StaffEquipped" || game.global.selectedHeirloom[1] == "ShieldEquipped")) html += '<span class="heirloomEquipped">Equipped</span><br/>';
 	var noneEmpty = true;
 	var opacity = (modSelected) ? 'style="opacity: 0.5" ' : '';
 	for (var x = 0; x < heirloom.mods.length; x++){
@@ -4788,7 +5182,8 @@ function replaceMod(confirmed){
 			}
 		}
 		text += " Are you sure?";
-		tooltip('confirm', null, 'update', text, 'replaceMod(true)', 'Replace Mod');
+		var tipName = (oldName == "Empty") ? "Add Mod" : "Replace Mod";
+		tooltip('confirm', null, 'update', text, 'replaceMod(true)', tipName);
 		return;
 	}
 	game.global.nullifium -= cost;
@@ -4986,7 +5381,7 @@ function getHeirloomRarityRanges(zone){
 	return newRarities;
 }
 
-function getHeirloomRarity(zone, seed){ //zone is optional, and will override world
+function getHeirloomRarity(zone, seed){ //Zone is optional, and will override world
 	if (!zone) zone = game.global.world;
 	var rarities = getHeirloomRarityRanges(zone);
 	var nextTest = 0;
@@ -5048,7 +5443,7 @@ function buildMapGrid(mapId) {
             text: "",
             name: getRandomBadGuy(map.location, i + 1, map.size, map.level, imports)
 		};
-		if (game.badGuys.Presimpt.locked == 0 && game.options.menu.showSnow.enabled){
+		if (game.badGuys.Presimpt.locked == 0 && game.options.menu.showSnow && game.options.menu.showSnow.enabled){
 			if (map.location == "Void") cell.vm = "CorruptSnow";
 			else cell.vm = "TrimpmasSnow"
 		}
@@ -5065,12 +5460,13 @@ function getMapIndex(mapId) {
 }
 
 function getEmpowerment(adjust, getNaming){
+	var natureStartingZone = (game.global.challengeActive == "Eradicated") ? 1 : 236;
 	var adjWorld = game.global.world;
 	if (typeof adjust !== 'undefined') adjWorld += adjust;
-	if (adjWorld < 236) return false;
+	if (adjWorld < natureStartingZone) return false;
 	var activeEmpowerments = ["Poison", "Wind", "Ice"];
 	var naming = ["Toxic", "Gusty", "Frozen"];
-	adjWorld = Math.floor((adjWorld - 236) / 5);
+	adjWorld = Math.floor((adjWorld - natureStartingZone) / 5);
 	adjWorld = adjWorld % activeEmpowerments.length;
 	if (getNaming) return naming[adjWorld];
 	return activeEmpowerments[adjWorld];
@@ -5132,6 +5528,36 @@ function handleWindDebuff() {
 	document.getElementById('windEmpowermentText').innerHTML = prettify(game.empowerments.Wind.currentDebuffPower);
 }
 
+function handleDominationDebuff() {
+	var dominating = false;
+	var enemy = (game.global.mapsActive) ? getCurrentMapCell() : getCurrentWorldCell();
+	if (game.global.mapsActive){
+		if (game.global.lastClearedMapCell + 2 == getCurrentMapObject().size) dominating = true;
+	}
+	else if (game.global.lastClearedCell == 98) dominating = true;
+	var elem = document.getElementById('dominationDebuffContainer');
+	if (!game.global.challengeActive || enemy.name == "Liquimp"){
+		if (elem == null) return;
+		elem.style.display = 'none';
+		return;
+	}
+	if (elem == null){
+		document.getElementById('badDebuffSpan').innerHTML += '<span class="badge badBadge" id="dominationDebuffContainer" onmouseover="tooltip(\'Domination' + ((dominating) ? 'Dominating' : 'Weak') + '\', null, event)" onmouseout="tooltip(\'hide\')"><span id="dominationDebuffIcon" class="icomoon icon-' + ((dominating) ? 'podcast' : 'feed') + '"></span></span>';
+		return;
+	}
+	elem.style.display = 'inline-block';
+	var iconElem = document.getElementById('dominationDebuffIcon');
+	if (!iconElem) return;
+	if (dominating && iconElem.className != 'icomoon icon-podcast') {
+		iconElem.className = 'icomoon icon-podcast';
+		elem.onmouseover = function (){tooltip("DominationDominating", null, event)}
+	}
+	else if (!dominating && iconElem.className != 'icomoon icon-feed'){
+		iconElem.className = 'icomoon icon-feed';
+		elem.onmouseover = function (){tooltip("DominationWeak", null, event)}
+	}
+}
+
 function setEmpowerTab(){
 	var empowerMod = getEmpowerment();
 	var empowerTab = document.getElementById('natureTab');
@@ -5174,9 +5600,10 @@ function checkAndFormatTokens(tokenCost, empowerment){
 	return "<span class='" + ((canAfford) ? "green" : "red") + "'>" + prettify(tokenCost) + "&nbsp;Tokens</span>";
 }
 
-function getRetainModifier(empowerment){
-	empowerment = game.empowerments[empowerment];
+function getRetainModifier(empowermentName){
+	var empowerment = game.empowerments[empowermentName];
 	var bonusLevels = (game.talents.nature3.purchased) ? 5 : 0;
+	if (empowermentName == "Poison" && Fluffy.isRewardActive('naturesWrath')) bonusLevels += 10;
 	return 0.01 * (empowerment.retainLevel + bonusLevels);
 }
 
@@ -5222,12 +5649,16 @@ function natureTooltip(event, doing, spending, convertTo){
 			retainLevel += 5;
 			cap += 5;
 		}
+		if (spending == "Poison" && Fluffy.isRewardActive('naturesWrath')){
+			retainLevel += 10;
+			cap += 10;
+		}
 		if (retainLevel >= cap){
 			tipText = "You are currently at the maximum level for Stack Transfer Rate, allowing <b>" + cap + "%</b> of your stacks to transfer.";
 			tipCost = 0;
 		}
 		else{
-			tipText = "Currently, a minimum of <b>" + prettify(getRetainModifier(spending) * 100) + "%</b> of your stacks transfer after you kill a bad guy during the Empowerment of " + spending + ". Each level of this upgrade will increase the transfer rate by <b>1%</b>, bringing you to <b>" + prettify((getRetainModifier(spending) + 0.01) * 100) + "%</b>. Maximum of " + ((game.talents.nature3.purchased) ? "85" : "80") + " levels.";
+			tipText = "Currently, a minimum of <b>" + prettify(getRetainModifier(spending) * 100) + "%</b> of your stacks transfer after you kill a Bad Guy during the Empowerment of " + spending + ". Each level of this upgrade will increase the transfer rate by <b>1%</b>, bringing you to <b>" + prettify((getRetainModifier(spending) + 0.01) * 100) + "%</b>. Maximum of " + ((game.talents.nature3.purchased) ? "85" : "80") + " levels.";
 			tipCost = getNextNatureCost(spending, true);
 		}
 	}
@@ -5254,10 +5685,11 @@ function rewardToken(empowerment){
 function updateNatureInfoSpans(){
 	for (var item in game.empowerments){
 		var emp = game.empowerments[item];
-		document.getElementById('infoSpan' + item).innerHTML = "<span class='icomoon icon-info2'></span>&nbsp" + emp.formatModifier(emp.getModifier()) + "%";
+		document.getElementById('infoSpan' + item).innerHTML = "<span class='icomoon icon-info2'></span>&nbsp" + emp.formatModifier(emp.getModifier(0, true)) + "%";
 		document.getElementById('tokenCount' + item).innerHTML = prettify(emp.tokens);
 		var bonusLevels = (game.talents.nature3.purchased) ? 5 : 0;
 		document.getElementById('natureUpgrade' + item + 'Level').innerHTML = "Lv: " + prettify(emp.level + bonusLevels);
+		if (item == "Poison" && Fluffy.isRewardActive('naturesWrath')) bonusLevels += 10;
 		document.getElementById('natureStackTransfer' + item + 'Level').innerHTML = "Lv: " + prettify(emp.retainLevel + bonusLevels);
 	}
 	updateEmpowerCosts();
@@ -5455,6 +5887,7 @@ var mutations = {
 	},
 	Corruption: {
 		start: function (ignoreCorrupted){
+			if (game.global.challengeActive == "Eradicated") return 1;
 			var start = (game.talents.headstart.purchased && !game.global.runningChallengeSquared) ? ((game.talents.headstart2.purchased) ? ((game.talents.headstart3.purchased) ? 151 : 166) : 176) : 181;
 			if (ignoreCorrupted) return start;
 			return (game.global.challengeActive == "Corrupted") ? 60 : start;
@@ -5485,7 +5918,7 @@ var mutations = {
 			return game.global.getEnemyHealth(cellNum, name, true) * this.statScale(10);
 		},
 		statScale: function (base){
-			var startPoint = (game.global.challengeActive == "Corrupted") ? 1 : 150;
+			var startPoint = (game.global.challengeActive == "Corrupted" || game.global.challengeActive == "Eradicated") ? 1 : 150;
 			var scales = Math.floor((game.global.world - startPoint) / 6);
 			base *= Math.pow(1.05, scales);
 			return base;
@@ -5503,13 +5936,13 @@ var mutations = {
 			var mutText = mutationEffects[effectName].text;
 			var text = "";
 			if (game.global.spireActive){
-				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this zone.";
+				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this Zone.";
 				text = mutText[0].toUpperCase() + mutText.substring(1);
 			}
 			else {
 				text = "All corrupted enemies currently deal " + prettify(this.statScale(3)) + "X damage and have " + prettify(this.statScale(10)) + "X health. In addition, " + mutText;
 			}
-			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this zone.";
+			text += " It will also drop " + ((game.global.challengeActive == "Corrupted") ? "7.5%" : "15%") + " of the helium you would normally get from completing this Zone.";
 			return text;
 		},
 		effects: ['corruptDbl', 'corruptBleed', 'corruptStrong', 'corruptTough', 'corruptDodge', 'corruptCrit'],
@@ -5517,8 +5950,8 @@ var mutations = {
 	},
 	Magma: {
 		start: function (){
-			var number = 230;
-			return number;
+			if (game.global.challengeActive == "Eradicated") return 1;
+			return 230;
 		},
 		active: function (){
 			return (game.global.canMagma && game.global.world >= this.start());
@@ -5841,6 +6274,7 @@ var mutations = {
 			return base;
 		},
 		reward: function (effect) {
+			if (game.global.genPaused && game.global.challengeActive == "Eradicated") return;
 			var amt;
 			var text;
 			if (!game.global.genPaused && (game.global.generatorMode == 1 || (game.global.generatorMode == 2 && (getGeneratorFuelCap(false, true) - game.global.magmaFuel > 0.01)))){
@@ -5942,13 +6376,13 @@ var mutations = {
 			var mutText = mutationEffects[effectName].text;
 			var text = "";
 			if (game.global.spireActive){
-				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop 45% of the helium you would normally get from completing this zone.";
+				if (effectName == "none") return "This enemy is missing an effect thanks to Fluffy! It will still drop 45% of the helium you would normally get from completing this Zone.";
 				text = mutText[0].toUpperCase() + mutText.substring(1);
 			}
 			else {
 				text = "All Healthy enemies currently deal " + prettify(this.statScale(5)) + "X damage and have " + prettify(this.statScale(14)) + "X health. In addition, " + mutText;
 			}
-			text += " It will also drop 45% of the helium you would normally get from completing this zone.";
+			text += " It will also drop 45% of the helium you would normally get from completing this Zone.";
 			return text;
 		},
 		effects: ['healthyDbl', 'healthyBleed', 'healthyStrong', 'healthyTough', 'healthyCrit'],
@@ -5959,57 +6393,57 @@ var mutations = {
 var mutationEffects = {
 	corruptDbl: {
 		icon: 'icomoon icon-pushpin',
-		text: 'this bad guy attacks twice - once before you, and once again after you.',
+		text: 'this Bad Guy attacks twice - once before you, and once again after you.',
 		title: 'Corrupted Stamina'
 	},
 	corruptCrit: {
 		icon: 'icomoon icon-heart6',
-		text: 'this bad guy has a 25% chance to crit you for 400% extra damage.',
+		text: 'this Bad Guy has a 25% chance to crit you for 400% extra damage.',
 		title: 'Corrupted Precision'
 	},
 	corruptBleed: {
 		icon: "icomoon icon-drop",
-		text: 'every time this bad guy attacks, you will lose an additional 20% of your <b>current</b> health.',
+		text: 'every time this Bad Guy attacks, you will lose an additional 20% of your <b>current</b> health.',
 		title: 'Corrupted Sharpness'
 	},
 	corruptStrong: {
 		icon: 'icomoon icon-hammer',
-		text: 'this bad guy has an additional 2x attack.',
+		text: 'this Bad Guy has an additional 2x attack.',
 		title: 'Corrupted Strength'
 	},
 	corruptTough: {
 		icon: 'icomoon icon-shield2',
-		text: 'this bad guy has an additional 5x health.',
+		text: 'this Bad Guy has an additional 5x health.',
 		title: 'Corrupted Toughness'
 	},
 	corruptDodge: {
 		icon: 'icomoon icon-air',
-		text: 'this bad guy has a 30% chance to dodge your attacks.',
+		text: 'this Bad Guy has a 30% chance to dodge your attacks.',
 		title: 'Corrupted Agility'
 	},
 	healthyDbl: {
 		icon: 'icomoon icon-pushpin',
-		text: 'this bad guy attacks twice for 1.5x damage - once before you, and once again after you.',
+		text: 'this Bad Guy attacks twice for 1.5x damage - once before you, and once again after you.',
 		title: 'Healthy and Tireless'
 	},
 	healthyCrit: {
 		icon: 'icomoon icon-heart6',
-		text: 'this bad guy has a 25% chance to crit you for 600% extra damage.',
+		text: 'this Bad Guy has a 25% chance to crit you for 600% extra damage.',
 		title: 'Healthy and Precise'
 	},
 	healthyBleed: {
 		icon: "icomoon icon-drop",
-		text: 'every time this bad guy attacks, you will lose an additional 30% of your <b>current</b> health.',
+		text: 'every time this Bad Guy attacks, you will lose an additional 30% of your <b>current</b> health.',
 		title: 'Healthy and Sharp'
 	},
 	healthyStrong: {
 		icon: 'icomoon icon-hammer',
-		text: 'this bad guy has an additional 2.5x attack.',
+		text: 'this Bad Guy has an additional 2.5x attack.',
 		title: 'Healthy and Strong'
 	},
 	healthyTough: {
 		icon: 'icomoon icon-shield2',
-		text: 'this bad guy has an additional 7.5x health.',
+		text: 'this Bad Guy has an additional 7.5x health.',
 		title: 'Healthy and Tough'
 	},
 	none: {
@@ -6097,10 +6531,12 @@ var visualMutations = {
 }
 
 function startTheMagma(){
+	if (game.global.challengeActive == "Obliterated") giveSingleAchieve("Melted");
 	var reward = (game.global.runningChallengeSquared) ? 0 : rewardResource("helium", 60, 99);
 	tooltip('The Magma', null, 'update', reward);
 	var genSetting = game.options.menu.generatorStart.enabled;
-	if (genSetting){
+	if (game.global.challengeActive == "Eradicated") game.global.generatorMode = 1;
+	else if (genSetting){
 		if (genSetting == 3 && game.permanentGeneratorUpgrades.Hybridization.owned) game.global.generatorMode = 2;
 		else if (genSetting == 2) game.global.generatorMode = 0;
 		else if (genSetting == 1) game.global.generatorMode = 1;
@@ -6110,6 +6546,7 @@ function startTheMagma(){
 		}
 	}
 	drawAllBuildings();
+	if (game.global.challengeActive == "Eradicated") return;
 	if (game.global.challengeActive != 'Trimp')
 		game.upgrades.Coordination.allowed += 100;
 	else game.challenges.Trimp.heldBooks += 100;
@@ -6119,7 +6556,9 @@ function startTheMagma(){
 function decayNurseries(){
 	if (game.buildings.Nursery.owned <= 0) return;
 	var afterDecay = Math.floor(game.buildings.Nursery.owned * 0.9);
-	game.stats.decayedNurseries.value += (game.buildings.Nursery.owned - afterDecay);
+	var decayed = (game.buildings.Nursery.owned - afterDecay)
+	game.stats.decayedNurseries.value += decayed;
+	if (decayed >= 750) giveSingleAchieve("Wildfire");
 	game.buildings.Nursery.owned = afterDecay;
 
 }
@@ -6184,17 +6623,103 @@ function updateGeneratorInfo(){
 		document.getElementById('buildingsHere').innerHTML += getGeneratorHtml(true);
 	}
 	changeGeneratorState(null, true);
-	if (game.permanentGeneratorUpgrades.Hybridization.owned) document.getElementById('generatorHybridBtn').style.display = 'inline';
+	if (game.permanentGeneratorUpgrades.Hybridization.owned) document.getElementById('generatorHybridBtn').style.display = 'inline-block';
+	if (game.permanentGeneratorUpgrades.Supervision.owned) document.getElementById('generatorStateConfigBtn').style.display = 'inline-block';
 	updateGeneratorFuel();
 	document.getElementById('generatorTrimpsPs').innerHTML = prettify(scaleNumberForBonusHousing(nextTickAmount));
 	document.getElementById('upgradeMagmiteTotal').innerHTML = prettify(game.global.magmite) + " Mi";
 }
 
+function saveGenStateConfig(){
+	var errorElem = document.getElementById('genStateConfigError');
+	if (!errorElem) return;
+	var inputs = document.getElementsByClassName("genStateConfigInput");
+	for (var x = 0; x < inputs.length; x++){
+		var scrollElem = document.getElementById('genStateConfigScroll' + x);
+		if (!scrollElem || !inputs[x]) return;
+		var newSetting = [parseInt(scrollElem.dataset.value, 10), parseInt(inputs[x].value, 10)];
+		if (isNumberBad(newSetting[1])){
+			errorElem.innerHTML = scrollElem.value + " is not a valid number";
+			return;
+		}
+		if (newSetting[1] < 231 && newSetting[1] != 0) {
+			errorElem.innerHTML = "Must use either 0 or a Zone number larger than 230";
+			return;
+		}
+		if (game.global.genStateConfig.length <= x) game.global.genStateConfig.push(newSetting)
+		else game.global.genStateConfig[x] = newSetting;
+	}
+	refreshGenStateConfigTooltip();
+	cancelTooltip();
+}
+
+function getGenStateConfigTooltip(){
+	var tooltipText = "<div id='genStateConfigTop'><div style='font-size: 1.2vw; text-align: right; width: 40%; margin-right: 10%; display: inline-block;'>Starting Setting: </div>" + getSettingHtml(game.options.menu.generatorStart, 'generatorStart', null, "Popup") + "</div>";
+	var savedSettings = game.global.genStateConfig;
+	var btnsAllowed = 2;
+	for (var x = 0; x < btnsAllowed; x++){
+		var thisSetting;
+		if (savedSettings.length <= x) thisSetting = [-1, 0];
+		else thisSetting = savedSettings[x];
+		tooltipText += "<div>";
+		tooltipText += '<div style="text-align: right; width: 40%; margin-right: 10%; display: inline-block; font-size: 1.2vw;">At Zone <input class="genStateConfigInput" type="number" style="width: 50%; padding-left: 0.6vw;" id="genStateConfigInput' + x + '" value="' + thisSetting[1] + '">: </div>'
+		tooltipText += '<div data-value="' + thisSetting[0] + '" style="display: inline-block; width: 50%;" id="genStateConfigScroll' + x + '" class="genStateConfigScroll noselect settingsBtn settingBtn' + (thisSetting[0] + 1) + '" onclick="toggleGenStateConfig(this, ' + x + ')">' + getGenStateConfigBtnText(thisSetting[0]) + '</div>';
+		tooltipText += "</div>";
+	}
+	tooltipText += "</div>";
+	return tooltipText;
+}
+
+function refreshGenStateConfigTooltip(){
+	var elem = document.getElementById('genStateConfigTooltip');
+	if (elem) elem.innerHTML = getGenStateConfigTooltip();
+}
+
+function toggleGenStateConfig(elem, num){
+	var currentSetting = parseInt(elem.dataset.value, 10);
+	currentSetting++;
+	if (currentSetting == 3) currentSetting = -1;
+	elem.dataset.value = currentSetting;
+	swapClass('settingBtn', 'settingBtn' + (currentSetting + 1), elem);
+	elem.innerHTML = getGenStateConfigBtnText(currentSetting);
+}
+
+function getGenStateConfigBtnText(num){
+	var text;
+	switch(num){
+		case -1: text = "Don't Change At Zone"; break;
+		case 0: text = "Set to Gain Fuel"; break;
+		case 1: text = "Set to Gain Mi"; break;
+		case 2: text = "Set to Hybrid"; break;
+	}
+	return text;
+}
+
+function checkGenStateSwitch(){
+	if (game.global.genStateConfig.length < 1) return -1;
+	if (!game.permanentGeneratorUpgrades.Supervision.owned) return;
+	if (game.global.world < 231) return;
+	var world = game.global.world;
+	for (var x = 0; x < game.global.genStateConfig.length; x++){
+		if (game.global.genStateConfig[x][1] == world) {
+			var setTo = game.global.genStateConfig[x][0];
+			//great, changeGeneratorState has fuel on 1 and mi on 0, and the settings are the opposite.
+			if (setTo == 0) setTo = 1;
+			else if (setTo == 1) setTo = 0;
+			if (setTo >= 0 && setTo <= 2) changeGeneratorState(setTo);
+			return;
+		}
+	}
+	
+}
+
 function getGeneratorHtml(getContainer){
 	var html = "";
 	if (getContainer)
-	html += "<div class='thing generatorState' id='generatorWindow'>"
-	html += "<div id='genTitleContainer'> <div id='generatorTitle'>Dimensional Generator</div><div><span id='generatorActiveBtn' onclick='changeGeneratorState(1)' class='workBtn pointer noselect colorDanger hoverColor'>Gain Fuel</span> <span onclick='changeGeneratorState(0)' id='generatorPassiveBtn' class='workBtn pointer noselect colorPrimary hoverColor'>Gain Mi</span> <span onclick='changeGeneratorState(2)' id='generatorHybridBtn' class='workBtn pointer noselect colorTeal hoverColor' style='display: none'>Hybrid</span></div> <div id='generatorUpgradeBtn' onclick='tooltip(\"Upgrade Generator\", null, \"update\")'class='workBtn pointer noselect colorDark hoverColor'>Upgrade (<span id='upgradeMagmiteTotal'></span>)</div></div><div id='genGaugeContainer'><div class='row'><div class='col-xs-4'><div id='fuelContainer'><div id='fuelBar'></div><div id='fuelStorageBar'></div><div id='fuelGlass'></div><div id='fuelOwnedText'>Fuel<br/><span id='generatorFuelOwned'>0</span> / <span id='generatorFuelMax'>0</span></div></div></div>"
+		html += "<div class='thing generatorState' id='generatorWindow'>"
+	html += "<div id='genTitleContainer'><div id='generatorTitle'>Dimensional Generator</div>";
+	html += "<div id='dgChangeBtnContainer'" + ((game.global.challengeActive == "Eradicated") ? " class='eradicatedBtns'" : "") + "><span id='generatorActiveBtn' onclick='changeGeneratorState(1)' class='dgChangeBtn pointer noselect colorDanger hoverColor'>Gain Fuel</span> <span onclick='changeGeneratorState(0)' id='generatorPassiveBtn' class='dgChangeBtn pointer noselect colorPrimary hoverColor'>Gain Mi</span> <span onclick='changeGeneratorState(2)' id='generatorHybridBtn' class='dgChangeBtn pointer noselect colorTeal hoverColor' style='display: none'>Hybrid</span> <span style='display: none' onclick='tooltip(\"Configure Generator State\", null, \"update\")' id='generatorStateConfigBtn' class='pointer noselect hoverColor dgChangeBtn colorDefault'><span class='glyphicon glyphicon-cog'></span></span></div>";
+	html += "<div id='generatorUpgradeBtn' onclick='tooltip(\"Upgrade Generator\", null, \"update\")'class='workBtn pointer noselect colorDark hoverColor'>Upgrade (<span id='upgradeMagmiteTotal'></span>)</div></div><div id='genGaugeContainer'><div class='row'><div class='col-xs-4'><div id='fuelContainer'><div id='fuelBar'></div><div id='fuelStorageBar'></div><div id='fuelGlass'></div><div id='fuelOwnedText'>Fuel<br/><span id='generatorFuelOwned'>0</span> / <span id='generatorFuelMax'>0</span></div></div></div>"
 	if (game.permanentGeneratorUpgrades.Supervision.owned)
 		html += "<div class='col-xs-4 hasSlider' id='generatorProducingColumn'><div id='generatorProducingContainer'>Producing<br/><span id='generatorTrimpsPs'>0</span><br/>Housing/Tick</div><div id='generatorSliderBox'><input id='generatorSlider' onchange='saveSupervisionSetting()' type='range' min='1' max='100' value='" + game.global.supervisionSetting + "' /></div></div>";
 	else
@@ -6230,7 +6755,7 @@ function pauseGenerator(updateOnly){
 function saveSupervisionSetting(){
 	var elem = document.getElementById('generatorSlider');
 	if (!elem) return;
-	var value = parseInt(elem.value);
+	var value = parseInt(elem.value, 10);
 	if (isNaN(value)) return;
 	value = Math.round(value);
 	if (value < 1) value = 1;
@@ -6438,10 +6963,12 @@ function updateGeneratorFuel(){
 
 function changeGeneratorState(to, updateOnly){
 	//0 passive, 1 active, 2 hybrid
+	if (game.global.challengeActive == "Eradicated") to = 1;
 	if (!updateOnly)
 		game.global.generatorMode = to;
 	to = game.global.generatorMode;
 	if (game.global.genPaused) to = 0;
+	if (game.global.genPaused && game.global.challengeActive == "Eradicated") to = 1;
 	if (to == 2){
 		if (game.global.magmaFuel < getGeneratorFuelCap(false, true)){
 			to = 3;
@@ -6556,7 +7083,7 @@ function buildGrid() {
 		}
 	}
 	var needsEmpower = false;
-	if (game.global.world > 236 && game.global.world % 5 == 1)
+	if (game.global.challengeActive != "Eradicated" && game.global.world > 236 && game.global.world % 5 == 1)
 		needsEmpower = true;
     for (var i = 0; i < 100; i++) {
         var newCell = {
@@ -6628,7 +7155,7 @@ function setVoidCorruptionIcon(regularMap){
 	var text = "This " + ((regularMap) ? "map" : "Void Map") + " has become unstable due to Corruption. Enemy attack increased by " + prettify(attackScale) + "X, and health increased by " + prettify(healthScale) + "X.";
 	var title = "";
 	if (!regularMap){
-		text += " Helium at the end of the map is now double what you would earn from a World zone, including Corrupted cells!";
+		text += " Helium at the end of the map is now double what you would earn from a World Zone, including Corrupted cells!";
 		title = "Void Corruption";
 	}
 	else title = "Map Corruption";
@@ -6725,9 +7252,9 @@ function addSpecialToLast(special, array, item) {
     return array;
 }
 
-function addSpecialToSecondLast(special, array, item){
-	array[array.length - 2].text = convertUnlockIconToSpan(special);
-	array[array.length - 2].special = item;
+function addSpecialToNthLast(special, array, item, n){
+	array[array.length - n].text = convertUnlockIconToSpan(special);
+	array[array.length - n].special = item;
 	return array;
 }
 
@@ -6738,11 +7265,13 @@ function addSpecials(maps, countOnly, map, getPrestiges) { //countOnly must incl
 	var world;
 	var max;
 	var prestigeArray = [];
+	var hasPrestigious = false;
 	if (getPrestiges) map = {location: "All", level: game.global.world, size: 100}
     if (maps) {
         array = game.global.mapGridArray;
         unlocksObj = game.mapUnlocks;
-        if (!countOnly) map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
+		if (!countOnly) map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
+		hasPrestigious = (game.global.mapExtraBonus == "p" || (map.location == "Bionic" && game.talents.bionic2.purchased));
 		world = map.level;
         max = map.size;
     } else {
@@ -6750,7 +7279,7 @@ function addSpecials(maps, countOnly, map, getPrestiges) { //countOnly must incl
         unlocksObj = game.worldUnlocks;
         world = game.global.world;
         max = 100;
-    }
+	}
     var canLast = 1;
 	var prestigeItemsAvailable = [];
     for (var item in unlocksObj) {
@@ -6788,7 +7317,10 @@ function addSpecials(maps, countOnly, map, getPrestiges) { //countOnly must incl
 					continue;
 				}
 			array = addSpecialToLast(special, array, item);
-			canLast = 0;
+			if (hasPrestigious && canLast == 1 && item == "roboTrimp")
+				canLast = 3;
+			else
+				canLast = 0;
 			continue;
         }
 
@@ -6819,14 +7351,19 @@ function addSpecials(maps, countOnly, map, getPrestiges) { //countOnly must incl
 				prestigeItemsAvailable.push(item);
 				continue;
 			}
-			if (maps && special.prestige && game.global.mapExtraBonus == "p"){
+			if (hasPrestigious && special.prestige){
 				if (canLast == 1) {
 					array = addSpecialToLast(special, array, item);
 					canLast = 2;
-					continue;
 				}
-				addSpecialToSecondLast(special, array, item);
-				canLast = 0;
+				else if (canLast == 2){
+					addSpecialToNthLast(special, array, item, 2);
+					canLast = 0;
+				}
+				else if (canLast == 3){
+					addSpecialToNthLast(special, array, item, 3);
+					canLast = 2;
+				}
 				continue;	
 			}
 			array = addSpecialToLast(special, array, item);
@@ -6861,8 +7398,8 @@ function addSpecials(maps, countOnly, map, getPrestiges) { //countOnly must incl
 			}
 		}
 		array = addSpecialToLast(game.mapUnlocks[prestigeItemsAvailable[bestIndex]], array, prestigeItemsAvailable[bestIndex]);
-		if (game.global.mapExtraBonus == "p" && secondBestIndex != bestIndex)
-			array = addSpecialToSecondLast(game.mapUnlocks[prestigeItemsAvailable[secondBestIndex]], array, prestigeItemsAvailable[secondBestIndex]);
+		if (hasPrestigious && secondBestIndex != bestIndex)
+			array = addSpecialToNthLast(game.mapUnlocks[prestigeItemsAvailable[secondBestIndex]], array, prestigeItemsAvailable[secondBestIndex], 2);
 	}
 }
 
@@ -7078,6 +7615,7 @@ function recycleBelow(confirmed){
 	var total = 0;
 	for (var x = game.global.mapsOwnedArray.length - 1; x >= 0; x--){
 		var item = game.global.mapsOwnedArray[x];
+		if (game.global.currentMapId == item.id && game.global.mapsActive) continue;
 		if (!item.noRecycle && item.level < level) {
 			refund += recycleMap(x, true);
 			total++;
@@ -7122,7 +7660,7 @@ function recycleMap(map, fromMass, killVoid) {
 	}
 	game.global.mapsOwnedArray.splice(map, 1);
     if (killVoid) {
-		game.global.totalVoidMaps--;
+		game.global.totalVoidMaps -= (mapObj.stacked) ? mapObj.stacked + 1 : 1;
 		return;
 	}
 	mapsSwitch(true, true);
@@ -7382,7 +7920,7 @@ function runMap() {
 	if (game.global.challengeActive == "Watch") game.challenges.Watch.enteredMap = true;
 	if (game.global.challengeActive == "Mapology" && !game.global.currentMapId) {
 		if (game.challenges.Mapology.credits < 1){
-			message("You are all out of Map Credits! Clear some more zones to earn some more.", "Notices");
+			message("You are all out of Map Credits! Clear some more Zones to earn some more.", "Notices");
 			return;
 		}
 		game.challenges.Mapology.credits--;
@@ -7424,7 +7962,8 @@ function battleCoordinator(makeUp) {
     if (!game.global.fighting) {
         battle(null);
         return;
-    }
+	}
+	if (game.options.menu.pauseGame.enabled) return;
     game.global.battleCounter += (1000 / game.settings.speed);
 	var num = (game.portal.Agility.level) ? 1000 * Math.pow(1 - game.portal.Agility.modifier, game.portal.Agility.level) : 1000;
 	if (game.talents.hyperspeed.purchased) num -= 100;
@@ -7603,7 +8142,7 @@ function startFight() {
 	}
 	else if (cell.name == "Omnipotrimp" && game.global.spireActive){
 		displayedName = "Echo of Druopitee";
-		if (game.global.challengeActive == "Coordinate") displayedName = "Echoes of Druopitee and Pals";
+		if (game.global.challengeActive == "Coordinate") displayedName = "<span class='smallEnemyName'>Echoes of Druopitee and Pals</span>";
 	}
 	else if (cell.name == "Improbability" && game.global.challengeActive == "Coordinate") {
 		displayedName = "Improbabilities";
@@ -7653,6 +8192,7 @@ function startFight() {
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Electric\', \'customText\', event, \'This Bad Guy is electric and stacks a debuff on your Trimps\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-power-cord"></span></span>';
 	}
 	document.getElementById("badGuyName").innerHTML = badName;
+	if (game.global.challengeActive == "Domination") handleDominationDebuff();
 	var corruptionStart = mutations.Corruption.start(true);
 	if (cell.maxHealth == -1 && checkIfSpireWorld() && game.global.spireActive && !game.global.mapsActive && cell.corrupted){
 		if (Fluffy.isRewardActive("eliminator")){
@@ -7705,10 +8245,10 @@ function startFight() {
 			cell.health *= 4;
 			cell.attack *= 1.2;
 		}
-		if (game.global.challengeActive == "Obliterated"){
-			var oblitMult = 1e12;
-			var zoneModifier = Math.floor(game.global.world / 10);
-			oblitMult *= Math.pow(10, zoneModifier);
+		if (game.global.challengeActive == "Obliterated" || game.global.challengeActive == "Eradicated"){
+			var oblitMult = (game.global.challengeActive == "Eradicated") ? game.challenges.Eradicated.scaleModifier : 1e12;
+			var zoneModifier = Math.floor(game.global.world / game.challenges[game.global.challengeActive].zoneScaleFreq);
+			oblitMult *= Math.pow(game.challenges[game.global.challengeActive].zoneScaling, zoneModifier);
 			cell.health *= oblitMult;
 			cell.attack *= oblitMult;
 		}
@@ -7754,7 +8294,22 @@ function startFight() {
 			cell.attack *= (game.global.mapsActive) ? 2.35 : 1.17;
 			cell.health *= 2;
 		}
-		else if (game.global.challengeActive == "Lead" && (game.challenges.Lead.stacks > 0)) cell.health *= (1 + (Math.min(game.challenges.Lead.stacks, 200) * 0.04));
+		else if (game.global.challengeActive == "Lead" && (game.challenges.Lead.stacks > 0)){
+			cell.health *= (1 + (Math.min(game.challenges.Lead.stacks, 200) * 0.04));
+		}
+		else if (game.global.challengeActive == "Domination"){
+			var dominating = false;
+			if (map && map.size == cellNum + 1) dominating = true;
+			else if (!map && cellNum == 99) dominating = true;
+			if (dominating){
+				cell.attack *= 2.5;
+				cell.health *= 7.5;
+			}
+			else{
+				cell.attack *= 0.1;
+				cell.health *= 0.1;
+			}
+		}
 		if (cell.name == 'Improbability' || cell.name == "Omnipotrimp"){
 			if (game.global.roboTrimpLevel && game.global.useShriek) activateShriek();
 			if (game.global.world >= corruptionStart) {
@@ -7772,6 +8327,7 @@ function startFight() {
 		if (game.portal.Overkill.level && !(!map && game.global.gridArray[0].name == "Liquimp")) cell.health -= (overkill * game.portal.Overkill.level * 0.005);
 		if (cell.health < 1) {
 			var overkillerCount = Fluffy.isRewardActive("overkiller");
+			if (game.talents.overkill.purchased) overkillerCount++;
 			if (cell.OKcount <= overkillerCount){
 				var nextCell = (game.global.mapsActive) ? game.global.mapGridArray[cellNum + 1] : game.global.gridArray[cellNum + 1];
 				if (nextCell){
@@ -7903,7 +8459,6 @@ function startFight() {
         if (game.portal.Power_II.level > 0) game.global.soldierCurrentAttack *= (1 + (game.portal.Power_II.modifier * game.portal.Power_II.level));
 		game.global.soldierCurrentBlock = getBaseBlock() * trimpsFighting;
 		game.global.soldierHealthMax = calcHeirloomBonus("Shield", "trimpHealth", game.global.soldierHealthMax);
-		game.global.soldierCurrentAttack = calcHeirloomBonus("Shield", "trimpAttack", game.global.soldierCurrentAttack);
 		//block handled in getBaseBlock()
 		if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') game.global.soldierHealthMax *= dailyModifiers.pressure.getMult(game.global.dailyChallenge.pressure.strength, game.global.dailyChallenge.pressure.stacks);
 		if (game.global.formation !== 0){
@@ -7987,7 +8542,6 @@ function startFight() {
 			if (game.global.formation !== 0){
 				attackTemp *= (game.global.formation == 2) ? 4 : 0.5;
 			}
-			attackTemp = calcHeirloomBonus("Shield", "trimpAttack", attackTemp);
 			game.global.soldierCurrentAttack += attackTemp;
 			game.global.difs.attack = 0;
 		}
@@ -8133,7 +8687,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 			number *= ((game.global.totalSquaredReward / 100) + 1)
 		}
 		if (getEmpowerment() == "Ice"){
-			number *= 1 + (1 - game.empowerments.Ice.getCombatModifier());
+			number *= 1 + game.empowerments.Ice.getDamageModifier();
 		}
 		if (game.talents.magmamancer.purchased){
 			number *= game.jobs.Magmamancer.getBonusPercent();
@@ -8144,6 +8698,15 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 		if (game.talents.healthStrength.purchased && mutations.Healthy.active()){
 			number *= ((0.15 * mutations.Healthy.cellCount()) + 1);
 		}
+		if (game.talents.scry.purchased && !game.global.mapsActive && isScryerBonusActive()){
+			var worldCell = getCurrentWorldCell();
+			if (worldCell.mutation == "Corruption" || worldCell.mutation == "Healthy"){
+				number *= 2;
+			}
+		}
+		if (game.talents.daily.purchased && game.global.challengeActive == "Daily"){
+			number *= 1.5;
+		}
 		if (game.global.sugarRush > 0){
 			number *= sugarRush.getAttackStrength();
 		}
@@ -8152,6 +8715,16 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 		}
 		if (game.singleRunBonuses.sharpTrimps.owned){
 			number *= 1.5;
+		}
+		if (game.global.mapsActive && game.talents.bionic2.purchased && getCurrentMapObject().level > game.global.world){
+			number *= 1.5;
+		}
+		if (playerSpireTraps.Strength.owned){
+			var strBonus = playerSpireTraps.Strength.getWorldBonus();
+			number *= (1 + (strBonus / 100));
+		}
+		if (Fluffy.isRewardActive('voidSiphon') && game.stats.totalVoidMaps.value){
+			number *= (1 + (game.stats.totalVoidMaps.value * 0.05));
 		}
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
@@ -8175,6 +8748,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 				number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
 			}
 		}
+		number = calcHeirloomBonus("Shield", "trimpAttack", number);
 		if (Fluffy.isActive()){
 			number *= Fluffy.getDamageModifier();
 		}
@@ -8182,7 +8756,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 
 	}
 	else {
-		//Situational bad guy damage increases
+		//Situational Bad Guy damage increases
 		if (game.global.challengeActive){
 			//Challenge bonuses here
 			if (game.global.challengeActive == "Coordinate"){
@@ -8262,10 +8836,11 @@ function updateForemenCount(){
 }
 
 function tryScry(){
-	var roll = getRandomIntSeeded(game.global.voidSeed, 0, 100);
+	var roll = getRandomIntSeeded(game.global.scrySeed, 0, 100);
 	if (roll < 50 || roll > 52) return;
 	var reward = calculateScryingReward();
 	if (reward <= 0) return;
+	if (countHeliumSpent() == 0) giveSingleAchieve("Unessenceted");
 	game.global.essence += reward;
 	var maxCost = getTotalTalentCost();
 	var talentCount = countPurchasedTalents();
@@ -8287,49 +8862,99 @@ function tryScry(){
 	return reward;
 }
 
+function countRemainingEssenceDrops(){
+	var cellsRemaining = 100 - game.global.lastClearedCell - 1;
+	var count = 0;
+	for (var x = 1; x <= cellsRemaining; x++){
+		var roll = getRandomIntSeeded(game.global.scrySeed + x, 0, 100);
+		if (roll < 50 || roll > 52) continue;
+		count++;
+	}
+	return count;
+}
+
 function calculateScryingReward(){
 	var scryableLevels = game.global.world - 180;
 	if (scryableLevels <= 0) return 0;
 	var modAmt = (game.global.canMagma) ? 1.1683885 : 1.11613; //4.0 compatibility
-	var num = Math.floor((1 * Math.pow(modAmt, scryableLevels)) / 3);
+	var num = (1 * Math.pow(modAmt, scryableLevels)) / 3;
+	if (game.talents.scry.purchased && !game.global.mapsActive){
+		var worldCell = getCurrentWorldCell();
+		if (worldCell.mutation == "Corruption" || worldCell.mutation == "Healthy"){
+			num *= 1.5;
+		}
+	}
+	if (game.global.spiresCompleted >= 1){
+		num *= Math.pow(4, game.global.spiresCompleted);
+	}
+	num = Math.floor(num);
 	return (num < 1) ? 1 : num;
+}
+
+function getHighestUnlockedTalentTier(){
+	var totalTiers = getHighestTalentTier();
+	var colsPerTier = 6;
+
+	var affordable = checkAffordableTalents();
+	var required = 0;
+	for (var x = 2; x <= totalTiers; x++){
+		var add = (x > colsPerTier) ? colsPerTier : x;
+		required += add;
+		if (required > affordable) return x;
+	}
+	return totalTiers;
+}
+
+function getHighestIdealRow(){
+	var idealPoints = [16, 22, 28, 34, 40, 45, 49, 52, 54];
+	var affordable = checkAffordableTalents();
+	for (var x = 0; x < idealPoints.length; x++){
+		if (affordable < idealPoints[x]) return x;
+	}
+	return idealPoints.length;
 }
 
 function displayTalents(){
 	var html = "<div class='talentTierRow talentRowUnlocked'>";
 	var currentTier = 1;
-	var highestTier = getHighestTalentTier();
-	var purchasePower = getHighestTalentTier(false, checkAffordableTalents());
+	var tiers = getAllowedTalentTiers();
+	var purchasePower = getHighestUnlockedTalentTier();
+	var highestBuyoutRow = getHighestPurchaseableRow();
+	var highestIdealRow = getHighestIdealRow();
 	for (var item in game.talents){
 		var talent = game.talents[item];
 		if (talent.tier > currentTier) {
 			currentTier = talent.tier;
-			html += "</div><div class='talentTierRow talentRow" + ((highestTier >= currentTier) ? 'Unlocked' : 'Locked') + "'>";
+			html += "</div><div class='talentTierRow talentRow" + ((tiers[currentTier - 1] > 0) ? 'Unlocked' : 'Locked') + "'>";
 		}
-		var talentClass = "talentItem talent" + ((talent.purchased) ? "Purchased" : "NotPurchased");
+		var talentClass = ((ctrlPressed && talent.tier <= highestBuyoutRow) ? ((talent.tier <= highestIdealRow) ? "talentIdealRow " : "talentCanBuyRow ") : "") + "talentItem noselect talent" + ((talent.purchased) ? "Purchased" : "NotPurchased");
 		if (talent.requires && !game.talents[talent.requires].purchased) talentClass += " talentReqNeeded";
 		var icon = (talent.icon.charAt(0) == "*") ? "icomoon icon-" + talent.icon.substr(1) : "glyphicon glyphicon-" + talent.icon;
-		if (currentTier > purchasePower + 1){
-			html += "<div class='talentItem talentNotPurchased talentLocked' id='" + item + "')'><span class='talentIcon'><span class='icomoon icon-locked'></span></span></div>";
+		if (currentTier > purchasePower){
+			html += "<div class='talentItem noselect talentNotPurchased talentLocked'><span class='talentIcon'><span class='icomoon icon-locked'></span></span></div>";
 		}
 		else {
-			html += "<div class='" + talentClass + "' id='" + item + "' onmouseover='tooltip(\"" + item + "\", \"talents\", event)' onmouseout='tooltip(\"hide\")' onclick='purchaseTalent(\"" + item + "\")'><span class='talentIcon'><span class='" + icon + "'></span></span><br/><div class='talentName'>" + talent.name + "</div></div>";
+			html += "<div class='" + talentClass + "' onmouseover='tooltip(\"" + item + "\", \"talents\", event)' onmouseout='tooltip(\"hide\")' onclick='purchaseTalent(\"" + item + "\")'><span class='talentIcon'><span class='" + icon + "'></span></span><br/><div class='talentName'>" + talent.name + "</div></div>";
 		}
 	}
 	html += "</div>";
 	document.getElementById('talentsHere').innerHTML = html;
+	var respecBtn = document.getElementById('talentRespecBtn');
+	var respecAvailable = (game.global.b >= 20 || game.global.freeTalentRespecs) ? 'colorDanger' : 'colorBuyOff';
+	swapClass('color', respecAvailable, respecBtn)
+	if (game.global.freeTalentRespecs > 0) respecBtn.innerHTML = "Respec (" + game.global.freeTalentRespecs + " Free!)";
+	else respecBtn.innerHTML = "Respec (20 Bones)";
 	updateTalentNumbers();
 }
 
 function updateTalentNumbers(){
 	var mainEssenceElem = document.getElementById('essenceOwned')
 	var nextCostElem = document.getElementById('talentsNextCost')
-	var talentsNeededElem = document.getElementById('talentsNeeded');
 	var talentsCostElem = document.getElementById('talentsCost');
 	var alertElem = document.getElementById('talentsAlert');
 	var countElem = document.getElementById('talentsEssenceTotal');
 	//Check primary elements, update
-	if (mainEssenceElem == null || nextCostElem == null || talentsNeededElem == null) {return;}
+	if (mainEssenceElem == null || nextCostElem == null) {return;}
 
 	var nextCost = getNextTalentCost();
 	mainEssenceElem.innerHTML = prettify(game.global.essence);
@@ -8341,7 +8966,6 @@ function updateTalentNumbers(){
 	}
 	talentsCostElem.style.display = "block";
 	nextCostElem.innerHTML = prettify(nextCost);
-	talentsNeededElem.innerHTML = getHighestTalentTier(true);
 	//Check setting elements, update
 	if (alertElem == null || countElem == null) return;
 	if ((game.options.menu.masteryTab.enabled == 1 || game.options.menu.masteryTab.enabled == 3) && nextCost <= game.global.essence){
@@ -8354,10 +8978,17 @@ function updateTalentNumbers(){
 }
 
 function respecTalents(confirmed, force){
-	if (!force){
+	if (!force && game.global.freeTalentRespecs > 0) {
+		if (!confirmed){
+			tooltip('Confirm Respec Masteries', null, 'update', true);
+			return;
+		}
+		game.global.freeTalentRespecs--;
+	}
+	else if (!force){
 		if (game.global.b < 20) return;
 		if (!confirmed){
-			tooltip('Respec Talents', null, 'update');
+			tooltip('Confirm Respec Masteries', null, 'update');
 			return;
 		}
 			game.global.b -= 20;
@@ -8366,6 +8997,7 @@ function respecTalents(confirmed, force){
 	for (var item in game.talents){
 		if (game.talents[item].purchased && typeof game.talents[item].onRespec === 'function') game.talents[item].onRespec();
 		game.talents[item].purchased = false;
+		if (game.talents[item].purchased && typeof game.talents[item].afterRespec === 'function') game.talents[item].afterRespec();
 	}
 	game.global.essence += game.global.spentEssence;
 	game.global.spentEssence = 0;
@@ -8373,9 +9005,19 @@ function respecTalents(confirmed, force){
 }
 
 function purchaseTalent(what){
+	//from user click
 	var talent = game.talents[what];
+	if (ctrlPressed && canPurchaseRow(talent.tier)){
+		purchaseTalentRow(talent.tier);
+		return;
+	}
+	completeTalentPurchase(talent);
+}
+
+function completeTalentPurchase(talent){
+	//from purchaseTalent or other functions
 	if (talent.purchased) return;
-	if (talent.tier > getHighestTalentTier()) return;
+	if (getAllowedTalentTiers()[talent.tier - 1] <= 0) return;
 	if (talent.requires && !game.talents[talent.requires].purchased) return;
 	var cost = getNextTalentCost();
 	if (game.global.essence < cost && prettify(game.global.essence) != prettify(cost)) return;
@@ -8388,17 +9030,63 @@ function purchaseTalent(what){
 	displayTalents();
 }
 
-function getHighestTalentTier(countTilNext, forceCount){
-	var count = (isNaN(forceCount)) ? countPurchasedTalents() : forceCount;
-	var requiredPerTier = [3, 7, 11, 16, 23, 28, 33];
-	for (var x = 0; x < requiredPerTier.length; x++){
-		if (count < requiredPerTier[x]){
-			if (countTilNext) return requiredPerTier[x] - count;
-			return x + 1;
-		}
+function purchaseTalentRow(tier){
+	for (var item in game.talents){
+		var talent = game.talents[item];
+		if (talent.tier > tier) return;
+		completeTalentPurchase(talent);
 	}
-	if (countTilNext) return 0;
-	return requiredPerTier.length + 1;
+}
+
+function canPurchaseRow(tierNumber){
+	var totalRequiredPurchases = 0;
+	for (var x = tierNumber; x > 0; x--){
+		var purchasedThisTier = countPurchasedTalents(x);
+		totalRequiredPurchases += (6 - purchasedThisTier);
+	}
+	if (checkAffordableTalents() - countPurchasedTalents() >= totalRequiredPurchases) 
+		return true;
+	return false;
+}
+
+function getHighestPurchaseableRow(){
+	var canBuy = checkAffordableTalents() - countPurchasedTalents();
+	var maxTier = getHighestTalentTier();
+	var needToSpend = 0;
+	for (var x = 1; x <= maxTier; x++){
+		needToSpend += (6 - countPurchasedTalents(x));
+		if (needToSpend > canBuy) return x - 1;
+	}
+	return maxTier;
+}
+
+function getHighestTalentTier(){
+	return game.talents[Object.keys(game.talents)[Object.keys(game.talents).length - 1]].tier;
+}
+
+function getAllowedTalentTiers(){
+	var totalTiers = 9;
+	var colsPerTier = 6;
+
+	var ownedLastTier = countPurchasedTalents(1);
+	var allowed = [colsPerTier - ownedLastTier];
+	for (var x = 2; x <= totalTiers; x++){
+		var ownedThisTier = countPurchasedTalents(x);
+		if (ownedLastTier <= 1){
+			//-1 means the tier is locked
+			allowed.push(-1);
+		}
+		else if (ownedLastTier == colsPerTier) {
+			//previous tier is maxxed out, so anything in this tier can be purchased
+			allowed.push(colsPerTier - ownedThisTier);
+		}
+		else{
+			//previous tier is not maxxed out. 0 is possible and means the tier is displayed (not locked), but not greyed out and not purchaseable
+			allowed.push(ownedLastTier - ownedThisTier - 1);
+		}
+		ownedLastTier = ownedThisTier;
+	}
+	return allowed;
 }
 
 function initTalents(){
@@ -8408,10 +9096,10 @@ function initTalents(){
 	}
 }
 
-function countPurchasedTalents(){
+function countPurchasedTalents(tier){
 	var count = 0;
 	for (var item in game.talents){
-		if (game.talents[item].purchased) count++;
+		if ((!tier || game.talents[item].tier == tier) && game.talents[item].purchased) count++;
 	}
 	return count;
 }
@@ -8420,7 +9108,7 @@ function checkAffordableTalents(){
 	var totalEssence = game.global.spentEssence + game.global.essence;
 	var talentCount = Object.keys(game.talents).length;
 	var totalPrice = 0;
-	for (var x = 0; x < talentCount - 1; x++){
+	for (var x = 0; x < talentCount; x++){
 		totalPrice += getNextTalentCost(x);
 		if (totalPrice > totalEssence) return x;
 	}
@@ -8482,6 +9170,7 @@ function rewardLiquidZone(){
 	var hiddenUpgrades = ["fiveTrimpMax", "Map", "fruit", "groundLumber", "freeMetals", "Foreman", "FirstMap"];
 	for (var x = 1; x < 100; x++){
 		game.global.voidSeed++;
+		game.global.scrySeed++;
 		if (isScryerBonusActive()) tryScry();
 		if (checkVoidMap() == 1) voidMaps++;
 		var cell = game.global.gridArray[x];
@@ -8583,7 +9272,7 @@ function rewardLiquidZone(){
 }
 
 function checkIfLiquidZone(){
-	if (game.options.menu.liquification.enabled == 0 || game.global.challengeActive == "Obliterated") return false;
+	if (game.options.menu.liquification.enabled == 0 || game.global.challengeActive == "Obliterated" || game.global.challengeActive == "Eradicated") return false;
 	var spireCount = game.global.spiresCompleted;
 	if (game.talents.liquification.purchased) spireCount++;
 	if (game.talents.liquification2.purchased) spireCount++;
@@ -8656,12 +9345,15 @@ function nextWorld() {
 	if (checkIfSpireWorld()) startSpire();
 	buildGrid();
 	liquifyZone();
-    drawGrid();
+	drawGrid();
+	buyAutoJobs(true);
 	if (game.worldText["w" + game.global.world]) message(game.worldText["w" + game.global.world], "Story");
 	if (game.global.canMagma) checkAchieve("zones");
-
+	checkGenStateSwitch();
+	if (game.global.challengeActive == "Scientist" && game.global.highestLevelCleared >= 129 && game.global.sLevel >= 4 && game.global.world == 76){
+		giveSingleAchieve("AntiScience");
+	}
 	game.global.zoneStarted = getGameTime();
-
 	if (game.global.challengeActive == "Mapology") {
 		game.challenges.Mapology.credits++;
 		updateMapCredits();
@@ -8676,7 +9368,8 @@ function nextWorld() {
 	}
 	if (game.global.challengeActive == "Watch"){
 		if (game.global.world > 6) dropPrestiges();
-		assignExtraWorkers()
+		if (!game.global.autoJobsSetting.enabled)
+			assignExtraWorkers()
 	}
 	if (game.global.challengeActive == "Lead"){
 		if ((game.global.world % 2) == 0) game.challenges.Lead.stacks = 200;
@@ -8725,6 +9418,16 @@ function nextWorld() {
 	if (game.talents.housing.purchased) {
 		autoUnlockHousing();
 	}
+	if (game.talents.explorers.purchased){
+		if (Math.floor((game.global.world - game.mapUnlocks.Speedexplorer.next) / 10)){
+			game.mapUnlocks.Speedexplorer.fire(0, true);
+			if (game.global.currentMapId){
+				for (var x = 0; x < game.global.mapGridArray.length; x++){
+					if (game.global.mapGridArray[x].special == "Speedexplorer") game.global.mapGridArray[x].special = "";
+				}
+			}
+		}
+	}
 	if (game.talents.portal.purchased && game.global.world == 21 && game.mapUnlocks.Portal.canRunOnce){
 		game.mapUnlocks.Portal.fire(0, true);
 		game.mapUnlocks.Portal.canRunOnce = false;
@@ -8746,6 +9449,7 @@ function nextWorld() {
 		increaseTheHeat();
 		decayNurseries();
 	}
+	if (game.global.challengeActive == "Eradicated" && game.global.world <= 101) unlockUpgrade("Coordination");
 	if (game.global.world == 30 && game.global.canRespecPerks && !game.global.bonePortalThisRun && countHeliumSpent() <= 60) giveSingleAchieve("Underachiever");
 	else if (game.global.world == 10 && game.stats.trimpsKilled.value <= 5) giveSingleAchieve("Peacekeeper");
 	else if (game.global.world == 60){
@@ -8785,6 +9489,7 @@ function nextWorld() {
 		for (var x = 0; x < game.options.menu.mapAtZone.setZone.length; x++){
 			if (game.global.world == game.options.menu.mapAtZone.setZone[x])
 				mapsClicked(true);
+				toggleSetting("mapAtZone", null, false, true);
 		}
 	}
 	if (game.global.capTrimp) message("I'm terribly sorry, but your Trimp<sup>2</sup> run appears to have more than one Trimp fighting, which kinda defeats the purpose. Your score for this Challenge<sup>2</sup> will be capped at 230.", "Notices");
@@ -8857,7 +9562,7 @@ function startSpire(confirmed){
 				mapsSwitch();
 				if (spireNum == 1){
 					cancelTooltip();
-					tooltip("Spire", null, 'update');
+					tooltip("The Spire", null, 'update');
 				}
 			}
 			else handleExitSpireBtn();
@@ -8903,7 +9608,7 @@ function deadInSpire(){
 
 function endSpire(cancelEarly){
 	game.global.spireActive = false;
-	var cell = game.global.gridArray[game.global.lastClearedCell + 1];
+	var cell = getCurrentWorldCell();
 	if (!cell) return;
 	cell.health = cell.origHealth;
 	cell.attack = cell.origAttack;
@@ -8917,6 +9622,14 @@ function endSpire(cancelEarly){
 	clearSpireMetals();
 	setNonMapBox();
 	handleExitSpireBtn();
+}
+
+function getCurrentWorldCell(){
+	return game.global.gridArray[game.global.lastClearedCell + 1];
+}
+
+function getCurrentMapCell(){
+	return (game.global.mapGridArray.length > game.global.lastClearedMapCell) ? game.global.mapGridArray[game.global.lastClearedMapCell + 1] : -1;
 }
 
 function clearSpireMetals(){
@@ -8946,7 +9659,7 @@ function getSpireStory(spireNum, row){
 			r7: "<span class='spirePoem'>I see that you're attempting some planetary healing<br/>Leaving me steaming in an unappealing feeling<br/>Your freewheeling and stealing has just reached the ceiling<br/>Now commence kneeling or be sent off reeling</span>At least he's gained enough consciousness back to continue with the threats. You know that now is not the time to back down. ",
 			r8: "<span class='spirePoem'>It's obvious that you want the Corruption to slow<br/>So I'll point out something you might not yet know<br/>My Spires are infinite, there is no plateau<br/>You are doomed and you've been so since long long ago</span>His Spires might be infinite, but it's not possible for his consciousness to be. You decide you'll worry about the rest of the spires once you've beaten Druopitee into nothingness. ",
 			r9: "<span class='spirePoem'>Still you climb on, won't your strength ever waver?<br/>You're determined to be this planet's true savior?<br/>Stop to reconsider, we could be something greater<br/>Or continue your path as a time traveling slaver</span>Slaver?! Your Trimps all know that they're free to leave whenever they want. He's just trying to get under your skin! ",
-			r10: "Well, that's one Druopitee and two Echoes of Druopitee down now. He says that he has infinite Spires and infinite versions of himself, but you could tell at the end there that his Echoes are losing power. You might be able to knock the sentience out of all of his Spires by just clearing one more! You set your sights 100 zones forward, turn some more nozzles to spread some more Health around the world, you take your helium, spit on the floor of the Spire, and move on. "
+			r10: "Well, that's one Druopitee and two Echoes of Druopitee down now. He says that he has infinite Spires and infinite versions of himself, but you could tell at the end there that his Echoes are losing power. You might be able to knock the sentience out of all of his Spires by just clearing one more! You set your sights 100 Zones forward, turn some more nozzles to spread some more Health around the world, you take your helium, spit on the floor of the Spire, and move on. "
 		},
 		spire4: {
 			r2: "As you guessed before you even stepped in, this Spire is in even worse condition than the one before. The air is colder, the walls are more still, and there's a feeling of vacancy. Might as well look for stuff to take! ",
@@ -8956,6 +9669,15 @@ function getSpireStory(spireNum, row){
 			r8: "<span class='spirePoem'>Well here is something I wouldn't normally say<br/>Since it seems like you won't be going away<br/>Each of my Echoes you slay makes my mind decay<br/>I may not be able to communicate after today</span>Yes, that was becoming pretty obvious. His mind must really be decaying fast if he thought this admission would be anything other than motivating. ",
 			r9: "<span class='spirePoem'>Why don't you care that you're making things harder?<br/>To repair the planet you'd give enemies armor?<br/>When I brought you here, I thought you'd be smarter<br/>But it seems like there's no room left to barter</span>No, there's not. You're almost there. ",
 			r10: "As this third Echo of Druopitee falls, the Spire suddenly feels twice as cold. Druopitee told you that he placed infinite versions of himself in infinite Spires, but his will should no longer be conscious in any of them. You turn another set of knobs to release some more of the Healthy mutation into the world, and you figure there's nothing better to do than to keep looking for more to release. You just wouldn't be surprised to not hear from Druopitee again, at least not in this timeline. "
+		},
+		spire5: {
+			r2: "While you walk through the Spire, you whistle a tune. You haven't yet tired, your motivations zoom. As Fluffy checks for loot in this dark, dusty room, you suddenly see fire and hear a huge boom. ",
+			r6: "Against your better judgment, you continue to climb. Heat fills this dungeon, and doubt fills your mind. You feel a great evil that's long been confined, but with reluctance you move on for the good of Trimpkind. ",			
+			r4: "The fires still grow, but they leave a clear path. Just one direction shown, the thought makes you laugh. Unwisely Druopitee tried to rig this booby trap, but the fire shows the way to go so you thank him for the map. ",			
+			r7: "You're close to the top of this large, awful tower. Your fearful thoughts drop, your will is empowered. Luckily you have Fluffy to support you in this hour, you two will never stop until these echoes are devoured.",
+			r8: "The presence here is unique from what you felt before. You know it can't speak but it's not done for. An intrusive thought knocks on your mind's back door:<br/><span class='spirePoem'>You are weak. I'll be on the top floor.</span> ",
+			r9: "Another thought enters your mind, this time louder than before:<br/><span class='spirePoem'>Your death warrant's signed, soon you'll be no more.<br/>I gave you everything you have, it was no easy chore.<br/>Your Trimps are MINE, prepare for war!</span><br/>Even in death this guy's a dick. ",
+			r10: "As yet another Echo of Druopitee fades into nothingness, you feel something urging you to check underneath a loose stone in the corner of the room. After lifting it up, you find a small notebook with the words \"Global Domination\" written on it. The text all seems to be in Druopitee's handwriting, which you instantly recognize from the books you've found around the planet. The first few pages all discuss Druopitee's success with various creatures here, followed by multiple pages documenting failures at attempts to control the Trimps. The very last page with any writing in it indicates that Druopitee intended to create leaders they'd be more likely to follow, by creating clones of himself mixed with varying amounts of Trimp DNA. Is this where Fluffy came from?! "
 		}
 	}
 	var spire = spires['spire' + spireNum];
@@ -9033,16 +9755,18 @@ function giveSpireReward(level){
 			}
 			break;
 		case(100):
-			if (game.global.spireDeaths == 0) giveSingleAchieve("Invincible");	
+			if (game.global.spireDeaths == 0) giveSingleAchieve("Invincible");
+			if (spireWorld >= 5 && game.global.spireDeaths == 0) giveSingleAchieve("Invisible");
 			var text = getSpireStory(spireWorld, 10);
 			if (!game.global.runningChallengeSquared){
 				var amt = giveHeliumReward(100);
-				text += " You find a large stockpile of <b>" + prettify(amt) + " Helium</b>.";
+				text += " You find a large stockpile of <b>" + prettify(amt) + " Helium</b> and <b>" + prettify(playerSpire.rewardSpirestones(spireWorld)) + " Spirestones</b>!";
 			}
+			else text += " You find a large stockpile of <b>" + prettify(playerSpire.rewardSpirestones(spireWorld)) + " Spirestones</b>!";
 			if (game.global.spiresCompleted < spireWorld){
 				game.global.spiresCompleted = spireWorld;
 				game.global.b += 20;
-				text += " For your first time killing this Echo in any timeline, you have permanently added another 5% to your Liquification bonus and earned <b>20 bones!</b>"
+				text += " For your first time killing this Echo in any timeline, you have permanently added another 5% to your Liquification bonus, increased your Dark Essence gains by 4x, and earned <b>20 bones!</b>"
 				switch (spireWorld){
 					case 2: 
 						text += " You have also unlocked the <b>Capable</b> perk!";
@@ -9056,8 +9780,12 @@ function giveSpireReward(level){
 						text += " You have also unlocked the <b>Curious</b> perk!"
 						game.portal.Curious.locked = false;
 						break;
+					case 5:
+						text += " You have also unlocked the <b>Classy</b> perk!<b>";
+						game.portal.Classy.locked = false;
 				}
 			}
+			if (spireWorld == 2 && game.global.canRespecPerks && !game.global.bonePortalThisRun && countHeliumSpent() <= 1e9) giveSingleAchieve("Nerfeder");
 			if (game.global.challengeActive == "Coordinate") giveSingleAchieve("Hypercoordinated");
 			game.global.lastSpireCleared = spireWorld;
 			message(text, "Story");
@@ -9148,12 +9876,18 @@ function rewardSpire1(level){
 			}
 			if (game.portal.Looting_II.locked) text += " Your skills at salvaging things from this Spire have helped you <b>unlock Looting II</b>.";
 			if (game.global.spiresCompleted < 1){
-				text += " You notice a small timeworn chest in the back of the room, where Druopitee had been storing the Skeletimp bones that he had collected over many timelines. You open it and find <b>20 Perfect Skeletimp Bones!</b>. You can tell though that these bones won't be here next time. Your Portal has also modified itself to now Liquify zones equal to 5% of your highest Zone reached. You're not quite sure what that means, but you're excited to find out! "
+				text += "<br/><br/>You notice a small timeworn chest in the back of the room, where Druopitee had been storing the Skeletimp bones that he had collected over many timelines. You open it and find <b>20 Perfect Skeletimp Bones!</b>. You can tell though that these bones won't be here next time. The Spire's power grants you a permanent 4x bonus to all Dark Essence you collect, and your Portal has also modified itself to now Liquify Zones equal to 5% of your highest Zone reached. You're not quite sure what that means, but you're excited to find out! "
 				game.global.b += 20;
 				updateSkeleBtn();
 				game.global.spiresCompleted = 1;
+				text += "<br/><br/><b>You've also found a small amount of Spirestones in a pile behind Druopitee. You give them to your Scientists, who begin construction on your own Spire!"
+				playerSpire.init();
+				playerSpire.rewardSpirestones(1);
 			}
-			text += " You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption into the planet. Maybe the statues would be bigger if you stayed and helped out?";
+			else{
+				text += "<br/><br/><b>You've also found " + prettify(playerSpire.rewardSpirestones(1)) + " Spirestones!</b>";
+			}
+			text += "<br/><br/>You've helped the Trimps establish a legendary population and economy, and have brought down the man responsible for the chaos in this world. You could leave now and the Universe will forever be better because you existed. Trimps will erect statues of you as long as their civilization survives. But you know there are still other spires out there, pumping Corruption into the planet. Maybe the statues would be bigger if you stayed and helped out?";
 			message(text, "Story");
 			game.portal.Looting_II.locked = false;
 			checkAchieve("spireTimed");
@@ -9183,7 +9917,7 @@ function displayGoldenUpgrades(redraw) {
 		if (item == "Void" && game.global.totalPortals < 5) continue;
 		var color = "thingColorGoldenUpgrade";
 		if (
-			(item == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) ||
+			(item == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.72)) ||
 			(item == "Helium" && game.global.runningChallengeSquared)
 		){
 			color = "thingColorCanNotAfford";
@@ -9222,7 +9956,7 @@ function buyGoldenUpgrade(what) {
 	if (game.options.menu.lockOnUnlock.enabled == 1 && (new Date().getTime() - 1000 <= game.global.lastUnlock)) return;
 	var totalAvailable = getAvailableGoldenUpgrades();
 	if (totalAvailable <= 0) return false;
-	if (what == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) return;
+	if (what == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.72)) return;
 	var upgrade = game.goldenUpgrades[what];
 	upgrade.currentBonus += upgrade.nextAmt();
 	upgrade.purchasedAt.push(game.global.goldenUpgrades);
@@ -9324,11 +10058,11 @@ var dailyModifiers = {
                 return 0.01 * str * stacks;
 			},
 			getWeight: function (str) {
-				var count = (str < 2) ? 15 : ((str < 3) ? 11 : ((str < 4) ? 9 : ((str < 5) ? 8 : ((str < 7) ? 7 : ((str < 10) ? 6 : (str < 17) ? 5 : 4)))));
-				return ((10 / 8) + 6 - ((0.2 * count)/2) + ((((500 * count + 400) / count) / 500)-1) - ((10 - str) / 8)) / 1.75;
+				var count = Math.ceil((1 + Math.sqrt(1 + 800/str))/2);
+				return (6 - (0.1 * count) + (0.8 / count) + (str / 8)) / 1.75;
 			},
 			minMaxStep: [1, 10, 1],
-			chance: 0.6,
+			chance: 0.3,
 			icon: "*bug2",
 			incompatible: ["rampage", "weakness"],
 			stackDesc: function (str, stacks) {
@@ -9506,7 +10240,7 @@ var dailyModifiers = {
 			},
 			incompatible: ["rampage", "weakness"],
             minMaxStep: [1, 5, 1],
-            chance: 0.75
+            chance: 0.3
         },
 		dysfunctional: {
             description: function (str) {
@@ -9523,7 +10257,7 @@ var dailyModifiers = {
         },
 		oddTrimpNerf: {
             description: function (str) {
-                return "Trimps have " + prettify(100 - (this.getMult(str) * 100)) + "% less attack on odd numbered zones";
+                return "Trimps have " + prettify(100 - (this.getMult(str) * 100)) + "% less attack on odd numbered Zones";
             },
             getMult: function (str) {
                 return 1 - (str * 0.02);
@@ -9536,7 +10270,7 @@ var dailyModifiers = {
         },
         evenTrimpBuff: {
             description: function (str) {
-                return "Trimps have " + prettify((this.getMult(str) * 100) - 100) + "% more attack on even numbered zones";
+                return "Trimps have " + prettify((this.getMult(str) * 100) - 100) + "% more attack on even numbered Zones";
             },
             getMult: function (str) {
                 return 1 + (str * 0.2);
@@ -9549,7 +10283,7 @@ var dailyModifiers = {
         },
 		karma: {
 			description: function (str) {
-				return 'Gain a stack after killing an enemy, increasing all non Helium loot by ' + prettify((this.getMult(str, 1) * 100) - 100) + '%. Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a zone.';
+				return 'Gain a stack after killing an enemy, increasing all non Helium loot by ' + prettify((this.getMult(str, 1) * 100) - 100) + '%. Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a Zone.';
 			},
 			stackDesc: function (str, stacks){
 				return "Your Trimps are finding " + prettify((this.getMult(str, stacks) * 100) - 100) + "% more loot!";
@@ -9570,7 +10304,7 @@ var dailyModifiers = {
 		},
 		toxic: {
 			description: function (str) {
-				return "Gain a stack after killing an enemy, reducing breed speed by " + prettify(100 - (this.getMult(str, 1) * 100)) + '% (compounding). Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a zone.';
+				return "Gain a stack after killing an enemy, reducing breed speed by " + prettify(100 - (this.getMult(str, 1) * 100)) + '% (compounding). Stacks cap at ' + this.getMaxStacks(str) + ', and reset after clearing a Zone.';
 			},
 			stackDesc: function (str, stacks){
 				return "Your Trimps are breeding " + prettify(100 - (this.getMult(str, stacks) * 100)) + "% slower.";
@@ -9596,7 +10330,7 @@ var dailyModifiers = {
 			stackDesc: function (str, stacks) {
 				var freq = this.getFreq(str);
 				var max = this.getMaxStacks(str);
-				var text = "This bad guy";
+				var text = "This Bad Guy";
 				if (stacks < max) {
 					var next = (freq - (stacks % freq));
 					text += " will heal to full and gain attack in " + next + " stack" + ((next == 1) ? "" : "s") + ", " + ((stacks >= freq) ? "" : " and") + " gains 1 stack whenever Trimps die";
@@ -9652,7 +10386,7 @@ var dailyModifiers = {
 		},
 		slippery: {
 			description: function (str) {
-				return "Enemies have a " + prettify(this.getMult(str) * 100) + "% chance to dodge your attacks on " + ((str <= 15) ? "odd" : "even") + " zones.";
+				return "Enemies have a " + prettify(this.getMult(str) * 100) + "% chance to dodge your attacks on " + ((str <= 15) ? "odd" : "even") + " Zones.";
 			},
 			getMult: function (str){
 				if (str > 15) str -= 15;
@@ -9693,7 +10427,7 @@ var dailyModifiers = {
 				else size = "the first " + prettify(size * 2) + " rows of";
 
 				var name = (str < 4) ? "Mutimps" : "Hulking Mutimps";
-				return "40% of bad guys in " + size + " the World will be mutated into " + name + ".";
+				return "40% of Bad Guys in " + size + " the World will be mutated into " + name + ".";
 			},
 			getWeight: function (str) {
 				return (str / 10) * 1.5;
@@ -9710,13 +10444,13 @@ var dailyModifiers = {
 		empower: {
 			description: function (str) {
 				var s = (str == 1) ? "" : "s";
-				return "All enemies gain " + str + " stack" + s + " of Empower whenever your Trimps die in the World. Empower increases the attack and health of bad guys in the World by 0.2% per stack, can stack to 9999, and never resets.";
+				return "All enemies gain " + str + " stack" + s + " of Empower whenever your Trimps die in the World. Empower increases the attack and health of Bad Guys in the World by 0.2% per stack, can stack to 9999, and never resets.";
 			},
 			getWeight: function (str) {
 				return (str / 6) * 2;
 			},
 			stackDesc: function (str, stacks){
-				return "This bad guy is Empowered and has " + prettify((this.getMult(str, stacks) * 100) - 100) + "% more health and attack.";
+				return "This Bad Guy is Empowered and has " + prettify((this.getMult(str, stacks) * 100) - 100) + "% more health and attack.";
 			},
 			stacksToAdd: function (str){
 				return str;
@@ -9735,7 +10469,7 @@ var dailyModifiers = {
 		},
 		pressure: {
 			description: function (str) {
-				return "Trimps gain a stack of Pressure every " + Math.round(this.timePerStack(str)) + " seconds. Each stack of pressure reduces Trimp health by 1%. Max of " + Math.round(this.getMaxStacks(str)) + " stacks, stacks reset after clearing a zone.";
+				return "Trimps gain a stack of Pressure every " + Math.round(this.timePerStack(str)) + " seconds. Each stack of pressure reduces Trimp health by 1%. Max of " + Math.round(this.getMaxStacks(str)) + " stacks, stacks reset after clearing a Zone.";
 			},
 			getWeight: function(str){
 				var time = (105 - this.timePerStack(str));
@@ -9879,6 +10613,7 @@ function startDaily(){
 		if (typeof dailyModifiers[item].start !== 'undefined') dailyModifiers[item].start(game.global.dailyChallenge[item].strength, game.global.dailyChallenge[item].stacks);
 	}
 	game.global.recentDailies.push(game.global.dailyChallenge.seed);
+	if (game.global.recentDailies.length == 7) giveSingleAchieve("Now What");
 	handleFinishDailyBtn();
 }
 
@@ -9990,7 +10725,7 @@ function getDailyTimeString(add, makePretty, getDayOfWeek){
 	if (day < 10) day = "0" + day;
 	if (makePretty) return year + "-" + month + "-" + day;
 	var seedStr = String(year) + String(month) + String(day);
-	seedStr = parseInt(seedStr);
+	seedStr = parseInt(seedStr, 10);
 	return seedStr;
 }
 
@@ -10156,6 +10891,17 @@ function getDailyChallenge(add, objectOnly, textOnly){
 	return returnText;
 }
 
+var testLastAdd = 0;
+function testDailySpread(){
+	for (var x = 0; x < 7; x++){
+		var testObj = getDailyChallenge(testLastAdd, true);
+		for (var item in testObj){
+			if (item == "plague" || item == "bogged") console.log(item, testLastAdd);
+		}
+		testLastAdd++;
+	}
+}
+
 function everythingInArrayGreaterEqual(smaller, bigger){
 	if (bigger.length < smaller.length) return false;
 	for (var x = 0; x < smaller.length; x++){
@@ -10228,10 +10974,14 @@ function fight(makeUp) {
     }
     if (cell.health <= 0 || !isFinite(cell.health)) {
 		game.stats.battlesWon.value++;
-		if (!game.global.mapsActive) game.global.voidSeed++;
+		if (!game.global.mapsActive){
+			game.global.voidSeed++;
+			game.global.scrySeed++;
+		}
 		if (game.global.formation == 4 && !game.global.mapsActive && !game.global.waitToScry) tryScry();
 		if (game.global.challengeActive == "Nom" && cell.nomStacks == 100) giveSingleAchieve("Great Host");
-		if (game.global.challengeActive == "Obliterated") giveSingleAchieve("Obliterate");		
+		if (game.global.challengeActive == "Obliterated") giveSingleAchieve("Obliterate");
+		if (game.global.challengeActive == "Eradicated") giveSingleAchieve("Eradicate");	
 		if (game.global.usingShriek) disableShriek();
 		//Death message
 		randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
@@ -10356,24 +11106,21 @@ function fight(makeUp) {
 			}
 			var skip = false;
 			if (isVoid) {
-				currentMapObj.noRecycle = false;
-				recycleMap(-1, true, true);
-				if (game.global.totalVoidMaps > 0 && Fluffy.isRewardActive("void")){
+				if (currentMapObj.stacked > 0){
+					var timeout = 1500;
+					if (currentMapObj.stacked > 3) timeout = 1000;
 					var mapName = currentMapObj.name;
-					for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
-						var newMap = game.global.mapsOwnedArray[x];
-						if (newMap.location != "Void" || newMap.name != mapName) continue;
-						game.badGuys.Cthulimp.loot(99, true);
-						newMap.noRecycle = false;
-						recycleMap(x, true, true);
+					for (var x = 0; x < currentMapObj.stacked; x++){
 						setTimeout((function(z) {
 							return function() {
 								createHeirloom(z);
 							}
-						})(game.global.world), 3000);
-						break;
+						})(game.global.world), (timeout * (x + 1)));
 					}
+					game.badGuys.Cthulimp.loot(99, true, currentMapObj.stacked);
 				}
+				currentMapObj.noRecycle = false;
+				recycleMap(-1, true, true);
 				if (game.options.menu.repeatVoids.enabled == 1){
 					//repeat void maps
 					if (game.global.totalVoidMaps > 0) doNextVoid = getNextVoidId();
@@ -10619,6 +11366,16 @@ function fight(makeUp) {
 			}
 		}
 	}
+	var dominating = false;
+	if (game.global.challengeActive == "Domination"){
+		if (game.global.mapsActive && currentMapObj.size == cellNum + 1) dominating = true;
+		else if (!game.global.mapsActive && cellNum == 99) dominating = true;
+	}
+	if (cell.health > 0 && dominating){
+		if (cell.health / cell.maxHealth < 0.95)
+			cell.health += (cell.maxHealth * 0.05);
+		if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
+	}
 	if (game.global.challengeActive == "Toxicity" && attacked) {
 		var tox = game.challenges.Toxicity;
 		tox.stacks++;
@@ -10722,6 +11479,7 @@ function getPlayerCritChance(){ //returns decimal: 1 = 100%
 	var critChance = 0;
 	critChance += (game.portal.Relentlessness.modifier * game.portal.Relentlessness.level);
 	critChance += (game.heirlooms.Shield.critChance.currentBonus / 100);
+	if (game.talents.crit.purchased && game.heirlooms.Shield.critChance.currentBonus) critChance += (game.heirlooms.Shield.critChance.currentBonus * 0.005);
 	if (Fluffy.isRewardActive("critChance")) critChance += 0.5;
 	if (game.global.challengeActive == "Daily"){
 		if (typeof game.global.dailyChallenge.trimpCritChanceUp !== 'undefined'){
@@ -10731,6 +11489,7 @@ function getPlayerCritChance(){ //returns decimal: 1 = 100%
 			critChance -= dailyModifiers.trimpCritChanceDown.getMult(game.global.dailyChallenge.trimpCritChanceDown.strength);
 		}
 	}
+	if (critChance > 3) critChance = 3;
 	return critChance;
 }
 
@@ -10744,6 +11503,7 @@ function getMegaCritDamageMult(critTier){
 	//critTier 1 is yellow and returns 1 from this. critTier 2 is orange, 3 is red.
 	var base = 5;
 	if (Fluffy.isRewardActive("megaCrit")) base += 2;
+	if (game.talents.crit.purchased) base += 1;
 	return Math.pow(base, critTier - 1);
 }
 
@@ -10914,7 +11674,8 @@ function affordOneTier(what, whereFrom, take) {
 }
 
 function fadeIn(elem, speed) {
-    elem = document.getElementById(elem);
+	elem = document.getElementById(elem);
+	if (elem.style.display != "none" && elem.style.visibility != "hidden" && elem.style.opacity != 0) return;
     elem.style.opacity = 0;
     if (elem.style.display == "none") elem.style.display = "block";
     if (elem.style.visibility == "hidden") elem.style.visibility = "visible";
@@ -10927,7 +11688,7 @@ function fadeIn(elem, speed) {
     var fadeCallback = function (timer) {
 		var opacity = (timer - start) / total;
         elem.style.opacity = opacity;
-        if (!(opacity >= 1)) {
+        if (opacity < 1) {
             requestAnimationFrame(fadeCallback);
         }
     };
@@ -10939,11 +11700,16 @@ function autoTrap() {
 		game.resources.food.owned -= 10;
 		game.resources.wood.owned -= 10;
 		game.buildings.Trap.purchased++;
+		if (game.global.buildingsQueue[0] == "Trap.1"){
+			setNewCraftItem();
+			return;
+		}
 		startQueue("Trap", 1);
 	}
 }
 
 function planetBreaker(){
+	if (game.global.challengeActive == "Eradicated") giveSingleAchieve("Screwed");
 	if (game.global.roboTrimpLevel > 0) document.getElementById("chainHolder").style.visibility = "visible";
 	game.stats.planetsBroken.valueTotal++;
 	game.global.brokenPlanet = true;
@@ -10961,6 +11727,7 @@ function planetBreaker(){
 	}
 	unlockUpgrade("Formations");
 	buffVoidMaps();
+	if (game.stats.battlesLost.value <= 5) giveSingleAchieve("Unbroken");
 }
 
 function restoreGrid(){
@@ -11231,7 +11998,7 @@ function simpleSeconds(what, seconds) {
 			amt *= Math.pow(0.995, game.challenges.Decay.stacks);
 		}
 		if (getEmpowerment() == "Wind"){
-			amt *= (1 + (game.empowerments.Wind.getCombatModifier() * 10));
+			amt *= (1 + (game.empowerments.Wind.getCombatModifier()));
 		}
 		amt = calcHeirloomBonus("Staff", jobName + "Speed", amt);
 		if (game.global.playerGathering == what){
@@ -11552,6 +12319,7 @@ function boostHe(checkOnly) {
 	}
 	amt = (amt > game.global.bestHelium) ? amt : game.global.bestHelium;
 	if (checkOnly) return amt;
+	if (amt >= 1189998819991197253) giveSingleAchieve("HeMergency");
 	game.global.heliumLeftover += amt;
 	game.global.totalHeliumEarned += amt;
 	if (game.stats.bestFluffyExp.valueTotal > 0){
@@ -11631,7 +12399,7 @@ function onPurchaseResult(result) {
 		hidePurchaseBones();
 		var num = (split[0] > 0) ? split[0] : "";
 		var tooltipText = "Your purchase of ";
-		tooltipText += (split[0] > 0) ? split[0] + " bones has completed successfully!" : "the Exotic Imp-Ort Bundle has completed successfully, and your new bad guys will start spawning in your next zone/map!";
+		tooltipText += (split[0] > 0) ? split[0] + " bones has completed successfully!" : "the Exotic Imp-Ort Bundle has completed successfully, and your new Bad Guys will start spawning in your next Zone/map!";
 		tooltipText += " Below is the export code for your save file. <b>Please copy, paste, and back this up to somewhere safe, just in case.</b> Thank you for your support!";
 		tooltip('Export', null, 'update', tooltipText);
 		boneTemp.waitingFor = "";
@@ -11940,11 +12708,27 @@ function toggleAutoStructure(noChange, forceOff){
 	document.getElementById('autoStructureText').innerHTML = text;
 }
 
+function toggleAutoJobs(noChange, forceOff){
+	var setting = game.global.autoJobsSetting;
+	if (!noChange) setting.enabled = !setting.enabled;
+	var btnElem = document.getElementById('autoJobsBtn');
+	if (game.talents.autoJobs.purchased && !forceOff)
+		btnElem.style.display = 'block';
+	else{
+		btnElem.style.display = 'none';
+		return;
+	}
+	var color = (setting.enabled) ? "colorSuccess" : "colorDanger";
+	swapClass("color", color, btnElem);
+	var text = (setting.enabled) ? "AutoJobs On" : "AutoJobs Off";
+	document.getElementById('autoJobsText').innerHTML = text;
+}
+
 var lastAutoGoldenToggle = -1;
 function toggleAutoGolden(noChange){
 	if (!noChange && game.global.autoGolden != -1){
 		game.global.autoGolden++;
-		if (game.global.autoGolden == 4)
+		if (game.global.autoGolden == 5)
 			game.global.autoGolden = 0;
 		lastAutoGoldenToggle = new Date().getTime();
 	}
@@ -11958,23 +12742,81 @@ function toggleAutoGolden(noChange){
 	}
 	var color = "settingBtn" + setting;
 	swapClass("settingBtn", color, btnElem);
-	var texts = ["AutoGolden Off", "AutoGolden Helium", "AutoGolden Battle", "AutoGolden Void"];
+	var texts = ["AutoGold Off", "AutoGold Helium", "AutoGold Battle", "AutoGold Voidlium", "AutoGold Voidtle"];
 	var text = texts[setting];
 	if (!noChange && setting != 0) text += ' <span id="autoGoldenTimeLeft">(4)</span>';
 	document.getElementById('autoGoldenText').innerHTML = text;
 }
 
+function saveAutoJobsConfig(){
+	var setting = game.global.autoJobsSetting;
+	var checkboxes = document.getElementsByClassName('autoCheckbox');
+	var quantboxes = document.getElementsByClassName('jobConfigQuantity');
+	var ratios = ["Farmer", "Lumberjack", "Miner", "Scientist"];
+	if (!validateJobRatios()) return;
+	for(var x = 0; x < checkboxes.length; x++){
+		var name = checkboxes[x].id.split('autoJobCheckbox')[1];
+		var checked = checkboxes[x].dataset.checked == 'true';
+		if (!checked && !setting[name]) continue;
+		if (!setting[name]) setting[name] = {};
+		setting[name].enabled = checked;
+		if (ratios.indexOf(name) != -1){
+			setting[name].ratio = parseFloat(quantboxes[x].value);
+			if (name == "Scientist") {
+				var max = quantboxes[x + 1].value;
+				max = convertNotationsToNumber(max);
+				max = isNumberBad(max) ? 0 : max;
+				setting.Scientist.buyMax = max;
+			}
+			continue;
+		}
+		setting[name].value = parseFloat(document.getElementById('autoJobSelect' + name).value) / 100;
+		var max = convertNotationsToNumber(quantboxes[x].value);
+		max = (isNumberBad(max)) ? 0 : max;
+		setting[name].buyMax = max;
+	}
+	var gatherElem = document.getElementById('autoJobSelfGather');
+	if (gatherElem){
+		if (gatherElem.value) setting.portalGather = gatherElem.value;
+		else delete setting.portalGather;
+	}
+	cancelTooltip();
+}
+
+function validateJobRatios(){
+	var ratios = ["Farmer", "Lumberjack", "Miner", "Scientist"];
+	var errorElem = document.getElementById('autoJobsError');
+	for (var x = 0; x < ratios.length; x++){
+		var check = document.getElementById('autoJobCheckbox' + ratios[x]);
+		var quant = document.getElementById('autoJobQuant' + ratios[x]);
+		if (check == null || quant == null) return false;
+		if (!check.checked) continue;
+		quant = parseFloat(quant.value);
+		if (quant < 0){
+			errorElem.innerHTML = "Cannot use a number smaller than 0 for " + ratios[x] + " ratio.";
+			return false;
+		}
+		if (isNumberBad(quant)){
+			errorElem.innerHTML = "Must use an actual number for " + ratios[x] + " ratio.";
+			return false;
+		}
+	}
+	errorElem.innerHTML = "";
+	return true;
+}
+
 function saveAutoStructureConfig(){
 	var setting = game.global.autoStructureSetting;
-	var checkboxes = document.getElementsByClassName('structConfigCheckbox');
+	var checkboxes = document.getElementsByClassName('autoCheckbox');
 	var quantboxes = document.getElementsByClassName('structConfigQuantity');
 	for(var x = 0; x < checkboxes.length; x++){
 		var name = checkboxes[x].id.split('structConfig')[1];
-		if (!checkboxes[x].checked && !setting[name]) continue;
+		var checked = (checkboxes[x].dataset.checked == 'true');
+		if (!checked && !setting[name]) continue;
 		if (!setting[name]) setting[name] = {};
-		setting[name].enabled = checkboxes[x].checked;
+		setting[name].enabled = checked;
 		setting[name].value = document.getElementById('structSelect' + name).value;
-		var max = parseInt(quantboxes[x].value);
+		var max = parseInt(quantboxes[x].value, 10);
 		if (max > 10000) max = 10000;
 		max = (isNumberBad(max)) ? 0 : max;
 		setting[name].buyMax = max;
@@ -11994,26 +12836,48 @@ function buyAutoStructures(){
 	if (game.options.menu.pauseGame.enabled)
 		return;
 	var setting = game.global.autoStructureSetting;
+	var maxBuild = 2;
+	if (game.talents.deciBuild.purchased) maxBuild = 10;
 	if (!setting.enabled || !game.talents.autoStructure.purchased) return;
-	for (var item in setting){
-		if (item == "enabled" || item == "unlocked" || item == 'NurseryZones') continue;
+	var order = ["Tribute", "Nursery", "Gym", "Warpstation", "Hut", "House", "Mansion", "Hotel", "Resort", "Gateway", "Collector", "Wormhole"];
+	for (var x = 0; x < order.length; x++){
+		var item = order[x];
+		if (!setting[item]) continue;
 		if (typeof setting.NurseryZones !== 'undefined' && game.global.world < setting.NurseryZones && item == "Nursery")
 			continue;
 		var building = game.buildings[item];
 		var purchased = building.purchased;
+		var buyMax = setting[item].buyMax;
 		if (item == "Nursery" && game.global.world >= 230)
 			purchased -= game.stats.decayedNurseries.value;
-		if (typeof setting[item].buyMax !== 'undefined' && setting[item].buyMax > 0 && purchased >= setting[item].buyMax)
-			continue;
+		if (typeof buyMax !== 'undefined' && buyMax > 0){
+			if (purchased >= buyMax)
+				continue;
+			if (maxBuild + purchased > buyMax) maxBuild = buyMax - purchased;
+		}
 		if (!game.buildings[item].locked && setting[item].enabled){
-			if (game.global.buildingsQueue.length < 10){
-				if ((!setting[item].buyMax || purchased < (setting[item].buyMax - 1)) && canAffordBuilding(item, false, false, false, false, 2, setting[item].value)){
-					buyBuilding(item, true, true, 2);
+			var settingValue = parseFloat(setting[item].value);
+			var wantToBuy = calculateMaxAfford(game.buildings[item], true, false, false, setting[item].buyMax, settingValue / 100);
+			if (wantToBuy > maxBuild) wantToBuy = maxBuild;
+			if (typeof setting.buyMax )
+			if (game.global.buildingsQueue.length < 10 && wantToBuy > 0){
+				if (canAffordBuilding(item, false, false, false, false, wantToBuy, settingValue)){
+					buyBuilding(item, true, true, wantToBuy);
 				}
-				else if (canAffordBuilding(item, false, false, false, false, 1, setting[item].value))
+				else if (canAffordBuilding(item, false, false, false, false, 1, settingValue))
 					buyBuilding(item, true, true, 1);
 			}
 		}
+	}
+	if (setting.Gigastation && game.upgrades.Gigastation.allowed > game.upgrades.Gigastation.done && game.buildings.Warpstation.owned >= setting.Gigastation.buyMax){
+		var costMult = parseFloat(setting.Gigastation.value);
+		var costs = game.upgrades.Gigastation.cost.resources;
+		var owned = game.upgrades.Gigastation.done;
+		if (
+			(game.resources.science.owned * costMult) >= (costs.science[0] * Math.pow(costs.science[1], owned)) &&
+			(game.resources.gems.owned * costMult) >= (costs.gems[0] * Math.pow(costs.gems[1], owned)) &&
+			(game.resources.metal.owned * costMult) >= (costs.metal[0] * Math.pow(costs.metal[1], owned))
+		) autoBuyUpgrade('Gigastation');
 	}
 }
 
@@ -12148,12 +13012,15 @@ function autoGoldenUpgrades(){
 	}
 	if (!goldenUpgradesShown || getAvailableGoldenUpgrades() <= 0)
 		return;
-	var selections = ["", "Helium", "Battle", "Void"];
+	var selections = ["", "Helium", "Battle", "Void", "Void"];
 	var selected = selections[game.global.autoGolden];
-	if ((selected == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.60)) ||
-			(selected == "Helium" && game.global.runningChallengeSquared)
-		)
+	if (selected == "Void" && (parseFloat((game.goldenUpgrades.Void.currentBonus + game.goldenUpgrades.Void.nextAmt()).toFixed(2)) > 0.72)){
+		if (game.global.autoGolden == 3) selected = "Helium";
+		else selected = "Battle";
+	}
+	if (selected == "Helium" && game.global.runningChallengeSquared){
 		return;
+	}
 	buyGoldenUpgrade(selected);
 }
 
@@ -12179,8 +13046,10 @@ function autoPrestiges(equipmentAvailable) {
 	}
 	var cheapestArmor = getCheapestPrestigeUpgrade(equipmentAvailable.armor);
 	if (!cheapestWeapon[0]) {
-		if (cheapestArmor[0])
-		autoBuyUpgrade(cheapestArmor[0]);
+		if (cheapestArmor[0]){
+			if (game.global.autoPrestiges == 3 && ((cheapestArmor[0] == "Supershield" && game.resources.wood.owned < cheapestArmor[1] * 20) || (cheapestArmor[0] != "Supershield" && game.resources.metal.owned < cheapestArmor[1] * 20))) return;
+			autoBuyUpgrade(cheapestArmor[0]);
+		}
 		return;
 	}
 	else if (!cheapestArmor[0]){
@@ -12209,6 +13078,10 @@ function getCheapestPrestigeUpgrade(upgradeArray) {
 	}
 	if (game.global.challengeActive == "Obliterated"){
 		artMult = (artMult == -1) ? 1e12 : (1e12 * artMult);
+	}
+	if (game.global.challengeActive == "Eradicated"){
+		var mod = game.challenges.Eradicated.scaleModifier
+		artMult = (artMult == -1) ? mod : (mod * artMult);
 	}
 	for (var x = 0; x < upgradeArray.length; x++) {
 		var upgradeObj = game.upgrades[upgradeArray[x]];
@@ -12254,7 +13127,7 @@ var Fluffy = {
 	currentExp: [],
 	damageModifiers: [1, 1.1, 1.3, 1.6, 2, 2.5, 3.1, 3.8, 4.6, 5.5, 6.5],
 	rewards: ["stickler", "helium", "liquid", "purifier", "lucky", "void", "helium", "liquid", "eliminator", "overkiller"],
-	prestigeRewards: ["dailies", "voidance", "overkiller", "critChance", "megaCrit"],
+	prestigeRewards: ["dailies", "voidance", "overkiller", "critChance", "megaCrit", "superVoid", "voidelicious", "naturesWrath", "voidSiphon"],
 	prestige: function () {
 		this.calculateLevel();
 		if (this.currentLevel < 10) return;
@@ -12332,15 +13205,26 @@ var Fluffy = {
 	},
 	rewardExp: function(count){
 		if (!this.canGainExp()) return;
-		if (game.global.world < 301 && !count) return;
+		if ((game.global.world < (this.getMinZoneForExp() + 1)) && !count) return;
 		var reward = this.getExpReward(true, count);
 		game.global.fluffyExp += reward;
 		this.handleBox();
 		return reward;
 	},
+	getMinZoneForExp: function(){
+		var zone = 300;
+		if (game.portal.Classy.level) zone -= (game.portal.Classy.level * game.portal.Classy.modifier);
+		return Math.floor(zone);
+	},
 	getExpReward: function(givingExp, count) {
-		var reward = (this.baseExp + (game.portal.Curious.level * game.portal.Curious.modifier)) * Math.pow(this.expGrowth, game.global.world - 300) * (1 + (game.portal.Cunning.level * game.portal.Cunning.modifier));
+		var reward = (this.baseExp + (game.portal.Curious.level * game.portal.Curious.modifier)) * Math.pow(this.expGrowth, game.global.world - this.getMinZoneForExp()) * (1 + (game.portal.Cunning.level * game.portal.Cunning.modifier));
 		reward *= this.specialExpModifier;
+		if (game.talents.fluffyExp.purchased)
+			reward *= 1 + (0.25 * game.global.fluffyPrestige);
+		if (playerSpireTraps.Knowledge.owned){
+			var knowBonus = playerSpireTraps.Knowledge.getWorldBonus();
+			reward *= (1 + (knowBonus / 100));
+		}
 		if (count) reward *= count;
 		if (game.heirlooms.Staff.FluffyExp.currentBonus > 0){
 			reward *= (1 + (game.heirlooms.Staff.FluffyExp.currentBonus / 100));
@@ -12386,7 +13270,9 @@ var Fluffy = {
 		return "0% / " + prettify(Math.round(possible)) + "%";
 	},
 	isRewardActive: function(reward){
-		if (this.currentLevel + game.global.fluffyPrestige == 0) return 0;
+		var calculatedPrestige = game.global.fluffyPrestige;
+		if (game.talents.fluffyAbility.purchased) calculatedPrestige++;
+		if (this.currentLevel + calculatedPrestige == 0) return 0;
 		var indexes = [];
 		for(var x = 0; x < this.rewards.length; x++){
 			if (this.rewards[x] == reward)
@@ -12398,7 +13284,7 @@ var Fluffy = {
 		}
 		var count = 0;
 		for (var y = 0; y < indexes.length; y++){
-			if (this.currentLevel + game.global.fluffyPrestige > indexes[y]) count++;
+			if (this.currentLevel + calculatedPrestige > indexes[y]) count++;
 		}
 		return count;
 	},
@@ -12419,18 +13305,34 @@ var Fluffy = {
 	},
 	refreshTooltip: function (justOnce) {
 		if (openTooltip != "Fluffy") return;
-		var tooltipText = Fluffy.tooltip(true);
-		document.getElementById('tipText').innerHTML = tooltipText;
-		if (!justOnce) setTimeout(Fluffy.refreshTooltip, 1000);
+		var fluffyTip = Fluffy.tooltip(true);
+		var topElem = document.getElementById('fluffyTooltipTopContainer');
+		var bottomElem = document.getElementById('fluffyLevelBreakdownContainer');
+		if (topElem && bottomElem) {
+			topElem.innerHTML = fluffyTip[0];
+			bottomElem.innerHTML = fluffyTip[1];
+			if (!justOnce) setTimeout(Fluffy.refreshTooltip, 1000);
+		}
+		
 	},
 	checkAndRunVoidance: function() {
 		if (!this.isRewardActive('voidance')) return;
 		for (var x = 0; x < 2; x++){
-			createVoidMap();
-			var map = game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1];
-			var mapName = map.name.split(' ');
+			var map = createVoidMap();
+			var mapName = map.split(' ');
 			createVoidMap(mapName[0], mapName[1]);
 		}
+	},
+	checkAndRunVoidelicious: function () {
+		if (!this.isRewardActive('voidelicious')) return;
+		var prefixes = ['Deadly', 'Poisonous', 'Heinous', 'Destructive'];
+		var suffixes = ['Nightmare', 'Void', 'Descent', 'Pit'];
+		for (var x = 0; x < prefixes.length; x++){
+			for (var y = 0; y < suffixes.length; y++){
+				createVoidMap(prefixes[x], suffixes[y]);
+			}
+		}
+
 	},
 	expBreakdown: function (what) {
 		var elem = document.getElementById("fluffyExpBreakdown");
@@ -12452,91 +13354,130 @@ var Fluffy = {
 			case "curious":
 				elem.innerHTML = 'The amount of levels placed in the Curious Perk. Currently ' + game.portal.Curious.level + '.';
 				return;
+			case "classy":
+				elem.innerHTML = 'The Zone Fluffy can start earning Experience at. This value is normally 301, and is currently reduced by ' + Math.floor(game.portal.Classy.level * game.portal.Classy.modifier) + ' thanks to ' + ((game.portal.Classy.modifier > 1) ? game.portal.Classy.level + " level" + ((game.portal.Classy.level == 1) ? "" : "s") + " of " : "") + 'Classy.';
+				return;
 			case "special":
 				elem.innerHTML = this.specialModifierReason;
 				return;
 			case "staff":
 				elem.innerHTML = 'The bonus modifier applied from "Fluffy Exp" on a Plagued Staff. Currently ' + (1 + (game.heirlooms.Staff.FluffyExp.currentBonus / 100)).toFixed(2) + '.';
+				return;
+			case "flufffocus":
+				elem.innerHTML = 'The bonus modifier from the Flufffocus Mastery (+25% exp per Prestige). Fluffy has evolved ' + game.global.fluffyPrestige + ' time' + ((game.global.fluffyPrestige == 1) ? '' : 's') + ', bringing this modifier to ' + prettify(1 + (0.25 * game.global.fluffyPrestige)) + '.';
+				return;
+			case "knowledge":
+				elem.innerHTML = 'The bonus from your Knowledge Towers. You have ' + playerSpireTraps.Knowledge.owned + ' Knowledge Tower' + needAnS(playerSpireTraps.Knowledge.owned) + ', granting a bonus of ' + playerSpireTraps.Knowledge.getWorldBonus(true) + '% each, bringing this modifier to ' + (1 + (playerSpireTraps.Knowledge.getWorldBonus() / 100)) + ".";
 		}
 	},
 	tooltip: function (big){
 		var savedLevel = Fluffy.getLevel(true);
 		var fluffyInfo = Fluffy.getExp();
-		var tooltipText = "<div style='width: 100%; font-size: 0.95em;'><div class='fluffyThird'>";
-		if (game.global.fluffyPrestige > 0 || this.currentLevel == this.rewards.length) tooltipText += "<span style='color: #740774'>Evolution " + game.global.fluffyPrestige + " </span>";
-		tooltipText += "Level " + fluffyInfo[0] + "</div><div class='fluffyThird'>";
+		var calculatedPrestige = game.global.fluffyPrestige;
+		if (game.talents.fluffyAbility.purchased) 
+			calculatedPrestige++;
+		if (calculatedPrestige > Fluffy.prestigeRewards.length) 
+			calculatedPrestige = Fluffy.prestigeRewards.length;
+		var bottomText = "";
+		var topText = "<div style='width: 100%; font-size: 0.95em;'><div class='fluffyThird'>";
+		var minZoneForExp = Fluffy.getMinZoneForExp() + 1;
+		if (game.global.fluffyPrestige > 0 || this.currentLevel == this.rewards.length) topText += "<span style='color: #740774'>Evolution " + game.global.fluffyPrestige + " </span>";
+		topText += "Level " + fluffyInfo[0] + "</div><div class='fluffyThird'>";
 		if (savedLevel >= Fluffy.rewards.length) {
-			tooltipText += "Max"
+			topText += "Max"
 		}
 		else {
-			tooltipText += (Fluffy.canGainExp()) ? "<span>" : "<span class='red'>"
-			tooltipText += prettify(fluffyInfo[1]) + " / " + prettify(fluffyInfo[2]) + " Exp";
-			tooltipText += "</span>";
+			topText += (Fluffy.canGainExp()) ? "<span>" : "<span class='red'>"
+			topText += prettify(fluffyInfo[1]) + " / " + prettify(fluffyInfo[2]) + " Exp";
+			topText += "</span>";
 		}
-		tooltipText += "</div><div class='fluffyThird'>+" + prettify((Fluffy.getDamageModifier() - 1) * 100) + "% damage"
-		tooltipText += "</div></div>";
+		topText += "</div><div class='fluffyThird'>+" + prettify((Fluffy.getDamageModifier() - 1) * 100) + "% damage"
+		topText += "</div></div>";
 		if (!Fluffy.isMaxLevel()){
-			if (savedLevel > fluffyInfo[0]) tooltipText += "<span class='red'>- Fluffy's level and damage bonus are currently reduced. Fluffy will return to level " + savedLevel + " when points are placed back in Capable.</span>";
-			else if (!Fluffy.canGainExp()) tooltipText += "<span class='red'>- Fluffy needs " + ((game.portal.Capable.level == 0) ? " at least one point of Capable to gain any Exp" + ((game.portal.Capable.locked) ? ". Complete Spire II to unlock Capable!" : "") : " more points in Capable to gain Exp above level " + game.portal.Capable.level + ".") + "</span>";
+			if (savedLevel > fluffyInfo[0]) topText += "<span class='red'>- Fluffy's level and damage bonus are currently reduced. Fluffy will return to level " + savedLevel + " when points are placed back in Capable.</span>";
+			else if (!Fluffy.canGainExp()) topText += "<span class='red'>- Fluffy needs " + ((game.portal.Capable.level == 0) ? " at least one point of Capable to gain any Exp" + ((game.portal.Capable.locked) ? ". Complete Spire II to unlock Capable!" : "") : " more points in Capable to gain Exp above level " + game.portal.Capable.level + ".") + "</span>";
 			else {
-				if (game.global.world < 301) tooltipText += "<span class='red'>- Fluffy cannot gain any Experience from zones lower than 301</span>";
-				else tooltipText += "- Fluffy is earning " + prettify(Fluffy.getExpReward()) + " Exp per zone. " + Fluffy.getFluff();
+				if (game.global.world < minZoneForExp) topText += "<span class='red'>- Fluffy cannot gain any Experience from Zones lower than " + minZoneForExp + "</span>";
+				else{
+					var remainingXp = fluffyInfo[2] - fluffyInfo[1];
+					var xpReward = Fluffy.getExpReward();
+					var remainingRuns = (game.stats.bestFluffyExp.value > 0) ? Math.ceil(remainingXp / game.stats.bestFluffyExp.value) : -1;
+					topText += "- Fluffy is earning " + prettify(xpReward) + " Exp per Zone. Fluffy needs " + prettify(remainingXp) + " more Exp to level";
+					if (remainingRuns > -1) topText += ", equivalent to repeating your current run to this zone about " + prettify(remainingRuns) + " more time" + needAnS(remainingRuns) + ".";
+					else topText += ".";
+					topText += "<br/>- " + Fluffy.getFluff();
+				}
 			}
 			
 		}
-		else tooltipText += "- " + Fluffy.getFluff();
-		tooltipText += "</br>";
-		if (!big) return tooltipText;
+		else topText += "- " + Fluffy.getFluff();
+		topText += "</br>";
+		if (!big) return topText;
 		//clicked
 
 		if (Fluffy.currentLevel == 10 && game.global.fluffyPrestige < Fluffy.prestigeRewards.length)
-			tooltipText += "<span class='fluffyEvolveText'>Fluffy is ready to Evolve! This will reset his damage bonus and most abilities back to level 0, but he will regrow to be stronger than ever. You can cancel this Evolution at any point to return to level 10.<br/><span class='btn btn-md btn-success' onclick='Fluffy.prestige(); Fluffy.refreshTooltip(true);'>Evolve!</span></span><br/>"
-		if (Fluffy.canGainExp() && game.global.world >= 301) {
-			tooltipText += "- Fluffy's Exp gain at the end of each zone is equal to: ";
-			var fluffFormula = "<br/><span style='padding-left: 5em'>";
-			if (!game.portal.Curious.locked) fluffFormula += "(" + Fluffy.baseExp + " + (Curious * " + game.portal.Curious.modifier + ")) * (" + Fluffy.expGrowth + "^(Zone - 300)) * (1 + (Cunning * " + game.portal.Cunning.modifier + "))";
-			else if (!game.portal.Cunning.locked) fluffFormula += Fluffy.baseExp + " * (" + Fluffy.expGrowth + "^(Zone - 300)) * (1 + (Cunning * " + game.portal.Cunning.modifier + "))";
-			else fluffFormula += Fluffy.baseExp + " * (" + Fluffy.expGrowth + "^(Zone - 300))";
+			topText += "<span class='fluffyEvolveText'>Fluffy is ready to Evolve! This will reset his damage bonus and most abilities back to level 0, but he will regrow to be stronger than ever. You can cancel this Evolution at any point to return to level 10.<br/><span class='btn btn-md btn-success' onclick='Fluffy.prestige(); Fluffy.refreshTooltip(true);'>Evolve!</span></span><br/>";
+		if (Fluffy.canGainExp() && game.global.world >= minZoneForExp) {
+			topText += "- Fluffy's Exp gain at the end of each Zone is equal to: ";
+			var fluffFormula = "<br/><span style='padding-left: 3em'>";
+			var startNumber = Fluffy.getMinZoneForExp();
+			if (!game.portal.Classy.locked) startNumber = '<span class="fluffFormClassy" onmouseover="Fluffy.expBreakdown(\'classy\')" onmouseout="Fluffy.expBreakdown(\'clear\')">' + (startNumber + 1) + "</span> - 1";
+			if (!game.portal.Curious.locked) fluffFormula += "(" + Fluffy.baseExp + " + (Curious * " + game.portal.Curious.modifier + ")) * (" + Fluffy.expGrowth + "^(Zone - " + startNumber + ")) * (1 + (Cunning * " + game.portal.Cunning.modifier + "))";
+			else if (!game.portal.Cunning.locked) fluffFormula += Fluffy.baseExp + " * (" + Fluffy.expGrowth + "^(Zone - " + startNumber + ")) * (1 + (Cunning * " + game.portal.Cunning.modifier + "))";
+			else fluffFormula += Fluffy.baseExp + " * (" + Fluffy.expGrowth + "^(Zone - " + startNumber + "))";
 			fluffFormula += "</span>";
 			fluffFormula += ' * <span class="fluffFormDaily" onmouseover="Fluffy.expBreakdown(\'daily\')" onmouseout="Fluffy.expBreakdown(\'clear\')">dailyHeliumModifier</span>';
+			if (game.talents.fluffyExp.purchased) fluffFormula += ' * <span class="fluffFormFlufffocus" onmouseover="Fluffy.expBreakdown(\'flufffocus\')" onmouseout="Fluffy.expBreakdown(\'clear\')">Flufffocus</span>';
 			if (game.heirlooms.Staff.FluffyExp.currentBonus > 0) fluffFormula += ' * <span class="fluffFormStaff" onmouseover="Fluffy.expBreakdown(\'staff\')" onmouseout="Fluffy.expBreakdown(\'clear\')">Staff</span>';
+			if (playerSpireTraps.Knowledge.owned) fluffFormula += ' * <span class="fluffFormKnowledge" onmouseover="Fluffy.expBreakdown(\'knowledge\')" onmouseout="Fluffy.expBreakdown(\'clear\')">Knowledge</span>';
 			if (Fluffy.specialExpModifier > 1) fluffFormula += ' * <span class="fluffFormSpecial" onmouseover="Fluffy.expBreakdown(\'special\')" onmouseout="Fluffy.expBreakdown(\'clear\')">' + Fluffy.specialExpModifier + "</span>";
 			fluffFormula = fluffFormula.replace('Zone', '<span onmouseover="Fluffy.expBreakdown(\'zone\')" onmouseout="Fluffy.expBreakdown(\'clear\')" class="fluffFormZone">Zone</span>');
 			fluffFormula = fluffFormula.replace('Cunning', '<span onmouseover="Fluffy.expBreakdown(\'cunning\')" onmouseout="Fluffy.expBreakdown(\'clear\')" class="fluffFormCunning">Cunning</span>')
 			fluffFormula = fluffFormula.replace('Curious', '<span onmouseover="Fluffy.expBreakdown(\'curious\')" onmouseout="Fluffy.expBreakdown(\'clear\')" class="fluffFormCurious">Curious</span>')			
-			tooltipText += fluffFormula;
+			topText += fluffFormula;
 		}
-		if (game.global.fluffyPrestige > 0 && Fluffy.currentLevel < 10)
-			tooltipText += "<br/><span class='btn btn-sm btn-warning' onmousedown='cancelTooltip(); tooltip(\"confirm\", null, \"update\", \"You are about to abort Fluffy&#39;s Evolution. This will return you to level 10 on your last Evolution, but you will permanently lose all Experience earned towards the current Evolution. Are you sure you want to abort?\", \"Fluffy.abortPrestige()\", \"Abort Evolution\")'>Abort Prestige</span>"
+		if (calculatedPrestige > 0 && Fluffy.currentLevel < 10)
+			topText += "<br/><span class='btn btn-sm btn-warning' onmousedown='cancelTooltip(); tooltip(\"confirm\", null, \"update\", \"You are about to abort Fluffy&#39;s Evolution. This will return you to level 10 on your last Evolution, but you will permanently lose all Experience earned towards the current Evolution. Are you sure you want to abort?\", \"Fluffy.abortPrestige()\", \"Abort Evolution\")'>Abort Evolution</span>"
 		var xpBreakdownFill = (document.getElementById('fluffyExpBreakdown') ? document.getElementById('fluffyExpBreakdown').innerHTML : "");
-		tooltipText += "<div id='fluffyExpBreakdown'>" + xpBreakdownFill + "</div>";
-		tooltipText += "<table id='fluffyLevelBreakdown'><tbody><tr style='font-weight: bold; font-size: 1.25em; text-align: center;'><td style='padding: 0 1em'>Level</td><td>Ability</td><td style='padding: 0 1em'>+Damage</td></tr>";
+		topText += "<div id='fluffyExpBreakdown'>" + xpBreakdownFill + "</div>";
+		bottomText += "<table id='fluffyLevelBreakdown'><tbody><tr style='font-weight: bold; font-size: 1.25em; text-align: center;'><td style='padding: 0 1em'>Level</td><td>Ability</td><td style='padding: 0 1em'>+Damage</td></tr>";
 		for (var x = 0; x < Fluffy.rewards.length; x++){
-			tooltipText += ((fluffyInfo[0] + game.global.fluffyPrestige) >= (x + 1)) ? "<tr style='font-weight: bold'>" : "<tr>";
-			if (savedLevel < x && game.global.fluffyPrestige == 0)
-				tooltipText += "<td>Lv " + (x + 1) + "</td><td>?</td><td></td>"
+			bottomText += ((fluffyInfo[0] + calculatedPrestige) >= (x + 1)) ? "<tr class='fluffyRowComplete'>" : "<tr>";
+			if (savedLevel < x && calculatedPrestige == 0)
+				bottomText += "<td>Lv " + (x + 1) + "</td><td>?</td><td></td>"
 			else{
-				var levelDisplay = (x + 1) - game.global.fluffyPrestige;
+				var levelDisplay = (x + 1) - calculatedPrestige;
 				if (levelDisplay < 0) levelDisplay = 0;
-				tooltipText += "<td>Lv " + levelDisplay + "</td><td>" + Fluffy.rewardConfig[Fluffy.rewards[x]].description + "</td>";
-				tooltipText += "<td style='text-align: center'>" + ((levelDisplay > 0) ? Fluffy.getBonusForLevel(levelDisplay) : "&nbsp;") + "</td></tr>";
+				bottomText += "<td>Lv " + levelDisplay + "</td><td>" + Fluffy.rewardConfig[Fluffy.rewards[x]].description + "</td>";
+				bottomText += "<td style='text-align: center'>" + ((levelDisplay > 0) ? Fluffy.getBonusForLevel(levelDisplay) : "&nbsp;") + "</td></tr>";
 			}
 		}
-		var countedPrestige = game.global.fluffyPrestige;
+		var countedPrestige = calculatedPrestige;
 		if (fluffyInfo[0] == Fluffy.rewards.length) countedPrestige++;
 		if (countedPrestige > 0){
 			for (var y = 0; y < Fluffy.prestigeRewards.length; y++){
 				var levelDisplay = Fluffy.rewards.length + (y + 1) - countedPrestige;
 				if (levelDisplay > Fluffy.rewards.length) continue;
 				if (levelDisplay < 0) levelDisplay = 0;
-				tooltipText += (fluffyInfo[0] >= Fluffy.rewards.length - game.global.fluffyPrestige + (y + 1)) ? "<tr style='font-weight: bold'>" : "<tr>";
-				levelDisplay = ((countedPrestige - 1 == y && countedPrestige != game.global.fluffyPrestige) ? levelDisplay : ((countedPrestige == game.global.fluffyPrestige) ? levelDisplay : levelDisplay + 1));
-				tooltipText += "<td><b>E" + (y + 1) + "</b> Lv " + levelDisplay + "</td><td>" + Fluffy.rewardConfig[Fluffy.prestigeRewards[y]].description + "</td>";
-				tooltipText += "<td style='text-align: center'>" + ((levelDisplay > 0 && game.global.fluffyPrestige > y) ? Fluffy.getBonusForLevel(levelDisplay) : "&nbsp;") + "</td></tr>";
+				bottomText += (fluffyInfo[0] >= Fluffy.rewards.length - calculatedPrestige + (y + 1)) ? "<tr class='fluffyRowComplete'>" : "<tr>";
+				levelDisplay = ((countedPrestige - 1 == y && countedPrestige != calculatedPrestige) ? levelDisplay : ((countedPrestige == calculatedPrestige) ? levelDisplay : levelDisplay + 1));
+				var displayedPrestige = y + 1;
+				if (calculatedPrestige != game.global.fluffyPrestige) {
+					displayedPrestige -= (calculatedPrestige - game.global.fluffyPrestige)
+				}
+				bottomText += "<td><b>E" + displayedPrestige + "</b> Lv " + levelDisplay + "</td><td>" + Fluffy.rewardConfig[Fluffy.prestigeRewards[y]].description + "</td>";
+				bottomText += "<td style='text-align: center'>" + ((levelDisplay > 0 && calculatedPrestige > y) ? Fluffy.getBonusForLevel(levelDisplay) : "&nbsp;") + "</td></tr>";
 			}
 		}
-		tooltipText += "</tbody></table>"
-		return tooltipText;
+		bottomText += "</tbody></table>"
+		return [topText, bottomText];
+	},
+	getVoidStackCount: function () {
+		var count = 1;
+		if (this.isRewardActive('void')) count++;
+		if (this.isRewardActive('superVoid')) count += 4;
+		if (game.talents.voidSpecial2.purchased) count++;
+		return count;
 	},
 	rewardConfig: {
 		stickler: {
@@ -12555,7 +13496,7 @@ var Fluffy = {
 			description: "Helium gain from all sources is increased by 25%."
 		},
 		void: {
-			description: "On completing a Void Map, if you have another Void Map of the same name, you'll receive 2.5x Helium and 2 Heirlooms. This will destroy the second Void Map."
+			description: "Allows up to two Void Maps with the same name to stick together. After completing this 2x Void Map, Fluffy will clear the extra one instantly, granting 50% more Helium than normal and a second Heirloom."
 		},
 		eliminator: {
 			description: "Corrupt and Healthy enemies in active Spires no longer have any special abilities."
@@ -12564,7 +13505,7 @@ var Fluffy = {
 			description: "Adds 2.5% to your liquification bonus (half of a Spire)."
 		},
 		voidance: {
-			description: "Each Portal, start with 2 pairs of Void Maps that have the same name."
+			description: "Each Portal, start with two double stacked Void Maps."
 		},
 		dailies: {
 			description: "Adds 100% to the helium modifier of all Daily Challenges."
@@ -12573,7 +13514,29 @@ var Fluffy = {
 			description: "Gives your Trimps an additional 50% crit chance."
 		},
 		megaCrit: {
-			description: "Adds +2x to your Mega Crit multiplier, increasing Orange crits to 7x and Red crits to 49x."
+			get description(){
+				var text = "Adds +2x to your MegaCrit multiplier, increasing Orange crits to ";
+				var current = [getMegaCritDamageMult(2), getMegaCritDamageMult(3)];
+				if (!Fluffy.isRewardActive('megaCrit')) current = [current[0] + 2, Math.pow((current[0] + 2), 2)] 
+				text += Math.floor(current[0]) + "x and Red crits to " + Math.floor(current[1]) + "x."
+				return text;
+			}
+		},
+		superVoid: {
+			get description(){
+				var count = 6;
+				if (game.talents.voidSpecial2.purchased) count++;
+				return "Allows an additional 4 Void Maps with the same name to stick together, bringing the max stack size to " + count + ". Each map in the stack that Fluffy clears grants an additional 50% Helium to all other maps in the stack, giving a bonus of up to +" + Math.floor((count - 1) * 50) + "% to each of the " + (count - 1) + " Fluffy maps from a " + count + " stack."
+			}
+		},
+		voidelicious: {
+			description: "Start each Portal with 1 of each uniquely named Void Map (16 total)."
+		},
+		naturesWrath: {
+			description: "Improves Empowerments of Nature! Poison gains +10 to Stack Transfer rate, Helium rewards from Wind are increased by 5x, and the damage bonus from Ice is doubled."
+		},
+		voidSiphon: {
+			description: "Your Trimps gain 5% attack each time you clear a Void Map. This bonus stacks additively and resets on Portal."
 		}
 	}
 }
@@ -13041,12 +14004,22 @@ function gameLoop(makeUp, now) {
 	}
 	//every second
 	if (loops % 10 == 0){
-		runEverySecond();
+		runEverySecond(makeUp);
 	}
 	//every 2 seconds
 	if (loops % 20 == 0){
 		if (mutations.Living.active()){
 			mutations.Living.change();
+		}
+	}
+	if (game.talents.autoJobs.purchased){
+		//Ratio jobs every 30 seconds (or every zone, see nextWorld)
+		if (loops % 300 == 0){
+			buyAutoJobs(true);
+		}
+		//Non ratio jobs every 2 seconds (non ratio jobs are still purchased with buyAutoJobs(true))
+		else if (loops % 20 == 0){
+			buyAutoJobs();
 		}
 	}
 	//loot averages
@@ -13058,7 +14031,7 @@ function gameLoop(makeUp, now) {
 	if (!makeUp) postMessages();
 }
 
-function runEverySecond(){
+function runEverySecond(makeUp){
 	//Change game state
 	if (game.global.challengeActive == "Decay") updateDecayStacks(true);
 	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.pressure !== 'undefined') dailyModifiers.pressure.addSecond();
@@ -13083,15 +14056,19 @@ function runEverySecond(){
 	if (game.global.selectedChallenge == "Daily") updateDailyClock();
 	Fluffy.handleBox();
 	updatePortalTimer();
+	if (playerSpire.initialized)
+		playerSpire.moveEnemies(makeUp);
 }
 
 function getGameTime(){
 	return game.global.start + game.global.time;
 }
 
-
 function gameTimeout() {
-	if (game.options.menu.pauseGame.enabled) return;
+	if (game.options.menu.pauseGame.enabled) {
+		setTimeout(gameTimeout, 100);
+		return;
+	}
 	var now = new Date().getTime();
 	//4432
 	if ((now - game.global.start - game.global.time) > 3600000){
@@ -13105,13 +14082,13 @@ function gameTimeout() {
 	game.global.lastOnline = now;
     var tick = 1000 / game.settings.speed;
     game.global.time += tick;
-    var dif = (now - game.global.start) - game.global.time;
+	var dif = (now - game.global.start) - game.global.time;
     while (dif >= tick) {
         runGameLoop(true, now);
         dif -= tick;
         game.global.time += tick;
 		ctrlPressed = false;
-    }
+	}
     runGameLoop(null, now);
     updateLabels();
     setTimeout(gameTimeout, (tick - dif));
@@ -13153,6 +14130,50 @@ function updatePortalTimer(justGetTime) {
 	document.getElementById("portalTime").textContent = timeString;
 }
 
+function preventZoom(elem){
+	elem.addEventListener("wheel", zoomShortcut); //add the event
+}
+  
+function zoomShortcut(e){
+	if(e.ctrlKey){
+		event.preventDefault();
+	}
+}
+
+function mapLevelHotkey(up){
+	if (!game.global.preMapsActive) return;
+	if (!game.options.menu.hotkeys.enabled) return;
+	var worldInput = (parseInt(document.getElementById('mapLevelInput').value, 10));
+	var extraLevelsAvailable = (game.global.highestLevelCleared >= 209);
+	var extraElem = document.getElementById('advExtraLevelSelect');
+	var extraSetting = parseInt(extraElem.value, 10);
+	if (worldInput > game.global.world) {
+		document.getElementById("mapLevelInput").value = game.global.world;
+		updateMapCost();
+		return;
+	}
+	if (worldInput < 6){
+		document.getElementById("mapLevelInput").value = 6;
+		updateMapCost();
+		return;
+	}
+	if (up){
+		if (worldInput < game.global.world) incrementMapLevel(1);
+		else if (extraLevelsAvailable && extraSetting < 10) {
+			extraElem.value = extraSetting + 1;
+		}
+		updateMapCost();
+		return;
+	}
+	if (extraLevelsAvailable && extraSetting > 0){
+		extraElem.value = extraSetting - 1;
+	}
+	else {
+		if (worldInput > 6) incrementMapLevel(-1);
+	}
+	updateMapCost();
+}
+
 var shiftPressed = false;
 var ctrlPressed = false;
 // X = 88, h = 72, d = 68, b = 66
@@ -13164,8 +14185,9 @@ document.addEventListener('keydown', function (e) {
 		return game.options.menu.hotkeys.enabled == 1 && !game.global.lockTooltip && !ctrlPressed && !heirloomsShown && !game.options.displayed && !portalWindowOpen && !trimpStatsDisplayed && !trimpAchievementsOpen;
 	};
 	switch(e.keyCode){
-		case 27:
+		case 27: //escape
 			cancelTooltip();
+			if (playerSpire.popupOpen) playerSpire.closePopup();
 			break;
 		case 16:
 			shiftPressed = true;
@@ -13183,32 +14205,71 @@ document.addEventListener('keydown', function (e) {
 				checkButtons("upgrades");
 				if (game.global.buyTab == "nature")
 					updateNatureInfoSpans();
+				if (game.global.buyTab == "talents") displayTalents();
 			}
+			e.preventDefault();
 			break;
-		case 49:
-		case 88:
-		case 97:
+		
+		case 192: // `
+		case 48: //0
+		case 96: //num0
+			if (playerSpire.popupOpen)
+				playerSpire.selectTrap("sell");
+			break;
+		case 49: //1
+		case 97: //num1
+			if (playerSpire.popupOpen && !playerSpireTraps.Fire.locked){
+				playerSpire.selectTrap("Fire");
+				break;
+			}
+		case 88: //x
 			if (checkStatus() && game.upgrades.Formations.done) setFormation('0');
 			break;
-		case 50:
-		case 72:
-		case 98:
+		case 50: //2
+		case 98: //num2
+			if (playerSpire.popupOpen && !playerSpireTraps.Frost.locked){
+				playerSpire.selectTrap("Frost");
+				break;
+			}
+		case 72: //h
 			if (checkStatus() && game.upgrades.Formations.done) setFormation('1');
 			break;
-		case 51:
-		case 68:
-		case 99:
+		case 51: //3
+		case 99: //num3
+			if (playerSpire.popupOpen && !playerSpireTraps.Poison.locked){
+				playerSpire.selectTrap("Poison");
+				break;
+			}
+		case 68: //d
 			if (checkStatus() && game.upgrades.Dominance.done) setFormation('2');
 			break;
-		case 52:
-		case 66:
-		case 100:
+		case 52: //4
+		case 100: //num4
+			if (playerSpire.popupOpen && !playerSpireTraps.Lightning.locked){
+				playerSpire.selectTrap("Lightning");
+				break;
+			}
+		case 66: //b
 			if (checkStatus() && game.upgrades.Barrier.done) setFormation('3');
 			break;
-		case 53:
-		case 83:
-		case 101:
+		case 53: //5
+		case 101: //num5
+			if (playerSpire.popupOpen && !playerSpireTraps.Strength.locked){
+				playerSpire.selectTrap("Strength");
+				break;
+			}
+		case 83: //s
 			if (checkStatus() && game.global.world >= 60 && game.global.highestLevelCleared >= 180) setFormation('4');
+			break;
+		case 54: //6
+		case 102: //num6
+			if (playerSpire.popupOpen && !playerSpireTraps.Condenser.locked)
+				playerSpire.selectTrap("Condenser");
+			break;
+		case 55: //7
+		case 103: //num7
+			if (playerSpire.popupOpen && !playerSpireTraps.Knowledge.locked)
+				playerSpire.selectTrap("Knowledge");
 			break;
 		case 13:
 			var confirmCheck = document.getElementById("confirmTooltipBtn");
@@ -13242,9 +14303,22 @@ document.addEventListener('keydown', function (e) {
 			break;
 		case 70:
 			// F for fight
-			if (checkLettersOk()) {
+			if (checkLettersOk() && game.upgrades.Battle.done) {
 				fightManual();
 			}
+			break;
+		case 80: //p for sPire
+			if (checkLettersOk() && playerSpire.initialized){
+				if (playerSpire.popupOpen) playerSpire.closePopup();
+				else playerSpire.openPopup();
+			}
+		case 38: 
+			//Up arrow for map levels
+			mapLevelHotkey(true);
+			break;
+		case 40: 
+			//Down arrow for map levels
+			mapLevelHotkey(false);
 			break;
 	}
 }, true);
@@ -13259,6 +14333,8 @@ document.addEventListener('keyup', function(e) {
 		toggleGeneticistassist(true);
 		if (game.global.buyTab == "nature")
 			updateNatureInfoSpans();
+		if (game.global.buyTab == "talents") 
+			displayTalents();
 	}
 
 }, true);
@@ -13270,3 +14346,10 @@ displayPerksBtn();
 setTimeout(autoSave, 60000);
 costUpdatesTimeout();
 setTimeout(gameTimeout, (1000 / game.settings.speed));
+
+preventZoom(document.getElementById('talentsContainer'));
+document.getElementById('mapLevelInput').addEventListener('keydown', function(e) {
+    if (e.which === 38 || e.which === 40) {
+        e.preventDefault();
+    }
+});

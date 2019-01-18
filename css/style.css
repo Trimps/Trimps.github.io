@@ -24,6 +24,10 @@ overflow-x: hidden;
 	color: #FFDDDD;
 }
 
+.smallEnemyName{
+	font-size: 0.8em;
+}
+
 .liquid ul li{
 	border: 0;
 	background: yellow;
@@ -72,7 +76,7 @@ overflow-x: hidden;
 
 .talentItem{
 	display: inline-block;
-	width: 20%;
+	width: 16.666666%;
 	text-align: center;
 	border: 1px solid white;
 	padding: 2% 0%;
@@ -81,7 +85,7 @@ overflow-x: hidden;
 
 #talentsTitle{
 	text-align: center;
-	font-size: 2vw;
+	font-size: 1.9vw;
 }
 
 #talentsCost{
@@ -113,7 +117,7 @@ overflow-x: hidden;
 }
 
 .talentName{
-	font-size: 0.7vw;
+	font-size: 0.58vw;
 }
 
 .talentPurchased{
@@ -143,6 +147,22 @@ overflow-x: hidden;
 .talentRowUnlocked .talentNotPurchased.talentReqNeeded{
 	background-color: #d9534f;
 	color: white;
+}
+
+.talentNotPurchased.talentCanBuyRow, .talentReqNeeded.talentCanBuyRow{
+	background-color: #88860a !important;
+}
+
+.talentPurchased.talentCanBuyRow{
+	background-color: #424104 !important;
+}
+
+.talentNotPurchased.talentIdealRow, .talentReqNeeded.talentIdealRow{
+	background-color: #04195c !important
+}
+
+.talentPurchased.talentIdealRow{
+	background-color: #020a2c !important;
 }
 
 .playerGather {
@@ -186,8 +206,18 @@ overflow-x: hidden;
 	background-color: rgba(255, 255, 255, 0.5);
 }
 
+.titleSpan {
+	font-size: 0.9vw;
+	display: block;
+}
+
+.titleDiv .row{
+	padding: 0.2vw 0;
+}
+
 #jobsTitleUnemployed{
-	font-size: .8em;
+	font-size: .9vw;
+	display: block;
 }
 
 .dmgColorWhite{
@@ -309,34 +339,34 @@ overflow-x: hidden;
     background: rgba(0, 0, 0, 1);
     font-size: 1.12em;
     text-align: center;
-    padding: 3px;
+    padding: 0.2vw;
 }
 
-#autoStructureBtn{
+.toggleConfigBtn{
 	overflow: hidden;
-	height: 1.51em;
+	height: 1.35vw;
 }
 
-#autoStructureBtn div{
+.toggleConfigBtn div{
 	display: inline-block;
 	text-align: center; 
 }
 
-#autoStructureBtn div:first-child{
+.toggleConfigBtn div:first-child{
 	width: 80%; 
 }
 
-#autoStructureBtn div:nth-child(2){
+.toggleConfigBtn div:nth-child(2){
 	width: 20%; 
 	background-color: grey;
 	float: right;
 }
 
-#autoStructureBtn div:nth-child(2):hover{
+.toggleConfigBtn div:nth-child(2):hover{
 	background-color: #666666;
 }
 
-#autoStructureBtn div span{
+.toggleConfigBtn div span{
 	line-height: 1.2em;
 	font-size: 1.1em;
 }
@@ -362,8 +392,20 @@ overflow-x: hidden;
 	border-left: 1px solid black;
 }
 
-.structConfigCheckbox{
+.structConfigCheckbox, .jobConfigCheckbox{
 	transform: scale(2.5);
+}
+
+.autoCheckbox{
+	cursor: pointer;
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+	user-select: none;
+	font-size: 1.3vw;
+	margin-top: 0.1vw;
 }
 
 .Mutimp{
@@ -379,7 +421,7 @@ overflow-x: hidden;
 	padding: 1%;
 }
 
-.structConfigQuantity{
+.structConfigQuantity, .jobConfigQuantity{
 	display: inline-block;
 	width: 50%;
 	padding: 1%;
@@ -640,7 +682,8 @@ overflow-x: hidden;
 }
 
 #fireBtn {
-    border: 1px solid white;
+	border: 1px solid white;
+	font-size: 0.9vw;
 }
 
 #viewChallengeText {
@@ -720,8 +763,6 @@ overflow-x: hidden;
 	background-color: #d0d0d0;;
 }
 
-.titleSpan {}
-
 #buyContainer {
 	overflow-y: auto;
 	height: calc(99vh - 20vw - 195px);
@@ -764,6 +805,7 @@ overflow-x: hidden;
 
 #generatorWindow{
 	width: 98.3%;
+	margin-bottom: 2px;
 }
 
 .generatorStateActive{
@@ -930,6 +972,7 @@ overflow-x: hidden;
     width: 100%;
     left: 0;
 	color: white;
+	z-index: 7;
 }
 
 #settingsTable > tbody > tr > td {
@@ -999,11 +1042,11 @@ overflow-x: hidden;
 }
 
 .settingBtn4{
-	background-color: #7a00f2;
+	background-color: #47008c;
 }
 
 .settingBtn4:hover{
-	background-color: #47008c;
+	background-color: #1f003d;
 }
 
 .settingBtn0, .settingBtn1, .settingBtn3, .settingBtn4 {
@@ -1078,18 +1121,14 @@ overflow-x: hidden;
 	margin-right: 0;
 }
 
-#numTabs{
-	margin-top: 5px;
-}
-
 #numTabs > ul > li > a {
 	padding: 3px;
 	border-radius: 0;
 }
 
-#buyTabsUl > li > a {
+.buyTabsUl > li > a {
 	border: 1px solid #ddd;
-	border-radius: 8px 8px 0 0;
+	border-radius: 8px 8px 0 0 !important;
 }
 
 .buyTab{
@@ -1621,7 +1660,7 @@ overflow-x: hidden;
 	background-color: #000;
 }
 
-.perkColorOff{
+.perkColorOff, .colorBuyOff{
 	background-color: #808080;
 }
 
@@ -2226,6 +2265,15 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	width: 5% !important;
 }
 
+.fluffyCalcRow{
+	background-color: #2b112b !important;
+	color: #b72cb7 !important;
+}
+
+.fluffyCalcRow td{
+	border: 1px solid white !important;
+}
+
 .corruptedCalcRow{
 	background-color: #2E0854 !important;
 	color: #DDDDFF !important;
@@ -2426,6 +2474,10 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .quadTall{
 	line-height: 9.2vw;
+}
+
+.quinTall{
+	line-height: 11.4vw;
 }
 
 #achievementPopup{
@@ -2917,6 +2969,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	color: white;
 }
 
+.fluffyRowComplete{
+	font-weight: bold;
+	background: rgba(0, 0, 0, 0.25)
+}
+
 .fluffyEvolveText{
 	display: inline-block;
 	width: 100%;
@@ -2956,7 +3013,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .fluffFormSpecial{
-	color: #085B70;
+	color: rgb(245, 8, 245);
 	font-weight: bold;
 	text-decoration: underline;
 	cursor: pointer;
@@ -2971,6 +3028,27 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	font-weight: bold;
 	text-decoration: underline;
 	cursor: pointer;
+}
+
+.fluffFormClassy{
+	color: #085B70;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;	
+}
+
+.fluffFormFlufffocus{
+	color: rgb(221, 18, 18);
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;		
+}
+
+.fluffFormKnowledge{
+	color: #2b115b;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;	
 }
 
 #fluffyExpBreakdown{
@@ -2990,6 +3068,17 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	text-align: center;
 	font-weight: bold;
 	font-size: 1.2em;
+}
+
+#fluffyLevelBreakdownContainer{
+	max-height: 50vh;
+	overflow-y: auto;
+	width: 100%;
+	font-size: 1vw;
+}
+
+#fluffyTooltipTopContainer{
+	font-size: 1vw;
 }
 
 #fluffyLevelBreakdown{
@@ -3057,6 +3146,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .noRecycleDone{
 	background-color: red;
+}
+
+.stackedVoids{
+	font-weight: bold;
+	color: #15FF00;
 }
 
 .voidMap{
@@ -3410,6 +3504,10 @@ background-color: rgba(255,255,255,0.25);
 	font-size: 1.2vw;
 }
 
+.messageConfigCheckbox{
+	font-size: 1.1vw;
+}
+
 .thingSmall{
 	display: inline-block;
 	font-size: 1.3em;
@@ -3709,6 +3807,32 @@ background-color: rgba(255,255,255,0.25);
 	font-size: 1.1vw;
 }
 
+.pauseMsg{
+	background-color: black;
+	font-size: 1.5vw;
+	padding: 0.6vw;
+	border: 0.2vw solid white;
+}
+
+#lootBdBtn{
+	color: #337ab7;
+	text-shadow:
+	-1px -1px 0 white,  
+		1px -1px 0 white,
+	-1px 1px 0 white,
+		1px 1px 0 white;
+	font-size: 1.6vw;
+}
+
+#lootBdBtn:hover{
+	color: #286090;
+	text-shadow:
+	-1px -1px 0 white,  
+		1px -1px 0 white,
+	-1px 1px 0 white,
+		1px 1px 0 white;
+}
+
 #lootBdContainer{
 	margin-top: 5%;
 	margin-right: 12.5%;
@@ -3745,12 +3869,13 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	color: #0e5a07;
-	text-shadow: 
-			1px 1px 2px rgba(15, 158, 74, 0.2), 
-			0 0 25px rgba(43, 64, 185, 0.3), 
-			0 0 25px rgba(33, 114, 51, 0.3);
-	background-color: black;
+	color: white;
+	background-image: linear-gradient(to right, rgba(0,0,0,0) 85%, #a27d02 95%), linear-gradient(#7F0505, #630202 40%, #684112 85%);
+	text-shadow:
+	 -1px -1px 0 #000,  
+	  1px -1px 0 #000,
+	 -1px 1px 0 #000,
+	  1px 1px 0 #000;
 	font-weight: bold;
 }
 
@@ -3760,32 +3885,14 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: black;
-	background-color: #0e5a07;
-	text-shadow: 
-			1px 1px 2px rgba(0, 0, 0, 0.2), 
-			0 0 25px rgba(81, 11, 90, 0.3), 
-			0 0 25px rgba(0, 0, 0, 0.3);
+	color: white;
+	background-image: linear-gradient(to right, rgba(0,0,0,0) 75%, #a27d02 90%), linear-gradient(#008238, #01461f 60%, #02437C 85%);
 	font-weight: bold;
-}
-
-.btn-new:hover #versionNumber{
-	animation: newBtnAnimated 30s infinite;
-	display: inline-block;
-}
-
-@keyframes newBtnAnimated{
-	0% {	
-		animation-timing-function: ease-out;
-		transform: rotate(0deg);
-	}
-	50% {	
-		animation-timing-function: ease-in;
-		transform: rotate(180deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
+	text-shadow:
+	-2px -2px 0 #007d8d,  
+	 2px -2px 0 #007d8d,
+	-2px 2px 0 #007d8d,
+	 2px 2px 0 #007d8d;
 }
 
 .btn-new:active,
@@ -4177,6 +4284,10 @@ sup{
 	width: 50%;
 }
 
+#tooltipDiv.tooltipExtraSuperLg{
+	width: 65%;
+}
+
 #playFabLoginInfo{
 	padding-left: 0;
 }
@@ -4206,6 +4317,43 @@ sup{
 
 .col-xs-3.fifth{
 	width: 20% !important;
+}
+
+#dgChangeBtnContainer{
+	height: 1.6vw;
+}
+
+.dgChangeBtn{
+	border: 1px solid white;
+    font-size: 1.12em;
+    text-align: center;
+	padding: 0.09vw 0.2vw 0 0.2vw;
+	height: 100%;
+	display: inline-block;
+}
+
+.eradicatedBtns #generatorPassiveBtn, .eradicatedBtns #generatorHybridBtn{
+	background-color: grey !important;
+}
+
+#generatorStateConfigBtn{
+	background-color: grey;
+	padding-left: 0.4vw;
+	padding-right: 0.4vw;
+}
+
+#genStateConfigTop .optionContainer{
+	width: 50%;
+	display: inline-block;
+	margin: 0;
+}
+
+#generatorStateConfigBtn .glyphicon::before{
+	font-size: 0.8vw;
+}
+
+#generatorStateConfigBtn:hover{
+	background-color: #6b6b6b;
 }
 
 #generatorPauseBtn{
@@ -4435,4 +4583,383 @@ sup{
 
 .icon-controller-play{
 	font-size: 1.4em;
+}
+
+.patchNotice{
+	font-size: 1.1vw;
+	border: 0.2vw solid white;
+}
+
+.niceCheckbox{
+	cursor: pointer;
+}
+
+.mapExtraAfford1{
+	background-color: #09470b;
+	color: #c8c8c8;
+}
+
+.mapExtraAfford2{
+	background-color: #805300;
+	color: #c8c8c8;
+}
+
+#playerSpirePopout{
+	position: absolute;
+	top: 5vh;
+	left: 5vw;
+	width: 90vw;
+	height: 90vh;
+	pointer-events: none;
+	z-index: 3 !important;
+}
+
+#playerSpireSpirePanel{
+	width: calc(30vw - 4px);
+	border: 2px solid #dadada;
+	height: 100%;
+	display: inline-block;
+	background-color: black;
+	pointer-events: auto;
+	padding: 0.5vw;
+}
+
+#playerSpireSpireSpirePanel{
+	width: 100%;
+	height: 100%;
+
+}
+
+#floatingCombatText{
+	position: absolute;
+	top: 0;
+	left: 0.5vw;
+	border: 1px solid black;
+	height: 90vh;
+	width: calc(25vw - 4px);
+	pointer-events: none;
+}
+
+#playerSpireInfoPanel{
+	width: 60vw;
+	height: 100%;
+	display: inline-block;
+	color: #dadada;
+	font-size: 1vw;
+	vertical-align: top;
+	background-color: black;
+	pointer-events: auto;
+	padding: 1% 2.5%;
+	overflow-y: auto;
+	border: 2px solid #dadada;
+	border-left: 0;
+}
+
+#playerSpireSmallPanel{
+	width: 9vw;
+	height: 100%;
+	display: none;
+	color: #dadada;
+	background-color: black;
+	vertical-align: top;
+	font-size: 1vw;
+	pointer-events: auto;
+	position: relative;
+	border: 2px solid #dadada;
+	border-left: 0;
+	overflow-y: auto;
+}
+
+.playerSpireCell{
+    width: calc(20%);
+    height: calc(5% + 1px);
+    margin-left: -1px;
+    margin-top: -1px;
+	border: 1px solid #dadada;
+	display: block;
+	text-align: center;
+	cursor: pointer;
+	float: left;
+	position: relative;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+.playerSpireEnemy{
+	text-align: center;
+	width: 60%;
+	height: 60%;
+	display: inline-block;
+	margin-top: 1vh;
+	border: 0.1vw solid #5a5a5a;
+	font-weight: bold;
+	color: white;
+	font-size: 0.8vw;
+	background-clip: padding-box;
+	cursor: pointer;
+	position: relative;
+}
+
+.playerSpireEnemyText{
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: block;
+	z-index: 10;
+}
+
+.spireUniqueIcon{
+	position: absolute;
+	top: 10%;
+	left: 82%;
+	font-size: 0.45vw;
+	color: #5c5c5c;
+	z-index: 0;
+}
+
+.spireTrapBox, .spireControlBox{
+	cursor: pointer;
+	border: 2px solid #dadada;
+	padding: 0.5vw;
+	display: inline-block;
+	margin: 0.5%;
+	text-align: center;
+	width: 24%;
+}
+
+.spireControlBox{
+	width: 19%;
+}
+
+.spireTrapBox{
+	height: 4.2vw;
+	vertical-align: top;
+	position: relative;
+}
+
+.spireTrapBoxSmall{
+	position: relative;
+}
+
+.spireTrapBox.playerSpireUpgrade{
+	height: initial;
+}
+
+.spireControlBoxDbl{
+	width: 19%;
+	margin: 0.5%;
+	display: inline-block;
+	text-align: center;
+}
+
+.spireControlBoxDbl div{
+	display: inline-block;
+	width: 45%;
+	margin: 2.5%;
+	padding: 0.25vw;
+	cursor: pointer;
+	border: 1px solid #dadada;
+}
+
+.spireTrapBoxSmall, .spireControlBoxSmall{
+	cursor: pointer;
+	border: 2px solid #dadada;
+	padding: 0.5vw;
+	display: inline-block;
+	margin: 0.25vw;
+	text-align: center;
+	width: calc(100% - 0.5vw);
+}
+
+.spireTrapBox.selected, .spireTrapBoxSmall.selected, .spireControlBox.selected{
+	border: 2px solid yellow !important;
+}
+
+#playerSpireTitle{
+	padding: 1vw;
+	font-weight: bold;
+	font-size: 1.5vw;
+}
+
+#playerSpireHelp{
+	border: 2px solid blue;
+	font-size: 0.8vw;
+	padding: 0.5vw;
+	display: block;
+}
+
+#playerSpireInfoTop{
+	text-align: center;
+	margin-top: 1vw;
+}
+
+.floatingCombatText{
+	text-shadow:
+	-1px -1px 0 white,  
+		1px -1px 0 white,
+	-1px 1px 0 white,
+		1px 1px 0 white;
+	font-weight: bold;
+	z-index: 9999999999;
+	font-size: 0.8vw;
+}
+
+#playerSpireCloseBtnSm, #playerSpireCloseBtn{
+	position: absolute;
+	top: 1.5%;
+	left: 97%;
+	color: red;
+	font-size: 1.5vw;
+	cursor: pointer;
+}
+
+#playerSpireHelpBtn{
+	position: absolute;
+	top: 1.5%;
+	left: 95%;
+	color: blue;
+	font-size: 1.5vw;
+	cursor: pointer;
+}
+
+#playerSpireCloseBtnSm{
+	left: 82%;
+	top: 0.5%;
+}
+
+#playerSpireInfoTopSm{
+	padding: 5%;
+}
+
+#playerSpireTab a{
+	background-color: #a27d02;
+}
+
+#playerSpireTab a:hover{
+	background-color: #6d5403;
+}
+
+#playerSpireTab.pausedSpire a{
+	background-color: #ca0505;
+}
+
+#playerSpireTab.pausedSpire a:hover{
+	background-color: #6b0202;
+}
+
+#playerSpireTutorial{
+	color: #dadada;
+	font-weight: bold;
+	margin-top: 5%;
+	display: inline-block;
+	font-size: 0.9vw;
+}
+
+.spireQuest{
+	border: 1px solid blue;
+	padding: 2%;
+	font-size: 1.2vw;
+}
+
+.spirePresetBtns{
+	height: 4vw;
+	margin-top: 1vw;
+}
+
+.spirePresetBtns span{
+	border: 1px solid white;
+	padding: 5%;
+	width: 45%;
+	margin: 1.5%;
+	cursor: pointer;
+	color: white;
+	font-weight: bold;
+	background-color: black;
+}
+
+.spirePresetBtns span:hover{
+	background-color: #383838;
+}
+
+.playerSpireTooltipTrapName{
+	color: white; 
+	padding: 0.4vw; 
+	font-weight: bold;
+	margin-bottom: 0.5vw;
+	border: 1px solid white;
+	display: inline-block;
+}
+
+.spireTrapIcon, .spireTrapBox .icomoon, .spireTrapBoxSmall .icomoon{
+	position: absolute;
+	top: 25%;
+	left: 1%;
+	color: #dadada;
+	font-size: 1vw;
+	text-shadow:
+	-1px -1px 0 black,  
+		1px -1px 0 black,
+	-1px 1px 0 black,
+		1px 1px 0 black;
+}
+
+.spireTrapBox .icomoon{
+	top: 12%;
+	left: 2%;
+}
+
+.spireTrapBoxSmall .icomoon{
+	left: 2%;
+}
+
+.spireTrapBoxSmall .icon-bolt{
+	left: 5%;
+}
+
+.spireTrapIcon .icon-bolt{
+	padding-left: 25%;
+}
+
+#spireSettingsTooltip{
+	padding: 1vw;
+	padding-top: 0.5vw;
+}
+
+#spireSettingsTooltip b{
+	font-size: 1.4vw;
+	display: block;
+	margin-bottom: 0.5vw;
+	margin-top: 0.5vw;
+}
+
+.spireOption{
+	width: 25%;
+	display: inline-block;
+	font-size: 1.1vw;
+}
+
+.spireOption span{
+	font-size: 1.5vw;
+	float: right;
+	margin-right: 1.5vw;
+	margin-bottom: 1vw;
+}
+
+#playerSpireTutorial{
+	overflow-y: auto;
+}
+
+.spirePausedYes{
+	background-color: #ca0505;
+}
+
+.playerSpireEnemy.shocked{
+	color: #e4c305;
+	text-shadow:
+	-1px -1px 0 black,  
+		1px -1px 0 black,
+	-1px 1px 0 black,
+		1px 1px 0 black;
 }
