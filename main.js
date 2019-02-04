@@ -13193,6 +13193,7 @@ var Fluffy = {
 		this.calculateLevel();
 		this.calculateExp();
 		this.updateExp();
+		if (this.currentLevel >= 1) giveSingleAchieve("Consolation Prize");
 	},
 	updateExp: function(){
 		var expElem = document.getElementById('fluffyExp');

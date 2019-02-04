@@ -3057,6 +3057,7 @@ function resetGame(keepPortal) {
 		game.options.menu.darkTheme.enabled = 1;
 		game.options.menu.darkTheme.removeStyles();
 		game.options.menu.usePlayFab.enabled = 0;
+		playerSpire.resetToDefault();
 		toggleSetting("usePlayFab", null, false, true);
 		playFabId = -1;
 	}

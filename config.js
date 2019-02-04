@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '4.10.3',
+		stringVersion: '4.10.4',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -1018,7 +1018,6 @@ var toReturn = {
 					game.global.lockTooltip = true;
 					tooltipUpdateFunction = "";
 					this.enabled = 0;
-					playerSpire.resetToDefault();
 				}
 			}
 		}
