@@ -4486,7 +4486,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 						displayColor = (achievement.evaluate() == 0) ? "#b32d00" : "#C5C515"; // Red / Yellow
 					else if(one)
 						displayColor = checkFeatEarnable(achievement.names[x]) ? "#C5C515" : "#b32d00"; // Yellow / Red
-					else if(item.timed && minutes > item.breakpoints[x])
+					else if(achievement.timed && minutes > achievement.breakpoints[x])
 						displayColor = "#b32d00"; // Red
 					else
 						displayColor = "#C5C515"; // Yellow
