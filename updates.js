@@ -4457,6 +4457,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 
 	function displayAchievements(){
 		var htmlString = "";
+		var minutes = getMinutesThisPortal();
 		for (var item in game.achievements) {
 			var achievement = game.achievements[item];
 			if (typeof achievement.display !== 'undefined' && !achievement.display()) continue;
@@ -4482,9 +4483,13 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 				var tierValue = "<span style='color: black;' class='" + achievement.icon + "'></span>";
 				if ((!one && achievement.finished == x) || (one && !achievement.finished[x] && game.global.highestLevelCleared >= achievement.filters[x])) {
 					if (item == "humaneRun")
-						displayColor = (achievement.evaluate() == 0) ? "#b32d00" : "#C5C515"; //Yellow
+						displayColor = (achievement.evaluate() == 0) ? "#b32d00" : "#C5C515"; // Red / Yellow
+					else if(one)
+						displayColor = checkFeatEarnable(achievement.names[x]) ? "#C5C515" : "#b32d00"; // Yellow / Red
+					else if(item.timed && minutes > item.breakpoints[x])
+						displayColor = "#b32d00"; // Red
 					else
-						displayColor = (one && !checkFeatEarnable(achievement.names[x])) ? "#b32d00" : "#C5C515"; //Yellow
+						displayColor = "#C5C515"; // Yellow
 				}
 				else if ((one && achievement.finished[x]) || (!one && achievement.finished > x)) {
 					displayColor = "#159515"; //Greenz
