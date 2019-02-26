@@ -12874,7 +12874,7 @@ function buyAutoStructures(){
 			}
 		}
 	}
-	if (setting.Gigastation.enabled && game.upgrades.Gigastation.allowed > game.upgrades.Gigastation.done && game.buildings.Warpstation.owned >= setting.Gigastation.buyMax){
+	if (setting.Gigastation && setting.Gigastation.enabled && game.upgrades.Gigastation.allowed > game.upgrades.Gigastation.done && game.buildings.Warpstation.owned >= setting.Gigastation.buyMax){
 		var costMult = parseFloat(setting.Gigastation.value);
 		var costs = game.upgrades.Gigastation.cost.resources;
 		var owned = game.upgrades.Gigastation.done;
