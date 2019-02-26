@@ -328,7 +328,7 @@ var playerSpire = {
     },
     getUpgradesHtml: function(){
         var html = "";
-        var cheapestTrap = 0;
+        var cheapestTrap = -1;
         if (this.tutorialStep < 4) return "";
         for (var trapItem in playerSpireTraps){
             var trap = playerSpireTraps[trapItem];

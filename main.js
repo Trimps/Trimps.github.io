@@ -2108,6 +2108,7 @@ function importPerks() {
 	var heNeeded = 0;
 	var changeAmt = {};
 	var price = {};
+	var levelCount = 0;
 
 	for (var perk in game.portal) {
 		if (!levels[perk]){
@@ -2117,6 +2118,7 @@ function importPerks() {
 		}
 		// parseInt parses "1e6" as 1, so we use parseFloat then floor as a replacement
 		var level = Math.floor(parseFloat(levels[perk]));
+		levelCount += level;
 
 		if (game.portal[perk].locked || level > game.portal[perk].max || isNumberBad(level))
 			return "Cannot set " + perk + " to level " + level + ".";
@@ -2139,12 +2141,16 @@ function importPerks() {
 	cancelTooltip();
 	if (respecNeeded && !game.global.respecActive)
 		respecPerks();
-
-	for (perk in changeAmt) {
-		game.portal[perk].levelTemp += changeAmt[perk];
-		game.resources.helium.totalSpentTemp += price[perk];
-		game.portal[perk].heliumSpentTemp += price[perk];
-		updatePerkLevel(perk);
+	if (levelCount == 0){
+		clearPerks();
+	}
+	else{
+		for (perk in changeAmt) {
+			game.portal[perk].levelTemp += changeAmt[perk];
+			game.resources.helium.totalSpentTemp += price[perk];
+			game.portal[perk].heliumSpentTemp += price[perk];
+			updatePerkLevel(perk);
+		}
 	}
 
 	document.getElementById("portalHeliumOwned").innerHTML = prettify(game.resources.helium.respecMax - game.resources.helium.totalSpentTemp);
@@ -7196,12 +7202,11 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation,
 		return (getRandomIntSeeded(game.global.skeleSeed++, 0, 100) < ((game.talents.skeletimp.purchased) ? 20 : 10)) ? "Megaskeletimp" : "Skeletimp";
 	}
 	if (imports.length && !force && (getRandomIntSeeded(enemySeed++, 0, 100) < (imports.length * 3))){
-		game.global.enemySeed = enemySeed;
+		if (!mapSuffix) game.global.enemySeed = enemySeed;
 		return imports[getRandomIntSeeded(enemySeed++, 0, imports.length)];
 	}
 	if (!mapSuffix && !force) {
 		var chance = .35 * (1 / (100 - 1 - (3 * imports.length)));
-
 		chance = Math.round(chance * 100000);
 		if (game.talents.turkimp2.purchased) chance *= 1.33;
 		var roll = getRandomIntSeeded(enemySeed++, 0, 100000);
@@ -8840,7 +8845,7 @@ function tryScry(){
 	if (roll < 50 || roll > 52) return;
 	var reward = calculateScryingReward();
 	if (reward <= 0) return;
-	if (countHeliumSpent() == 0) giveSingleAchieve("Unessenceted");
+	if (countHeliumSpent() <= 0 && game.global.canRespecPerks && !game.global.bonePortalThisRun) giveSingleAchieve("Unessenceted");
 	game.global.essence += reward;
 	var maxCost = getTotalTalentCost();
 	var talentCount = countPurchasedTalents();
@@ -12869,7 +12874,7 @@ function buyAutoStructures(){
 			}
 		}
 	}
-	if (setting.Gigastation && game.upgrades.Gigastation.allowed > game.upgrades.Gigastation.done && game.buildings.Warpstation.owned >= setting.Gigastation.buyMax){
+	if (setting.Gigastation.enabled && game.upgrades.Gigastation.allowed > game.upgrades.Gigastation.done && game.buildings.Warpstation.owned >= setting.Gigastation.buyMax){
 		var costMult = parseFloat(setting.Gigastation.value);
 		var costs = game.upgrades.Gigastation.cost.resources;
 		var owned = game.upgrades.Gigastation.done;
@@ -13052,7 +13057,7 @@ function autoPrestiges(equipmentAvailable) {
 		}
 		return;
 	}
-	else if (!cheapestArmor[0]){
+	if (!cheapestArmor[0]){
 		autoBuyUpgrade(cheapestWeapon[0]);
 		return;
 	}
@@ -13089,11 +13094,15 @@ function getCheapestPrestigeUpgrade(upgradeArray) {
 		var res = (typeof upgradeObj.cost.resources.metal !== 'undefined') ? 'metal' : 'wood';
 		var thisCost = upgradeObj.cost.resources[res];
 		if  (artMult != -1) thisCost *= artMult;
-		if (res == "wood" && upgradeArray.length > 1 && game.resources.wood.owned < thisCost)	continue;
-		else if (res == "wood") {
+		if (res == "wood"){
+			var wepFirstMult = 1;
+			if (game.global.autoPrestiges == 3) wepFirstMult = 20;
+			//If weapons first is on, only allow Supershield to be considered as cheapest if its cost is < 5% of total wood
+			if (upgradeArray.length > 1 && game.resources.wood.owned < thisCost * wepFirstMult) continue;
 			shieldCheck = true;
 			shieldCost = thisCost;
 		}
+		
 		if (cheapest[1] == -1 || thisCost < cheapest[1]) cheapest = [upgradeArray[x], thisCost];
 	}
 	if (cheapest[0] && cheapest[0] != 'Supershield' && shieldCheck && shieldCost != -1 && game.resources.metal.owned < cheapest[1]) cheapest = ['Supershield', shieldCost];
