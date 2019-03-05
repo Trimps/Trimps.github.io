@@ -3644,7 +3644,7 @@ var toReturn = {
 		w277: "It's starting to smell purple again. You must be getting close to another spire.",
 		get w283() {
 			var soldiers = game.resources.trimps.getCurrentSend();
-			return "During a boring night while waiting to cross a particularly rough Magma river, you managed to teach your Trimps how to stack on each other to create some funny shapes. You almost feel bad for the first Snimp to come across " + prettify(soldiers) + " Trimps stuck together in the shape of a humongous Moongooseimp.";
+			return "During a boring night while waiting to cross a particularly rough Magma river, you managed to teach your Trimps how to stack on each other to create some funny shapes. You almost feel bad for the first Snimp to come across " + prettify(soldiers) + " Trimps stuck together in the shape of a humongous Mongooseimp.";
 		},
 		get w285(){
 			if (game.global.spireRows >= 10)
