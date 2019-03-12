@@ -41,7 +41,8 @@ var playerSpire = {
         enemyIcons: true,
         trapIcons: true,
         shockEffect: true,
-        percentHealth: false
+        percentHealth: false,
+        trapAnimations: false
     },
     lootAvg: {
         accumulator: 0,
@@ -91,6 +92,7 @@ var playerSpire = {
             enemyIcons: true,
             trapIcons: true,
             percentHealth: false,
+            trapAnimations: false
         }
         this.lootAvg = {
             accumulator: 0,
@@ -265,6 +267,7 @@ var playerSpire = {
         if (!playerSpireTraps.Lightning.locked)
         text += "<span class='spireOption'>Shock Effect: " + buildNiceCheckbox('spireshockEffect', '', this.settings.shockEffect) + "</span>";
         text += "<span class='spireOption'>Health as %: " + buildNiceCheckbox('spirepercentHealth', '', this.settings.percentHealth) + "</span>";
+        text += "<span class='spireOption'>Trap Animations: " + buildNiceCheckbox('spiretrapAnimations', '', this.settings.trapAnimations) + "</span>";
         text += "</div>";
         tooltip("Spire Settings", 'customText', 'lock', text, "<span class='btn btn-info' onclick='playerSpire.saveSettings()'>Save</span><span class='btn btn-danger' onclick='cancelTooltip()'>Cancel</span>", "hi", "hi");
     },
@@ -907,7 +910,12 @@ var playerSpire = {
         if (!this.popupOpen) return;
         var elem = document.getElementById('playerSpireCell' + cellNumber + 'enemy');
         if (!elem) return;
-        elem.innerHTML = this.getEnemyHtml(cellNumber);
+        var drawnCell = document.getElementById('playerSpireCell' + cellNumber);
+        var enemyHTML = this.getEnemyHtml(cellNumber);
+        elem.innerHTML = enemyHTML;
+        if (!this.settings.trapAnimations) return;
+        if (enemyHTML === "") drawnCell.style.animation = "";
+        else drawnCell.style.animation = playerSpire.layout[cellNumber].trap.name + " 1s infinite";
     },
     getThreatChange: function(isKill, enemy, location){
         var base = 2;

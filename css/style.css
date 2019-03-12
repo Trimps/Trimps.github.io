@@ -4963,3 +4963,53 @@ sup{
 	-1px 1px 0 black,
 		1px 1px 0 black;
 }
+
+@keyframes Fire {
+    0% {box-shadow: inset 0px 0px 0px rgba(255, 0, 0, 0.8)}
+    50% {box-shadow: inset 0px 0px 10px rgba(255, 0, 0, 0.8)}
+    100% {box-shadow: inset 0px 0px 0px rgba(255, 0, 0, 0.8)}
+}
+
+@keyframes Frost {
+    0% {box-shadow: inset 0px 0px 0px rgba(100, 175, 255, 0.8)}
+    50% {box-shadow: inset 0px -3px 3px rgba(100, 175, 255, 0.8)}
+    100% {box-shadow: inset 0px 0px 0px rgba(100, 175, 255, 0.8)}
+}
+
+@keyframes Poison {
+    0% {box-shadow: inset 0px 0px 0px rgba(0, 255, 0, 0.8)}
+    33% {box-shadow: inset 2px 0px 4px rgba(0, 255, 0, 0.8)}
+    66% {box-shadow: inset -2px 0px 4px rgba(0, 255, 0, 0.8)}
+    100% {box-shadow: inset 0px 0px 0px rgba(0, 255, 0, 0.8)}
+}
+
+@keyframes Lightning {
+    0% {box-shadow: inset 0px 0px 0px rgba(253, 218, 104, 0.8)}
+    30% {box-shadow: inset 0px 0px 5px rgba(253, 218, 104, 0.8)}
+    40% {box-shadow: inset 0px 0px 5px rgba(253, 218, 104, 0.8)}
+    50% {box-shadow: inset 0px 0px 25px rgba(253, 218, 104, 1)}
+    60% {box-shadow: inset 0px 0px 5px rgba(253, 218, 104, 0.8)}
+    70% {box-shadow: inset 0px 0px 5px rgba(253, 218, 104, 0.8)}
+    100% {box-shadow: inset 0px 0px 0px rgba(253, 218, 104, 0.8)}
+}
+
+@keyframes Strength {
+    0% {box-shadow: inset 0px 0px 0px rgba(0, 0, 0, 0.8)}
+    50% {box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.8)}
+    100% {box-shadow: inset 0px 0px 0px rgba(0, 0, 0, 0.8)}
+}
+
+@keyframes Condenser {
+    0% {box-shadow: inset 0px 0px 0px rgba(0, 0, 0, 0.6), inset 0px 0px 0px rgba(0, 0, 0, 0.6)}
+    50% {box-shadow: inset 0px 6px 6px rgba(0, 0, 0, 0.7), inset 0px -6px 10px rgba(0, 0, 0, 0.7)}
+    100% {box-shadow: inset 0px 0px 0px rgba(0, 0, 0, 0.6), inset 0px 0px 0px rgba(0, 0, 0, 0.6)}
+}
+
+@keyframes Knowledge {
+    0% {box-shadow: inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3)}
+    20% {box-shadow: inset 0px 3px 3px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3)}
+    40% {box-shadow: inset 0px 3px 3px rgba(255, 255, 255, 0.3), inset 3px 0px 3px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3)}
+    60% {box-shadow: inset 0px 3px 3px rgba(255, 255, 255, 0.3), inset 3px 0px 3px rgba(255, 255, 255, 0.3), inset 0px -3px 3px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3)}
+    80% {box-shadow: inset 0px 3px 3px rgba(255, 255, 255, 0.3), inset 3px 0px 3px rgba(255, 255, 255, 0.3), inset 0px -3px 3px rgba(255, 255, 255, 0.3), inset -3px 0px 3px rgba(255, 255, 255, 0.3)}
+    100% {box-shadow: inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3), inset 0px 0px 0px rgba(255, 255, 255, 0.3)}
+}
