@@ -3614,13 +3614,13 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			toUpdate.owned = parseFloat(toUpdate.owned);
 			if (!(toUpdate.owned > 0)) toUpdate.owned = 0;
 		}
-		document.getElementById(item + "Owned").innerHTML = prettify(Math.floor(toUpdate.owned));
+		document.getElementById(item + "Owned").textContent = prettify(Math.floor(toUpdate.owned));
 		if (toUpdate.max == -1 || document.getElementById(item + "Max") === null) continue;
 		var newMax = toUpdate.max;
 		if (item != "trimps")
 			newMax = calcHeirloomBonus("Shield", "storageSize", (newMax * (game.portal.Packrat.modifier * game.portal.Packrat.level + 1)));
 		else if (item == "trimps") newMax = toUpdate.realMax();
-		document.getElementById(item + "Max").innerHTML = prettify(newMax);
+		document.getElementById(item + "Max").textContent = prettify(newMax);
 		var bar = document.getElementById(item + "Bar");
 		if (game.options.menu.progressBars.enabled){
 			var percentToMax = ((toUpdate.owned / newMax) * 100);
@@ -3638,12 +3638,12 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			unlockBuilding(itemA);
 			elem = document.getElementById(itemA + "Owned");
 		}
-		elem.innerHTML = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
+		elem.textContent = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
 		if (itemA == "Trap") {
 			var trap1 = document.getElementById("trimpTrapText")
-			if (trap1) trap1.innerHTML = prettify(toUpdate.owned);
+			if (trap1) trap1.textContent = prettify(toUpdate.owned);
 			var trap2 = document.getElementById("trimpTrapText2")
-			if (trap2) trap2.innerHTML = prettify(toUpdate.owned);
+			if (trap2) trap2.textContent = prettify(toUpdate.owned);
 		}
 	}
 	//Jobs, check PS here and stuff. Trimps per second is handled by breed() function
@@ -3656,7 +3656,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 			continue;
 		}
 		if (document.getElementById(itemB) === null) unlockJob(itemB);
-		document.getElementById(itemB + "Owned").innerHTML = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
+		document.getElementById(itemB + "Owned").textContent = (game.options.menu.menuFormatting.enabled) ? prettify(toUpdate.owned) : toUpdate.owned;
 		var perSec = (toUpdate.owned * toUpdate.modifier);
 		updatePs(toUpdate, false, itemB);
 	}
@@ -3676,7 +3676,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 		var toUpdate = game.equipment[itemD];
 		if (toUpdate.locked == 1) continue;
 		if (document.getElementById(itemD) === null) drawAllEquipment();
-		document.getElementById(itemD + "Owned").innerHTML = toUpdate.level;
+		document.getElementById(itemD + "Owned").textContent = toUpdate.level;
 	}
 }
 
@@ -3751,14 +3751,14 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 
 function updateSideTrimps(){
 	var trimps = game.resources.trimps;
-	document.getElementById("trimpsEmployed").innerHTML = prettify(trimps.employed);
+	document.getElementById("trimpsEmployed").textContent = prettify(trimps.employed);
 	var breedCount = (trimps.owned - trimps.employed > 2) ? prettify(Math.floor(trimps.owned - trimps.employed)) : 0;
-	document.getElementById("trimpsUnemployed").innerHTML = breedCount;
-	document.getElementById("maxEmployed").innerHTML = prettify(Math.ceil(trimps.realMax() / 2));
+	document.getElementById("trimpsUnemployed").textContent = breedCount;
+	document.getElementById("maxEmployed").textContent = prettify(Math.ceil(trimps.realMax() / 2));
 	var free = (Math.ceil(trimps.realMax() / 2) - trimps.employed);
 	if (free < 0) free = 0;
 	var s = (free > 1) ? "s" : "";
-	document.getElementById("jobsTitleUnemployed").innerHTML = prettify(free) + " workspace" + s;
+	document.getElementById("jobsTitleUnemployed").textContent = prettify(free) + " workspace" + s;
 }
 
 function unlockBuilding(what) {
@@ -3919,22 +3919,24 @@ function unlockUpgrade(what, displayOnly) {
 
 function drawAllUpgrades(){
 	var elem = document.getElementById("upgradesHere");
-	elem.innerHTML = "";
+	// Batch all HTML manipulation into one operation to save on the parsing
+	elem.innerHTML = Object.keys(game.upgrades)
+		.filter(what => game.upgrades[what].locked != 1)
+		.map(upgradeDivHTML)
+		.join('');
 	for (var item in game.upgrades){
 		if (game.upgrades[item].locked == 1) continue;
-		drawUpgrade(item, elem);
 		if (game.upgrades[item].alert && game.options.menu.showAlerts.enabled){
-			document.getElementById("upgradesAlert").innerHTML = "!";
-			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").innerHTML = "!";
+			document.getElementById("upgradesAlert").textContent = "!";
+			if (document.getElementById(item + "Alert")) document.getElementById(item + "Alert").textContent = "!";
 		}
 	}
 	goldenUpgradesShown = false;
 	displayGoldenUpgrades();
 }
 
-
-
-function drawUpgrade(what, where){
+function upgradeDivHTML(what) {
+    div = document.createElement('div');
 	var upgrade = game.upgrades[what];
 	if (upgrade.prestiges && (!upgrade.cost.resources[metal] || !upgrade.cost.resources[wood])){
 		var resName = (what == "Supershield") ? "wood" : "metal";
@@ -3943,9 +3945,10 @@ function drawUpgrade(what, where){
 	var done = upgrade.done;
 	var dif = upgrade.allowed - done;
 	if (dif >= 1) dif -= 1;
-	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
-	if (dif >= 1) document.getElementById(what + "Owned").innerHTML = upgrade.done + "(+" + dif + ")";
+    return '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + ((dif >= 1) ? ('(+' + dif + ')') : '') + '</span></div>';
+    return div;
 }
+
 
 function checkButtons(what) {
 	var where = game[what];

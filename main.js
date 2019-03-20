@@ -3763,7 +3763,7 @@ function breed() {
 			if (remainingTime == 0.0)
 				updateGenes = true;
 		}
-		document.getElementById("trimpsTimeToFill").innerHTML = (fullBreed) ? fullBreed : "";
+		document.getElementById("trimpsTimeToFill").textContent = (fullBreed) ? fullBreed : "";
 		if (updateGenes || (!game.global.fighting && totalTimeText == "0.0")){
 			updateStoredGenInfo(breeding.toNumber());
 		}
@@ -7501,21 +7501,15 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
     var idText = (maps) ? "mapCell" : "cell";
     var size = 0;
     if (maps) size = game.global.mapGridArray.length;
+    var rowHTMLs = [];
     for (var i = 0; i < rows; i++) {
         if (maps && counter >= size) return;
-        var row = document.createElement("ul");
-		grid.insertBefore(row, grid.childNodes[0]);
-        row.setAttribute("id", "row" + i);
-		row.className = "battleRow";
+        var cellHTMLs = [];
         for (var x = 0; x < cols; x++) {
+
+            var title, onclick;
+
             if (maps && counter >= size) return;
-			var cell = document.createElement("li");
-			cell.setAttribute("id", idText + counter);
-			row.appendChild(cell);
-			cell.style.width = (100 / cols) + "%";
-			cell.style.paddingTop = ((100 / cols) / 19)+ "vh";
-			cell.style.paddingBottom = ((100 / cols) / 19) + "vh";
-			cell.style.fontSize = ((cols / 14) + 1) + "vh";
 			var className = "battleCell cellColorNotBeaten"
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
@@ -7528,20 +7522,36 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			}
 			if (!maps && game.global.gridArray[counter].empowerment){
 				className += " empoweredCell" + game.global.gridArray[counter].empowerment;
-				cell.title = "Token of " + game.global.gridArray[counter].empowerment;
+				title = "Token of " + game.global.gridArray[counter].empowerment;
 			}
 			else if (!maps && checkIfSpireWorld() && game.global.spireActive) className += " spireCell";
-            cell.className = className;
-            cell.innerHTML = (maps) ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text;
-			if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";
+
 			if (!maps && game.global.gridArray[counter].special == "easterEgg"){
-				cell.onclick = function () { easterEggClicked(); };
+				onclick = ' onclick="easterEggClicked();"';
 				game.global.eggLoc = counter;
-				cell.className += " eggCell";
+				className += " eggCell";
 			}
+			var cell = "<li id=\"" + (idText + counter) + "\" class=\"" + className + "\" \"" + (title || "") + (onclick || "") + ">" + ((maps ? game.global.mapGridArray[counter].text : game.global.gridArray[counter].text) || "&nbsp") + "</li>";
+	    		cellHTMLs.push(cell);
 			counter++;
         }
+        rowHTMLs.push(
+            '<ul id="row' + i + '" class="battleRow">'
+                + cellHTMLs.join('')
+                + '</ul>'
+        );
     }
+    // The grid has row 0 at the bottom, so reverse
+    grid.innerHTML = rowHTMLs.reverse().join('');
+    Array.from(document.querySelectorAll(".battleCell"))
+        .forEach(function(cell) {
+            Object.assign(cell.style, {
+		width: 100 / cols + "%",
+		paddingTop: 100 / cols / 19 + "vh",
+		paddingBottom: 100 / cols / 19 + "vh",
+		fontSize: cols / 14 + 1 + "vh"
+	    });
+        });
 }
 
 function easterEggClicked(){
@@ -8584,11 +8594,11 @@ function updateAllBattleNumbers (skipNum) {
     document.getElementById("goodGuyHealthMax").innerHTML = prettify(game.global.soldierHealthMax);
 	updateGoodBar();
 	updateBadBar(cell);
-	document.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth);
-	if (!skipNum && game.global.challengeActive == "Trimp" && game.jobs.Amalgamator.owned > 0) document.getElementById("trimpsFighting").innerHTML = toZalgo(prettify(game.resources.trimps.getCurrentSend()), game.global.world);
-	else if (!skipNum) document.getElementById("trimpsFighting").innerHTML = prettify(game.resources.trimps.getCurrentSend());
-	document.getElementById("goodGuyBlock").innerHTML = prettify(game.global.soldierCurrentBlock);
-	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true, true);
+	document.getElementById("badGuyHealthMax").textContent = prettify(cell.maxHealth);
+	if (!skipNum && game.global.challengeActive == "Trimp" && game.jobs.Amalgamator.owned > 0) document.getElementById("trimpsFighting").textContent = toZalgo(prettify(game.resources.trimps.getCurrentSend()), game.global.world);
+	else if (!skipNum) document.getElementById("trimpsFighting").textContent = prettify(game.resources.trimps.getCurrentSend());
+	document.getElementById("goodGuyBlock").textContent = prettify(game.global.soldierCurrentBlock);
+	document.getElementById("goodGuyAttack").textContent = calculateDamage(game.global.soldierCurrentAttack, true, true);
 	var badAttackElem = document.getElementById("badGuyAttack");
 	badAttackElem.innerHTML = calculateDamage(cell.attack, true, false, false, cell);
 	if (game.global.usingShriek) {
@@ -11599,7 +11609,17 @@ function updateAntiStacks(){
 		number = Math.floor(number * 100);
 		var verb = game.jobs.Amalgamator.owned > 0 ? "prepare" : "populate";
 		var s = game.global.antiStacks == 1 ? '' : 's';
-		elem.innerHTML = '<span class="badge antiBadge" onmouseover="tooltip(\'Anticipation\', \'customText\', event, \'Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' second' + s + ' to ' + verb + '.\')" onmouseout="tooltip(\'hide\')">' + game.global.antiStacks + '<span class="icomoon icon-target2"></span></span>';
+		var span = elem.querySelector('span.badge.antiBadge');
+		var antiTooltip = function(event){tooltip('Anticipation', 'customText', event, 'Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' second' + s + ' to ' + verb + '.');};
+		var hideTooltip = function() {tooltip('hid');};
+		if (span) {
+			span.onmouseover = antiTooltip;
+			span.onmouseout = hideTooltip;
+			if (game.global.antistacks)
+				span.childNodes[0].textContent = game.global.antistacks.toString();
+		} else {
+			elem.innerHTML = '<span class="badge antiBadge" onmouseover="tooltip(\'Anticipation\', \'customText\', event, \'Your Trimps are dealing ' + number + '% extra damage for taking ' + game.global.antiStacks + ' second' + s + ' to ' + verb + '.\')" onmouseout="tooltip(\'hide\')">' + game.global.antiStacks + '<span class="icomoon icon-target2"></span></span>';
+		}
 	}
 	else elem.innerHTML = "";
 }
@@ -12598,7 +12618,8 @@ function updateTurkimpTime() {
 	var timeRemaining = game.global.turkimpTimer;
 	var elem = document.getElementById("turkimpTime");
 	if (game.talents.turkimp4.purchased){
-		elem.innerHTML = "<span class='icomoon icon-infinity'></span>";
+		if (!elem.querySelector('.icomoon.icon-infinity'))
+			elem.innerHTML = "<span class='icomoon icon-infinity'></span>";
 		return;
 	}
 	if (timeRemaining <= 0) {
