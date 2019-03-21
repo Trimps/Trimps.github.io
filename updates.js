@@ -4413,6 +4413,8 @@ function saveMapAtZone(){
 function saveLogarithmicSetting(){
 	var val = document.getElementById('logBaseInput').value;
 	if (isNumberBad(val)) return;
+	val = Math.floor(val);
+	if (val < 2) val = 2;
 	game.options.menu.standardNotation.logBase = val;
 }
 
