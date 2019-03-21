@@ -1,3 +1,8 @@
+h1,h2,h3,h4,h5,h6{
+	padding: 0;
+	margin: 0;
+	font-size: inherit;
+}
 /*Top Row*/
 .badge {
 	background-color: #3b3b3b;
@@ -5,7 +10,7 @@
 body {
 	background-color: black;
 	overflow-y: hidden;
-overflow-x: hidden;
+	overflow-x: hidden;
 }
 .spire ul li.spireCell.cellColorNotBeaten{
 	background-color: #928DAD;
@@ -44,7 +49,7 @@ overflow-x: hidden;
 
 .progress-bar {
     -webkit-transition: width .1s ease;
-    transition: width .1s ease;
+	transition: width .1s ease;
 }
 
 #wrapper {
@@ -86,6 +91,11 @@ overflow-x: hidden;
 #talentsTitle{
 	text-align: center;
 	font-size: 1.9vw;
+}
+
+#talentsAffordable{
+	font-size: 1.5vw;
+	padding-top: 0.2vw;
 }
 
 #talentsCost{
@@ -384,15 +394,15 @@ overflow-x: hidden;
 	display: inline-block;
 }
 
-#autoStructureConfigTable tbody tr td{
+#autoPurchaseConfigTable tbody tr td{
 	padding: 5px;
 }
 
-#autoStructureConfigTable tbody tr td:nth-child(2) div:first-child{
+#autoPurchaseConfigTable tbody tr td:nth-child(2) div:first-child{
 	border-left: 1px solid black;
 }
 
-.structConfigCheckbox, .jobConfigCheckbox{
+.structConfigCheckbox, .jobConfigCheckbox, .equipConfigCheckbox{
 	transform: scale(2.5);
 }
 
@@ -412,22 +422,26 @@ overflow-x: hidden;
 	color: #00d936;
 }
 
-#autoStructureConfigTable{
+#autoPurchaseConfigTable{
 	width: 100%;
 	font-size: 1.2vw;
 }
 
-#autoStructureConfigTable tbody tr td div div select{
+#autoPurchaseConfigTable tbody tr td div div select{
 	padding: 1%;
 }
 
-.structConfigQuantity, .jobConfigQuantity{
+.structConfigQuantity, .jobConfigQuantity, .equipConfigQuantity{
 	display: inline-block;
 	width: 50%;
 	padding: 1%;
 	line-height: normal;
 	border-width: 1px;
 	margin-right: 10%;
+}
+
+.equipConfigQuantity{
+	width: 40%;
 }
 
 .incrementBtn {
@@ -1049,6 +1063,14 @@ overflow-x: hidden;
 	background-color: #1f003d;
 }
 
+.settingBtn5{
+	background-color: #53025a;
+}
+
+.settingBtn5:hover{
+	background-color: #1f0022;
+}
+
 .settingBtn0, .settingBtn1, .settingBtn3, .settingBtn4 {
     color: white;
 }
@@ -1195,6 +1217,7 @@ overflow-x: hidden;
     display: block;
     margin-top: 5px;
 	font-size: .9vw;
+	margin-bottom: 0;
 }
 
 #buildings {
@@ -1559,6 +1582,18 @@ overflow-x: hidden;
 .red {
     color: red;
 }
+.natureUpgradeCost .green{
+	color: white;
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.natureUpgradeCost .red, .natureUpgradeLevel .red{
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.natureUpgradeCost .orange{
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
 
 .orange{
 	color: #ff6519;
@@ -1764,9 +1799,17 @@ overflow-x: hidden;
 	display: inline-block;
 	width: initial;
 	font-size: 0.9vw;
-	float: right;
 	padding: 0.1vw 0.2vw;
 	margin: 0;
+}
+
+.heirloomEquippedContainer.col-xs-4 {
+	font-size: 1.7vw;
+}
+
+.heirloomEquippedContainer.col-xs-4 div{
+	margin-top: 0.5vw;
+	margin-bottom: 0.25vw !important;
 }
 
 .heirloomBtnGroup{
@@ -2171,7 +2214,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	line-height: 2vw;
 }
 
-#ShieldEquipped, #StaffEquipped{
+#ShieldEquipped, #StaffEquipped, #CoreEquipped{
 	background-color: #333;
 	display: inline-block;
 	padding: 1vw;
@@ -2185,7 +2228,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
     box-shadow:inset 0px 0px 0px 0.2vw #646473;
 }
 
-#ShieldEquippedName, #StaffEquippedName{
+#ShieldEquippedName, #StaffEquippedName, #CoreEquippedName{
 	font-size: 1.4vw;
 	line-height: 1.4vw;
 }
@@ -2709,6 +2752,20 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	border-radius: 25px;
 }
 
+.achieveTier10 {
+	border-image: linear-gradient(to top, #bd6543 0%,#661310 30%,#a18900 50%,#661310 80%,#bd6543 100%);
+	border-image-slice: 3;
+}
+
+.achievementPopupIcon.achieveTier10, #achievementHoverTitle.achieveTier10, #achievementPopupTitle.achieveTier10 {
+	background-image: radial-gradient(ellipse at center, #bd6543 0%,#661310 30%,#665700 50%,#661310 80%,#bd6543 100%);
+	color: black;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	border-radius: 25px;
+}
+
 
 #statsTitle{
 	font-size: 3vw;
@@ -3051,6 +3108,13 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	cursor: pointer;	
 }
 
+.fluffFormIce{
+	color: #3232c8;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;	
+}
+
 #fluffyExpBreakdown{
 	min-height: calc(1.5em + 1vw);
 	padding: 0.5vw 1.5vw;
@@ -3254,6 +3318,7 @@ color: #DDDDFF !important;
 }
 .dangerColor, .colorDanger, .stateDanger{
 	background-color: #d9534f;
+	color: white;
 }
 
 .stateDanger.thingColorCtrl{
@@ -3633,6 +3698,16 @@ background-color: rgba(255,255,255,0.25);
 	font-size: .9em;
 }
 
+.critTier4{
+	color: #9e18f8;
+}
+
+#critSpan .critTier4 .icomoon{
+	position: absolute;
+    top: 12%;
+    font-size: 1.1vw;
+}
+
 #tab5{
 	width: 2.2%;
 }
@@ -3870,12 +3945,7 @@ background-color: rgba(255,255,255,0.25);
 
 .btn-new {
 	color: white;
-	background-image: linear-gradient(to right, rgba(0,0,0,0) 85%, #a27d02 95%), linear-gradient(#7F0505, #630202 40%, #684112 85%);
-	text-shadow:
-	 -1px -1px 0 #000,  
-	  1px -1px 0 #000,
-	 -1px 1px 0 #000,
-	  1px 1px 0 #000;
+	background: linear-gradient(to right, rgba(50,150,50,1) 0%, rgba(60,75,130,1) 30%, rgba(50,50,200,1) 100%);
 	font-weight: bold;
 }
 
@@ -3886,13 +3956,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
 	color: white;
-	background-image: linear-gradient(to right, rgba(0,0,0,0) 75%, #a27d02 90%), linear-gradient(#008238, #01461f 60%, #02437C 85%);
+	background: linear-gradient(to right, rgba(50,50,200,1) 0%, rgba(50,150,50,1) 30%, rgba(60,75,130,1) 100%);;
 	font-weight: bold;
-	text-shadow:
-	-2px -2px 0 #007d8d,  
-	 2px -2px 0 #007d8d,
-	-2px 2px 0 #007d8d,
-	 2px 2px 0 #007d8d;
 }
 
 .btn-new:active,
@@ -4040,37 +4105,48 @@ input::-webkit-inner-spin-button {
 
 .natureUpgradeLevel{
 	position: absolute;
-	font-size: 0.7vw;
+	font-size: 1vw;
 	top: 2%;
 	left: 2%;
 }
 
 .natureUpgradeCost{
 	position: absolute;
-	font-size: 0.7vw;
-	top: 80%;
+	font-size: 1vw;
+	top: 50%;
 	left: 2%;
-	
 }
 
 .natureBuyIconMini .natureUpgradeCost{
-	top: 77%;
-}
-
-.natureUpgradeCost .green{
-	color: white;
+	top: 2%;
+	left: 0%;
+	font-size: 0.9vw;
+	width: 100%;
+	text-align: center;
 }
 
 .empowerTabPoison a, .empoweredCellPoison, .tabColPoison, .badNamePoison, #poisonEmpowermentIcon{
 	background: rgba(50, 150, 50, 0.75) !important;
 }
 
+.tabColPoison{
+    box-shadow:inset 0px 0px 0px 0.2vw #1e571e;
+}
+
 .empowerTabWind a, .empoweredCellWind, .tabColWind, .badNameWind, #windEmpowermentIcon{
 	background: rgba(60, 75, 130, 0.75) !important;
 }
 
+.tabColWind{
+    box-shadow:inset 0px 0px 0px 0.2vw #283257;
+}
+
 .empowerTabIce a, .empoweredCellIce, .tabColIce, .badNameIce, #iceEmpowermentIcon{
 	background: rgba(50, 50, 200, 0.75) !important;
+}
+
+.tabColIce{
+    box-shadow:inset 0px 0px 0px 0.2vw #1f1f79;
 }
 
 .empowerTabIce.tabSelected a, .empowerTabIce a:hover {
@@ -4094,6 +4170,14 @@ input::-webkit-inner-spin-button {
 	color: white;
 }
 
+.natureTop{
+	background-color: rgba(0, 0, 0, 0.4);
+	margin: 0.19vw;
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	z-index: 4;
+	margin-bottom: 0.78vw;
+}
+
 #infoSpanPoison{
 	background: rgb(20, 80, 20);
 }
@@ -4110,12 +4194,13 @@ input::-webkit-inner-spin-button {
 	display: inline-block;
 	font-size: 0.7vw;
 	border-radius: 50px;
-	border: 1px solid white;
+	border: 1px solid rgba(255, 255, 255, 0.3);
 	width: 4vw;
 	padding: 0.1vw;
+	padding-top: 0.2vw;
 	position: absolute;
-	top: 0.2vw;
-	left: 0.2vw;
+	top: 0.4vw;
+	left: 0.25vw;
 }
 
 .infoSpanNature span{
@@ -4134,33 +4219,77 @@ input::-webkit-inner-spin-button {
 .tabColNature{
 	text-align: center;
 	font-size: 1.5vw;
-	min-height: calc(99vh - 20vw - 205px);
+	padding-bottom: 0.78vw;
 	height: 100%;
 }
 
 .natureBuyIcon{
-	font-size: 3vw;
+	font-size: 2vw;
 	display: block;
-	width: 50%;
-	margin-left: 25%;
-	border: 5px solid black;
+	width: 88%;
+	margin-left: 6%;
+	border: 5px solid rgba(0, 0, 0, 0.7);
 	padding-top: 7.5%;
 	margin-bottom: 2%;
 	cursor: pointer;
 	position: relative;
+	height: 3.1vw;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index:3;
+}
+
+.natureBuyIcon:hover{
+	background-color: rgba(0, 0, 0, 0.2);
+	border-color: rgba(0, 0, 0, 0.8);
+}
+
+.natureBigIcon{
+	position: absolute;
+	left: 75%;
+	top: 0.35vw;
 }
 
 .natureBuyIconMini{
-	font-size: 2vw;
-	display: inline-block;
-	width: 40%;
-	margin-left: 0;
+	font-size: 1.5vw;
+	float: left;
+	width: 43%;
+	margin-left: 2%;
 	padding-top: 7%;
 	padding-bottom: 5%;
+	height: 4vw;
 }
 
 .natureBuyIconMini:first-child{
-	margin-left: 5.5%;
+	margin-left: 6%;
+}
+
+.natureSmallIcon{
+	position: absolute;
+	top: 1.6vw;
+	left: 60%;
+}
+
+.natureSmallIcon.icon-shuffle3{
+	left: 15%;
+}
+
+.natureBackgroundIcon{
+	position: absolute;
+	font-size: 13vw;
+	top: 27%;
+	left: 5%;
+	z-index: 2;
+	color: rgba(255, 255, 255, 0.08);
+}
+
+.natureBackgroundIcon.icon-air{
+	left: 6%;
+	font-size: 12vw;
+	top: 30%;
+}
+
+.natureBackgroundIcon.icon-certificate{
+	left: 8%;
 }
 
 #natureA span{
@@ -4170,6 +4299,29 @@ input::-webkit-inner-spin-button {
 #natureContainer .row{
 	overflow: hidden;
 }
+
+.natureUberName{
+	font-size: 0.9vw;
+}
+
+.natureMessage{
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	padding: 1%;
+	color: white;
+}
+
+.natureMessage.poison{
+	background-color: #164116;
+}
+
+.natureMessage.wind{
+	background-color: #283257;
+}
+
+.natureMessage.ice{
+    background-color: #141452;
+}
+
 
 .cellColorBeaten{
 	background: green !important;
@@ -4315,8 +4467,18 @@ sup{
 	text-align: center;
 }
 
-.col-xs-3.fifth{
-	width: 20% !important;
+.formFifth{
+	width: 20%;
+	float: left;
+	padding: 0;
+	margin: 0;
+}
+
+.formSixth{
+	width: 16.66666667%;
+	float: left;
+	padding: 0;
+	margin: 0;
 }
 
 #dgChangeBtnContainer{
@@ -4962,4 +5124,21 @@ sup{
 		1px -1px 0 black,
 	-1px 1px 0 black,
 		1px 1px 0 black;
+}
+
+.thing.thingColorCanNotAfford .affordSR{
+	display: none;
+}
+
+.thing.thingColorCanAfford .cantAffordSR{
+	display: none;
+}
+
+.screenReaderAchievements{
+	font-size: 0.8vw;
+}
+
+.screenReaderAchievements tbody tr td{
+	padding: 0.1vw;
+	border: 1px solid white;
 }

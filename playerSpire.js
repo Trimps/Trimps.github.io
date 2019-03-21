@@ -418,6 +418,11 @@ var playerSpire = {
         this.updateSpirestoneText();
         return reward;
     },
+    giveSpirestones: function(count){
+        this.spirestones += count;
+        if (this.tutorialStep >= 4) this.addRow();
+        this.updateSpirestoneText();
+    },
     updateSpirestoneText: function() {
         var elem = document.getElementById('spirestoneBox');
         if (elem) elem.innerHTML = this.getSpirestoneHtml();
@@ -442,6 +447,7 @@ var playerSpire = {
                 var upgradeCost = this.spentOnUpgrades;
                 var remaining = this.runestones;
                 tooltipText = "Runestones (Rs) are earned by killing Bad Guys in your Spire, and the amount of Runestones gained is directly proportional to the Max Health of the slain Bad Guy.<br/><br/>You have found " + prettify(curCost + upgradeCost + remaining) + " total Runestones.<br/><br/>" + prettify(upgradeCost) + " Runestones have been spent on Upgrades.<br/><br/>" + prettify(curCost) + " Runestones have been spent on Traps/Towers in your current layout.";
+                if (game.heirlooms.Core.runestones.currentBonus > 0) tooltipText += "<br/><br/>You are earning " + prettify(game.heirlooms.Core.runestones.currentBonus) + "% more Runestones from all sources thanks to your Spire Core!";
                 break;
             case "Threat":
                 tooltipText = "Threat rises as you kill Bad Guys in your Spire, and falls as they escape. Threat is an average of kills/escapes over some time and may not always rise immediately after a kill or fall immediately after an escape, but will always stay near what your Spire can handle.<br/><br/>More Threat means Healthier Bad Guys, which means more Runestones. Threat is also required for adding additional Floors to your Spire, increasing by 100 Threat required per Floor.<br/><br/>The highest Threat your Spire has ever reached is: <b>" + prettify(Math.floor(this.peakThreat)) + "</b><br/><br/>Displayed As: <b>Current Threat</b> / <b>Threat Required for Next Floor</b>";
@@ -452,7 +458,7 @@ var playerSpire = {
                 tooltipText += "<br/><br/>Displayed As: <b>Current Enemies in Spire</b> / <b>Maximum Enemies Allowed in Spire</b>"
                 break;
             case "Spirestones":
-                tooltipText = "Spirestones (Ss) can only be earned by clearing Spires in the World, and have no use other than adding Floors onto your own Spire.<br/><br/>Displayed As: <b>Current Spirestones</b> / <b>Spirestones Required for Next Floor</b>"
+                tooltipText = "Spirestones (Ss) can only be earned by recycling Spire Cores found from Spires in the World, and can be used to add Floors to your Spire or upgrade other Cores.<br/><br/>Displayed As: <b>Current Spirestones</b> / <b>Spirestones Required for Next Floor</b>"
                 break;
             default:
                 break;
@@ -762,10 +768,10 @@ var playerSpire = {
             "<p>Welcome to your Spire! You've killed Druopitee and stolen some Spirestones: ancient construction materials that duplicate themselves across dimensions, traditionally used to create powerful Spires. Druopitee thought that he was the only one who could build tall buildings, but you're on a mission to prove him wrong!</p><p>You were able to finish constructing the first Floor of your very own Spire with the Spirestones you found, and you still have a few left over to try to make it even taller. You had your Trimps build a wall around the entire town, making your new Spire the only entrance and exit point. You feel super safe for a few seconds, and your Trimps are super stoked on their new fortress.</p><p>After those few seconds are up, you see that the Spire is attracting a decent amount of unwanted attention from jealous enemies, who seem to take your Spire as a challenge.</p><p>Luckily, your Scientists have managed to come up with a few Trap designs that can hopefully stop the flow of enemies into your town.</p><p class='spireQuest'>Try placing a Frost Trap in the leftmost cell of your Spire, and a Fire Trap directly to the right of it.</p>",
             "<p>Perfect, everything seems to be working just as your Scientists explained. The Frost Trap slows the enemies down, and the Fire Trap finishes them off.</p><p>Unfortunately, it seems like each enemy you kill in here makes your Spire a more important target, causing stronger and stronger enemies to come through.</p><p>Fortunately though, your Magical Spire Traps convert Bad Guys into a new type of resource whenever they kill one, which your Scientists call 'Runestones'. Even more fortunately, larger enemies with more Max Health convert into larger amounts of Runestones! As your Spire's Threat increases, so will your Runestones per second, and so will your Spire's defenses (if you're doing your job).</p><p style='text-decoration: underline'>You don't have to stay here while Runestones build up, you can go back to leading your Trimps while your Traps do some work. The enchanted Spirestones copy your progress to all possible dimensions, so you won't even lose your Traps if you Portal!</p><p class='spireQuest'>Keep an eye on your Runestones, and add more Traps whenever you can. Try to fill this entire Floor with Traps!</p>",
             "<p>You're a natural Spiarchitect! Your Scientists have finally finished adding the second Floor of your Spire, and the added height seems to be attracting even more enemies. Cool, more Runestones for you! You're starting to really like the idea of enemies constantly climbing to their demise in the teeth of your Traps.</p><p>While you're appreciating your deadly handiwork, a small group of Scientists runs up to you and shares some new research. They say that the Runestones can also be used to create mini-towers that broadcast their energy to all Trimps in the World. Wasting no time, they hand you the schematics for the Strength Tower, which increases the effect of all Fire Traps on its Floor, and grants all of your Trimps an attack bonus.</p><p class='spireQuest'>Continue placing more Traps and Towers to fill out your Spire, and raise your Threat level to 300.</p>",
-            "<p>Beautiful. It seems like you're getting the hang of this!</p><p>You've finished constructing the third Floor of your Spire, but it seems as if you've used up your entire intial supply of Spirestones. You'll need to clear a Spire again to earn more! Note that you'll find considerably more Spirestones from more difficult Spires.</p><p class='spireQuest'>Collect 20 Spirestones and raise your Spire's Threat to 400 to build your fourth Floor.</p>",
+            "<p>Beautiful. It seems like you're getting the hang of this!</p><p>You've finished constructing the third Floor of your Spire, but it seems as if you've used up your entire intial supply of Spirestones. You'll need to clear a Spire and crush its Core to earn more! Note that you'll find considerably better Cores worth more Spirestones from more difficult Spires.</p><p class='spireQuest'>Collect 20 Spirestones and raise your Spire's Threat to 400 to build your fourth Floor.</p>",
             "<p>It's getting huge! However, the Traps are getting more expensive as you place more and more of them. At this rate you'll never be able to afford enough Strength Towers to make a huge impact on your Trimps.</p><p>You consult with your Scientists, who tell you that they can create upgrades for your Traps, but that they need to study corpses of high level enemies in order to exploit their weaknesses.</p><p class='spireQuest'>Raise your Highest Zone Reached to Z230, and upgrade your Frost Trap.</p>",
-            "<p>Wow, look at that thing slow!</p><p>You seem to have a pretty decent understanding of how to manage your Spire, and I believe you can handle it on your own for a while. Continue to raise your HZE to unlock more upgrades, collect Spirestones to add more Floors and enemies, and tweak your Trap layout every once in a while to make sure you're getting as many Runestones as you can, you'll definitely need them later.</p><p>Your Scientists let you know that they can possibly forge a new Trap and Tower, but they need to study Spirestones from a higher level Spire first.</p><p class='spireQuest'>Complete Spire II to unlock Poison Trap and Condenser Tower! Once you have your new Traps, raise your Spire's Threat to 600 and build your sixth Floor.<br/><br/>Remember that you have to satisfy both the Threat and Spirestone requirements to add a new Floor!</p>",
-            "<p>You've got a new Trap and Tower, your Spire is still growing, and your power is growing with it! Your Trimps are slightly annoyed that they have to clean up the occasional Bad Guy that makes it through the Spire and into the town, but they can handle it. They all agree that life in general is just more fun when there's a giant Spire grinding Bad Guys at the entrance to their town.</p><p>While you're feeling comfortable maintaining your Spire's defenses with the tools you have, you still feel like there's something missing. Your Scientists say that they could perhaps create one more Trap and Tower, but again they'll need to study Spirestones from an even higher Spire.</p><p class='spireQuest'>Clear Spire III to unlock the Lightning Trap and Knowledge Tower, then raise your Spire's Threat to 1100 and build your eleventh Floor.</p>",
+            "<p>Wow, look at that thing slow!</p><p>You seem to have a pretty decent understanding of how to manage your Spire, and I believe you can handle it on your own for a while. Continue to raise your HZE to unlock more upgrades, collect Spirestones to add more Floors and enemies, and tweak your Trap layout every once in a while to make sure you're getting as many Runestones as you can, you'll definitely need them later.</p><p>Your Scientists let you know that they can possibly forge a new Trap and Tower, but they need to study a Core from a higher level Spire first.</p><p class='spireQuest'>Complete Spire II to unlock Poison Trap and Condenser Tower! Once you have your new Traps, raise your Spire's Threat to 600 and build your sixth Floor.<br/><br/>Remember that you have to satisfy both the Threat and Spirestone requirements to add a new Floor!</p>",
+            "<p>You've got a new Trap and Tower, your Spire is still growing, and your power is growing with it! Your Trimps are slightly annoyed that they have to clean up the occasional Bad Guy that makes it through the Spire and into the town, but they can handle it. They all agree that life in general is just more fun when there's a giant Spire grinding Bad Guys at the entrance to their town.</p><p>While you're feeling comfortable maintaining your Spire's defenses with the tools you have, you still feel like there's something missing. Your Scientists say that they could perhaps create one more Trap and Tower, but again they'll need to study a Core from an even higher Spire.</p><p class='spireQuest'>Clear Spire III to unlock the Lightning Trap and Knowledge Tower, then raise your Spire's Threat to 1100 and build your eleventh Floor.</p>",
             "<p>And that's about all there is to teach you! The rest of the management of your Spire is left in your more-than-capable hands.</p><p>Raise your HZE, clear Spires, buy upgrades, build Floors, and come up with the perfect layout for your Spire.</p><p class='spireQuest'>I'll hang out and make sure everything's OK until you reach Threat level 1300 and build your thirteenth Floor, and then you'll be on your own.</p>"
         ];
         var text = (this.tutorialStep < 8) ? tutorialSteps[this.tutorialStep] : "";
@@ -939,6 +945,7 @@ var playerSpire = {
         
         if (enemy.toxicity > 0 && playerSpireTraps.Poison.level >= 6){
             var toxReward = enemy.toxicity * 0.1;
+            toxReward = calcHeirloomBonus("Core", "runestones", toxReward);
             this.rewardRunestones(toxReward);
             if (!catchingUp && this.settings.fctRs)
                 TDFloatingText.spawnFloatingText(location, playerSpireTraps.Poison.color, -0.05, 3.5, "+ " + prettify(toxReward) + " Rs");
@@ -968,6 +975,7 @@ var playerSpire = {
     killedEnemy: function(enemy, location, rsBonus, catchingUp){
         this.killedSinceLeak++;
         var reward = this.getRsReward(enemy, rsBonus);
+        reward = calcHeirloomBonus("Core", "runestones", reward);
         this.rewardRunestones(reward);
         this.layout[location].occupiedBy = {dead: true};
         this.currentEnemies--;
@@ -1491,12 +1499,13 @@ var playerSpireTraps = {
             else
                 dmg = dmgs[this.level - 1];
             var row = playerSpire.getRowFromCell(cell);
-            if (playerSpire.strengthLocations.indexOf(row) != -1) dmg *= 2;
+            if (playerSpire.strengthLocations.indexOf(row) != -1) dmg = calcHeirloomBonus("Core", "strengthEffect", (dmg * 2));
             if (playerSpireTraps.Frost.level >= 3 && enemy && enemy.slowedFor && enemy.slowMod == 1){
                 dmg *= 1.25;
             }
             if (effect > 0) dmg *= effect;
             dmg *= playerSpireTraps.Lightning.getColBonus(cell);
+            dmg = calcHeirloomBonus("Core", "fireTrap", dmg);
             return dmg;
         },
     },
@@ -1661,6 +1670,7 @@ var playerSpireTraps = {
                 }
             }
             dmg *= playerSpireTraps.Lightning.getColBonus(cell);
+            dmg = calcHeirloomBonus("Core", "poisonTrap", dmg);
             return dmg;
         },
         extraEffect: function (enemy, cell){
@@ -1680,7 +1690,7 @@ var playerSpireTraps = {
             if (this.level < 4) return 1;
             var col = playerSpire.getColFromCell(cell);
             var traps = playerSpire.lightColumns[col];
-            return 1 + (traps * 0.1);
+            return 1 + calcHeirloomBonus("Core", "lightningTrap", (traps * 0.1));
         },
         upgrades: [
             {
@@ -1723,7 +1733,7 @@ var playerSpireTraps = {
         get description(){
             var shockTurns = this.shockTurns();
             var text = "Deals " + prettify(this.totalDamage()) + " damage when stepped on, and afflicts the target with " + shockTurns + " stack" + needAnS(shockTurns) + " of Shocked. 1 stack of Shocked is consumed each time an enemy steps on a Trap or Tower, causing that Bad Guy to take " + this.shockedDamage() + "x damage and " + this.shockedEffect() + "x effect from the Trap or Tower that consumed the stack of Shocked. Shocked can boost the damage but not the effect of other Lightning Traps."
-            if (this.level >= 4) text += "<br/><br/>Each Lightning Trap increases the damage and effect of Fire and Poison Traps in its column by 10%, stacking additively.";
+            if (this.level >= 4) text += "<br/><br/>Each Lightning Trap increases the damage and effect of Fire and Poison Traps in its column by " + prettify(calcHeirloomBonus("Core", "lightningTrap", 10)) + "%, stacking additively.";
             text += "<br/><br/>(Hotkey 4)";
             return text;
         },
@@ -1731,6 +1741,7 @@ var playerSpireTraps = {
             var dmg = this.damageMod;
             if (this.level >= 3) dmg *= 2;
             if (this.level >= 6) dmg *= 2;
+            dmg = calcHeirloomBonus("Core", "lightningTrap", dmg);
             return dmg;
         },
         shockedEffect: function(){
@@ -1752,6 +1763,7 @@ var playerSpireTraps = {
             else
                 dmg = dmgs[this.level - 1];
             if (effect) dmg *= effect;
+            dmg = calcHeirloomBonus("Core", "lightningTrap", dmg);
             return dmg;
         },
         extraEffect: function (enemy){
@@ -1816,7 +1828,7 @@ var playerSpireTraps = {
         level: 1,
         owned: 0,
         get description(){
-            return "Increases the damage of all Fire Traps on the same Floor as a Strength Tower by 100%, and when stepped on deals damage equal to the combined damage of all Fire Traps on its Floor (max of 1 Strength Tower per Floor). In addition, this Tower increases the attack of your Trimps in Maps and the World by " + prettify(this.getWorldBonus(true)) + "% (additive with other Strength Towers).<br/><br/>Your Strength Towers are currently granting a total of <b>" + prettify(this.getWorldBonus()) + "%</b> attack to your Trimps.<br/><br/>(Hotkey 5)";
+            return "Increases the damage of all Fire Traps on the same Floor as a Strength Tower by " + prettify(calcHeirloomBonus("Core", "strengthEffect", 100)) + "%, and when stepped on deals damage equal to the combined damage of all Fire Traps on its Floor (max of 1 Strength Tower per Floor). In addition, this Tower increases the attack of your Trimps in Maps and the World by " + prettify(this.getWorldBonus(true)) + "% (additive with other Strength Towers).<br/><br/>Your Strength Towers are currently granting a total of <b>" + prettify(this.getWorldBonus()) + "%</b> attack to your Trimps.<br/><br/>(Hotkey 5)";
         }
     },
     Condenser: {
@@ -1862,11 +1874,13 @@ var playerSpireTraps = {
         },
         noDirectDamage: true,
         get description(){
-            return "When stepped on, increases the target's Toxicity by 25%. In addition, each Condenser Tower increases all Helium found by " + prettify(this.getWorldBonus(true)) + "% (additive with other Condenser Towers).<br/><br/>Your Condenser Towers are currently granting a total of <b>" + prettify(this.getWorldBonus()) + "%</b> additional Helium from all sources.<br/><br/>(Hotkey 6)";
+            return "When stepped on, increases the target's Toxicity by  " + prettify(calcHeirloomBonus("Core", "condenserEffect", 25)) + "%. In addition, each Condenser Tower increases all Helium found by " + prettify(this.getWorldBonus(true)) + "% (additive with other Condenser Towers).<br/><br/>Your Condenser Towers are currently granting a total of <b>" + prettify(this.getWorldBonus()) + "%</b> additional Helium from all sources.<br/><br/>(Hotkey 6)";
         },
         extraEffect: function(enemy, cell){
             var effect = (enemy && enemy.shockTurns && enemy.shockTurns > 0) ? playerSpireTraps.Lightning.shockedEffect() : 1;
-            var boost = (1 + (0.25 * effect));
+            var baseEffect = 0.25;
+            baseEffect = calcHeirloomBonus("Core", "condenserEffect", baseEffect);
+            var boost = (1 + (baseEffect * effect));
             if (enemy.toxicity) enemy.toxicity *= boost;
         },
     },

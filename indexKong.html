@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 4.10.5 (Kongregate Version)</title>
+	<title>Trimps 4.11.0 (Kongregate Version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?16" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?18" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -595,6 +595,10 @@ var kongregate = parent.kongregateAPI.getAPI();
 										<div class="col-xs-3 lowPad">&nbsp;</div>
 										<div class="col-xs-3 lowPad">&nbsp;</div>
 										<div class="col-xs-3" style="padding-left: 5px">
+											<div id="autoEquipBtn" onmouseover='tooltip("AutoEquip", null, event)' onmouseout='tooltip("hide")' class="toggleConfigBtn pointer noselect colorDanger autoUpgradeBtn">
+												<div id='autoEquipText' onclick="toggleAutoEquip()">AutoEquip</div><div onclick="tooltip('Configure AutoEquip', null, 'update')">
+													<span class='glyphicon glyphicon-cog'></span></div>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -603,7 +607,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 							</div>
 							<div id="talentsContainer" style="display: none">
 								<div class='row noMarg'>
-									<div class='col-xs-3'></div>
+									<div class='col-xs-3 lowPad'><div id='talentsAffordable'></div></div>
 									<div class='col-xs-6 lowPad'>
 										<div id="talentsTitle">
 											<span id='essenceOwned'>0</span> Dark Essence
@@ -618,82 +622,116 @@ var kongregate = parent.kongregateAPI.getAPI();
 							</div>
 							<div id="natureContainer" style="display: none; height: 100%;">
 								<div class='row noMarg' style="height: 100%;">
-									<div class='col-xs-4 tabColPoison tabColNature'>
-										<div class='natureTitle'>
-											<span id='infoSpanPoison' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Poison')" onmouseout="tooltip('hide')"><span class='icomoon icon-info2'></span></span>
-											Poison									
+									<div id='tabColPoison' class='col-xs-4 tabColPoison tabColNature noPad'>
+										<div class='natureTop'>
+											<div class='natureTitle'>
+												<span id='infoSpanPoison' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Poison')" onmouseout="tooltip('hide')"><span class='icomoon icon-info2'></span></span>
+												Poison									
+											</div>
+											Tokens: <span id="tokenCountPoison">0</span>
 										</div>
-										Tokens: <span id="tokenCountPoison">0</span>
-										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'upgrade', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Poison')">
+										<span class='natureBuyIcon noselect' onmouseover="natureTooltip(event, 'upgrade', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Poison')">
 											<span class='natureUpgradeLevel' id='natureUpgradePoisonLevel'></span>
 											<span class='natureUpgradeCost' id='natureUpgradePoisonCost'></span>
-											<span class='icomoon icon-plus'></span>
+											<span class='natureBigIcon icomoon icon-plus'></span>
 										</span>
-										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'stackTransfer', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Poison')">
+										<span class='natureBuyIcon noselect' onmouseover="natureTooltip(event, 'stackTransfer', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Poison')">
 											<span class='natureUpgradeLevel' id='natureStackTransferPoisonLevel'></span>
 											<span class='natureUpgradeCost' id='natureStackTransferPoisonCost'></span>
-											<span class='icomoon icon-rotate-left'></span>
+											<span class='natureBigIcon icomoon icon-rotate-left'></span>
 										</span>
-										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Poison', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Poison', 'Wind')">
-											<span class='natureUpgradeCost' id='naturePoisonWindCost'></span>
-											<span class='icomoon icon-air'></span>
+										<span id='uberPoisonContainer' class='natureBuyIcon natureUberContainer noselect' onmouseover="natureTooltip(event, 'uberEmpower', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('uberEmpower', 'Poison')">
+											<span class='natureUpgradeLevel natureUberName' id='uberPoisonName'></span>
+											<span class='natureUpgradeCost' id='natureUberEmpowerPoisonCost'></span>
+											<span class='natureBigIcon glyphicon glyphicon-king'></span>
 										</span>
-										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Poison', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Poison', 'Ice')">
-											<span class='natureUpgradeCost' id='naturePoisonIceCost'></span>
-											<span class='glyphicon glyphicon-certificate'></span>
-										</span>
-									</div>
-									<div class='col-xs-4 tabColWind tabColNature'>
-										<div class='natureTitle'>
-											<span id='infoSpanWind' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Wind')" onmouseout="tooltip('hide')"><span class='icomoon icon-info2'></span></span>
-												Wind
+										<div class="transferButtons">
+											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Poison', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Poison', 'Wind')">
+												<span class='natureUpgradeCost' id='naturePoisonWindCost'></span>
+												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
+												<span class='natureSmallIcon icomoon icon-air'></span>
+											</span>
+											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Poison', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Poison', 'Ice')">
+												<span class='natureUpgradeCost' id='naturePoisonIceCost'></span>
+												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
+												<span class='natureSmallIcon glyphicon glyphicon-certificate'></span>
+											</span>
 										</div>
-										Tokens: <span id="tokenCountWind">0</span>
-										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'upgrade', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Wind')">
+										<span class='natureBackgroundIcon icomoon icon-flask'></span>
+									</div>
+									<div id='tabColWind' class='col-xs-4 tabColWind tabColNature noPad'>
+										<div class='natureTop'>
+											<div class='natureTitle'>
+												<span id='infoSpanWind' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Wind')" onmouseout="tooltip('hide')"><span class='icomoon icon-info2'></span></span>
+													Wind
+											</div>
+											Tokens: <span id="tokenCountWind">0</span>
+										</div>
+										<span class='natureBuyIcon noselect' onmouseover="natureTooltip(event, 'upgrade', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Wind')">
 											<span class='natureUpgradeLevel' id='natureUpgradeWindLevel'></span>
 											<span class='natureUpgradeCost' id='natureUpgradeWindCost'></span>
-											<span class='icomoon icon-plus'></span>
+											<span class='natureBigIcon icomoon icon-plus'></span>
 										</span>
-										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'stackTransfer', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Wind')">
+										<span class='natureBuyIcon noselect' onmouseover="natureTooltip(event, 'stackTransfer', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Wind')">
 											<span class='natureUpgradeLevel' id='natureStackTransferWindLevel'></span>
 											<span class='natureUpgradeCost' id='natureStackTransferWindCost'></span>
-											<span class='icomoon icon-rotate-left'></span>
+											<span class='natureBigIcon icomoon icon-rotate-left'></span>
 										</span>
-										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Ice')">
-											<span class='natureUpgradeCost' id='natureWindIceCost'></span>
-											<span class='glyphicon glyphicon-certificate'></span>
+										<span id='uberWindContainer' class='natureBuyIcon natureUberContainer noselect' onmouseover="natureTooltip(event, 'uberEmpower', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('uberEmpower', 'Wind')">
+											<span class='natureUpgradeLevel natureUberName' id='uberWindName'></span>
+											<span class='natureUpgradeCost' id='natureUberEmpowerWindCost'></span>
+											<span class='natureBigIcon glyphicon glyphicon-king'></span>
 										</span>
-										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Poison')">
-										<span class='natureUpgradeCost' id='natureWindPoisonCost'></span>
-											<span class='icomoon icon-flask'></span>
-										</span>
-										
-									</div>
-									<div class='col-xs-4 tabColIce tabColNature'>
-										<div class='natureTitle'>
-											<span id='infoSpanIce' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Ice')" onmouseout="tooltip('hide')"></span>
-											Ice
+										<div class='transferButtons'>
+											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Ice')">
+												<span class='natureUpgradeCost' id='natureWindIceCost'></span>
+												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
+												<span class='natureSmallIcon glyphicon glyphicon-certificate'></span>
+											</span>
+											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Poison')">
+												<span class='natureUpgradeCost' id='natureWindPoisonCost'></span>
+												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
+												<span class='natureSmallIcon icomoon icon-flask'></span>
+											</span>
 										</div>
-										Tokens: <span id="tokenCountIce">0</span>
-										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'upgrade', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Ice')">
+										<span class='natureBackgroundIcon icomoon icon-air'></span>
+									</div>
+									<div id='tabColIce' class='col-xs-4 tabColIce tabColNature noPad'>
+										<div class='natureTop'>
+											<div class='natureTitle'>
+												<span id='infoSpanIce' class='infoSpanNature' onmouseover="natureTooltip(event, 'description', 'Ice')" onmouseout="tooltip('hide')"></span>
+												Ice
+											</div>
+											Tokens: <span id="tokenCountIce">0</span>
+										</div>
+										<span class='natureBuyIcon noselect' onmouseover="natureTooltip(event, 'upgrade', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('upgrade', 'Ice')">
 											<span class='natureUpgradeLevel' id='natureUpgradeIceLevel'></span>
 											<span class='natureUpgradeCost' id='natureUpgradeIceCost'></span>
-											<span class='icomoon icon-plus'></span>
+											<span class='natureBigIcon icomoon icon-plus'></span>
 										</span>
-										<span class='natureBuyIcon' onmouseover="natureTooltip(event, 'stackTransfer', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Ice')">
+										<span class='natureBuyIcon noselect' onmouseover="natureTooltip(event, 'stackTransfer', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('stackTransfer', 'Ice')">
 											<span class='natureUpgradeLevel' id='natureStackTransferIceLevel'></span>
 											<span class='natureUpgradeCost' id='natureStackTransferIceCost'></span>
-											<span class='icomoon icon-rotate-left'></span>
+											<span class='natureBigIcon icomoon icon-rotate-left'></span>
 										</span>
-										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Ice', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Ice', 'Poison')">
-											<span class='natureUpgradeCost' id='natureIcePoisonCost'></span>
-											<span class='icomoon icon-flask'></span>
+										<span id='uberIceContainer' class='natureBuyIcon noselect natureUberContainer' onmouseover="natureTooltip(event, 'uberEmpower', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('uberEmpower', 'Ice')">
+											<span class='natureUpgradeLevel natureUberName' id='uberIceName'></span>
+											<span class='natureUpgradeCost' id='natureUberEmpowerIceCost'></span>
+											<span class='natureBigIcon glyphicon glyphicon-king'></span>
 										</span>
-										<span class='natureBuyIcon natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Ice', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Ice', 'Wind')">
-											<span class='natureUpgradeCost' id='natureIceWindCost'></span>
-											<span class='icomoon icon-air'></span>
-										</span>
-										
+										<div class="transferButtons">
+											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Ice', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Ice', 'Poison')">
+												<span class='natureUpgradeCost' id='natureIcePoisonCost'></span>
+												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
+												<span class='natureSmallIcon icomoon icon-flask'></span>
+											</span>
+											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Ice', 'Wind')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Ice', 'Wind')">
+												<span class='natureUpgradeCost' id='natureIceWindCost'></span>
+												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
+												<span class='natureSmallIcon icomoon icon-air'></span>
+											</span>
+										</div>
+										<span class='natureBackgroundIcon icomoon icon-certificate'></span>
 									</div>
 								</div>
 							</div>
@@ -712,30 +750,35 @@ var kongregate = parent.kongregateAPI.getAPI();
 										<div class="battleStatsTitle" id="goodGuyName"><span id='realTrimpName'>Trimps</span>&nbsp;(<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span></div>
 									</div>
 									<div class="col-xs-3" style="padding-left: 5px;">
-										<div class="row" style="padding-right: 15px;">
-											<div class="col-xs-3 fifth noPad">
+										<div class="row noPad" style="padding-right: 15px;">
+											<div id='form0Container' class="formFifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('0')" id="formation0" onmouseover="tooltip('No Formation', 'customText', event, 'Clear your formations, return to normal stats, and derp around the battlefield. (Hotkeys: X or 1)')" onmouseout="tooltip('hide')">
 													X
 												</div>
 											</div>
-											<div class="col-xs-3 fifth noPad">
+											<div id='form1Container' class="formFifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('1')" id="formation1" onmouseover="tooltip('Heap Formation', 'customText', event, 'Trimps gain 4x health but lose half of their attack and block. (Hotkeys: H or 2)')" onmouseout="tooltip('hide')">
 													H
 												</div>
 											</div>
-											<div class="col-xs-3 fifth noPad">
+											<div id='form2Container' class="formFifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('2')" id="formation2" onmouseover="tooltip('Dominance Formation', 'customText', event, 'Trimps gain 4x attack but lose half of their health and block. (Hotkeys: D or 3)')" onmouseout="tooltip('hide')">
 													D
 												</div>										
 											</div>
-											<div class="col-xs-3 fifth noPad">
+											<div id='form3Container' class="formFifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('3')" id="formation3" onmouseover="tooltip('Barrier Formation', 'customText', event, 'Trimps gain 4x block and 50% block pierce reduction but lose half of their health and attack. (Hotkeys: B or 4)')" onmouseout="tooltip('hide')">
 													B
 												</div>											
 											</div>
-											<div class="col-xs-3 fifth noPad">
+											<div id='form4Container' class="formFifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('4')" id="formation4" onmouseover="tooltip('Scryer Formation', null, event)" onmouseout="tooltip('hide')">
 													S
+												</div>											
+											</div>
+											<div id='form5Container' class="formSixth noPad">
+												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('5')" id="formation5" onmouseover="natureTooltip(event, 'formation')" onmouseout="tooltip('hide')">
+													N
 												</div>											
 											</div>
 										</div>
@@ -1267,7 +1310,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 		<div class="btn btn-danger inPortalBtn" id="closeStatsBtn" onclick="toggleStats()">Close</div>&nbsp;<div class="btn btn-info inPortalBtn" id="closeStatsBtn" onclick="tooltip('Trimps Info', null, 'update')">Trimps Info</div>
 	</div>
 	<div id="heirloomWrapper" style="display: none">
-		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><div class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium</div><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()">Close</div></div></div>
+		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><div class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></div><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()">Close</div></div></div>
 		<div id="heirloomHelp" style="display: none">
 			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. Once you have an Heirloom, you can click the icon below to select it.<br/><br/>
 			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. You can also click on the Heirloom's name on this menu to rename it.<br/><br/>
@@ -1277,12 +1320,17 @@ var kongregate = parent.kongregateAPI.getAPI();
 			<div class="col-xs-6">
 				<div id="equippedHeirlooms">
 					<div class="row">
-						<div class="col-xs-6">
+						<div id='ShieldEquippedContainer' class="col-xs-6 heirloomEquippedContainer">
 							Equipped Shield<br/>
 							<div id="ShieldEquipped"></div><br/>
 							<span id="ShieldEquippedName"></span>
 						</div>
-						<div class="col-xs-6">
+						<div id='CoreEquippedContainer' class="col-xs-4 heirloomEquippedContainer" style='display: none;'>
+							Equipped Core<br/>
+							<div id="CoreEquipped"></div><br/>
+							<span id="CoreEquippedName"></span>
+						</div>
+						<div id='StaffEquippedContainer' class="col-xs-6 heirloomEquippedContainer">
 							Equipped Staff<br/>
 							<div id="StaffEquipped"></div><br/>
 							<span id="StaffEquippedName"></span>
@@ -1386,10 +1434,10 @@ var kongregate = parent.kongregateAPI.getAPI();
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?20"></script>
-	<script type="text/javascript" src="updates.js?20"></script>
-	<script type="text/javascript" src="playerSpire.js?20"></script>
-	<script type="text/javascript" src="main.js?20"></script>
+	<script type="text/javascript" src="config.js?22"></script>
+	<script type="text/javascript" src="updates.js?22"></script>
+	<script type="text/javascript" src="playerSpire.js?22"></script>
+	<script type="text/javascript" src="main.js?22"></script>
 	<script type="text/javascript">
 		document.body.addEventListener('DOMMouseScroll', onWheel, true);
 		document.body.addEventListener('mousewheel', onWheel, true);
