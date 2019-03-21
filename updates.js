@@ -4430,7 +4430,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 	}
 	if (setting == "standardNotation" && ctrlPressed && game.options.menu[setting].enabled == 5){
 		//configure logarithmic
-		tooltip("confirm", null, 'update', "Enter a number here to use as the base for your logarithmic numbers! (Default is 10)<br/><br/><input id='logBaseInput' value='" + game.options.menu.standardNotation.logBase + "' type='number'/>", "saveLogarithmicSetting()", "Configure Log", "test2");
+		tooltip("confirm", null, 'update', "Enter a number here to use as the base for your logarithmic numbers! (Default is 10)<br/><br/><input id='logBaseInput' value='" + game.options.menu.standardNotation.logBase + "' type='number'/>", "saveLogarithmicSetting()", "Configure Log", "Confirm");
 		return;
 	}
 	if (setting == "pauseGame"){
