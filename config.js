@@ -3578,7 +3578,7 @@ var toReturn = {
 			poisonTrap: {
 				name: "Poison Trap Damage",
 				currentBonus: 0,
-				steps: [[10,25,1],[10,25,1],[10,25,1],[25,50,1],[50,100,2],[100,199,3],[200,400,4]]
+				steps: [-1,[10,25,1],[10,25,1],[25,50,1],[50,100,2],[100,199,3],[200,400,4]]
 			},
 			lightningTrap: {
 				name: "Lightning Trap Damage",
