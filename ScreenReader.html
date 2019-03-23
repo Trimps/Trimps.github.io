@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 4.11.0 (Screen Reader version)</title>
+	<title>Trimps 4.11.1 (Screen Reader version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
@@ -22,7 +22,7 @@
 </script>
 </head>
 <!-- 		Trimps
-		Copyright (C) 2016 Zach Hood
+		Copyright (C) 2019 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -1318,6 +1318,23 @@
 		<hr/>
 		<div id="tipCost2"></div>
 	</div>
+	<div style='position: absolute; display: block; width: 20vw; left: 80%; top: 50%; background-color: grey; z-index: 99' id="screenReaderSummary">
+		<h6>Zone Number: <span id='srSumWorldZone'></span></h6>
+		<h6>World Cell: <span id='srSumWorldCell'></span></h6>
+		<h6 id='srSumMapNameContainer'>Current Map: <span id='srSumMapName'></span></h6>
+		<h6 id='srSumMapCellContainer'>Current Map Cell: <span id='srSumMapCell'></span></h6>
+		<h6>Trimps: <span id='srSumTrimps'></span></h6>
+		<h6>Attack: <span id='srSumAttackScore'></span></h6>
+		<h6>Health: <span id='srSumHealthScore'></span></h6>
+		<h6 id='srSumFoodContainer'>Food: <span id='srSumFood'></span></h6>
+		<h6 id='srSumWoodContainer'>Wood: <span id='srSumWood'></span></h6>
+		<h6 id='srSumMetalContainer'>Metal: <span id='srSumMetal'></span></h6>
+		<h6 id='srSumScienceContainer'>Science: <span id='srSumScience'></span></h6>
+		<h6 id='srSumGemsContainer'>Gems: <span id='srSumGems'></span></h6>
+		<h6 id='srSumFragmentsContainer'>Fragments: <span id='srSumFragments'></span></h6>
+		<h6>Last combat: <span id='srSumLastCombat'></span></h6>
+		<h6>Last story: <span id='srSumLastStory'></span></h6>
+	</div>
 	<div style='position: absolute; display: block; width: 15vw; left: 85%; top: 90%; background-color: grey; z-index: 99' id="screenReaderTooltip" aria-live="assertive"></div>
 	<div id='playerSpirePopout' style='display: none'>
 		<div id='playerSpireSpirePanel'>
@@ -1338,10 +1355,10 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?22"></script>
-	<script type="text/javascript" src="updates.js?22"></script>
-	<script type="text/javascript" src="playerSpire.js?22"></script>
-	<script type="text/javascript" src="main.js?22"></script>
+	<script type="text/javascript" src="config.js?23"></script>
+	<script type="text/javascript" src="updates.js?23"></script>
+	<script type="text/javascript" src="playerSpire.js?23"></script>
+	<script type="text/javascript" src="main.js?23"></script>
 	
 </body>
 

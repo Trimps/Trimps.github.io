@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '4.11.0',
+		stringVersion: '4.11.1',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -403,7 +403,7 @@ var toReturn = {
 		},
 		Wind: {
 			description: function () {
-				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing winds to swell and knock extra resources into your reach. Each stack increases Helium gained from the World by <b>" + this.formatModifier(this.getModifier(0, true)) + "%</b> and increases all other basic resources gained from all sources by <b>" + this.formatModifier(this.getModifier()) + "%</b> until that enemy dies (maximum of 200 stacks). This bonus does not apply to Fragments, and the helium bonus does not apply to maps.";
+				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing winds to swell and knock extra resources into your reach. Each stack increases Helium gained from the World by <b>" + this.formatModifier(this.getModifier(0, true)) + "%</b> and increases all other basic resources gained from all sources by <b>" + this.formatModifier(this.getModifier()) + "%</b> until that enemy dies (maximum of " + this.stackMax() + " stacks). This bonus does not apply to Fragments, and the helium bonus does not apply to maps.";
 			},
 			upgradeDescription: function () {
 				return "Increases the amount of extra Helium you find in the World by <b>" + this.formatModifier(this.baseModifier) + "%</b> and non-Helium basic resources from all sources by <b>" + this.formatModifier(this.baseModifier * 10) + "%</b> per stack when the Empowerment of Wind is active. Your current bonus is <b>" + this.formatModifier(this.getModifier(0, true)) + "%</b> Helium, and next level will bring your bonus to <b>" + this.formatModifier(this.getModifier(1, true)) + "%</b> extra helium. Non-Helium resource gain is always " + ((Fluffy.isRewardActive('naturesWrath')) ? "double" : "10x") + " that of Helium, and the Helium bonus does not apply in maps.";
@@ -454,10 +454,16 @@ var toReturn = {
 		},
 		Ice: {
 			description: function () {
-				return "When this Empowerment is active, enemies will be Chilled each time your Trimps attack. The Chill debuff stacks, reduces the damage that enemy deals by <b>" + this.formatModifier(this.getModifier()) + "%</b> (compounding) per stack, and increases the damage your Trimps deal to that enemy by " + ((Fluffy.isRewardActive('naturesWrath')) ? " twice that amount (with diminishing returns, max of +200% attack)" : "the same amount (with diminishing returns, max of 100%)") + " until it dies.";
+				return "When this Empowerment is active, enemies will be Chilled each time your Trimps attack. The Chill debuff stacks, reduces the damage that enemy deals by <b>" + this.formatModifier(this.getModifier()) + "%</b> (compounding) per stack, and increases the damage your Trimps deal to that enemy by " + ((Fluffy.isRewardActive('naturesWrath')) ? " twice that amount (with diminishing returns, max of +200% attack)" : "the same amount (with diminishing returns, max of 100%)") + " until it dies." + this.overkillDesc();
 			},
 			upgradeDescription: function () {
-				return "Reduces the enemy's damage dealt from each stack of Chilled when the Empowerment of Ice is active by <b>" + this.formatModifier(1 - this.baseModifier) + "%</b> (compounding), and increases the damage your Trimps deal to that enemy by " + ((Fluffy.isRewardActive('naturesWrath')) ? " twice that amount (with diminishing returns, max of +200% attack)" : "the same amount (with diminishing returns, max of 100%)") + ". Your current bonus is <b>" + this.formatModifier(this.getModifier()) + "%</b>, and next level will bring your bonus to <b>" + this.formatModifier(this.getModifier(1)) + "%</b>.";
+				return "Reduces the enemy's damage dealt from each stack of Chilled when the Empowerment of Ice is active by <b>" + this.formatModifier(1 - this.baseModifier) + "%</b> (compounding), and increases the damage your Trimps deal to that enemy by " + ((Fluffy.isRewardActive('naturesWrath')) ? " twice that amount (with diminishing returns, max of +200% attack)" : "the same amount (with diminishing returns, max of 100%)") + ". Your current bonus is <b>" + this.formatModifier(this.getModifier()) + "%</b>, and next level will bring your bonus to <b>" + this.formatModifier(this.getModifier(1)) + "%</b>." + this.overkillDesc();
+			},
+			overkillDesc: function(){
+				var level = this.getLevel();
+				if (level < 50) return "<div style='margin-top: 10px'><b>You will earn +1 Overkill during Ice Zones once you reach Level 50, and a second Overkill cell at Level 100!</b></div>";
+				else if (level < 100) return "<div style='margin-top: 10px'><b>You are earning +1 Overkill during Ice Zones! Earn another at Level 100!</b></div>";
+				else return "<div style='margin-top: 10px'><b>Your Ice level is" + ((level > 100) ? " over" : "") + " 100, and you are gaining an additional 2 cells of Overkill during Ice Zones!</b></div>";
 			},
 			baseModifier: 0.01,
 			getModifier: function (change) {
@@ -1472,7 +1478,8 @@ var toReturn = {
 				text += "<p>You reached <b>Z" + game.global.lastPortal + "</b> last Portal, ";
 				if (this.purchased) text += " earning you a bonus of ";
 				else text += " which would earn you a bonus of ";
-				text +=  prettify(amt * 100) + "% extra Helium and " + Math.floor(game.global.lastPortal / 100) + " Void Maps.</p>"
+				text +=  prettify(amt * 100) + "% extra Helium and " + Math.floor(game.global.lastPortal / 100) + " Void Maps.</p>";
+				text += "<p>Your value for \"Last Portal Zone\" only changes if you Portal after Z99 or collect an Heirloom, meaning it won't be reset by early restarts.</p>"
 				return text;
 			},
 			name: "Void Specialization I",
@@ -1537,7 +1544,8 @@ var toReturn = {
 				 if (this.purchased) text += " earning you a bonus of ";
 				 else text += " which would earn you a bonus of ";
 				 var maps = Math.floor((game.global.lastPortal + 50) / 100);
-				 text += maps + " more Void Maps (" + (maps + Math.floor((game.global.lastPortal) / 100)) + " including Void Specialization I).</p>"
+				 text += maps + " more Void Maps (" + (maps + Math.floor((game.global.lastPortal) / 100)) + " including Void Specialization I).</p>";
+				 text += "<p>Your value for \"Last Portal Zone\" only changes if you Portal after Z99 or collect an Heirloom, meaning it won't be reset by early restarts.</p>"
 				 return text;
 			},
 			name: "Void Specialization II",
@@ -1611,7 +1619,7 @@ var toReturn = {
 		healthStrength2: {
 			get description(){
 				var text = "<p>Adds 1 extra Healthy cell for every Spire completed this run. Healthy cells will also drop an additional 20% of the Zone's value in Helium, bringing the total up to 65%. Spire I will count for 1 Healthy cell once Healthy cells begin to appear in the World, but does not cause them to start spawning earlier.</p>";
-				text += "<p>You have cleared through Spire " + romanNumeral(game.global.spiresCompleted) + ", so this Mastery grants up to " + game.global.spiresCompleted + " extra Healthy cells. On your current Zone in your current run, you're finding " + mutations.Healthy.cellCount() + " Healthy cells.</p>";
+				text += "<p>On your current run, you have cleared " + ((game.global.lastSpireCleared == 0) ? "no Spires" : "through Spire " + romanNumeral(game.global.lastSpireCleared)) + ", so this Mastery is granting " + game.global.lastSpireCleared + " extra Healthy cells. On your current Zone, you're finding " + mutations.Healthy.cellCount() + " Healthy cells.</p>";
 				return text;
 			},
 			name: "Strength in Health II",
@@ -3864,7 +3872,7 @@ var toReturn = {
 		w231: "It's pretty hot.",
 		w232: "The heat intensifies as you move further and further through the Zones. Instinct says to turn away from the heat, but that wouldn't be any fun.",
 		w234: ["As you finish clearing out the Zone, you notice a green cloud fall from the sky. It hovers above you for a few moments and shoots some sort of energy at you in a quick, painless burst. Seeming satisfied by the results of this blast, it hurriedly shoots forward a couple of Zones. Before you can even really think about what it could be, ten more green clouds of various sizes appear! They zip down, zap you, then zealously zoom off to the same zone. The clouds look toxic to you, but your Trimps seem to want to follow them.", "natureMessage poison"],
-		w236: ["As you climb over a rather large mountain and into the next Zone, you see that the green clouds have finally made it to the ground. Your worries about their toxicity seem to have been needless though, as your Trimps appear to greatly enjoy this rare treat. You watch in amazement as your Trimps begin to grow spines that drip with toxic sludge, and they immediately use their new powers to try to stick eachother. You bet they're a bit stronger now.", "natureMessage poison"],
+		w236: ["As you climb over a rather large mountain and into the next Zone, you see that the green clouds have finally made it to the ground. Your worries about their toxicity seem to have been needless though, as your Trimps appear to greatly enjoy this rare treat. You watch in amazement as your Trimps begin to grow spines that drip with toxic sludge, and they immediately use their new powers to try to stick each other. You bet they're a bit stronger now.", "natureMessage poison"],
 		w240: ["You and your Trimps have been really enjoying the benefits of what your Scientists call an \"Empowerment of Nature\". However, something up ahead seems to be absorbing all of the Poisonous clouds. Oh no! Your scientists think this will be your last zone with the Poison Empowerment, but they seem convinced that there will be another Empowerment to take its place!", "natureMessage poison"],
 		w241: ["As you reach the new Zone, you happen to see a Bad Guy finish absorbing the last bit of Poison in the entire Zone, leaving no trace of your new ally, Nature. Before you get too upset about the thought of having to tackle the Magma alone again, Wind floods in to take Poison's place. The spikes on your Trimps stop dripping sludge and begin to spin like propellers, the sound resembling a gigantic swarm of beeimps. These controllable Trimp-generated gusts of wind should be helpful for knocking extra resources into your reach, but you'll still need to deal with that Bad Guy that sucked in all of the Poison...", "natureMessage wind"],
 		w243: ["The middle of these Windy Zones are the most beautiful you've seen yet. The Magma and Wind bring all sorts of nutrients and seeds here, leaving the area rich in plant biodiversity. For the first time since you arrived on this planet, you feel truly peaceful. Nature is repairing itself, and you've become one of its tools (but like in a good way).", "natureMessage wind"],
@@ -3880,7 +3888,7 @@ var toReturn = {
 		w255: "The Magma continues to sap your Trimps\' strength as you press through the Zones, but they seem to be adapting well in spirits. It seems like each generation likes the heat more and more.",
 		w256: ["You're detecting a pattern here! Poison has once again given way to Wind, and you have a feeling that this Wind will soon give way to Ice. The Bad Guys can absorb as much Nature as they want! Their Tokens will only help you to strengthen Nature, and Nature will always be back. With your new ally, you can totally handle the Magma.", "natureMessage wind"],
 		w261: "You asked that Omnipotrimp nicely not to explode after you killed it, but it exploded anyways. Pretty rude.",
-		w264: ["Good job not high-fiving any Trimps so far this time. You're worried morale might fall if you spend too much time with such a difficult restriction, but you're pretty sure Poison is coming up soon.", "natureMessage ice"],
+		w264: ["Good job not high-fiving any Trimps so far this time. You are worried morale might fall if you spend too much time with such a difficult restriction, but you're pretty sure Poison is coming up soon.", "natureMessage ice"],
 		w267: ["You're determined to repair the planet, and now that Nature is on your side you feel it might actually be possible. Either way, you know you must be doing something right to have earned the loyalty of Trimps and Nature.", "natureMessage poison"],
 		w270: "This planet is really freaking big. You feel like you've been walking around it for years and still haven't seen everything there is to offer. Shouldn't there be another spire around here or something?",
 		w277: "It's starting to smell purple again. You must be getting close to another spire.",

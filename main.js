@@ -3,7 +3,7 @@
 //If you want to learn how to make javascript games, this is the short tutorial that got me started: http://dhmholley.co.uk/incrementals.html
 
 /*		Trimps
-		Copyright (C) 2016 Zach Hood
+		Copyright (C) 2019 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -5778,12 +5778,6 @@ function natureTooltip(event, doing, spending, convertTo){
 		tipTitle = "Upgrade Empowerment of " + spending;
 		var emp = game.empowerments[spending];
 		tipText = emp.upgradeDescription();
-		var level = emp.getLevel();
-		if (spending == "Ice"){
-			if (level < 50) tipText += "<br/><br/><b>You will earn +1 Overkill during Ice Zones once you reach Level 50, and a second Overkill cell at Level 100!</b>";
-			else if (level < 100) tipText += "<br/><br/><b>You are earning +1 Overkill during Ice Zones! Earn another at Level 100!</b>";
-			else tipText += "<br/><br/><b>Your Ice level is" + ((level > 100) ? " over" : "") + " 100, and you are gaining an additional 2 cells of Overkill during Ice Zones!</b>";
-		}
 		tipCost = getNextNatureCost(spending);
 	}
 	else if (doing == 'description'){
@@ -5845,7 +5839,7 @@ function displayNature(){
 	updateNatureInfoSpans();
 }
 
-function rewardToken(empowerment){
+function rewardToken(empowerment, countOnly, atZone){
 	// if (empowerment == getUberEmpowerment()){
 	// 	var noTokenText = ["That empowered enemy was looking a bit ill, and you find no tokens. What a shame!"];
 	// 	var useText = Math.floor(Math.random() * noTokenText.length);
@@ -5853,7 +5847,9 @@ function rewardToken(empowerment){
 	// 	message(useText, "Loot", "*medal2", "empoweredCell" + empowerment, 'token');
 	// 	return 0;
 	// }
-	var tokens = Math.floor((game.global.world - 241) / 15) + 1;
+	var world = (countOnly) ? atZone : game.global.world;
+	var tokens = Math.floor((world - 241) / 15) + 1;
+	if (countOnly) return tokens;
 	game.empowerments[empowerment].tokens += tokens;
 	message("You found " + prettify(tokens) + " Token" + ((tokens == 1) ? "" : "s") + " of " + empowerment + "!", "Loot", "*medal2", "empoweredCell" + empowerment, 'token');
 	if (game.global.buyTab == "nature")
@@ -8868,7 +8864,7 @@ function getBaseBlock(){
 	return baseBlock;
 }
 
-function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { //number = base attack
+function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell, noFluctuation) { //number = base attack
     var fluctuation = .2; //%fluctuation
 	var maxFluct = -1;
 	var minFluct = -1;
@@ -9047,6 +9043,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell) { /
 	if (maxFluct == -1) maxFluct = fluctuation;
 	if (minFluct == -1) minFluct = fluctuation;
 	var min = Math.floor(number * (1 - minFluct));
+	if (noFluctuation) return min;
     var max = Math.ceil(number + (number * maxFluct));
     if (buildString) {
 		if (isTrimp) {
@@ -10202,7 +10199,12 @@ function displayGoldenUpgrades(redraw) {
 		){
 			color = "thingColorCanNotAfford";
 		}
-		html += '<div onmouseover="tooltip(\'' + item + '\', \'goldenUpgrades\', event)" onmouseout="tooltip(\'hide\')" class="' + color + ' thing goldenUpgradeThing noselect pointer upgradeThing" id="' + item + 'Golden" onclick="buyGoldenUpgrade(\'' + item + '\'); tooltip(\'hide\')"><span class="thingName">Golden ' + item + ' ' + romanNumeral(game.global.goldenUpgrades + 1) + '</span><br/><span class="thingOwned" id="golden' + item + 'Owned">' + upgrade.purchasedAt.length + '</span></div>';
+		if (usingScreenReader){
+			html += '<button id="srTooltip' + item + '" class="thing goldenUpgradeThing noSelect pointer upgradeThing" onclick="tooltip(\'' + item + '\',\'goldenUpgrades\',\'screenRead\')">Golden ' + item + ' Info</button><button onmouseover="tooltip(\'' + item + '\',\'goldenUpgrades\',event)" onmouseout="tooltip(\'hide\')" class="' + color + ' thing goldenUpgradeThing noselect pointer upgradeThing" id="' + item + 'Golden" onclick="buyGoldenUpgrade(\'' + item + '\')"><span class="thingName">Golden ' + item + ' ' + romanNumeral(game.global.goldenUpgrades + 1) + '</span>, <span class="thingOwned" id="golden' + item + 'Owned">' + upgrade.purchasedAt.length + '</span></button>';
+		}
+		else{
+			html += '<div onmouseover="tooltip(\'' + item + '\', \'goldenUpgrades\', event)" onmouseout="tooltip(\'hide\')" class="' + color + ' thing goldenUpgradeThing noselect pointer upgradeThing" id="' + item + 'Golden" onclick="buyGoldenUpgrade(\'' + item + '\'); tooltip(\'hide\')"><span class="thingName">Golden ' + item + ' ' + romanNumeral(game.global.goldenUpgrades + 1) + '</span><br/><span class="thingOwned" id="golden' + item + 'Owned">' + upgrade.purchasedAt.length + '</span></div>';
+		}
 	}
 	var elem = document.getElementById('upgradesHere');
 	elem.innerHTML =  html + elem.innerHTML;
@@ -14437,6 +14439,7 @@ function gameLoop(makeUp, now) {
 		if (mutations.Living.active()){
 			mutations.Living.change();
 		}
+		if (usingScreenReader) screenReaderSummary();
 	}
 	if (game.talents.autoJobs.purchased){
 		//Ratio jobs every 30 seconds (or every zone, see nextWorld)
@@ -14776,6 +14779,8 @@ displayPerksBtn();
 setTimeout(autoSave, 60000);
 costUpdatesTimeout();
 setTimeout(gameTimeout, (1000 / game.settings.speed));
+
+if (usingScreenReader) screenReaderSummary();
 
 preventZoom(document.getElementById('talentsContainer'));
 document.getElementById('mapLevelInput').addEventListener('keydown', function(e) {

@@ -196,7 +196,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		if (game.global.world >= 181){
 			var essenceRemaining = countRemainingEssenceDrops();
-			tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current Zone is" : "enemies in your current Zone are") + " holding Dark Essence.</b></p>"
+			tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current Zone is" : "enemies in your current Zone are") + " holding Dark Essence. A normal enemy at this Zone is worth " + prettify(calculateScryingReward()) + " Essence.</b></p>"
 		}
 		costText = "";
 	}
@@ -216,7 +216,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var emp = game.empowerments[active];
 		if (typeof emp.description === 'undefined') return;
 		var lvlsLeft = ((5 - ((game.global.world - 1) % 5)) + (game.global.world - 1)) + 1;
-		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn a Token of " + active + ".</p>";
+		tooltipText = "<p>The " + active + " Empowerment is currently active!</p><p>" + emp.description() + "</p><p>This Empowerment will end on Z" + lvlsLeft + ", at which point you'll be able to fight a " + getEmpowerment(null, true) + " enemy to earn";
+		var tokCount = rewardToken(emp, true, lvlsLeft);
+		tooltipText += " " + prettify(tokCount) + " Token" + needAnS(tokCount) + " of " + active + ".</p>";
 		costText = "";
 
 	}
@@ -469,7 +471,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Chilled"){
-		tooltipText = "This enemy has been chilled by the Empowerment of Ice, is taking " + prettify(game.empowerments.Ice.getDamageModifier() * 100) + "% more damage, and is dealing " + prettify((1 - game.empowerments.Ice.getCombatModifier()) * 100) + "% less damage with each normal attack.";
+		tooltipText = "This enemy has been chilled by the Empowerment of Ice, is taking " + prettify(game.empowerments.Ice.getDamageModifier() * 100) + "% more damage, and is dealing " + prettify((1 - game.empowerments.Ice.getCombatModifier()) * 100) + "% less damage with each normal attack." + game.empowerments.Ice.overkillDesc();
 		costText = "";
 	}
 	if (what == "Breezy"){
@@ -2993,7 +2995,12 @@ function resetGame(keepPortal) {
 		achieves = game.achievements;
 		pres = game.global.presimptStore;
 		roboTrimp = game.global.roboTrimpLevel;
-		lastPortal = game.global.world;
+		if (game.global.world < 100 && game.global.lastPortal >= 100 && game.stats.totalHeirlooms.value == 0){
+			lastPortal = game.global.lastPortal;
+		}
+		else{
+			lastPortal = game.global.world;
+		}
 		recentDailies = game.global.recentDailies;
 		trapBuildToggled = game.global.trapBuildToggled;
 		recycleAllExtraHeirlooms();
@@ -3333,6 +3340,10 @@ var pendingLogs = {
 
 var messageLock = false;
 function message(messageString, type, lootIcon, extraClass, extraTag, htmlPrefix) {
+	if (usingScreenReader){
+		if (type == "Story") document.getElementById('srSumLastStory').innerHTML = "Z " + game.global.world + ": " + messageString;
+		if (type == "Combat") document.getElementById('srSumLastCombat').innerHTML = messageString;
+	}
 	if (messageLock && type !== "Notices"){
 		return;
 	}
@@ -3385,7 +3396,7 @@ function message(messageString, type, lootIcon, extraClass, extraTag, htmlPrefix
             pendingArray.splice(0, 1);
             adjustMessageIndexes(index);
         }
-    }
+	}
 }
 
 function adjustMessageIndexes(index){
@@ -3910,7 +3921,7 @@ function drawAllBuildings(){
 
 function drawBuilding(what, where){
 	if (usingScreenReader){
-		where.innerHTML += '<button class="thing noSelect pointer buildingThing" onclick="tooltip(\'' + what + '\',\'buildings\',\'screenRead\')">' + what + ' Tooltip</button><button title="" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">0</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
+		where.innerHTML += '<button class="thing noSelect pointer buildingThing" onclick="tooltip(\'' + what + '\',\'buildings\',\'screenRead\')">' + what + ' Info</button><button title="" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">0</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
 		return;
 	}
 	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
@@ -3943,7 +3954,7 @@ function drawAllJobs(){
 
 function drawJob(what, where){
 	if (usingScreenReader){
-		where.innerHTML += '<button class="thing noSelect pointer jobThing" onclick="tooltip(\'' + what + '\',\'jobs\',\'screenRead\')">' + what + ' Tooltip</button><button onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">0</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
+		where.innerHTML += '<button class="thing noSelect pointer jobThing" onclick="tooltip(\'' + what + '\',\'jobs\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">0</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
 		return;
 	}
 	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
@@ -4076,7 +4087,7 @@ function drawUpgrade(what, where){
 	var dif = upgrade.allowed - done;
 	if (dif >= 1) dif -= 1;
 	if (usingScreenReader){
-		where.innerHTML += '<button id="srTooltip' + what + '" class="thing noSelect pointer upgradeThing" onclick="tooltip(\'' + what + '\',\'upgrades\',\'screenRead\')">' + what + ' Tooltip</button><button onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">' + done + '</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
+		where.innerHTML += '<button id="srTooltip' + what + '" class="thing noSelect pointer upgradeThing" onclick="tooltip(\'' + what + '\',\'upgrades\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">' + done + '</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
 	}
 	else{
 		where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
@@ -4213,7 +4224,7 @@ function drawEquipment(what, elem){
 		numeral = romanNumeral(equipment.prestige);
 	}
 	if (usingScreenReader){
-		elem.innerHTML += '<button class="thing noSelect pointer" onclick="tooltip(\'' + what + '\',\'equipment\',\'screenRead\')">' + what + ' Tooltip</button><button onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span>, <span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
+		elem.innerHTML += '<button class="thing noSelect pointer" onclick="tooltip(\'' + what + '\',\'equipment\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span>, <span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
 		return;
 	}
 	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
@@ -5032,6 +5043,67 @@ tooltips.showError = function (textString) {
 	disableSaving = true;
 	return {tooltip: tooltip, costText: costText};
 };
+
+function screenReaderSummary(){
+	if (!usingScreenReader) return;
+	var srSumWorldZone = document.getElementById('srSumWorldZone');
+	var srSumWorldCell = document.getElementById('srSumWorldCell');
+	var srSumMapName = document.getElementById('srSumMapName');
+	var srSumMapCell = document.getElementById('srSumMapCell');
+	var srSumMapNameContainer = document.getElementById('srSumMapNameContainer');
+	var srSumMapCellContainer = document.getElementById('srSumMapCellContainer');
+	var srSumTrimps = document.getElementById('srSumTrimps');
+	var srSumAttackScore = document.getElementById('srSumAttackScore');
+	var srSumHealthScore = document.getElementById('srSumHealthScore');
+
+	srSumWorldZone.innerHTML = game.global.world;
+	srSumWorldCell.innerHTML = game.global.lastClearedCell + 2;
+
+	var cell = null;
+
+	if (game.global.mapsActive){
+		var map = getCurrentMapObject();
+		srSumMapNameContainer.style.display = "block";
+		srSumMapCellContainer.style.display = "block";
+		srSumMapName.innerHTML = map.name;
+		srSumMapCell.innerHTML = (game.global.lastClearedMapCell + 2) + " of " + map.size;
+		cell = getCurrentMapCell();
+	}
+	else{
+		srSumMapNameContainer.style.display = "none";
+		srSumMapCellContainer.style.display = "none";
+		srSumMapName.innerHTML = "None";
+		srSumMapCell.innerHTML = "0";
+		cell = getCurrentWorldCell();
+	}
+
+	srSumTrimps.innerHTML = prettify(game.resources.trimps.soldiers) + " Fighting, " + prettify(game.resources.trimps.owned) + " owned, " + prettify((game.resources.trimps.owned / game.resources.trimps.realMax()) * 100) + "% full";
+
+	if (cell){
+		var trimpAttack = calculateDamage(game.global.soldierCurrentAttack, false, true, false, false, true);
+		var trimpHealth = game.global.soldierHealthMax;
+		var cellAttack = calculateDamage(cell.attack, false, false, false, cell, true);
+		var cellHealth = cell.maxHealth;
+		srSumAttackScore.innerHTML = prettify(trimpAttack) + " ATK, " + prettify((trimpAttack / cellHealth) * 100) + "% of Enemy Health";
+		srSumHealthScore.innerHTML = prettify(trimpHealth) + " HP, " + prettify((trimpHealth / cellAttack) * 100) + "% of Enemy Attack";
+	}
+	var resources = ["food", "wood", "metal", "science", "fragments", "gems"];
+	for (var x = 0; x < resources.length; x++){
+		var res = game.resources[resources[x]];
+		var word = resources[x].charAt(0).toUpperCase() + resources[x].slice(1);
+		var elem = document.getElementById("srSum" + word);
+		var containerElem = document.getElementById("srSum" + word + "Container");
+		if (res.owned <= 0) {
+			containerElem.style.display = "none";
+			continue;
+		}
+		containerElem.style.display = "block";
+		var text = prettify(Math.floor(res.owned));
+		var max = getMaxForResource(resources[x]);
+		if (max && max > 0) text += ", " + prettify((res.owned / max) * 100) + "% full";
+		elem.innerHTML = text;
+	}
+}
 
 /**
  * Generates a function to handle copy button on popups
