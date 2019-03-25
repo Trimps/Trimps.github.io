@@ -1457,10 +1457,6 @@ function getSpecialSquaredRewards(challenge){
 		var reward = (challenge.replaceSquareReward) ? challenge.replaceSquareReward : squaredConfig.rewardEach;
 		var freq = (challenge.replaceSquareFreq) ? challenge.replaceSquareFreq : squaredConfig.rewardFreq;
 		var rewardIncrease = (challenge.replaceSquareGrowth) ? challenge.replaceSquareGrowth : squaredConfig.rewardGrowth;
-		if (game.talents.mesmer.purchased && !challenge.onlySquared){
-			reward *= 2;
-			rewardIncrease *= 2;
-		}
 		description += "<span class='colorSquared'>This challenge issues rewards differently than most other Challenge<sup>2</sup>s.";
 		description += ((challenge.replaceSquareReward) ? "<b>" : "")  + " You will gain " + reward + "% attack and health, and " + prettify(reward / 10) + "% Helium" + ((challenge.replaceSquareReward) ? "</b>" : "");
 		description += ((challenge.replaceSquareFreq) ? "<b>" : "") + " for every " + freq + " Zone" + needAnS(freq) + " reached." + ((challenge.replaceSquareFreq) ? "</b>" : "");
