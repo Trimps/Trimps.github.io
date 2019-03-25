@@ -5056,6 +5056,8 @@ function screenReaderSummary(){
 	var srSumAttackScore = document.getElementById('srSumAttackScore');
 	var srSumHealthScore = document.getElementById('srSumHealthScore');
 	var srSumBlock = document.getElementById('srSumBlock');
+	var srSumChallengeContainer = document.getElementById('srSumChallengeContainer');
+	var srSumChallenge = document.getElementById('srSumChallenge');
 
 	srSumWorldZone.innerHTML = game.global.world;
 	srSumWorldCell.innerHTML = game.global.lastClearedCell + 2;
@@ -5106,6 +5108,21 @@ function screenReaderSummary(){
 		if (max && max > 0) text += ", " + prettify((res.owned / max) * 100) + "% full";
 		elem.innerHTML = text;
 	}
+
+	if (game.global.challengeActive){
+		var hasChallengeText = false;
+		var challengeText = "";
+		switch(game.global.challengeActive){
+			case "Balance":
+			hasChallengeText = true;
+			challengeText = "Balance Stacks: " + game.challenges.Balance.balanceStacks;
+			break;
+		}
+
+		srSumChallengeContainer.style.display = (hasChallengeText) ? "table-row" : "none";
+		srSumChallenge.innerHTML = challengeText;
+	}
+
 }
 
 /**
