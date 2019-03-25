@@ -792,12 +792,12 @@
 							<div style="display: none" id="mapsCreateRow" class="row">
 								<div id='advMapsControlBtns'>
 									<span id='advMapsHideBtn' class='icomoon icon-minus-circle pointer' onclick='hideAdvMaps()' onmouseover="tooltip('Show/Hide Map Config', 'advMaps', event)" onmouseout="tooltip('hide')"></span>
-									<span id='advMapsPreset1' class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(1)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">1</span>
-									<span id='advMapsPreset2' class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(2)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">2</span>
-									<span id='advMapsPreset3' class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(3)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">3</span>
-									<span id='advMapsSaveBtn' class='icomoon icon-save pointer' onclick='saveAdvMaps()' onmouseover="tooltip('Save Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')"></span>	
-									<span id='advMapsResetBtn' class='icomoon icon-refresh pointer' onclick='resetAdvMaps(true)' onmouseover="tooltip('Reset Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')"></span>											
-									<span id='advMapsRecycleBtn' class="icomoon icon-trash-o pointer iconStateBad" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" onclick="recycleBelow(false)"></span>
+									<span id='advMapsPreset1' role="button" title="Load Preset 1" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(1)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">1</span>
+									<span id='advMapsPreset2' role="button" title="Load Preset 2" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(2)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">2</span>
+									<span id='advMapsPreset3' role="button" title="Load Preset 3" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(3)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">3</span>
+									<span id='advMapsSaveBtn' role="button" title="Save Settings to Selected Preset" class='icomoon icon-save pointer' onclick='saveAdvMaps()' onmouseover="tooltip('Save Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')"></span>	
+									<span id='advMapsResetBtn' role="button" title="Reset The Selected Preset" class='icomoon icon-refresh pointer' onclick='resetAdvMaps(true)' onmouseover="tooltip('Reset Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')"></span>											
+									<span id='advMapsRecycleBtn' role="button" title="Recycle All Maps" class="icomoon icon-trash-o pointer iconStateBad" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" onclick="recycleBelow(false)"></span>
 								</div>
 								<div id="mapLevelContainer" class="col-xs-4">
 									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput" onfocusout="checkMapLevelInput(this)"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
@@ -805,7 +805,7 @@
 								<div id="mapCostContainer" class="col-xs-4 lowPad">
 									<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
 								</div>
-								<div id="mapCreateBtn" onclick='buyMap()' class="workBtn primaryColor pointer noselect col-xs-4">
+								<div id="mapCreateBtn" role="button" onclick='buyMap()' class="workBtn primaryColor pointer noselect col-xs-4">
 									Create
 								</div>
 							</div>
@@ -911,10 +911,10 @@
 									</div>
 								</div>
 								<div id="selectMapBtns">
-									<span id="selectMapBtn" class="workBtn pointer noselect infoColor selectMapBtn" style="visibility: hidden" onclick="runMap()">
+									<span id="selectMapBtn" role="button" class="workBtn pointer noselect infoColor selectMapBtn" style="visibility: hidden" onclick="runMap()">
 										Run Map
 									</span>
-									<span id="recycleMapBtn" class="workBtn pointer noselect dangerColor selectMapBtn" style="visibility: hidden" onclick="recycleMap()">
+									<span id="recycleMapBtn" role="button" class="workBtn pointer noselect dangerColor selectMapBtn" style="visibility: hidden" onclick="recycleMap()">
 										Recycle Map
 									</span>
 								</div>
@@ -1318,23 +1318,95 @@
 		<hr/>
 		<div id="tipCost2"></div>
 	</div>
-	<div style='position: absolute; display: block; width: 20vw; left: 80%; top: 50%; background-color: grey; z-index: 99' id="screenReaderSummary">
-		<h6>Zone Number: <span id='srSumWorldZone'></span></h6>
-		<h6>World Cell: <span id='srSumWorldCell'></span></h6>
-		<h6 id='srSumMapNameContainer'>Current Map: <span id='srSumMapName'></span></h6>
-		<h6 id='srSumMapCellContainer'>Current Map Cell: <span id='srSumMapCell'></span></h6>
-		<h6>Trimps: <span id='srSumTrimps'></span></h6>
-		<h6>Attack: <span id='srSumAttackScore'></span></h6>
-		<h6>Health: <span id='srSumHealthScore'></span></h6>
-		<h6 id='srSumFoodContainer'>Food: <span id='srSumFood'></span></h6>
-		<h6 id='srSumWoodContainer'>Wood: <span id='srSumWood'></span></h6>
-		<h6 id='srSumMetalContainer'>Metal: <span id='srSumMetal'></span></h6>
-		<h6 id='srSumScienceContainer'>Science: <span id='srSumScience'></span></h6>
-		<h6 id='srSumGemsContainer'>Gems: <span id='srSumGems'></span></h6>
-		<h6 id='srSumFragmentsContainer'>Fragments: <span id='srSumFragments'></span></h6>
-		<h6>Last combat: <span id='srSumLastCombat'></span></h6>
-		<h6>Last story: <span id='srSumLastStory'></span></h6>
-	</div>
+	<table style='position: absolute; display: block; width: 20vw; left: 80%; top: 50%; background-color: grey; z-index: 99' id="screenReaderSummary">
+		<tbody>
+			<tr>
+				<td>
+					<h6>Game Overview</h6>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Zone Number: <span id='srSumWorldZone'></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					World Cell: <span id='srSumWorldCell'></span>
+				</td>
+			</tr>
+			<tr>
+				<td id='srSumMapNameContainer'>
+					Current Map: <span id='srSumMapName'></span>
+				</td>
+			</tr>
+			<tr id='srSumMapCellContainer'>
+				<td>
+					Current Map Cell: <span id='srSumMapCell'></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Trimps: <span id='srSumTrimps'></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Attack: <span id='srSumAttackScore'></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Health: <span id='srSumHealthScore'></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Block: <span id='srSumBlock'></span>
+				</td>
+			</tr>
+			<tr id='srSumFoodContainer'>
+				<td>
+					Food: <span id='srSumFood'></span>
+				</td>
+			</tr>
+			<tr id='srSumWoodContainer'>
+				<td>
+					Wood: <span id='srSumWood'></span>
+				</td>
+			</tr>
+			<tr id='srSumMetalContainer'>
+				<td>
+					Metal: <span id='srSumMetal'></span>
+				</td>
+			</tr>
+			<tr id='srSumScienceContainer'>
+				<td>
+					Science: <span id='srSumScience'></span>
+				</td>
+			</tr>
+			<tr id='srSumGemsContainer'>
+				<td>
+					Gems: <span id='srSumGems'></span>
+				</td>
+			</tr>
+			<tr id='srSumFragmentsContainer'>
+				<td>
+					Fragments: <span id='srSumFragments'></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Last combat: <span id='srSumLastCombat'></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Last story: <span id='srSumLastStory'></span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 	<div style='position: absolute; display: block; width: 15vw; left: 85%; top: 90%; background-color: grey; z-index: 99' id="screenReaderTooltip" aria-live="assertive"></div>
 	<div id='playerSpirePopout' style='display: none'>
 		<div id='playerSpireSpirePanel'>

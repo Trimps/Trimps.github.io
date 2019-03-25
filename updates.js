@@ -5055,6 +5055,7 @@ function screenReaderSummary(){
 	var srSumTrimps = document.getElementById('srSumTrimps');
 	var srSumAttackScore = document.getElementById('srSumAttackScore');
 	var srSumHealthScore = document.getElementById('srSumHealthScore');
+	var srSumBlock = document.getElementById('srSumBlock');
 
 	srSumWorldZone.innerHTML = game.global.world;
 	srSumWorldCell.innerHTML = game.global.lastClearedCell + 2;
@@ -5063,8 +5064,8 @@ function screenReaderSummary(){
 
 	if (game.global.mapsActive){
 		var map = getCurrentMapObject();
-		srSumMapNameContainer.style.display = "block";
-		srSumMapCellContainer.style.display = "block";
+		srSumMapNameContainer.style.display = "table-row";
+		srSumMapCellContainer.style.display = "table-row";
 		srSumMapName.innerHTML = map.name;
 		srSumMapCell.innerHTML = (game.global.lastClearedMapCell + 2) + " of " + map.size;
 		cell = getCurrentMapCell();
@@ -5083,10 +5084,12 @@ function screenReaderSummary(){
 		var trimpAttack = calculateDamage(game.global.soldierCurrentAttack, false, true, false, false, true);
 		var trimpHealth = game.global.soldierHealthMax;
 		var cellAttack = calculateDamage(cell.attack, false, false, false, cell, true);
+		cellAttack -= game.global.soldierCurrentBlock;
 		var cellHealth = cell.maxHealth;
 		srSumAttackScore.innerHTML = prettify(trimpAttack) + " ATK, " + prettify((trimpAttack / cellHealth) * 100) + "% of Enemy Health";
-		srSumHealthScore.innerHTML = prettify(trimpHealth) + " HP, " + prettify((trimpHealth / cellAttack) * 100) + "% of Enemy Attack";
+		srSumHealthScore.innerHTML = prettify(trimpHealth) + " HP, " + prettify((cellAttack / trimpHealth) * 100) + "% lost per Enemy Attack";
 	}
+	srSumBlock.innerHTML = prettify(game.global.soldierCurrentBlock);
 	var resources = ["food", "wood", "metal", "science", "fragments", "gems"];
 	for (var x = 0; x < resources.length; x++){
 		var res = game.resources[resources[x]];
@@ -5097,7 +5100,7 @@ function screenReaderSummary(){
 			containerElem.style.display = "none";
 			continue;
 		}
-		containerElem.style.display = "block";
+		containerElem.style.display = "table-row";
 		var text = prettify(Math.floor(res.owned));
 		var max = getMaxForResource(resources[x]);
 		if (max && max > 0) text += ", " + prettify((res.owned / max) * 100) + "% full";
