@@ -895,21 +895,21 @@
 							</div>
 							<div id="selectedMapContainer" class="row">
 								<div id="selectedMapCol" class="col-xs-3 lowPad">
-									<div id="selectedMapName"></div><br/>
+									<h5><div id="selectedMapName"></div></h5><br/>
 									<div id="mapCreditsLeft" title="Earn 1 Credit for each zone you clear while on this challenge"></div>
 								</div>
 
-								<div id="mapStatsCol3" class="col-xs-5 lowPad">
-								<div class="row">
+								<div id="mapStatsCol3" class="col-xs-5 lowPad"><table>
+								<div class="row"><tr>
 									<div class="col-xs-7 mapStatsCol">
-										<div class="mapStatsTitle">Items</div>
-										<div class="mapStatsTitle">Resource</div>
-									</div>
+										<th><div class="mapStatsTitle">Items</div></th>
+										<th><div class="mapStatsTitle">Resource</div></th>
+										</div><tr>
 									<div id="mapStatsCol4" class="col-xs-5 mapStatsCol">
-										<div class="mapStatsValue" id="mapStatsItems"></div>
-										<div class="mapStatsValue" id="mapStatsResource"></div>
+										<td><div class="mapStatsValue" id="mapStatsItems"></div></td>
+										<td><div class="mapStatsValue" id="mapStatsResource"></div></td>
 									</div>
-								</div>
+								</div></table>
 								<div id="selectMapBtns">
 									<span id="selectMapBtn" role="button" class="workBtn pointer noselect infoColor selectMapBtn" style="visibility: hidden" onclick="runMap()">
 										Run Map
