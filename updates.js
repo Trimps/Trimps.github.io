@@ -178,26 +178,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 	}
 	if (what == "Scryer Formation"){
-		tooltipText = "<p>Trimps lose half of their attack, health and block but gain 2x resources from loot (not including Helium) and have a chance to find Dark Essence above Z180 in the world. This formation must be active for the entire fight to receive any bonus from enemies, and must be active for the entire map to earn a bonus from a Cache. (Hotkeys: S or 5)</p>";
-		if (game.global.formation == 4){
-			if (!isScryerBonusActive()) tooltipText += "<p>You recently switched to Scryer and will <b>not</b> earn a bonus from this enemy.</p>";
-			else tooltipText += "<p>You will earn a bonus from this enemy!</p>";
-			if (game.global.mapsActive){
-				var currentMap = getCurrentMapObject();
-				if (currentMap.bonus && mapSpecialModifierConfig[currentMap.bonus].cache){
-					if (game.global.canScryCache) tooltipText += "<p>You will earn a bonus from the Cache at the end of this map!</p>";
-					else tooltipText += "<p>You completed some of this map outside of Scryer, and will <b>not</b> earn a bonus from the Cache.</p>";
-				}
-				if (game.global.voidBuff && game.talents.scry2.purchased){
-					if (game.global.canScryCache) tooltipText += "<p>You will earn bonus Helium at the end of this map from Scryhard II!</p>";
-					else tooltipText += "<p>You completed some of this map outside of Scryer, and will <b>not</b> earn a bonus to Helium from Scryhard II</p>";
-				}
-			}
-		}
-		if (game.global.world >= 181){
-			var essenceRemaining = countRemainingEssenceDrops();
-			tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current Zone is" : "enemies in your current Zone are") + " holding Dark Essence. A normal enemy at this Zone is worth " + prettify(calculateScryingReward()) + " Essence.</b></p>"
-		}
+		tooltipText = "<p>Trimps lose half of their attack, health and block but gain 2x resources from loot (not including Helium) and have a chance to find Dark Essence above Z180 in the world. This formation must be active for the entire fight to receive any bonus from enemies, and must be active for the entire map to earn a bonus from a Cache.</p>";
+		tooltipText += getExtraScryerText(4);
+		tooltipText += "<br/>(Hotkeys: S or 5)";
 		costText = "";
 	}
 	if (what == "First Amalgamator"){
@@ -1192,7 +1175,6 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	titleText = (titleText) ? titleText : what;
 	var tipNum = (tip2) ? "2" : "";
 	if (usingScreenReader){
-		game.global.lockTooltip = false;
 		if (event == "screenRead") {
 			document.getElementById("tipTitle" + tipNum).innerHTML = "";
 			document.getElementById("tipText" + tipNum).innerHTML = "";
@@ -1201,10 +1183,18 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			if (costText) readText += "Costs " + costText;
 			readText += "</p><p>" + tooltipText + "</p>";
 			document.getElementById('screenReaderTooltip').innerHTML = readText;
-			
+			game.global.lockTooltip = false;
 			return;
 		}
-		else document.getElementById('screenReaderTooltip').innerHTML = "";
+		else{
+			if (game.global.lockTooltip){
+				document.getElementById('screenReaderTooltip').innerHTML = "Confirmation Popup is active. Press S to view the popup."
+			}
+			else{
+				document.getElementById('screenReaderTooltip').innerHTML = "";
+			}
+			game.global.lockTooltip = false;
+		}
 	}
 	document.getElementById("tipTitle" + tipNum).innerHTML = titleText;
 	document.getElementById("tipText" + tipNum).innerHTML = tooltipText;
@@ -1213,6 +1203,31 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (ondisplay !== null)
 		ondisplay();
 	if (event != "update") positionTooltip(elem, event, renameBtn);
+}
+
+function getExtraScryerText(fromForm){
+	var tooltipText = "";
+	var formName = (fromForm == 4) ? "Scryer" : "Wind";
+	if (game.global.formation == fromForm){
+		if (!isScryerBonusActive()) tooltipText += "<p>You recently switched to " + formName + " Formation and will <b>not</b> earn a bonus from this enemy.</p>";
+		else tooltipText += "<p>You will earn a bonus from this enemy!</p>";
+		if (game.global.mapsActive){
+			var currentMap = getCurrentMapObject();
+			if (currentMap.bonus && mapSpecialModifierConfig[currentMap.bonus].cache){
+				if (game.global.canScryCache) tooltipText += "<p>You will earn a bonus from the Cache at the end of this map!</p>";
+				else tooltipText += "<p>You completed some of this map outside of " + formName + " Formation, and will <b>not</b> earn a bonus from the Cache.</p>";
+			}
+			if (game.global.voidBuff && game.talents.scry2.purchased){
+				if (game.global.canScryCache) tooltipText += "<p>You will earn bonus Helium at the end of this map from Scryhard II!</p>";
+				else tooltipText += "<p>You completed some of this map outside of " + formName + " Formation, and will <b>not</b> earn a bonus to Helium from Scryhard II</p>";
+			}
+		}
+	}
+	if (game.global.world >= 181){
+		var essenceRemaining = countRemainingEssenceDrops();
+		tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current Zone is" : "enemies in your current Zone are") + " holding Dark Essence. Your current enemy at this Zone would be worth " + prettify(calculateScryingReward()) + " Essence if it was holding any.</b></p>"
+	}
+	return tooltipText;
 }
 
 function swapNiceCheckbox(elem, forceSetting){

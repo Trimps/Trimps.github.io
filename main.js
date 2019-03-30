@@ -4770,6 +4770,13 @@ function addCarried(confirmed){
 }
 
 function toggleHeirloomHelp(){
+	if (usingScreenReader){
+		var text = "Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. You can recycle extra Heirlooms to earn a special new resource called Nullifium, and you can use this Nullifium to upgrade the Heirlooms you want to keep! ";
+		text += "To interract with Heirlooms while using a Screen Reader, there are a few keyboard shortcuts. Your Nullifium count is displayed in an H1, so you can always check with 1 or shift 1 while on this screen. Press 2 or shift 2 to move to your equipped Heirlooms, 3 or shift 3 to move to your carried Heirlooms, and 4 or shift 4 to move to your extra Heirlooms. Press B to find selectable Heirlooms."
+		text += "Your Extra Heirlooms will be automatically recycled whenever you use your portal. You can carry a limited amount of Heirlooms back through the portal with you, but they must be in your Carried inventory. "
+		document.getElementById('screenReaderTooltip').innerHTML = text;
+		return;
+	}
 	var elem = document.getElementById("heirloomHelp");
 	elem.style.display = (elem.style.display == "block") ? "none" : "block";
 }
@@ -4978,7 +4985,7 @@ function generateHeirloomIcon(heirloom, location, number){
 	if (typeof heirloom.name === 'undefined') return "<span class='icomoon icon-sad3'></span>";
 	var icon = getHeirloomIcon(heirloom.type);
 	var animated = (game.options.menu.showHeirloomAnimations.enabled) ? "animated " : "";
-	var html = '<span class="heirloomThing ' + animated + 'heirloomRare' + heirloom.rarity;
+	var html = '<span role="button" aria-label="' + heirloom.name + '"  class="heirloomThing ' + animated + 'heirloomRare' + heirloom.rarity;
 	if (location == "Equipped") html += ' equipped';
 	var locText = "";
 	if (location == "Equipped") locText += '-1,\'' + heirloom.type + 'Equipped\'';
@@ -5017,24 +5024,27 @@ function displaySelectedHeirloom(modSelected, selectedIndex, fromTooltip, locati
 	var heirloom = getSelectedHeirloom(locationOvr, indexOvr);
 	var icon = getHeirloomIcon(heirloom.type);
 	var animated = (game.options.menu.showHeirloomAnimations.enabled) ? "animated " : "";
-	var html = '<div class="selectedHeirloomItem ' + animated + 'heirloomRare' + heirloom.rarity + '"><div class="row selectedHeirloomRow"><div class="col-xs-2 selectedHeirloomIcon" id="' + ((fromTooltip) ? 'tooltipHeirloomIcon' : 'selectedHeirloomIcon') + '"><span class="' + icon + '"></span></div><div class="col-xs-10"><span onclick="renameHeirloom(';
+	var html = '<div class="selectedHeirloomItem ' + animated + 'heirloomRare' + heirloom.rarity + '"><div class="row selectedHeirloomRow"><div class="col-xs-2 selectedHeirloomIcon" id="' + ((fromTooltip) ? 'tooltipHeirloomIcon' : 'selectedHeirloomIcon') + '"><span class="' + icon + '"></span></div><div class="col-xs-10"><h5 aria-label="Rename Heirloom" onclick="renameHeirloom(';
 	if (fromPopup) html += 'false, true';
-	html += ')" id="selectedHeirloomTitle">' + heirloom.name + '</span> '
+	html += ')" id="selectedHeirloomTitle" style="margin: 10px 0">' + heirloom.name + '</h5> '
 	if (!fromTooltip) html += '<span id="renameContainer"></span>';
 	html+= '</div></div>';
-	if (!fromPopup && !fromTooltip && (game.global.selectedHeirloom[1] == "StaffEquipped" || game.global.selectedHeirloom[1] == "ShieldEquipped")) html += '<span class="heirloomEquipped">Equipped</span><br/>';
+	var isEquipped = (game.global.selectedHeirloom[1] == "StaffEquipped" || game.global.selectedHeirloom[1] == "ShieldEquipped" || game.global.selectedHeirloom[1] == "CoreEquipped");
+	if (!fromPopup && !fromTooltip && isEquipped) html += '<span class="heirloomEquipped">Equipped</span><br/>';
+	var srText = "Selected " + heirloom.name + ", " + ((isEquipped) ? "your equipped " + heirloom.type : "unequipped " + heirloom.type) + ". Has the following mods: ";
 	var noneEmpty = true;
 	var opacity = (modSelected) ? 'style="opacity: 0.5" ' : '';
 	for (var x = 0; x < heirloom.mods.length; x++){
+		srText += heirloom.mods[x][0] + " - " + prettify(heirloom.mods[x][1]) + "%. ";
 		if (heirloom.mods[x][0] == "empty"){
-				html += '- <span class="heirloomMod heirloomModEmpty" ';
+				html += '- <span role="button" class="heirloomMod heirloomModEmpty" ';
 				if (modSelected && selectedIndex != x) html += opacity;
 				html += 'onclick="selectMod(' + x;
 				if (fromPopup) html += ', true';
 				html+= ')">Empty</span><br/>';
 			}
 		else{
-			html += '&bull; <span class="heirloomMod" ';
+			html += '&bull; <span role="button" class="heirloomMod" ';
 			if (modSelected && selectedIndex != x) html += opacity;
 			html += 'onclick="selectMod(' + x;
 			if (fromPopup) html += ', true';
@@ -5042,6 +5052,9 @@ function displaySelectedHeirloom(modSelected, selectedIndex, fromTooltip, locati
 		}
 	}
 	if (fromTooltip) return html;
+	if (usingScreenReader){
+		document.getElementById('screenReaderTooltip').innerHTML = srText + "<br/><br/>Press 5 or shift 5 then B to view this Heirloom and its mods.";
+	}
 	if (fromPopup){
 		document.getElementById("heirloomsPopupHere").innerHTML = html;
 		document.getElementById("heirloomsPopup").style.display = "inline-block";
@@ -5822,7 +5835,8 @@ function natureTooltip(event, doing, spending, convertTo){
 		var emp = getUberEmpowerment();
 		tipTitle = "Wind Formation";
 		tipText = game.empowerments.Wind.formationDesc;
-		tipText += "<br/><br/>(Hotkeys: W or 6)";
+		tipText += "<br/>" + getExtraScryerText(5);
+		tipText += "<br/>(Hotkeys: W or 6)";
 		tipCost = "";
 	}
 	if (tipCost == 0) tipCost = "";
