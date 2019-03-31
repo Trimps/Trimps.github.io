@@ -1225,7 +1225,7 @@ function getExtraScryerText(fromForm){
 	}
 	if (game.global.world >= 181){
 		var essenceRemaining = countRemainingEssenceDrops();
-		tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current Zone is" : "enemies in your current Zone are") + " holding Dark Essence. Your current enemy at this Zone would be worth " + prettify(calculateScryingReward()) + " Essence if it was holding any.</b></p>"
+		tooltipText += "<p><b>" + essenceRemaining + " remaining " + ((essenceRemaining == 1) ? "enemy in your current Zone is" : "enemies in your current Zone are") + " holding Dark Essence. Your current enemy at this Zone would be worth " + prettify(calculateScryingReward()) + " Essence if it were holding any.</b></p>"
 	}
 	return tooltipText;
 }
