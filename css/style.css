@@ -5142,3 +5142,7 @@ sup{
 	padding: 0.1vw;
 	border: 1px solid white;
 }
+
+.screenReaderPerk{
+	font-size: 0.5em;
+}
