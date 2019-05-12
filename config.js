@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '4.11.2',
+		stringVersion: '4.11.3',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -222,6 +222,8 @@ var toReturn = {
 		freeTalentRespecs: 3,
 		genStateConfig: [],
 		uberNature: "",
+		//For the log notation base 
+		logNotBase: 10,
 		mapPresets: {
 			p1: {
 				loot: 0,
@@ -594,7 +596,6 @@ var toReturn = {
 			},
 			standardNotation: {
 				enabled: 1,
-				logBase: 10,
 				extraTags: "layout",
 				description: "Swap between Standard Formatting (12.7M, 540B), Engineering Notation (12.7e6, 540e9), Scientific Notation (1.27e7, 5.40e11), Alphabetic Notation (12.7b, 540c), Hybrid Notation (Standard up to e96, then Engineering. Mimics Standard pre 4.6), and Logarithmic Notation (10^7.10, 10^8.73). Hold Ctrl while clicking Logarithmic Notation to change the base.",
 				titles: ["Scientific Notation", "Standard Formatting", "Engineering Notation", "Alphabetic Notation", "Hybrid Notation", "Logarithmic Notation"],
@@ -6616,7 +6617,7 @@ var toReturn = {
 		},
 		easterEgg: {
 			world: -1,
-			locked: false,
+			locked: true,
 			level: [0, 99],
 			title: "Colored Egg",
 			icon: "*droplet",

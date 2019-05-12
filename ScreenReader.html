@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 4.11.2 (Screen Reader version)</title>
+	<title>Trimps 4.11.3 (Screen Reader version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
@@ -747,7 +747,7 @@
 							</div>
 							<div class="battleSideBtnContainer">
 								<div id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" style="display: none">
-									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div><div onclick="tooltip('Configure Maps', null, 'update')">
+									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div><div title='Configure Map Settings. Press S after clicking.' onclick="tooltip('Configure Maps', null, 'update')">
 										<span class='glyphicon glyphicon-cog'></span></div>
 								</div>
 							</div>
@@ -795,15 +795,15 @@
 									<span id='advMapsPreset1' role="button" title="Load Preset 1" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(1)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">1</span>
 									<span id='advMapsPreset2' role="button" title="Load Preset 2" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(2)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">2</span>
 									<span id='advMapsPreset3' role="button" title="Load Preset 3" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(3)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">3</span>
-									<span id='advMapsSaveBtn' role="button" title="Save Settings to Selected Preset" class='icomoon icon-save pointer' onclick='saveAdvMaps()' onmouseover="tooltip('Save Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')"></span>	
-									<span id='advMapsResetBtn' role="button" title="Reset The Selected Preset" class='icomoon icon-refresh pointer' onclick='resetAdvMaps(true)' onmouseover="tooltip('Reset Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')"></span>											
-									<span id='advMapsRecycleBtn' role="button" title="Recycle All Maps" class="icomoon icon-trash-o pointer iconStateBad" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" onclick="recycleBelow(false)"></span>
+									<span id='advMapsSaveBtn' role="button" title="Save Settings to Selected Preset" class='icomoon icon-save pointer' onclick='saveAdvMaps()' onmouseover="tooltip('Save Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')">&nbsp;</span>	
+									<span id='advMapsResetBtn' role="button" title="Reset The Selected Preset" class='icomoon icon-refresh pointer' onclick='resetAdvMaps(true)' onmouseover="tooltip('Reset Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')">&nbsp;</span>											
+									<span id='advMapsRecycleBtn' role="button" title="Recycle All Maps" class="icomoon icon-trash-o pointer iconStateBad" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" onclick="recycleBelow(false)">&nbsp;</span>
 								</div>
 								<div id="mapLevelContainer" class="col-xs-4">
-									Level <span class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)"><span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput" onfocusout="checkMapLevelInput(this)"><span class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)"><span class="glyphicon glyphicon-upload"></span></span>
+									Level <span role="button" title="Reduce map level by 1" class="pointer noselect incrementBtn" onclick="incrementMapLevel(-1)">&nbsp;<span class="glyphicon glyphicon-download"></span></span><input onkeyup="updateMapCost()" type="number" id="mapLevelInput" onfocusout="checkMapLevelInput(this)"><span role="button" title="Increase map level by 1" class="pointer noselect incrementBtn" onclick="incrementMapLevel(1)">&nbsp;<span class="glyphicon glyphicon-upload"></span></span>
 								</div>
 								<div id="mapCostContainer" class="col-xs-4 lowPad">
-									<span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span>
+									<h4 title="Map Cost"><span id="mapCostFragmentCost"></span><span id="mapCostFragmentText"> Fragments</span></h4>
 								</div>
 								<div id="mapCreateBtn" role="button" onclick='buyMap()' class="workBtn primaryColor pointer noselect col-xs-4">
 									Create
@@ -815,7 +815,7 @@
 										Loot
 									</div>
 									<br/>
-									<input value="0" id="lootAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
+									<input title="Loot setting slider" value="0" id="lootAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers('loot')" onchange="updateMapNumbers('loot')">
 									<div id="lootAdvMapsText"></div>
 								</div>
 								<div id="advSizeContainer" class="col-xs-3 mapConfigContainer lowPad">
@@ -823,7 +823,7 @@
 										Size
 									</div>
 									<br/>
-									<input value="0" id="sizeAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
+									<input value="0" title="Size setting slider" id="sizeAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers('size')" onchange="updateMapNumbers('size')">
 									<div id="sizeAdvMapsText"></div>
 								</div>
 								<div id="advDifficultyContainer" class="col-xs-3 mapConfigContainer lowPad">
@@ -831,7 +831,7 @@
 										Difficulty
 									</div>
 									<br/>
-									<input value="0" id="difficultyAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
+									<input value="0" title="Difficulty setting slider" id="difficultyAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers('difficulty')" onchange="updateMapNumbers('difficulty')">
 									<div id="difficultyAdvMapsText"></div>
 								</div>
 								<div id="advBiomeContainer" class="col-xs-3 mapConfigContainer lowPad" onmouseover="tooltip('Biome', 'advMaps', event)" onmouseout="tooltip('hide')">
@@ -1305,18 +1305,19 @@
 	</div>
 	<div id="tooltipDiv" class="tooltipExtraNone" style="display: none">
 		<div id="tipTitle"></div>
-		<hr/>
+		<hr title='top of tooltip'/>
 		<div id="tipText"></div>
-		<hr/>
+		<hr title='middle of tooltip'/>
 		<div id="tipCost"></div>
-		<hr/>
+		<hr title='bottom of tooltip'/>
 	</div>
 	<div id="tooltipDiv2" class="tooltipExtraNone" style="display: none">
 		<div id="tipTitle2"></div>
-		<hr/>
+		<hr title='top of tooltip'/>
 		<div id="tipText2"></div>
-		<hr/>
+		<hr title='middle of tooltip'/>
 		<div id="tipCost2"></div>
+		<hr title='bottom of tooltip'/>
 	</div>
 	<table style='position: absolute; display: block; width: 20vw; left: 80%; top: 50%; background-color: grey; z-index: 99' id="screenReaderSummary">
 		<tbody>
@@ -1432,10 +1433,10 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?24"></script>
-	<script type="text/javascript" src="updates.js?24"></script>
-	<script type="text/javascript" src="playerSpire.js?24"></script>
-	<script type="text/javascript" src="main.js?24"></script>
+	<script type="text/javascript" src="config.js?25"></script>
+	<script type="text/javascript" src="updates.js?25"></script>
+	<script type="text/javascript" src="playerSpire.js?25"></script>
+	<script type="text/javascript" src="main.js?25"></script>
 	
 </body>
 

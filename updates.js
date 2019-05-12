@@ -666,7 +666,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (what == "Helium" && game.global.runningChallengeSquared) tooltipText += "<br/><br/><b class='red'>You can't earn helium while running a Challenge<sup>2</sup>!</b>";
 		costText = "Free";
 		if (getAvailableGoldenUpgrades() > 1) costText += " (" + getAvailableGoldenUpgrades() + " remaining)";
-		what = "Golden " + what + " (Tier " + romanNumeral(game.global.goldenUpgrades + 1) + ")";
+		var numeral = (usingScreenReader) ? prettify(game.global.goldenUpgrades + 1) : romanNumeral(game.global.goldenUpgrades + 1);
+		what = "Golden " + what + " (Tier " + numeral + ")";
 	}
 	if (isItIn == "talents"){
 		var talent = game.talents[what];
@@ -2703,7 +2704,7 @@ function prettify(number) {
 
 	if(game.options.menu.standardNotation.enabled == 5) {
 		//Thanks ZXV
-		var logBase = game.options.menu.standardNotation.logBase;
+		var logBase = game.global.logNotBase;
 		var exponent = Math.log(number) / Math.log(logBase);
 		return prettifySub(exponent) + "L" + logBase;
 	}
@@ -2984,6 +2985,7 @@ function resetGame(keepPortal) {
 	var freeTalentRespecs;
 	var genStateConfig;
 	var maxSplit;
+	var logNotBase;
 	if (keepPortal){
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -3076,6 +3078,7 @@ function resetGame(keepPortal) {
 		freeTalentRespecs = game.global.freeTalentRespecs;
 		genStateConfig = game.global.genStateConfig;
 		maxSplit = game.global.maxSplit;
+		logNotBase = game.global.logNotBase;
 		if (!game.global.canMagma) {
 			if (highestLevel > 229) highestLevel = 229;
 			if (roboTrimp > 8) roboTrimp = 8;
@@ -3155,6 +3158,7 @@ function resetGame(keepPortal) {
 		game.global.genStateConfig = genStateConfig;
 		game.global.freeTalentRespecs = freeTalentRespecs;
 		game.global.maxSplit = maxSplit;
+		game.global.logNotBase = logNotBase;
 		for (var statItem in stats){
 			statItem = stats[statItem];
 			if (typeof statItem.value !== 'undefined' && typeof statItem.valueTotal !== 'undefined' && !statItem.noAdd) statItem.valueTotal += statItem.value;
@@ -4240,7 +4244,7 @@ function drawEquipment(what, elem){
 	var numeral = "";
 	var equipment = game.equipment[what];
 	if (equipment.prestige > 1){
-		numeral = romanNumeral(equipment.prestige);
+		numeral = (usingScreenReader) ? prettify(equipment.prestige) : romanNumeral(equipment.prestige);
 	}
 	if (usingScreenReader){
 		elem.innerHTML += '<button class="thing noSelect pointer" onclick="tooltip(\'' + what + '\',\'equipment\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span>, <span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
@@ -4445,7 +4449,7 @@ function saveLogarithmicSetting(){
 	if (isNumberBad(val)) return;
 	val = Math.floor(val);
 	if (val < 2) val = 2;
-	game.options.menu.standardNotation.logBase = val;
+	game.global.logNotBase = val;
 }
 
 var lastPause = -1;
@@ -4460,7 +4464,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 	}
 	if (setting == "standardNotation" && ctrlPressed && game.options.menu[setting].enabled == 5){
 		//configure logarithmic
-		tooltip("confirm", null, 'update', "Enter a number here to use as the base for your logarithmic numbers! (Default is 10)<br/><br/><input id='logBaseInput' value='" + game.options.menu.standardNotation.logBase + "' type='number'/>", "saveLogarithmicSetting()", "Configure Log", "Confirm");
+		tooltip("confirm", null, 'update', "Enter a number here to use as the base for your logarithmic numbers! (Default is 10)<br/><br/><input id='logBaseInput' value='" + game.global.logNotBase + "' type='number'/>", "saveLogarithmicSetting()", "Configure Log", "Confirm");
 		return;
 	}
 	if (setting == "pauseGame"){
