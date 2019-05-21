@@ -1,4 +1,4 @@
-/*		Trimps
+﻿/*		Trimps
 		Copyright (C) 2016 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
@@ -3944,7 +3944,7 @@ function drawAllBuildings(){
 
 function drawBuilding(what, where){
 	if (usingScreenReader){
-		where.innerHTML += '<button class="thing noSelect pointer buildingThing" onclick="tooltip(\'' + what + '\',\'buildings\',\'screenRead\')">' + what + ' Info</button><button title="" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">0</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
+		where.innerHTML += '<button class="thing noSelect pointer buildingThing" onclick="tooltip(\'' + what + '\',\'buildings\',\'screenRead\')">' + what + ' Info</button><button title="" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">0</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button><br>';
 		return;
 	}
 	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'buildings\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="' + what + '" onclick="buyBuilding(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
@@ -3977,7 +3977,7 @@ function drawAllJobs(){
 
 function drawJob(what, where){
 	if (usingScreenReader){
-		where.innerHTML += '<button class="thing noSelect pointer jobThing" onclick="tooltip(\'' + what + '\',\'jobs\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">0</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
+		where.innerHTML += '<button class="thing noSelect pointer jobThing" onclick="tooltip(\'' + what + '\',\'jobs\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">0</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button><br>';
 		return;
 	}
 	where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'jobs\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="' + what + '" onclick="buyJob(\'' + what + '\')"><span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">0</span></div>';
@@ -4110,7 +4110,7 @@ function drawUpgrade(what, where){
 	var dif = upgrade.allowed - done;
 	if (dif >= 1) dif -= 1;
 	if (usingScreenReader){
-		where.innerHTML += '<button id="srTooltip' + what + '" class="thing noSelect pointer upgradeThing" onclick="tooltip(\'' + what + '\',\'upgrades\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">' + done + '</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
+		where.innerHTML += '<button id="srTooltip' + what + '" class="thing noSelect pointer upgradeThing" onclick="tooltip(\'' + what + '\',\'upgrades\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span>, <span class="thingOwned" id="' + what + 'Owned">' + done + '</span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button><br>';
 	}
 	else{
 		where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'upgrades\',event)" onmouseout="tooltip(\'hide\')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="' + what + '" onclick="buyUpgrade(\'' + what + '\')"><span id="' + what + 'Alert" class="alert badge"></span><span class="thingName">' + what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' + done + '</span></div>';
@@ -4247,7 +4247,7 @@ function drawEquipment(what, elem){
 		numeral = (usingScreenReader) ? prettify(equipment.prestige) : romanNumeral(equipment.prestige);
 	}
 	if (usingScreenReader){
-		elem.innerHTML += '<button class="thing noSelect pointer" onclick="tooltip(\'' + what + '\',\'equipment\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span>, <span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button>';
+		elem.innerHTML += '<button class="thing noSelect pointer" onclick="tooltip(\'' + what + '\',\'equipment\',\'screenRead\')">' + what + ' Info</button><button onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span>, <span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span><span class="cantAffordSR">, Not Affordable</span><span class="affordSR">, Can Buy</span></button><br>';
 		return;
 	}
 	elem.innerHTML += '<div onmouseover="tooltip(\'' + what + '\',\'equipment\',event)" onmouseout="tooltip(\'hide\')" class="noselect pointer thingColorCanNotAfford thing" id="' + what + '" onclick="buyEquipment(\'' + what + '\')"><span class="thingName">' + what + ' <span id="' + what + 'Numeral">' + numeral + '</span></span><br/><span class="thingOwned">Level: <span id="' + what + 'Owned">0</span></span></div>';
