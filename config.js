@@ -1249,7 +1249,7 @@ var toReturn = {
 		},
 		heirloom: {
 			description: "You can spend an extra 10% of your Nu on your Heirlooms, bringing the total to 60%.",
-			name: "Heirnuum",
+			name: "Heirnuum I",
 			tier: 2,
 			purchased: false,
 			icon: "grain"
