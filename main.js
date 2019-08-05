@@ -9540,11 +9540,13 @@ function updateGoodBar() {
 	if (!game.options.menu.progressBars.enabled) return;
 	var barElem = document.getElementById("goodGuyBar");
 	if (game.global.universe == 2){
-		if (game.global.soldierEnergyShieldMax <= 0 || game.global.soldierHealth <= 0){
+		if (game.global.soldierEnergyShieldMax <= 0 || game.global.soldierHealth <= 0 || game.global.soldierEnergyShield <= 0){
 			document.getElementById("energyShield").style.width = "0%";
 		}
-		var es = ((game.global.soldierEnergyShield / game.global.soldierEnergyShieldMax) * 100);
-		document.getElementById("energyShield").style.width = es + "%";
+		else{
+			var es = ((game.global.soldierEnergyShield / game.global.soldierEnergyShieldMax) * 100);
+			document.getElementById("energyShield").style.width = es + "%";
+		}
 	}
     var percent = ((game.global.soldierHealth / game.global.soldierHealthMax) * 100);
     barElem.style.width = percent + "%";
