@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 4.11.3</title>
+	<title>Trimps 5.0</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?18" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?19" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -275,7 +275,7 @@
 					<span class="psText sizeSecRegular pointer noselect" id="gemsPs" style="display: none" onclick="getPsString('gems')">+0/sec</span>
 				</div>
 				<div id="helium" class="playerGather playerGatherSm" style="display: none">
-					<span class="title">Helium</span>
+					<span id="heliumName" class="title">Helium</span>
 					<br/>
 					<span class="ownedArea"><span id="heliumOwned">0</span></span>
 					<br/>
@@ -684,7 +684,7 @@
 										<span id="goodGuyAttack" class='attackColorNormal'></span> DMG <span id="critSpan"></span>
 									</div>
 									<div class="col-xs-4 noPad pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
-										<span id="goodGuyBlock">0</span> BLK
+										<span id="goodGuyBlock">0</span> <span id='goodGuyBlockName'>BLK</span>
 									</div>
 									<div class="col-xs-2 pointer noselect" style="padding-left: 0" id="roboTrimpBtn" onclick="magnetoShriek()">
 										<span id="chainHolder" class="shriekStateCooldown" style='visibility: hidden' onmouseover="tooltip('MagnetoShriek', null, event)" onmouseout="tooltip('hide')"><span id="roboTrimpTurnsLeft"></span> <span class="icomoon icon-chain" style="color: white"></span></span>
@@ -696,6 +696,7 @@
 											<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span>
 										</span>
 									</div>
+									<div class="progress-bar" role="progressbar" id="energyShield">&nbsp;</div>
 								</div>
 							</div>
 							<div class="col-xs-6" id="badGuyCol" style="visibility: hidden">
@@ -857,7 +858,7 @@
 								</div>
 								<div class="col-xs-2 mapConfigContainer lowPad">
 									<div id="advPerfectLocked" style="border: 1px solid white">
-										<div class="advMapsTitle">
+										<div class="advMapsTitle" id='advPerfectLockedText'>
 											Unlock at Z110
 										</div>
 										<span class="icomoon icon-lock3"></span>
@@ -872,7 +873,7 @@
 								</div>
 								<div class="col-xs-3 mapConfigContainer lowPad">
 									<div id="advExtraLevelLocked" style="border: 1px solid white">
-										<div class="advMapsTitle">
+										<div class="advMapsTitle" id='advExtraLockedText'>
 											Unlock at Z210
 										</div>
 										<span class="icomoon icon-lock3"></span>
@@ -1030,6 +1031,7 @@
 	</div>
 
 	<div id="portalWrapper" style="display: none" class="portalMk0">
+		<div id='swapPortalUniverseBtn' onmouseover="tooltip('Change Universe', null, event)" onmouseout="tooltip('hide')" onclick="swapPortalUniverse()">Change Universe</div>
 		<div id='titleRow'>
 			<div id='titleCol1' class='titleCol'>
 				<div>
@@ -1110,18 +1112,18 @@
 			</div>
 			<div id="challengeCol" class="col-xs-5">
 				<div id="viewChallenge" style="display: none">
-				<div style='text-align: center'><span class="thing thingColorSquared pointer" style='width: 50%; display: inline-block;'  onmouseover="tooltip('Challenge2', null, event, true)" onmouseout="tooltip('hide')" id='challengeSquaredViewBtn'>Challenge<sup>2</sup> - <span id='challengeSquaredBonusAmtView'>0</span>% bonus</span></div>
+				<div style='text-align: center'><span class="thing thingColorSquared pointer" style='width: 50%; display: inline-block;'  onmouseover="tooltip('Challenge2', null, event, true)" onmouseout="tooltip('hide')" id='challengeSquaredViewBtn'>Challenge<sup><span id='challengeSquaredName'>2</span></sup> - <span id='challengeSquaredBonusAmtView'>0</span>% bonus</span></div>
 					<span id="viewChallengeText">You do not currently have an active challenge.</span>
 				<br/><br/>
 				<div class="btn btn-warning inPortalBtn" style="display: none" id="cancelChallengeBtn" onclick="confirmAbandonChallenge()">Abandon Challenge</div>
-
+				<span id="extraChallengeStuff"></span>
 				</div>
 				<div id="challenges"  style="display: none">
 					<div id='challengeTitleNoSquared'>
 						<div class="challengeTitle">Challenges</div>
 					</div>
 					<div id='challengeTitleSquared' style='display: none'>
-						<div class="challengeTitle" style='display: inline-block; width: 50%; padding: 0; margin: 0;'>Challenges</div><div style='display: inline-block; width: 50%; padding: 0; margin: 0;'><span class="thing thingColorSquared pointer" style='width: 75%; display: inline-block;' onclick="toggleChallengeSquared()"  onmouseover="tooltip('Challenge2', null, event)" onmouseout="tooltip('hide')">Challenge<sup>2</sup> - <span id='challengeSquaredBonusAmt'>0</span>% bonus</span></div>
+						<div class="challengeTitle" style='display: inline-block; width: 50%; padding: 0; margin: 0;'>Challenges</div><div style='display: inline-block; width: 50%; padding: 0; margin: 0;'><span id='inPortalC2Button' class="thing thingColorSquared pointer" style='width: 75%; display: inline-block;' onclick="toggleChallengeSquared()"  onmouseover="tooltip('Challenge2', null, event)" onmouseout="tooltip('hide')">Challenge<sup><span id='inPortalC2Name'>2</span></sup> - <span id='challengeSquaredBonusAmt'>0</span>% bonus</span></div>
 					</div>
 					
 					<div id="challengeDescription">
@@ -1209,8 +1211,8 @@
 		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><div class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></div><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()">Close</div></div></div>
 		<div id="heirloomHelp" style="display: none">
 			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. Once you have an Heirloom, you can click the icon below to select it.<br/><br/>
-			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. You can also click on the Heirloom's name on this menu to rename it.<br/><br/>
-			You can only carry a few Heirlooms (other than the two you have equipped) back through the Portal with you when you use it. <b>Any Heirlooms in the "Temporary" section will be recycled for Nullifium on portal.</b>
+			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b style='color: red'>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b style='color: red'>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. You can also click on the Heirloom's name on this menu to rename it. <b style='color: red'>You can upgrade any Staff and Shield to HALF the value of your total earned Nu. Nu is not spent, but dictates how powerful your Heirlooms can be!</b><br/><br/>
+			You can only carry a few Heirlooms (other than the two you have equipped) back through the Portal with you when you use it. <b style='color: red'>Any Heirlooms in the "Temporary" section will be recycled for Nullifium on portal.</b>
 		</div>
 		<div class="row">
 			<div class="col-xs-6">
@@ -1330,10 +1332,10 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?25"></script>
-	<script type="text/javascript" src="updates.js?25"></script>
-	<script type="text/javascript" src="playerSpire.js?25"></script>
-	<script type="text/javascript" src="main.js?25"></script>
+	<script type="text/javascript" src="config.js?26"></script>
+	<script type="text/javascript" src="updates.js?26"></script>
+	<script type="text/javascript" src="playerSpire.js?26"></script>
+	<script type="text/javascript" src="main.js?26"></script>
 	
 </body>
 

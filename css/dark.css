@@ -1118,3 +1118,7 @@ color:#8F8F00
 #playerSpireTab a{
 	background-color: #5a4603;
 }
+
+#energyShield {
+    background: linear-gradient(0deg, rgb(84, 41, 202) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 70%, rgb(84, 41, 202) 100%);
+}

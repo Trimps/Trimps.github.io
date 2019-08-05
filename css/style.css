@@ -700,7 +700,7 @@ body {
 	font-size: 0.9vw;
 }
 
-#viewChallengeText {
+#viewChallengeText, #extraChallengeStuff {
 	font-size: 1.3vw;
 	color: white;
 }
@@ -708,6 +708,11 @@ body {
 #viewChallengeText ul{
 	overflow-y: auto;
 	max-height: 22vw;
+}
+
+#viewChallenge{
+	max-height: 60vh;
+	overflow-y: auto;
 }
 
 .nextChallenge {
@@ -2141,8 +2146,6 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	}
 }
 
-
-
 .heirloomRare8 .heirloomMod:hover, .heirloomRare8.rarityBdBox{
 	border: 0.2vw solid #0e5a07;
 }
@@ -2150,6 +2153,82 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 .heirloomRare8 .heirloomMod{
 	background-color: initial;
 }
+
+.heirloomRare9{
+	color: #5f39e6;
+	text-shadow: 
+			1px 1px 2px rgba(11, 2, 138, 0.6), 
+			0 0 25px rgba(3, 110, 17, 0.6), 
+			0 0 5px rgba(38, 28, 128, 0.6);
+}
+
+.rarityBdBox.heirloomRare9{
+	color: #15025a;
+	font-weight: bold;
+	text-shadow: 
+			1px 1px 8px #fff, 
+			0 0 50px #0bff02, 
+			0 0 25px #053d03, 
+			-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);
+}
+
+.heirloomRare9.heirloomThing, .heirloomRare9 div .selectedHeirloomIcon{
+	color: #15025a;
+	animation: heirRare9Animated 7s infinite;
+}
+
+.specDesc9{
+	color: #5f39e6;
+}
+
+.heirloomRare9 .heirloomMod:hover, .heirloomRare9.rarityBdBox{
+	border: 0.2vw solid #15025a;
+}
+
+.heirloomRare9 .heirloomMod{
+	background-color: initial;
+}
+
+@keyframes heirRare9Animated{
+	0% {
+		text-shadow: 
+			1px 1px 2px #837601, 
+			0 0 25px #3614b4, 
+			0 0 5px #4d4607, 
+			-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);	
+			  animation-timing-function: ease-in;
+	}
+	50% {
+		text-shadow: 
+			1px 1px 8px #033f01, 
+			0 0 50px #0bff02, 
+			0 0 25px #053d03, 
+			-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);	
+			  animation-timing-function: ease-out;
+	}
+	100% {
+	text-shadow: 
+			1px 1px 2px #837601, 
+			0 0 25px #3614b4, 
+			0 0 5px #4d4607, 
+			-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
+			  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+			 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
+			  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);	
+	}
+}
+
+
+
 
 .upgradeCostTextMax{
 	font-size: 0.7em;
@@ -2275,8 +2354,6 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 #extraHeirloomsHere{
-	max-height: 17vw;
-	overflow-y: auto;
 	padding: 0.5vw;
 	
 }
@@ -2392,12 +2469,14 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	background-color: #111;
 	border: 0.3vw solid #555;
 	margin-bottom: 1vw;
+	overflow-y: auto;
+	max-height: 20vw;
 }
 
 .selectedHeirloomItem{
-	font-size: 2vw;
+	font-size: 1.85vw;
 	border: 0.3vw solid #555;
-	padding: 0.5vw;
+	padding: 0.4vw;
 	padding-left: 2vw;
 	text-align: left;
 	background-color: #111111;
@@ -2766,6 +2845,47 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	border-radius: 25px;
 }
 
+.achieveTier10 {
+	border-image: linear-gradient(to top, #bd6543 0%,#661310 30%,#a18900 50%,#661310 80%,#bd6543 100%);
+	border-image-slice: 3;
+}
+
+.achievementPopupIcon.achieveTier10, #achievementHoverTitle.achieveTier10, #achievementPopupTitle.achieveTier10 {
+	background-image: radial-gradient(ellipse at center, #bd6543 0%,#661310 30%,#665700 50%,#661310 80%,#bd6543 100%);
+	color: black;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	border-radius: 25px;
+}
+
+.achieveTier11 {
+	border-image: linear-gradient(to top, #551555 0%,#35a5a5 30%,#1900ff 50%,#35a5a5 80%,#551555 100%);
+	border-image-slice: 3;
+}
+
+.achievementPopupIcon.achieveTier11, #achievementHoverTitle.achieveTier11, #achievementPopupTitle.achieveTier11 {
+	background-image: radial-gradient(ellipse at center, #551555 0%,#1b5353 30%,#1900ff 50%,#1b5353 80%,#551555 100%);
+	color: black;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	border-radius: 25px;
+}
+
+.achieveTier12 {
+	border-image: linear-gradient(to top, #620f0f 0%,#d58565 30%,#951545 50%,#d58565 80%,#620f0f 100%);
+	border-image-slice: 3;
+}
+
+.achievementPopupIcon.achieveTier12, #achievementHoverTitle.achieveTier12, #achievementPopupTitle.achieveTier12 {
+	background-image: radial-gradient(ellipse at center, #620f0f 0%,#d58565 30%,#951545 50%,#d58565 80%,#620f0f 100%);
+	color: black;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	border-radius: 25px;
+}
 
 #statsTitle{
 	font-size: 3vw;
@@ -3811,6 +3931,7 @@ background-color: rgba(255,255,255,0.25);
 	color: white;
 	font-size: 1.1vw;
 	width: 19.4%;
+	height: 1.8vw;
 }
 
 .challengeThing:hover{
@@ -3944,8 +4065,16 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new {
-	color: white;
-	background: linear-gradient(to right, rgba(50,150,50,1) 0%, rgba(60,75,130,1) 30%, rgba(50,50,200,1) 100%);
+	color: #5f39e6;
+	text-shadow: 
+	1px 1px 8px #033f01, 
+	0 0 20px #0e9509, 
+	0 0 25px #053d03, 
+	-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
+	  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+	 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
+	  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);
+	background-color: black;
 	font-weight: bold;
 }
 
@@ -3956,8 +4085,59 @@ background-color: rgba(255,255,255,0.25);
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
 	color: white;
-	background: linear-gradient(to right, rgba(50,50,200,1) 0%, rgba(50,150,50,1) 30%, rgba(60,75,130,1) 100%);;
+	background-color: black;
 	font-weight: bold;
+}
+
+.btn-new:hover {
+	animation: newBtnAnimated 1s infinite;
+	display: inline-block;
+}
+
+@keyframes newBtnAnimated{
+	0% {
+		text-shadow: 
+		1px 1px 8px #041604, 
+		2px 2px 20px #d404c3, 
+		0 0 25px #3d0c03, 
+		-0.17vw -0.17vw 0.17vw rgba(14, 1, 71, 0.8),  
+		  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+		 -0.17vw 0.17vw 0.17vw rgba(11, 102, 129, 0.58),
+		  0.17vw 0.17vw 0.3vw rgba(76, 44, 163, 0.72);	
+			  animation-timing-function: ease-in;
+	}
+	33% {
+		text-shadow: 
+		1px 1px 8px #033f01, 
+		0 0 20px #0bff02, 
+		0 0 25px #053d03, 
+		-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
+		  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+		 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
+		  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);
+			  animation-timing-function: ease-out;
+	}
+	66% {
+		text-shadow: 
+		1px 1px 8px #033f01, 
+		0 0 20px #ff0000, 
+		0 0 25px #053d03, 
+		-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
+		  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+		 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
+		  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);
+			  animation-timing-function: ease-out;
+	}
+	100% {
+		text-shadow: 
+		1px 1px 8px #041604, 
+		2px 2px 20px #bb02ac, 
+		0 0 25px #3d0c03, 
+		-0.17vw -0.17vw 0.17vw rgba(14, 1, 71, 0.8),  
+		  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
+		 -0.17vw 0.17vw 0.17vw rgba(11, 102, 129, 0.58),
+		  0.17vw 0.17vw 0.3vw rgba(76, 44, 163, 0.72);
+	}
 }
 
 .btn-new:active,
@@ -3965,6 +4145,7 @@ background-color: rgba(255,255,255,0.25);
 .open > .dropdown-toggle.btn-new {
   background-image: none;
 }
+
 
 #flagMustRestart{
 	color: maroon;
@@ -4031,7 +4212,17 @@ input::-webkit-inner-spin-button {
 	color: white !important;
 }
 
-.thingColorSquared.cBorderOn{
+.thingColorInfinite {
+	background-color: #003b99 !important;
+	color: white !important;
+}
+
+.thingColorInfinite:hover {
+	background-color: #012052 !important;
+	color: white !important;
+}
+
+.thingColorSquared.cBorderOn, .thingColorInfinite.cBorderOn{
 	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #bfdfff;
     -moz-box-shadow:inset 0px 0px 0px 0.2vw #bfdfff;
     box-shadow:inset 0px 0px 0px 0.2vw #bfdfff;
@@ -4458,6 +4649,12 @@ sup{
 
 .statContainer{
 	margin-bottom: 1vh;
+}
+
+#statsRow{
+	max-height: calc(100vh - 18vw);
+	margin-bottom: 1vw;
+	overflow-y: auto;
 }
 
 .spirePoem {
@@ -5145,4 +5342,165 @@ sup{
 
 .screenReaderPerk{
 	font-size: 0.5em;
+}
+
+#swapPortalUniverseBtn{
+	position: absolute;
+	top: 1vw;
+	left: 1vw;
+	padding: 1vw;
+	text-align: center;
+	background-color: black;
+	color: white;
+	font-weight: bold;
+	font-size: 1vw;
+	border: 1px solid white;
+	cursor: pointer;
+}
+
+#swapPortalUniverseBtn:hover{
+	background-color: rgb(53, 52, 52);
+}
+
+#energyShield{
+	background: linear-gradient(0deg, rgb(33, 0, 124) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 70%, rgb(33, 0, 124) 100%);
+	position: absolute;
+	width: 0%;
+	height: 100%;
+	border-radius: 2%;
+	top: 0;
+	left: 0;
+	pointer-events:none;
+}
+
+.energyShieldIcon{
+	position: absolute;
+	top: 12%;
+	left: -14%;
+}
+
+#upgradesContainer{
+	min-height: calc(4vw + 1vh + 5px);
+}
+
+#gammaSpan .badge{
+	color: #7e65da;
+	background-color: black;
+}
+
+.achieveColorRed{
+	background-color: #b32d00;
+	background: repeating-linear-gradient(
+		45deg,
+		#b32d00,
+		#b32d00 10px,
+		#8f2401 10px,
+		#8f2401 20px
+	);
+}
+
+.achieveColorYellow{
+	background-color: #C5C515;
+	background: repeating-linear-gradient(
+				45deg,
+				#C5C515,
+				#C5C515 10px,
+				#9b9b11 10px,
+				#9b9b11 20px
+	);
+}
+
+.achieveColorGreen{
+	background-color: #159515;
+}
+
+.achieveColorGrey{
+	background-color: grey;
+}
+
+.heirloomSpent{
+	font-size: 0.8em;
+	text-decoration: italic;
+}
+
+#challengeTrappapalooza .thingName{
+	font-size: 0.9vw;
+}
+
+.questMessage{
+	font-size: 1.1vw;
+	padding: 2%;
+	background-color: black;
+}
+
+.questNew{
+	color: #4b39e6;
+}
+
+.questSuccess{
+	color: #0c8d2c;
+}
+
+.questMessage .icomoon{
+	color: yellow;
+}
+
+.questFail .icomoon{
+	color: grey;
+}
+
+.equalityColorOn{
+	background-color: #449d44;
+}
+
+.equalityColorOff{
+	background-color: #d43f3a;
+}
+
+.toggleAllBtn{
+	padding: 2%;
+	font-weight: bold;
+	font-size: 1.2vw;
+}
+
+#autoEquipMiscTable{
+	width: 100%;
+}
+
+#autoEquipMiscTable tbody tr td{
+	width: 18%;
+	text-align: center;
+	padding: 0.5%;
+}
+
+#autoEquipMiscTable tbody tr td:nth-child(3){
+	width: 23%;
+}
+
+#autoEquipMiscTable tbody tr td .toggleAllBtn{
+	font-size: 0.9vw;
+	padding: 0.5vw 0;
+	width: 100%;
+}
+
+.Obsidian.cellColorNotBeaten{
+	background-color: black !important;
+	color: white !important;
+	border-color: #8c0000 !important;
+}
+
+.obsidianMessage{
+	padding: 1vw;
+	font-size: 1.1vw;
+	border: 0.5vw solid #8c0000;
+	background-color: black;
+	color: white;
+}
+
+.fullDarkEssence{
+	display: block;
+	color: #00FFFF;
+	background-color: #000;
+	padding: 2%;
+	font-size: 1.5vw;
 }

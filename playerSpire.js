@@ -1840,25 +1840,25 @@ var playerSpireTraps = {
         icon: "funnel",
         upgrades: [
             {   //level 2
-                description: "Each Condenser Tower grants an additional 5% Helium earned from all sources.", //500 
+                get description(){ return "Each Condenser Tower grants an additional 5% " + heliumOrRadon() + " earned from all sources.";}, //500 
                 unlockAt: -1,
                 cost: 2e6
             },
             {
                 //level 3
-                description: "Each Condenser Tower grants an additional 5% Helium earned from all sources.", //5000
+                get description(){ return "Each Condenser Tower grants an additional 5% " + heliumOrRadon() + " earned from all sources.";}, //5000
                 unlockAt: -1,
                 cost: 2e10
             },
             {
                 //level 4
-                description: "Each Condenser Tower grants an additional 5% Helium earned from all sources.", //50000
+                get description(){ return "Each Condenser Tower grants an additional 5% " + heliumOrRadon() + " earned from all sources.";}, //50000
                 unlockAt: -1,
                 cost: 2e14
             },
             {
                 //level 5
-                description: "Each Condenser Tower grants an additional 5% Helium earned from all sources.", //500000
+                get description(){ return "Each Condenser Tower grants an additional 5% " + heliumOrRadon() + " earned from all sources.";}, //500000
                 unlockAt: -1,
                 cost: 2e18
             },
@@ -1874,7 +1874,7 @@ var playerSpireTraps = {
         },
         noDirectDamage: true,
         get description(){
-            return "When stepped on, increases the target's Toxicity by  " + prettify(calcHeirloomBonus("Core", "condenserEffect", 25)) + "%. In addition, each Condenser Tower increases all Helium found by " + prettify(this.getWorldBonus(true)) + "% (additive with other Condenser Towers).<br/><br/>Your Condenser Towers are currently granting a total of <b>" + prettify(this.getWorldBonus()) + "%</b> additional Helium from all sources.<br/><br/>(Hotkey 6)";
+            return "When stepped on, increases the target's Toxicity by  " + prettify(calcHeirloomBonus("Core", "condenserEffect", 25)) + "%. In addition, each Condenser Tower increases all " + heliumOrRadon() + " found by " + prettify(this.getWorldBonus(true)) + "% (additive with other Condenser Towers).<br/><br/>Your Condenser Towers are currently granting a total of <b>" + prettify(this.getWorldBonus()) + "%</b> additional " + heliumOrRadon() + " from all sources.<br/><br/>(Hotkey 6)";
         },
         extraEffect: function(enemy, cell){
             var effect = (enemy && enemy.shockTurns && enemy.shockTurns > 0) ? playerSpireTraps.Lightning.shockedEffect() : 1;
@@ -1893,25 +1893,25 @@ var playerSpireTraps = {
         icon: "book2",
         upgrades: [
             {   //level 2
-                description: "Each Knowledge Tower grants an additional 7.5% Fluffy Exp earned from all sources.", //500 
+                get description(){ return "Each Knowledge Tower grants an additional 7.5% " + Fluffy.getName() + " Exp earned from all sources.";}, //500 
                 unlockAt: -1,
                 cost: 3e6
             },
             {
                 //level 3
-                description: "Each Knowledge Tower grants an additional 7.5% Fluffy Exp  earned from all sources.", //5000
+                get description(){ return "Each Knowledge Tower grants an additional 7.5% " + Fluffy.getName() + " Exp  earned from all sources.";}, //5000
                 unlockAt: -1,
                 cost: 3e10
             },
             {
                 //level 4
-                description: "Each Knowledge Tower grants an additional 7.5% Fluffy Exp earned from all sources.", //50000
+                get description(){ return "Each Knowledge Tower grants an additional 7.5% " + Fluffy.getName() + " Exp earned from all sources.";}, //50000
                 unlockAt: -1,
                 cost: 3e14
             },
             {
                 //level 4
-                description: "Each Knowledge Tower grants an additional 7.5% Fluffy Exp earned from all sources.", //50000
+                get description(){ return "Each Knowledge Tower grants an additional 7.5% " + Fluffy.getName() + " Exp earned from all sources.";}, //50000
                 unlockAt: -1,
                 cost: 3e18
             }
@@ -1927,7 +1927,7 @@ var playerSpireTraps = {
         },
         noDirectDamage: true,
         get description(){
-            return "When stepped on by a Chilled enemy, Chilled becomes Frozen, slowing the target to 33% speed for 5 moves. In addition, each Knowledge Tower increases Fluffy's Experience gain by " + prettify(this.getWorldBonus(true)) + "% (additive with other Knowledge Towers). Note that Knowledge Towers are coated with antifreeze, preventing chill effects from working until the enemy steps off of this Tower.<br/><br/>Your Knowledge Towers are currently granting a total of <b>" + prettify(this.getWorldBonus()) + "%</b> additional Fluffy Exp.<br/><br/>(Hotkey 7)";
+            return "When stepped on by a Chilled enemy, Chilled becomes Frozen, slowing the target to 33% speed for 5 moves. In addition, each Knowledge Tower increases " + Fluffy.getName() + "'s Experience gain by " + prettify(this.getWorldBonus(true)) + "% (additive with other Knowledge Towers). Note that Knowledge Towers are coated with antifreeze, preventing chill effects from working until the enemy steps off of this Tower.<br/><br/>Your Knowledge Towers are currently granting a total of <b>" + prettify(this.getWorldBonus()) + "%</b> additional " + Fluffy.getName() + " Exp.<br/><br/>(Hotkey 7)";
         },
         totalDamage: function (enemy){
             var level = this.level;
