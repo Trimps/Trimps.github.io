@@ -6078,6 +6078,7 @@ var toReturn = {
 				if (game.global.challengeActive == "Downsize"){
 					amt = game.global.totalGifts + game.unlocks.impCount.TauntimpAdded + 10;
 					amt += countTotalHousingBuildings();
+					amt *= 0.003;
 				}
 				game.unlocks.impCount.Tauntimp++;
 				game.unlocks.impCount.TauntimpAdded += amt;
