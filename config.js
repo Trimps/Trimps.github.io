@@ -2951,7 +2951,7 @@ var toReturn = {
 			onComplete: function (){
 				var buildings = game.buildings;
 				var hutCount = buildings.Hut.owned;
-				if (buildings.House.owned == hutCount && buildings.Mansion.owned == hutCount && buildings.Hotel.owned == hutCount)
+				if (buildings.House.owned == hutCount && buildings.Mansion.owned == hutCount && buildings.Hotel.owned == hutCount && buildings.Resort.owned == hutCount)
 					giveSingleAchieve("Perfectly Balanced");
 				game.global.challengeActive = "";
 				game.challenges.Downsize.completed = true;
