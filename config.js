@@ -6075,6 +6075,10 @@ var toReturn = {
 			dropDesc: "Grants an extra 0.3% of current Trimps",
 			loot: function () {
 				var amt = Math.ceil(game.resources.trimps.max * 0.003);
+				if (game.global.challengeActive == "Downsize"){
+					amt = game.global.totalGifts + game.unlocks.impCount.TauntimpAdded + 10;
+					amt += countTotalHousingBuildings();
+				}
 				game.unlocks.impCount.Tauntimp++;
 				game.unlocks.impCount.TauntimpAdded += amt;
 				amt = (game.global.challengeActive == "Trapper" || game.global.challengeActive == "Trappapalooza") ? addMaxHousing(amt, false) : addMaxHousing(amt, true);
