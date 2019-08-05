@@ -809,6 +809,7 @@ function load(saveString, autoLoad, fromPf) {
 			game.global.perkPresetU1.perkPreset2 = savegame.global.perkPreset2;
 			game.global.perkPresetU1.perkPreset3 = savegame.global.perkPreset3;
 		}
+		game.portal.Classy.max = 75;
 		//U2 Message for people above E8L10
 		if (game.global.fluffyPrestige > 8){
 			cancelTooltip();
@@ -822,6 +823,7 @@ function load(saveString, autoLoad, fromPf) {
 
 	//End test server only
 	//Temporary until next patch
+	game.portal.Classy.max = 75;
 	//End Temporary
 	Fluffy.handleBox();
 	if (!getCurrentMapObject()) {
