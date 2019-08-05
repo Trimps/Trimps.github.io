@@ -1670,7 +1670,7 @@ var toReturn = {
 			},
 			get name(){
 				var name = Fluffy.getName();
-				return name.substring(0, name.length - 1) + "ocus";
+				return name.substring(0, name.length - 1) + "focus";
 			},
 			tier: 9,
 			purchased: false,
@@ -1682,7 +1682,7 @@ var toReturn = {
 			},
 			get name(){
 				var name = Fluffy.getName();
-				return name.substring(0, name.length - 1) + "inity";
+				return name.substring(0, name.length - 1) + "finity";
 			},
 			tier: 9,
 			purchased: false,
