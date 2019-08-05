@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.0.0',
+		stringVersion: '5.0.1',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -2941,17 +2941,17 @@ var toReturn = {
 			lastHitLucky: false
 		},
 		Downsize: {
-			description: "Tweak the portal to bring you to an alternate reality, where Trimps are incredibly antisocial and refuse to share a house with any other Trimps. Each housing building will only provide 1 Trimp, but the morale boost and smaller society causes all Trimps to gather 5x as many resources per second. Clearing <b>Zone 20</b> will complete this Challenge!",
+			description: "Tweak the portal to bring you to an alternate reality, where Trimps are incredibly antisocial and refuse to share a house with any other Trimps. Each housing building will only provide 1 Trimp, but the morale boost and smaller society causes all Trimps to gather 5x as many resources per second. Clearing <b>Prismatic Palace (Zone 20)</b> will complete this Challenge!",
 			squaredDescription: "Tweak the portal to bring you to an alternate reality, where Trimps are incredibly antisocial and refuse to share a house with any other Trimps. Each housing building will only provide 1 Trimp, but the morale boost and smaller society causes all Trimps to gather 5x as many resources per second.",
 			completed: false,
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 19);
 			},
-			completeAfterZone: 20,
+			completeAfterMap: "Prismatic Palace",
 			onComplete: function (){
 				var buildings = game.buildings;
 				var hutCount = buildings.Hut.owned;
-				if (buildings.House.owned == hutCount && buildings.Mansion.owned == hutCount && buildings.Hotel.owned == hutCount && buildings.Resort.owned == hutCount)
+				if (buildings.House.owned == hutCount && buildings.Mansion.owned == hutCount && buildings.Hotel.owned == hutCount)
 					giveSingleAchieve("Perfectly Balanced");
 				game.global.challengeActive = "";
 				game.challenges.Downsize.completed = true;
