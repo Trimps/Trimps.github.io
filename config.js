@@ -3847,6 +3847,9 @@ var toReturn = {
 			title: "Highest Zone U2",
 			valueTotal: function () {
 				return game.global.highestRadonLevelCleared + 1;
+			},
+			display: function(){
+				return (game.global.highestRadonLevelCleared > 0);
 			}
 		},
 		tdKills: {
@@ -4752,6 +4755,9 @@ var toReturn = {
 			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare. Yet I copy/pasted it again for Universe 2 and probably will do the same for U3. Oh well.
 			finished: [false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
+			display: function(){
+				return (Fluffy.checkU2Allowed());
+			},
 			get descriptions () {
 				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Complete Revenge with exactly 19 stacks", "Complete Quest after completing all 80 quests"];
 			},
