@@ -996,7 +996,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 		}
-		costText += "<a id='downloadLink' target='_blank' download='Trimps Save P" + game.global.totalPortals + " Z" + game.global.world + ".txt', href=";
+		var saveName = 'Trimps Save P' + game.global.totalPortals;
+		if (game.global.universe == 2 || game.global.totalRadPortals > 0){
+			saveName += " " + game.global.totalRadPortals + " U" + game.global.universe;
+		}
+		saveName += " Z" + game.global.world;
+		costText += "<a id='downloadLink' target='_blank' download='" + saveName + ".txt', href=";
 		if (Blob !== null) {
 			var blob = new Blob([saveText], {type: 'text/plain'});
 			var uri = URL.createObjectURL(blob);
@@ -3311,8 +3316,11 @@ function resetGame(keepPortal) {
 		}
 		bestHelium = (game.global.universe == 1 && game.global.tempHighHelium > game.global.bestHelium) ? game.global.tempHighHelium : game.global.bestHelium;
 		bestRadon = (game.global.universe == 2 && game.global.tempHighRadon > game.global.bestRadon) ? game.global.tempHighRadon : game.global.bestRadon;
-		if (game.stats.bestHeliumHour.valueTotal < game.stats.heliumHour.value(true)){
+		if (game.global.universe == 1 && game.stats.bestHeliumHour.valueTotal < game.stats.heliumHour.value(true)){
 			game.stats.bestHeliumHour.valueTotal = game.stats.heliumHour.value(true);
+		}
+		else if (game.global.universe == 2 && game.stats.bestRadonHour.valueTotal < game.stats.heliumHour.value(true)){
+			game.stats.bestRadonHour.valueTotal = game.stats.heliumHour.value(true);
 		}
 		if (Fluffy.getBestExpStat().value > 0 && Fluffy.getBestExpHourStat().valueTotal < game.stats.fluffyExpHour.value()){
 			Fluffy.getBestExpHourStat().valueTotal = game.stats.fluffyExpHour.value();

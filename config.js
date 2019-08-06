@@ -3583,6 +3583,22 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		},
+		totalRadon: {
+			title: "Total Radon Earned",
+			display: function () {
+				return (game.global.totalRadonEarned > 0);
+			},
+			valueTotal: function () {
+				return game.global.totalRadonEarned;
+			}
+		},
+		bestRadonHour: {
+			title: "Best Rn/Hour all Runs",
+			display: function () {
+				return (this.valueTotal > 0);
+			},
+			valueTotal: 0
+		},
 		dailyBonusRadon: {
 			title: "Daily Challenge Radon",
 			display: function () {
