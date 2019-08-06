@@ -5046,7 +5046,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 					}
 					if (one && achievement.filters[x] == -1 && !achievement.finished[x]) continue;
 					htmlString += "<td>";
-					if ((!one && achievement.finished == x) || (one && !achievement.finished[x] && achievement.highestLevel() >= achievement.filters[x])) {
+					if ((!one && achievement.finished == x) || (one && !achievement.finished[x] && achievement.filterLevel() >= achievement.filters[x])) {
 						if (item == "humaneRun" || item == "mapless")
 						htmlString += (achievement.evaluate() == 0) ? "Not complete, failed for this run." : "Not complete";
 						else
