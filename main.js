@@ -825,6 +825,7 @@ function load(saveString, autoLoad, fromPf) {
 	//Temporary until next patch
 	game.portal.Classy.max = 75;
 	//End Temporary
+	portalUniverse = game.global.universe;
 	Fluffy.handleBox();
 	if (!getCurrentMapObject()) {
 		game.global.currentMapId = "";
