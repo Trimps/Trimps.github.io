@@ -339,8 +339,8 @@ function load(saveString, autoLoad, fromPf) {
 				if (game.options.menu[itemO]) game.options.menu[itemO].enabled = savegame.options.menu[itemO].enabled;
 				if (itemO == "mapAtZone"){
 					game.options.menu.mapAtZone.setZone = savegame.options.menu.mapAtZone.setZone;
-					if (savegame.options.menu.mapAtZone.setZone2)
-						game.options.menu.mapAtZone.setZone2 = savegame.options.menu.mapAtZone.setZone2;
+					if (savegame.options.menu.mapAtZone.setZoneU2)
+						game.options.menu.mapAtZone.setZoneU2 = savegame.options.menu.mapAtZone.setZoneU2;
 				}
 			}
 			if (typeof savegame.options.menu.GeneticistassistTarget !== 'undefined' && savegame.options.menu.GeneticistassistTarget.disableOnUnlock) game.options.menu.GeneticistassistTarget.disableOnUnlock = true;
@@ -2804,6 +2804,9 @@ function activatePortal(){
 	}
 	if (game.global.challengeActive == "Daily"){
 		abandonDaily();
+	}
+	if (game.global.challengeActive == "Bublé"){
+		game.challenges.Bublé.abandon();
 	}
 	if (game.global.runningChallengeSquared && game.global.challengeActive){
 		if (game.global.world > game.c2[game.global.challengeActive])
@@ -8795,10 +8798,6 @@ function runMap() {
 		}
 	}
 	document.getElementById('togglemapAtZone2').style.display = (game.global.canMapAtZone) ? "block" : "none";
-	if (!game.global.mapHealthActive && game.talents.mapHealth.purchased && game.global.soldierHealth > 0 && game.global.difs.health < 0){
-		game.global.difs.health += (game.global.health * 1.5);
-		game.global.mapHealthActive = true;
-	}
 }
 
 function getHousingMultiplier(){
@@ -9377,9 +9376,10 @@ function startFight() {
 		if (game.global.challengeActive == "Revenge") game.global.soldierHealthMax *= game.challenges.Revenge.getMult();
 		if (game.global.challengeActive == "Duel" && game.challenges.Duel.trimpStacks < 20) game.global.soldierHealthMax *= game.challenges.Duel.healthMult;	
 		if (game.talents.voidPower.purchased && game.global.voidBuff){
-			var vpAmt = (game.talents.voidPower2.purchased) ? ((game.talents.voidPower3.purchased) ? 65 : 35) : 15;
-			game.global.soldierHealthMax *= ((vpAmt / 100) + 1);
+			game.global.soldierHealthMax *= ((game.talents.voidPower.getTotalVP() / 100) + 1);
+			game.global.voidPowerActive = true;
 		}
+		else game.global.voidPowerActive = false;
 		if (game.global.challengeActive == "Wither"){
 			game.global.soldierHealthMax *= game.challenges.Wither.getTrimpHealthMult();
 		}
@@ -9416,6 +9416,28 @@ function startFight() {
 				game.global.soldierCurrentBlock *= newTrimps;
 				game.resources.trimps.soldiers = currentSend;
 				game.global.maxSoldiersAtStart = game.resources.trimps.maxSoldiers;
+			}
+		}
+		//Check map health differences
+		if (game.talents.mapHealth.purchased){
+			if (game.global.mapHealthActive && !map){
+				game.global.soldierHealthMax /= 2;
+				if (game.global.soldierHealth > game.global.soldierHealthmax) game.global.soldierHealth = game.global.soldierHealthMax;
+				game.global.mapHealthActive = false;
+			}
+			else if (!game.global.mapHealthActive && map){
+				game.global.soldierHealthMax *= 2;
+			}
+		}
+		if (game.talents.voidPower.purchased){
+			var mod = 1 + (game.talents.voidPower.getTotalVP() / 100);
+			if (game.global.voidPowerActive && (!map || map.location != "Void")){
+				game.global.soldierHealthMax /= mod;
+				if (game.global.soldierHealth > game.global.soldierHealthmax) game.global.soldierHealth = game.global.soldierHealthMax;
+				game.global.voidPowerActive = false;
+			}
+			else if (!game.global.voidPowerActive && map && map.location == "Void"){
+				game.global.soldierHealthMax *= mod;
 			}
 		}
 		//Check differences in equipment, apply perks, bonuses, and formation
@@ -9642,8 +9664,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell, noF
 			number *= game.goldenUpgrades.Battle.currentBonus + 1;
 		}
 		if (game.talents.voidPower.purchased && game.global.voidBuff){
-			var vpAmt = (game.talents.voidPower2.purchased) ? ((game.talents.voidPower3.purchased) ? 65 : 35) : 15;
-			number *= ((vpAmt / 100) + 1);
+			number *= ((game.talents.voidPower.getTotalVP() / 100) + 1);
 		}
 		if (game.global.totalSquaredReward > 0){
 			number *= ((game.global.totalSquaredReward / 100) + 1)
@@ -12340,10 +12361,6 @@ function fight(makeUp) {
 				}
 				else if (isVoid && game.global.preMapsActive && game.global.totalVoidMaps > 0) {
 					toggleVoidMaps();
-				}
-				if (game.global.mapHealthActive && game.talents.mapHealth.purchased){
-					game.global.difs.health -= (game.global.health * 1.5);
-					game.global.mapHealthActive = false;
 				}
 				return;
 			}

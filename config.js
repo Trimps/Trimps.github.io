@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.0.1',
+		stringVersion: '5.0.2',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -253,6 +253,7 @@ var toReturn = {
 		hemmTimer: 150,
 		armyAttackCount: 0,
 		mapHealthActive: false,
+		voidPowerActive: false,
 		mapPresets: {
 			p1: {
 				loot: 0,
@@ -1238,7 +1239,10 @@ var toReturn = {
 			name: "Void Power I",
 			tier: 2,
 			purchased: false,
-			icon: "*heart5"
+			icon: "*heart5",
+			getTotalVP: function(){
+				return (game.talents.voidPower2.purchased) ? ((game.talents.voidPower3.purchased) ? 65 : 35) : 15;
+			}
 		},
 		pierce: {
 			description: "Reduce the amount of enemy damage that can pierce block by 25%.",
