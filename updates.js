@@ -3233,6 +3233,7 @@ function resetGame(keepPortal) {
 	var autoUpgrades;
 	var heirloomBoneSeed;
 	var voidMaxLevel;
+	var voidMaxLevel2;
 	var autoUpgradesAvailable;
 	var rememberInfo;
 	var playFabLoginType;
@@ -3369,6 +3370,19 @@ function resetGame(keepPortal) {
 		heirloomBoneSeed = game.global.heirloomBoneSeed;
 		heirloomSeed = game.global.heirloomSeed;
 		voidMaxLevel = game.global.voidMaxLevel;
+		voidMaxLevel2 = game.global.voidMaxLevel2;
+		if (game.global.universe == 2){
+			if (lastRadonPortal < voidMaxLevel2) {
+				voidMaxLevel2 = Math.floor(voidMaxLevel2 * 0.95);
+				if (voidMaxLevel2 < lastRadonPortal) voidMaxLevel2 = lastRadonPortal;
+			}
+		}
+		else {
+			if (lastPortal < voidMaxLevel) {
+				voidMaxLevel = Math.floor(voidMaxLevel * 0.95);
+				if (voidMaxLevel < lastPortal) voidMaxLevel = lastPortal;
+			}
+		}
 		playFabLoginType = game.global.playFabLoginType;
 		rememberInfo = game.global.rememberInfo;
 		GeneticistassistSetting = game.global.GeneticistassistSetting;
@@ -3552,11 +3566,8 @@ function resetGame(keepPortal) {
 		if (game.global.totalPortals == 5) message("Heavy use of the portal has created a chance for the Void to seep into your world. Be alert.", "Story", null, "voidMessage");
 		if (game.global.totalPortals >= 5) document.getElementById("heirloomBtnContainer").style.display = "block";
 		recalculateHeirloomBonuses();
-		if (lastPortal < voidMaxLevel) {
-			voidMaxLevel = Math.floor(voidMaxLevel * 0.95);
-			if (voidMaxLevel < lastPortal) voidMaxLevel = lastPortal;
-		}
 		game.global.voidMaxLevel = voidMaxLevel;
+		game.global.voidMaxLevel2 = voidMaxLevel2;
 		for (var cItem in c2s){
 			game.c2[cItem] = c2s[cItem];
 		}

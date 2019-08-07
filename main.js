@@ -817,6 +817,12 @@ function load(saveString, autoLoad, fromPf) {
 			noOfflineTooltip = true;
 		}
 	}
+	if (compareVersion([5,0,3], oldStringVersion)){
+		if (game.global.highestRadonLevelCleared > 0){
+			game.global.voidMaxLevel2 = game.global.highestRadonLevelCleared;
+			game.global.voidMaxLevel = game.global.lastPortal;
+		}
+	}
 
 	//End compatibility
 	//Test server only
@@ -1804,6 +1810,18 @@ function getHighestLevelCleared(usePortalUniverse, obsidianLimit){
 	return level;
 }
 
+function getVoidMaxLevel(){
+	var universe = game.global.universe;
+	if (universe == 2) return game.global.voidMaxLevel2;
+	else return game.global.voidMaxLevel;
+}
+
+function setVoidMaxLevel(amt){
+	var universe = game.global.universe;
+	if (universe == 2) game.global.voidMaxLevel2 = amt;
+	else game.global.voidMaxLevel = amt;
+}
+
 function unlockPerk(what){
 	var perk = game.portal[what];
 	if (game.global.universe == 2){
@@ -2428,7 +2446,7 @@ function savePerkPreset(){
 	var levelName = (portalUniverse == 2) ? "radLevel" : "level";
 	for(var item in game.portal){
 		var temp = (game.portal[item].levelTemp) ? game.portal[item].levelTemp : 0;
-		if ((game.global.universe == 1 && game.portal[item].locked !== false) || (game.global.universe == 2 && game.portal[item].radLocked !== false) || game.portal[item][levelName] + temp == 0) continue;
+		if ((portalUniverse == 1 && game.portal[item].locked !== false) || (portalUniverse == 2 && game.portal[item].radLocked !== false) || game.portal[item][levelName] + temp == 0) continue;
 		saved[item] = game.portal[item][levelName] + temp;
 	}
 	if (presetGroup["perkPreset" + to].Name) saved.Name = presetGroup["perkPreset" + to].Name;
@@ -5005,13 +5023,12 @@ function buyMap() {
 function checkVoidMap() {
 	if (game.global.totalPortals < 5) return;
 	if (game.global.universe == 2 && game.global.totalRadPortals < 1) return;
-	var dif = game.global.lastVoidMap;
-	var max = game.global.voidMaxLevel;
+	var max = getVoidMaxLevel();
 	if (getLastPortal() != -1){
-			if (game.global.voidMaxLevel < game.global.world){
-				game.global.voidMaxLevel = game.global.world;
+			if (max < game.global.world){
+				setVoidMaxLevel(game.global.world);
 				if ((getLastPortal() + 25) < game.global.world)
-					game.global.voidMaxLevel = getHighestLevelCleared(false, true);
+					setVoidMaxLevel(getHighestLevelCleared(false, true));
 			}
 		if ((max - getLastPortal()) < 25) {
 			max = getLastPortal();
@@ -10386,7 +10403,7 @@ function nextWorld() {
 		else{
 			game.global.highestLevelCleared = game.global.world;
 		}
-		game.global.voidMaxLevel = game.global.world;
+		setVoidMaxLevel(game.global.world);
 		if (game.global.universe == 1){
 			if (game.global.world == 199) addNewSetting('mapsOnSpire');
 			else if (game.global.world == 180) {

@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.0.2',
+		stringVersion: '5.0.3',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -173,6 +173,7 @@ var toReturn = {
 		playFabLoginType: -1,
 		lastCustomExact: 1,
 		voidMaxLevel: -1,
+		voidMaxLevel2: -1,
 		rememberInfo: false,
 		spireActive: false,
 		spireDeaths: 0,
