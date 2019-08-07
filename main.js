@@ -9427,6 +9427,7 @@ function startFight() {
 			}
 			else if (!game.global.mapHealthActive && map){
 				game.global.soldierHealthMax *= 2;
+				game.global.mapHealthActive = true;
 			}
 		}
 		if (game.talents.voidPower.purchased){
