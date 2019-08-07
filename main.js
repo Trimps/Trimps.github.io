@@ -9376,8 +9376,8 @@ function startFight() {
 		if (game.global.challengeActive == "Revenge") game.global.soldierHealthMax *= game.challenges.Revenge.getMult();
 		if (game.global.challengeActive == "Duel" && game.challenges.Duel.trimpStacks < 20) game.global.soldierHealthMax *= game.challenges.Duel.healthMult;	
 		if (game.talents.voidPower.purchased && game.global.voidBuff){
-				game.global.soldierHealthMax *= ((game.talents.voidPower.getTotalVP() / 100) + 1);
-				game.global.voidPowerActive = true;
+			game.global.soldierHealthMax *= ((game.talents.voidPower.getTotalVP() / 100) + 1);
+			game.global.voidPowerActive = true;
 		}
 		else game.global.voidPowerActive = false;
 		if (game.global.challengeActive == "Wither"){
@@ -9438,6 +9438,7 @@ function startFight() {
 			}
 			else if (!game.global.voidPowerActive && map && map.location == "Void"){
 				game.global.soldierHealthMax *= mod;
+				game.global.voidPowerActive = true;
 			}
 		}
 		//Check differences in equipment, apply perks, bonuses, and formation
