@@ -6094,7 +6094,7 @@ function getHeirloomRarityRanges(zone, forBones){
 	var rarities = game.heirlooms.rarities[getHeirloomZoneBreakpoint(zone, forBones)];
 	var canLower = 0;
 	var addBonus = false;
-	if (Fluffy.isRewardActive("stickler")){
+	if (Fluffy.isRewardActive("stickler") && !(forBones && game.global.universe == 1 && game.global.totalRadPortals > 0)){
 		canLower = 500;
 		addBonus = true;
 	}
