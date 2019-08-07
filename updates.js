@@ -2348,6 +2348,14 @@ function getBattleStatBd(what) {
 		var voidE = ((game.talents.fluffyAbility.purchased) ? "8" : "9");
 		textString += "<tr><td class='bdTitle'>Void Siphon (" + Fluffy.getName() + " E" + voidE + ")</td><td>+ " + (voidWeight * 100) + "%</td><td>" + voids + "</td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
 	}
+		//Magma
+		if (mutations.Magma.active() && (what == "attack" || what == "health")){
+			mult = mutations.Magma.getTrimpDecay();
+			var lvls = game.global.world - mutations.Magma.start() + 1;
+			currentCalc *= mult;
+			var display = (mult > 0.0001) ? mult.toFixed(4) : mult.toExponential(3);
+			textString += "<tr style='color: red'><td class='bdTitle'>Overheating (Magma)</td><td>x 0.8</td><td>" + lvls + "</td><td class='bdPercent'>x " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		}
 	//Amalgamator health
 	if (what == "health" && game.jobs.Amalgamator.owned > 0){
 		amt = game.jobs.Amalgamator.getHealthMult();
@@ -2378,14 +2386,7 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Sharp Trimps</td><td></td><td></td><td>+ 50%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
 		
 	}
-	//Magma
-	if (mutations.Magma.active() && (what == "attack" || what == "health")){
-		mult = mutations.Magma.getTrimpDecay();
-		var lvls = game.global.world - mutations.Magma.start() + 1;
-		currentCalc *= mult;
-		var display = (mult > 0.0001) ? mult.toFixed(4) : mult.toExponential(3);
-		textString += "<tr style='color: red'><td class='bdTitle'>Overheating (Magma)</td><td>x 0.8</td><td>" + lvls + "</td><td class='bdPercent'>x " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
-	}
+
 	if (what == "attack" && game.global.challengeActive == "Unbalance"){
 		var mult = game.challenges.Unbalance.getAttackMult()
 		currentCalc *= mult;
