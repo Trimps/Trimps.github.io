@@ -3457,6 +3457,7 @@ function resetGame(keepPortal) {
 		game.global.highestRadonLevelCleared = highestRadonLevel;
 		game.global.challengeActive = challenge;
 		game.global.universe = newUniverse;
+		portalUniverse = newUniverse;
 		game.global.recentDailies = recentDailies;
 		if (challenge == "Daily") game.global.dailyChallenge = getDailyChallenge(readingDaily, true, false);
 		game.global.sLevel = sLevel;

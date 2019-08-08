@@ -823,7 +823,9 @@ function load(saveString, autoLoad, fromPf) {
 			game.global.voidMaxLevel = game.global.lastPortal;
 		}
 	}
-
+	if (compareVersion([5,0,4], oldStringVersion)){
+		game.portal.Trumps.locked = false;
+	}
 	//End compatibility
 	//Test server only
 
@@ -5075,7 +5077,7 @@ function createVoidMap(forcePrefix, forceSuffix, skipMessage) {
 	var mapName = prefixes[prefixNum] + " " + suffixes[suffixNum];
 	var stackedMap = false;
 	var stackCount = Fluffy.getVoidStackCount();
-	if (game.talents.voidMastery.purchased) stackCount = 999;
+	if (game.talents.voidMastery.purchased && stackCount > 1) stackCount = 999;
 	if (game.global.totalVoidMaps > 0 && stackCount > 1){
 		for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
 			var newMap = game.global.mapsOwnedArray[x];
@@ -15171,6 +15173,7 @@ var Fluffy = {
 	getVoidStackCount: function () {
 		var count = 1;
 		if (this.isRewardActive('void')) count++;
+		else return 1;
 		if (this.isRewardActive('superVoid')) count += 4;
 		if (game.talents.voidSpecial2.purchased) count++;
 		return count;

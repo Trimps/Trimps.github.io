@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.0.3',
+		stringVersion: '5.0.4',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -1751,6 +1751,7 @@ var toReturn = {
 		},
 		liquification3: {
 			get description () {
+				if (game.global.universe == 2) return "Liquification is disabled in Universe 2, but <b>Hyperspeed II's bonus will now function up to 75% of your Highest Zone Reached rather than a measly 50%</b>"
 				var text = (this.purchased) ? "This mastery is increasing " : "This mastery would increase ";
 				var totalSpires = game.global.spiresCompleted;
 				if (game.talents.liquification.purchased) totalSpires++;
@@ -2112,7 +2113,6 @@ var toReturn = {
 		},
 		Trumps: {
 		//fiveTrimpMax worldUnlock
-			locked: 0,
 			level: 0,
 			modifier: 1,
 			priceBase: 3,
