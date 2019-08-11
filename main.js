@@ -1704,7 +1704,7 @@ function viewPortalUpgrades() {
 	document.getElementById("portalTitle").innerHTML = "View Perks";
 	var totalAvailable = (portalUniverse == 1) ? game.global.heliumLeftover : game.global.radonLeftover;
 	var resName = (portalUniverse == 1) ? "Helium" : "Radon";
-	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(parseInt(totalAvailable, 10)) + '</span> ' + resName + ' Left Over';
+	document.getElementById("portalHelium").innerHTML = '<span id="portalHeliumOwned">' + prettify(totalAvailable) + '</span> ' + resName + ' Left Over';
 	document.getElementById("portalStory").innerHTML = "These are all of your perks! You can reset them once per run.";
 	document.getElementById("totalHeliumSpent").innerHTML = prettify(countHeliumSpent(false, true));
 	var totalEarned = (portalUniverse == 1) ? game.global.totalHeliumEarned : game.global.totalRadonEarned;
