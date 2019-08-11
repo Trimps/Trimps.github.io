@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 5.0.4 (Screen Reader version)</title>
+	<title>Trimps 5.0.5 (Screen Reader version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
@@ -684,7 +684,7 @@
 									<div class="col-xs-4 noPad pointer noselect bdHover" id="blockDiv" style="visibility: hidden" onclick="getBattleStatBd('block')">
 										<span id="goodGuyBlock">0</span> <span id='goodGuyBlockName'>BLK</span>
 									</div>
-									<div class="col-xs-2 pointer noselect" style="padding-left: 0" id="roboTrimpBtn" onclick="magnetoShriek()">
+									<div class="col-xs-2 pointer noselect" title="Activate MagnetoShriek" role="button" style="padding-left: 0" id="roboTrimpBtn" onclick="magnetoShriek()">
 										<span id="chainHolder" class="shriekStateCooldown" style='visibility: hidden' onmouseover="tooltip('MagnetoShriek', null, event)" onmouseout="tooltip('hide')"><span id="roboTrimpTurnsLeft"></span> <span class="icomoon icon-chain" style="color: white"></span></span>
 									</div>
 								</div>
@@ -748,7 +748,7 @@
 							</div>
 							<div class="battleSideBtnContainer">
 								<div id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" style="display: none">
-									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div><div title='Configure Map Settings. Press S after clicking.' onclick="tooltip('Configure Maps', null, 'update')">
+									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div><div role="button" title='Configure Map Settings. Press S after clicking.' onclick="tooltip('Configure Maps', null, 'update')">
 										<span class='glyphicon glyphicon-cog'></span></div>
 								</div>
 							</div>

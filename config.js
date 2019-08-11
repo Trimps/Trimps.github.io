@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.0.4',
+		stringVersion: '5.0.5',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -3234,8 +3234,17 @@ var toReturn = {
 			},
 			addStacks: function(){
 				if (!game.global.mapsActive || getCurrentMapObject().level >= game.global.world){
-					if (this.trimpStacks < 10000)
-						this.trimpStacks++;
+					if (this.trimpStacks < 10000){
+						if (game.global.soldierHealth > 0){
+							var increase = this.getTrimpHealthMult();
+							this.trimpStacks++;
+							increase = ((this.getTrimpHealthMult() / increase) - 1);
+							addSoldierHealth(increase);
+						}
+						else{
+							this.trimpStacks++;
+						}
+					}
 					this.enemyStacks++;
 				}
 				if (this.healImmunity > 0) this.healImmunity--;
@@ -3248,8 +3257,14 @@ var toReturn = {
 				this.drawStacks();
 			},
 			abandon: function(){
-				manageStacks(null, null, true, 'witherTrimpStacks', null, null, true);
-				manageStacks(null, null, false, 'witherEnemyStacks', null, null, true);
+				var healthReduce = (1 / this.getTrimpHealthMult()) - 1;
+				if (healthReduce < 0)
+					addSoldierHealth(healthReduce);
+				this.trimpStacks = 0;
+				this.enemyStacks = 0;
+				this.healImmunity = 0;
+				manageStacks(null, null, true, 'witherHardenedStacks', null, null, true);
+				manageStacks(null, null, false, 'witherHorrorStacks', null, null, true);
 				manageStacks(null, null, true, 'witherImmunityStacks', null, null, true);
 			},
 			drawStacks: function(){
@@ -8182,6 +8197,7 @@ var toReturn = {
 				return Math.pow(1.25, this.owned);
 			},
 			fire: function(){
+				addSoldierHealth(0.25);
 				if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId == 6) game.challenges.Quest.checkQuest();
 			}
 		},

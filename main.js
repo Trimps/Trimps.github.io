@@ -1156,11 +1156,17 @@ function displayRoboTrimp() {
 		var swapIn = (game.global.useShriek) ? 'shriekStateEnabled' : 'shriekStateDisabled';
 		swapClass("shriekState", swapIn, elem);
 	}
+	if (usingScreenReader){
+		elem.title = (game.global.useShriek) ? "Deactivate MagnetoShriek" : "Activate MagnetoShriek";
+	}
 }
 
 function magnetoShriek() {
 	if (game.global.roboTrimpCooldown > 0 || !game.global.roboTrimpLevel || game.global.world < 60) return;
 	game.global.useShriek = !game.global.useShriek;
+	if (usingScreenReader){
+		screenReaderAssert("MagnetoShriek " + ((game.global.useShriek) ? "activated and will be used on this Zone's boss" : "deactivated") + ". Click again to " + ((game.global.useShriek) ? "deactivate" : "activate"));
+	}
 	displayRoboTrimp();
 	if (game.global.useShriek && !game.global.mapsActive){
         var cell = getCurrentWorldCell();
@@ -2563,7 +2569,7 @@ function importPerks() {
 		heNeeded += price[perk];
 	}
 	if (heNeeded > game.resources.helium.respecMax - game.resources.helium.totalSpentTemp)
-		return "You don't have enough Helium to afford this perk setup.";
+		return "You don't have enough " + heliumOrRadon(false, true) + " to afford this perk setup.";
 
 	if (respecNeeded && !game.global.canRespecPerks)
 		return "This perk setup would require a respec, but you don't have one available.";
@@ -8604,6 +8610,7 @@ function mapsClicked(confirmed) {
 
 function mapsSwitch(updateOnly, fromRecycle) {
 	game.global.titimpLeft = 0;
+	updateGammaStacks(true);
 	updateTitimp();
     if (!updateOnly) {
 		//Coming out of maps or world (not necessarily to map chamber)
@@ -9469,7 +9476,7 @@ function startFight() {
 			}
 			if (getPerkLevel("Toughness_II")) healthTemp *= (1 + (game.portal.Toughness_II.modifier * getPerkLevel("Toughness_II")));
 			if (game.talents.mapHealth.purchased && game.global.mapsActive) healthTemp *= 2;
-			if (Fluffy.isRewardActive("Healthy")) healthTemp *= 1.5;
+			if (Fluffy.isRewardActive("healthy")) healthTemp *= 1.5;
 			if (game.jobs.Geneticist.owned > 0) healthTemp *= Math.pow(1.01, game.global.lastLowGen);
 			if (game.goldenUpgrades.Battle.currentBonus > 0) healthTemp *= game.goldenUpgrades.Battle.currentBonus + 1;
 			if (game.global.universe == 2 && game.buildings.Smithy.owned > 0) healthTemp *= game.buildings.Smithy.getMult();
@@ -11097,7 +11104,12 @@ function buyGoldenUpgrade(what) {
 		toggleAutoGolden(true);
 		return;
 	}
+	var oldBonus = upgrade.currentBonus;
 	upgrade.currentBonus += upgrade.nextAmt();
+	if (what == "Battle"){
+		var increase = (((1 + upgrade.currentBonus) / (1 + oldBonus)) - 1);
+		addSoldierHealth(increase);
+	}
 	upgrade.purchasedAt.push(game.global.goldenUpgrades);
 	game.global.goldenUpgrades++;
 	removeGoldenUpgrades();
@@ -12605,6 +12617,9 @@ function fight(makeUp) {
 					if (cell.health <= 0) thisKillsTheBadGuy();	
 				}
 				if (getEmpowerment() == "Poison") stackPoison(burstDamage);
+				if (getPlaguebringerModifier() > 0){
+					plaguebringer += burstDamage * getPlaguebringerModifier();
+				}
 			}
 		}
 		updateGammaStacks();
@@ -12845,6 +12860,15 @@ function reduceSoldierHealth(amt){
 	}
 }
 
+function addSoldierHealth(modifier){
+	if (game.global.soldierHealth > 0){
+		var increase = game.global.soldierHealthMax * modifier;
+		game.global.soldierHealth += increase;
+		game.global.soldierHealthMax += increase;
+		if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
+	}
+}
+
 function getPlaguebringerModifier(){
 	var amt = 0;
 	var shieldBonus = (getHeirloomBonus("Shield", "plaguebringer") / 100);
@@ -13023,9 +13047,9 @@ function updateBalanceStacks(){
 	else elem.style.display = "none";
 }
 
-function updateGammaStacks(){
+function updateGammaStacks(reset){
 	var bonus = getHeirloomBonus("Shield", "gammaBurst");
-	if (bonus <= 0){
+	if (bonus <= 0 || reset){
 		game.heirlooms.Shield.gammaBurst.stacks = 0;
 		manageStacks(null, null, true, 'gammaSpan', null, null, true);
 		return;

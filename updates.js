@@ -1334,6 +1334,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (event != "update") positionTooltip(elem, event, renameBtn);
 }
 
+function screenReaderAssert(text){
+	var elem = document.getElementById('screenReaderTooltip');
+	if (elem) elem.innerHTML = text;
+}
+
 function getExtraScryerText(fromForm){
 	var tooltipText = "";
 	var formName = (fromForm == 4) ? "Scryer" : "Wind";
