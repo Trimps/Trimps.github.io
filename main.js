@@ -12609,17 +12609,17 @@ function fight(makeUp) {
 				var burstDamage = calcHeirloomBonus("Shield", "gammaBurst", trimpAttack)
 				cell.health -= burstDamage;
 				burst.stacks = 0;
-				if (getUberEmpowerment() == "Wind" && getEmpowerment() == "Wind" && game.global.formation == 5) {
+				if (cell.health > 0 && getPlaguebringerModifier() > 0){
+					plaguebringer += (burstDamage * getPlaguebringerModifier());
+				}
+				if (getUberEmpowerment() == "Wind" && getEmpowerment() == "Wind" && game.global.formation == 5 && cell.health < 1) {
 					cell.health = 1;
 				}
-				else{
+				else if (cell.health <= 0){
 					overkill = Math.abs(cell.health);
-					if (cell.health <= 0) thisKillsTheBadGuy();	
+					thisKillsTheBadGuy();
 				}
 				if (getEmpowerment() == "Poison") stackPoison(burstDamage);
-				if (getPlaguebringerModifier() > 0){
-					plaguebringer += burstDamage * getPlaguebringerModifier();
-				}
 			}
 		}
 		updateGammaStacks();
