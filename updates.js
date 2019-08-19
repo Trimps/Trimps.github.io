@@ -619,7 +619,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else{
 			if (!textString)
 				tooltipText = "<p>Click to toggle a challenge mode for your challenges!</p>";
-			tooltipText += "<p>In Challenge<sup>" + sup + "</sup> mode, you can re-run some challenges in order to earn a permanent attack, health, and " + heliumOrRadon() + " bonus for your Trimps. MOST Challenge<sup>" + sup + "</sup>s will grant <b>" + rewardEach + "% attack and health and " + prettify(rewardEach / 10) + "% increased " + heliumOrRadon() + " for every " + squaredConfig.rewardFreq + " Zones reached. Every " + squaredConfig.thresh + " Zones, the attack and health bonus will increase by an additional " + rewardGrowth + "%, and the " + heliumOrRadon() + " bonus will increase by " + prettify(rewardGrowth / 10) + "%</b>. This bonus is additive with all available Challenge<sup>" + sup + "</sup>s, and your highest Zone reached for each challenge is saved and used.</p><p><b>No Challenge<sup>" + sup + "</sup>s end at any specific Zone</b>, they can only be completed by using your portal or abandoning through the 'View Perks' menu. However, <b>no " + heliumOrRadon() + " can drop, and no bonus " + heliumOrRadon() + " will be earned during or after the run</b>. Void Maps will still drop heirlooms, and all other currency can still be earned.</p>";
+			tooltipText += "<p>In Challenge<sup>" + sup + "</sup> mode, you can re-run some challenges in order to earn a permanent attack, health, and " + heliumOrRadon() + " bonus for your Trimps. MOST Challenge<sup>" + sup + "</sup>s will grant <b>" + rewardEach + "% " + ((sup == 2) ? "attack and health and " + prettify(rewardEach / 10) + "% increased " + heliumOrRadon() : "Challenge<sup>" + sup + "</sup> bonus") + " for every " + squaredConfig.rewardFreq + " Zones reached. Every " + squaredConfig.thresh + " Zones, " + ((sup == 2) ? "the attack and health bonus will increase by an additional " + rewardGrowth + "%, and the " + heliumOrRadon() + " bonus will increase by " + prettify(rewardGrowth / 10) + "%" : "this bonus will increase by an additional " + rewardGrowth + "%") + "</b>. This bonus is additive with all available Challenge<sup>" + sup + "</sup>s, and your highest Zone reached for each challenge is saved and used.</p><p><b>No Challenge<sup>" + sup + "</sup>s end at any specific Zone</b>, they can only be completed by using your portal or abandoning through the 'View Perks' menu. However, <b>no " + heliumOrRadon() + " can drop, and no bonus " + heliumOrRadon() + " will be earned during or after the run</b>. Void Maps will still drop heirlooms, and all other currency can still be earned.</p>";
 		}
 		if (game.global.highestRadonLevelCleared >= 64){
 			var uniArray = countChallengeSquaredReward(false, false, true);
@@ -678,6 +678,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				tooltipText +=  getSettingHtml(game.options.menu.mapAtZone, 'mapAtZone', null, "CM");
 				settingCount++;
 			}
+			if (game.global.highestLevelCleared >= 124){
+				if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
+				tooltipText +=  getSettingHtml(game.options.menu.climbBw, 'climbBw', null, "CM");
+				settingCount++;
+			}
 			tooltipText += "</div>";
 			costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip();'>Close</div></div>"
 			elem.style.left = "33.75%";
@@ -685,14 +690,74 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 	}
 	if (what == "Set Map At Zone"){
-		tooltipText = "Enter up to 5 numbers between 10 and 1000, separated by commas. Next time you reach any of those Zone numbers, you will automatically be pulled into the Map Chamber.<div id='mapAtZoneErrorText'></div><br/><input style='width: 50%; margin-left: 25%' id='mapAtZoneInput' value='" + game.options.menu.mapAtZone.getSetZone() + "'/>";
-		costText = "<div class='maxCenter'><span class='btn btn-success btn-md' id='confirmTooltipBtn' onclick='saveMapAtZone()'>Confirm</span><span class='btn btn-danger btn-md' onclick='cancelTooltip(true)'>Cancel</span>"
+		tooltipText = "<div class='row mazRow titles'><div style='width: 3%; display: inline-block;'>&nbsp;</div><div style='width: 10%' class='mazWorld'>Exit At<br/>Zone</div><div class='mazCheckbox'>Run Map?</div><div class='mazPreset'>Use<br/>Preset</div><div class='mazRepeat'>Set<br/>Repeat</div><div class='mazRepeatUntil'>Set<br/>Repeat Until</div><div class='mazExit'>Exit To</div></div>";
+		var current = game.options.menu.mapAtZone.getSetZone();
+		for (var x = 0; x < 5; x++){
+			var vals = {
+				world: -1,
+				check: false,
+				preset: 0,
+				repeat: 0,
+				until: 0,
+				exit: 0,
+				bwWorld: 125
+			}
+			var style = "";
+			if (current.length - 1 >= x){
+				vals.world = current[x].world;
+				vals.check = current[x].check;
+				vals.preset = current[x].preset;
+				vals.repeat = current[x].repeat;
+				vals.until = current[x].until;
+				vals.exit = current[x].exit;
+				vals.bwWorld = current[x].bwWorld;
+			}
+			else style = " style='display: none' ";
+			var presetDropdown = "<option value='0'" + ((vals.preset == 0) ? " selected='selected'" : "") + ">Preset 1</option><option value='1'" + ((vals.preset == 1) ? " selected='selected'" : "") + ">Preset 2</option><option value='2'" + ((vals.preset == 2) ? " selected='selected'" : "") + ">Preset 3</option><option value='3'" + ((vals.preset == 3) ? " selected='selected'" : "") + ">Run Bionic</option>";
+			var repeatDropdown = "<option value='0'" + ((vals.repeat == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.repeat == 1) ? " selected='selected'" : "") + ">Repeat On</option><option value='2'" + ((vals.repeat == 2) ? " selected='selected'" : "") + ">Repeat Off</option>";
+			var repeatUntilDropdown = "<option value='0'" + ((vals.until == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.until == 1) ? " selected='selected'" : "") + ">Repeat Forever</option><option value='2'" + ((vals.until == 2) ? " selected='selected'" : "") + ">Repeat to 10</option><option value='3'" + ((vals.until == 3) ? " selected='selected'" : "") + ">Repeat for Items</option><option value='4'" + ((vals.until == 4) ? " selected='selected'" : "") + ">Repeat for Any</option><option class='mazBwClimbOption' value='5'" + ((vals.until == 5) ? " selected='selected'" : "") + ">Climb BW to Level</option>"	
+			var exitDropdown = "<option value='0'" + ((vals.exit == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.exit == 1) ? " selected='selected'" : "") + ">Exit to Maps</option><option value='2'" + ((vals.exit == 2) ? " selected='selected'" : "") + ">Exit to World</option>";
+			var className = (vals.preset == 3) ? "mazBwMainOn" : "mazBwMainOff";
+			className += (vals.preset == 3 && vals.until == 5) ? " mazBwZoneOn" : " mazBwZoneOff"
+			tooltipText += "<div id='mazRow" + x + "' class='row mazRow " + className + "'" + style + ">";
+			tooltipText += "<div class='mazDelete' onclick='game.options.menu.mapAtZone.removeRow(" + x + ")'><span class='icomoon icon-cross'></span></div>";
+			tooltipText += "<div class='mazWorld'><input value='" + vals.world + "' type='number' id='mazWorld" + x + "'/></div>";
+			tooltipText += "<div class='mazCheckbox' style='text-align: center;'>" + buildNiceCheckbox("mazCheckbox" + x, null, vals.check) + "</div>";
+			tooltipText += "<div class='mazPreset' onchange='updateMazPreset(" + x + ")'><select value='" + vals.preset + "' id='mazPreset" + x + "'>" + presetDropdown + "</select></div>"
+			tooltipText += "<div class='mazRepeat'><select value='" + vals.repeat + "' id='mazRepeat" + x + "'>" + repeatDropdown + "</select></div>";
+			tooltipText += "<div class='mazRepeatUntil' onchange='updateMazPreset(" + x + ")'><select value='" + vals.until + "' id='mazRepeatUntil" + x + "'>" + repeatUntilDropdown + "</select></div>";
+			tooltipText += "<div class='mazExit'><select value='" + vals.exit + "' id='mazExit" + x + "'>" + exitDropdown + "</select></div>";
+			tooltipText += "<div class='mazBwWorld'><div style='text-align: center;'>Exit After L</div><input value='" + vals.bwWorld + "' type='number' id='mazBwWorld" + x + "'/></div>";
+			tooltipText += "</div>"
+		}
+		tooltipText += "<div id='mazAddRowBtn' style='display: " + ((current.length < 5) ? "inline-block" : "none") + "' class='btn btn-success btn-md' onclick='game.options.menu.mapAtZone.addRow()'>+ Add Row</div>"
+		costText = "<div class='maxCenter'><span class='btn btn-success btn-md' id='confirmTooltipBtn' onclick='game.options.menu.mapAtZone.save()'>Confirm</span><span class='btn btn-danger btn-md' onclick='cancelTooltip(true)'>Cancel</span>"
 		game.global.lockTooltip = true;
 		elem.style.top = "25%";
 		elem.style.left = "25%";
-		ondisplay = function(){
-			document.getElementById('mapAtZoneInput').select();
+		swapClass('tooltipExtra', 'tooltipExtraLg', elem);
+	}
+	if (what == "Change Heirloom Icon"){
+		var heirloom = getSelectedHeirloom();
+		var icons = [];
+		tooltipText = "<div style='width: 100%; height: 100%; background-color: black; text-align: center;'>";
+		if (heirloom.type == "Shield"){
+			icons = ["*shield3", "*shield", "*shield2",  "*heart3", "*star2", "*road2", "*fast-forward", "*trophy3", "*eraser"];
 		}
+		if (heirloom.type == "Staff"){
+			icons = ["grain", "apple", "tree-deciduous", "*cubes", "*diamond", "*lab-flask", "*key", "*hour-glass", "*flag", "*feather", "*edit"];
+		}
+		if (heirloom.type == "Core"){
+			icons = ["adjust", "*compass", "*cog", "*battery", "*adjust", "*cloud", "*yingyang"]
+		}
+		for (var x = 0; x < icons.length; x++){
+			tooltipText += "<div class='heirloomChangeIcon heirloomRare" + heirloom.rarity + "' onclick='saveHeirloomIcon(\"" + icons[x] + "\")'>" + convertIconNameToSpan(icons[x]) + "</div>";
+		}
+		tooltipText += "</div>"
+		game.global.lockTooltip = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+		costText = "<div class='maxCenter'><span class='btn btn-success btn-md' id='confirmTooltipBtn' onclick='cancelTooltip(true)'>Close</span>"
 	}
 	if (what == "Message Config"){
 		tooltipText = "<div id='messageConfigMessage'>Here you can finely tune your message settings, to see only what you want from each category. Mouse over the name of a filter for more info.</div>";
@@ -1015,6 +1080,15 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
+	}
+	if (what == "Lost Time"){
+		cancelTooltip();
+		tooltipText = offlineProgress.getHelpText();
+		elem = document.getElementById('tooltipDiv2');
+		tip2 = true;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info btn-lg' onclick='cancelTooltip()'>Neat</div>";
 	}
 	if (what == "Export Perks"){
 		tooltipText = "It may not look like much, but all of your perks are in here! You can share this string with friends, or save it to your computer to import later!<br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + exportPerks() + "</textarea>";
@@ -1339,6 +1413,20 @@ function screenReaderAssert(text){
 	if (elem) elem.innerHTML = text;
 }
 
+function updateMazPreset(index){
+	var preset = parseInt(document.getElementById('mazPreset' + index).value, 10);
+	var newClass = (preset == 3) ? "mazBwMainOn" : "mazBwMainOff";
+	var row = document.getElementById('mazRow' + index);
+	swapClass('mazBwMain', newClass, row);
+	var until = parseInt(document.getElementById('mazRepeatUntil' + index).value, 10);
+	if (preset != 3 && until == 5){
+		until = 0;
+		document.getElementById('mazRepeatUntil' + index).selectedIndex = until;
+	}
+	newClass = (preset == 3 && until == 5) ? 'mazBwZoneOn' : 'mazBwZoneOff';
+	swapClass('mazBwZone', newClass, row);
+}
+
 function getExtraScryerText(fromForm){
 	var tooltipText = "";
 	var formName = (fromForm == 4) ? "Scryer" : "Wind";
@@ -1563,8 +1651,8 @@ function messageConfigHover(what, event){
 			title = "Exotic";
 			break;
 		case 'Loothelium':
-			text = "Log Helium rewards.";
-			title = "Helium";
+			text = "Log " + heliumOrRadon() + " rewards.";
+			title = heliumOrRadon();
 			break;
 		case 'Unlocksrepeated':
 			text = "Log all unlocks that drop more than once per run, such as Speedfarming or Coordination.";
@@ -3298,7 +3386,10 @@ function resetGame(keepPortal) {
 	var totalRadPortals;
 	var microchipLevel;
 	var uniqueId;
+	var lastHeirlooms;
+	var oldUniverse;
 	if (keepPortal){
+		oldUniverse = game.global.universe;
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
 		totalPortals = game.global.totalPortals;
@@ -3396,7 +3487,10 @@ function resetGame(keepPortal) {
 		essence = game.global.essence;
 		talents = game.talents;
 		spentEssence = game.global.spentEssence;
-		magmite = (game.global.magmite > 0) ? Math.floor(game.global.magmite * ((100 - getMagmiteDecayAmt()) / 100)) : 0;
+		if (oldUniverse == 1){
+			magmite = (game.global.magmite > 0) ? Math.floor(game.global.magmite * ((100 - getMagmiteDecayAmt()) / 100)) : 0;
+		}
+		else magmite = game.global.magmite;
 		genUpgrades = game.generatorUpgrades;
 		permanentGenUpgrades = game.permanentGeneratorUpgrades;
 		genMode = game.global.generatorMode;
@@ -3442,6 +3536,7 @@ function resetGame(keepPortal) {
 		autoJobsU2 = game.global.autoJobsSettingU2;
 		microchipLevel = game.buildings.Microchip.owned;
 		uniqueId = game.global.uniqueId;
+		lastHeirlooms = game.global.lastHeirlooms;
 	}
 	game = null;
 	game = newGame();
@@ -3532,6 +3627,7 @@ function resetGame(keepPortal) {
 		game.global.maxSplit = maxSplit;
 		game.global.logNotBase = logNotBase;
 		game.global.uniqueId = uniqueId;
+		game.global.lastHeirlooms = lastHeirlooms;
 		if (microchipLevel){
 			game.buildings.Microchip.owned = microchipLevel;
 			game.buildings.Microchip.purchased = microchipLevel;
@@ -3619,6 +3715,7 @@ function resetGame(keepPortal) {
 	countChallengeSquaredReward();
 	displayGoldenUpgrades();
 	updateSkeleBtn();
+	manageEqualityStacks();
 	Fluffy.calculateLevel();
 	game.options.menu.tinyButtons.onToggle();
 	if (keepPortal) checkAchieve("portals");
@@ -3659,6 +3756,24 @@ function resetGame(keepPortal) {
 	}
 	if (game.global.universe == 2 && game.buildings.Microchip.owned < 5){
 		unlockBuilding("Microchip");
+	}
+	if (oldUniverse != game.global.universe){
+		var oldSetting;
+		var newSetting;
+		if (oldUniverse == 1){
+			oldSetting = game.global.lastHeirlooms.u1;
+			newSetting = game.global.lastHeirlooms.u2;
+		}
+		else{
+			oldSetting = game.global.lastHeirlooms.u2;
+			newSetting = game.global.lastHeirlooms.u1;
+		}
+		if (game.global.ShieldEquipped.name) oldSetting.Shield = game.global.ShieldEquipped.id;
+		else oldSetting.Shield = -1;
+		if (game.global.StaffEquipped.name) oldSetting.Staff = game.global.StaffEquipped.id;
+		else oldSetting.Staff = -1;
+		if (newSetting.Shield != -1) equipHeirloomById(newSetting.Shield, "Shield");
+		if (newSetting.Staff != -1) equipHeirloomById(newSetting.Staff, "Staff");
 	}
 }
 
@@ -3822,6 +3937,7 @@ function adjustMessageIndexes(index){
 }
 
 function postMessages(){
+	if (usingRealTimeOffline) return;
     if (pendingLogs.RAF != null) cancelAnimationFrame(pendingLogs.RAF);
 
     if(pendingLogs.all.length < 1) {
@@ -4153,6 +4269,7 @@ function updateSkeleBtn(){
 //
 //Number updates
 function updateLabels() { //Tried just updating as something changes, but seems to be better to do all at once all the time
+	if (usingRealTimeOffline) return;
 	var toUpdate;
 	//Resources (food, wood, metal, trimps, science). Per second will be handled in separate function, and called from job loop.
 	for (var item in game.resources){
@@ -4230,6 +4347,7 @@ function updateLabels() { //Tried just updating as something changes, but seems 
 }
 
 function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as first if trimps is true, like (32.4, true)
+		if (usingRealTimeOffline) return;
 		if (jobObj.increase == "custom" || (typeof jobObj.increase === 'undefined' && !trimps)) return;
 		var psText;
 		var elem;
@@ -4324,6 +4442,7 @@ function unlockBuilding(what) {
 }
 
 function drawAllBuildings(){
+	if (usingRealTimeOffline) return;
 	var elem = document.getElementById("buildingsHere");
 	elem.innerHTML = "";
 	for (var item in game.buildings){
@@ -4355,6 +4474,7 @@ function unlockJob(what) {
 }
 
 function drawAllJobs(){
+	if (usingRealTimeOffline) return;
 	var elem = document.getElementById("jobsHere");
 	elem.innerHTML = "";
 	for (var item in game.jobs){
@@ -4480,6 +4600,7 @@ function unlockUpgrade(what, displayOnly) {
 }
 
 function drawAllUpgrades(){
+	if (usingRealTimeOffline) return;
 	var elem = document.getElementById("upgradesHere");
 	elem.innerHTML = "";
 	for (var item in game.upgrades){
@@ -4575,6 +4696,7 @@ function checkButtons(what) {
 }
 
 function updateButtonColor(what, canAfford, isJob) {
+	if (usingRealTimeOffline) return;
 	if (what == "Amalgamator") return;
 	var elem = document.getElementById(what);
 	if (elem === null){
@@ -4628,6 +4750,7 @@ function unlockEquipment(what, fromCheck) {
 }
 
 function drawAllEquipment(){
+	if (usingRealTimeOffline) return;
 	var elem = document.getElementById("equipmentHere");
 	elem.innerHTML = "";
 	for (var item in game.equipment){
@@ -4796,48 +4919,6 @@ function getSettingHtml(optionItem, item, forceClass, appendId){
 	if (!forceClass) forceClass = "";
 	var text = optionItem.titles[optionItem.enabled];
 	return "<div class='optionContainer" + forceClass + "'><div id='toggle" + item + appendId + "' class='noselect settingsBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\"" + ((appendId) ? "" : ", this") + ")' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
-}
-
-function saveMapAtZone(){
-	var elem = document.getElementById('mapAtZoneInput');
-	var errText = document.getElementById('mapAtZoneErrorText');
-	if (elem == null){
-		cancelTooltip(true);
-		return;
-	}
-	if (errText) errText.innerHTML = "";
-	var value = elem.value.replace(' ', '');
-	value = value.split(',');
-	var newValue = [];
-	var count = value.length;
-	var errors = 0;
-	if (count > 5) count = 5;
-	for (var x = 0; x < count; x++){
-		var thisItem = parseInt(value[x], 10);
-		if (newValue.indexOf(thisItem) >= 0) continue;
-		if (isNaN(thisItem)){
-			if (errText) {
-				errText.innerHTML += value[x] + " is not a number. ";
-				errors++;
-			}
-		}
-		else if (thisItem < 10 || thisItem > 1000){
-			if (errText){
-				errText.innerHTML += thisItem + " is not between 10 and 1000. ";
-				errors++;
-			}
-		}
-		else{
-			newValue.push(thisItem);
-		}
-	}
-	if (errors <= 0){
-		newValue.sort(function(a, b){return a - b});
-		game.options.menu.mapAtZone.saveSetZone(newValue);
-		game.options.menu.mapAtZone.enabled = 1;
-		toggleSetting('mapAtZone', null, false, true);
-		cancelTooltip(true);
-	}
 }
 
 function saveLogarithmicSetting(){
@@ -5736,7 +5817,7 @@ if (elem == null) {
 }
 
 function goRadial(elem, currentSeconds, totalSeconds, frameTime){
-
+		if (!elem) return;
         if (currentSeconds <= 0) currentSeconds = 0;
         elem.style.transition = "";
         elem.style.transform = "rotate(" + timeToDegrees(currentSeconds, totalSeconds) + "deg)";

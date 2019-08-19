@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 5.0.5</title>
+	<title>Trimps 5.1.0</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Brownprobe">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?19" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?20" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -46,6 +46,49 @@
 		If you are not using any addons that might interfere with javascript, try using the latest versions of Chrome or Firefox. 
 	</div>
 	</noscript>
+	<div id="offlineWrapper">
+		<div id="offlineInnerWrapper">
+			<div id="offlineTitle">
+				Making up lost time...
+			</div>
+			<div id="offlineProgressWrapper" class='progress'>
+				<span id='offlineProgressText'>Starting...</span>
+				<div class="progress-bar" role="progressbar" id="offlineProgress">&nbsp;</div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-3'>
+					<div id='offlineZoneNumber'>Zone</div>
+					<div id='offlineCellNumber'>Cell </div>
+				</div>
+				<div class='col-xs-9'>
+					<div id='offlineExtraInfo'></div>
+				</div>
+			</div>
+			<div class='row'>
+				<div id='offlineMapBtns' class='col-xs-6'>
+					<div id='offlineMapText' style='text-align: center;'>Wanna run a map?</div>
+					<div id='offlineMapBtnsInner'>
+						<span id="offlineMapBtn0" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(0);">World Level Map</span>
+						<span id="offlineMapBtn1" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-1);">-1 Level map</span>
+						<span id="offlineMapBtn2" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-2);">-2 Level map</span>
+						<span id="offlineMapBtn3" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-3);">-3 Level map</span>
+					</div>
+				</div>
+				<div id='offlineZoneBtns' class='col-xs-6'>
+					<div id='offlineInMapDescription' style='text-align: center;'></div>
+					<span id='offlineZoneBtn' onclick="offlineProgress.leaveMap();" class="offlineExtraBtn btn btn-md btn-primary">Back to World</span>
+				</div>
+				<div id='offlineExtraBtnsContainer' class='col-xs-6' style='position: absolute; left: 50%; width: 25%;'>
+					<div id='offlineTimeOffline'></div>
+					<div class='btn btn-lg btn-info offlineExtraBtn' onclick="tooltip('Lost Time', null, 'update');">What is This?!</div>
+					<div class='btn btn-lg btn-danger offlineExtraBtn' onclick='usingRealTimeOffline = false'>Stop Here</div>
+					<div id='offlineSettingContainer'></div>
+					<div id='offlineEffective'></div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
 	<div id="boneWrapper" style="display: none">
 		<div id="boneWrapper0">
 			<div class="row">
@@ -963,7 +1006,11 @@
 							<div class="battleSideBtnContainer" style="display: none" id="repeatVoidsContainer">
 								<span class="btn settingBtn1 fightBtn" id="togglerepeatVoids" onmouseout="tooltip('hide')" onclick="toggleSetting('repeatVoids')">
 								</span>
-							</div>					
+							</div>
+							<div class="battleSideBtnContainer" style="display: none" id="climbBwContainer">
+								<span class="btn settingBtn1 fightBtn" id="toggleclimbBw2" onmouseout="tooltip('hide')" onclick="toggleSetting('climbBw')">
+								</span>
+							</div>				
 						</div>
 					</div>
 				</div>
@@ -1183,6 +1230,7 @@
 			</div>
 		</div>
 		<div id="achievementsHere" class="niceScroll"></div>
+		<div style='text-align: center;'><span id="achievementClose2" onclick="toggleAchievementWindow()" class="icomoon icon-close"></span></div>
 	</div>
 	<div id="statsWrapper" style="display: none">
 		<span id="statsTitle">Statistics!</span><br/>
@@ -1211,7 +1259,7 @@
 		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><div class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></div><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()">Close</div></div></div>
 		<div id="heirloomHelp" style="display: none">
 			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. Once you have an Heirloom, you can click the icon below to select it.<br/><br/>
-			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b style='color: red'>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b style='color: red'>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. You can also click on the Heirloom's name on this menu to rename it. <b style='color: red'>You can upgrade any Staff and Shield to HALF the value of your total earned Nu. Nu is not spent, but dictates how powerful your Heirlooms can be!</b><br/><br/>
+			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b style='color: red'>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b style='color: red'>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. <b style='color: rgb(75, 41, 197)'>You can also click on the Heirloom's name on this menu to rename it, or click on the icon to change it!</b> <b style='color: red'>You can upgrade any Staff and Shield to HALF the value of your total earned Nu. Nu is not spent, but dictates how powerful your Heirlooms can be!</b><br/><br/>
 			You can only carry a few Heirlooms (other than the two you have equipped) back through the Portal with you when you use it. <b style='color: red'>Any Heirlooms in the "Temporary" section will be recycled for Nullifium on portal.</b>
 		</div>
 		<div class="row">
@@ -1332,10 +1380,10 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?26"></script>
-	<script type="text/javascript" src="updates.js?26"></script>
-	<script type="text/javascript" src="playerSpire.js?26"></script>
-	<script type="text/javascript" src="main.js?26"></script>
+	<script type="text/javascript" src="config.js?27"></script>
+	<script type="text/javascript" src="updates.js?27"></script>
+	<script type="text/javascript" src="playerSpire.js?27"></script>
+	<script type="text/javascript" src="main.js?27"></script>
 	
 </body>
 

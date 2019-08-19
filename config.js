@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.0.5',
+		stringVersion: '5.1.0',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -255,6 +255,16 @@ var toReturn = {
 		armyAttackCount: 0,
 		mapHealthActive: false,
 		voidPowerActive: false,
+		lastHeirlooms: {
+			u1: {
+				Shield: -1,
+				Staff: -1
+			},
+			u2: {
+				Shield: -1,
+				Staff: -1
+			}
+		},
 		mapPresets: {
 			p1: {
 				loot: 0,
@@ -976,17 +986,17 @@ var toReturn = {
 				get titles(){
 					var nextZone = "";
 					var setZone = this.getSetZone();
-					if (setZone.length == 1) nextZone = setZone;
+					if (setZone.length == 1) nextZone = setZone[0].world;
 					else {
 						for (var x = 0; x < setZone.length; x++){
-							if (game.global.world < setZone[x]){
-								nextZone = setZone[x];
+							if (game.global.world < setZone[x].world){
+								nextZone = setZone[x].world;
 								if (x < setZone.length - 1) nextZone += "+";
 								break;
 							}
 						}
 						if (nextZone == "") 
-							nextZone = setZone[0];
+							nextZone = (setZone.length) ? setZone[0].world : "one";
 					}
 					return ["No Map At Zone", "Map At Z" + nextZone];
 				},
@@ -995,9 +1005,92 @@ var toReturn = {
 				getSetZone: function(){
 					return (game.global.universe == 2) ? this.setZoneU2 : this.setZone;
 				},
-				saveSetZone: function(numbers){
-					if (game.global.universe == 2) this.setZoneU2 = numbers;
-					else this.setZone = numbers;
+				addRow: function(){
+					for (var x = 0; x < 5; x++){
+						var elem = document.getElementById('mazWorld' + x);
+						if (!elem) continue;
+						if (elem.value == -1) {
+							var parent = document.getElementById('mazRow' + x);
+							if (parent){
+								parent.style.display = 'block';
+								elem.value = game.global.world + 1;
+								updateMazPreset(x);
+								break;
+							}
+						}
+					}
+					var btnElem = document.getElementById('mazAddRowBtn');
+					for (var y = 0; y < 5; y++){
+						var elem = document.getElementById('mazWorld' + y);
+						if (elem && elem.value == "-1"){			
+							btnElem.style.display = 'inline-block';
+							return;
+						}
+					}
+					btnElem.style.display = 'none';
+				},
+				removeRow: function(index){
+					var elem = document.getElementById('mazRow' + index);
+					if (!elem) return;
+					document.getElementById('mazWorld' + index).value = -1;
+					var checkBox = document.getElementById('mazCheckbox' + index);
+					swapClass("icon-", "icon-checkbox-unchecked", checkBox);
+					checkBox.setAttribute('data-checked', false);
+					document.getElementById('mazPreset' + index).value = 0;
+					document.getElementById('mazRepeat' + index).value = 0;
+					document.getElementById('mazRepeatUntil' + index).value = 0;
+					elem.style.display = 'none';
+					var btnElem = document.getElementById('mazAddRowBtn');
+					btnElem.style.display = 'inline-block';
+				},
+				save: function(){
+					var setting = [];
+					loop1: 
+					for (var x = 0; x < 5; x++){
+						var world = document.getElementById('mazWorld' + x);
+						if (!world || world.value == "-1") continue;
+						world = parseInt(world.value, 10);
+						var check = readNiceCheckbox(document.getElementById('mazCheckbox' + x));
+						var preset = parseInt(document.getElementById('mazPreset' + x).value, 10);
+						var repeat = parseInt(document.getElementById('mazRepeat' + x).value, 10);
+						var until = parseInt(document.getElementById('mazRepeatUntil' + x).value, 10);
+						var exit = parseInt(document.getElementById('mazExit' + x).value, 10);
+						var bwWorld = parseInt(document.getElementById('mazBwWorld' + x).value, 10);
+						if (isNaN(world) || world < 10){
+							world = 10;
+						}
+						else if (world > 1000) world = game.global.world;
+						for (var y = 0; y < setting.length; y++){
+							if (setting[y].world == world) {
+								continue loop1;
+							}
+						}
+						if (preset < 0 || preset > 3) preset = 0;
+						if (repeat < 0 || repeat > 2) repeat = 0;
+						if (until < 0 || until > 5) until = 0;
+						if (until == 5 && preset != 3) until = 0;
+						if (exit < 0 || exit > 2) exit = 0;
+						if (!bwWorld || preset < 3 || isNaN(bwWorld) || bwWorld < 125 || bwWorld > 1000) bwWorld = 125;
+						if (bwWorld > 125){
+							var adj = bwWorld - 125;
+							if (bwWorld % 15 != 0) bwWorld = 125 + (Math.floor(adj / 15) * 15);
+						}
+						setting.push({
+							world: world,
+							check: check,
+							preset: preset,
+							repeat: repeat,
+							until: until,
+							exit: exit,
+							bwWorld: bwWorld
+						})
+					}
+					setting.sort(function(a, b){return (a.world > b.world) ? 1 : -1});
+					if (game.global.universe == 2) this.setZoneU2 = setting;
+					else this.setZone = setting;
+					this.enabled = 1;
+					toggleSetting('mapAtZone', null, false, true);
+					cancelTooltip(true);
 				},
 				secondLocation: ["togglemapAtZone2", "togglemapAtZoneCM"],
 				lockUnless: function () {
@@ -1127,11 +1220,23 @@ var toReturn = {
 				description: "Enable or disable hotkeys.",
 				titles: ["Disable Hotkeys", "Enable Hotkeys"]
 			},
+			climbBw: {
+				enabled: 0,
+				extraTags: "qol",
+				description: "Decide whether or not you want your Trimps to automatically run the next Bionic Wonderland once they&apos;ve gotten all of the items from their current one. Repeat Maps must be toggled on for Climb BW to work.",
+				titles: ["Don&apos;t Climb BW", "Climb BW"],
+				secondLocation: ["toggleclimbBwCM", "toggleclimbBw2"],
+				lockUnless: function(){
+					game.global.highestLevelCleared >= 124;
+				}
+			},
 			offlineProgress: {
 				enabled: 1,
 				extraTags: "other",
-				description: "Disables or enables earning resources while offline. <b>Warning: If this is toggled off, no resources will be earned from Trustworthy Trimps when coming back to the game after being offline.</b> This also stops the current run timer when offline and can be helpful if you are analysing stats and do not want resources counted when there is no timer running",
-				titles: ["No Offline Progress", "Offline Progress"]
+				description: "<p><b>No Offline Progress</b> will cause no extra resources to be earned and no time to be warped when you return to the game. The Portal and Zone timers will not advance while offline, and the game will be in the same state you left it when you come back. This can be useful for speedrun achievements or if you just really really don&apos;t trust your Trimps when you&apos;re gone.</p><p><b>Hybrid Offline</b> combines Time Warp and Trustworthy Trimps into the best offline experience that Science can buy. Time Warp caps at 24 hours, so using Hybrid Offline will grant Trustworthy Trimps at the beginning of your Time Warp for all offline time over 24 hours, and will also grant Trustworthy Trimps for any extra time should you choose to end Time Warp early. Note that the Portal Time and Time in Zone clocks will advance for all time granted by Trustworthy Trimps and by Time Warp.</p><p><b>Time Warp Only</b> will grant up to 24 hours of your offline progress as Time Warp without granting any extra resources from Trustworthy Trimps at the beginning (for time over 24 hours), or at the end (for canceled Time Warp time). This can also be useful for timed runs or tracking stats, as the time added will be capped to however much time you spend in Time Warp.</p><p><b>Trustworthy Trimps Only</b> will skip Time Warp when you come back and grant resources for all time offline from Trustworthy Trimps. For when you want to get back in the game as soon as possible!</p><p style=&apos;text-align: center&apos;><b>This setting can be changed from the Time Warp screen<br/>or in Settings -> Other</b></p>",
+				//description: "Disables or enables earning resources while offline. <b>Warning: If this is toggled off, no resources will be earned from Trustworthy Trimps when coming back to the game after being offline.</b> This also stops the current run timer when offline and can be helpful if you are analysing stats and do not want resources counted when there is no timer running",
+				titles: ["No Offline Progress", "Hybrid Offline", "Time Warp Only", "Trustworthy Trimps Only"],
+				secondLocation: ["toggleofflineProgresstimewarp"]
 			},
 			pauseGame: {
 				enabled: 0,
@@ -3228,6 +3333,7 @@ var toReturn = {
 				message("You have completed the Wither challenge! Your world has been returned to normal, and you have unlocked the Tenacity perk!", "Notices");
 				game.global.challengeActive = "";
 				unlockPerk("Tenacity");
+				game.challenges.Wither.abandon();
 			},
 			filter: function() {
 				return (getHighestLevelCleared(true) >= 69);
@@ -3268,7 +3374,7 @@ var toReturn = {
 				manageStacks(null, null, true, 'witherImmunityStacks', null, null, true);
 			},
 			drawStacks: function(){
-				manageStacks('Hardness', this.trimpStacks, true, 'witherHardenedStacks', 'glyphicon glyphicon-heart', this.stackTooltip(true), false);
+				manageStacks('Hardened', this.trimpStacks, true, 'witherHardenedStacks', 'glyphicon glyphicon-heart', this.stackTooltip(true), false);
 				manageStacks('Horror', this.enemyStacks, false, 'witherHorrorStacks', 'glyphicon glyphicon-screenshot', this.stackTooltip(false), false);
 				if (this.healImmunity > 0)
 					manageStacks('Wither Immunity', this.healImmunity, true, 'witherImmunityStacks', 'icomoon icon-plus', 'Enemies cannot heal or inflict Wither while your Trimps have Wither Immunity.')
@@ -4773,7 +4879,7 @@ var toReturn = {
 			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
 			get descriptions () {
-				return ["Complete the Dimension of Anger before buying Bounty", "Reach Z30 with no respec and 60 or less He spent", "Have over " + prettify(1e6) + " traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 he/hr", "Attack 20 times without dying in Electricity", "Create a perfect Map", "Use up all 7 Daily Challenges", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over " + prettify(250e3) + " total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Break the Planet with 5 or fewer lost battles", "Reach Z60 without hiring a single Trimp", "Complete a Zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Complete Lead with 100 or fewer lost battles", "Build your 10th Spire Floor", "Kill " + prettify(1e6) + " enemies in your Spire", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete a Void Map at Z215 on Domination", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Build up a Poison debuff that's 1000x higher than your attack", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your Zone number", "Beat the Spire with no respec and " + prettify(100e6) + " or less He Spent", "Defeat an enemy on Obliterated", "Find an Amalgamator on Z1", "Get 10 Red Crits in a row", "Beat Z75 on the Scientist V challenge", "Gain at least 01189998819991197253 He from one Bone Portal", "Kill an Enemy on Eradicated", "Complete Spire V with no deaths", "Build your 20th Spire Floor", "Complete a Bionic Wonderland map 200 levels higher than your Zone number", "Complete Spire II on the Coordinate challenge", "Beat Spire II with no respec and " + prettify(1e9) + " or less He spent", "Beat Imploding Star on Obliterated", "Close 750 Nurseries at the same time", "Earn Dark Essence with no respec and 0 He spent", "Reach Magma on Obliterated", "Break the Planet on Eradicated"];
+				return ["Complete the Dimension of Anger before buying Bounty", "Reach Z30 with no respec and 60 or less He spent", "Have over " + prettify(1e6) + " traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 He/Hr", "Attack 20 times without dying in Electricity", "Create a perfect Map", "Use up all 7 Daily Challenges", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find an uncommon heirloom at Z146 or higher", "Spend over " + prettify(250e3) + " total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Break the Planet with 5 or fewer lost battles", "Reach Z60 without hiring a single Trimp", "Complete a Zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Complete Lead with 100 or fewer lost battles", "Build your 10th Spire Floor", "Kill " + prettify(1e6) + " enemies in your Spire", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete a Void Map at Z215 on Domination", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Build up a Poison debuff that's 1000x higher than your attack", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your Zone number", "Beat the Spire with no respec and " + prettify(100e6) + " or less He Spent", "Defeat an enemy on Obliterated", "Find an Amalgamator on Z1", "Get 10 Red Crits in a row", "Beat Z75 on the Scientist V challenge", "Gain at least 01189998819991197253 He from one Bone Portal", "Kill an Enemy on Eradicated", "Complete Spire V with no deaths", "Build your 20th Spire Floor", "Complete a Bionic Wonderland map 200 levels higher than your Zone number", "Complete Spire II on the Coordinate challenge", "Beat Spire II with no respec and " + prettify(1e9) + " or less He spent", "Beat Imploding Star on Obliterated", "Close 750 Nurseries at the same time", "Earn Dark Essence with no respec and 0 He spent", "Reach Magma on Obliterated", "Break the Planet on Eradicated"];
 			},
 			tiers: [2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9],
 			description: function (number) {
@@ -8254,6 +8360,7 @@ var toReturn = {
 					var elem = document.getElementById('Microchip');
 					if (elem) document.getElementById('buildingsHere').removeChild(elem);
 				}
+				if (this.owned > 5) this.owned = 5;
 			}
 		},
 	},
@@ -9601,7 +9708,6 @@ var toReturn = {
 				if (game.global.universe == 2) return "The TZC has finally approved a House blueprint. To your surprise, it looks fairly decent! You decide to immediately build some.";
 				return "Doesn't seem like all of these little guys will fit in your ship. Luckily, you remember how to make small huts for shelter."
 			},
-			message: "It's starting to get pretty crowded up in here. Maybe you should start building some better housing.",
 			cost: {
 				resources: {
 					trimps: 65

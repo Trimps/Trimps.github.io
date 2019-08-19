@@ -1915,6 +1915,23 @@ body {
 	display: inline-block;
 }
 
+.heirloomChangeIcon{
+	display: inline-block;
+	font-size: 2.5vw;
+	width: 20%;
+	padding: 2%;
+	text-align: center;
+	cursor: pointer;
+}
+
+#selectedHeirloomIcon{
+	cursor: pointer;
+}
+
+.heirloomChangeIcon:hover{
+	background-color: rgb(27, 25, 25);
+}
+
 .heirloomRare0{
 	color: #888888;
 }
@@ -2716,9 +2733,13 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	font-size: 1.3vw;
 }
 
-#achievementMainClose{
+#achievementMainClose, #achievementClose2{
 	color: #6f1f1f;
 	cursor: pointer;
+}
+
+#achievementClose2{
+	font-size: 2.5vw;
 }
 
 #achievementHeader{
@@ -4064,18 +4085,13 @@ background-color: rgba(255,255,255,0.25);
   color: #000;
 }
 
-.btn-new {
-	color: #5f39e6;
-	text-shadow: 
-	1px 1px 8px #033f01, 
-	0 0 20px #0e9509, 
-	0 0 25px #053d03, 
-	-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
-	  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
-	 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
-	  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);
-	background-color: black;
+.btn-new{
+	animation: timewarp 240s infinite linear;
+	color: white;
 	font-weight: bold;
+	background: linear-gradient(270deg, #000, #361212, #000, #042904, #000, #0f054d, #000);
+	background-size: 400% 400%;
+	width: 100%;
 }
 
 .btn-new:hover,
@@ -4084,60 +4100,9 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: white;
-	background-color: black;
 	font-weight: bold;
-}
-
-.btn-new:hover {
-	animation: newBtnAnimated 1s infinite;
-	display: inline-block;
-}
-
-@keyframes newBtnAnimated{
-	0% {
-		text-shadow: 
-		1px 1px 8px #041604, 
-		2px 2px 20px #d404c3, 
-		0 0 25px #3d0c03, 
-		-0.17vw -0.17vw 0.17vw rgba(14, 1, 71, 0.8),  
-		  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
-		 -0.17vw 0.17vw 0.17vw rgba(11, 102, 129, 0.58),
-		  0.17vw 0.17vw 0.3vw rgba(76, 44, 163, 0.72);	
-			  animation-timing-function: ease-in;
-	}
-	33% {
-		text-shadow: 
-		1px 1px 8px #033f01, 
-		0 0 20px #0bff02, 
-		0 0 25px #053d03, 
-		-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
-		  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
-		 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
-		  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);
-			  animation-timing-function: ease-out;
-	}
-	66% {
-		text-shadow: 
-		1px 1px 8px #033f01, 
-		0 0 20px #ff0000, 
-		0 0 25px #053d03, 
-		-0.17vw -0.17vw 0.17vw rgba(17, 71, 1, 0.8),  
-		  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
-		 -0.17vw 0.17vw 0.17vw rgba(5, 44, 1, 0.58),
-		  0.17vw 0.17vw 0.3vw rgba(24, 0, 89, 0.72);
-			  animation-timing-function: ease-out;
-	}
-	100% {
-		text-shadow: 
-		1px 1px 8px #041604, 
-		2px 2px 20px #bb02ac, 
-		0 0 25px #3d0c03, 
-		-0.17vw -0.17vw 0.17vw rgba(14, 1, 71, 0.8),  
-		  0.17vw -0.17vw 0.17vw rgba(13, 0, 89, 0.72),
-		 -0.17vw 0.17vw 0.17vw rgba(11, 102, 129, 0.58),
-		  0.17vw 0.17vw 0.3vw rgba(76, 44, 163, 0.72);
-	}
+	color: white;
+	animation: timewarp 10s infinite linear;
 }
 
 .btn-new:active,
@@ -5503,4 +5468,187 @@ sup{
 	background-color: #000;
 	padding: 2%;
 	font-size: 1.5vw;
+}
+
+#offlineWrapper{
+	animation: timewarp 240s infinite linear;
+	color: white; 
+	width: 100vw; 
+	height: 100vh; 
+	display: none;
+	background: linear-gradient(270deg, #000, #361212, #000, #042904, #000, #0f054d, #000);
+	background-size: 400% 400%;
+}
+
+@keyframes timewarp{
+	0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+#offlineTitle{
+	font-size: 2vw;
+	text-align: center;
+}
+
+#offlineInnerWrapper{
+	width: 50%;
+	margin-left: 25%;
+	font-size: 1.5vw;
+	padding-top: 10%;
+}
+
+#offlineProgressWrapper{
+	width: 100%;
+	height: 3vw;
+}
+
+#offlineExtraInfo{
+	font-size: 1.2vw;
+	text-align: right;
+}
+
+#offlineProgressText{
+	padding-top: 0.35vw;
+	width: 100%;
+	position: absolute;
+	font-weight: bold;
+	text-align: center;
+	color: black;
+	font-size: 1.7vw;
+}
+
+.offlineMapBtn{
+	width: 47%;
+	margin: 1%;
+	font-size: 1vw;
+}
+
+#offlineTimeOffline{
+	padding-top: 2vw;
+	text-align: center;
+}
+
+.offlineExtraBtn{
+	width: 45%;
+	margin: 2vw 2%;
+	display: inline-block;
+	font-size: 1.2vw;
+}
+
+#offlineExtraBtnsContainer, #offlineMapBtns, #offlineZoneBtns{
+	height: 20vw;
+	border: 1px solid white;
+	padding-top: 2vw;
+}
+
+#offlineZoneBtns{
+	text-align: center;
+}
+
+#offlineEffective{
+	background-color: black;
+	color: red;
+	font-weight: bold;
+	font-size: 0.9em;
+	text-align: center;
+}
+
+#offlineSettingContainer{
+	text-align: center;
+}
+
+.mazRow div input{
+	width: 100%;
+}
+
+.mazRow div select{
+	width: 100%;
+}
+
+.mazRow{
+	padding: 0 2%;
+	margin: 0 1%;
+	font-weight: bold;
+}
+
+.mazRow.titles div{
+	text-align: center;
+	font-weight: bold;
+}
+
+.mazRow.titles{
+	border: 1px solid black;
+	margin: 0 1%;
+	padding: 0.2% 2%;
+}
+
+#mazAddRowBtn{
+	margin-top: 0.5vw;
+}
+
+.mazDelete, .mazWorld, .mazCheckbox, .mazPreset, .mazRepeat, .mazRepeatUntil, .mazExit, .mazBwWorld{
+	display: inline-block;
+}
+
+.mazDelete .icomoon{
+	position: relative;
+	top: 0.6vw;
+	left: -0.55vw;
+	color: red;
+	font-weight: bold;
+	font-size: 2vw;
+}
+
+.mazDelete{
+	width: 4%;
+	cursor: pointer;
+}
+
+.mazWorld{
+	width: 9%;
+}
+
+.mazCheckbox{
+	width: 4%;
+}
+
+.mazPreset{
+	width: 16%;
+}
+
+.mazRepeat{
+	width: 19%;
+}
+
+.mazRepeatUntil{
+	width: 24%;
+}
+
+.mazExit{
+	width: 24%;
+}
+
+.mazBwZoneOn .mazRepeatUntil, .mazBwZoneOn .mazExit{
+	width: 20%;
+}
+
+.mazBwZoneOn .mazRepeat{
+	width: 17%;
+}
+
+.mazBwZoneOn .mazPreset{
+	width: 13%;
+}
+
+.mazBwZoneOff .mazBwWorld{
+	display: none;
+}
+
+.mazBwZoneOn .mazBwWorld{
+	width: 13%;
+}
+
+.mazBwMainOff .mazRepeatUntil select .mazBwClimbOption{
+	display: none;
 }
