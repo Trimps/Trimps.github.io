@@ -5960,6 +5960,11 @@ function generateHeirloomIcon(heirloom, location, number){
 function getHeirloomIcon(heirloom){
 	var prefix = "";
 	var iconName = heirloom.icon;
+	if (!iconName){
+		var type = heirloom.type;
+		heirloom.icon = ((type == "Core") ? 'adjust' : (type == "Shield") ? '*shield3' : 'grain');
+		iconName = heirloom.icon;
+	}
 	if (iconName.charAt(0) == "*") {
 		iconName = iconName.replace("*", "");
 		prefix =  "icomoon icon-"
