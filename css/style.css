@@ -5509,6 +5509,7 @@ sup{
 }
 
 #offlineProgressText{
+	left: 0;
 	padding-top: 0.35vw;
 	width: 100%;
 	position: absolute;
