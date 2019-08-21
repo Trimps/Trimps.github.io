@@ -9985,6 +9985,7 @@ function startFight() {
 			game.global.difs.block = 0;
 		}
 	}
+	if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
 	if (!instaFight) updateAllBattleNumbers(game.resources.trimps.soldiers < currentSend);
     game.global.fighting = true;
     game.global.lastFightUpdate = new Date();
