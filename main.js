@@ -2018,7 +2018,8 @@ function manageEqualityStacks(){
 	if (game.global.universe != 2) return;
 	if (game.portal.Equality.radLocked) return;
 	if (game.global.universe == 2 && !game.portal.Equality.radLocked && game.portal.Equality.scalingActive){
-		manageStacks('Equality Scaling', game.portal.Equality.scalingCount, true, 'equalityStacks', 'icomoon icon-arrow-bold-down', game.portal.Equality.scalingCount + " stacks of Equality are active, reducing the Attack of Trimps and Bad Guys by " + prettify((1 - Math.pow(0.9, game.portal.Equality.scalingCount)) * 100) + "%.", false);
+		var stacks = game.portal.Equality.getActiveLevels();
+		manageStacks('Equality Scaling', stacks, true, 'equalityStacks', 'icomoon icon-arrow-bold-down', stacks + " stack" + needAnS(stacks) + " of Equality are active, reducing the Attack of Trimps and Bad Guys by " + prettify((1 - Math.pow(0.9, stacks)) * 100) + "%.", false);
 	}
 	else{
 		manageStacks(null, null, true, 'equalityStacks', null, null, true);
