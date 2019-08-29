@@ -2302,7 +2302,7 @@ var offlineProgress = {
 	updateBar: function(current){
 		var width = ((current / this.progressMax) * 100).toFixed(1) + "%";
 		this.progressElem.style.width = width;
-		this.cellElem.innerHTML = "Cell " + (game.global.lastClearedCell + 1);
+		this.cellElem.innerHTML = "Cell " + (game.global.lastClearedCell + 2);
 		this.zoneElem.innerHTML = "Zone " + game.global.world;
 		this.progressTextElem.innerHTML = prettify(current) + " / " + prettify(this.progressMax) + " ticks (" + width + ")";
 		this.updateMapBtns();
