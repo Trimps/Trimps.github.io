@@ -2258,6 +2258,9 @@ var offlineProgress = {
 			for(var i = 0; i < loopTicks; i++) {
 				gameLoop(true)
 				offlineProgress.ticksProcessed++;
+				game.global.zoneStarted -= 100;
+				game.global.portalTime -= 100;
+				game.global.lastSoldierSentAt -= 100;
 			}
 			var now = new Date().getTime();
 			var timeSpent = now - offlineProgress.lastLoop;
@@ -2269,10 +2272,6 @@ var offlineProgress = {
 			}
 			offlineProgress.loopTicks = loopTicks;
 			offlineProgress.lastLoop = now;
-			var timeProcessed = loopTicks * 100;
-			var extraTime = timeProcessed - timeSpent;
-			game.global.zoneStarted -= extraTime;
-			game.global.portalTime -= extraTime;
 			if (x < ticks && usingRealTimeOffline){
 				offlineProgress.loop = setTimeout(loop, 0);
 			}
@@ -5871,12 +5870,15 @@ function unequipHeirloom(heirloom, toLocation, noScreenUpdate){
 	else game.global.heirloomsExtra.push(heirloom);
 	//Remove bonuses
 	for (var item in game.heirlooms[heirloom.type]){
-		if (item == 'trimpHealth') game.global.difs.health -= (game.global.health * (calcHeirloomBonus("Shield", "trimpHealth", false, true) / 100));
+		var stat = game.heirlooms[heirloom.type][item];
+		if (item == 'trimpHealth') {
+			addSoldierHealth((1 / (1 + (stat.currentBonus / 100))) - 1);
+		}
 		game.heirlooms[heirloom.type][item].currentBonus = 0;
 	}
 	if (!noScreenUpdate) populateHeirloomWindow();
 	updateGammaStacks();
-
+	updateAllBattleNumbers();
 }
 
 function equipHeirloomById(id, type){
@@ -5899,11 +5901,17 @@ function equipHeirloom(noScreenUpdate){
 	game.global[heirloom.type + "Equipped"] = heirloom;
 	//Add bonuses
 	for (var item in heirloom.mods){
-		game.heirlooms[heirloom.type][heirloom.mods[item][0]].currentBonus += heirloom.mods[item][1];
+		var bonus = heirloom.mods[item][1];
+		var name = heirloom.mods[item][0];
+		game.heirlooms[heirloom.type][heirloom.mods[item][0]].currentBonus = bonus;
+		if (name == 'trimpHealth'){
+			addSoldierHealth(bonus / 100);
+		}
 	}
 	if (!noScreenUpdate) populateHeirloomWindow();
 	if (checkLowestHeirloom() >= 5) giveSingleAchieve("Swag");
 	if (checkLowestHeirloom() >= 7) giveSingleAchieve("Swagmatic");
+	updateAllBattleNumbers();
 }
 
 function checkLowestHeirloom(){
@@ -13367,7 +13375,7 @@ function fight(makeUp) {
 
 function reduceSoldierHealth(amt){
 	if (game.global.soldierHealth <= 0) return;
-	var wasFull = (game.global.soldierHealth >= game.global.soldierMaxHealth)
+	var wasFull = (game.global.soldierHealth >= game.global.soldierHealthMax)
 	if (game.global.universe == 2){
 		if (game.global.soldierEnergyShield > 0){
 			game.global.soldierEnergyShield -= amt;
