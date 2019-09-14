@@ -3518,10 +3518,10 @@ var toReturn = {
 					return "0 / 1";
 				}
 			},
-			completeQuest: function(){
-				if (this.finishedQuests == 80) giveSingleAchieve("Level Up");
+			completeQuest: function(){			
 				this.questComplete = true;
 				this.finishedQuests++;
+				if (this.finishedQuests == 80) giveSingleAchieve("Level Up");
 				message("You have completed your quest! You've completed " + this.finishedQuests + " / " + this.questsMade + " quests.", "Notices", "*question2", "questMessage questSuccess")
 			},
 			failQuest: function(){
