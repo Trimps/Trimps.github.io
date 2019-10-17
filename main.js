@@ -4536,6 +4536,7 @@ function getDesiredGenes(ovr){
 
 var DecimalBreed = Decimal.clone({precision: 30, rounding: 4});
 var missingTrimps = new DecimalBreed(0);
+var srLastBreedTime = "";
 function breed() {
     var trimps = game.resources.trimps;
 	checkAchieve("trimps", trimps.owned);
@@ -4548,6 +4549,7 @@ function breed() {
     if (breeding.cmp(2) == -1 || game.global.challengeActive == "Trapper" || game.global.challengeActive == "Trappapalooza") {
         updatePs(0, true);
 		document.getElementById("trimpsTimeToFill").innerHTML = "";
+		srLastBreedTime = "";
         return;
 	}
 	var potencyMod = new DecimalBreed(trimps.potency);
@@ -4674,13 +4676,15 @@ function breed() {
 			if (remainingTime == 0.0)
 				updateGenes = true;
 		}
-		document.getElementById("trimpsTimeToFill").innerHTML = (fullBreed) ? fullBreed : "";
+		srLastBreedTime = (fullBreed) ? fullBreed : "";
+		document.getElementById("trimpsTimeToFill").innerHTML = srLastBreedTime;
 		if (updateGenes || (!game.global.fighting && totalTimeText == "0.0")){
 			updateStoredGenInfo(breeding.toNumber());
 		}
         return;
     }
 	document.getElementById("trimpsTimeToFill").innerHTML = timeRemaining;
+	srLastBreedTime = timeRemaining;
 	var oldTrimps = trimps.owned;
 	trimps.owned = decimalOwned.toNumber();
 	if (decimalOwned.cmp(trimps.owned) != 0 && breeding.cmp(0) > 0){
