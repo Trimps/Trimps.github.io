@@ -7755,11 +7755,11 @@ var mutationEffects = {
 var visualMutations = {
 	Pumpkimp: {
 		active: function (){
-			return false;
+			//return false;
 
 			if (game.global.world == 1) return false;
 			if (checkIfSpireWorld()) return false;
-			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 5);
+			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 8);
 		},
 		pattern: function(currentArray) {
 			var loc = getRandomIntSeeded(game.global.mutationSeed++, 0, 4);
@@ -14525,7 +14525,9 @@ function givePumpkimpLoot(){
 		"That Pumpkimp was so smashed that he gave you ",
 		"You dig through what's left of the Pumpkimp and find ",
 		"Aww man, there's seeds and orange stuff everywhere. At least you found ",
-		"You're not wearing a costume, but you'll still take this "
+		"You're not wearing a costume, but you'll still take this ",
+		"Heck yes, this Pumpkimp has your favorite treat! You picked up ",
+		"What a haunting sight! The Pumpkimp was punted by a plump Trimp after the fight. As it flies away, it drops "
 	];
 	var failures = [
 		"That Pumpkimp gave you nothing! What a jerk!",
@@ -14534,7 +14536,9 @@ function givePumpkimpLoot(){
 		"Right before you finish the Pumpkimp off, it winks at you and rolls away. That was pretty weird.",
 		"As the Pumpkimp takes his final breath, he manages to mutter the word 'Trick'. No loot here.",
 		"You search the Pumpkimp for loot, but find nothing. Someone wasn't in the holiday spirit!",
-		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks."
+		"That Pumpkimp rolled away before you could finish him off, yelling stuff about tricks.",
+		"Thanks, you hate getting tricks instead of treats.",
+		"You might have hit that Pumpkimp a bit too hard, there's nothing left to give you candy."
 	];
 	var attackBuff = [
 		"The Pumpkimp suddenly bursts, spewing huge amounts of candy into the air. Your Trimps scramble about to pick up all they can and gain Sugar Rush!",
@@ -14544,10 +14548,16 @@ function givePumpkimpLoot(){
 	];
 	if (game.jobs.Dragimp.owned > 0) eligible.push("gems");
 	if (game.upgrades.Explorers.allowed > 0) eligible.push("fragments");
-	if (game.global.world > 200 && !game.global.mapsActive) eligible.push("attack");
+	if (game.global.universe == 1){
+		if (game.global.world > 200 && !game.global.mapsActive) eligible.push("attack");
+	}
+	else if (game.global.universe == 2){
+		if (game.global.world > 60 && !game.global.mapsActive) eligible.push("attack");
+	}
 	//I really wanted to call it Pumpkin Seed, but this can probably be useful for other holidays without bogging down the save file more.
 	var roll = (game.global.mapsActive) ? Math.floor(Math.random() * eligible.length) : getRandomIntSeeded(game.global.holidaySeed++, 0, eligible.length);
 	var item = eligible[roll];
+	if (item == "metal" && (game.global.challengeActive == "Metal" || game.global.challengeActive == "Transmute")) item = "nothing";
 	if (item == "nothing") {
 		var failNumber = Math.floor(Math.random() * failures.length);
 		message(failures[failNumber], "Loot", "*magic-wand", "pumpkimp", "events");

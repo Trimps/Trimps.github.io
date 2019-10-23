@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.1.1',
+		stringVersion: '5.1.2',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -1176,13 +1176,13 @@ var toReturn = {
 			// 	description: "Disable the snow effect in the world. <b>This will take effect on the next Zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
 			// 	titles: ["No Snow", "Show Snow"]
 			// },
-/*			showHoliday: {
+			showHoliday: {
 				enabled: 1,
 				extraTags: "general",
 				description: "<p>Choose between <b>Show Pumpkimps</b>, <b>Bordered Pumpkimps</b>, and <b>No Pumpkimps</b>. This setting applies only to the visual effect of Pumpkimp Zones in the world, does not apply to maps, and has no impact on how many Pumpkimps or Pumpkimp Zones actually spawn. This setting is temporary and will rot away after the Pumpkimp season!</p><p><b>Show Pumpkimps</b> is the default, and displays Pumpkimp Zones as normal.</p><p><b>Bordered Pumpkimps</b> displays Pumpkimp cells by changing the border color instead of the background color.</p><p><b>No Pumpkimps</b> will not show any indicator at all that a world Zone is a Pumpkimp Zone. Pumpkimps will still spawn at the same rate.</p>",
 				titles: ["No Pumpkimps", "Show Pumpkimps", "Bordered Pumpkimps"],
-				locked: true
-			},*/
+				locked: false
+			},
 			geneSend: {
 				enabled: 0,
 				locked: true,
@@ -5433,7 +5433,7 @@ var toReturn = {
 			}
 		},
 		Pumpkimp: {
-			location: "None",
+			location: "Maps",
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
