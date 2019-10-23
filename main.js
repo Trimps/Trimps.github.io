@@ -14461,7 +14461,8 @@ function onPurchaseResult(result) {
 
 var sugarRush = {
 	getAttackStrength: function () {
-		return (2 + Math.floor((game.global.world - 200) / 100));
+		var minWorld = (game.global.universe == 2) ? 60 : 200;
+		return (2 + Math.floor((game.global.world - minWorld) / 100));
 	},
 	icon: 'icomoon icon-bag',
 	timeEach: 600,
