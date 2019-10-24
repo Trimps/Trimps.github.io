@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.1.2',
+		stringVersion: '5.1.3',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -3521,7 +3521,7 @@ var toReturn = {
 			completeQuest: function(){			
 				this.questComplete = true;
 				this.finishedQuests++;
-				if (this.finishedQuests == 80) giveSingleAchieve("Level Up");
+				if (this.finishedQuests == 80 && this.questsMade == 80) giveSingleAchieve("Level Up");
 				message("You have completed your quest! You've completed " + this.finishedQuests + " / " + this.questsMade + " quests.", "Notices", "*question2", "questMessage questSuccess")
 			},
 			failQuest: function(){
@@ -4901,7 +4901,7 @@ var toReturn = {
 				return (Fluffy.checkU2Allowed());
 			},
 			get descriptions () {
-				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Complete Revenge with exactly 19 stacks", "Complete Quest after completing all 80 quests"];
+				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Complete Revenge with exactly 19 stacks", "Complete 80/80 quests on Quest"];
 			},
 			tiers: [10,10,10,11,11,11,11,11,12,12,12,12],
 			description: function (number) {

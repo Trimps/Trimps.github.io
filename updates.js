@@ -4473,8 +4473,8 @@ function unlockJob(what) {
 	drawAllJobs();
 }
 
-function drawAllJobs(){
-	if (usingRealTimeOffline) return;
+function drawAllJobs(force){
+	if (usingRealTimeOffline && !force) return;
 	var elem = document.getElementById("jobsHere");
 	elem.innerHTML = "";
 	for (var item in game.jobs){

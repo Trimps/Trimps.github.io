@@ -2123,6 +2123,7 @@ function activateKongBonus(oldWorld){
 var usingRealTimeOffline = false;
 var offlineProgress = {
 	wrapperElem: document.getElementById('offlineWrapper'),
+	innerWrapperElem: document.getElementById('innerWrapper'),
 	progressElem: document.getElementById('offlineProgress'),
 	progressTextElem: document.getElementById('offlineProgressText'),
 	cellElem: document.getElementById('offlineCellNumber'),
@@ -2237,6 +2238,7 @@ var offlineProgress = {
 		this.ticksProcessed = 0;
 		this.mapsAllowed = Math.floor(this.progressMax / 288000);
 		this.wrapperElem.style.display = 'block';
+		this.innerWrapperElem.style.display = 'none';
 		this.startTime = rightNow;
 		this.repeatSetting = game.global.repeatMap;
 		this.repeatUntil = game.options.menu.repeatUntil.enabled;
@@ -2285,9 +2287,14 @@ var offlineProgress = {
 		this.loop = null;
 		usingRealTimeOffline = false;
 		this.wrapperElem.style.display = 'none';
+		this.innerWrapperElem.style.display = 'block';
 		game.global.repeatMap = this.repeatSetting;
+		repeatClicked(true);
 		game.options.menu.repeatUntil.enabled = this.repeatUntil;
+		toggleSetting("repeatUntil", null, false, true);
 		game.options.menu.exitTo.enabled = this.exitTo;
+		toggleSetting("exitTo", null, false, true);
+		toggleSetting("mapAtZone", null, false, true);
 		var secondsRemaining = Math.floor((this.progressMax - this.ticksProcessed) / 10);
 		this.progressMax = -1;
 		this.ticksProcessed = 0;
@@ -3349,7 +3356,8 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	var amt = 0;
 	if (what == "food" || what == "metal" || what == "wood"){
 		//Base * speed books
-		var tempModifier = 0.5 * Math.pow(1.25, (game.global.world >= 59) ? 59 : game.global.world);
+		var maxSpeedBookLevel = (game.global.universe == 2 || (game.global.universe == 1 && game.global.world <= 59)) ? game.global.world : 59;
+		var tempModifier = 0.5 * Math.pow(1.25, maxSpeedBookLevel);
 		//Mega books
 		if (game.global.world >= 60 && game.global.universe == 1) {
 			if (game.global.frugalDone) tempModifier *= Math.pow(1.6, game.global.world - 59);
@@ -3913,6 +3921,7 @@ function buyBuilding(what, confirmed, fromAuto, forceAmt) {
 	var purchaseAmt = 1;
 	if (forceAmt) purchaseAmt = Math.min(forceAmt, calculateMaxAfford(toBuy, true, false, false, true));
 	else if (!toBuy.percent) purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy, true, false) : game.global.buyAmt;
+	if (purchaseAmt > 1e10) purchaseAmt = 1e10;
     if (typeof toBuy === 'undefined') return false;
 	var canAfford = ((forceAmt) ? canAffordBuilding(what, false, false, false, false, purchaseAmt) : canAffordBuilding(what));
 	if (purchaseAmt == 0) return false;
@@ -4609,6 +4618,13 @@ function breed() {
 		else if (new Date().getTime() > lastGAToggle + 2000){
 			lastGAToggle = -1;
 			canRun = true;
+		}
+		if (!GAElem){
+			if (usingRealTimeOffline){
+				drawAllJobs(true);
+				GAElem = document.getElementById('Geneticistassist');
+				GAIndicator = document.getElementById('GAIndicator');
+			}
 		}
 		if (GAElem && canRun){
 			var thresh = new DecimalBreed(totalTime.mul(0.02));
@@ -11101,14 +11117,17 @@ function runMapAtZone(index){
 	if (!setting || !setting.check) return;
 	if (setting.repeat) {
 		game.global.repeatMap = (setting.repeat == 1);
+		if (usingRealTimeOffline) offlineProgress.repeatSetting = game.global.repeatMap;
 		repeatClicked(true);
 	}
 	if (setting.exit){
 		game.options.menu.exitTo.enabled = (setting.exit - 1);
+		if (usingRealTimeOffline) offlineProgress.exitTo = game.options.menu.exitTo.enabled;
 		toggleSetting('exitTo', null, false, true);
 	}
 	if (setting.until && setting.until != 5){
 		game.options.menu.repeatUntil.enabled = (setting.until - 1);
+		if (usingRealTimeOffline) offlineProgress.repeatUntil = game.options.menu.repeatUntil.enabled;
 		toggleSetting('repeatUntil', null, false, true);
 	}
 	if (setting.preset == 3){
