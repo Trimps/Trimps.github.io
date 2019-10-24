@@ -146,7 +146,7 @@
 								<td colspan="2">+ <span class="icomoon icon-diamond" title="gems"></span> <span id="gemsBoostPreview">0</span></td>
 							</tr>
 							<tr>
-								<td colspan="2">+ <Span class="glyphicon glyphicon-th" title="fragments"></span> <span id="fragmentsBoostPreview">0</span></td>
+								<td colspan="2">+ <span class="glyphicon glyphicon-th" title="fragments"></span> <span id="fragmentsBoostPreview">0</span></td>
 							</tr>
 							</tbody>
 						</table>
@@ -1019,64 +1019,6 @@
 				</div>
 			</div>
 		</div>
-		<div id="settingsRow">
-			<table id="settingsTable">
-				<tr>
-					<td class="btn btn-info" onclick="save(false, true)">
-						Save <span id="saveIndicator"></span><span id="playFabIndicator"></span>
-					</td>
-					<td class="btn btn-info" onclick="tooltip('Export', null, 'update')">
-						<div>Export</div>
-					</td>
-					<td class="btn btn-info" onclick="tooltip('Import', null, 'update')">
-						<div>Import</div>
-					</td>
-					<td class="btn btn-success" onclick="toggleStats()">
-						<div>Stats</div>
-					</td>
-					<td class="btn tealColor" onclick="toggleAchievementWindow()">
-						<div>Achieves</div>
-					</td>
-					<td class="btn btn-default" onclick="toggleSettingsMenu()">
-						<div id='settingsText'>Settings</div>
-					</td>
-					<td class="btn" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">
-						
-					</td>
-					<td class="btn btn-new" onclick="window.open('updates.html', '_blank')">
-							V <span id="versionNumber"></span> | What's New 
-					</td>
-					<td id="portalTimer" class="timerNotPaused" onclick="toggleSetting('pauseGame')" onmouseover="tooltip('Pause the game', 'customText', event, game.options.menu['pauseGame'].description)" onmouseout="tooltip('hide')">
-						<span id="portalTime">&nbsp;</span>&nbsp;&nbsp;<span style='font-size: 0.85em; line-height: 0.85em;' class='icomoon icon-pause3'></span>&nbsp;
-					</td>
-				</tr>
-			</table>
-			<div id="settingsHere" style="display: none">
-				<div id='searchSettingsWindow'>
-					<div id='settingTitleBar'>
-						<div class='noselect optionContainer settingsBtn tealColor settingTypeBtn' onclick='toggleSettingSection(false)'>Browse All</div>
-						<span id='searchSettingsTitle'>Choose a Category Below, or Search for a Setting/Keyword:</span>&nbsp;
-						<input id='searchSettings' onkeyup='searchSettings(this)' /><br/>
-						<div id='settingsTabs'>
-							<ul class="nav nav-tabs nav-justified">
-								<li role="presentation" style='display: none' id='NewTab' onclick="settingTab('New')" class="tabNotSelected settingTab"><a>New</a></li>
-								<li role="presentation" id='GeneralTab' onclick="settingTab('General')" class="tabNotSelected settingTab"><a>General</a></li>
-								<li role="presentation" id='PerformanceTab' onclick="settingTab('Performance')" class="tabNotSelected settingTab"><a>Performance</a></li>
-								<li role="presentation"  id='QOLTab' onclick="settingTab('QOL')" class="tabNotSelected settingTab"><a>Quality of Life</a></li>
-								<li role="presentation"  id='AlertsTab' onclick="settingTab('Alerts')" class="tabNotSelected settingTab"><a>Pop-ups and Alerts</a></li>
-								<li role="presentation"  id='LayoutTab' onclick="settingTab('Layout')" class="tabNotSelected settingTab"><a>Layout</a></li>
-								<li role="presentation"  id='OtherTab' onclick="settingTab('Other')" class="tabNotSelected settingTab"><a>Other</a></li>
-							</ul>
-						</div>
-					</div>					
-					<div id='settingSearchResults'></div>
-				</div>
-				<div id="allSettings" style="display: none">
-					<div class='noselect optionContainer settingsBtn tealColor' onclick='toggleSettingSection(true)'>Back to Search</div>
-					<div id="allSettingsHere"></div>
-				</div>
-			</div>
-		</div>
 	</div>
 	</div>
 
@@ -1469,6 +1411,64 @@
 		</tbody>
 	</table>
 	<div style='position: absolute; display: block; width: 15vw; left: 85%; top: 90%; background-color: grey; z-index: 99' id="screenReaderTooltip" aria-live="assertive"></div>
+	<div id="settingsRow">
+		<table id="settingsTable">
+			<tr>
+				<td class="btn btn-info" onclick="save(false, true)">
+					Save <span id="saveIndicator"></span><span id="playFabIndicator"></span>
+				</td>
+				<td class="btn btn-info" onclick="tooltip('Export', null, 'update')">
+					<div>Export</div>
+				</td>
+				<td class="btn btn-info" onclick="tooltip('Import', null, 'update')">
+					<div>Import</div>
+				</td>
+				<td class="btn btn-success" onclick="toggleStats()">
+					<div>Stats</div>
+				</td>
+				<td class="btn tealColor" onclick="toggleAchievementWindow()">
+					<div>Achieves</div>
+				</td>
+				<td class="btn btn-default" onclick="toggleSettingsMenu()">
+					<div id='settingsText'>Settings</div>
+				</td>
+				<td class="btn" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">
+					
+				</td>
+				<td class="btn btn-new" onclick="window.open('updates.html', '_blank')">
+						V <span id="versionNumber"></span> | What's New 
+				</td>
+				<td id="portalTimer" class="timerNotPaused" onclick="toggleSetting('pauseGame')" onmouseover="tooltip('Pause the game', 'customText', event, game.options.menu['pauseGame'].description)" onmouseout="tooltip('hide')">
+					<span id="portalTime">&nbsp;</span>&nbsp;&nbsp;<span style='font-size: 0.85em; line-height: 0.85em;' class='icomoon icon-pause3'></span>&nbsp;
+				</td>
+			</tr>
+		</table>
+		<div id="settingsHere" style="display: none">
+			<div id='searchSettingsWindow'>
+				<div id='settingTitleBar'>
+					<div class='noselect optionContainer settingsBtn tealColor settingTypeBtn' onclick='toggleSettingSection(false)'>Browse All</div>
+					<span id='searchSettingsTitle'>Choose a Category Below, or Search for a Setting/Keyword:</span>&nbsp;
+					<input id='searchSettings' onkeyup='searchSettings(this)' /><br/>
+					<div id='settingsTabs'>
+						<ul class="nav nav-tabs nav-justified">
+							<li role="presentation" style='display: none' id='NewTab' onclick="settingTab('New')" class="tabNotSelected settingTab"><a>New</a></li>
+							<li role="presentation" id='GeneralTab' onclick="settingTab('General')" class="tabNotSelected settingTab"><a>General</a></li>
+							<li role="presentation" id='PerformanceTab' onclick="settingTab('Performance')" class="tabNotSelected settingTab"><a>Performance</a></li>
+							<li role="presentation"  id='QOLTab' onclick="settingTab('QOL')" class="tabNotSelected settingTab"><a>Quality of Life</a></li>
+							<li role="presentation"  id='AlertsTab' onclick="settingTab('Alerts')" class="tabNotSelected settingTab"><a>Pop-ups and Alerts</a></li>
+							<li role="presentation"  id='LayoutTab' onclick="settingTab('Layout')" class="tabNotSelected settingTab"><a>Layout</a></li>
+							<li role="presentation"  id='OtherTab' onclick="settingTab('Other')" class="tabNotSelected settingTab"><a>Other</a></li>
+						</ul>
+					</div>
+				</div>					
+				<div id='settingSearchResults'></div>
+			</div>
+			<div id="allSettings" style="display: none">
+				<div class='noselect optionContainer settingsBtn tealColor' onclick='toggleSettingSection(true)'>Back to Search</div>
+				<div id="allSettingsHere"></div>
+			</div>
+		</div>
+	</div>
 	<div id='playerSpirePopout' style='display: none'>
 		<div id='playerSpireSpirePanel'>
 			<div id='playerSpireSpireSpirePanel' class='noselect'>
