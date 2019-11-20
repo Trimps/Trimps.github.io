@@ -3366,6 +3366,11 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f006d', end
 color: #DDDDFF !important;
 }
 
+.blackMap{
+	background-color: black;
+	color: white;
+}
+
 .voidMessage, .voidBadge, .voidCell.cellColorNotBeaten{
 	background-color: #2E0854;
 	color: #DDDDFF;
@@ -4086,11 +4091,9 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new{
-	animation: timewarp 240s infinite linear;
-	color: white;
+	color: #dadada;
 	font-weight: bold;
-	background: linear-gradient(270deg, #000, #361212, #000, #042904, #000, #0f054d, #000);
-	background-size: 400% 400%;
+	background: linear-gradient(90deg, rgba(20,41,22,1) 0%, rgba(0,0,0,1) 33%, rgba(67,73,26,1) 66%, rgba(0,0,0,1) 100%);
 	width: 100%;
 }
 
@@ -4100,9 +4103,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	font-weight: bold;
-	color: white;
-	animation: timewarp 10s infinite linear;
+	color: #dadada;
+	background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(20,41,22,1) 33%, rgba(0,0,0,1) 66%, rgba(67,73,26,1) 100%);
 }
 
 .btn-new:active,
@@ -5652,4 +5654,26 @@ sup{
 
 .mazBwMainOff .mazRepeatUntil select .mazBwClimbOption{
 	display: none;
+}
+
+.iconPadLeft{
+	padding-left: 0.1vw;
+}
+
+.blackMap ul li.cellColorNotBeaten{
+	background-color: #000000;
+	color: #535353;
+	border-color: #3f3f3f;
+}
+
+.blackMap ul li.cellColorBeaten{
+	background-color: #142916 !important;
+	color: #757575 !important;
+	border-color: #3f3f3f;
+}
+
+.blackMap ul li.cellColorCurrent{
+	background-color: #43491a !important;
+	color: #dadada !important;
+	border-color: #3f3f3f;
 }

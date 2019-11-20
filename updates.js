@@ -713,7 +713,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				vals.bwWorld = current[x].bwWorld;
 			}
 			else style = " style='display: none' ";
-			var presetDropdown = "<option value='0'" + ((vals.preset == 0) ? " selected='selected'" : "") + ">Preset 1</option><option value='1'" + ((vals.preset == 1) ? " selected='selected'" : "") + ">Preset 2</option><option value='2'" + ((vals.preset == 2) ? " selected='selected'" : "") + ">Preset 3</option><option value='3'" + ((vals.preset == 3) ? " selected='selected'" : "") + ">Run Bionic</option>";
+			var presetDropdown = "<option value='0'" + ((vals.preset == 0) ? " selected='selected'" : "") + ">Preset 1</option><option value='1'" + ((vals.preset == 1) ? " selected='selected'" : "") + ">Preset 2</option><option value='2'" + ((vals.preset == 2) ? " selected='selected'" : "") + ">Preset 3</option><option value='3'" + ((vals.preset == 3) ? " selected='selected'" : "") + ">Run Bionic</option><option value='4'" + ((vals.preset == 4) ? " selected='selected'" : "") + ">Run Void</option>";
+			if (game.global.universe == 2 && game.global.highestRadonLevelCleared >= 69) presetDropdown += "<option value='5'" + ((vals.preset == 5) ? " selected='selected'" : "") + ">Black Bog</option>";
 			var repeatDropdown = "<option value='0'" + ((vals.repeat == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.repeat == 1) ? " selected='selected'" : "") + ">Repeat On</option><option value='2'" + ((vals.repeat == 2) ? " selected='selected'" : "") + ">Repeat Off</option>";
 			var repeatUntilDropdown = "<option value='0'" + ((vals.until == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.until == 1) ? " selected='selected'" : "") + ">Repeat Forever</option><option value='2'" + ((vals.until == 2) ? " selected='selected'" : "") + ">Repeat to 10</option><option value='3'" + ((vals.until == 3) ? " selected='selected'" : "") + ">Repeat for Items</option><option value='4'" + ((vals.until == 4) ? " selected='selected'" : "") + ">Repeat for Any</option><option class='mazBwClimbOption' value='5'" + ((vals.until == 5) ? " selected='selected'" : "") + ">Climb BW to Level</option>"	
 			var exitDropdown = "<option value='0'" + ((vals.exit == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.exit == 1) ? " selected='selected'" : "") + ">Exit to Maps</option><option value='2'" + ((vals.exit == 2) ? " selected='selected'" : "") + ">Exit to World</option>";
@@ -2030,6 +2031,20 @@ function getTrimpPs() {
 		currentCalc *= potencyMod;
 		textString += "<tr style='color: red'><td class='bdTitle'>Toxic Air</td><td class='bdPercent'>x  " + potencyMod.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
 	}
+	if (game.global.challengeActive == "Quagmire" && game.challenges.Quagmire.exhaustedStacks != 0){
+		var mult = game.challenges.Quagmire.getExhaustMult();
+		currentCalc *= mult;
+		var dispTotal = "";
+		if (mult < 1){
+			textString += "<tr style='color: red'>";
+			dispTotal = "x " + prettify(mult);
+		}
+		else{
+			textString += "<tr>";
+			dispTotal = "+ " + prettify((mult - 1) * 100) + "%";
+		}
+		textString += "<td class='bdTitle'>Exhausted</td><td class='bdPercent'>" + dispTotal + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	if (game.global.voidBuff == "slowBreed"){
 		currentCalc *= 0.2;
 		textString += "<tr style='color: red'><td class='bdTitle'>Void Gas</td><td class='bdPercent'>x  0.2</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>"
@@ -2283,6 +2298,23 @@ function getBattleStatBd(what) {
 	if (what == "attack" && game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)){
 		currentCalc *= 1.5;
 		textString += "<tr><td class='bdTitle'>Determined (Lead)</td><td></td><td></td><td>+ 50%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+	}
+	if (what == "attack" && game.global.challengeActive == "Quagmire" && game.challenges.Quagmire.exhaustedStacks != 0){
+		var mult = game.challenges.Quagmire.getExhaustMult();
+		currentCalc *= mult;
+		var dispPercent = "";
+		var dispTotal = "";
+		if (mult < 1){
+			textString += "<tr style='color: red'>";
+			dispPercent = (game.global.mapsActive) ? "-5%" : "-10%";
+			dispTotal = "x " + prettify(mult);
+		}
+		else{
+			textString += "<tr>";
+			dispPercent = (game.global.mapsActive) ? "5%" : "10%";
+			dispTotal = "+ " + prettify((mult - 1) * 100) + "%";
+		}
+		textString += "<td class='bdTitle'>Exhausted (Quagmire)</td><td>" + dispPercent + "</td><td>" + game.challenges.Quagmire.exhaustedStacks + "</td><td>" + dispTotal + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	if (what != "shield"){
 		var heirloomBonus = calcHeirloomBonus("Shield", "trimp" + capitalizeFirstLetter(what), 0, true);
@@ -2861,6 +2893,16 @@ function getLootBd(what) {
 		amt = (1 + (getPerkLevel("Looting_II") * game.portal.Looting_II.modifier));
 		currentCalc *= amt;
 		textString += "<tr><td class='bdTitle'>Looting II (perk)</td><td>+ " + prettify(game.portal.Looting_II.modifier * 100) + "%</td><td>" + prettify(getPerkLevel("Looting_II")) + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (getPerkLevel("Greed")){
+		amt = game.portal.Greed.getMult();
+		currentCalc *= amt;
+		textString += "<tr><td class='bdTitle'>Greed (perk)</td><td>x" + " " + prettify(game.portal.Greed.getBonusAmt()) + "</td><td>" + getPerkLevel("Greed") + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.challengeActive == "Quagmire"){
+		amt = game.challenges.Quagmire.getLootMult();
+		currentCalc *= amt;
+		textString += "<tr><td class='bdTitle'>Motivated (Quagmire)</td><td>+ 40%</td><td>" + game.challenges.Quagmire.motivatedStacks + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (Fluffy.isRewardActive("wealthy") && what != "Helium"){
 		currentCalc *= 2;
@@ -4569,6 +4611,11 @@ function unlockMap(what) { //what here is the array index
 		tooltip = " onmouseover=\"tooltip('Void Map', 'customText', event, 'This Map will scale in level to your current Zone Number, enemies have a random buff, and the boss at the final cell will drop helium. This map will disappear after it is completed once, and leaving the map will reset its progress.');\" onmouseout=\"tooltip('hide')\"";
 		loc = "voidMapsHere";
 	}
+	if (item.location == "Darkness"){
+		btnClass += " blackMap";
+		level = '<span class="glyphicon glyphicon-globe"></span>';
+		tooltip = " onmouseover=\"tooltip('Void Map', 'customText', event, 'This Map will scale in level to your current Zone Number. Completing this map will reduce your stacks of Exhausted and Motivated by 1.');\" onmouseout=\"tooltip('hide')\"";
+	}
 	else if (item.noRecycle) btnClass += getUniqueColor(item);
 	var elem = document.getElementById(loc);
 	var abbrev = item.bonus;
@@ -5677,6 +5724,10 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards){
 			w62: "It seems like you've gotta take down the Five Evil Trimps. Scruffy reminds you that you're still about 140 Zones away from the first one though. You try to find something else to direct anger at, like that tree over there.",
 			w65: "You wonder if Trimps came from this Universe, your original one, or somewhere else. Scruffy shrugs.",
 			w67: "The weather is finally starting to cool back down, you and your Trimps are quite relieved.",
+			get w69(){
+				if (game.global.challengeActive == "Quagmire") return "Giggity";
+				return "The Trimps are still enjoying the nice weather, and have even found a couple of sweet lakes to swim in!"
+			},
 			w70: "Your tenacity is inspiring.",
 			w72: "You really don't like Druopitee. You've spent an unknown amount of lifetimes cleaning up his mess, and who knows how many different Universes he's corrupted.",
 			w75: "You miss Fluffy, you should go visit him soon.",

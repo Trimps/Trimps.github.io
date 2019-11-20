@@ -3420,6 +3420,8 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	
 	if (getPerkLevel("Looting")) amt += (amt * getPerkLevel("Looting") * game.portal.Looting.modifier);
 	if (getPerkLevel("Looting_II")) amt *= (1 + (getPerkLevel("Looting_II") * game.portal.Looting_II.modifier));
+	if (getPerkLevel("Greed")) amt *= game.portal.Greed.getMult();
+	if (game.global.challengeActive == "Quagmire") amt *= game.challenges.Quagmire.getLootMult();
 	if (Fluffy.isRewardActive("wealthy") && what != "helium") amt *= 2;
 	var spireRowBonus = (game.talents.stillRowing.purchased) ? 0.03 : 0.02;
 	if (game.global.spireRows > 0) amt *= 1 + (game.global.spireRows * spireRowBonus);
@@ -3719,7 +3721,8 @@ function gather() {
 			if (timeToFillElem) timeToFillElem.textContent = calculateTimeToMax(game.resources[increase], perSec, null, true);
 		}
 		addResCheckMax(increase, amount, null, true);
-    }
+	}
+	if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId < 2) game.challenges.Quest.checkQuest();
     if (what === "" || what == "buildings") return;
     if (what == "trimps") {
         trapThings();
@@ -4589,7 +4592,10 @@ function breed() {
 	}
 	if (game.global.voidBuff == "slowBreed"){
 		potencyMod = potencyMod.mul(0.2);
-	} 
+	}
+	if (game.global.challengeActive == "Quagmire"){
+		potencyMod = potencyMod.mul(game.challenges.Quagmire.getExhaustMult());
+	}
 	potencyMod = calcHeirloomBonusDecimal("Shield", "breedSpeed", potencyMod);
 	//console.log(getDesiredGenes(potencyMod.toNumber()));
 
@@ -5756,7 +5762,7 @@ function displayExtraHeirlooms(){
 	}
 	document.getElementById("extraHeirloomsHere").innerHTML = tempHtml;
 	var s = (extraExtraText > 1) ? "s" : "";
-	var heirloomExtraText = " - " + extraExtraText + " Heirloom" + s + ", recycled for " + recycleAllExtraHeirlooms(true) + " Nu";
+	var heirloomExtraText = " - " + extraExtraText + " Heirloom" + s + ", recycled for " + prettify(recycleAllExtraHeirlooms(true)) + " Nu";
 	if (game.global.spiresCompleted >= 1) heirloomExtraText += " and " + recycleAllExtraHeirlooms(false, true) + " Ss";
 	heirloomExtraText += " on Portal";
 	document.getElementById("extraHeirloomsText").innerHTML = heirloomExtraText;
@@ -6263,7 +6269,9 @@ function getHeirloomRecycleValue(heirloom){
 
 function getHeirloomBaseValue(heirloom){
 	if (heirloom.type == "Core") return game.heirlooms.coreValues(heirloom.rarity);
-	return game.heirlooms.values[heirloom.rarity];
+	var amt = game.heirlooms.values[heirloom.rarity];
+	if (heirloom.nuMod) amt *= heirloom.nuMod;
+	return amt;
 }
 
 //Dummy heirloom for mod recycle price calculating
@@ -6517,6 +6525,9 @@ function createHeirloom(zone, fromBones, spireCore){
 		if (b == "empty" || b > a) return -1;
 		return a > b
 	})
+	if (game.global.challengeActive == "Daily"){
+		buildHeirloom.nuMod = (1 + (getDailyHeliumValue(countDailyWeight()) / 100));
+	}
 	game.global.heirloomsExtra.push(buildHeirloom);
 	displaySelectedHeirloom(false, 0, false, "heirloomsExtra", game.global.heirloomsExtra.length - 1, true);
 	game.stats.totalHeirlooms.value++;
@@ -6922,6 +6933,10 @@ function rewardToken(empowerment, countOnly, atZone){
 	// }
 	var world = (countOnly) ? atZone : game.global.world;
 	var tokens = Math.floor((world - 241) / 15) + 1;
+	if (game.global.challengeActive == "Daily"){
+		tokens *= (1 + (getDailyHeliumValue(countDailyWeight()) / 100));
+	}
+	tokens = Math.floor(tokens);
 	if (countOnly) return tokens;
 	game.empowerments[empowerment].tokens += tokens;
 	message("You found " + prettify(tokens) + " Token" + ((tokens == 1) ? "" : "s") + " of " + empowerment + "!", "Loot", "*medal2", "empoweredCell" + empowerment, 'token');
@@ -7771,7 +7786,7 @@ var mutationEffects = {
 var visualMutations = {
 	Pumpkimp: {
 		active: function (){
-			//return false;
+			return false;
 
 			if (game.global.world == 1) return false;
 			if (checkIfSpireWorld()) return false;
@@ -7882,7 +7897,12 @@ function getMagmiteReward(){
 /* 	var amt = game.global.world - 230;
 	amt = Math.floor(amt / 5) + 1;
 	return amt; */
-	return 1;
+	var amt = 1;
+	// if (game.global.challengeActive == "Daily"){
+	// 	amt *= (1 + (getDailyHeliumValue(countDailyWeight()) / 100));
+	// 	amt = Math.floor(amt);
+	// }
+	return amt;
 }
 
 function canAffordGeneratorUpgrade(){
@@ -8815,11 +8835,7 @@ function dropPrestiges(){
 
 function drawGrid(maps) { //maps t or f. This function overwrites the current grid, be carefulz
 	var grid = (maps) ? document.getElementById("mapGrid") : document.getElementById("grid");
-	if (!maps && game.global.gridArray[0].name == "Liquimp"){
-		grid.className = "liquid";
-	}
-	else if (!maps && game.global.spireActive) grid.className = "spire";
-	else grid.className = "";
+
 	var map;
     grid.innerHTML = "";
     var cols = 10;
@@ -8836,6 +8852,12 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			else	rows = ((map.size - (cols * cols)) > cols) ? cols + 2 : cols + 1;
 		}
 	}
+	if (!maps && game.global.gridArray[0].name == "Liquimp"){
+		grid.className = "liquid";
+	}
+	else if (!maps && game.global.spireActive) grid.className = "spire";
+	else if (maps && map.location == "Darkness") grid.className = "blackMap"
+	else grid.className = "";
 	var width = (100 / cols);
     var counter = 0;
     var idText = (maps) ? "mapCell" : "cell";
@@ -8971,7 +8993,7 @@ function recycleBelow(confirmed){
 	if (total > 0) message("Recycled " + total + " maps for " + prettify(refund) + " fragments.", "Notices");
 }
 
-function recycleMap(map, fromMass, killVoid) {
+function recycleMap(map, fromMass, killVoid, noRefund) {
     if (typeof map === 'undefined' || map == -1) {
 		if (game.global.lookingAtMap === "") return;
 		map = getMapIndex(game.global.lookingAtMap);
@@ -9000,7 +9022,7 @@ function recycleMap(map, fromMass, killVoid) {
 	else if (game.global.lookingAtMap == mapObj.id) game.global.lookingAtMap = "";
 	game.global.mapsOwned--;
 	var refund;
-	if (!killVoid) {
+	if (!killVoid && !noRefund) {
 		refund = getRecycleValue(mapObj.level);
 		game.resources.fragments.owned += refund;
 		if (!fromMass) message("Recycled " + mapObj.name + " for " + prettify(refund) + " fragments.", "Notices");
@@ -9010,7 +9032,9 @@ function recycleMap(map, fromMass, killVoid) {
 		game.global.totalVoidMaps -= (mapObj.stacked) ? mapObj.stacked + 1 : 1;
 		return;
 	}
-	mapsSwitch(true, true);
+	if (!noRefund){
+		mapsSwitch(true, true);
+	}
 	return refund;
 }
 
@@ -9036,6 +9060,10 @@ function mapsClicked(confirmed) {
 	if (game.options.menu.pauseGame.enabled) return;
 	if (game.global.mapsActive && getCurrentMapObject().location == "Void" && !confirmed && !game.global.switchToMaps){
 		tooltip('confirm', null, 'update', 'You are about to abandon this Void Map, which will cause you to lose all current progress in this map. Are you sure?' , 'mapsClicked(true)', 'Abandon Void Map');
+		return;
+	}
+	if (game.global.mapsActive && getCurrentMapObject().location == "Darkness" && !confirmed && !game.global.switchToMaps){
+		tooltip('confirm', null, 'update', 'You are about to abandon The Black Bog, which will cause you to lose all current progress in this map. Are you sure?' , 'mapsClicked(true)', 'Abandon Black Bog');
 		return;
 	}
     if (game.global.switchToMaps || game.global.switchToWorld || game.options.menu.alwaysAbandon.enabled == 1 || confirmed) {
@@ -9118,7 +9146,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
 	document.getElementById("mapsBtn").className = "btn btn-warning fightBtn";
     if (game.global.preMapsActive) {
 		//Switching to Map Chamber
-		if (currentMapObj && currentMapObj.location == "Void") {
+		if (currentMapObj && (currentMapObj.location == "Void" || currentMapObj.location == "Darkness")) {
 			recycleMap(-1, true, true);
 			currentMapObj = false;
 		}
@@ -9156,6 +9184,9 @@ function mapsSwitch(updateOnly, fromRecycle) {
 			document.getElementById("repeatVoidsContainer").style.display = "block";
 		}
 		else document.getElementById("repeatVoidsContainer").style.display = "none";
+		if (currentMapObj.location == "Darkness"){
+			currentMapObj.level = game.global.world;
+		}
 		if (currentMapObj.location == "Bionic"){
 			document.getElementById("climbBwContainer").style.display = "block";
 			toggleSetting('climbBw', null, false, true);
@@ -9285,7 +9316,7 @@ function runMap() {
 		game.achievements.mapless.earnable = false;
 		game.achievements.mapless.lastZone = game.global.world;
 	}
-	if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId == 5){
+	if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId == 5 && !game.challenges.Quest.questComplete){
 		game.challenges.Quest.questProgress++;
 		if (game.challenges.Quest.questProgress == 1) game.challenges.Quest.failQuest();
 	}
@@ -9337,6 +9368,7 @@ function battleCoordinator(makeUp) {
 		num -= 100;
 	if (!game.global.mapsActive && game.global.gridArray[0].name == "Liquimp" && num < 400)
 		num = 400;
+	if (game.global.challengeActive == "Quagmire") num += game.challenges.Quagmire.getSpeedPenalty();
 	if (game.global.battleCounter >= num) {
         game.global.battleCounter -= num; //Thanks grabz
         fight(makeUp);
@@ -10259,6 +10291,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell, noF
 		if (game.global.challengeActive == "Revenge") number *= game.challenges.Revenge.getMult();
 		if (game.global.challengeActive == "Duel" && game.challenges.Duel.trimpStacks > 50) number *= 3;
 		if (game.global.challengeActive == "Quest") number *= game.challenges.Quest.getAttackMult();
+		if (game.global.challengeActive == "Quagmire") number *= game.challenges.Quagmire.getExhaustMult();
 		number = calcHeirloomBonus("Shield", "trimpAttack", number);
 		if (Fluffy.isActive()){
 			number *= Fluffy.getDamageModifier();
@@ -10426,6 +10459,9 @@ function calculateScryingReward(){
 	}
 	if (game.global.spiresCompleted >= 1){
 		num *= Math.pow(4, game.global.spiresCompleted);
+	}
+	if (game.global.challengeActive == "Daily"){
+		num *= (1 + (getDailyHeliumValue(countDailyWeight()) / 100));
 	}
 	num = Math.floor(num);
 	return (num < 1) ? 1 : num;
@@ -11115,7 +11151,8 @@ function runMapAtZone(index){
 	toggleSetting('mapAtZone', null, false, true);
 	var setting = game.options.menu.mapAtZone.getSetZone()[index];
 	if (!setting || !setting.check) return;
-	if (setting.repeat) {
+	//Don't change repeat if the setting is to run void maps, instead change void repeat
+	if (setting.repeat && setting.preset != 4) {
 		game.global.repeatMap = (setting.repeat == 1);
 		if (usingRealTimeOffline) offlineProgress.repeatSetting = game.global.repeatMap;
 		repeatClicked(true);
@@ -11142,6 +11179,29 @@ function runMapAtZone(index){
 			if (game.global.currentMapId) recycleMap();
 			selectMap(nextBw);
 			runMap();
+		}
+		return;
+	}
+	else if (setting.preset == 4){
+		var nextVoid = getNextVoidId();
+		if (nextVoid){
+			if (setting.repeat){
+				game.options.menu.repeatVoids.enabled = ((setting.repeat == 1) ? 1 : 0);
+			}
+			if (game.global.currentMapId) recycleMap();
+			selectMap(nextVoid);
+			runMap();
+		}
+		return;
+	}
+	else if (setting.preset == 5){
+		if (game.global.challengeActive == "Quagmire"){
+			var bogMap = game.challenges.Quagmire.getBogMap();
+			if (bogMap){
+				if (game.global.currentMapId) recycleMap();
+				selectMap(bogMap.id);
+				runMap();
+			}
 		}
 		return;
 	}
@@ -12355,7 +12415,7 @@ function getCurrentDailyDescription(){
 		returnText += "<li>" + dailyModifiers[item].description(daily[item].strength) + "</li>";
 	}
 	var portalUni = (game.global.viewingUpgrades) ? game.global.universe : portalUniverse;
-	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(countDailyWeight())) + "%</b></u> of all " + ((portalUni == 2) ? "Radon" : "Helium") + " earned before finishing.";
+	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(countDailyWeight())) + "%</b></u> of all " + getDailyRewardText(portalUni) + " earned before finishing.";
 	return returnText;
 }
 
@@ -12635,7 +12695,9 @@ function getDailyChallenge(add, objectOnly, textOnly){
 	dailyObject.seed = dateSeed;
 	if (objectOnly) return dailyObject;
 	if (countDailyWeight(dailyObject) != currentWeight) console.log('mismatch, objectCount = ' + countDailyWeight(dailyObject) + ", current = " + currentWeight);
-	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(currentWeight)) + "%</b></u> of all " + ((portalUni == 2) ? "Radon" : "Helium") + " earned before finishing. <b>Can only be run once!</b> Reward does not count toward Bone Portals or affect best " + ((portalUni == 2) ? "Rn" : "He") + "/Hr stat.";
+	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(currentWeight)) + "%</b></u> of all ";
+	returnText += getDailyRewardText(portalUni);
+	returnText += " earned before finishing. <b>Can only be run once!</b> Reward does not count toward Bone Portals or affect best " + ((portalUni == 2) ? "Rn" : "He") + "/Hr stat.";
 	if (textOnly) return returnText;
 	nextDaily = returnText;
 	if (document.getElementById('specificChallengeDescription') != null) document.getElementById('specificChallengeDescription').innerHTML = returnText;
@@ -12648,6 +12710,20 @@ function getDailyChallenge(add, objectOnly, textOnly){
 	console.log("Took " + (new Date().getTime() - now) + "ms");
 	console.log("");
 	console.log(""); */
+	return returnText;
+}
+
+function getDailyRewardText(portalUni){
+	var returnText = "";
+	if (portalUni == 2){
+		returnText += "Radon, Nu from Heirlooms earned during the run, and Scruffy Exp";
+	}
+	else {
+		returnText += "Helium" + ((game.global.highestLevelCleared >= 179) ? ", " : ", and") + " Nu from Heirlooms earned during the run";
+		if (game.global.highestLevelCleared >= 179) returnText += ((game.global.highestLevelCleared >= 235) ? ", " : ", and ") + "Dark Essence";
+		if (game.global.highestLevelCleared >= 235) returnText += ((game.portal.Capable.locked == false) ? ", " : ", and ") + "Nature Tokens";
+		if (game.portal.Capable.locked == false) returnText += ", and Fluffy Exp";
+	} 
 	return returnText;
 }
 
@@ -13186,6 +13262,8 @@ function fight(makeUp) {
 		}
 		updateGammaStacks();
 	}
+	if (game.global.challengeActive == "Quagmire") overkill = 0;
+	if (game.challenges.Quest.disableOverkill()) overkill = 0;
 	if (getUberEmpowerment() == "Wind" && getEmpowerment() == "Wind" && game.global.formation == 5) {
 		overkill = 0;
 		if (plaguebringer == 0) plaguebringer = 1;
@@ -13409,7 +13487,7 @@ function reduceSoldierHealth(amt){
 			}
 			amt = Math.abs(game.global.soldierEnergyShield);
 			if (game.global.challengeActive == "Bublé") game.challenges.Bublé.onFail();
-			if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId == 4){
+			if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId == 4 && !game.challenges.Quest.questComplete){
 				game.challenges.Quest.questProgress++;
 				if (game.challenges.Quest.questProgress == 1) game.challenges.Quest.failQuest();
 			}
@@ -14091,9 +14169,11 @@ function scaleToCurrentMap(amt, ignoreBonuses, ignoreScry) {
 	if (game.unlocks.impCount.Magnimp) amt *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
 	if (getPerkLevel("Looting")) amt += (amt * getPerkLevel("Looting") * game.portal.Looting.modifier);
 	if (getPerkLevel("Looting_II")) amt *= (1 + (getPerkLevel("Looting_II") * game.portal.Looting_II.modifier));
+	if (getPerkLevel("Greed")) amt *= game.portal.Greed.getMult();
 	if (Fluffy.isRewardActive("wealthy")) amt *= 2;
 	if (getUberEmpowerment() == "Wind") amt *= 10;
 	if (!ignoreScry && isScryerBonusActive()) amt *= 2;
+	if (game.global.challengeActive == "Quagmire") amt *= game.challenges.Quagmire.getLootMult();
 	return amt;
 }
 

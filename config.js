@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.1.3',
+		stringVersion: '5.2.0',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -1065,7 +1065,9 @@ var toReturn = {
 								continue loop1;
 							}
 						}
-						if (preset < 0 || preset > 3) preset = 0;
+						var presetMax = 4;
+						if (game.global.universe == 2 && game.global.highestRadonLevelCleared >= 69) presetMax = 5;
+						if (preset < 0 || preset > presetMax) preset = 0;
 						if (repeat < 0 || repeat > 2) repeat = 0;
 						if (until < 0 || until > 5) until = 0;
 						if (until == 5 && preset != 3) until = 0;
@@ -1181,7 +1183,7 @@ var toReturn = {
 				extraTags: "general",
 				description: "<p>Choose between <b>Show Pumpkimps</b>, <b>Bordered Pumpkimps</b>, and <b>No Pumpkimps</b>. This setting applies only to the visual effect of Pumpkimp Zones in the world, does not apply to maps, and has no impact on how many Pumpkimps or Pumpkimp Zones actually spawn. This setting is temporary and will rot away after the Pumpkimp season!</p><p><b>Show Pumpkimps</b> is the default, and displays Pumpkimp Zones as normal.</p><p><b>Bordered Pumpkimps</b> displays Pumpkimp cells by changing the border color instead of the background color.</p><p><b>No Pumpkimps</b> will not show any indicator at all that a world Zone is a Pumpkimp Zone. Pumpkimps will still spawn at the same rate.</p>",
 				titles: ["No Pumpkimps", "Show Pumpkimps", "Bordered Pumpkimps"],
-				locked: false
+				locked: true
 			},
 			geneSend: {
 				enabled: 0,
@@ -2114,6 +2116,25 @@ var toReturn = {
 			heliumSpent: 0,
 			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for +130% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. Maximum of 10 levels.",
 			max: 10
+		},
+		Greed: {
+			priceBase: 10e9,
+			radLocked: true,
+			radLevel: 0,
+			radSpent: 0,
+			getMult: function(){
+				return Math.pow(this.getBonusAmt(), getPerkLevel("Greed"));
+			},
+			getBonusAmt: function(){
+				var tribs = game.buildings.Tribute.owned - 600;
+				var mod = 1.025;
+				if (tribs <= 0) return mod;
+				mod += (0.00015 * tribs); //+0.015% per tribute above 600
+				mod += (Math.floor(tribs / 25) * 0.0035); //+0.35% per 25 tributes above 600
+				return mod;
+			},
+			tooltip: "Feeling poor? Just get more resources! Each level increases all loot gained by 2.5% (compounding). Starting once you have 600 Tributes, every Tribute you purchase will <b>add</b> 0.015% to the compounding bonus. Every 25th Tribute you purchase will also add an additional 0.35% to the compounding bonus. For example: If you have 750 Tributes, you'll earn a 6.8% compounding Loot bonus for each level of Greed.",
+			max: 40
 		},
 		Tenacity: {
 			priceBase: 50e6,
@@ -3244,7 +3265,7 @@ var toReturn = {
 			completeAfterZone: 45
 		},
 		Melt: {
-			description: "Tweak the portal to bring you to an alternate reality, where there's plenty of risk and Radon. You will gain 10x loot (excluding Radon), 10x gathering, and 5x Trimp attack, but a stack of Melt will accumulate every second. Each stack of Melt reduces loot, gathering, and Trimp attack by 1% of the current amount. These stacks reset each time a Zone is cleared and cap at 500. Clearing <b>Melting Point (Zone 50) <i>or</i> Zone 55</b> will complete this Challenge - granting an additional 200% of all Radon collected through Z50. This Challenge is repeatable!",
+			description: "Tweak the portal to bring you to an alternate reality, where there's plenty of risk and Radon. You will gain 10x loot (excluding Radon), 10x gathering, and 5x Trimp attack, but a stack of Melt will accumulate every second. Each stack of Melt reduces loot, gathering, and Trimp attack by 1% of the current amount. These stacks reset each time a Zone is cleared and cap at 500. Clearing <b>Melting Point (Zone 50) <i>or</i> Zone 55</b> will complete this Challenge - granting an additional 400% of all Radon collected through Z50. This Challenge is repeatable!",
 			completed: false,
 			abandon: function () {
 				this.stacks = 0;
@@ -3265,7 +3286,7 @@ var toReturn = {
 			onComplete: function(){
 				if (this.largestStacks <= 150) giveSingleAchieve("Solid");
 				var reward = game.challenges.Melt.heldHelium;
-				reward *= 2;
+				reward *= 4;
 				message("You have completed the Melt challenge! You have been rewarded with " + prettify(reward) + " Radon, and you may repeat the challenge.", "Notices");
 				game.global.challengeActive = "";
 				game.challenges.Melt.abandon();
@@ -3313,6 +3334,95 @@ var toReturn = {
 				message("You have completed the 'Trappapalooza' challenge! Your Trimps now remember how to breed, and you have unlocked a new perk!", "Notices");
 			},
 			unlockString: "reach Zone 60"
+		},
+		Quagmire: {
+			description: "Travel to an extremely muddy dimension. It's hard to walk out here, making Overkill useless and Agility difficult. Your Trimps start each run with 100 stacks of Motivated, increasing all Loot gained by 40% per stack (including Radon). After each Zone, your Trimps gain 1 stack of Exhausted, reducing Trimp damage and breed speed by 10% per stack in the World, and 5% per stack in maps (compounding). For every 10 stacks of Exhausted, your Trimps will also attack 100ms slower. You'll also have access to run a special map called 'The Black Bog', which will always scale to Zone level. Completing 'The Black Bog' will reduce your Trimps' Exhausted by 1 stack, but will also reduce their Motivated by 1 stack. Exhausted stacks can be negative, and will increase damage and breed speed. Completing Z70 or reaching 0 Motivated stacks with this Challenge active will end the Challenge, returning the World to normal. If the Challenge is ended by completing Z70, you will gain an additional 150% of all Radon earned.",
+			motivatedStacks: 100,
+			exhaustedStacks: 0,
+			completed: false,
+			blockU1: true,
+			allowU2: true,
+			allowSquared: false,
+			completeAfterZone: 70,
+			heldHelium: 0,
+			heliumThrough: 70,
+			unlockString: " reach Zone 70",
+			fireAbandon: true,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 69);
+			},
+			start: function(){
+				createMap(-1, "The Black Bog", "Darkness", 10, 150, 3, true);
+				this.drawStacks();
+			},
+			onComplete: function(){
+				var reward = game.challenges.Quagmire.heldHelium;
+				reward *= 1.5;
+				message("You have completed the Quagmire challenge! You have gained an extra " + prettify(reward) + " Radon, and your world has been returned to normal.", "Notices");
+				addHelium(reward);
+				game.challenges.Quagmire.abandon();
+			},
+			drawStacks: function(){
+				manageStacks('Motivated', this.motivatedStacks, true, 'quagmireMotivatedStacks', 'glyphicon glyphicon-gift iconPadLeft', this.stackTooltip("Motivated"), false);
+				manageStacks('Exhausted', this.exhaustedStacks, true, 'quagmireExhaustedStacks', 'glyphicon glyphicon-bed iconPadLeft', this.stackTooltip("Exhausted"), false);
+			},
+			onLoad: function() {
+				this.drawStacks();
+			},
+			onNextWorld: function(){
+				this.exhaustedStacks++;
+				this.drawStacks();
+			},
+			stackTooltip: function(which){
+				if (which == "Motivated"){
+					return "Your Trimps are Motivated, increasing all Loot gained (including Radon) by " + prettify((game.challenges.Quagmire.getLootMult() - 1) * 100) + "%.";
+				}
+				var exhaustMult = game.challenges.Quagmire.getExhaustMult();
+				if (exhaustMult < 1) return "Your Trimps are exhausted, having only " + prettify(exhaustMult * 100) + "% of their normal damage and breed speed.";
+				return "Your Trimps are not at all exhausted, and have " + prettify((exhaustMult - 1) * 100) + "% more damage and breed speed.";
+			},
+			abandon: function(){
+				this.motivatedStacks = 100;
+				this.exhaustedStacks = 0;
+				game.global.challengeActive = "";
+				manageStacks('Motivated', null, true, 'quagmireMotivatedStacks', null, null, true);
+				manageStacks('Exhausted', null, true, 'quagmireExhaustedStacks', null, null, true);
+				this.removeBog();
+			},
+			getSpeedPenalty: function(){
+				if (this.exhaustedStacks < 10) return 0;
+				var slowCount = Math.floor(this.exhaustedStacks / 10);
+				return (slowCount * 100);
+			},
+			getLootMult: function(){
+				return 1 + (this.motivatedStacks * 0.4);
+			},
+			removeBog: function(){
+				var bogMap = this.getBogMap();
+				if (!bogMap) return;
+				if (game.global.mapsActive && game.global.currentMapId == bogMap.id){
+					mapsClicked(true);
+				}
+				bogMap.noRecycle = false;
+				recycleMap(getMapIndex(bogMap.id), false, false, true);
+				if (game.global.preMapsActive) mapsSwitch(true, true);
+			},
+			getBogMap: function(){
+				for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
+					if (game.global.mapsOwnedArray[x].location == "Darkness"){
+						return game.global.mapsOwnedArray[x];
+					}
+				}
+				return false;
+			},
+			getExhaustMult: function(){
+				if (this.exhaustedStacks == 0) return 1;
+				var mult = 1;
+				var mod = (game.global.mapsActive) ? 0.05 : 0.1;
+				if (this.exhaustedStacks < 0) mult = Math.pow((1 + mod), Math.abs(this.exhaustedStacks));
+				else mult = Math.pow((1 - mod), this.exhaustedStacks);
+				return mult;
+			}
 		},
 		Wither: {
 			description: "Travel to an ultra scary alternate reality with horrific Bad Guys. Enemies heal for 25% of their maximum health before each attack. If an enemy ever heals itself back to 100% health, your army will fall to despair and instantly wither away. Every enemy slain by your Trimps in the World or World-level Maps grants 1 stack of Hardness to your Trimps (stacking up to 10,000 and increasing Health by 0.1% per stack) and 1 stack of Horror to all enemies (increasing Attack by 0.05% per stack). Whenever a group of Trimps is killed by Wither, Trimps lose half of their stacks of Hardness and block the enemy's ability to heal and Wither for an amount of cells equal to 10% of the Hardness stacks lost. Clearing <b>Zone 70</b> will complete this Challenge.",
@@ -3451,13 +3561,11 @@ var toReturn = {
 			unlockString: "reach Zone 80"
 		},
 		Quest: {
-			description: "Travel to an alternate reality with lots of extra Radon... if you're willing to complete some quests for it. Enemies in this reality gain 10% extra health each zone starting at Z6 (compounding). However, you'll also get a random Quest each Zone starting at 6. Completing this quest will grant a 2x Radon multiplier for the rest of the Zone (does not stack), and will increase your Trimps' attack by 10% for the rest of the Challenge (compounding). Check messages or the Zone info tooltip for quest progress. Clearing <b>Zone 85</b> will complete this Challenge - granting an extra 200% of all Radon earned, and returning Trimp Attack and Enemy Health to normal. This Challenge is repeatable!",
+			description: "Travel to an alternate reality where Trimps really love questing. Enemies in this reality gain 10% extra health each zone starting at Z6 (compounding). However, you'll also get a random Quest each Zone starting at 6. Completing this quest will grant a 2x Radon multiplier for the rest of the Zone (does not stack), and will increase your Trimps' attack by 10% for the rest of the Challenge (compounding). Check messages or the Zone info tooltip for quest progress. Clearing <b>Zone 85</b> will complete this Challenge, returning Trimp Attack and Enemy Health to normal.",
 			squaredDescription: "Travel to an alternate reality where Trimps really love questing. Enemies in this reality gain 10% extra health each zone starting at Z6 (compounding). However, you'll also get a random Quest each Zone starting at 6. Completing this quest will grant a 2x Radon multiplier for the rest of the Zone (does not stack), and will increase your Trimps' attack by 10% for the rest of the Challenge (compounding). Check messages or the Zone info tooltip for quest prorgress.",
 			completed: false,
 			allowU2: true,
 			blockU1: true,
-			heliumThrough: 85,
-			heldHelium: 0,
 			completeAfterZone: 85,
 			questId: -1,
 			questComplete: false,
@@ -3466,7 +3574,7 @@ var toReturn = {
 			finishedQuests: 0,
 			questsMade: 0,
 			allowSquared: true,
-			questDescriptions: ["Quintuple (x5) your {resource}", "Double your {resource}", "Complete 5 Maps at Zone level", "One-shot 5 world enemies", "Don't let your shield break before Cell 100", "Don't run a map before Cell 100", "Buy a Smithy"],
+			questDescriptions: ["Quintuple (x5) your {resource}", "Double your {resource}", "Complete 5 Maps at Zone level", "One-shot 5 world enemies (Overkill is disabled in World until complete)", "Don't let your shield break before Cell 100", "Don't run a map before Cell 100", "Buy a Smithy"],
 			filter: function(){
 				return (getHighestLevelCleared(true) >= 84);
 			},
@@ -3497,6 +3605,7 @@ var toReturn = {
 			onStartFight: function(){
 				if (this.questId == -1) return;
 				if (this.questComplete) return;
+				if (this.questId < 2) return; //resource quests checked from gather
 				if (this.questId <= 3) this.checkQuest();
 				else if (this.questId <= 5 && game.global.lastClearedCell == 98) this.checkQuest();
 				//Do nothing for 6, checkQuest called from smithy purchase
@@ -3527,14 +3636,31 @@ var toReturn = {
 			failQuest: function(){
 				message("Oh no, you failed your quest! You've completed " + this.finishedQuests + " / " + this.questsMade + " quests.", "Notices", "*exclamation", "questMessage questFail")
 			},
+			disableOverkill: function(){
+				if (!game.global.challengeActive == "Quest" || this.questComplete || game.global.mapsActive || this.questId != 3) return false;
+				return true;
+			},
 			getNextQuest: function(){
 				if (this.questId != -1 && !this.questComplete) this.failQuest();
-				var roll = Math.floor(seededRandom(game.global.u2WorldSeed++) * this.questDescriptions.length);
+				var quests = [];
+				for (var y = 0; y < this.questDescriptions.length; y++){
+					if (y != 6 || this.questId != 6) quests.push(y);
+				}
+				var roll = Math.floor(seededRandom(game.global.u2WorldSeed++) * quests.length);
+				roll = quests[roll];
 				this.questId = roll;
 				this.questComplete = false;
 				this.questsMade++;
 				if (roll <= 1){
-					var res = ["food", "wood", "metal", "gems", "science"];
+					var resCheck = ["food", "wood", "metal", "gems", "science"];
+					var res = [];
+					for (var x = 0; x < resCheck.length; x++){
+						if (game.resources[resCheck[x]].owned > 0) res.push(resCheck[x]);
+					}
+					if (res.length == 0){
+						res.push("food");
+						game.resources.food.owned = 5;
+					}
 					var resRoll = Math.floor(seededRandom(game.global.u2WorldSeed++) * res.length);
 					this.resource = res[resRoll];
 					var mult = (roll == 0) ? 5 : 2;
@@ -3559,13 +3685,12 @@ var toReturn = {
 				}
 			},
 			onComplete: function(){
-				var reward = game.challenges.Quest.heldHelium;
-				reward *= 2;
-				message("You have completed the Quest challenge! You have been rewarded with " + prettify(reward) + " Radon, and you may repeat the challenge.", "Notices");
+				message("You have completed the Quest challenge! Your World has been returned to normal and you have unlocked the Greed Perk!", "Notices");
 				game.global.challengeActive = "";
-				addHelium(reward);
+				unlockPerk("Greed");
 			},
 			unlockString: "reach Zone 85",
+			unlocks: "Greed"
 		},
 	},
 	stats:{
@@ -5434,6 +5559,7 @@ var toReturn = {
 		},
 		Pumpkimp: {
 			location: "Maps",
+			locked: 1,
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
@@ -6163,6 +6289,24 @@ var toReturn = {
 				message("Radioactive waste spills to the ground as the Hulking Mutimp falls. You send a few Trimps to grab the shiny stuff in the toxic sludge, which ends up being " + prettify(amt) + " bars of metal!", "Loot", "*cubes", null, 'primary');
 			}
 		},
+		Darknimp: {
+			location: "Darkness",
+			locked: 0,
+			last: true,
+			fast: true,
+			attack: 2,
+			health: 3,
+			world: 6,
+			loot: function(){
+				if (game.global.challengeActive == "Quagmire"){
+					message("You have completed The Black Bog! 1 stack of Exhausted and Motivated have been removed from your Trimps.", "Notices");
+					game.challenges.Quagmire.motivatedStacks--;
+					game.challenges.Quagmire.exhaustedStacks--;
+					if (game.challenges.Quagmire.motivatedStacks <= 0) game.challenges.Quagmire.abandon();
+					else game.challenges.Quagmire.drawStacks();
+				}
+			}
+		},
 		//Exotics
 		Goblimp: {
 			location: "Maps",
@@ -6455,6 +6599,9 @@ var toReturn = {
 			},
 			Star: {
 				resourceType: "Metal"
+			},
+			Darkness: {
+				resourceType: "Any"
 			},
 			All: {
 				resourceType: "Metal"
