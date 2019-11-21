@@ -6264,13 +6264,13 @@ function getHeirloomRecycleValue(heirloom){
 	var baseValue;
 	if (game.heirlooms.recycleOverride[heirloom.rarity] != -1) baseValue = game.heirlooms.recycleOverride[heirloom.rarity];
 	else baseValue = (getHeirloomBaseValue(heirloom) / 2);
+	if (heirloom.nuMod) baseValue *= heirloom.nuMod;
 	return baseValue;
 }
 
 function getHeirloomBaseValue(heirloom){
 	if (heirloom.type == "Core") return game.heirlooms.coreValues(heirloom.rarity);
 	var amt = game.heirlooms.values[heirloom.rarity];
-	if (heirloom.nuMod) amt *= heirloom.nuMod;
 	return amt;
 }
 
@@ -6933,6 +6933,7 @@ function rewardToken(empowerment, countOnly, atZone){
 	// }
 	var world = (countOnly) ? atZone : game.global.world;
 	var tokens = Math.floor((world - 241) / 15) + 1;
+	var unbuffedTokens = tokens;
 	if (game.global.challengeActive == "Daily"){
 		tokens *= (1 + (getDailyHeliumValue(countDailyWeight()) / 100));
 	}
@@ -6942,7 +6943,7 @@ function rewardToken(empowerment, countOnly, atZone){
 	message("You found " + prettify(tokens) + " Token" + ((tokens == 1) ? "" : "s") + " of " + empowerment + "!", "Loot", "*medal2", "empoweredCell" + empowerment, 'token');
 	if (game.global.buyTab == "nature")
 		updateNatureInfoSpans();
-	game.stats.bestTokens.value += tokens;
+	game.stats.bestTokens.value += unbuffedTokens;
 	return tokens;
 }
 
@@ -12746,6 +12747,7 @@ function everythingInArrayGreaterEqual(smaller, bigger){
 	return true;
 }
 
+var rewardingTimeoutHeirlooms = false;
 var redCritCounter = 0;
 function fight(makeUp) {
 	var randomText;
@@ -12970,10 +12972,11 @@ function fight(makeUp) {
 				if (currentMapObj.stacked > 0){
 					var timeout = 1500;
 					if (currentMapObj.stacked > 3) timeout = 1000;
+					rewardingTimeoutHeirlooms = true;
 					for (var x = 0; x < currentMapObj.stacked; x++){
 						setTimeout((function(z) {
 							return function() {
-								createHeirloom(z);
+								if (rewardingTimeoutHeirlooms) createHeirloom(z);
 							}
 						})(game.global.world), (timeout * (x + 1)));
 					}

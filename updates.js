@@ -3229,6 +3229,7 @@ function prettifySub(number){
 }
 
 function resetGame(keepPortal) {
+	rewardingTimeoutHeirlooms = false;
 	if (game.options.menu.pauseGame.enabled){
 		game.options.menu.pauseGame.enabled = 0;
 		game.options.menu.pauseGame.onToggle();
