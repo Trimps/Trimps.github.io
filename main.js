@@ -6525,7 +6525,7 @@ function createHeirloom(zone, fromBones, spireCore){
 		if (b == "empty" || b > a) return -1;
 		return a > b
 	})
-	if (game.global.challengeActive == "Daily"){
+	if (game.global.challengeActive == "Daily" && !fromBones){
 		buildHeirloom.nuMod = (1 + (getDailyHeliumValue(countDailyWeight()) / 100));
 	}
 	game.global.heirloomsExtra.push(buildHeirloom);
