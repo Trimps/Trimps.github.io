@@ -5898,7 +5898,8 @@ function unequipHeirloom(heirloom, toLocation, noScreenUpdate){
 	for (var item in game.heirlooms[heirloom.type]){
 		var stat = game.heirlooms[heirloom.type][item];
 		if (item == 'trimpHealth') {
-			addSoldierHealth((1 / (1 + (stat.currentBonus / 100))) - 1);
+			if (game.global.universe == 2) addSoldierHealth((1 / (1 + (stat.currentBonus / 1000))) - 1);
+			else addSoldierHealth((1 / (1 + (stat.currentBonus / 100))) - 1);
 		}
 		game.heirlooms[heirloom.type][item].currentBonus = 0;
 	}
@@ -5931,7 +5932,8 @@ function equipHeirloom(noScreenUpdate){
 		var name = heirloom.mods[item][0];
 		game.heirlooms[heirloom.type][heirloom.mods[item][0]].currentBonus = bonus;
 		if (name == 'trimpHealth'){
-			addSoldierHealth(bonus / 100);
+			if (game.global.universe == 2) addSoldierHealth(bonus / 1000);
+			else addSoldierHealth(bonus / 100);
 		}
 	}
 	if (!noScreenUpdate) populateHeirloomWindow();
