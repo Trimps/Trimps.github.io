@@ -7807,7 +7807,6 @@ var visualMutations = {
 	},
 	TrimpmasSnow: {
 		active: function() {
-			return false;
 			return (game.options.menu.showSnow.enabled);
 		},
 		pattern: function(currentArray, mutationArray) {
@@ -14720,6 +14719,11 @@ function givePresimptLoot(){
 	if (new Date().getTime() > (game.global.lastBonePresimpt + boneTime))
 		eligible.push("bones");
 	var success = [
+		"Your fingers are cold and numb, but that won't stop them from opening up this Presimpt! Inside you find ",
+		"You contemplate saving this Presimpt to give to a Trimp, but you really really like opening them yourself. So you do, and you find ",
+		"Imagine losing a fight to a Presimpt. You got this one though, and inside you see ",
+		"You wonder what actually created these evil sentient gifts. However you instantly forget your concerns when you see the ",
+		"You were hoping for a TV or something, but you'll have to make do with the ",
 		"You run to the motionless Presimpt and give him a good shake. Sounds like ",
 		"One of your Trimps excitedly grabs the Presimpt and brings it to you. You let him open it to find ",
 		"Nothing like some global conquest during the Holidays! You open your Presimpt and find ",
@@ -14730,10 +14734,11 @@ function givePresimptLoot(){
 		"Nifty! That Presimpt was carrying around ",
 		"Presimpts for everyone! Wait there's only one. Presimpt for you! With ",
 		"This Presimpt has little snowman markings all over it! Inside, you find "];
-	if (game.global.spireRows >= 15){
-		success.push("Fluffy seems really excited about all the Presimpts, so you let him open this one to find ");
-		success.push("Without even a second of pause, Fluffy zooms to the Presimpt and tears it open. He brings you back the ");
-		success.push("Fluffy is too busy eating the purple snow to open this one, so you do it yourself. Inside, you find ");
+	if (game.global.spireRows >= 15 || game.global.universe == 2){
+		var name = Fluffy.getName();
+		success.push(name + " seems really excited about all the Presimpts, so you let him open this one to find ");
+		success.push("Without even a second of pause, " + name + " zooms to the Presimpt and tears it open. He brings you back the ");
+		success.push(name + " is too busy eating the purple snow to open this one, so you do it yourself. Inside, you find ");
 	}
 	if (game.jobs.Dragimp.owned > 0) eligible.push("gems", "gems", "gems", "gems");
 	else eligible.push("food", "food", "wood", "metal");
