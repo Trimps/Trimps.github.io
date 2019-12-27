@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.2.2',
+		stringVersion: '5.2.3',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -2126,14 +2126,16 @@ var toReturn = {
 				return Math.pow(this.getBonusAmt(), getPerkLevel("Greed"));
 			},
 			getBonusAmt: function(){
-				var tribs = game.buildings.Tribute.owned - 600;
+				var tribs = game.buildings.Tribute.owned;
+				if (tribs > 1250) tribs = 1250;
+				tribs -= 600;
 				var mod = 1.025;
 				if (tribs <= 0) return mod;
 				mod += (0.00015 * tribs); //+0.015% per tribute above 600
 				mod += (Math.floor(tribs / 25) * 0.0035); //+0.35% per 25 tributes above 600
 				return mod;
 			},
-			tooltip: "Feeling poor? Just get more resources! Each level increases all loot gained by 2.5% (compounding). Starting once you have 600 Tributes, every Tribute you purchase will <b>add</b> 0.015% to the compounding bonus. Every 25th Tribute you purchase will also add an additional 0.35% to the compounding bonus. For example: If you have 750 Tributes, you'll earn a 6.8% compounding Loot bonus for each level of Greed.",
+			tooltip: "Feeling poor? Just get more resources! Each level increases all loot gained by 2.5% (compounding). Starting once you have 600 Tributes, every Tribute you purchase (up to 1250) will <b>add</b> 0.015% to the compounding bonus. Every 25th Tribute you purchase will also add an additional 0.35% to the compounding bonus. For example: If you have 750 Tributes, you'll earn a 6.8% compounding Loot bonus for each level of Greed.",
 			max: 40
 		},
 		Tenacity: {
