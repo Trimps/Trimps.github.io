@@ -1801,7 +1801,7 @@ function getObsidianStart(baseOnly){
 	if (baseOnly) return start;
 	var radLevels = game.global.highestRadonLevelCleared;
 	var bonus = 0;
-	bonus += (radLevels > 100) ? 100 + (Math.floor(radLevels / 50) * 10) : Math.floor(radLevels / 10) * 10;
+	bonus += (radLevels > 100) ? 100 + (Math.floor((radLevels - 100) / 50) * 10) : Math.floor(radLevels / 10) * 10;
 	start += bonus;
 	return start;
 }
