@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
 	<link rel="stylesheet" type="text/css" href="css/style.css?22" />
-<script>
+<!-- <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -19,7 +19,7 @@
   ga('create', 'UA-64748869-1', 'auto');
   ga('send', 'pageview');
 
-</script>
+</script> -->
 </head>
 <!-- 		Trimps
 		Copyright (C) 2019 Zach Hood
@@ -487,9 +487,11 @@
 										</div>
 										<div class="col-xs-3 lowPad">
 											<div id="autoJobsBtn" onmouseover='tooltip("AutoJobs", null, event)' onmouseout='tooltip("hide")' class="toggleConfigBtn pointer noselect colorDanger autoUpgradeBtn">
-												<div id='autoJobsText' onclick="toggleAutoJobs()">AutoJobs</div><div onclick="tooltip('Configure AutoJobs', null, 'update')">
-													<span class='glyphicon glyphicon-cog'></span></div>
+												<div id='autoJobsText' role="button" onclick="toggleAutoJobs()">AutoJobs</div><div role="button" title="Configure AutoJobs" onclick="tooltip('Configure AutoJobs', null, 'update')">
+													<span class='glyphicon glyphicon-cog'></span>
+												</div>
 											</div>
+											
 										</div>
 										<div class="col-xs-3" style="padding-left: 5px">
 											<div id="fireBtn" class="pointer noselect fireBtnNotFiring" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>

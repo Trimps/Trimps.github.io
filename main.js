@@ -10519,10 +10519,20 @@ function displayTalents(){
 		}
 		var icon = (talent.icon.charAt(0) == "*") ? "icomoon icon-" + talent.icon.substr(1) : "glyphicon glyphicon-" + talent.icon;
 		if (currentTier > purchasePower){
-			html += "<div class='talentItem noselect talentNotPurchased talentLocked'><span class='talentIcon'><span class='icomoon icon-locked'></span></span></div>";
+			html += "<div";
+			if (usingScreenReader) html += " role='button' title='Locked'";
+			html += " class='talentItem noselect talentNotPurchased talentLocked'><span class='talentIcon'><span class='icomoon icon-locked'></span></span></div>";
+		}
+		else if (usingScreenReader){
+			var statusText = "";
+			talentClass += " screenReadTalent";
+			if (talentClass.search('ReqNeeded') >= 0) statusText = "Requirement Not Met";
+			else if (talentClass.search('NotPurchased') >= 0) statusText = "Not Purchased";
+			else statusText = "Purchased"
+			html += "<div role='button' class='" + talentClass + "' onclick='tooltip(\"" + item + "\", \"talents\", \"screenRead\")'>" + talent.name + " Info</div>";
+			html += "<div role='button' class='" + talentClass + "' onclick='purchaseTalent(\"" + item + "\")'><span class='talentIcon'><span class='" + icon + "'></span></span><br/><div class='talentName'>Tier " + talent.tier + " " + statusText + " " + talent.name + "</div></div>";			
 		}
 		else {
-			if (item == "attuned") console.log("wtf");
 			html += "<div class='" + talentClass + "' onmouseover='tooltip(\"" + item + "\", \"talents\", event)' onmouseout='tooltip(\"hide\")' onclick='purchaseTalent(\"" + item + "\")'><span class='talentIcon'><span class='" + icon + "'></span></span><br/><div class='talentName'>" + talent.name + "</div></div>";
 		}
 	}
