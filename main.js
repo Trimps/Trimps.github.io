@@ -7807,6 +7807,7 @@ var visualMutations = {
 	},
 	TrimpmasSnow: {
 		active: function() {
+			return false;
 			return (game.options.menu.showSnow.enabled);
 		},
 		pattern: function(currentArray, mutationArray) {
@@ -11093,6 +11094,7 @@ function nextWorld() {
 		var jobCount = 0;
 		for (var job in game.jobs) jobCount += game.jobs[job].owned; //Dragimp adds 1
 		if (jobCount - game.jobs.Dragimp.owned - game.jobs.Amalgamator.owned == 0 && game.stats.trimpsFired.value == 0) giveSingleAchieve("Unemployment");
+		if (game.global.universe == 2) buffVoidMaps();
 	}
 	else if (game.global.world == 65) checkChallengeSquaredAllowed();
 	else if (game.global.world == 75 && checkHousing(true) == 0) giveSingleAchieve("Tent City");

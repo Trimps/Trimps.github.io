@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.2.3',
+		stringVersion: '5.2.4',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -1172,12 +1172,12 @@ var toReturn = {
 				},
 				secondLocation: ["togglegeneratorStartPopup"]
 			},
-			showSnow: {
-				enabled: 1,
-				extraTags: "general",
-				description: "Disable the snow effect in the world. <b>This will take effect on the next Zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
-				titles: ["No Snow", "Show Snow"]
-			},
+			// showSnow: {
+			// 	enabled: 1,
+			// 	extraTags: "general",
+			// 	description: "Disable the snow effect in the world. <b>This will take effect on the next Zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
+			// 	titles: ["No Snow", "Show Snow"]
+			// },
 			showHoliday: {
 				enabled: 1,
 				extraTags: "general",
@@ -5537,7 +5537,7 @@ var toReturn = {
 		},
 		Presimpt: {
 			location: "World",
-			locked: 0,
+			locked: 1,
 			attack: 1.1,
 			health: 1.5,
 			fast: false,
