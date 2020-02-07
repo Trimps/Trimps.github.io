@@ -109,14 +109,14 @@
 					</div>
 				</div>
 				<div class="col-xs-2">
-					<div class="boneBtn dangerColor pointer noselect" onclick="hideBones()">
+					<div class="boneBtn dangerColor pointer noselect" role="button" onclick="hideBones()">
 						Close
 					</div>
 				</div>
 			</div>
 			<div id="boneBuyRow" class="row">
 				<div id="boneBoostsColumn" class="col-xs-4 boneBuyColumn">
-					<div class="boneBuyTitle">Boosts</div>
+					<div role="heading" aria-level=3 class="boneBuyTitle">Boosts</div>
 					<div class="boostSpacer">
 					<div class="boneBuyDesc">Instantly earn the next 12 or 36 hours worth of resources! If you don't have enough storage, storage will be purchased (and the cost deducted) automatically.</div>
 					<div id="boostSelectContainer">
@@ -782,7 +782,7 @@
 									<h3><span id="worldName">Zone</span> <span id="worldNumber">1</span><br/><span id="mapBonus"></span></h3>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn btn-primary fightBtn" id="fightBtn" onmouseover="tooltip('Fight',null,event)" onmouseout="tooltip('hide')" onclick="fightManual()">
+								<span class="btn btn-primary fightBtn" role="button" id="fightBtn" onmouseover="tooltip('Fight',null,event)" onmouseout="tooltip('hide')" onclick="fightManual()">
 									Fight
 								</span>
 							</div>
@@ -821,7 +821,7 @@
 								</span>
 							</div>							
 							<div class="battleSideBtnContainer" style="display: none" id="finishDailyBtnContainer">
-								<span class="btn btn-success fightBtn" id="finishDailyBtn" onclick="tooltip('Finish Daily', null, 'update')">
+								<span " class="btn btn-success fightBtn" id="finishDailyBtn" role="button" onclick="tooltip('Finish Daily', null, 'update')">
 									Finish Daily
 								</span>
 							</div>
@@ -1044,7 +1044,7 @@
 		</div>
 		<div class="row" id="portalRow">
 			<div id="perkCol" class="col-xs-7">
-			<div class="challengeTitle">Perks</div>
+			<div class="challengeTitle" role="heading" aria-level="2">Perks</div>
 			<div id="portalStory"></div>
 			<div id="portalPresets" class="numTabs">
 				<ul class="nav nav-tabs nav-justified" id="portalPresetsTabs">
@@ -1164,7 +1164,7 @@
 			</div>
 			<div class="col-xs-6">
 				<div class="maxCenter" id="achievementHeader">
-					<span class="achievementMainTitle">Achievements</span><br/>
+					<span class="achievementMainTitle" role="heading" aria-level="2">Achievements</span><br/>
 					<span class="achievementTotals">You are dealing <span id="achievementTotalPercent"></span>% extra damage<span id="achievementFluff"></span>.</span>
 					<div id="achievementGoldenBonusContainer">
 					</div>
@@ -1177,10 +1177,10 @@
 			</div>
 		</div>
 		<div id="achievementsHere" class="niceScroll"></div>
-		<div style='text-align: center;'><span id="achievementClose2" onclick="toggleAchievementWindow()" class="icomoon icon-close"></span></div>
+		<div style='text-align: center;'><span id="achievementClose2" role="button" toggleAchievementWindow()" class="icomoon icon-close"></span></div>
 	</div>
 	<div id="statsWrapper" style="display: none">
-		<span id="statsTitle">Statistics!</span><br/>
+		<span role="heading" aria-level="3" id="statsTitle">Statistics!</span><br/>
 		<div class="row" id="statsBtnRow">
 			<div class="col-xs-3">
 			</div>
@@ -1200,7 +1200,7 @@
 			<div class="col-xs-4" id="statCol3">
 			</div>			
 		</div>
-		<div class="btn btn-danger inPortalBtn" id="closeStatsBtn" onclick="toggleStats()">Close</div>&nbsp;<div class="btn btn-info inPortalBtn" id="closeStatsBtn" onclick="tooltip('Trimps Info', null, 'update')">Trimps Info</div>
+		<div role="button" class="btn btn-danger inPortalBtn" id="closeStatsBtn" onclick="toggleStats()">Close</div>&nbsp;<div class="btn btn-info inPortalBtn" id="closeStatsBtn" onclick="tooltip('Trimps Info', null, 'update')">Trimps Info</div>
 	</div>
 	<div id="heirloomWrapper" style="display: none">
 		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><h1 class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></h1><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" role="button" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()" role="button">Close</div></div></div>
@@ -1437,7 +1437,7 @@
 				<td class="btn" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">
 					
 				</td>
-				<td class="btn btn-new" onclick="window.open('updates.html', '_blank')">
+				<td role="link" btn btn-new" onclick="window.open('updates.html', '_blank')">
 						V <span id="versionNumber"></span> | What's New 
 				</td>
 				<td id="portalTimer" class="timerNotPaused" onclick="toggleSetting('pauseGame')" onmouseover="tooltip('Pause the game', 'customText', event, game.options.menu['pauseGame'].description)" onmouseout="tooltip('hide')">
