@@ -494,7 +494,7 @@
 											
 										</div>
 										<div class="col-xs-3" style="padding-left: 5px">
-											<div id="fireBtn" class="pointer noselect fireBtnNotFiring" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
+											<div id="fireBtn" role="switch" aria-checked="false" class="pointer noselect fireBtnNotFiring" onclick="fireMode()" onmouseover="tooltip('Fire Trimps',null,event)" onmouseout="tooltip('hide')">Fire</div>
 										</div>
 									</div>
 								</div>
@@ -1203,7 +1203,7 @@
 		<div role="button" class="btn btn-danger inPortalBtn" id="closeStatsBtn" onclick="toggleStats()">Close</div>&nbsp;<div class="btn btn-info inPortalBtn" id="closeStatsBtn" onclick="tooltip('Trimps Info', null, 'update')">Trimps Info</div>
 	</div>
 	<div id="heirloomWrapper" style="display: none">
-		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><h1 class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></h1><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" role="button" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()" role="button">Close</div></div></div>
+		<div id="heirloomTitleBar" role="heading" aria-level="3" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><h1 class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></h1><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" role="button" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()" role="button">Close</div></div></div>
 		<div id="heirloomHelp" style="display: none">
 			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. Once you have an Heirloom, you can click the icon below to select it.<br/><br/>
 			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b style='color: red'>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b style='color: red'>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. <b style='color: rgb(75, 41, 197)'>You can also click on the Heirloom's name on this menu to rename it, or click on the icon to change it!</b> <b style='color: red'>You can upgrade any Staff and Shield to HALF the value of your total earned Nu. Nu is not spent, but dictates how powerful your Heirlooms can be!</b><br/><br/>
