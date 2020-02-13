@@ -784,7 +784,7 @@ body {
 
 #buyContainer {
 	overflow-y: auto;
-	height: calc(99vh - 20vw - 195px);
+	height: calc(97.1vh - 20vw - 195px);
 }
 
 #outerBuyContainer{
