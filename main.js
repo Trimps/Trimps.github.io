@@ -919,7 +919,7 @@ function load(saveString, autoLoad, fromPf) {
 			if (game.global.roboTrimpLevel > 2) text += ", AutoStructure";
 			if (game.global.roboTrimpLevel > 4) text += ", and Double Build (Stacked items in the Building Queue will be constructed two at a time)";
 			text += ".";
-			if (game.global.highestLevelCleared >= 170) text += " As these bonuses were previously Masteries and are now not, new Masteries have been added to replace these!";
+			if (game.global.highestLevelCleared >= 179) text += " As these bonuses were previously Masteries and are now not, new Masteries have been added to replace these!";
 			text += "<br/><br/>A lot of other new stuff has just been added to Trimps as well, click <a target='_blank' href='https://trimps.github.io/updates.html'>What's New</a> in the bottom right of your game window to see the full patch notes!";
 			tooltip('confirm', null, 'update', text, null, 'Welcome to 5.3.0', 'Got it!', null, true);
 		}
