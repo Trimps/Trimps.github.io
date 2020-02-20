@@ -6325,7 +6325,6 @@ var toReturn = {
 			health: 5,
 			fast: true,
 			loot: function (level, fromFluffy, fluffyCount) {
-				if (game.talents.quickGen.purchased) game.global.magmite += 100;
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 				var amt = (game.global.world >= 60 && game.global.universe == 1) ? 10 : 2;
 				if (mutations.Magma.active()) amt *= 3;
