@@ -2454,8 +2454,9 @@ function getBattleStatBd(what) {
 	}
 	//Masteries
 	if (what == "attack" && game.talents.herbalist.purchased){
-		amt = (game.talents.herbalist.getBonus() - 1) * 100;
+		amt = game.talents.herbalist.getBonus();
 		currentCalc *= amt;
+		amt = (amt - 1) * 100;
 		textString += "<tr><td class='bdTitle'>Herbalist</td><td></td><td></td><td>+ " + prettify(amt) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	if (what != "block" && what != "shield" && game.talents.voidPower.purchased && game.global.voidBuff){

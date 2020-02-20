@@ -898,6 +898,10 @@ function load(saveString, autoLoad, fromPf) {
 				game.global.autoCraftModifier -= 12500;
 				updateForemenCount();
 			}
+			else if ((!savegame.talents.foreman || !savegame.talents.foreman.purchased) && game.global.roboTrimpLevel >= 1){
+				game.global.autoCraftModifier += 12500;
+				updateForemenCount();
+			}
 			game.talents.mapHealth.purchased = (savegame.talents.doubleBuild && savegame.talents.doubleBuild.purchased);
 			game.talents.maz.purchased = (savegame.talents.mapHealth && savegame.talents.mapHealth.purchased);
 			game.talents.mapBattery.purchased = (savegame.talents.autoJobs && savegame.talents.autoJobs.purchased);
@@ -14251,7 +14255,9 @@ var boneTemp = {
 	bundleMode: false
 };
 
+var bonesShown = false;
 function showBones() {
+	bonesShown = true;
 	document.getElementById("boneWrapper").style.display = "block";
 	selectBoost(0);
 	updateBones();
@@ -14365,6 +14371,7 @@ function selectImp(name){
 
 
 function hideBones() {
+	bonesShown = false;
 	document.getElementById("boneWrapper").style.display = "none";
 	updateSkeleBtn();
 }
@@ -16953,6 +16960,7 @@ document.addEventListener('keydown', function (e) {
 			if (trimpAchievementsOpen) toggleAchievementWindow();
 			if (game.options.displayed) toggleSettingsMenu();
 			if (portalWindowOpen || game.global.viewingUpgrades) cancelPortal();
+			if (bonesShown) hideBones();
 			break;
 		case 16:
 			shiftPressed = true;

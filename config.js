@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.3.0',
+		stringVersion: '5.3.1',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -4113,6 +4113,7 @@ var toReturn = {
 					this.stacks -= dif;
 					this.drawStacks();
 				}
+				if (this.stacks <= 0) this.stacks = 0;
 				if (game.global.lastClearedCell == 98){
 					var cell = game.global.gridArray[99];
 					cell.maxHealth = cell.preMayhemHealth * this.getBossMult();
@@ -4140,12 +4141,14 @@ var toReturn = {
 				return "Your Trimps are Poisoned! They take <b>" + prettify(this.poison) + "</b> damage after each attack. Poison bypasses Prismatic Shield!";
 			},
 			stackTooltip: function(){
-				var text = "The Final Enemy of this Zone has " + this.stacks + " stacks of Mayhem, granting +" + prettify(this.getBossMult() * 100) + "% Damage and Health. Complete Maps to lower these stacks.";
+				var text = "The Final Enemy of this Zone has " + this.stacks + " stacks of Mayhem, granting +" + prettify((this.getBossMult() - 1) * 100) + "% Damage and Health. Complete Maps to lower these stacks.";
 				return text;
 			},
 			onComplete: function(){
+				var oldAmt = this.getTrimpMult();
 				game.global.mayhemCompletions++;
-				message("You have completed the Mayhem Challenge! Your Trimps have gained +20% Damage and Health in Universe 1 and 2, and future runs of this Challenge will be 3x more difficult. You have now completed Mayhem " + game.global.mayhemCompletions + " time" + needAnS(game.global.mayhemCompletions) + ".", "Notices");
+				var newAmt = this.getTrimpMult();
+				message("You have completed the Mayhem Challenge! Your Trimps have gained +" + prettify((newAmt - oldAmt) * 100) + "% Radon in Universe 2 and Damage and Health in Universe 1 and 2, and future runs of this Challenge will be 3x more difficult. You have now completed Mayhem " + game.global.mayhemCompletions + " time" + needAnS(game.global.mayhemCompletions) + ". Your new total Mayhem bonus is +" + prettify((newAmt - 1) * 100) + "%", "Notices");
 				game.global.challengeActive = "";
 				game.challenges.Mayhem.abandon();
 			},
@@ -6367,8 +6370,10 @@ var toReturn = {
 				}
 				var bonusMagmite = 10;
 				if (fluffyCount) bonusMagmite *= fluffyCount;
-				if (game.talents.quickGen.purchased && game.global.world >= 230 && game.global.universe == 1) game.global.magmite += bonusMagmite;
-
+				if (game.talents.quickGen.purchased && game.global.world >= 230 && game.global.universe == 1){
+					game.global.magmite += bonusMagmite;
+					updateGeneratorInfo();
+				}
 				if (game.talents.scry2.purchased && game.global.canScryCache) amt *= 1.5;
 
 				//Void map helium modifiers above here
