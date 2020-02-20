@@ -17080,10 +17080,12 @@ document.addEventListener('keydown', function (e) {
 				if (playerSpire.popupOpen) playerSpire.closePopup();
 				else playerSpire.openPopup();
 			}
+			break;
 		case 90: //z for map at zone
 			if (checkLettersOk() && game.global.canMapAtZone){
 				toggleSetting("mapAtZone", undefined, false, false, false, true);
 			}
+			break;
 		case 38: 
 			//Up arrow for map levels
 			mapLevelHotkey(true);
