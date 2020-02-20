@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
 
-	<title>Trimps 5.2.4 (Kongregate Version)</title>
+	<title>Trimps 5.3.0 (Kongregate Version)</title>
 	<meta name="description" content="Trimps">
-	<meta name="author" content="Brownprobe">
+	<meta name="author" content="Greensatellite">
     <link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css?22" />
+    <link rel="stylesheet" type="text/css" href="css/style.css?23" />
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -24,7 +24,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 </script>
 </head>
 <!-- 		Trimps
-		Copyright (C) 2019 Zach Hood
+		Copyright (C) 2020 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -491,6 +491,25 @@ var kongregate = parent.kongregateAPI.getAPI();
 							<button id="logConfigBtn" type="button" onclick="tooltip('Message Config', null, 'update')" class="btn btn-default logFlt"><span class='glyphicon glyphicon-cog'></span></button>
 						</div>						
 					</div>
+					<div id="achievementTracker">
+						<div class="row">
+							<span id="closeTrackedAchieve" onclick="startTrackAchieve()" class="icomoon icon-close" style='cursor: pointer'></span>
+							<div id="achievementTrackerIconContainer" class="col-xs-2 noPad">
+							</div>
+							<div class="col-xs-4 noPad">
+								<div id="achievementTrackerTitle"></div>
+								<div id="achievementTrackerDescription"></div>
+								
+							</div>
+							<div class="col-xs-5 noPad">
+								<div id="achievementTrackerProgress" class="trackerProgress"></div>
+								<div id="achievementTrackerReward"></div>
+							</div>
+							<div class="col-xs-1 noPad">
+								&nbsp;
+							</div>
+						</div>
+					</div>
 					<div id="log" class="niceScroll">
 						<span class="storyMessage message"><span class='glyphicon glyphicon-star'></span>A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...</span>
 					</div>
@@ -725,15 +744,15 @@ var kongregate = parent.kongregateAPI.getAPI();
 											<span class='natureBigIcon glyphicon glyphicon-king'></span>
 										</span>
 										<div class='transferButtons'>
-											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Ice')">
-												<span class='natureUpgradeCost' id='natureWindIceCost'></span>
-												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
-												<span class='natureSmallIcon glyphicon glyphicon-certificate'></span>
-											</span>
 											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Poison')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Poison')">
 												<span class='natureUpgradeCost' id='natureWindPoisonCost'></span>
 												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
 												<span class='natureSmallIcon icomoon icon-flask'></span>
+											</span>
+											<span class='natureBuyIcon noselect natureBuyIconMini' onmouseover="natureTooltip(event, 'convert', 'Wind', 'Ice')" onmouseout="tooltip('hide');" onclick="naturePurchase('convert', 'Wind', 'Ice')">
+												<span class='natureUpgradeCost' id='natureWindIceCost'></span>
+												<span class='natureSmallIcon icomoon icon-shuffle3'></span>
+												<span class='natureSmallIcon glyphicon glyphicon-certificate'></span>
 											</span>
 										</div>
 										<span class='natureBackgroundIcon icomoon icon-air'></span>
@@ -787,11 +806,11 @@ var kongregate = parent.kongregateAPI.getAPI();
 						<div class="row" id="battleStatsRow">
 							<div class="col-xs-6" id="goodGuyCol">
 								<div class="row">
-									<div class="col-xs-9" style="padding-right: 5px">
+									<div id='colGoodGuyName' class="col-xs-9" style="padding-right: 5px">
 										<!-- Update in resetGame if adding to name -->
 										<div class="battleStatsTitle" id="goodGuyName"><span id='realTrimpName'>Trimps</span>&nbsp;(<span id="trimpsFighting">1</span>) <span id="anticipationSpan"></span> <span id="titimpBuff"></span> <span id="debuffSpan"></span></div>
 									</div>
-									<div class="col-xs-3" style="padding-left: 5px;">
+									<div id='colStances' class="col-xs-3" style="padding-left: 5px;">
 										<div class="row noPad" style="padding-right: 15px;">
 											<div id='form0Container' class="formFifth noPad">
 												<div class="formationBtn pointer formationStateDisabled" onclick="setFormation('0')" id="formation0" onmouseover="tooltip('No Formation', 'customText', event, 'Clear your formations, return to normal stats, and derp around the battlefield. (Hotkeys: X or 1)')" onmouseout="tooltip('hide')">
@@ -1326,7 +1345,7 @@ var kongregate = parent.kongregateAPI.getAPI();
 					<div id="achievementGoldenBonusContainer"></div>
 				</div>
 				<div id="achievementHelpContainer" style="display: none">
-					You can earn achievements by doing stuff. Each achievement will boost the amount of damage your Trimps can deal, and later achievements grant a larger bonus. You can learn more about an achievement by hovering your mouse over it.
+					You can earn achievements by doing stuff. Each achievement will boost the amount of damage your Trimps can deal, and later achievements grant a larger bonus. You can learn more about an achievement by hovering your mouse over it. <b>Click on an Achievement on this screen to track it!</b>
 				</div>
 			</div>
 			<div class="col-xs-1">
@@ -1483,10 +1502,10 @@ var kongregate = parent.kongregateAPI.getAPI();
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?34"></script>
-	<script type="text/javascript" src="updates.js?34"></script>
-	<script type="text/javascript" src="playerSpire.js?34"></script>
-	<script type="text/javascript" src="main.js?34"></script>
+	<script type="text/javascript" src="config.js?35"></script>
+	<script type="text/javascript" src="updates.js?35"></script>
+	<script type="text/javascript" src="playerSpire.js?35"></script>
+	<script type="text/javascript" src="main.js?35"></script>
 	<script type="text/javascript">
 		document.body.addEventListener('DOMMouseScroll', onWheel, true);
 		document.body.addEventListener('mousewheel', onWheel, true);
