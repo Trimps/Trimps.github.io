@@ -8720,7 +8720,7 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation,
 			return "Turkimp";
 		}
 	}
-	if (game.talents.magimp.purchased && mapSuffix != "Darkness"){
+	if (game.talents.magimp.purchased && mapSuffix != "Darkness" && !force){
 		var chance = 2 * (1 / (100 - 1 - (exoticChance * imports.length)));
 		chance = Math.round(chance * 100000);
 		var roll = getRandomIntSeeded(enemySeed++, 0, 100000);
