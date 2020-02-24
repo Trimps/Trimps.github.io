@@ -9145,8 +9145,8 @@ function pauseFight(updateOnly) {
 	elem.innerHTML = (!game.global.pauseFight) ? "AutoFight On" : "AutoFight Off";
 }
 
-function recycleBelow(confirmed){
-	var level = parseInt(document.getElementById("mapLevelInput").value, 10);
+function recycleBelow(confirmed, forceLevel){
+	var level = (forceLevel) ? forceLevel : parseInt(document.getElementById("mapLevelInput").value, 10);
 	if (isNaN(level) || level < 6) return;
 	if (!confirmed) {
 		tooltip('confirm', null, 'update', 'You are about to recycle all maps below level ' + level + '. Are you sure?' , 'recycleBelow(true)', 'Mass Recycle');
@@ -11438,6 +11438,9 @@ function runMapAtZone(index){
 			if (setting.until == 8) game.global.mapCounterGoal = 100;
 		}
 		return;
+	}
+	if (game.global.mapsOwnedArray.length >= 50){
+		recycleBelow(true, game.global.world - 3);
 	}
 	selectAdvMapsPreset(setting.preset + 1);
 	var mapStatus = buyMap();
