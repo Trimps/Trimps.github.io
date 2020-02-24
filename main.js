@@ -9714,8 +9714,12 @@ function startFight() {
 		}
     }
     swapClass("cellColor", "cellColorCurrent", cellElem);
-	var badName;
+	var badName = cell.name;
 	var displayedName;
+	if (typeof game.badGuys[cell.name].displayName !== 'undefined'){
+		badName = game.badGuys[cell.name].displayName;
+		displayedName = badName;
+	}
 	if ((cell.name == "Improbability") && game.global.spireActive){
 		displayedName = "Druopitee";
 		if (game.global.challengeActive == "Coordinate") displayedName = "Druopitee and Pals";
@@ -9728,11 +9732,11 @@ function startFight() {
 		displayedName = "Improbabilities";
 	}
 	else if (game.global.challengeActive == "Coordinate"){
-		displayedName = cell.name.replace('_', ' ');
+		displayedName = badName.replace('_', ' ');
 		displayedName += "s";
 	}
 	else {
-		displayedName = cell.name.replace('_', ' ');
+		displayedName = badName.replace('_', ' ');
 	}
 	if (displayedName == "Mutimp" || displayedName == "Hulking Mutimp"){
 		displayedName = "<span class='Mutimp'>" + displayedName + "</span>";
@@ -13088,9 +13092,11 @@ function fight(makeUp) {
 		if (game.global.usingShriek) disableShriek();
 		//Death message
 		randomText = game.badGuyDeathTexts[Math.floor(Math.random() * game.badGuyDeathTexts.length)];
-		var firstChar = cell.name.charAt(0);
+		var displayName = cell.name;
+		if (typeof game.badGuys[cell.name].displayName !== 'undefined') displayName = game.badGuys[cell.name].displayName;
+		var firstChar = displayName.charAt(0);
 		var aAn = (firstChar == "A" || firstChar == "E" || firstChar == "I" || firstChar == "O" || firstChar == "U") ? " an " : " a ";
-		var killedText = "You " + randomText + aAn + cell.name;
+		var killedText = "You " + randomText + aAn + displayName;
 		if (game.global.challengeActive == "Coordinate") killedText += " group";
 		killedText += "!";
 		if (usingScreenReader) killedText = "Cell " + cellNum + ": " + killedText;

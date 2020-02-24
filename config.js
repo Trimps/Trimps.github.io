@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.3.1',
+		stringVersion: '5.3.2',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -1581,7 +1581,9 @@ var toReturn = {
 				return "Your Trimps learn to harvest special Herbs while collecting Food! Increases Trimp Attack by a number based on your total stored food. Grants +30% Attack at " + prettify(1e25) + " Food, or +300% at " + prettify(1e250) + ". At your current total of " + prettify(game.resources.food.owned) + " Food, <b>you " + ((this.purchased) ? "are gaining" : "would gain") + " +" + prettify((this.getBonus() - 1) * 100) + "% Trimp Attack</b>.";
 			},
 			getBonus: function(){
-				return 1 + (log10(game.resources.food.owned) / 83.3)
+				var amt = 1 + (log10(game.resources.food.owned) / 83.3);
+				if (amt < 1) return 1;
+				return amt;
 			},
 			name: "Herbalist",
 			tier: 2,
@@ -1683,11 +1685,11 @@ var toReturn = {
 			}
 		},
 		magimp: {
-			description: "Grants a 2% chance to find a Magimp in World and Maps. Magimps will grant the bonus of a random World or Map Exotic Import (based on current location) on death.",
-			name: "Magimp",
+			description: "Grants a 2% chance to find a Randimp in World and Maps. Randimps will grant the bonus of a random World or Map Exotic Import (based on current location) on death.",
+			name: "Randimp",
 			tier: 4,
 			purchased: false,
-			icon: "*magic-wand"
+			icon: "*dice"
 		},
 		headstart3: {
 			description: "Corruption begins an additional 15 levels earlier, at Zone 151.",
@@ -6041,6 +6043,8 @@ var toReturn = {
 		},
 		Magimp: {
 			location: "All",
+			//Renamed from magimp to randimp to prevent confusion with magnimp
+			displayName: "Randimp",
 			locked: 1,
 			attack: 1, 
 			health: 1,
@@ -6056,7 +6060,6 @@ var toReturn = {
 				var enemySeed = (game.global.mapsActive) ? Math.floor(Math.random() * 10000000) : game.global.enemySeed++;
 				var selected = imports[getRandomIntSeeded(enemySeed, 0, imports.length)];
 				game.badGuys[selected].loot(level, true);
-
 			}
 		},
 		Pumpkimp: {

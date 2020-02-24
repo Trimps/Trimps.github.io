@@ -2810,6 +2810,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	text-align: center;
 }
 
+#achievementTracker .row{
+	margin-left: 0;
+	margin-right: 0;
+}
+
 
 
 .achieveTier1 {

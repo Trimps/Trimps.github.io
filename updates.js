@@ -92,7 +92,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				for (var item in mapSpecialModifierConfig){
 					var bonusItem = mapSpecialModifierConfig[item];
 					var unlocksAt = (game.global.universe == 2) ? bonusItem.unlocksAt2 : bonusItem.unlocksAt;
-					if (getHighestLevelCleared() + 1 < unlocksAt){
+					if ((typeof unlocksAt === 'function' && !unlocksAt()) || unlocksAt == -1){
+						continue;
+					}
+					else if (getHighestLevelCleared() + 1 < unlocksAt){
 						text += "<li><b>Next modifier unlocks at Z" + unlocksAt + "</b></li>";
 						break;
 					}
@@ -107,7 +110,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			Perfect_Sliders: "<p>This option takes all of the RNG out of map generation! If sliders are maxxed and the box is checked, you have a 100% chance to get a perfect roll on Loot, Size, and Difficulty.</p><p>You can only choose this setting if the sliders for Loot, Size, and Difficulty are at the max.</p>",
 			Map_Preset: "You can save up to 3 different map configurations to switch between at will. The most recently selected setting will load each time you enter your map chamber."
 		}
-		if (what == "Special Modifier" && getHighestLevelCleared() >= 149) {
+		if (what == "Special Modifier" && game.global.highestLevelCleared >= 149) {
 			swapClass("tooltipExtra", "tooltipExtraLg", elem);
 			renameBtn = "forceLeft";
 		}
@@ -2319,7 +2322,7 @@ function getBattleStatBd(what) {
 		roboTrimpMod *= 100;
 		textString += "<tr><td class='bdTitle'><span class='icomoon icon-chain'></span> RoboTrimp <span class='icomoon icon-chain'></span></td><td>20%</td><td>" + game.global.roboTrimpLevel + "</td><td>+ " + prettify(roboTrimpMod) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
-	if (what != "block" && game.global.mayhemCompletions){
+	if ((what == "attack" || what == "health") && game.global.mayhemCompletions){
 		var mult = game.challenges.Mayhem.getTrimpMult();
 		currentCalc  *= mult;
 		textString += "<tr><td class='bdTitle'>Mayhem Completions</td><td>+ 10N%</td><td>" + game.global.mayhemCompletions + "</td><td>+ " + prettify((mult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
