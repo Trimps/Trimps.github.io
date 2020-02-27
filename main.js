@@ -13229,8 +13229,7 @@ function fight(makeUp) {
 			var allItemsEarned = (addSpecials(true, true, mapObj) == 0);
 			if (mapObj.name.search("Bionic Wonderland") > -1 && allItemsEarned && game.options.menu.climbBw.enabled == 1 && game.global.repeatMap){
 				var maz = checkMapAtZoneWorld();
-				if (!maz) nextBw = false;
-				else if (maz.preset == 3 && maz.bwWorld <= mapObj.level){
+				if (maz && maz.preset == 3 && maz.bwWorld <= mapObj.level){
 					var bwWorld = maz.bwWorld;
 					if (maz.times > 0 && game.global.world > maz.world){
 						var repeats = Math.round((game.global.world - maz.world) / maz.times);

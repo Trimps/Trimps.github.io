@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.3.3',
+		stringVersion: '5.3.4',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -6827,7 +6827,7 @@ var toReturn = {
 			dropDesc: "Drops 6x Gems",
 			fast: false,
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Goblimp";
+				var name = (fromMagimp) ? "Randimp" : "Goblimp";
 				var amt = rewardResource("gems", 3, level, true);
 				message("That " + name + " dropped " + prettify(amt) + " gems! What a bro!", "Loot", "*diamond", "exotic", 'exotic');
 				game.unlocks.impCount.Goblimp++;
@@ -6842,7 +6842,7 @@ var toReturn = {
 			dropDesc: "Drops 15x Gems",
 			fast: false,
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Feyimp";
+				var name = (fromMagimp) ? "Randimp" : "Feyimp";
 				if (game.resources.gems.owned == 0) fadeIn("gems", 10);
 				var amt = rewardResource("gems", 7.5, level);
 				message("That " + name + " gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "*diamond", "exotic", "exotic");
@@ -6858,7 +6858,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "Drops Fragments",
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Flutimp";
+				var name = (fromMagimp) ? "Randimp" : "Flutimp";
 				var amt = rewardResource("fragments", 1, level, true);
 				message("You stole " + prettify(amt) + " fragments from that " + name + "! It really didn't look like she needed them though, don't feel bad.", "Loot", "th", "exotic", "exotic");
 				game.unlocks.impCount.Flutimp++;
@@ -6873,7 +6873,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "Grants an extra 0.3% of current Trimps",
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Tauntimp";
+				var name = (fromMagimp) ? "Randimp" : "Tauntimp";
 				var amt = Math.ceil(game.resources.trimps.max * 0.003);
 				if (game.global.challengeActive == "Downsize"){
 					amt = game.global.totalGifts + game.unlocks.impCount.TauntimpAdded + 10;
@@ -6904,7 +6904,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "Grants 0.3% Trimp resource production speed",
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Whipimp";
+				var name = (fromMagimp) ? "Randimp" : "Whipimp";
 				game.unlocks.impCount.Whipimp++;
 				game.jobs.Farmer.modifier *= 1.003;
 				game.jobs.Lumberjack.modifier *= 1.003;
@@ -6927,7 +6927,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "Grants 0.3% Trimp breed speed",
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Venimp";
+				var name = (fromMagimp) ? "Randimp" : "Venimp";
 				game.unlocks.impCount.Venimp++;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Venimp);
 				amt = (amt - 1) * 100;
@@ -6943,7 +6943,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "45 seconds of production for 1 random resource",
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Jestimp";
+				var name = (fromMagimp) ? "Randimp" : "Jestimp";
 				var eligible = ["food", "wood", "metal", "science"];
 				if (game.jobs.Dragimp.owned > 0) eligible.push("gems");
 				var roll = Math.floor(Math.random() * eligible.length);
@@ -6964,7 +6964,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "+100% damage for 30 seconds in maps",
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Titimp";
+				var name = (fromMagimp) ? "Randimp" : "Titimp";
 				var timeRemaining = parseInt(game.global.titimpLeft, 10);
 				if (timeRemaining > 0) {
 					timeRemaining += 30;
@@ -6987,7 +6987,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "5 seconds of production for all basic resources",
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Chronoimp";
+				var name = (fromMagimp) ? "Randimp" : "Chronoimp";
 				var eligible = ["food", "wood", "metal", "science"];
 				if (game.jobs.Dragimp.owned > 0) eligible.push("gems");
 				var cMessage = "That " + name + " dropped ";
@@ -7014,7 +7014,7 @@ var toReturn = {
 			fast: false,
 			dropDesc: "0.3% extra loot from maps and Zones (Not Helium)",
 			loot: function (level, fromMagimp) {
-				var name = (fromMagimp) ? "Magimp" : "Magnimp";
+				var name = (fromMagimp) ? "Randimp" : "Magnimp";
 				game.unlocks.impCount.Magnimp++;
 				var amt = Math.pow(1.003, game.unlocks.impCount.Magnimp);
 				amt = (amt - 1) * 100;
