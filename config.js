@@ -6845,7 +6845,7 @@ var toReturn = {
 				var name = (fromMagimp) ? "Randimp" : "Feyimp";
 				if (game.resources.gems.owned == 0) fadeIn("gems", 10);
 				var amt = rewardResource("gems", 7.5, level);
-				message("That " + name + " gave you " + prettify(amt) + " gems! Thanks Feyimp!", "Loot", "*diamond", "exotic", "exotic");
+				message("That " + name + " gave you " + prettify(amt) + " gems! Thanks " + name + "!", "Loot", "*diamond", "exotic", "exotic");
 				game.unlocks.impCount.Feyimp++;
 			}
 		},
