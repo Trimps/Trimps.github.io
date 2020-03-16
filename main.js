@@ -10162,10 +10162,15 @@ function startFight() {
 				game.global.soldierHealthMax /= 2;
 				if (game.global.soldierHealth > game.global.soldierHealthmax) game.global.soldierHealth = game.global.soldierHealthMax;
 				game.global.mapHealthActive = false;
+				if (game.global.universe == 2){ 
+					game.global.soldierEnergyShieldMax /= 2;
+					if (game.global.soldierEnergyShield > game.global.soldierEnergyShieldMax) game.global.soldierEnergyShield = game.global.soldierEnergyShieldMax;
+				}
 			}
 			else if (!game.global.mapHealthActive && map){
 				game.global.soldierHealthMax *= 2;
 				game.global.mapHealthActive = true;
+				if (game.global.universe == 2) game.global.soldierEnergyShieldMax *= 2;
 			}
 		}
 		if (game.talents.voidPower.purchased){
@@ -11375,9 +11380,11 @@ function checkMapAtZoneWorld(runMap){
 }
 
 function runMapAtZone(index){
+	var setting = game.options.menu.mapAtZone.getSetZone()[index];
+	if (setting.preset == 5 && !game.global.challengeActive == "Quagmire") return;
+	if (setting.preset == 4 && !getNextVoidId()) return;
 	mapsClicked(true);
 	toggleSetting('mapAtZone', null, false, true);
-	var setting = game.options.menu.mapAtZone.getSetZone()[index];
 	if (!setting || !setting.check) return;
 	//Don't change repeat if the setting is to run void maps, instead change void repeat
 	if (setting.repeat && setting.preset != 4) {
@@ -15264,8 +15271,9 @@ function setAutoGoldenSetting(setTo){
 
 var lastAutoGoldenToggle = -1;
 function toggleAutoGolden(noChange){
+	var max = (getTotalPortals() > 0) ? 5 : 3;
+	if (getAutoGoldenSetting() >= max) setAutoGoldenSetting(0);
 	if (!noChange && getAutoGoldenSetting() != -1){
-		var max = (getTotalPortals() > 0) ? 5 : 3;
 		setAutoGoldenSetting(getAutoGoldenSetting() + 1);
 		if (getAutoGoldenSetting() == max)
 			setAutoGoldenSetting(0);
@@ -17050,7 +17058,7 @@ document.addEventListener('keydown', function (e) {
 				break;
 			}
 		case 87: //W
-			if (checkStatus() && getUberEmpowerment() == "Wind") setFormation('5');
+			if (checkStatus() && game.global.uberNature == "Wind") setFormation('5');
 		case 55: //7
 		case 103: //num7
 			if (playerSpire.popupOpen && !playerSpireTraps.Knowledge.locked)
@@ -17100,6 +17108,7 @@ document.addEventListener('keydown', function (e) {
 			break;
 		case 90: //z for map at zone
 			if (checkLettersOk() && game.global.canMapAtZone){
+				cancelTooltip();
 				toggleSetting("mapAtZone", undefined, false, false, false, true);
 			}
 			break;
