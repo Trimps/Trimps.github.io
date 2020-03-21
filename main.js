@@ -9688,7 +9688,12 @@ function startFight() {
 	var map = false;
     if (game.global.mapsActive) {
         cellNum = game.global.lastClearedMapCell + 1;
-        cell = game.global.mapGridArray[cellNum];
+		cell = game.global.mapGridArray[cellNum];
+		if (!cell){
+			mapsSwitch();
+			console.log('Crash from missing map cell averted!')
+			return;
+		}
         cellElem = document.getElementById("mapCell" + cellNum);
 		map = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)];
     } else {
@@ -9713,7 +9718,7 @@ function startFight() {
 			return;
 		}
     }
-    swapClass("cellColor", "cellColorCurrent", cellElem);
+	swapClass("cellColor", "cellColorCurrent", cellElem);
 	var badName = cell.name;
 	var displayedName;
 	if (typeof game.badGuys[cell.name].displayName !== 'undefined'){
