@@ -9999,7 +9999,7 @@ function startFight() {
 	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
 		updateNomStacks(cell.nomStacks);
 	}
-    var trimpsFighting = game.resources.trimps.soldiers;
+    var trimpsFighting = game.resources.trimps.maxSoldiers;
 	var currentSend = game.resources.trimps.getCurrentSend();
     if (game.global.soldierHealth <= 0) {
 		if (getHeirloomBonus("Shield", "gammaBurst") > 0){
