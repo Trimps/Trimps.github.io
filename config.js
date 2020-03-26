@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.3.5',
+		stringVersion: '5.3.6',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -4118,6 +4118,7 @@ var toReturn = {
 				if (this.stacks <= 0) this.stacks = 0;
 				if (game.global.lastClearedCell == 98){
 					var cell = game.global.gridArray[99];
+					if (cell.health < 0) return;
 					cell.maxHealth = cell.preMayhemHealth * this.getBossMult();
 					if (cell.health > cell.maxHealth)
 						cell.health = cell.maxHealth;

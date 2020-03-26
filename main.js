@@ -9999,7 +9999,7 @@ function startFight() {
 	else if (game.global.challengeActive == "Nom" && cell.nomStacks){
 		updateNomStacks(cell.nomStacks);
 	}
-    var trimpsFighting = game.resources.trimps.maxSoldiers;
+    var trimpsFighting = game.resources.trimps.soldiers;
 	var currentSend = game.resources.trimps.getCurrentSend();
     if (game.global.soldierHealth <= 0) {
 		if (getHeirloomBonus("Shield", "gammaBurst") > 0){
@@ -11386,8 +11386,8 @@ function checkMapAtZoneWorld(runMap){
 
 function runMapAtZone(index){
 	var setting = game.options.menu.mapAtZone.getSetZone()[index];
-	if (setting.preset == 5 && !game.global.challengeActive == "Quagmire") return;
-	if (setting.preset == 4 && !getNextVoidId()) return;
+	if (setting.preset == 5 && !game.global.challengeActive == "Quagmire" && setting.check) return;
+	if (setting.preset == 4 && !getNextVoidId() && setting.check) return;
 	mapsClicked(true);
 	toggleSetting('mapAtZone', null, false, true);
 	if (!setting || !setting.check) return;
