@@ -9104,13 +9104,14 @@ function easterEggClicked(){
 		else if (roll <= 0.54) reward = "wood";
 		else reward = "metal";
 		var amt = rewardResource(reward, (rewardRoll / 1.5), game.global.eggLoc);
-		startText += prettify(amt) + " " + reward + "!";
+		startText += prettify(amt) + " " + reward.charAt(0).toUpperCase() + reward.slice(1) + "!";
 	}
 	else if (roll <= 0.89){
 		var amt = Math.round(game.global.world / 4);
+		if (game.global.universe == 2) amt *= 1000;
 		if (amt <= 0) amt = 1;
 		game.global.nullifium += amt;
-		startText += amt + " Nullifium!";
+		startText += prettify(amt) + " Nullifium!";
 	}
 	else if (roll <= 0.91){
 		createHeirloom();
@@ -9122,9 +9123,9 @@ function easterEggClicked(){
 	}
 	else{
 		if (game.resources.helium.owned == 0) fadeIn("helium", 10);
-		var amt = (game.global.world >= 59) ? 5 : 1;
+		var amt = (game.global.universe == 2) ? 1 : (game.global.world >= 59) ? 5 : 1;
 		amt = rewardResource("helium", amt, 99);
-		startText += prettify(amt) + " helium!";
+		startText += prettify(amt) + ((game.global.universe == 2) ? " Radon!" : " Helium!");
 	}
 	message(startText, "Loot", "*droplet", "eggMessage easterEgg" + getRandomIntSeeded(game.global.eggSeed + 1, 0, 4));
 	game.global.eggLoc = -1;
