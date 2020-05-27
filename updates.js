@@ -3563,7 +3563,7 @@ function resetGame(keepPortal) {
 		pres = game.global.presimptStore;
 		roboTrimp = game.global.roboTrimpLevel;
 		if (game.global.universe == 2){
-			if (game.global.world < 100 && game.global.lastRadonPortal >= 100 && game.stats.totalHeirlooms.value == 0){
+			if (game.global.world < 25 && game.global.lastRadonPortal >= 25 && game.stats.totalHeirlooms.value == 0){
 				lastRadonPortal = game.global.lastRadonPortal;
 			}
 			else{
