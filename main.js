@@ -3099,7 +3099,7 @@ function removePerk(what) {
 	toBuy.levelTemp -= removeAmt;
 	toBuy.heliumSpentTemp -= refund;
 	if (forceZeroSpent) {
-		toBuy.heliumSpentTemp = toBuy.heliumSpent * -1;
+		toBuy.heliumSpentTemp = perkSpent * -1;
 		toBuy.levelTemp = perkLevel * -1;
 	}
 	if (toBuy.levelTemp + perkLevel == 0){
