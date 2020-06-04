@@ -1321,6 +1321,7 @@ function displayRoboTrimp() {
 }
 
 function magnetoShriek() {
+	if (game.global.universe != 1) return;
 	if (game.global.roboTrimpCooldown > 0 || !game.global.roboTrimpLevel || game.global.world < 60) return;
 	game.global.useShriek = !game.global.useShriek;
 	if (usingScreenReader){
