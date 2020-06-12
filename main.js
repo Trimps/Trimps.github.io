@@ -2119,6 +2119,8 @@ function toggleEqualityScale(){
 function manageEqualityStacks(){
 	if (game.global.universe != 2) return;
 	if (game.portal.Equality.radLocked) return;
+	if (game.portal.Equality.scalingCount < 0) game.portal.Equality.scalingCount = 0;
+	if (game.portal.Equality.scalingCount > game.portal.Equality.radLevel) game.portal.Equality.scalingCount = game.portal.Equality.radLevel;
 	if (game.global.universe == 2 && !game.portal.Equality.radLocked && game.portal.Equality.scalingActive){
 		var stacks = game.portal.Equality.getActiveLevels();
 		manageStacks('Equality Scaling', stacks, true, 'equalityStacks', 'icomoon icon-arrow-bold-down', stacks + " stack" + needAnS(stacks) + " of Equality are active, reducing the Attack of Trimps and Bad Guys by " + prettify((1 - Math.pow(0.9, stacks)) * 100) + "%.", false);
@@ -2128,11 +2130,25 @@ function manageEqualityStacks(){
 	}
 }
 
-function scaleEqualityScale(slider){
+function scaleEqualityScale(slider, whatDo){
+	if (whatDo == "reverse"){
+		game.portal.Equality.scalingReverse = !game.portal.Equality.scalingReverse;
+		return;
+	}
 	var val = slider.value;
-	if (!(val >= 0) || !(val <= 10)) val = 5;
-	game.portal.Equality.scalingSetting = val;
-	var textElem = document.getElementById('equalityCurrentScale');
+	var textElem;
+	if (slider.id == "scaleEqualitySlider"){
+		if (!(val >= 0) || !(val <= 10)) val = 5;
+		game.portal.Equality.scalingSetting = val;
+		textElem = document.getElementById('equalityCurrentScale');
+	}
+	else if (slider.id == "equalityDisabledSlider"){
+		if (!(val >= 0) || !(val <= game.portal.Equality.radLevel)) val = -1;
+		game.portal.Equality.disabledStackCount = val;
+		if (val == -1) val = "Max (" + game.portal.Equality.radLevel + ")";
+		textElem = document.getElementById('equalityDisabledStackCount');
+
+	}
 	if (textElem) textElem.innerHTML = val;
 }
 
@@ -3229,6 +3245,8 @@ function commitPortalUpgrades(usingPortal){
 		portUpgrade.levelTemp = 0;
 		portUpgrade.heliumSpentTemp = 0;
 	}
+	if (game.portal.Equality.scalingCount > game.portal.Equality.radLevel) game.portal.Equality.scalingCount = game.portal.Equality.radLevel;
+	if (game.portal.Equality.disabledStackCount > game.portal.Equality.radLevel) game.portal.Equality.disabledStackCount = game.portal.Equality.radLevel;
 	if (game.global.respecActive || game.global.viewingUpgrades){
 		if (portalUniverse == 1){
 			game.global.heliumLeftover = game.resources.helium.respecMax - game.resources.helium.totalSpentTemp;
@@ -13780,6 +13798,16 @@ function fight(makeUp) {
 			game.global.soldierHealth -= explodeAndBlock;
 			if (game.global.soldierHealth <= 0) thisKillsTheTrimp();
 		}
+	}
+	if (cell.health > 0){
+		game.global.enemyAttackCount++;
+	}
+	else {
+		if (game.portal.Equality.scalingActive && game.portal.Equality.scalingReverse && game.global.enemyAttackCount > game.portal.Equality.scalingSetting){
+			game.portal.Equality.scalingCount--;
+			manageEqualityStacks();
+		}
+		game.global.enemyAttackCount = 0;
 	}
 	if (game.global.soldierHealth > 0){
 		game.global.armyAttackCount++;

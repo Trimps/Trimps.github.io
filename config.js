@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.3.8',
+		stringVersion: '5.3.9',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -261,6 +261,7 @@ var toReturn = {
 		lowestShield: 100,
 		hemmTimer: 150,
 		armyAttackCount: 0,
+		enemyAttackCount: 0,
 		mapHealthActive: false,
 		voidPowerActive: false,
 		lastHeirlooms: {
@@ -2369,11 +2370,14 @@ var toReturn = {
 			getActiveLevels: function(){
 				var perkLevel = getPerkLevel("Equality");
 				if (this.scalingActive && this.scalingCount < perkLevel) return this.scalingCount;
+				if (!this.scalingActive && this.disabledStackCount > -1) return this.disabledStackCount;
 				return perkLevel;
 			},
 			specialGrowth: 1.5,
 			scalingActive: false,
 			scalingSetting: 5,
+			scalingReverse: true,
+			disabledStackCount: -1,
 			scalingCount: 0
 		},
 		Carpentry: {

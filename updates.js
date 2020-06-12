@@ -1252,8 +1252,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 	}
 	if (what == "Scale Equality Scaling"){
-		tooltipText = "Change this Slider to change the maximum amount of attacks Trimps need to make in order to not trigger Equality Scaling. Setting this slider to 0 will increase scaling whenever a group of Trimps is one-shot, 1 will increase if Trimps attack one or fewer times, 5 will only increase if they attack 5 or fewer times, etc.<br/><br/><b>Your current setting is <span id='equalityCurrentScale'>" + game.portal.Equality.scalingSetting + "</span></b>";
-		tooltipText += "<br/><br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySlider' min='0' max='10' value='" + game.portal.Equality.scalingSetting + "' />";
+		tooltipText = "Change this Slider to change the maximum amount of attacks Trimps need to make in order to not trigger Equality Scaling. Setting this slider to 0 will increase scaling whenever a group of Trimps is one-shot, 1 will increase if Trimps attack one or fewer times, 5 will only increase if they attack 5 or fewer times, etc. If Reversing is allowed, Equality stacks will also decrease whenever Trimps kill an enemy in more attacks than your current slider setting.<br/><br/><b>Your current setting is <span id='equalityCurrentScale'>" + game.portal.Equality.scalingSetting + "</span>.</b>";
+		tooltipText += "<br/><br/>" + buildNiceCheckbox("equalityReversing", null, game.portal.Equality.scalingReverse, "scaleEqualityScale(this, \"reverse\")") + " Allow Reversing<br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySlider' min='0' max='10' value='" + game.portal.Equality.scalingSetting + "' />";
+		tooltipText += "<br/><br/>You can also manually set how many stacks of Equality should be used if Scaling is disabled changing the slider below. This allows you to customize exactly how many stacks of Equality to use without having to respec your Perks.<br/><br/><b>Your Equality stacks when Scaling is disabled will be <span id='equalityDisabledStackCount'>" + game.portal.Equality.disabledStackCount + "</span>.</b><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='equalityDisabledSlider' min='0' max='" + (game.portal.Equality.radLevel + 1) + "' value='" + game.portal.Equality.disabledStackCount + "' />";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1261,21 +1262,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		
 	}
 	if (what == "Equality Scaling"){
-		var scalingActive = game.portal.Equality.scalingActive;
-		var perkLevel = game.portal.Equality.radLevel;
-		var fightsLost = game.portal.Equality.scalingCount;
-		tooltipText = "<p>You can enable or disable Equality Scaling at any time.</p><p>With Equality Scaling On, each Portal starts with 0 levels of Equality active. If a group of Trimps dies after attacking less than <b>" + game.portal.Equality.scalingSetting + "</b> time" + needAnS(game.portal.Equality.scalingSetting) + ", one level of Equality will activate, up to your purchased level of Equality.";
-		tooltipText += " <b>Your Trimps have died below the attacks threshold " + fightsLost + " time" + needAnS(fightsLost) + " this run";
-		if (scalingActive) tooltipText += ", enabling";
-		else tooltipText += ", which would enable";
-		if (fightsLost > perkLevel){
-			tooltipText += ((perkLevel == 1) ? " your " : " all ") + perkLevel + " purchased level" + needAnS(perkLevel) + " of Equality.";
-		}
-		else {
-			tooltipText += " " + fightsLost + " level" + needAnS(fightsLost) + " of Equality.";
-		}
-		tooltipText += "</b></p><p>With Equality Scaling Off, the full amount of purchased levels of Equality are always active.</p>"
-		tooltipText += "<p><b>Ctrl Click this button to manually change the maximum attack threshold for scaling.</b></p>"
+		var activeLevels = game.portal.Equality.getActiveLevels();
+		tooltipText = "<p>You can enable or disable Equality Scaling at any time.</p><p>With Equality Scaling On, each Portal starts with 0 levels of Equality active. If a group of Trimps dies after attacking <b>" + game.portal.Equality.scalingSetting + "</b> or fewer time" + needAnS(game.portal.Equality.scalingSetting) + ", one level of Equality will activate, up to your purchased level of Equality.";
+		tooltipText += "</p><p><b>You currently have " + activeLevels + " stack" + needAnS(activeLevels) + " of Equality active.</b></p>";
+		tooltipText += "<p><b>Ctrl Click this button to customize your Equality settings.</b></p>"
 	}
 	else if (isItIn == "portal"){
 		var resAppend = (game.global.kongBonusMode) ? " Bonus Point" : " " + heliumOrRadon(true, true);
@@ -1511,13 +1501,14 @@ function readNiceCheckbox(elem){
 	return (elem.dataset.checked == "true");
 }
 
-function buildNiceCheckbox(id, extraClass, enabled){
+function buildNiceCheckbox(id, extraClass, enabled, extraFunction){
 	var html = (enabled) ? "icomoon icon-checkbox-checked' data-checked='true' " : "icomoon icon-checkbox-unchecked' data-checked='false' ";
 	var defaultClasses = " niceCheckbox noselect";
 	var title = enabled ? "Checked" : "Not Checked";
 	extraClass = (extraClass) ? extraClass + defaultClasses : defaultClasses;
 	html = "class='" + extraClass + " " + html;
-	html = "<span title='" + title + "' id='" + id + "' " + html + " onclick='swapNiceCheckbox(this)'></span>";
+	extraFunction = (extraFunction) ? " " + extraFunction + ";" : "";
+	html = "<span title='" + title + "' id='" + id + "' " + html + onchange + " onclick='swapNiceCheckbox(this);" + extraFunction + "'></span>";
 	return html;	
 }
 
