@@ -5135,7 +5135,6 @@ function resetAdvMaps(fromClick) {
 	//level
 	var levelValue = game.global.world;
 	if (!fromClick && preset.offset != 'd') levelValue += preset.offset;
-	if (fromClick) preset.offset = 'd';
 	document.getElementById("mapLevelInput").value = levelValue;
 	//sliders
 	var inputs = ["loot", "difficulty", "size"];
