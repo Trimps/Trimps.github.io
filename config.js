@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.3.9',
+		stringVersion: '5.4.0',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -51,6 +51,7 @@ var toReturn = {
 		soldierCurrentBlock: 0,
 		soldierEnergyShield: 0,
 		soldierEnergyShieldMax: 0,
+		shieldLayersUsed: 0,
 		fighting: false,
 		health: 50,
 		attack: 6,
@@ -264,6 +265,11 @@ var toReturn = {
 		enemyAttackCount: 0,
 		mapHealthActive: false,
 		voidPowerActive: false,
+		stormDone: false,
+		exterminateDone: false,
+		parityBonus: 1,
+		hazShieldCredit: 0,
+		zoneRes: [0],
 		lastHeirlooms: {
 			u1: {
 				Shield: -1,
@@ -304,6 +310,26 @@ var toReturn = {
 				perf: false,
 				extra: 0,
 				offset: 'd'
+			},
+			p4: {
+				loot: 0,
+				difficulty: 0,
+				size: 0,
+				biome: "Random",
+				specMod: "0",
+				perf: false,
+				extra: 0,
+				offset: 'd'
+			},
+			p5: {
+				loot: 0,
+				difficulty: 0,
+				size: 0,
+				biome: "Random",
+				specMod: "0",
+				perf: false,
+				extra: 0,
+				offset: 'd'	
 			}
 		},
 		mapPresets2: {
@@ -336,6 +362,26 @@ var toReturn = {
 				perf: false,
 				extra: 0,
 				offset: 'd'
+			},
+			p4: {
+				loot: 0,
+				difficulty: 0,
+				size: 0,
+				biome: "Random",
+				specMod: "0",
+				perf: false,
+				extra: 0,
+				offset: 'd'
+			},
+			p5: {
+				loot: 0,
+				difficulty: 0,
+				size: 0,
+				biome: "Random",
+				specMod: "0",
+				perf: false,
+				extra: 0,
+				offset: 'd'	
 			}
 		},
 		lootAvgs: {
@@ -366,7 +412,8 @@ var toReturn = {
 				token: true,
 				magma: true,
 				events: true,
-				cache: true
+				cache: true,
+				exp: true,
 			},
 			Unlocks: {
 				enabled: true,
@@ -1259,15 +1306,15 @@ var toReturn = {
 								}
 							}
 						}
-						var presetMax = 4;
-						if (game.global.universe == 2 && game.global.highestRadonLevelCleared >= 69) presetMax = 5;
+						var presetMax = 7;
+						if (preset == 5 && (game.global.universe != 2 || game.global.highestRadonLevelCleared < 69)) preset = 0;
 						if (preset < 0 || preset > presetMax) preset = 0;
 						if (repeat < 0 || repeat > 2) repeat = 0;
 						if (until < 0 || until > 8) until = 0;
 						if (until == 5 && preset != 3) until = 0;
 						if (exit < 0 || exit > 2) exit = 0;
-
-						if (!bwWorld || preset < 3 || isNaN(bwWorld) || bwWorld < 125 || bwWorld > 1000) bwWorld = 125;
+						
+						if (!bwWorld || preset != 3 || isNaN(bwWorld) || bwWorld < 125 || bwWorld > 1000) bwWorld = 125;
 						if (bwWorld > 125){
 							var adj = bwWorld - 125;
 							if (bwWorld % 15 != 0) bwWorld = 125 + (Math.floor(adj / 15) * 15);
@@ -1451,6 +1498,18 @@ var toReturn = {
 					return (game.global.highestRadonLevelCleared >= 94);
 				}
 			},
+			hideCompleteAchieves: {
+				enabled: 1,
+				extraTags: "layout",
+				description: "Show or hide completed achievements.",
+				titles: ["Hiding Achieves", "Showing all Achieves"]
+			},
+			saveOnPause: {
+				enabled: 1,
+				extraTags: "other",
+				description: "Save when pausing the game. Note that regardless of this setting, the game will not be saved on pause if AutoSave is disabled.",
+				titles: ["Don't Save on Pause", "Save on Pause"]
+			},
 			pauseGame: {
 				enabled: 0,
 				extraTags: "other",
@@ -1460,7 +1519,7 @@ var toReturn = {
 				onToggle: function () {
 					if (this.enabled) {
 						this.timeAtPause = new Date().getTime();
-						if (game.options.menu.autoSave.enabled == 1) save(false, true);
+						if (game.options.menu.autoSave.enabled == 1 && game.options.menu.saveOnPause.enabled == 1) save(false, true);
 						swapClass("timer", "timerPaused", document.getElementById("portalTimer"));
 						handlePauseMessage(true);
 					}
@@ -1473,6 +1532,7 @@ var toReturn = {
 						game.global.mapStarted += dif;
 						game.global.lastGeneratorTick += dif;
 						game.global.lastSoldierSentAt += dif;
+						if (game.portal.Frenzy.frenzyStarted != -1) game.portal.Frenzy.frenzyStarted += dif;
 						this.timeAtPause = 0;
 						game.global.time = 0;
 						game.global.lastOnline = now;
@@ -1582,8 +1642,9 @@ var toReturn = {
 				return "Your Trimps learn to harvest special Herbs while collecting Food! Increases Trimp Attack by a number based on your total stored food. Grants +30% Attack at " + prettify(1e25) + " Food, or +300% at " + prettify(1e250) + ". At your current total of " + prettify(game.resources.food.owned) + " Food, <b>you " + ((this.purchased) ? "are gaining" : "would gain") + " +" + prettify((this.getBonus() - 1) * 100) + "% Trimp Attack</b>.";
 			},
 			getBonus: function(){
+				if (game.resources.food.owned < 1) return 1;
 				var amt = 1 + (log10(game.resources.food.owned) / 83.3);
-				if (amt < 1) return 1;
+				if (amt < 1 || isNumberBad(amt)) return 1;
 				return amt;
 			},
 			name: "Herbalist",
@@ -2170,7 +2231,7 @@ var toReturn = {
 			locked: true,
 			priceBase: 1e8,
 			heliumSpent: 0,
-			tooltip: "You can sense great power within Fluffy, but he'll need some training. Each level of Capable allows Fluffy to gain 1 level of Experience. Respeccing to remove Capable will temporarily remove any bonuses associated with Fluffy's level and Experience, but all Exp will be saved until you add points back. Each level of Capable is 10x more expensive than the last, and buying the first level will allow Fluffy to take Portals with you.",
+			tooltip: "You can sense great power within Fluffy, but he'll need some training. Each level of Capable allows Fluffy to gain 1 level of Experience. Respeccing to remove Capable will temporarily remove any bonuses associated with Fluffy's level and Experience, but all Exp will be saved until you add points back. Each level of Capable is 10x more expensive than the last, and buying the first level will allow Fluffy to take Portals with you. <b>Maximum of 10 levels.</b>",
 			max: 10,
 			specialGrowth: 10,
 			onChange: function(){
@@ -2205,7 +2266,7 @@ var toReturn = {
 			heliumSpent: 0,
 			get tooltip() {
 				var level = (this.levelTemp) ? this.level + this.levelTemp : this.level;
-				return "Reduce the Zone that Fluffy can start earning Experience at by " + this.modifier + "." + " With " + level + " level" + needAnS(level) + " in Classy, Fluffy will start earning Experience at Z" + (301 - (level * this.modifier)) + ".";
+				return "Reduce the Zone that Fluffy can start earning Experience at by " + this.modifier + "." + " With " + level + " level" + needAnS(level) + " in Classy, Fluffy will start earning Experience at Z" + (301 - (level * this.modifier)) + ". <b>Maximum of 75 levels.</b>";
 			},
 			max: 75
 		},
@@ -2217,7 +2278,7 @@ var toReturn = {
 			heliumSpent: 0,
 			radLevel: 0,
 			radSpent: 0,
-			tooltip: "You have overcome the otherworldly objective of obtaining Overkill, outstanding! Each level of this perk will allow 0.5% of your overkill damage to harm the next enemy. If this damage kills the next enemy, you will lose no time moving through that cell. Maximum of 30 levels.",
+			tooltip: "You have overcome the otherworldly objective of obtaining Overkill, outstanding! Each level of this perk will allow 0.5% of your overkill damage to harm the next enemy. If this damage kills the next enemy, you will lose no time moving through that cell. <b>Maximum of 30 levels.</b>",
 			max: 30
 		},
 		Resourceful: {
@@ -2254,7 +2315,7 @@ var toReturn = {
 			max: 3,
 			priceBase: 100000,
 			heliumSpent: 0,
-			tooltip: "Use strategies discovered in alternate dimensions to siphon Map Bonus Damage stacks from lower level maps. For each level of Siphonology, you will earn stacks from maps one level lower than your current Zone number. Maximum of 3 levels.",
+			tooltip: "Use strategies discovered in alternate dimensions to siphon Map Bonus Damage stacks from lower level maps. For each level of Siphonology, you will earn stacks from maps one level lower than your current Zone number. <b>Maximum of 3 levels.</b>",
 		},
 		Anticipation: {
 			level: 0,
@@ -2271,7 +2332,7 @@ var toReturn = {
 			},
 			get tooltip(){
 				var time = game.talents.patience.purchased ? 45 : 30;
-				return "Use your experiences in understanding the attention span of Trimps to increase the damage dealt by all soldiers based on how long it took to get an army together. Increases damage by 2% per level per second up to " + time + " seconds. Maximum of 10 levels."
+				return "Use your experiences in understanding the attention span of Trimps to increase the damage dealt by all soldiers based on how long it took to get an army together. Increases damage by 2% per level per second up to " + time + " seconds. <b>Maximum of 10 levels.</b>"
 			}
 		},
 		Resilience: {
@@ -2292,7 +2353,7 @@ var toReturn = {
 			priceBase: 75,
 			heliumSpent: 0,
 			max: 7,
-			tooltip: "Your experiences in the Dimension of Strong Things have taught you the value of taking your time. Every level of Meditation will increase your Trimps' gather speed by 1% for every 10 minutes spent on the same Zone, up to 1 hour, even when offline. This bonus is reset after clearing the current Zone. Maximum of 7 levels.",
+			tooltip: "Your experiences in the Dimension of Strong Things have taught you the value of taking your time. Every level of Meditation will increase your Trimps' gather speed by 1% for every 10 minutes spent on the same Zone, up to 1 hour, even when offline. This bonus is reset after clearing the current Zone. <b>Maximum of 7 levels.</b>",
 			getBonusPercent: function (justStacks) {
 				var timeOnZone = getGameTime() - game.global.zoneStarted;
 				timeOnZone = Math.floor(timeOnZone / 600000);
@@ -2309,7 +2370,7 @@ var toReturn = {
 			otherModifier: 0.3,
 			priceBase: 75,
 			heliumSpent: 0,
-			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for +130% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. Maximum of 10 levels.",
+			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for +130% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. <b>Maximum of 10 levels.</b>",
 			max: 10
 		},
 		Greed: {
@@ -2330,7 +2391,7 @@ var toReturn = {
 				mod += (Math.floor(tribs / 25) * 0.0035); //+0.35% per 25 tributes above 600
 				return mod;
 			},
-			tooltip: "Feeling poor? Just get more resources! Each level increases all loot gained by 2.5% (compounding). Starting once you have 600 Tributes, every Tribute you purchase (up to 1250) will <b>add</b> 0.015% to the compounding bonus. Every 25th Tribute you purchase will also add an additional 0.35% to the compounding bonus. For example: If you have 750 Tributes, you'll earn a 6.8% compounding Loot bonus for each level of Greed.",
+			tooltip: "Feeling poor? Just get more resources! Each level increases all loot gained by 2.5% (compounding). Starting once you have 600 Tributes, every Tribute you purchase (up to 1250) will <b>add</b> 0.015% to the compounding bonus. Every 25th Tribute you purchase will also add an additional 0.35% to the compounding bonus. For example: If you have 750 Tributes, you'll earn a 6.8% compounding Loot bonus for each level of Greed. <b>Maximum of 40 levels.</b>",
 			max: 40
 		},
 		Tenacity: {
@@ -2338,15 +2399,37 @@ var toReturn = {
 			radLocked: true,
 			radLevel: 0,
 			radSpent: 0,
+			timeLastZone: -1,
 			getMult: function(){
 				return Math.pow(this.getBonusAmt(), getPerkLevel("Tenacity"));
 			},
-			getBonusAmt: function(){
-				var minutes = getZoneMinutes();
-				if (minutes > 120) minutes = 120;
-				return (1.1 + (Math.floor(minutes / 4) * 0.01));
+			getCarryoverMult: function(){
+				var mult = 0.5
+				if (Fluffy.isRewardActive('tenacity')) mult += 0.15;
+				return mult;
 			},
-			tooltip: "If things seem tough, just try hitting them harder. Each level increases your Trimps' Attack by 10% (compounding). For every 4 minutes you spend on one Zone, 1% is <b>added</b> to the compounding bonus, with a max of 2 hours and resetting back to 10% at the start of each new Zone. For example: If you have spent an hour on one Zone, you'll earn a 25% compounding Attack bonus for each level of Tenacity.",
+			getTime: function(){
+				var minutes = getZoneMinutes();
+				var lastZone = this.timeLastZone;
+				if (lastZone == -1) lastZone = 0;
+				if (lastZone > 120) lastZone = 120;
+				minutes += (lastZone * this.getCarryoverMult());
+				if (minutes > 120) minutes = 120;
+				return minutes;
+			},
+			getBonusAmt: function(){
+				var time = this.getTime();
+				if (time <= 60){
+					time *= (10 / 6)
+				}
+				else {
+					time -= 60;
+					time *= (2 / 6);
+					time += 100;
+				}
+				return (1.1 + (Math.floor(time / 4) * 0.01));
+			},
+			tooltip: "If things seem tough, just try hitting them harder. Each level increases your Trimps' Attack by 10% (compounding). For every 4 minutes you spend on one Zone, 1% is <b>added</b> to the compounding bonus, with a max of 2 hours. When you clear a Zone, you carry 50% of the time you spent last Zone (up to 2 hours) with you to the new Zone. For example: If you have spent an hour on one Zone, you'll earn a 25% compounding Attack bonus for each level of Tenacity. <b>Maximum of 40 levels.</b>",
 			max: 40
 		},
 		Criticality: {
@@ -2419,7 +2502,7 @@ var toReturn = {
 			modifier: 0.05,
 			priceBase: 4,
 			heliumSpent: 0,
-			tooltip: "Crank your portal into overdrive, increasing the clock speed of the Universe. Each level reduces the time between Trimp and Bad Guy attacks by 5% <b>of the current time (compounds)</b>. Maximum of 20 levels.",
+			tooltip: "Crank your portal into overdrive, increasing the clock speed of the Universe. Each level reduces the time between Trimp and Bad Guy attacks by 5% <b>of the current time (compounds)</b>. <b>Maximum of 20 levels.</b>",
 			max: 20,
 			radLevel: 0,
 			radSpent: 0,
@@ -2515,7 +2598,7 @@ var toReturn = {
 			modifier: 0.05,
 			priceBase: 1,
 			heliumSpent: 0,
-			tooltip: "Walk back through the empty Zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle by 5%.",
+			get tooltip(){return "Walk back through the empty Zones, learning how to milk them for every last drop. Each level permanently increases the amount of resources gained from battle (Including " + heliumOrRadon(false, true) + ") by 5%."},
 			level: 0,
 			radLevel: 0,
 			radSpent: 0,
@@ -2528,12 +2611,102 @@ var toReturn = {
 			radLocked: false,
 			radLevel: 0,
 			radSpent: 0,
-			tooltip: "Crystallize some Radon, creating an interdimensional Prism that you can carry back through Portals. Each level adds 1% to your Trimps' Prismatic Shield and makes your Trimps feel 5% more comfortable in battle. Once you have 20 or more points of Prismal, you will automatically collect Prismalicious from the Prismatic Palace after completing Z20.",
+			tooltip: "Crystallize some Radon, creating an interdimensional Prism that you can carry back through Portals. Each level adds 1% to your Trimps' Prismatic Shield and makes your Trimps feel 5% more comfortable in battle. Once you have 20 or more points of Prismal, you will automatically collect Prismalicious from the Prismatic Palace after completing Z20. <b>Maximum of 100 levels.</b>",
 			max: 100,
 			onChange: function(){
 				if (!game.upgrades.Prismatic.done) document.getElementById("blockDiv").style.visibility = "visible";
 			}
 		},
+		Hunger: {
+			radLocked: true,
+			priceBase: 1000000,
+			radLevel: 0,
+			radSpent: 0,
+			tooltip: "If Soldiers get hungry, the enemies are free food! Use your extra Overkill damage to process World enemies into healthy free-range meat! Each level of Hunger will allow your Trimps to turn 3% of their Overkill damage into some permanent damage. <b>Maximum of 30 levels.</b>",
+			max: 30,
+			getMult: function(){
+				if (this.storedDamage < 1) return 1;
+				var amt = ((log10(this.storedDamage) / 80) * (this.radLevel / 30));
+				amt += 1;
+				if (amt < 1 || isNumberBad(amt)) return 1;
+				return amt;
+			},
+			storedDamage: 0
+		},
+		Frenzy: {
+			radLocked: true,
+			priceBase: 1e15,
+			radLevel: 0,
+			radSpent: 0,
+			tooltip: "Each level grants your Trimps a 0.1% chance on attack to enter a Frenzy for 5 seconds per perk level, granting +50% attack (additive) per perk level. If your Trimps die while Frenzied, half of the remaining time on Frenzy is removed. Frenzy time can be refreshed once half of its total time has elapsed, but only if the group of Trimps that earned the buff has not died yet.",
+			frenzyStarted: -1,
+			deathless: true,
+			//in seconds
+			frenzyLeft: function(){
+				if (this.frenzyStarted == -1) return 0;
+				var timeSince = Math.floor((new Date().getTime() - this.frenzyStarted) / 1000);
+				var remaining = this.frenzyTime() - timeSince;
+				if (remaining <= 0) return 0;
+				return remaining;
+			},
+			drawStacks: function(){
+				if (this.frenzyStarted == -1) manageStacks(null, null, true, 'frenzyPerkStacks', null, null, true);
+				else{
+					var icon = "";
+					if (this.canRecharge()) icon = 'icon-star-full';
+					else if (this.deathless) icon = 'icon-star-half-empty';
+					else icon = 'icon-star-empty';
+					manageStacks('Frenzied', this.frenzyLeft(), true, 'frenzyPerkStacks', 'icomoon ' + icon, this.stackTooltip('frenzy'), false);
+				}
+			},
+			stackTooltip: function(){
+				var timeLeft = this.frenzyLeft();
+				if (timeLeft <= 0) return "Your Trimps are no longer frenzied!";
+				var rechargeTime = Math.ceil(timeLeft - (this.frenzyTime() / 2));
+				var text = "Your Trimps are frenzied for " + timeLeft + " second" + needAnS(timeLeft) + "! They are dealing " + prettify((this.getAttackMult() - 1) * 100) + "% more damage.<br/><br/>";
+				if (!this.deathless) text += "Your Trimps have died under this Frenzy buff and will be unable to recharge it.";
+				else if (rechargeTime < 0) text += "Your Trimps are able to refresh this Frenzy buff!";
+				else text += "The Trimps that earned this Frenzy buff are still alive, and they will be able to refresh its duration starting in " + rechargeTime + " second" + needAnS(rechargeTime) + ".";
+				return text;
+			},
+			getAttackMult: function(){
+				if (this.frenzyStarted == -1) return 1;
+				return 1 + (0.5 * this.radLevel);
+			},
+			canRecharge: function(){
+				if (!this.deathless) return false;
+				if (this.frenzyLeft() < (this.frenzyTime() / 2)) return true;
+				return false;
+			},
+			frenzyTime: function(){
+				return this.radLevel * 5;
+			},
+			trimpAttacked: function(){
+				if (game.global.challengeActive == "Berserk") return;
+				if (this.frenzyLeft() > 0 && !this.canRecharge()) return;
+				var chance = this.radLevel;
+				var roll = Math.floor(Math.random() * 1000);
+				if (roll < chance){
+					this.frenzyStarted = new Date().getTime();
+					this.deathless = true;
+					this.drawStacks();
+				}
+			},
+			beforeAttack: function(){
+				this.drawStacks();
+				if (this.frenzyStarted == -1) return;
+				if (this.frenzyLeft() > 0) return;
+				this.frenzyStarted = -1;
+			},
+			trimpDied: function(){
+				this.deathless = false;
+				if (this.frenzyStarted == -1) return;
+				var timeLeft = this.frenzyLeft();
+				if (timeLeft > 1) this.frenzyStarted -= (timeLeft * 500);
+				else this.frenzyStarted = -1
+				this.drawStacks();
+			}
+		}
 	},
 	c2: {
 		Discipline: 0,
@@ -2561,7 +2734,9 @@ var toReturn = {
 		Duel: 0,
 		Trappapalooza: 0,
 		Wither: 0,
-		Quest: 0
+		Quest: 0,
+		Storm: 0,
+		Berserk:0
 	},
 	challenges: {
 		Daily: {
@@ -3381,6 +3556,7 @@ var toReturn = {
 				game.challenges.Unbalance.abandon();
 				game.global.challengeActive = "";
 				unlockPerk("Equality");
+				document.getElementById("equalityTab").style.display = "table-cell";
 			},
 			highestStacks: 0,
 			fireAbandon: true,
@@ -3536,7 +3712,7 @@ var toReturn = {
 			unlockString: "reach Zone 60"
 		},
 		Quagmire: {
-			description: "Travel to an extremely muddy dimension. It's hard to walk out here, making Overkill useless and Agility difficult. Your Trimps start each run with 100 stacks of Motivated, increasing all Loot gained by 40% per stack (including Radon). After each Zone, your Trimps gain 1 stack of Exhausted, reducing Trimp damage and breed speed by 10% per stack in the World, and 5% per stack in maps (compounding). For every 10 stacks of Exhausted, your Trimps will also attack 100ms slower. You'll also have access to run a special map called 'The Black Bog', which will always scale to Zone level and is such a terrifying map that Exotic Imp-orts are unable to spawn there. Completing 'The Black Bog' will reduce your Trimps' Exhausted by 1 stack, but will also reduce their Motivated by 1 stack. Exhausted stacks can be negative, and will increase damage and breed speed. Completing Z70 or reaching 0 Motivated stacks with this Challenge active will end the Challenge, returning the World to normal. If the Challenge is ended by completing Z70, you will gain an additional 150% of all Radon earned.",
+			description: "Travel to an extremely muddy dimension. It's hard to walk out here, making Agility difficult. Your Trimps start each run with 100 stacks of Motivated, increasing all Loot gained by 40% per stack (including Radon). After each Zone, your Trimps gain 1 stack of Exhausted, reducing Trimp damage and breed speed by 10% per stack in the World, and 5% per stack in maps (compounding). For every 10 stacks of Exhausted, your Trimps will also attack 100ms slower. You'll also have access to run a special map called 'The Black Bog', which will always scale to Zone level and is such a terrifying map that Exotic Imp-orts are unable to spawn there. Completing 'The Black Bog' will reduce your Trimps' Exhausted by 1 stack, but will also reduce their Motivated by 1 stack. Exhausted stacks can be negative, and will increase damage and breed speed. Completing Z70 or reaching 0 Motivated stacks with this Challenge active will end the Challenge, returning the World to normal. If the Challenge is ended by completing Z70, you will gain an additional 250% of all Radon earned.",
 			motivatedStacks: 100,
 			exhaustedStacks: 0,
 			completed: false,
@@ -3557,7 +3733,7 @@ var toReturn = {
 			},
 			onComplete: function(){
 				var reward = game.challenges.Quagmire.heldHelium;
-				reward *= 1.5;
+				reward *= 2.5;
 				message("You have completed the Quagmire challenge! You have gained an extra " + prettify(reward) + " Radon, and your world has been returned to normal.", "Notices");
 				addHelium(reward);
 				game.challenges.Quagmire.abandon();
@@ -3626,7 +3802,7 @@ var toReturn = {
 		},
 		Wither: {
 			description: "Travel to an ultra scary alternate reality with horrific Bad Guys. Enemies heal for 25% of their maximum health before each attack. If an enemy ever heals itself back to 100% health, your army will fall to despair and instantly wither away. Every enemy slain by your Trimps in the World or World-level Maps grants 1 stack of Hardness to your Trimps (stacking up to 10,000 and increasing Health by 0.1% per stack) and 1 stack of Horror to all enemies (increasing Attack by 0.05% per stack). Whenever a group of Trimps is killed by Wither, Trimps lose half of their stacks of Hardness and block the enemy's ability to heal and Wither for an amount of cells equal to 10% of the Hardness stacks lost. Clearing <b>Zone 70</b> will complete this Challenge.",
-			squaredDescription: "Travel to an ultra scary alternate reality with horrific Bad Guys. Enemies heal for 25% of their maximum health before each attack. If an enemy ever heals itself back to 100% health, your army will fall to despair and instantly wither away. Every enemy slain by your Trimps in the World or World-level Maps grants 1 stack of Hardness to your Trimps (stacking up to 10,000 and increasing Health by 0.1% per stack) and 1 stack of Horror to all enemies (increasing Attack by 0.05% per stack). Whenever a group of Trimps is killed by Wither, Trimps lose half of their stacks of Hardness and block the enemy's ability to heal and Wither for an amount of cells equal to 10% of the Hardness stacks lost.",
+			squaredDescription: "Travel to an ultra scary alternate reality with horrific Bad Guys. Enemies heal for 25% of their maximum health before each attack. If an enemy ever heals itself back to 100% health, your army will fall to despair and instantly wither away. Every enemy slain by your Trimps in the World or World-level Maps grants 1 stack of Hardness to your Trimps (stacking up to 10,000 and increasing Health by 0.1% per stack) and 1 stack of Horror to all enemies (increasing Attack by 0.05% per stack). Whenever a group of Trimps is killed by Wither, Trimps lose half of their stacks of Hardness and block the enemy's ability to heal and Wither for an amount of cells equal to 10% of the Hardness stacks lost. Plaguebringer is disabled during Wither<sup>3</sup>",
 			completed: false,
 			blockU1: true,
 			allowU2: true,
@@ -3721,9 +3897,9 @@ var toReturn = {
 			},
 			onComplete: function(){
 				if (this.stacks == 19) giveSingleAchieve("Close Call");
-				message("You have completed the Revenge challenge! Your world has been returned to normal, and you have unlocked the Overkill perk!", "Notices");
+				message("You have completed the Revenge challenge! Your world has been returned to normal, and you have unlocked the Hunger perk!", "Notices");
 				game.global.challengeActive = "";
-				unlockPerk("Overkill");
+				unlockPerk("Hunger");
 			},
 			onFail: function(){
 				message("You have failed the Revenge Challenge! Better luck next time!", "Notices");
@@ -3757,12 +3933,14 @@ var toReturn = {
 			stacks: 0,
 			lastOverkill: -1,
 			completeAfterZone: 80,
-			unlocks: "Overkill",
+			unlocks: "Hunger",
 			unlockString: "reach Zone 80"
 		},
 		Quest: {
 			description: "Travel to an alternate reality where Trimps really love questing. Enemies in this reality gain 10% extra health each zone starting at Z6 (compounding). However, you'll also get a random Quest each Zone starting at 6. Completing this quest will grant a 2x Radon multiplier for the rest of the Zone (does not stack), and will increase your Trimps' attack by 10% for the rest of the Challenge (compounding). Check messages or the Zone info tooltip for quest progress. Clearing <b>Zone 85</b> will complete this Challenge, returning Trimp Attack and Enemy Health to normal.",
-			squaredDescription: "Travel to an alternate reality where Trimps really love questing. Enemies in this reality gain 10% extra health each zone starting at Z6 (compounding). However, you'll also get a random Quest each Zone starting at 6. Completing this quest will grant a 2x Radon multiplier for the rest of the Zone (does not stack), and will increase your Trimps' attack by 10% for the rest of the Challenge (compounding). Check messages or the Zone info tooltip for quest prorgress.",
+			get squaredDescription(){
+				return "Travel to an alternate reality where Trimps really love questing. Enemies in this reality gain 10% extra health each zone starting at Z" + this.getQuestStartZone(true) + " (compounding). However, you'll also get a random Quest each Zone starting at the same Zone. Your Quest start Zone is always equal to your highest Zone on C3 minus 80, but never lower than 6. Completing this quest will grant a 2x Radon multiplier for the rest of the Zone (does not stack), and will increase your Trimps' attack by 10% for the rest of the Challenge (compounding). Check messages or the Zone info tooltip for quest prorgress.";
+			},
 			completed: false,
 			allowU2: true,
 			blockU1: true,
@@ -3774,7 +3952,7 @@ var toReturn = {
 			finishedQuests: 0,
 			questsMade: 0,
 			allowSquared: true,
-			questDescriptions: ["Quintuple (x5) your {resource}", "Double your {resource}", "Complete 5 Maps at Zone level", "One-shot 5 world enemies (Overkill is disabled in World until complete)", "Don't let your shield break before Cell 100", "Don't run a map before Cell 100", "Buy a Smithy"],
+			questDescriptions: ["Quintuple (x5) your {resource}", "Double your {resource}", "Complete 5 Maps at Zone level", "One-shot 5 world enemies", "Don't let your shield break before Cell 100", "Don't run a map before Cell 100", "Buy a Smithy"],
 			filter: function(){
 				return (getHighestLevelCleared(true) >= 84);
 			},
@@ -3782,8 +3960,9 @@ var toReturn = {
 				return Math.pow(1.1, this.finishedQuests);
 			},
 			getHealthMult: function(){
-				if (game.global.world < 6) return 1;
-				return Math.pow(1.1, game.global.world - 5);
+				var questStart = this.getQuestStartZone();
+				if (game.global.world < questStart) return 1;
+				return Math.pow(1.1, game.global.world - questStart - 1);
 			},
 			checkQuest: function(){
 				if (this.questId == -1) return;
@@ -3837,6 +4016,7 @@ var toReturn = {
 				message("Oh no, you failed your quest! You've completed " + this.finishedQuests + " / " + this.questsMade + " quests.", "Notices", "*exclamation", "questMessage questFail")
 			},
 			disableOverkill: function(){
+				return false;
 				if (!game.global.challengeActive == "Quest" || this.questComplete || game.global.mapsActive || this.questId != 3) return false;
 				return true;
 			},
@@ -3879,8 +4059,14 @@ var toReturn = {
 				if (addProgress) desc += ". Progress: " + this.getQuestProgress();
 				return desc;
 			},
+			getQuestStartZone: function(desc){
+				var questStart = (desc ||game.global.runningChallengeSquared) ? game.c2.Quest - 80 : 6;
+				if (questStart < 6) questStart = 6;
+				return questStart;
+			},
 			onNextWorld: function(){
-				if (game.global.world >= 6){
+				var questStart = this.getQuestStartZone();
+				if (game.global.world >= questStart){
 					this.getNextQuest();
 				}
 			},
@@ -3893,7 +4079,7 @@ var toReturn = {
 			unlocks: "Greed"
 		},
 		Archaeology: {
-			description: "Travel to a dimension with lots of buried Relics. When starting this challenge, you'll be granted access to 5 special new upgrades called Relics that grant a compounding increase to your Attack, Breed Speed, Radon, Resource Gain (Food, Wood, Metal, Science and Gems), and one that decreases Enemy Attack. These upgrades all cost science and increase in cost whenever any of them are purchased. However, your Attack, Breed Speed, Radon, Resource Gain, and Enemy Health Relics all decrease by 1 Relic level every Zone and can go negative. All Radon drops have a base increase of +200% in this dimension, but taking the time to find the relics and extra Radon disables the possibility of using Overkill in the World. Completing <b>Z95</b> with this Challenge active will grant an additional +500% of all Radon earned. After the first time you complete this Challenge, you'll gain the ability to create maps with Small and Large Research Caches!",
+			description: "Travel to a dimension with lots of buried Relics. When starting this challenge, you'll be granted access to 5 special new upgrades called Relics that grant a compounding increase to your Attack, Breed Speed, Radon, Resource Gain (Food, Wood, Metal, Science and Gems), and one that decreases Enemy Attack. These upgrades all cost science and increase in cost whenever any of them are purchased. However, your Attack, Breed Speed, Radon, Resource Gain, and Enemy Health Relics all decrease by 1 Relic level every Zone and can go negative. All Radon drops have a base increase of +200% in this dimension. Completing <b>Z95</b> with this Challenge active will grant an additional +500% of all Radon earned. After the first time you complete this Challenge, you'll gain the ability to create maps with Small and Large Research Caches!",
 			completed: false,
 			blockU1: true,
 			allowU2: true,
@@ -4090,8 +4276,10 @@ var toReturn = {
 		},
 		Mayhem: {
 			get description(){
-				var text = "Travel to a very hectic dimension. The final Cell of each Zone is a Poisonous boss enemy, and all Map enemies are also Poisonous. Poisonous Enemies stack 20% of their damage on your Trimps as poison, which is taken as damage after each attack until your Trimps die. Each Zone starts with 1000 stacks of Mayhem, and each stack increases the damage and health of the final Cell Boss Enemy for that Zone by 10%. Completing a map reduces the Mayhem stacks for that Zone by 1 and an additional 1 for each level of the Map above the Zone's level (For example, a level 15 map will remove 3 stacks per completion when at Z13). Completing <b>Z100</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.mayhemCompletions * 10) + 10) + "%</b> bonus to Radon in U2 and to Trimp Attack and Health in Universes 1 and 2. Each time Mayhem is completed, the reward for next time increases by an additional 10% and Enemies gain 3x damage and health for all future runs of Mayhem.";
-				text += " <b>You have completed Mayhem " + game.global.mayhemCompletions + " time" + needAnS(game.global.mayhemCompletions) + ". Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, and Radon, and your next run of Mayhem will spawn Bad Guys with " + prettify(Math.pow(3, game.global.mayhemCompletions)) + "x Attack and Health.</b>";
+				var text = "";
+				if (game.global.mayhemCompletions >= this.maxRuns) text += "<b>NOTICE: You have already completed Mayhem " + this.maxRuns + " times, and will no longer gain a bonus for future runs.</b><br/>";
+				text += "Travel to a very hectic dimension. The final Cell of each Zone is a Poisonous boss enemy, and all Map enemies are also Poisonous. Poisonous Enemies stack 20% of their damage on your Trimps as poison, which is taken as damage after each attack until your Trimps die. Each Zone starts with " + this.getStartStacks() + " stacks of Mayhem, and each stack increases the damage and health of the final Cell Boss Enemy for that Zone by 10%. Completing a map reduces the Mayhem stacks for that Zone by 1 and an additional 1 for each level of the Map above the Zone's level (For example, a level 15 map will remove 3 stacks per completion when at Z13). Completing <b>Z100</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.mayhemCompletions * 10) + 10) + "%</b> bonus to Radon in U2 and to Trimp Attack and Health in Universes 1 and 2. Each time Mayhem is completed, the reward for next time increases by an additional 10% and Enemies gain 3x damage and health for all future runs of Mayhem. The amount of Mayhem stacks that each Zone starts with is always equal to 1000 minus 5 for each highest Zone cleared above Z100 in this Universe (You have cleared Z" + game.global.highestRadonLevelCleared + " and start each Zone with " + this.getStartStacks() + " stacks)";
+				text += " <b>You have completed Mayhem " + game.global.mayhemCompletions + " / " + this.maxRuns + " times. Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, and Radon, and your next run of Mayhem will spawn Bad Guys with " + prettify(Math.pow(3, game.global.mayhemCompletions)) + "x Attack and Health.</b>";
 				return text;
 			},
 			stacks: 1000,
@@ -4103,6 +4291,7 @@ var toReturn = {
 				return Math.pow(3, game.global.mayhemCompletions);
 			},
 			getBossMult: function(){
+				if (this.stacks <= 0) this.stacks = 0;
 				return 1 + (0.1 * this.stacks);
 			},
 			getTrimpMult: function(){
@@ -4110,13 +4299,22 @@ var toReturn = {
 				return 1 + (((comps / 2) * (comps + 1)) / 10);
 			},
 			onNextWorld: function(){
-				this.stacks = 1000;
+				this.stacks = this.getStartStacks();
 				this.drawStacks();
+			},
+			getStartStacks: function(){
+				var start = 1000;
+				var lvls = (game.global.highestRadonLevelCleared - 100);
+				if (lvls < 0) lvls = 0;
+				start -= (lvls * 5);
+				if (start < 100) start = 100;
+				return start;
 			},
 			clearedMap: function(level){
 				var dif = level - game.global.world + 1;
 				if (dif > 0){
 					this.stacks -= dif;
+					if (this.stacks <= 0) this.stacks = 0;
 					this.drawStacks();
 				}
 				if (this.stacks <= 0) this.stacks = 0;
@@ -4153,19 +4351,379 @@ var toReturn = {
 			},
 			onComplete: function(){
 				var oldAmt = this.getTrimpMult();
-				game.global.mayhemCompletions++;
-				var newAmt = this.getTrimpMult();
-				message("You have completed the Mayhem Challenge! Your Trimps have gained +" + prettify((newAmt - oldAmt) * 100) + "% Radon in Universe 2 and Damage and Health in Universe 1 and 2, and future runs of this Challenge will be 3x more difficult. You have now completed Mayhem " + game.global.mayhemCompletions + " time" + needAnS(game.global.mayhemCompletions) + ". Your new total Mayhem bonus is +" + prettify((newAmt - 1) * 100) + "%", "Notices");
+				if (game.global.mayhemCompletions < this.maxRuns) {
+					game.global.mayhemCompletions++;
+					var newAmt = this.getTrimpMult();
+					message("You have completed the Mayhem Challenge! Your Trimps have gained +" + prettify((newAmt - oldAmt) * 100) + "% Radon in Universe 2 and Damage and Health in Universe 1 and 2, and future runs of this Challenge will be 3x more difficult. You have now completed Mayhem " + game.global.mayhemCompletions + " time" + needAnS(game.global.mayhemCompletions) + ". Your new total Mayhem bonus is +" + prettify((newAmt - 1) * 100) + "%", "Notices");
+				}
+				else message("You completed Mayhem again, just for fun!", "Notices");
 				game.global.challengeActive = "";
 				game.challenges.Mayhem.abandon();
 			},
 			completed: false,
+			maxRuns: 25,
 			blockU1: true,
 			allowU2: true,
 			allowSquared: false,
 			completeAfterZone: 100,
 			unlockString: " reach Zone 100",
-		}
+		},
+		Storm: {
+			get description(){
+				return "Travel to a dimension that storms year-round. Trimps gain Storm stacks after every attack, damaging them for " + prettify(this.alphaLoss * 100) + "% of their max hp per stack. Enemies gain Cloudy stacks after every attack. Every " + this.mutationThresh + " Cloudy particles causes a Stormcloud on that enemy, causing them to gain max hp and damage, and take extra damage from gamma bursts. Cloudy stacks stick around after bad guys die, and each new group of bad guys start with a Cloudy stack for each Stormcloud on the previous enemy. Cloudy stacks cannot accrue and Stormclouds have no effect in maps, but Trimps in maps have -0.05% attack per Cloudy stack on the enemy. Defeating an enemy in a map will remove 1 Cloudy stack. Completing Z105 with this Challenge active will reward you with a brand new building to help with the weather!";
+			},
+			completed: false,
+			blockU1: true,
+			allowU2: true,
+			allowSquared: true,
+			squaredDescription: "Same as storm but longer. You remember Storm, right?",
+			completeAfterZone: 105,
+			unlockString: " reach Zone 105",
+			fireAbandon: true,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 104);
+			},
+			alpha: 0,
+			beta: 0,
+			mutations: 0,
+			alphaLoss: 0.05,
+			mutationThresh: 5,
+			mutationAttack: 1.05,
+			mutationHealth: 1.2,
+			mutationGammaMult: 1.4,
+			cellStartAttack: -1,
+			cellStartHealth: -1,
+			totalClouds: 0,
+			mutated: false,
+			drawStacks: function(){
+				manageStacks('Static', this.alpha, true, 'stormAlphaStacks', 'icomoon icon-bolt', this.stackTooltip('alpha'), false);
+				if (this.beta > 0){
+					manageStacks('Cloudy', this.beta, false, 'stormBetaStacks', 'icomoon icon-cloudy2', this.stackTooltip('beta'), false);
+				}
+				else {
+					manageStacks(null, null, false, 'stormBetaStacks', null, null, true);
+				}
+				if (this.mutations > 0){
+					manageStacks('Stormcloud', this.mutations, false, 'stormMutationStacks', 'icomoon icon-lightning', this.stackTooltip('mutations'), false);
+				}
+				else {
+					manageStacks(null, null, false, 'stormMutationStacks', null, null, true);
+				}
+			},
+			stackTooltip: function(type){
+				if (type == 'alpha') return "Your Trimps are taking " + prettify(this.alphaLoss * this.alpha * 100) + "% of their max health as damage after each attack.";
+				if (type == 'beta') return "This enemy is amassing clouds! For every " + this.mutationThresh + " Cloudy stacks, this enemy will gain 1 Stormcloud.";
+				if (type == 'mutations') return "This enemy is engulfed by the Storm! It has " + prettify((this.getHealthMult() - 1) * 100) + "% extra health, " + prettify((this.getAttackMult() - 1) * 100) + "% extra attack, and takes " + prettify((this.getGammaMult() - 1) * 100) + "% extra damage from Gamma Bursts.";
+			},
+			enemyAttacked: function(cell){
+				this.beta++;
+				if (this.beta > this.mutationThresh * 50) this.beta = this.mutationThresh * 50;
+				this.checkMutate(cell);
+			},
+			getAttackMult: function(){
+				return (Math.pow(this.mutationAttack, this.mutations));
+			},
+			getHealthMult: function(){
+				return (Math.pow(this.mutationHealth, this.mutations));
+			},
+			getGammaMult: function(){
+				return (Math.pow(this.mutationGammaMult, this.mutations));
+			},
+			getMapMult: function(){
+				return Math.pow(0.9995, this.beta);
+			},
+			checkMutate: function(cell){
+				this.mutations = Math.floor(this.beta / this.mutationThresh);
+				if (this.mutations > 0) this.mutated = true;
+				if (!cell || cell.health <= 0) return;
+				var startHealth = cell.maxHealth;
+				cell.maxHealth = this.cellStartHealth * this.getHealthMult();
+				var healthChange = cell.maxHealth - startHealth;
+				if (healthChange > 0) cell.health += healthChange;
+				if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
+				cell.attack = this.cellStartAttack * this.getAttackMult();
+				updateAllBattleNumbers();
+			},
+			enemyDied: function(){
+				if (game.global.mapsActive){
+					this.beta--;
+					if (this.beta < 0) this.beta = 0;
+				}
+				else{
+					this.beta = this.mutations;
+					this.cellStartHealth = -1;
+					this.cellStartAttack = -1;
+				}
+				this.checkMutate(getCurrentWorldCell());
+				this.drawStacks();
+			},
+			abandon: function(){
+				var cell = getCurrentWorldCell();
+				if (!cell) return;
+				if (this.cellStartHealth > 0) cell.maxHealth = this.cellStartHealth;
+				if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
+				if (this.cellStartAttack > 0) cell.attack = this.cellStartAttack;
+				updateAllBattleNumbers();
+				manageStacks(null, null, false, 'stormMutationStacks', null, null, true);
+				manageStacks(null, null, false, 'stormBetaStacks', null, null, true);
+				manageStacks(null, null, true, 'stormAlphaStacks', null, null, true);
+			},
+			onComplete: function(){
+				if (!this.mutated) giveSingleAchieve("Clear Skies");
+				message("You have completed the Storm Challenge and unlocked the Antenna building!", "Notices");
+				unlockBuilding('Antenna');
+				game.global.stormDone = true;
+				game.challenges.Storm.abandon();
+				game.global.challengeActive = "";
+			}
+		},
+		Insanity: {
+			get description(){
+				return "Travel to a dimension where instability takes over the mind. Maps above your World level have a chance to spawn a Horrimp in each cell, with the chance based on both actual map level and its level relative to your current World Zone. Horrimps are stronger than regular imps and when killed, give you a stack of Insanity. Maximum stacks is 500. Insanity decreases your health by 1% (compounding) but increases all resources gained (including radon) by 13.133% (additive). Every map (n below map level) ran reduces your current insanity by 2n and your maximum insanity by n. Challenge ends after clearing Z110. Completing this challenge will reward you with an additional 500% of all Radon earned and a feeling of deep satisfaction.";
+			},
+			completed: false,
+			blockU1: true,
+			allowU2: true,
+			heliumThrough: 110,
+			heldHelium: 0,
+			completeAfterZone: 110,
+			unlockString: " reach Zone 110",
+			fireAbandon: true,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 109);
+			},
+			insanity: 0,
+			maxInsanity: 500,
+			highestLevel: 0,
+			drawStacks: function(){
+				manageStacks('Insanity', this.insanity, true, 'insanityStacks', 'icomoon icon-grin', this.stackTooltip(), false);
+			},
+			stackTooltip: function(type){
+				var text = toZalgo("YOU ARE GOING CRAZY.", 99, 5);
+				var mapObj = getCurrentMapObject();
+				if (game.global.mapsActive && mapObj) text += "<br/><br/>You have a " + prettify(this.getHorrimpChance(mapObj.level)) + "% chance per cell to find a Horrimp.";
+				if (this.insanity <= 0) return text;
+				var showLoot = (this.insanity == 500) ? 66.6666 : this.getLootMult().toFixed(4);
+				text += "<br/><br/>Your Trimps have x" + (this.getHealthMult()).toFixed(4) + " health and x" + showLoot + " loot.";
+				return text;
+			},
+			getHealthMult: function(){
+				return Math.pow(0.99, this.insanity);
+			},
+			getLootMult: function(){
+				return 1 + (this.insanity * 0.1313332);
+			},
+			addStack: function(){
+				this.insanity++;
+				if (game.global.soldierHealth > 0){
+					game.global.soldierHealthMax *= 0.99;
+					if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
+				}
+				if (this.insanity > this.maxInsanity) this.insanity = this.maxInsanity;
+				this.drawStacks();
+			},
+			completeMap: function(level){
+				var oldInsanity = this.insanity;
+				level = game.global.world - level;
+				if (level <= 0) return;
+				this.insanity -= (level * 2);
+				this.maxInsanity -= level;
+				if (this.maxInsanity < 1) this.maxInsanity = 1;
+				if (this.insanity <= 0) this.insanity = 0;
+				var dif = oldInsanity - this.insanity;
+				if (game.global.soldierHealth > 0 && dif > 0){
+					game.global.soldierHealthMax /= Math.pow(0.99, dif);
+				}
+				this.drawStacks();
+			},
+			getHorrimpChance: function(level){
+				if (level > this.highestLevel) this.highestLevel = level;
+				level = level - game.global.world;
+				if (level <= 0) return 0;
+				var world = game.global.world;
+				if (world > 100) world = 100;
+				return (level * 9 * (world / 100));
+			},
+			abandon: function(){
+				this.insanity = 0;
+				manageStacks(null, null, true, 'insanityStacks', null, null, true);
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			onComplete: function(){
+				if (this.highestLevel <= 50 && this.insanity == 500) giveSingleAchieve("Actually Insane");
+				var reward = game.challenges.Insanity.heldHelium;
+				reward *= 5;
+				message("You have completed the Insanity challenge! You have gained an extra " + prettify(reward) + " Radon, and your world has been returned to normal.", "Notices");
+				addHelium(reward);
+				game.challenges.Insanity.abandon();
+				game.global.challengeActive = "";
+			},
+			start: function(){
+				this.drawStacks();
+			}
+		},
+		Berserk: {
+			get description(){
+				return "Travel to a dimension filled with lots of mild annoyances, sure to drive your Trimps berserk. All enemies in this dimension have 50% more attack and health. Every time your Trimps attack they have a 5% chance to become Frenzied, causing all kills to heal for 1% of max health, and also stack +50% attack and -2% max health, up to 25 times. If a frenzied group dies or is abandoned, your Trimps gain a permanent Weakened stack, reducing health by 4.99% per stack when outside of frenzy. If weakened stacks reach 20, Trimps can no longer become frenzied. Due to this dimension's annoying nature, the Angelic Mastery does not work. Completing Z115 will unlock a new perk!";
+			},
+			completed: false,
+			blockU1: true,
+			allowU2: true,
+			allowSquared: true,
+			squaredDescription: "Same as Berserk but you earn no perk. If you have the perk, that perk won't work.",
+			completeAfterZone: 115,
+			unlockString: " reach Zone 115",
+			fireAbandon: true,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 114);
+			},
+			weakened: 0,
+			frenzyStacks: 0,
+			startHealth: 0,
+			fullWeakAt: -1,
+			unlocks: "Frenzy",
+			drawStacks: function(){
+				var weakenedIcon = (this.weakened < 7) ? "icon-battery2" : (this.weakened < 14) ? "icon-battery3" : (this.weakened < 19) ? "icon-battery4" : "icon-battery5";
+				manageStacks('Weakened', this.weakened, true, 'weakenedStacks', 'icomoon ' + weakenedIcon, this.stackTooltip('weakened'), false);
+				var frenzyIcon = (this.frenzyStacks < 1) ? "icon-star-empty" : (this.frenzyStacks < 25) ? "icon-star-half" : "icon-star-full";
+				manageStacks('Frenzied', this.frenzyStacks, true, 'frenzyStacks', 'icomoon ' + frenzyIcon, this.stackTooltip('frenzy'), false);
+			},
+			stackTooltip: function(type){
+				if (type == 'frenzy') {
+					if (this.frenzyStacks <= 0) return "Your Trimps are currently chillin, but they have a 5% chance per attack to enter a frenzy!";
+					return "Your Trimps are in a wild frenzy! They currently have -" + prettify((1 - this.getHealthMult()) * 100) + "% max health, +" + prettify((this.getAttackMult() - 1) * 100) + "% attack, and heal for 1% of their maximum health after killing an enemy.";
+				}
+				if (this.weakened == 0) return "Your Trimps currently are not weakened! Keep it up, save your Frenzied Trimps!";
+				if (this.weakened < 20) return "When not frenzied, your Trimps have -" + prettify((1 - this.getHealthMult(true)) * 100) + "% health.<br/><br/><b>Be careful! At 20 stacks, your Trimps will no longer be able to become frenzied.</b>";
+				return "Your Trimps have -" + prettify((1 - this.getHealthMult(true)) * 100) + "% health and can no longer become frenzied.";
+			},
+			getHealthMult: function(getWeak){
+				if (this.frenzyStacks == 0 || getWeak)	return 1 - (this.weakened * .0499);
+				return 1 - (this.frenzyStacks * 0.02);
+			},
+			getAttackMult: function(){
+				return 1 + (0.5 * this.frenzyStacks);
+			},
+			enemyDied: function(){
+				if (this.frenzyStacks <= 0) return;
+				var oldBonus = this.getHealthMult();
+				this.frenzyStacks++;
+				if (this.frenzyStacks > 25) this.frenzyStacks = 25;
+				if (game.global.soldierHealth > 0){
+					game.global.soldierHealth += (game.global.soldierHealthMax * 0.01);
+					this.updateHealth(oldBonus);
+				}
+				this.drawStacks();
+			},
+			trimpDied: function(){
+				if (this.frenzyStacks <= 0) return;
+				this.weakened++;
+				if (this.weakened == 20) this.fullWeakAt = game.global.world;
+				if (this.weakened > 20) this.weakened = 20;
+				this.frenzyStacks = 0;
+				this.drawStacks();
+			},
+			attacked: function(){
+				if (this.frenzyStacks > 0) return;
+				if (this.weakened >= 20) return;
+				var oldBonus = this.getHealthMult();
+				if (Math.floor(Math.random() * 100) < 5) this.frenzyStacks = 1
+				else return;
+				this.updateHealth(oldBonus);
+				this.drawStacks();
+			},
+			updateHealth: function(oldBonus){
+				if (game.global.soldierHealth <= 0) return;
+				var newBonus = this.getHealthMult();
+				game.global.soldierHealthMax *= (newBonus / oldBonus);
+				if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
+				updateAllBattleNumbers();
+			},
+			abandon: function(){
+				if (game.global.soldierHealth > 0) {
+					game.global.soldierHealthMax /= this.getHealthMult();
+					if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
+				}
+				this.frenzyStacks = 0;
+				this.weakened = 0;
+				manageStacks(null, null, true, 'frenzyStacks', null, null, true);
+				manageStacks(null, null, true, 'weakenedStacks', null, null, true);
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			onComplete: function(){
+				if (this.weakened == 20 && this.fullWeakAt < 100) giveSingleAchieve("You're Doing it Wrong");
+				unlockPerk("Frenzy");
+				message("You have completed the Berserk challenge! You have unlocked the Frenzy Perk and your world has been returned to normal.", "Notices");
+				game.challenges.Berserk.abandon();
+				game.global.challengeActive = "";
+			},
+			start: function(){
+				this.drawStacks();
+			}
+		},
+		Exterminate: {
+			get description(){
+				return "Travel to a dimension filled with nasty bugs. All non-special World enemies are high attack, low health, fast bug enemies. Whenever a group of Trimps kills a bug enemy, that group of Trimps will become Experienced until death, allowing them to attack first against fast enemies. However, wasting time in Maps allows the swarm to grow, granting +50% permanent additive attack and health to all World enemies per map started in this Universe. Completing Z120 with this Challenge active will unlock a special new Building!";
+			},
+			completed: false,
+			blockU1: true,
+			allowU2: true,
+			completeAfterZone: 120,
+			unlockString: " reach Zone 120",
+			fireAbandon: true,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 119);
+			},
+			swarmStacks: 0,
+			experienced: false,
+			drawStacks: function(){
+				if (this.experienced) manageStacks('Experienced', -1, true, 'experiencedStacks', 'icomoon icon-graduate', this.stackTooltip('experienced'), false);
+				else manageStacks(null, null, true, 'experiencedStacks', null, null, true);
+				if (this.swarmStacks > 0) manageStacks('The Swarm Grows', this.swarmStacks, false, 'swarmStacks', 'icomoon icon-bug', this.stackTooltip('swarm'), false);
+				else manageStacks(null, null, true, 'swarmStacks', null, null, true);
+			},
+			stackTooltip: function(type){
+				if (type == "experienced") return "This group of Trimps has killed a bug and knows their weakness, allowing them to attack first.";
+				return "All World enemies in this dimension" + ((!game.global.mapsActive) ? " have grown while you were " : " are growing while you are ") + "in maps, granting +" + prettify((this.getSwarmMult() - 1) * 100) + "% attack and health.";
+			},
+			abandon: function(){
+				this.swarmStacks = 0;
+				this.experienced = false;
+				manageStacks(null, null, true, 'experiencedStacks', null, null, true);
+				manageStacks(null, null, false, 'swarmStacks', null, null, true);
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			killedBug: function(){
+				if (game.global.challengeActive != "Exterminate") return;
+				this.experienced = true;
+				this.drawStacks();
+			},
+			trimpDied: function(){
+				this.experienced = false;
+				this.drawStacks();
+			},
+			startedMap: function(){
+				this.swarmStacks++;
+				this.drawStacks();
+			},
+			getSwarmMult: function(){
+				return 1 + (0.5 * this.swarmStacks);
+			},
+			onComplete: function(){
+				if (this.swarmStacks >= 1000) giveSingleAchieve("The Tortoise and the Bugs");
+				game.global.exterminateDone = true;
+				unlockBuilding("Hub");
+				message("You have completed the Exterminate Challenge! You have unlocked the Hub, a revolutionary new way to store your extra Trimps!", "Notices");
+				game.challenges.Exterminate.abandon();
+				game.global.challengeActive = "";
+			}
+		},
 	},
 	stats:{
 		trimpsKilled: {
@@ -4714,7 +5272,7 @@ var toReturn = {
 		}
 	},
 	//Total 4448% after 4.6
-	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80, 160, 250, 400, 750],
+	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80, 160, 250, 400, 750, 1200],
 	//rip colorsList, 11/28/15 - 11/28/17. He served us well until it became obvious that CSS was better.
 	//colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5", "#d58565", "#d53535"],
 	achievements: {
@@ -4749,9 +5307,9 @@ var toReturn = {
 				return "Highest is " + game.global.highestRadonLevelCleared;
 			},
 			evaluate: function() {return game.global.highestRadonLevelCleared;},
-			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11],
-			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist"],
+			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
+			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12],
+			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones"],
 			icon: "icomoon icon-navigation",
 			newStuff: []
 		},
@@ -4902,9 +5460,9 @@ var toReturn = {
 			display: function () {
 				return (game.global.totalRadonEarned > 0 || game.global.universe == 2);
 			},
-			breakpoints: [100, 1e4, 5e5, 1e7, 1e9, 1e11, 1e13],
-			tiers: [9, 9, 10, 10, 10, 11, 12],
-			names: ["Radon Runner", "The Irradiated", "Radonlicious", "Radon Quixote", "Radon Racer", "Raging Radon", "Radon Wrangler"],
+			breakpoints: [100, 1e4, 5e5, 1e7, 1e9, 1e11, 1e13, 1e16, 1e19],
+			tiers: [9, 9, 10, 10, 10, 11, 12, 12, 13],
+			names: ["Radon Runner", "The Irradiated", "Radonlicious", "Radon Quixote", "Radon Racer", "Raging Radon", "Radon Wrangler", "All Said and Radone", "Radominating"],
 			icon: "icomoon icon-battery",
 			newStuff: []
 		},
@@ -5046,9 +5604,9 @@ var toReturn = {
 			},
 			earnable: true,
 			lastZone: 0,
-			breakpoints: [20, 30, 40, 50, 60, 70, 80, 90, 100],
-			tiers: [10, 10, 11, 11, 11, 11, 11, 12, 12],
-			names: ["Map Misser", "Map Lacker", "Mapophobia", "GPS", "Undisoriented", "Need No Map", "The Efficient", "Bulldozer", "Worldly"],
+			breakpoints: [20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150],
+			tiers: [10, 10, 11, 11, 11, 11, 11, 12, 12, 13, 13],
+			names: ["Map Misser", "Map Lacker", "Mapophobia", "GPS", "Undisoriented", "Need No Map", "The Efficient", "Bulldozer", "Worldly", "Big Pusher", "Defragmented"],
 			icon: "icomoon icon-map-signs",
 			newStuff: []
 		},
@@ -5076,10 +5634,10 @@ var toReturn = {
 			display: function(){
 				return (game.global.highestRadonLevelCleared >= 1);
 			},
-			breakpoints: [40, 50, 60, 70, 80, 90, 100],
-			breakpoints2: [25, 35, 45, 50, 50, 50, 60],
-			tiers: [11, 11, 11, 11, 12, 12, 12],
-			names: ["Crumb of Comfort", "Common Comfort", "Controlled Comfort", "Certain Comfort", "Copious Comfort", "Critical Comfort", "Cosmic Comfort"],
+			breakpoints: [40, 50, 60, 70, 80, 90, 100, 125, 150],
+			breakpoints2: [25, 35, 45, 50, 50, 50, 60, 60, 70],
+			tiers: [11, 11, 11, 11, 12, 12, 12, 13, 13],
+			names: ["Crumb of Comfort", "Common Comfort", "Controlled Comfort", "Certain Comfort", "Copious Comfort", "Critical Comfort", "Cosmic Comfort", "Colossal Comfort", "Ceaseless Comfort"],
 			icon: "icomoon icon-shield2",
 			newStuff: []
 		},
@@ -5428,7 +5986,7 @@ var toReturn = {
 			reverse: true,
 			timed: true,
 			showAll: true,
-			breakpoints: [100, 50, 10, 2],//In minutes
+			breakpoints: [100, 50, 10, 4],//In minutes
 			tiers: [9, 9, 10, 11],
 			names: ["Big Wall Crawler", "Big Wall Scholar", "Big Wall Mauler", "Big Wall Baller"],
 			icon: "icomoon icon-clock2",
@@ -5455,9 +6013,36 @@ var toReturn = {
 			reverse: true,
 			timed: true,
 			showAll: true,
-			breakpoints: [180, 90, 40, 6],//In minutes
+			breakpoints: [180, 90, 40, 12],//In minutes
 			tiers: [10, 10, 11, 12],
 			names: ["Peasant", "Jester", "Advisor", "Ruler"],
+			icon: "icomoon icon-clock2",
+			newStuff: []
+		},
+		atlantrimpTimed: {
+			finished: 0,
+			title: "U2 Speed: Atlantrimp",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "<span style='font-size: .8em'>Clear Atlantrimp in less than " + number + " from start of run</span>";
+			},
+			display: function () {
+				return (game.global.highestRadonLevelCleared >= 32);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			u: 2,
+			highest: 0,
+			reverse: true,
+			timed: true,
+			showAll: true,
+			breakpoints: [240, 60, 20],//In minutes
+			tiers: [10, 11, 12],
+			names: ["Sinker", "Floater", "Swimmer"],
 			icon: "icomoon icon-clock2",
 			newStuff: []
 		},
@@ -5482,7 +6067,7 @@ var toReturn = {
 			reverse: true,
 			timed: true,
 			showAll: true,
-			breakpoints: [360, 100, 35, 20],//In minutes
+			breakpoints: [360, 100, 45, 30],//In minutes
 			tiers: [11, 12, 12, 12],
 			names: ["Thawed", "Tempered", "Melty", "Molten"],
 			icon: "icomoon icon-clock2",
@@ -5509,43 +6094,43 @@ var toReturn = {
 		},
 		oneOffs2: {
 			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare. Yet I copy/pasted it again for Universe 2 and probably will do the same for U3. Oh well.
-			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false],
+			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
 			display: function(){
 				return (Fluffy.checkU2Allowed());
 			},
 			get descriptions () {
-				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Complete Revenge with exactly 19 stacks", "Complete 80/80 quests on Quest", "Complete Archaeology without ever having more than 0 of one Relic"];
+				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Complete Revenge with exactly 19 stacks", "Complete 80/80 quests on Quest", "Complete Archaeology without ever having more than 0 of one Relic", "Complete Storm without ever encountering a Stormcloud", "Complete Insanity with 500 stacks without running a map above lvl 50", "Finish Berserk after reaching 20 Weakened Stacks before Z100", "Finish Exterminate with at least 1000 Swarm Stacks"];
 			},
-			tiers: [10,10,10,11,11,11,11,11,12,12,12,12,12],
+			tiers: [10,10,10,11,11,11,11,11,12,12,12,12,12,13,13,13,13],
 			description: function (number) {
 				return this.descriptions[number];
 			},
-			filters: [-1,14,19,24,34,39,44,49,59,69,79,84,94],
+			filters: [-1,14,19,24,34,39,44,49,59,69,79,84,94,104,109,114,119],
 			filterLevel: function(){
 				return game.global.highestRadonLevelCleared;
 			},
 			icon: "glyphicon glyphicon-flag",
-			names: ["Eliter Feat", "Don't Need Luck", "Perfectly Balanced", "Resourceyphobe", "Upsized", "Unpoppable", "Pwnd", "Solid", "Coastapalooza", "Witherproof", "Close Call", "Level Up", "Unassisted"],
+			names: ["Eliter Feat", "Don't Need Luck", "Perfectly Balanced", "Resourceyphobe", "Upsized", "Unpoppable", "Pwnd", "Solid", "Coastapalooza", "Witherproof", "Close Call", "Level Up", "Unassisted", "Clear Skies", "Actually Insane", "You're Doing it Wrong", "The Tortoise and the Bugs"],
 			newStuff: []
 		},
 	},
 
 	heirlooms: { //Basic layout for modifiers. Steps can be set specifically for each modifier, or else default steps will be used
 		//NOTE: currentBonus is the only thing that will persist!
-		values: [10, 20, 30, 50, 150, 300, 800, 2000, 5000, 15000],
-		recycleOverride: [-1,-1,-1,-1,-1,-1,-1,-1,-1,25e4],
+		values: [10, 20, 30, 50, 150, 300, 800, 2000, 5000, 15000, 100000],
+		recycleOverride: [-1,-1,-1,-1,-1,-1,-1,-1,-1,25e4,1e6],
 		coreValues: function(tier){
 			return Math.floor(Math.pow(10, tier) * 20) * 2;
 		},
-		slots: [1,2,3,3,3,4,4,5,5,6],
-		defaultSteps: [[3, 6, 1], [3, 6, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8], [128, 320, 16], [256, 640, 32], [512, 1280, 64]],
-		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal', 'Magmatic', 'Plagued', 'Radiating'],
-		rarities:[[5000,3500,1500,-1,-1,-1,-1,-1,-1,-1],[1000,5000,4000,-1,-1,-1,-1,-1,-1,-1],[-1,3500,5000,1500,-1,-1,-1,-1,-1,-1],[-1,2000,4000,4000,-1,-1,-1,-1,-1,-1],[-1,1500,3000,5000,500,-1,-1,-1,-1,-1],[-1,800,2000,6000,1000,200,-1,-1,-1,-1],[-1,400,1000,7000,1000,500,100,-1,-1,-1],[-1,200,500,6000,2200,800,300,-1,-1,-1],[-1,-1,-1,5000,3000,1700,300,-1,-1,-1],[-1,-1,-1,2500,5000,2000,500,-1,-1,-1],[-1,-1,-1,-1,7000,2400,500,100,-1,-1],[-1,-1,-1,-1,6000,3170,680,150,-1,-1],[-1,-1,-1,-1,3000,5000,1650,350,-1,-1],[-1,-1,-1,-1,-1,4500,3000,2000,500,-1],[-1,-1,-1,-1,-1,1500,2000,5000,1500,-1],[-1,-1,-1,-1,-1,-1,1000,6000,3000,-1],[-1,-1,-1,-1,-1,-1,-1,-1,7500,2500],[-1,-1,-1,-1,-1,-1,-1,-1,5000,5000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,10000]],
-		rarityBreakpoints:[41,60,80,100,125,146,166,181,201,230,300,400,500,600,700,1,40,80],
-		universeBreakpoints: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2],
-		priceIncrease: [1.5, 1.5, 1.25, 1.19, 1.15, 1.12, 1.1, 1.06, 1.04, 1.03],
-		canReplaceMods: [true, true, true, true, true, true, true, true, false, false],
+		slots: [1,2,3,3,3,4,4,5,5,6,6],
+		defaultSteps: [[3, 6, 1], [3, 6, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8], [128, 320, 16], [256, 640, 32], [512, 1280, 64], [1024, 2560, 128]],
+		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal', 'Magmatic', 'Plagued', 'Radiating', 'Hazardous'],
+		rarities:[[5000,3500,1500,-1,-1,-1,-1,-1,-1,-1,-1],[1000,5000,4000,-1,-1,-1,-1,-1,-1,-1,-1],[-1,3500,5000,1500,-1,-1,-1,-1,-1,-1,-1],[-1,2000,4000,4000,-1,-1,-1,-1,-1,-1,-1],[-1,1500,3000,5000,500,-1,-1,-1,-1,-1,-1],[-1,800,2000,6000,1000,200,-1,-1,-1,-1,-1],[-1,400,1000,7000,1000,500,100,-1,-1,-1,-1],[-1,200,500,6000,2200,800,300,-1,-1,-1,-1],[-1,-1,-1,5000,3000,1700,300,-1,-1,-1,-1],[-1,-1,-1,2500,5000,2000,500,-1,-1,-1,-1],[-1,-1,-1,-1,7000,2400,500,100,-1,-1,-1],[-1,-1,-1,-1,6000,3170,680,150,-1,-1,-1],[-1,-1,-1,-1,3000,5000,1650,350,-1,-1,-1],[-1,-1,-1,-1,-1,4500,3000,2000,500,-1,-1],[-1,-1,-1,-1,-1,1500,2000,5000,1500,-1,-1],[-1,-1,-1,-1,-1,-1,1000,6000,3000,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,7500,2500,-1],[-1,-1,-1,-1,-1,-1,-1,-1,5000,5000,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,10000,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,8500,1500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,7000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,3000,7000]],
+		rarityBreakpoints:[41,60,80,100,125,146,166,181,201,230,300,400,500,600,700,1,40,80,100,135,175],
+		universeBreakpoints: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2],
+		priceIncrease: [1.5, 1.5, 1.25, 1.19, 1.15, 1.12, 1.1, 1.06, 1.04, 1.03, 1.02],
+		canReplaceMods: [true, true, true, true, true, true, true, true, false, false, false],
 		Core: {
 			fireTrap: {
 				name: "Fire Trap Damage",
@@ -5641,7 +6226,7 @@ var toReturn = {
 					return "Pet (" + Fluffy.getName() + ") Exp";
 				},
 				currentBonus: 0,
-				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [25, 50, 1],[50,100,1]]
+				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [25, 50, 1],[50,100,1],[75,200,1]]
 			},
 			empty: {
 				name: "Empty",
@@ -5652,42 +6237,42 @@ var toReturn = {
 			playerEfficiency: {
 				name: "Player Efficiency",
 				currentBonus: 0,
-				steps: [[8,16,1],[8,16,1],[8,16,1],[16,32,2],[32,64,4],[64,128,8],[128,256,16],[256,512,32],[512,1024,64],[1024,2048,128]]
+				steps: [[8,16,1],[8,16,1],[8,16,1],[16,32,2],[32,64,4],[64,128,8],[128,256,16],[256,512,32],[512,1024,64],[1024,2048,128],[2048,4096,256]]
 			},
 			trainerEfficiency: {
 				name: "Trainer Efficiency",
 				currentBonus: 0,
-				steps: [[10,20,1],[10,20,1],[10,20,1],[20,40,2],[40,60,2],[60,80,2],[80,100,2],[100,120,2],[120,140,2],-1]
+				steps: [[10,20,1],[10,20,1],[10,20,1],[20,40,2],[40,60,2],[60,80,2],[80,100,2],[100,120,2],[120,140,2],-1,-1]
 			},
 			storageSize: {
 				name: "Storage Size",
 				currentBonus: 0,
-				steps: [[32,64,4],[32,64,4],[32,64,4],[64,128,4],[128,256,8],[256,512,16],[512,768,16],[768,1024,16],[1024,1280,16],-1]
+				steps: [[32,64,4],[32,64,4],[32,64,4],[64,128,4],[128,256,8],[256,512,16],[512,768,16],[768,1024,16],[1024,1280,16],-1,-1]
 			},
 			breedSpeed: {
 				name: "Breed Speed",
 				currentBonus: 0,
-				steps: [[5,10,1],[5,10,1],[5,10,1],[10,20,1],[70,100,3],[100,130,3],[130,160,3],[160,190,3],[190,220,3],[220,280,5]]
+				steps: [[5,10,1],[5,10,1],[5,10,1],[10,20,1],[70,100,3],[100,130,3],[130,160,3],[160,190,3],[190,220,3],[220,280,5],[260, 360, 10]]
 			},
 			trimpHealth: {
 				name: "Trimp Health",
 				currentBonus: 0,
-				steps: [[6,20,2],[6,20,2],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200,260,6],[260,356,8],[360,460,10]]
+				steps: [[6,20,2],[6,20,2],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200,260,6],[260,356,8],[360,460,10],[600,750,10]]
 			},
 			trimpAttack: {
 				name: "Trimp Attack",
 				currentBonus: 0,
-				steps: [[6,20,2],[6,20,2],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200,260,6],[260,356,8],[360,460,10]]
+				steps: [[6,20,2],[6,20,2],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200,260,6],[260,356,8],[360,460,10],[600,750,10]]
 			},
 			trimpBlock: {
 				name: "Trimp Block",
 				currentBonus: 0,
-				steps: [[4,7,1],[4,7,1],[4,7,1],[7,10,1],[28,40,1],[48,60,1],[68,80,1],[88,100,1],[108,120,1],-1]
+				steps: [[4,7,1],[4,7,1],[4,7,1],[7,10,1],[28,40,1],[48,60,1],[68,80,1],[88,100,1],[108,120,1],-1,-1]
 			},
 			critDamage: {
 				name: "Crit Damage, additive",
 				currentBonus: 0,
-				steps: [[40,60,5],[40,60,5],[40,60,5],[60,100,5],[100,200,10],[200,300,10],[300,400,10],[400,500,10],[500,650,15],[650,850,20]],
+				steps: [[40,60,5],[40,60,5],[40,60,5],[60,100,5],[100,200,10],[200,300,10],[300,400,10],[400,500,10],[500,650,15],[650,850,20],[850,1100,25]],
 				filter: function () {
 					return (!game.portal.Relentlessness.locked);
 				}
@@ -5696,18 +6281,21 @@ var toReturn = {
 				name: "Crit Chance, additive",
 				currentBonus: 0,
 				heirloopy: true,
-				steps: [[1.4,2.6,0.2],[1.4,2.6,0.2],[1.4,2.6,0.2],[2.6,5,0.2],[5,7.4,0.2],[7.4,9.8,0.2],[9.8,12.2,0.2],[12.3,15.9,0.3],[20,30,0.5],[30,50,0.5]],
+				steps: [[1.4,2.6,0.2],[1.4,2.6,0.2],[1.4,2.6,0.2],[2.6,5,0.2],[5,7.4,0.2],[7.4,9.8,0.2],[9.8,12.2,0.2],[12.3,15.9,0.3],[20,30,0.5],[30,50,0.5],[50,80,0.25]],
 				filter: function () {
 					return (!game.portal.Relentlessness.locked);
 				},
-				max: [30,30,30,30,30,30,30,30,100,125]
+				max: [30,30,30,30,30,30,30,30,100,125,200]
 			},
 			voidMaps: {
 				name: "Void Map Drop Chance",
 				currentBonus: 0,
 				heirloopy: true,
-				steps: [[5,7,0.5],[5,7,0.5],[5,7,0.5],[8,11,0.5],[12,16,0.5],[17,22,0.5],[24,30,0.5],[32,38,0.5],[40,50,0.25],[50,60,0.25]],
-				max: [50,50,50,50,50,50,50,50,80,99]
+				specialDescription: function(modifier){
+					return "*Void Map Drop Chance on Hazardous and higher Heirlooms has a lower percentage than previous Heirloom tiers, but also causes 1 extra Void Map to drop every 10th zone you clear."
+				},
+				steps: [[5,7,0.5],[5,7,0.5],[5,7,0.5],[8,11,0.5],[12,16,0.5],[17,22,0.5],[24,30,0.5],[32,38,0.5],[40,50,0.25],[50,60,0.25],[5,7,0.1]],
+				max: [50,50,50,50,50,50,50,50,80,99,40]
 			},
 			plaguebringer: {
 				name: "Plaguebringer",
@@ -5716,8 +6304,8 @@ var toReturn = {
 				specialDescription: function (modifier) {
 					return modifier + "% of all non-lethal damage and nature stacks you afflict on your current enemy are copied onto the next enemy. Plaguebringer damage cannot bring an enemy below 5% health, but nature stacks will continue to accumulate."
 				},
-				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [1, 15, 0.5],[15,30,0.5]],
-				max: [0,0,0,0,0,0,0,0,75,100]
+				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [1, 15, 0.5],[15,30,0.5],[30,45,0.5]],
+				max: [0,0,0,0,0,0,0,0,75,100,100]
 			},
 			prismatic: {
 				name: "Prismatic Shield",
@@ -5726,8 +6314,8 @@ var toReturn = {
 				specialDescription: function(){
 					return "ADDS this amount on to your total Prismatic Shield. This modifier can only function in the Radon Universe."
 				},
-				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[10,50,1]],
-				max:[0,0,0,0,0,0,0,0,0,250]
+				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[10,50,1],[10,40,1]],
+				max:[0,0,0,0,0,0,0,0,0,250,500]
 			},
 			gammaBurst: {
 				name: "Gamma Burst",
@@ -5736,7 +6324,7 @@ var toReturn = {
 				specialDescription: function(modifier){
 					return "Each attack by your Trimps adds 1 stack of Charging. When Charging reaches 5 stacks, your Trimps will release a burst of energy, dealing " + prettify(modifier) + "% of their attack damage. Stacks reset after releasing a Burst or when your Trimps die.";
 				},
-				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[1000,2000,100]],
+				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[1000,2000,100],-1],
 			},
 			empty: {
 				name: "Empty",
@@ -6020,6 +6608,58 @@ var toReturn = {
 			fast: true,
 			loot: function () {
 				rewardLiquidZone();
+			}
+		},
+		//Special Mobs for Exterminate
+		Arachnimp: {
+			location: "Exterminate",
+			locked: 0,
+			attack: 3e3,
+			health: 0.1,
+			fast: true,
+			loot: function(){
+				game.challenges.Exterminate.killedBug();
+			}
+		},
+		Beetlimp: {
+			location: "Exterminate",
+			locked: 0,
+			attack: 1e3,
+			health: 0.2,
+			fast: true,
+			loot: function(){
+				game.challenges.Exterminate.killedBug();
+			}
+		},
+		Mantimp: {
+			location: "Exterminate",
+			locked: 0,
+			attack: 3e3,
+			health: 0.1,
+			fast: true,
+			loot: function(){
+				game.challenges.Exterminate.killedBug();
+			}
+		},
+		Butterflimp: {
+			location: "Exterminate",
+			locked: 0,
+			attack: 2e3,
+			health: 0.1,
+			fast: true,
+			loot: function(){
+				game.challenges.Exterminate.killedBug();
+			}
+		},
+		//Special Mob for Insanity
+		Horrimp: {
+			location: "None",
+			locked: 1,
+			attack: 15,
+			health: 60,
+			fast: true,
+			loot: function(){
+				game.challenges.Insanity.addStack();
 			}
 		},
 		Presimpt: {
@@ -6345,7 +6985,7 @@ var toReturn = {
 				}
 				var percentage = 1;
 				var rewardPercent = 1;
-				if (game.global.world >= mutations.Corruption.start(true)){
+				if (game.global.universe == 1 && game.global.world >= mutations.Corruption.start(true)){
 					rewardPercent = 2;
 					percentage = (game.global.challengeActive == "Corrupted") ? 0.075 : 0.15;
 					var corrCount = mutations.Corruption.cellCount();
@@ -6559,6 +7199,20 @@ var toReturn = {
 				if (game.global.challengeActive == "Meditate"){
 					game.challenges.Meditate.onComplete();
 				}
+			}
+		},
+		Poseidimp: {
+			location: "Atlantis",
+			last: true,
+			world: 33,
+			attack: 1.25,
+			health: 2,
+			fast: true,
+			loot: function (level) {
+				checkAchieve("atlantrimpTimed");
+				var amt = rewardResource("food", 2, level, true);
+				var text = "Poseidimp explodes into a swirling tornado of fish and aquatic life. You catch some of it and bring back " + prettify(amt) + " Food!";
+				message(text, "Loot", "apple", null, 'primary');
 			}
 		},
 		Warden: {
@@ -7113,6 +7767,10 @@ var toReturn = {
 				resourceType: "Metal",
 				upgrade: [ "AncientTreasure", "Relentlessness"]
 			},
+			Atlantis: {
+				resourceType: "Food",
+				upgrade: ["AncientTreasure"]
+			},
 			Prison: {
 				resourceType: "Food",
 				upgrade: "Keys"
@@ -7184,7 +7842,7 @@ var toReturn = {
 						cancelTooltip();
 						var text = "There seems to be a small RoboTrimp that you appear to have orphaned. You decide to take him with you, since you're pretty good at training stuff. He deals <b>20%</b> extra damage for you, and has a special ability. You can learn more about the special ability by hovering over the new <span class='icomoon icon-chain'></span> icon by your soldiers.<br/><br/>You also found a map to a more powerful version of the Bionic Wonderland. You would bet there's another RoboTrimp who needs 'rescuing' in there.";
 						if (game.options.menu.tooltips.enabled == 0) text += '<br/><br/><b>Just a heads up</b>: You have tooltips disabled, so you will need to hold shift when you mouse over the <span class="icomoon icon-chain"></span> to read about it.';
-						text += "<br/><br/><b>Speial Bionic Wonderland QOL Bonuses</b><br/>You will also find some special new Quality of Life bonuses in Bionic Wonderland maps! If you see a Bionic Wonderland map with a yellow background, that means there's a permanent QOL unlock inside. For your first map, you've unlocked Foremany!<br/><br/><b>Foremany</b><br/>" + game.bwRewards.Foremany.description;
+						text += "<br/><br/><b>Special Bionic Wonderland QOL Bonuses</b><br/>You will also find some special new Quality of Life bonuses in Bionic Wonderland maps! If you see a Bionic Wonderland map with a yellow background, that means there's a permanent QOL unlock inside. For your first map, you've unlocked Foremany!<br/><br/><b>Foremany</b><br/>" + game.bwRewards.Foremany.description;
 						tooltip('confirm', null, 'update', text, null, 'RoboTrimp');
 						game.global.roboTrimpLevel = 1;
 						document.getElementById("chainHolder").style.visibility = 'visible';
@@ -7194,6 +7852,12 @@ var toReturn = {
 						var values = game.global.roboTrimpLevel;
 						values = [(values) * 20, ((1 - this.getShriekValue()) * 100).toFixed(1)];
 						message("<span class='icomoon icon-chain'></span> Hey look, another baby RoboTrimp! You decide to add him to your collection. You now deal " + Math.floor(values[0]) + "% extra damage thanks to your pets, and MagnetoShriek now removes " + Math.floor(values[1]) + "% of an Improbability's attack", "Notices");
+						for (var reward in game.bwRewards){
+							if (level == game.bwRewards[reward].requires) {
+								game.bwRewards[reward].fire();
+								message("You also just unlocked " + reward + "!", "Notices")
+							}
+						}
 					}
 				}
 			}
@@ -7306,7 +7970,10 @@ var toReturn = {
 				addResCheckMax("food", game.resources.food.owned);
 				addResCheckMax("wood", game.resources.wood.owned);
 				addResCheckMax("metal", game.resources.metal.owned);
-				message("After barely escaping a fierce boulder, you check out the relic you found in there. It glows extremely bright for a few seconds before disappearing, and you look at your storages to see that your Food, Wood, and Metal have been doubled!", "Story", "piggy-bank", "highlightStoryMessage");
+				var text;
+				if (game.global.universe == 2) text = "You heroically slay the mighty Poseidimp, and do a little ransacking in celebration. You come across a strange, brightly glowing chest that seems to be calling you to it. You go over and carefully open it up to see it filled to the brim with the exact amount of resources you currently already had. Your Food, Wood, and Metal have been doubled!";
+				else text = "After barely escaping a fierce boulder, you check out the relic you found in there. It glows extremely bright for a few seconds before disappearing, and you look at your storages to see that your Food, Wood, and Metal have been doubled!";
+				message(text, "Story", "piggy-bank", "highlightStoryMessage");
 			}
 		},
 		SmithFree: {
@@ -7702,6 +8369,7 @@ var toReturn = {
 			startAt: 125,
 			level: [1, 15],
 			icon: "th-large",
+			blockU2: true,
 			canRunOnce: true,
 			title: "Bionic Wonderland",
 			fire: function () {
@@ -8173,7 +8841,7 @@ var toReturn = {
 			title: "Mechanical Dish",
 			fire: function(){
 				this.canRunOnce = false;
-				if (!game.global.runningChallengeSquared)
+				if (!game.global.runningChallengeSquared || game.global.stormDone)
 					unlockJob("Meteorologist");
 			}
 		},
@@ -8598,9 +9266,32 @@ var toReturn = {
 			level: [15, 50],
 			icon: "th-large",
 			title: "Too dark to see",
+			blockU2: true,
 			fire: function () {
 				createMap(33, "Trimple Of Doom", "Doom", 3, 100, 1.8, true);
 				message("There is something strange about this map. It doesn't seem to reflect any light at all, just pure darkness.", "Story");
+			}
+		},
+		Atlantrimp: {
+			world: 33,
+			level: [15, 50],
+			blockU1: true,
+			icon: "th-large",
+			title: "It's a wet map",
+			fire: function () {
+				createMap(33, "Atlantrimp", "Atlantis", 3, 100, 1.8, true);
+				message("You found an incredibly wet map. It seems to actually be generating water out of nothing, making storage very difficult without flooding the surrounding area. You're sure your Scientists can handle it though, they seem pretty smart.", "Story");
+			}
+		},
+		Worshipper: {
+			message: "Having some Trimps Worship Scruffy might help him grow stronger quicker!",
+			world: 50,
+			level: [10,70],
+			blockU1: true,
+			icon: "*library",
+			title: "Cult of Scruffy",
+			fire: function(){
+				unlockJob("Worshipper");
 			}
 		},
 		FirstMap: {
@@ -8940,7 +9631,26 @@ var toReturn = {
 				what: "trimps.max",
 				by: 10000
 			}
-
+		},
+		Hub: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 1,
+			AP: false,
+			blockU1: true,
+			tooltip: "<p>Cannot be purchased directly. Level is always equal to your total amount of Huts, Houses, Mansions, Hotels, Resorts, Gateways, and Collectors. Supports $incby$ Trimps.</p><p>Automatically unlocks on reaching Zone 60 in Universe 2</p>",
+			increase: {
+				what: "trimps.max",
+				by: 25000
+			},
+			onUnlock: function(){
+				var buildings = game.buildings;
+				var total = buildings.Hut.owned + buildings.House.owned + buildings.Mansion.owned + buildings.Hotel.owned + buildings.Resort.owned + buildings.Gateway.owned + buildings.Collector.owned;
+				addMaxHousing(this.increase.by * total, bwRewardUnlocked("AutoStructure"));
+				this.owned = total;
+				this.purchased = total;
+			}
 		},
 		Gym: {
 			locked: 1,
@@ -8973,9 +9683,9 @@ var toReturn = {
 			blockU1: true,
 			tooltip: "Build a Smithy to help produce better Equipment for your Trimps. Each Smithy in your village increases Trimp Attack and Health by 25% (compounding).",
 			cost: {
-				gems: [500, 50],
-				metal: [10000, 50],
-				wood: [5000, 50]
+				get gems(){var exp = (Fluffy.isRewardActive('smithy')) ? 40 : 50; return [500, exp]},
+				get metal() {var exp = (Fluffy.isRewardActive('smithy')) ? 40 : 50; return [10000, exp]},
+				get wood(){var exp = (Fluffy.isRewardActive('smithy')) ? 40 : 50; return [5000, exp]}
 			},
 			getMult: function(){
 				return Math.pow(1.25, this.owned);
@@ -9041,6 +9751,28 @@ var toReturn = {
 				if (this.owned > 5) this.owned = 5;
 			}
 		},
+		Antenna: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 100000,
+			blockU1: true,
+			tooltip: function(){
+				var text = "<p>Build an antenna for your Meteorologists to use in their meteorological duties. Each Antenna increases the bonus granted per Meteorologist by a flat 0.05% (20 Antennas would double their bonus), but only 1 Antenna can be built for every 5 Zones completed above Z100 in Universe 2 on your highest run ever. Thanks to the extra-dimensional origin of the Antenna design, these Antennas persist in the world when you use your Time Portal!</p>";
+				text += "<p>Once 5 antennas have been built, your Trimps can use the new advanced weather data to increase the yield of crops, granting 50% of the Meteorologist's bonus percentage to Food income as well.</p>"
+				text += "<p>Once 10 Antennas have been built, your Soldiers can use the data to always properly dress for the weather, granting 50% of the Meteorologist's bonus percentage to Soldier Health.</p>";
+				text += "<p>Once 15 Antennas have been built, the network will be strong enough to locate rich mineral deposits all over the planet, granting 50% of the Meteorologist's bonus percentage to Mining income!</p>";
+				text += "<p>Once 20 Antennas have been built, the network becomes so strong that all non-Radon Meteorologist bonuses are increased to 75% of the Meteorologist's bonus! For each 5 Antennas built after 20, the Meteorologists' non-Radon bonuses are increased by another 25%.</p>"
+				return text;
+			},
+			cost: {
+				metal: [1e30,50]
+			},
+			getExtraMult: function(){
+				if (this.owned < 20) return 0.5;
+				return 0.5 + (0.25 * Math.floor((this.owned - 15)/5));
+			}
+		}
 	},
 //jobs
 	jobs: {
@@ -9258,12 +9990,21 @@ var toReturn = {
 			blockU1: true,
 			allowAutoFire: true,
 			get tooltip(){
-				var text = "<p>Increase the amount of Radon gained from all sources by 1% per Meteorologist hired. Meteorologists require some time to get situated after being hired, and must be active for an entire Zone before they can start collecting any extra Radon.</p>";
+				var pct = (1 + (0.05 * game.buildings.Antenna.owned))
+				var text = "<p>Increase the amount of Radon gained from all sources by " + prettify(pct) + "% per Meteorologist hired. Meteorologists require some time to get situated after being hired, and must be active for an entire Zone before they can start collecting any extra Radon.</p>";
 				if (this.owned != this.vestedHires){
 					var notVested = this.owned - this.vestedHires;
 					text += "<p>You have " + this.owned + " Meteorologist" + needAnS(this.owned) + ", but " + notVested + " " + ((notVested == 1) ? "was" : "were") + " hired on this Zone and " + ((notVested == 1) ? "is" : "are") + " not yet available.</p>";
 				}
-				text += "<p>" + this.vestedHires + " Meteorologist" + needAnS(this.vestedHires) + " " + ((this.vestedHires == 1) ? "is" : "are") + " currently collecting, granting " + this.vestedHires + "% extra Radon.</p>";
+				text += "<p>" + this.vestedHires + " Meteorologist" + needAnS(this.vestedHires) + " " + ((this.vestedHires == 1) ? "is" : "are") + " currently collecting, granting " + prettify(this.vestedHires * pct) + "% extra Radon.</p>";
+				if (game.buildings.Antenna.owned >= 5 && this.vestedHires > 0){
+					text += "<p>Thanks to your super cool Antenna array, you're also gaining +" + prettify((this.getExtraMult() - 1) * 100) + "% extra Food from gathering";
+					if (game.buildings.Antenna.owned >= 10){
+						text += ((game.buildings.Antenna.owned >= 15) ? ", " : " and ") + " Health for your Soldiers";
+						if (game.buildings.Antenna.owned >= 15) text += ", and Metal from mining";
+					}
+					text += "!</p>";
+				}
 				return text;
 			},
 			increase: "custom",
@@ -9271,7 +10012,13 @@ var toReturn = {
 				food: [1e6, 5]
 			},
 			getMult: function(){
-				return 1 + (this.vestedHires * 0.01);
+				var pct = (0.01 + (0.0005 * game.buildings.Antenna.owned));
+				return 1 + (this.vestedHires * pct);
+			},
+			getExtraMult: function(){
+				var mult = this.getMult() - 1;
+				mult *= game.buildings.Antenna.getExtraMult();
+				return (1 + mult);
 			},
 			afterFire: function(){
 				if (this.vestedHires > this.owned) this.vestedHires = this.owned;
@@ -9279,6 +10026,40 @@ var toReturn = {
 			onNextWorld: function(){
 				this.vestedHires = this.owned;
 			}
+		},
+		Worshipper: {
+			locked: 1,
+			owned: 0,
+			blockU1: true,
+			allowAutoFire: true,
+			get tooltip(){
+				return "Worshippers always cost 25% of the total amount of Food gathered and looted from World or Maps in your previous 4 Zones (not including current Zone). Each Worshipper grants a 0.5% chance to grant 25-50% of an entire Zone worth of Scruffy Exp per World Cell cleared. However, 2 Worshippers will stop Worshipping after each Zone cleared. Max of 50."
+			},
+			cost: {
+				get food(){return game.jobs.Worshipper.getCost()},
+			},
+			getCost: function(){
+				var num = 0;
+				if (game.global.zoneRes.length >= 2){
+					for (var x = 1; x < game.global.zoneRes.length; x++){
+						num += game.global.zoneRes[x];
+					}
+				}
+				num *= 0.25;
+				return Math.max(num,1);
+			},
+			onNextWorld: function(){
+				if (this.owned <= 2) this.owned = 0;
+				else this.owned -= 2;
+			},
+			getXpChance: function(){
+				return this.owned * 0.5;
+			},
+			getCellPenalty: function(){
+				return this.owned * 0.0005;
+			},
+			max: 50,
+			increase: "custom"
 		}
 	},
 

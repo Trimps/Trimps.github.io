@@ -15,16 +15,15 @@
 #battleSideTitle {
     border: 1px solid #212121
 }
+
 .battleCell {
     border: 1px solid #000;
-    margin-left: -1px;
-    margin-top: -1px;
-    color: #000;
-    
+    color: #000;  
 }
+
 #grid,
 #mapGrid {
-    background-color: #000;
+    background: #5D5D5D;
 }
 
 .cellColorOverkill {
@@ -421,7 +420,7 @@
 	color: black !important;
 }
 
-.cellColorNotBeaten, .postSpire ul li.cellColorNotBeaten {
+.postSpire ul li.cellColorNotBeaten {
 	background: #5D5D5D;
 }
 

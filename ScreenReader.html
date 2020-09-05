@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?25" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?26" />
 <!-- <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -441,6 +441,7 @@
 					</ul>
 					<ul id="buyTabsUl2" class="nav nav-tabs nav-justified buyTabsUl">
 						<li role="presentation" id="talentsTab" style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab" onmouseover="tooltip('Mastery', null, event)" onmouseout="tooltip('hide')"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
+						<li role="presentation" id="equalityTab" style='display: none'  onclick="tooltip('Scale Equality Scaling', null, 'update', true)" class="tabNotSelected buyTab" onmouseover="tooltip('Equality Scaling', null, event, true)" onmouseout="tooltip('hide')"><a id="equalityA">Equality</a></li>		
 						<li role="presentation" id="natureTab" style='display: none'  onclick="filterTabs('nature')" class="tabNotSelected buyTab empowerTabNone" onmouseover="tooltip('Empowerments of Nature', null, event)" onmouseout="tooltip('hide')"><a id="natureA">Nature</a></li>		
 						<li role="presentation" id="playerSpireTab" style='display: none' onclick="playerSpire.openPopup()" class="tabNotSelected buyTab pausedSpireNo"><a id="spireA">Spire</a></li>		
 					</ul>
@@ -755,11 +756,12 @@
 								<div class="progress fightBar">
 									<h5 title="trimpHealth">
 									<div style='color: black;' class="percentColorBlue" id="goodGuyBar">
-										<span class="bdHover pointer noselect innerFightBar" onclick="getBattleStatBd('health')">
+										<span style='z-index: 3' class="bdHover pointer noselect innerFightBar" onclick="getBattleStatBd('health')">
 											<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span>
 										</span>
 									</div>
 									<div class="progress-bar" role="progressbar" id="energyShield">&nbsp;</div>
+									<div class="progress-bar" role="progressbar" id="energyShieldLayer">&nbsp;</div>
 									</h5>
 								</div>
 							</div>
@@ -860,6 +862,8 @@
 									<span id='advMapsPreset1' role="button" title="Load Preset 1" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(1)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">1</span>
 									<span id='advMapsPreset2' role="button" title="Load Preset 2" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(2)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">2</span>
 									<span id='advMapsPreset3' role="button" title="Load Preset 3" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(3)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">3</span>
+									<span id='advMapsPreset4' class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(4)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">4</span>
+									<span id='advMapsPreset5' class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(5)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">5</span>
 									<span id='advMapsSaveBtn' role="button" title="Save Settings to Selected Preset" class='icomoon icon-save pointer' onclick='saveAdvMaps()' onmouseover="tooltip('Save Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')">&nbsp;</span>	
 									<span id='advMapsResetBtn' role="button" title="Reset The Selected Preset" class='icomoon icon-refresh pointer' onclick='resetAdvMaps(true)' onmouseover="tooltip('Reset Map Settings', 'advMaps', event)" onmouseout="tooltip('hide')">&nbsp;</span>											
 									<span id='advMapsRecycleBtn' role="button" title="Recycle All Maps" class="icomoon icon-trash-o pointer iconStateBad" onmouseover="tooltip('Recycle All', null, event)" onmouseout="tooltip('hide')" onclick="recycleBelow(false)">&nbsp;</span>
@@ -1261,7 +1265,7 @@
 					</div>
 				</div>
 				<div id="extraHeirlooms">
-					<h4>Temporary <span id="extraHeirloomsText"></span> <div role="button" id="recycleAllHeirloomsBtn" onclick="recycleAllHeirloomsClicked()" class="heirloomBtnActive heirBtn noselect">Recycle All</div></h4>
+					<h4>Temporary <span id="extraHeirloomsText"></span> <div role="button" id="recycleAllHeirloomsBtn" onclick="recycleAllHeirloomsClicked()" class="heirloomBtnActive heirBtn noselect">Recycle All</div>&nbsp;<div id="sortHeirloomsBtn" onclick="sortHeirlooms()" class="heirloomBtnActive heirBtn noselect">Sort</div></h4>
 					<div id="extraHeirloomsHere"></div>
 					<div id="extraHeirloomsBtnGroup" class="heirloomBtnGroup" style="visibility: hidden">
 						<div role="button" id="equipHeirloomBtn2" class="noselect heirloomBtnActive heirBtn"  onclick="equipHeirloom()">Equip</div>
@@ -1509,10 +1513,10 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?39"></script>
-	<script type="text/javascript" src="updates.js?39"></script>
-	<script type="text/javascript" src="playerSpire.js?39"></script>
-	<script type="text/javascript" src="main.js?39"></script>
+	<script type="text/javascript" src="config.js?40"></script>
+	<script type="text/javascript" src="updates.js?40"></script>
+	<script type="text/javascript" src="playerSpire.js?40"></script>
+	<script type="text/javascript" src="main.js?40"></script>
 	
 </body>
 
