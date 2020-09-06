@@ -4796,11 +4796,13 @@ function getUniqueColor(item){
 
 	if (item.location && game.mapConfig.locations[item.location].upgrade){
 		var upgrade = game.mapConfig.locations[item.location].upgrade;
+		if (!upgrade) return " noRecycleDone";
 		upgrade = (Array.isArray(upgrade)) ? upgrade : [upgrade];
 		for (var x = 0; x < upgrade.length; x++){
 			var thisUpgrade = game.mapUnlocks[upgrade[x]];
 			if (thisUpgrade.specialFilter){
-				if (thisUpgrade.specialFilter(item.level) && typeof thisUpgrade.canRunOnce === 'undefined') return " noRecycle";
+				if (!thisUpgrade.specialFilter(item.level)) return " noRecycleDone";
+				if (typeof thisUpgrade.canRunOnce === 'undefined') return " noRecycle";
 			}
 			if (thisUpgrade.canRunOnce) return " noRecycle";
 		}
