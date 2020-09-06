@@ -11923,8 +11923,9 @@ function endSpire(cancelEarly){
 	document.getElementById('grid').className = "";
 	if (game.global.lastClearedCell == 98) {
 		var elem = document.getElementById("actualBadName");
-		if (cell.name == "Omnipotrimp") elem.innerHTML = elem.innerHTML.replace("Echo of Druopitee", "Omnipotrimp");
-		else elem.innerHTML = elem.innerHTML.replace("Druopitee", "Improbability");
+		if (!elem) elem = document.getElementById("badGuyName");
+		if (elem && cell.name == "Omnipotrimp") elem.innerHTML = elem.innerHTML.replace("Echo of Druopitee", "Omnipotrimp");
+		else if (elem) elem.innerHTML = elem.innerHTML.replace("Druopitee", "Improbability");
 	}
 	clearSpireMetals();
 	setNonMapBox();
