@@ -9973,8 +9973,10 @@ function startFight() {
 		displayedName = "Improbabilities";
 	}
 	else if (game.global.challengeActive == "Coordinate"){
-		displayedName = badName.replace('_', ' ');
-		displayedName += "s";
+		badCoord = getBadCoordLevel();
+		var newName = cell.name.replace('_', ' ') + "s" + " (" + prettify(badCoord) + ")";
+		badName = badName.replace(cell.name, newName);
+		displayedName = badName;
 	}
 	else {
 		displayedName = badName.replace('_', ' ');
@@ -10000,10 +10002,6 @@ function startFight() {
 	if (cell.empowerment){
 		badName = getEmpowerment(-1, true) + " " + badName;
 		badName = "<span class='badNameMutation badName" + getEmpowerment(-1) + "'>" + badName + "</span>";
-	}
-	if (game.global.challengeActive == "Coordinate"){
-		badCoord = getBadCoordLevel();
-		badName += " (" + prettify(badCoord) + ")";
 	}
 	if (cell.name == "Omnipotrimp" && game.global.world % 5 == 0 && !game.global.spireActive){
 		badName += ' <span class="badge badBadge Magma" onmouseover="tooltip(\'Superheated\', \'customText\', event, \'This Omnipotrimp is Superheated, and will explode on death.\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-fire2"></span></span>';
