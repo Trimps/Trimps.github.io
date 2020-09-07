@@ -7854,7 +7854,7 @@ var toReturn = {
 						message("<span class='icomoon icon-chain'></span> Hey look, another baby RoboTrimp! You decide to add him to your collection. You now deal " + Math.floor(values[0]) + "% extra damage thanks to your pets, and MagnetoShriek now removes " + Math.floor(values[1]) + "% of an Improbability's attack", "Notices");
 						for (var reward in game.bwRewards){
 							if (level == game.bwRewards[reward].requires) {
-								game.bwRewards[reward].fire();
+								if (game.bwRewards[reward].fire && typeof game.bwRewards[reward].fire === 'function') game.bwRewards[reward].fire();
 								message("You also just unlocked " + reward + "!", "Notices")
 							}
 						}

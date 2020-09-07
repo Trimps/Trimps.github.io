@@ -10548,7 +10548,18 @@ function updateAllBattleNumbers (skipNum) {
 	document.getElementById("badGuyHealthMax").innerHTML = prettify(cell.maxHealth);
 	if (!skipNum && game.global.challengeActive == "Trimp" && game.jobs.Amalgamator.owned > 0) document.getElementById("trimpsFighting").innerHTML = toZalgo(prettify(game.resources.trimps.getCurrentSend()), game.global.world);
 	else if (!skipNum) document.getElementById("trimpsFighting").innerHTML = prettify(game.resources.trimps.getCurrentSend());
-	document.getElementById("goodGuyBlock").innerHTML = (game.global.universe == 2) ? prettify(game.global.soldierEnergyShieldMax) + " (" + Math.round(getEnergyShieldMult() * 100) + "%)" : prettify(game.global.soldierCurrentBlock);
+	var blockDisplay = "";
+	if (game.global.universe == 2){
+		var esMax = game.global.soldierEnergyShieldMax;
+		var esMult = getEnergyShieldMult();
+		if (Fluffy.isRewardActive('shieldlayer')){
+			esMax *= 2;
+			esMult *= 2;
+		}
+		blockDisplay = prettify(esMax) + " (" + Math.round(esMult * 100) + "%)";
+	}
+	else blockDisplay = prettify(game.global.soldierCurrentBlock);
+	document.getElementById("goodGuyBlock").innerHTML = blockDisplay;
 	document.getElementById("goodGuyAttack").innerHTML = calculateDamage(game.global.soldierCurrentAttack, true, true);
 	var badAttackElem = document.getElementById("badGuyAttack");
 	badAttackElem.innerHTML = calculateDamage(cell.attack, true, false, false, cell);
@@ -10610,7 +10621,6 @@ function getEnergyShieldMult(){
 	total += (Fluffy.isRewardActive("prism") * 0.25); //Fluffy Prism reward, 25% each, total of 25% available
 	if (game.global.challengeActive == "Bublé") total += 2.5; //Bublé challenge - 100%
 	if (getHeirloomBonus("Shield", "prismatic") > 0) total += (getHeirloomBonus("Shield", "prismatic") / 100);
-	if (Fluffy.isRewardActive('shieldlayer')) total *= 2;
 	//Max possible ES: 225%, 475% on Bublé
 	return total;
 }
