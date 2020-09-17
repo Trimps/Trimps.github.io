@@ -12335,13 +12335,16 @@ function giveHeliumReward(mod){ //used for spire only
 	return amt;
 }
 
-function checkHousing(getHighest){
+function checkHousing(getHighest, skipU2){
 	//returns the lowest number of housing buildings
 	var count = -1;
 	for (var item in game.buildings){
 		var building = game.buildings[item];
 		if (building.increase && building.increase.what == "trimps.max") {
 			if (count == -1) count = building.owned;
+			else if (skipU2 && building.blockU1){
+				continue;
+			}
 			else if (getHighest){
 				if (count < building.owned) count = building.owned;
 			}
@@ -12350,6 +12353,7 @@ function checkHousing(getHighest){
 			}
 		}
 	}
+	console.log(count);
 	return count;
 }
 
