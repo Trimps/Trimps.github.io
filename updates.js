@@ -5385,7 +5385,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 	}
 
 	function checkAchieve(id, evalProperty, doubleChecking, noDisplay) {
-		if (id == "housing" && checkHousing(false,true) >= 100) giveSingleAchieve("Realtor");
+		if (id == "housing" && checkHousing(false, true) >= 100) giveSingleAchieve("Realtor");
 		var achievement = game.achievements[id];
 		if (typeof achievement.evaluate !== 'undefined') evalProperty = achievement.evaluate();
 		if (achievement.timed && evalProperty < 0) return;
