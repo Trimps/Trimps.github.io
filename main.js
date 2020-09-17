@@ -12353,7 +12353,6 @@ function checkHousing(getHighest, skipU2){
 			}
 		}
 	}
-	console.log(count);
 	return count;
 }
 
