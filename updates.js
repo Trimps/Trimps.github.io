@@ -832,6 +832,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "Free";
 		if (getAvailableGoldenUpgrades() > 1) costText += " (" + getAvailableGoldenUpgrades() + " remaining)";
 		var numeral = (usingScreenReader) ? prettify(game.global.goldenUpgrades + 1) : romanNumeral(game.global.goldenUpgrades + 1);
+		if (game.global.universe == 2 && what == "Helium") what = "Radon";
 		what = "Golden " + what + " (Tier " + numeral + ")";
 	}
 	if (isItIn == "talents"){

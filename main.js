@@ -7565,6 +7565,7 @@ var mutations = {
 	},
 	Corruption: {
 		start: function (ignoreCorrupted){
+			if (game.global.universe == 2) return 9999;
 			if (game.global.challengeActive == "Eradicated") return 1;
 			var start = (game.talents.headstart.purchased && !game.global.runningChallengeSquared) ? ((game.talents.headstart2.purchased) ? ((game.talents.headstart3.purchased) ? 151 : 166) : 176) : 181;
 			if (ignoreCorrupted) return start;
@@ -7629,6 +7630,7 @@ var mutations = {
 	},
 	Magma: {
 		start: function (){
+			if (game.global.universe == 2) return 9999;
 			if (game.global.challengeActive == "Eradicated") return 1;
 			return 230;
 		},
@@ -11700,6 +11702,7 @@ function runMapAtZone(index){
 	var setting = game.options.menu.mapAtZone.getSetZone()[index];
 	if (setting.preset == 5 && !game.global.challengeActive == "Quagmire" && setting.check) return;
 	if (setting.preset == 4 && !getNextVoidId() && setting.check) return;
+	if (setting.cell == 100 && game.global.challengeActive == "Mayhem") startFight();
 	mapsClicked(true);
 	if (game.global.spireActive && game.global.lastClearedCell != -1) deadInSpire();
 	toggleSetting('mapAtZone', null, false, true);
