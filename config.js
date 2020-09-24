@@ -6305,7 +6305,7 @@ var toReturn = {
 					return modifier + "% of all non-lethal damage and nature stacks you afflict on your current enemy are copied onto the next enemy. Plaguebringer damage cannot bring an enemy below 5% health, but nature stacks will continue to accumulate."
 				},
 				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [1, 15, 0.5],[15,30,0.5],[30,45,0.5]],
-				max: [0,0,0,0,0,0,0,0,75,100,100]
+				max: [0,0,0,0,0,0,0,0,75,100,125]
 			},
 			prismatic: {
 				name: "Prismatic Shield",

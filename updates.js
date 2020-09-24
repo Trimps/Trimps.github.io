@@ -2267,7 +2267,7 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Smithy</td><td>x 1.25</td><td>" + game.buildings.Smithy.owned + "</td><td>+ " + prettify((game.buildings.Smithy.getMult() - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
 	//Add antenna
-	if (what == "health" && game.buildings.Antenna.owned >= 10){
+	if (what == "health" && game.buildings.Antenna.owned >= 10 && game.global.universe == 2){
 		amt = game.jobs.Meteorologist.getExtraMult();
 		var pct = (amt - 1) * 100;
 		currentCalc *= amt;
