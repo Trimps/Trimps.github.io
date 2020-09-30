@@ -5683,7 +5683,6 @@ function checkVoidMap() {
 	if (game.global.ShieldEquipped && game.global.ShieldEquipped.rarity >= 10 && game.heirlooms.Shield.voidMaps.currentBonus > 0){
 		game.global.hazShieldCredit++;
 		if (game.global.hazShieldCredit >= 1000){
-			console.log('free hazardous void map');
 			createVoidMap();
 			game.global.hazShieldCredit = 0;
 		}
