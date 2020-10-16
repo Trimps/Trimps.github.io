@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.4.1',
+		stringVersion: '5.4.2',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -6709,7 +6709,7 @@ var toReturn = {
 		},
 		Pumpkimp: {
 			location: "Maps",
-			locked: 1,
+			locked: 0,
 			attack: 0.9,
 			health: 1.5,
 			fast: false,

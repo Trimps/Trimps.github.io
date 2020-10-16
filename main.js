@@ -953,6 +953,11 @@ function load(saveString, autoLoad, fromPf) {
 	//Test server only
 	//End test server only
 	//Temporary until next patch
+	if (compareVersion([5,4,2], oldStringVersion)){
+		game.options.menu.showHoliday.enabled = 1;
+		game.options.menu.showHoliday.locked = false;
+		addNewSetting("showHoliday");
+	}
 	//End Temporary
 	portalUniverse = game.global.universe;
 	Fluffy.handleBox();
@@ -8171,8 +8176,6 @@ var mutationEffects = {
 var visualMutations = {
 	Pumpkimp: {
 		active: function (){
-			return false;
-
 			if (game.global.world == 1) return false;
 			if (checkIfSpireWorld()) return false;
 			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 8);
