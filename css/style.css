@@ -67,6 +67,11 @@ body {
 	width: 100%;
 }
 
+.LootMessage.runetrinket{
+	background-color: black;
+	color: #0ad3da;
+}
+
 .essenceMessage{
 	background-color: black;
 	color: #59b300;
@@ -3346,6 +3351,13 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .fluffFormIce{
 	color: #3232c8;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;	
+}
+
+.fluffFormLab{
+	color: #b8360f;
 	font-weight: bold;
 	text-decoration: underline;
 	cursor: pointer;	

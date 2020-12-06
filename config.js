@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.4.2',
+		stringVersion: '5.4.3',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -414,6 +414,7 @@ var toReturn = {
 				events: true,
 				cache: true,
 				exp: true,
+				//runetrinkets: true,
 			},
 			Unlocks: {
 				enabled: true,
@@ -1421,12 +1422,12 @@ var toReturn = {
 				},
 				secondLocation: ["togglegeneratorStartPopup"]
 			},
-			// showSnow: {
-			// 	enabled: 1,
-			// 	extraTags: "general",
-			// 	description: "Disable the snow effect in the world. <b>This will take effect on the next Zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
-			// 	titles: ["No Snow", "Show Snow"]
-			// },
+			showSnow: {
+				enabled: 1,
+				extraTags: "general",
+				description: "Disable the snow effect in the world. <b>This will take effect on the next Zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
+				titles: ["No Snow", "Show Snow"]
+			},
 			showHoliday: {
 				enabled: 1,
 				extraTags: "general",
@@ -2705,6 +2706,66 @@ var toReturn = {
 				if (timeLeft > 1) this.frenzyStarted -= (timeLeft * 500);
 				else this.frenzyStarted = -1
 				this.drawStacks();
+			}
+		},
+		Observation: {
+			radLocked: true,
+			priceBase: 5e18,
+			radLevel: 0,
+			max: 50,
+			radSpent: 0,
+			get tooltip(){
+				var text = "Grants your Trimps the ability to locate small Runetrinkets around the World. For each level of this perk, your Trimps will gain a chance per Zone cleared above Z100 to find a Runetrinket. Each Runetrinket increases your Trimps' attack, health, and gathered primary resources by 1% (additive) per perk level. You can store a maximum of " + this.trinketsPerLevel + " Runetrinkets per perk level, reducing levels in this perk will deactivate any trinkets above cap but not lose them. Runetrinkets persist through Portal and never reset. The chance to find a Runetrinket increases by about 50% per level of this Perk, and scales as the Zone number increases (up to Z200). You'll also find 1 guaranteed Runetrinket every 25 Zones above Z100 for every 2 levels of this perk.";
+				text += "<br/><br/>You have " + prettify(this.trinkets) + " Runetrinket" + needAnS(this.trinkets) + ".";
+				if (this.radLevel > 0) text += " You are currently gaining +" + prettify(this.getMult() * 100) + "% attack, health, and gathered primary resources.<br/><br/>" + this.getChanceText();
+				return text;
+			},
+			specialGrowth: 2,
+			trinkets: 0,
+			trinketsPerLevel: 1000,
+			seed: Math.floor(Math.random() * 1e6),
+			getChanceText: function(){
+				var text = "";
+				var chance = this.getDropChance(game.global.world + 1);
+				if (chance <= 0){
+					return "You will have a <b>" + prettify(this.getDropChance(101)) + "%</b> chance to find a Runetrinket at Z100.";
+				}
+				return "You have a <b>" + prettify(chance) + "%</b> chance to find a Runetrinket at the end of this Zone.";
+			},
+			getMult: function(){
+				var trinkets = this.trinkets;
+				var cap = this.radLevel * this.trinketsPerLevel;
+				if (trinkets > cap) trinkets = cap;
+				return 1 + ((trinkets * this.radLevel) / 100);
+			},
+			getDropChance: function(forceWorld){
+				var useWorld = (forceWorld) ? forceWorld : game.global.world;
+				if (useWorld < 101) return 0;
+				if (useWorld > 201) useWorld = 200;
+				var base = this.radLevel;
+				var zones = useWorld - 100;
+				return ((1 + ((base - 1) / 2)) * Math.pow(1.03, zones));
+			},
+			giveTrinket: function(amt){
+				if (!amt) amt = 1;
+				var cap = (this.trinketsPerLevel * this.radLevel);
+				if (this.trinkets >= cap) return;
+				if (this.trinkets + amt > cap) amt = cap - this.trinkets;
+				this.trinkets += amt;
+				message("You found " + amt + " Runetrinket" + needAnS(amt) + "!", "Loot", "*link4", "runetrinket", "runetrinket");
+			},
+			onNextWorld: function(){
+				var seed = this.seed++;
+				var roll = getRandomIntSeeded(seed, 0, 10000);
+				var chance = this.getDropChance() * 100;
+				if (roll < chance) this.giveTrinket();
+				if (game.global.world > 100 && game.global.world % 25 == 0){
+					var free = Math.floor(this.radLevel / 2);
+					if (free > 0) this.giveTrinket(free);
+				}
+			},
+			onChange: function(){
+				if (typeof game.global.messages.Loot.runetrinket === 'undefined') game.global.messages.Loot.runetrinket = true;
 			}
 		}
 	},
@@ -4724,6 +4785,130 @@ var toReturn = {
 				game.global.challengeActive = "";
 			}
 		},
+		Nurture: {
+			get description(){
+				return "Travel to a dimension filled with gigantic monsters. All enemies have 2x attack, World enemies have 2x health and map enemies have 10x health. Luckily, Scruffy has a brother in this dimension who will help you out if you level him up! You'll gain access to the special Laboratory building while on this challenge, which will give bonus Exp to Scruffy's brother, Cruffys. Check the Scruffy and Laboratory tooltips while on this Challenge for more info. Clearing <b>Z135</b> with this Challenge active will grant an additional 400% of all Radon earned up until that point, and will (mostly) return the world to normal." + ((game.portal.Observation.radLocked) ? " <b>Complete this Challenge with Cruffys at Level 10 or higher to earn a new Perk!</b>" : "");
+			},
+			completed: false,
+			blockU1: true,
+			allowU2: true,
+			heliumThrough: 135,
+			heldHelium: 0,
+			completeAfterZone: 135,
+			unlockString: " reach Zone 130 and wait a few more days!",
+			fireAbandon: true,
+			rewardsList: ["cruf1", "cruf2", "cruf3", "cruf4", "cruf5", "cruf6", "cruf7", "cruf8", "cruf9", "cruf10"],
+			totalXp: 0,
+			firstLevelXp: 300000,
+			growth: 2.5,
+			level: 0,
+			cruffysUntil: false,
+			getLevel: function(){
+				return this.level;
+			},
+			getRadonMult: function(){
+				var level = this.getLevel();
+				var mult = 1;
+				if (level >= 1) mult *= 1.5;
+				if (level >= 2) mult *= 2;
+				if (level >= 3) mult *= 2.5;
+				if (level >= 4) mult *= 3;
+				if (level >= 6) mult *= 1.75;
+				if (level >= 7) mult *= 2;
+				if (level >= 8) mult *= 1.1;
+				if (level >= 9) mult *= 1.1;
+				if (level >= 10) mult *= Math.pow(1.03, (level - 9));
+				return mult;
+			},
+			getResourceBoost: function(){
+				var level = this.getLevel();
+				var mult = 1;
+				if (level >= 3) mult += 0.15;
+				if (level >= 7) mult += 0.25;
+				if (level >= 9) mult += 0.2;
+				if (level >= 10) mult += (0.1 * (level - 9));
+				return mult;
+			},
+			getStatBoost: function(){
+				var level = this.getLevel();
+				var mult = 1;
+				if (level >= 2) mult += 0.05;
+				if (level >= 6) mult += 0.1;
+				if (level >= 9) mult += 0.2;
+				if (level >= 10) mult += (0.1 * (level - 9));
+				return mult;
+			},
+			countBonusZones: function(){
+				var level = this.getLevel();
+				var bonus = 0;
+				if (level >= 8) bonus += 5;
+				if (level >= 9) bonus += 5;
+				if (level >= 10) bonus += (level - 9);
+				if (bonus > 15) bonus = 15;
+				return bonus;
+			},
+			boostsActive: function(){
+				if (game.global.universe != 2) return false;
+				if (game.global.challengeActive == "Nurture" || (this.cruffysUntil && game.global.world <= this.cruffysUntil)) return true;
+				return false;
+			},
+			getExp: function(){
+				var exp = this.getNextExp();
+				return [this.getLevel(), exp[0], exp[1]]
+			},
+			getNextExp: function(){
+				var level = this.getLevel();
+				var experience = this.totalXp;
+				var removeExp = 0;
+				if (level > 0){
+					removeExp = Math.floor(this.firstLevelXp * ((Math.pow(this.growth, level) - 1) / (this.growth - 1)));
+				}
+				var totalNeeded = Math.floor(this.firstLevelXp * ((Math.pow(this.growth, level + 1) - 1) / (this.growth - 1)));
+				totalNeeded -= removeExp;
+				experience -= removeExp;
+				return [experience, totalNeeded];
+			},
+			gaveExp: function(reward){
+				if (this.level >= 14) return;
+				this.totalXp += reward * game.buildings.Laboratory.getExpMult();
+				this.calculateLevel();
+			},
+			calculateLevel: function(){
+				this.level = Math.floor(log10(((this.totalXp / this.firstLevelXp) * (this.growth - 1)) + 1) / log10(this.growth));
+				if (this.level > 14) this.level = 14;
+			},
+			filter: function(){
+				return false;
+				return (getHighestLevelCleared(true) >= 129);
+			},
+			abandon: function(){
+				this.cruffysUntil = game.global.world + this.countBonusZones();
+				game.buildings.Laboratory.locked = 1;
+				drawAllBuildings();
+			},
+			onLoad: function(){
+				Fluffy.cruffysToggled = true;
+				this.calculateLevel();
+				Fluffy.updateExp();
+			},
+			onComplete: function(){
+				var reward = game.challenges.Nurture.heldHelium;
+				reward *= 4;
+				message("You have completed the Nurture challenge! You have gained an extra " + prettify(reward) + " Radon, and your world has been returned to normal.", "Notices");
+				addHelium(reward);
+				game.challenges.Nurture.abandon();
+				game.global.challengeActive = "";
+				if (game.portal.Observation.radLocked && this.getLevel() >= 10) {
+					unlockPerk("Observation");
+					message("You have also unlocked the Observation Perk!", "Notices");
+				}
+			},
+			start: function(){
+				unlockBuilding("Laboratory");
+				Fluffy.cruffysToggled = true;
+				Fluffy.updateExp();
+			}
+		},
 	},
 	stats:{
 		trimpsKilled: {
@@ -5101,6 +5286,20 @@ var toReturn = {
 		bestFluffyExpHour2: {
 			title: "Best Scruffy Exp/Hr",
 			display: function () {
+				return (this.valueTotal > 0);
+			},
+			valueTotal: 0
+		},
+		fluffyPats: {
+			title: "Fluffy Pats",
+			display: function(){
+				return (this.valueTotal > 0);
+			},
+			valueTotal: 0
+		},
+		scruffyPats: {
+			title: "Scruffy Pats",
+			display: function(){
 				return (this.valueTotal > 0);
 			},
 			valueTotal: 0
@@ -6664,7 +6863,7 @@ var toReturn = {
 		},
 		Presimpt: {
 			location: "World",
-			locked: 1,
+			locked: 0,
 			attack: 1.1,
 			health: 1.5,
 			fast: false,
@@ -6709,7 +6908,7 @@ var toReturn = {
 		},
 		Pumpkimp: {
 			location: "Maps",
-			locked: 0,
+			locked: 1,
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
@@ -9771,6 +9970,30 @@ var toReturn = {
 			getExtraMult: function(){
 				if (this.owned < 20) return 0.5;
 				return 0.5 + (0.25 * Math.floor((this.owned - 15)/5));
+			}
+		},
+		Laboratory: {
+			locked: 1,
+			owned: 0,
+			purchased: 0,
+			craftTime: 10000,
+			blockU1: true,
+			AP: true,
+			tooltip: function(){
+				var lab = game.buildings.Laboratory;
+				var text = "Build a giant Laboratory that Cruffys can use for research. Each Laboratory constructed increases Cruffys' Exp gain by 10% (compounding), but will pollute the world with toxic waste and research chemicals, increasing all Enemy attack and health by 3.5% (compounding).";
+				if (lab.owned > 0) text += "<br/><br/><b>Currently increasing Cruffys' Exp by " + prettify(100 * (lab.getExpMult() - 1)) + "% and Enemy attack and health by " + prettify(100 * (lab.getEnemyMult() - 1)) + "%.</b>"
+				return text;
+			},
+			getExpMult: function(){
+				return Math.pow(1.1, this.owned);
+			},
+			getEnemyMult: function(){
+				return Math.pow(1.035, this.owned);
+			},
+			cost: {
+				metal: [100, 1.5],
+				food: [100, 1.5]
 			}
 		}
 	},

@@ -113,6 +113,7 @@ function save(exportThis, fromManual) {
 		delete settingItem.extraTags;
 	}
 	var challenge = saveGame.global.challengeActive;
+	if (!challenge && game.challenges.Nurture.cruffysUntil && game.challenges.Nurture.cruffysUntil >= game.global.world) challenge = "Nurture";
 	if (challenge == "Mapocalypse") challenge = "Electricity";
 	for (var itemF in saveGame.challenges){
 		if (itemF != challenge){
@@ -951,6 +952,11 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	//End compatibility
 	//Test server only
+	if (betaV < 1){
+		game.challenges.Nurture.growth = 2.5;
+		game.challenges.Nurture.firstLevelXp = 300000;
+		if (game.global.challengeActive == "Nurture") game.challenges.Nurture.calculateLevel();
+	}
 	//End test server only
 	//Temporary until next patch
 	if (compareVersion([5,4,2], oldStringVersion)){
@@ -2584,6 +2590,7 @@ function trustworthyTrimps(noTip, forceTime){
 		var amt = job.owned * job.modifier;
 		amt += (amt * getPerkLevel("Motivation") * game.portal.Motivation.modifier);
 		if (getPerkLevel("Motivation_II") > 0) amt *= (1 + (getPerkLevel("Motivation_II") * game.portal.Motivation_II.modifier));
+		if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) amt *= game.portal.Observation.getMult();
 		if (resName == "food" || resName == "wood" || resName == "metal") amt *= getParityBonus();
 		if (Fluffy.isRewardActive('gatherer')) amt *= 2;
 		if (getPerkLevel("Meditation") > 0 || (game.jobs.Magmamancer.owned > 0 && resName == "metal")) {
@@ -2642,6 +2649,7 @@ function trustworthyTrimps(noTip, forceTime){
 		if (game.global.challengeActive == "Unbalance") amt *= game.challenges.Unbalance.getGatherMult();
 		if (game.global.challengeActive == "Archaeology" && resource != "fragments") amt *= game.challenges.Archaeology.getStatMult("science");
 		if (game.global.challengeActive == "Insanity" && resource != "fragments") amt *= game.challenges.Insanity.getLootMult();
+		if (game.challenges.Nurture.boostsActive() && resource != "fragments") amt *= game.challenges.Nurture.getResourceBoost();
 		if (game.global.challengeActive == "Daily"){
 			if (typeof game.global.dailyChallenge.famine !== 'undefined' && x < 4){
 				amt *= dailyModifiers.famine.getMult(game.global.dailyChallenge.famine.strength);
@@ -3590,6 +3598,10 @@ function rewardResource(what, baseAmt, level, checkMapLootScale, givePercentage)
 	if (game.global.challengeActive == "Insanity" && what != "fragments"){
 		amt *= game.challenges.Insanity.getLootMult();
 	}
+	if (game.challenges.Nurture.boostsActive() && what != "fragments" && what != "helium") amt *= game.challenges.Nurture.getResourceBoost();
+	if (game.global.challengeActive == "Nurture" && what == "helium"){
+		amt *= game.challenges.Nurture.getRadonMult();
+	}
 	if (game.global.challengeActive == "Toxicity"){
 		var toxMult = (game.challenges.Toxicity.lootMult * game.challenges.Toxicity.stacks) / 100;
 		amt *= (1 + toxMult);
@@ -3836,6 +3848,7 @@ function gather() {
 			perSec = (game.jobs[job].owned * game.jobs[job].modifier);
 			if (getPerkLevel("Motivation") > 0) perSec += (perSec * getPerkLevel("Motivation") * game.portal.Motivation.modifier);
 			if (getPerkLevel("Motivation_II") > 0) perSec *= (1 + (getPerkLevel("Motivation_II") * game.portal.Motivation_II.modifier));
+			if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) perSec *= game.portal.Observation.getMult();
 			if (increase == 'food' || increase == 'metal' || increase == 'wood') perSec *= getParityBonus();
 			if (getPerkLevel("Meditation") > 0) perSec *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
 			if ((increase == "food" && game.buildings.Antenna.owned >= 5) || (increase == "metal" && game.buildings.Antenna.owned >= 15)) perSec *= game.jobs.Meteorologist.getExtraMult();
@@ -3853,6 +3866,7 @@ function gather() {
 			if (game.global.challengeActive == "Insanity" && increase != "fragments"){
 				perSec *= game.challenges.Insanity.getLootMult();
 			}
+			if (game.challenges.Nurture.boostsActive()) perSec *= game.challenges.Nurture.getResourceBoost();
 			if (game.global.challengeActive == "Balance"){
 				perSec *= game.challenges.Balance.getGatherMult();
 			}
@@ -4547,7 +4561,7 @@ function freeManyWorkspaces(amount){
 
 function calculateMaxAfford(itemObj, isBuilding, isEquipment, isJob, forceMax, forceRatio){ //don't use forceMax for jobs until you fix that second return. forceMax and forceRatio indicate that they're from an auto, and ignore firing
 	if (!itemObj.cost){
-		console.log("no cost");
+		console.log("no cost", itemObj);
 		return 1;
 	}
 	var mostAfford = -1;
@@ -5708,7 +5722,9 @@ function checkVoidMap() {
 	if (max > 200) max = 200;
 	var min = (max > 80) ? (1000 + ((max - 80) * 13)) : 1000;
 	min *= (1 - (getHeirloomBonus("Shield", "voidMaps") / 100));
-	min *= (1 - (game.goldenUpgrades.Void.currentBonus));
+	var extraV = 0;
+	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) extraV = 0.2;
+	min *= (1 - (game.goldenUpgrades.Void.currentBonus + extraV));
 	var chance = (Math.floor((game.global.lastVoidMap - min) / 10) / 50000);
 	game.global.lastVoidMap++;
 	if (chance < 0) return;
@@ -8176,6 +8192,7 @@ var mutationEffects = {
 var visualMutations = {
 	Pumpkimp: {
 		active: function (){
+			return false;
 			if (game.global.world == 1) return false;
 			if (checkIfSpireWorld()) return false;
 			return (getRandomIntSeeded(game.global.holidaySeed++, 0, 100) < 8);
@@ -8192,7 +8209,6 @@ var visualMutations = {
 	},
 	TrimpmasSnow: {
 		active: function() {
-			return false;
 			return (game.options.menu.showSnow.enabled);
 		},
 		pattern: function(currentArray, mutationArray) {
@@ -10178,6 +10194,11 @@ function startFight() {
 			cell.preMayhemHealth = cell.health;
 			cell.health *= game.challenges.Mayhem.getBossMult();
 		}
+		if (game.global.challengeActive == "Nurture"){
+			if (map) cell.health *= 10;
+			else cell.health *= 2;
+			cell.health *= game.buildings.Laboratory.getEnemyMult();
+		}
 		//Storm last so attack and health go back to the right spot on abandon
 		if (game.global.challengeActive == "Storm" && !map){
 			game.challenges.Storm.cellStartAttack = cell.attack;
@@ -10319,6 +10340,8 @@ function startFight() {
 		//Toughness
 		if (getPerkLevel("Toughness") > 0) game.global.soldierHealthMax += (game.global.soldierHealthMax * getPerkLevel("Toughness") * game.portal.Toughness.modifier);
 		if (getPerkLevel("Toughness_II") > 0) game.global.soldierHealthMax *= (1 + (game.portal.Toughness_II.modifier * getPerkLevel("Toughness_II")));
+		//Observation
+		if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) game.global.soldierHealthMax *= game.portal.Observation.getMult();
 		if (game.global.mayhemCompletions) game.global.soldierHealthMax *= game.challenges.Mayhem.getTrimpMult();
 		if (game.talents.mapHealth.purchased && game.global.mapsActive){
 			game.global.soldierHealthMax *= 2;
@@ -10355,7 +10378,7 @@ function startFight() {
 		if (getPerkLevel("Resilience") > 0) game.global.soldierHealthMax *= Math.pow(game.portal.Resilience.modifier + 1, getPerkLevel("Resilience"));
 		//Power
 		if (getPerkLevel("Power") > 0) game.global.soldierCurrentAttack += (game.global.soldierCurrentAttack * getPerkLevel("Power") * game.portal.Power.modifier);
-        if (getPerkLevel("Power_II") > 0) game.global.soldierCurrentAttack *= (1 + (game.portal.Power_II.modifier * getPerkLevel("Power_II")));
+		if (getPerkLevel("Power_II") > 0) game.global.soldierCurrentAttack *= (1 + (game.portal.Power_II.modifier * getPerkLevel("Power_II")));
 		game.global.soldierCurrentBlock = getBaseBlock() * trimpsFighting;
 		game.global.soldierHealthMax = calcHeirloomBonus("Shield", "trimpHealth", game.global.soldierHealthMax);
 		//block handled in getBaseBlock()
@@ -10388,6 +10411,7 @@ function startFight() {
 		if (game.global.challengeActive == "Berserk"){
 			game.global.soldierHealthMax *= game.challenges.Berserk.getHealthMult();
 		}
+		if (game.challenges.Nurture.boostsActive()) game.global.soldierHealthMax *= game.challenges.Nurture.getStatBoost();
 
 		//Soldier starting health is determined
 		game.global.soldierHealth = game.global.soldierHealthMax;
@@ -10459,6 +10483,7 @@ function startFight() {
 				healthTemp *= mutations.Magma.getTrimpDecay();
 			}
 			if (getPerkLevel("Toughness_II")) healthTemp *= (1 + (game.portal.Toughness_II.modifier * getPerkLevel("Toughness_II")));
+			if (getPerkLevel("Observation") && game.portal.Observation.trinkets > 0) healthTemp *= game.portal.Observation.getMult();
 			if (game.global.mayhemCompletions) healthTemp *= game.challenges.Mayhem.getTrimpMult();
 			if (game.talents.mapHealth.purchased && game.global.mapsActive) healthTemp *= 2;
 			if (Fluffy.isRewardActive("healthy")) healthTemp *= 1.5;
@@ -10484,6 +10509,7 @@ function startFight() {
 			if (game.global.challengeActive == "Wither"){
 				healthTemp *= game.challenges.Wither.getTrimpHealthMult();
 			}
+			if (game.challenges.Nurture.boostsActive()) healthTemp *= game.challenges.Nurture.getStatBoost();
 			healthTemp = calcHeirloomBonus("Shield", "trimpHealth", healthTemp);
 			if (game.jobs.Amalgamator.owned > 0)
 				healthTemp *= game.jobs.Amalgamator.getHealthMult();
@@ -10658,6 +10684,9 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell, noF
 	if (getPerkLevel("Equality")) number *= game.portal.Equality.getMult();
 	if (isTrimp){
 		//Situational Trimp damage increases
+		if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) {
+			number *= game.portal.Observation.getMult();
+		}
 		if (game.global.universe == 2 && game.buildings.Smithy.owned > 0){
 			number *= game.buildings.Smithy.getMult();
 		}
@@ -10801,6 +10830,7 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell, noF
 		if (game.global.challengeActive == "Archaeology") number *= game.challenges.Archaeology.getStatMult("attack");
 		if (game.global.challengeActive == "Storm" && game.global.mapsActive) number *= game.challenges.Storm.getMapMult();
 		if (game.global.challengeActive == "Berserk") number *= game.challenges.Berserk.getAttackMult();
+		if (game.challenges.Nurture.boostsActive()) number *= game.challenges.Nurture.getStatBoost();
 		number = calcHeirloomBonus("Shield", "trimpAttack", number);
 		if (Fluffy.isActive()){
 			number *= Fluffy.getDamageModifier();
@@ -10813,7 +10843,11 @@ function calculateDamage(number, buildString, isTrimp, noCheckAchieve, cell, noF
 		if (game.global.universe == 2) fluctuation = 0.5;
 		if (game.global.challengeActive){
 			//Challenge bonuses here
-			if (game.global.challengeActive == "Coordinate"){
+			if (game.global.challengeActive == "Nurture"){
+				number *= 2;
+				number *= game.buildings.Laboratory.getEnemyMult();
+			}
+			else if (game.global.challengeActive == "Coordinate"){
 				number *= getBadCoordLevel();
 			}
 			else if (game.global.challengeActive == "Meditate"){
@@ -10953,6 +10987,9 @@ function tryWorship(){
 	roll = getRandomIntSeeded(game.global.scrySeed * 2,25,51);
 	var reward = Fluffy.getExpReward(true, (roll / 100));
 	game.global.fluffyExp2 += reward;
+	if (game.global.challengeActive == "Nurture"){
+		game.challenges.Nurture.gaveExp(reward);
+	}
 	message("Your Worshippers successfully inspire Scruffy, granting " + prettify(reward) + " Exp!", "Loot", "*library", "expMessage", "exp");
 }
 
@@ -11662,6 +11699,7 @@ function nextWorld() {
 	}
 	game.jobs.Meteorologist.onNextWorld();
 	game.jobs.Worshipper.onNextWorld();
+	if (getPerkLevel("Observation") > 0) game.portal.Observation.onNextWorld();
 	if (game.global.capTrimp) message("I'm terribly sorry, but your Trimp<sup>2</sup> run appears to have more than one Trimp fighting, which kinda defeats the purpose. Your score for this Challenge<sup>2</sup> will be capped at 230.", "Notices");
 	if (game.global.world >= getObsidianStart()){
 		var next = (game.global.highestRadonLevelCleared >= 99) ? "50" : "10";
@@ -14262,6 +14300,7 @@ function getPlayerCritChance(){ //returns decimal: 1 = 100%
 	critChance += (getHeirloomBonus("Shield", "critChance") / 100);
 	if (game.talents.crit.purchased && getHeirloomBonus("Shield", "critChance")) critChance += (getHeirloomBonus("Shield", "critChance") * 0.005);
 	if (Fluffy.isRewardActive("critChance")) critChance += (0.5 * Fluffy.isRewardActive("critChance"));
+	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel() >= 5) critChance += 0.35;
 	if (game.global.challengeActive == "Daily"){
 		if (typeof game.global.dailyChallenge.trimpCritChanceUp !== 'undefined'){
 			critChance += dailyModifiers.trimpCritChanceUp.getMult(game.global.dailyChallenge.trimpCritChanceUp.strength);
@@ -14279,6 +14318,7 @@ function getPlayerCritDamageMult(){
 	var critMult = (((game.portal.Relentlessness.otherModifier * relentLevel) + (getHeirloomBonus("Shield", "critDamage") / 100)) + 1);
 	critMult += (getPerkLevel("Criticality") * game.portal.Criticality.modifier);
 	if (relentLevel > 0) critMult += 1;
+	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel() >= 5) critMult += 0.5;
 	return critMult;
 }
 
@@ -14823,6 +14863,7 @@ function simpleSeconds(what, seconds) {
 		var amt = job.owned * job.modifier * seconds;
 		amt += (amt * getPerkLevel("Motivation") * game.portal.Motivation.modifier);
 		if (getPerkLevel("Motivation_II") > 0) amt *= (1 + (getPerkLevel("Motivation_II") * game.portal.Motivation_II.modifier));
+		if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) amt *= game.portal.Observation.getMult();
 		if (getPerkLevel("Meditation") > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
 		if (what == "food" || what == "wood" || what == "metal") amt *= getParityBonus();
 		if ((what == "food" && game.buildings.Antenna.owned >= 5) || (what == "metal" && game.buildings.Antenna.owned >= 15)) amt *= game.jobs.Meteorologist.getExtraMult();
@@ -14855,6 +14896,7 @@ function simpleSeconds(what, seconds) {
 			amt *= 10;
 			amt *= Math.pow(challenge.decayValue, challenge.stacks);
 		}
+		if (game.challenges.Nurture.boostsActive()) amt *= game.challenges.Nurture.getResourceBoost();
 		if (getEmpowerment() == "Wind"){
 			amt *= (1 + (game.empowerments.Wind.getCombatModifier()));
 		}
@@ -14904,6 +14946,7 @@ function scaleLootBonuses(amt, ignoreScry){
 	if (game.global.challengeActive == "Quagmire") amt *= game.challenges.Quagmire.getLootMult();
 	if (game.global.challengeActive == "Archaeology") amt *= game.challenges.Archaeology.getStatMult("science");
 	if (game.global.challengeActive == "Insanity") amt *= game.challenges.Insanity.getLootMult();
+	if (game.challenges.Nurture.boostsActive()) amt *= game.challenges.Nurture.getResourceBoost();
 	return amt;
 }
 
@@ -14920,6 +14963,7 @@ function addBoost(level, previewOnly) {
 		var amt = job.owned * job.modifier * add;
 		amt += (amt * getPerkLevel("Motivation") * game.portal.Motivation.modifier);
 		if (getPerkLevel("Motivation_II") > 0) amt *= (1 + (getPerkLevel("Motivation_II") * game.portal.Motivation_II.modifier));
+		if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) amt *= game.portal.Observation.getMult();
 		if (getPerkLevel("Meditation") > 0) amt *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
 		if (Fluffy.isRewardActive('gatherer')) amt *= 2;
 		if (resource == "food" || resource == "wood" || resource == "metal") amt *= getParityBonus();
@@ -14933,6 +14977,7 @@ function addBoost(level, previewOnly) {
 		if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) amt *= 2;
 		if (game.global.challengeActive == "Archaeology" && resource != "fragments") amt *= game.challenges.Archaeology.getStatMult("science");
 		if (game.global.challengeActive == "Insanity") amt *= game.challenges.Insanity.getLootMult();
+		if (game.challenges.Nurture.boostsActive()) amt *= game.challenges.Nurture.getResourceBoost();
 		amt = calcHeirloomBonus("Staff", compatible[x] + "Speed", amt);
 		if (typeof storage[x] !== 'undefined'){
 			var tempTotal = amt + resource.owned;
@@ -15848,13 +15893,14 @@ function buyAutoStructures(){
 	if (bwRewardUnlocked("DoubleBuild")) maxBuild = 2;
 	if (game.talents.deciBuild.purchased) maxBuild = 10;
 	if (!setting.enabled || !bwRewardUnlocked("AutoStructure")) return;
-	var order = ["Tribute", "Smithy", "Nursery", "Gym", "Warpstation", "Hut", "House", "Mansion", "Hotel", "Resort", "Gateway", "Collector", "Wormhole"];
+	var order = ["Tribute", "Smithy", "Nursery", "Laboratory", "Gym", "Warpstation", "Hut", "House", "Mansion", "Hotel", "Resort", "Gateway", "Collector", "Wormhole"];
 	for (var x = 0; x < order.length; x++){
 		var item = order[x];
 		if (!setting[item]) continue;
 		if (typeof setting.NurseryZones !== 'undefined' && game.global.world < setting.NurseryZones && item == "Nursery")
 			continue;
 		var building = game.buildings[item];
+		if (building.locked) continue;
 		var purchased = building.purchased;
 		var buyMax = setting[item].buyMax;
 		if (item == "Nursery" && game.global.world >= 230)
@@ -16217,10 +16263,10 @@ var Fluffy = {
 	prestigeExpModifier: 5,
 	currentExp: [],
 	damageModifiers: [1, 1.1, 1.3, 1.6, 2, 2.5, 3.1, 3.8, 4.6, 5.5, 6.5],
-	damageModifiers2: [1, 1.1, 1.3, 1.6, 2, 2.5, 3.1, 3.8, 4.6, 5.5, 25.5, 30.5, 38, 48, 60.25, 110.25, 110.25],
+	damageModifiers2: [1, 1.1, 1.3, 1.6, 2, 2.5, 3.1, 3.8, 4.6, 5.5, 25.5, 30.5, 38, 48, 60.25, 110.25, 170.25, 240.25, 320.25, 410.25, 510.25, 510.25],
 	rewards: ["stickler", "helium", "liquid", "purifier", "lucky", "void", "helium", "liquid", "eliminator", "overkiller"],
 	prestigeRewards: ["dailies", "voidance", "overkiller", "critChance", "megaCrit", "superVoid", "voidelicious", "naturesWrath", "voidSiphon", "plaguebrought"],
-	rewardsU2: ["trapper", "prism", "heirloopy", "radortle", "healthy", "wealthy", "critChance", "gatherer", "dailies", "exotic", "shieldlayer", "tenacity", "megaCrit", "critChance", "smithy", "biggerbetterheirlooms"],
+	rewardsU2: ["trapper", "prism", "heirloopy", "radortle", "healthy", "wealthy", "critChance", "gatherer", "dailies", "exotic", "shieldlayer", "tenacity", "megaCrit", "critChance", "smithy", "biggerbetterheirlooms", "justdam", "justdam", "justdam", "justdam", "justdam"],
 	prestigeRewardsU2: [],
 	checkU2Allowed: function(){
 		if (game.global.universe == 2) return true;
@@ -16299,11 +16345,26 @@ var Fluffy = {
 		if (game.global.universe == 2) return this.prestigeRewardsU2;
 		return this.prestigeRewards;
 	},
+	lastPat: 0,
+	patSeed: Math.floor(Math.random() * 1000),
+	pat: function(){
+		var stat = (game.global.universe == 1) ? game.stats.fluffyPats : game.stats.scruffyPats;
+		stat.valueTotal++;
+		this.lastPat = new Date().getTime();
+		this.patSeed++;
+		this.refreshTooltip();
+	},
 	getFluff: function () {
 		var possibilities = [];
 		var timeSeed = Math.floor(new Date().getTime() / 1000 / 30);
 		var name = this.getName();
-		if (this.currentLevel == this.getRewardList().length){
+		if (new Date().getTime() - this.lastPat < 15000){
+			var stat = (game.global.universe == 1) ? game.stats.fluffyPats.valueTotal : game.stats.scruffyPats.valueTotal;
+			var extra = "You've pet " + name + " " + stat + " time" + needAnS(stat) + ".";
+			possibilities = [name + " makes a purr-like sound. " + extra, name + " reminds you to scratch behind the ears. " + extra, name + " appreciates the pat! " + extra, name + " thinks you're the best. " + extra, name + " frickin loves pats! " + extra, name + " looks quite happy. " + extra];
+			timeSeed = this.patSeed;
+		}
+		else if (this.currentLevel == this.getRewardList().length){
 			possibilities = [name + "'s just chillin.", name + " can now predict the future, though he won't tell you what's going to happen.", name + "'s looking pretty buff.", name.toUpperCase() + " SMASH", name + "'s smelling great today.", name + " is a model Trimp.", name + " can do anything.", name + " once killed a Snimp with a well-timed insult.", name + " can juggle 3 dozen scientists without breaking a sweat.", name + " does a barrel roll.", name + "'s thinking about writing a book."];
 		}
 		else {
@@ -16353,7 +16414,7 @@ var Fluffy = {
 	updateExp: function(){
 		var expElem = document.getElementById('fluffyExp');
 		var lvlElem = document.getElementById('fluffyLevel');
-		var fluffyInfo = this.getExp();
+		var fluffyInfo = (this.cruffysTipActive()) ? game.challenges.Nurture.getExp() : this.getExp();
 		var width = Math.ceil((fluffyInfo[1] / fluffyInfo[2]) * 100);
 		if (width > 100) width = 100;
 		expElem.style.width = width + "%";
@@ -16365,6 +16426,7 @@ var Fluffy = {
 		var reward = this.getExpReward(true, count);
 		if (game.global.universe == 2) game.global.fluffyExp2 += reward;
 		else game.global.fluffyExp += reward;
+		if (game.global.challengeActive == "Nurture") game.challenges.Nurture.gaveExp(reward);
 		this.handleBox();
 		return reward;
 	},
@@ -16539,9 +16601,30 @@ var Fluffy = {
 			case "ice":
 				elem.innerHTML = 'From Enlightened Ice. Equal to (1 + (0.0025 * Ice Levels)), currently ' + prettify((1 + (0.0025 * game.empowerments.Ice.getLevel()))) + '. Does not apply to Best Fluffy Exp.'
 				return;
+			case "labs":
+				elem.innerHTML = 'From Nurture. Increases Exp gain by 25% (additive) per constructed Laboratory. Currently granting ' + prettify(game.buildings.Laboratory.getExpMult()) + 'x.';
 		}
 	},
+	cruffysToggled: false,
+	cruffysTipActive: function(){
+		if (!this.cruffysToggled) return false;
+		if (game.challenges.Nurture.boostsActive()) return true;
+		this.cruffysToggled = false;
+		return false;
+	},
+	toggleCruffys: function(){
+		var tipTitle = document.getElementById('tipTitle');
+		this.cruffysToggled = !this.cruffysToggled;
+		if (tipTitle != null) tipTitle.innerHTML = (this.cruffysToggled) ? "<b>IT'S CRUFFYS</b>" : this.getName();
+		this.handleBox();
+		this.refreshTooltip();
+		var toggleBtn = document.getElementById('toggleCruffyTipBtn');
+		if (toggleBtn != null) toggleBtn.innerHTML = "Show " + ((this.cruffysToggled) ? "Scruffy" : "Cruffys") + " Info";
+		var patBtn = document.getElementById('fluffyPatBtn');
+		if (patBtn != null) patBtn.style.display = (this.cruffysToggled) ? "none" : "inline-block";
+	},
 	tooltip: function (big){
+		var showCruffys = (this.cruffysTipActive());
 		var savedLevel = Fluffy.getLevel(true);
 		var fluffyInfo = Fluffy.getExp();
 		var rewardsList = this.getRewardList();
@@ -16552,12 +16635,21 @@ var Fluffy = {
 			calculatedPrestige++;
 		if (calculatedPrestige > prestigeRewardsList.length) 
 			calculatedPrestige = prestigeRewardsList.length + 1;
+
+		if (showCruffys){
+			rewardsList = game.challenges.Nurture.rewardsList;
+			savedLevel = game.challenges.Nurture.getLevel();
+			calculatedPrestige = 0;
+			fluffyInfo = game.challenges.Nurture.getExp();
+			name = "Cruffys";
+		}
+
 		var bottomText = "";
 		var topText = "<div style='width: 100%; font-size: 0.95em;'><div class='fluffyThird'>";
 		var minZoneForExp = Fluffy.getMinZoneForExp() + 1;
 		if (game.global.universe == 1 && (this.getCurrentPrestige() > 0 || this.currentLevel == rewardsList.length)) topText += "<span style='color: #740774'>Evolution " + this.getCurrentPrestige() + " </span>";
 		topText += "Level " + fluffyInfo[0] + "</div><div class='fluffyThird'>";
-		if (savedLevel >= rewardsList.length) {
+		if (savedLevel >= rewardsList.length && (!showCruffys || fluffyInfo[0] >= 14)) {
 			topText += "Max"
 		}
 		else {
@@ -16565,9 +16657,12 @@ var Fluffy = {
 			topText += prettify(fluffyInfo[1]) + " / " + prettify(fluffyInfo[2]) + " Exp";
 			topText += "</span>";
 		}
-		topText += "</div><div class='fluffyThird'>+" + prettify((Fluffy.getDamageModifier() - 1) * 100) + "% damage"
+		if (!showCruffys) topText += "</div><div class='fluffyThird'>+" + prettify((Fluffy.getDamageModifier() - 1) * 100) + "% damage"
 		topText += "</div></div>";
-		if (!Fluffy.isMaxLevel()){
+		if (showCruffys && game.global.challengeActive != "Nurture"){
+			topText += "- Cruffys cannot gain Experience after the Nurture Challenge ends, but will stick around for " + (game.challenges.Nurture.cruffysUntil - game.global.world) + " more Zones.<br/>- " + Fluffy.getFluff();
+		}
+		else if (!Fluffy.isMaxLevel() && (!showCruffys || fluffyInfo[0] < 14)){
 			if (savedLevel > fluffyInfo[0]) topText += "<span class='red'>- " + name + "'s level and damage bonus are currently reduced. " + name + " will return to level " + savedLevel + " when points are placed back in Capable.</span>";
 			else if (!Fluffy.canGainExp()) topText += "<span class='red'>- " + name + " needs " + ((this.getCapableLevel() == 0) ? " at least one point of Capable to gain any Exp" + ((game.portal.Capable.locked) ? ". Complete Spire II to unlock Capable!" : "") : " more points in Capable to gain Exp above level " + this.getCapableLevel() + ".") + "</span>";
 			else {
@@ -16575,10 +16670,11 @@ var Fluffy = {
 				else{
 					var remainingXp = fluffyInfo[2] - fluffyInfo[1];
 					var xpReward = Fluffy.getExpReward();
+					if (showCruffys) xpReward *= game.buildings.Laboratory.getExpMult();
 					var fluffyStat = Fluffy.getBestExpStat();
 					var remainingRuns = (fluffyStat.value > 0) ? Math.ceil(remainingXp / fluffyStat.value) : -1;
 					topText += "- " + name + " is earning " + prettify(xpReward) + " Exp per Zone. " + name + " needs " + prettify(remainingXp) + " more Exp to level";
-					if (remainingRuns > -1) topText += ", equivalent to repeating your current run to this zone about " + prettify(remainingRuns) + " more time" + needAnS(remainingRuns) + ".";
+					if (remainingRuns > -1 && !showCruffys) topText += ", equivalent to repeating your current run to this zone about " + prettify(remainingRuns) + " more time" + needAnS(remainingRuns) + ".";
 					else topText += ".";
 					topText += "<br/>- " + Fluffy.getFluff();
 				}
@@ -16592,7 +16688,7 @@ var Fluffy = {
 
 		if (Fluffy.currentLevel == 10 && this.getCurrentPrestige() < prestigeRewardsList.length)
 			topText += "<span class='fluffyEvolveText'>" + name + " is ready to Evolve! This will reset his damage bonus and most abilities back to level 0, but he will regrow to be stronger than ever. You can cancel this Evolution at any point to return to level 10.<br/><span class='btn btn-md btn-success' onclick='Fluffy.prestige(); Fluffy.refreshTooltip(true);'>Evolve!</span></span><br/>";
-		if (Fluffy.canGainExp() && game.global.world >= minZoneForExp) {
+		if (Fluffy.canGainExp() && game.global.world >= minZoneForExp && (!showCruffys || fluffyInfo[0] < 14)) {
 			topText += "- " + name + "'s Exp gain at the end of each Zone is equal to: ";
 			var fluffFormula = "<br/><span style='padding-left: 1em'>";
 			var startNumber = Fluffy.getMinZoneForExp();
@@ -16607,7 +16703,8 @@ var Fluffy = {
 			if (getHeirloomBonus("Staff", "FluffyExp") > 0) fluffFormula += ' * <span class="fluffFormStaff" onmouseover="Fluffy.expBreakdown(\'staff\')" onmouseout="Fluffy.expBreakdown(\'clear\')">Staff</span>';
 			if (playerSpireTraps.Knowledge.owned) fluffFormula += ' * <span class="fluffFormKnowledge" onmouseover="Fluffy.expBreakdown(\'knowledge\')" onmouseout="Fluffy.expBreakdown(\'clear\')">Knowledge</span>';
 			if (Fluffy.specialExpModifier > 1) fluffFormula += ' * <span class="fluffFormSpecial" onmouseover="Fluffy.expBreakdown(\'special\')" onmouseout="Fluffy.expBreakdown(\'clear\')">' + Fluffy.specialExpModifier + "</span>";
-			if (getUberEmpowerment() == "Ice") fluffFormula += ' * <span class="fluffFormIce" onmouseover="Fluffy.expBreakdown(\'ice\')" onmouseout="Fluffy.expBreakdown(\'clear\')">Ice</span>'
+			if (getUberEmpowerment() == "Ice") fluffFormula += ' * <span class="fluffFormIce" onmouseover="Fluffy.expBreakdown(\'ice\')" onmouseout="Fluffy.expBreakdown(\'clear\')">Ice</span>';
+			if (showCruffys) fluffFormula += ' * <span class="fluffFormLab" onmouseover="Fluffy.expBreakdown(\'labs\')" onmouseout="Fluffy.expBreakdown(\'clear\')">Labs</span>';
 			fluffFormula = fluffFormula.replace('Zone', '<span onmouseover="Fluffy.expBreakdown(\'zone\')" onmouseout="Fluffy.expBreakdown(\'clear\')" class="fluffFormZone">Zone</span>');
 			fluffFormula = fluffFormula.replace('Cunning', '<span onmouseover="Fluffy.expBreakdown(\'cunning\')" onmouseout="Fluffy.expBreakdown(\'clear\')" class="fluffFormCunning">Cunning</span>')
 			fluffFormula = fluffFormula.replace('Curious', '<span onmouseover="Fluffy.expBreakdown(\'curious\')" onmouseout="Fluffy.expBreakdown(\'clear\')" class="fluffFormCurious">Curious</span>')			
@@ -16619,7 +16716,11 @@ var Fluffy = {
 		topText += "<div id='fluffyExpBreakdown'>" + xpBreakdownFill + "</div>";
 		bottomText += "<table id='fluffyLevelBreakdown'><tbody><tr style='font-weight: bold; font-size: 1.25em; text-align: center;'><td style='padding: 0 1em'>Level</td><td>Ability</td><td style='padding: 0 1em'>+Damage</td></tr>";
 		for (var x = 0; x < rewardsList.length; x++){
-			bottomText += ((fluffyInfo[0] + calculatedPrestige) >= (x + 1)) ? "<tr class='fluffyRowComplete'>" : "<tr>";
+			var highlighted;
+			// if (showCruffys) highlighted = (cruffysLevel >= (x + 1));
+			// else 
+			highlighted = ((fluffyInfo[0] + calculatedPrestige) >= (x + 1));
+			bottomText += (highlighted) ? "<tr class='fluffyRowComplete'>" : "<tr>";
 			if (savedLevel < x && calculatedPrestige == 0 && game.global.universe == 1)
 				bottomText += "<td>Lv " + (x + 1) + "</td><td>????</td><td></td>"
 			else{
@@ -16627,7 +16728,8 @@ var Fluffy = {
 				if (levelDisplay < 0) levelDisplay = 0;
 				var description = (fluffyInfo[0] < levelDisplay - 2) ? "????" : Fluffy.rewardConfig[rewardsList[x]].description;
 				bottomText += "<td>Lv " + levelDisplay + "</td><td>" + description + "</td>";
-				bottomText += "<td style='text-align: center'>" + ((levelDisplay > 0) ? Fluffy.getBonusForLevel(levelDisplay) : "&nbsp;") + "</td></tr>";
+				if (showCruffys) bottomText += "<td></td></tr>"
+				else bottomText += "<td style='text-align: center'>" + ((levelDisplay > 0) ? Fluffy.getBonusForLevel(levelDisplay) : "&nbsp;") + "</td></tr>";
 			}
 		}
 		var countedPrestige = calculatedPrestige;
@@ -16778,6 +16880,48 @@ var Fluffy = {
 		},
 		biggerbetterheirlooms: {
 			description: "Allows you to spend an additional 10% of your total earned Nullifium on all of your Heirlooms."
+		},
+		justdam: {
+			description: "Provides no bonus other than damage. Will some day evolve into a more powerful boost!"
+		},
+
+		//Cruffys
+		cruf1: {
+			description: "Multiplies Radon earned by 1.5."
+		},
+		cruf2: {
+			description: "Multiplies Radon earned by 2, and grants 5% increased health and attack to your Trimps."
+		},
+		cruf3: {
+			description: "Multiplies Radon earned by 2.5, and increases all looted or gathered resources by 15%."
+		},
+		cruf4: {
+			description: "Multiplies Radon earned by 3, and grants 20% Void Map Drop Chance."
+		},
+		cruf5: {
+			description: "Grants 35% Crit Chance and adds 50% to base Crit Damage."
+		},
+		cruf6: {
+			description: "Multiplies Radon earned by 1.75, and increases Cruffys' Trimp health and attack bonuses by 10%."
+		},
+		cruf7: {
+			description: "Multiplies Radon earned by 2, and adds 25% to the Level 3 Resource bonus."
+		},
+		cruf8: {
+			description: "Multiplies Radon earned by 1.1, and Cruffys will stick around for 5 Zones after Nurture ends, granting all non-Radon bonuses."
+		},
+		cruf9: {
+			description: "Multiplies Radon earned by 1.1, and increases Cruffys' Trimp attack, health, and resource bonuses by an additional 20%. Cruffys will stay in your Universe for 5 additional Zones after Nurture ends."
+		},
+		cruf10: {
+			get description(){
+				var text = "Multiplies Radon earned by 1.03, and increases Cruffys' Trimp attack, health, and resource bonuses by an additional 10%. Cruffys will stay in your Universe for 1 additional Zone after Nurture ends. This is repeatable up to 5 times to a max level of 14."
+				var level = game.challenges.Nurture.getLevel();
+				if (level > 10){
+					text += " <b>Currently increasing attack, health and resources by " + ((level - 9) * 10) + "% and Cruffys will stay for " + (level - 9) + " additional Zones.</b>";
+				}
+				return text;
+			}
 		}
 	}
 }

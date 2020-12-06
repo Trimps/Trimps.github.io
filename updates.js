@@ -170,7 +170,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var fluffyTip = Fluffy.tooltip(true);
 			tooltipText = "<div id='fluffyTooltipTopContainer'>" + fluffyTip[0] + "</div>";
 			tooltipText += "<div id='fluffyLevelBreakdownContainer' class='niceScroll'>" + fluffyTip[1] + "</div>";
-			costText = '<div class="btn btn-danger" onclick="cancelTooltip()">Close</div>';
+			costText = '<div class="btn btn-danger btn-lg" onclick="cancelTooltip()">Close</div>';
+			if (game.challenges.Nurture.boostsActive()){
+				costText += "<span id='toggleCruffyTipBtn' class='btn btn-lg btn-primary' onclick='Fluffy.toggleCruffys()'>Show ";
+				costText += (Fluffy.cruffysTipActive()) ? "Scruffy" : "Cruffys";
+				costText += " Info</span>"
+			}
+			costText += "<span onclick='Fluffy.pat()' id='fluffyPatBtn' style='display: " + ((Fluffy.cruffysTipActive()) ? "none" : "inline-block") + "' class='btn btn-lg btn-warning'>Pat</span>";
 			openTooltip = "Fluffy";
 			setTimeout(Fluffy.refreshTooltip, 1000);
 			ondisplay = function(){
@@ -182,7 +188,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			tooltipText = Fluffy.tooltip();
 			costText = "Click for more detailed info"
 		}
-		what = Fluffy.getName();
+		if (Fluffy.cruffysTipActive()) what = "<b>IT'S CRUFFYS</b>";
+		else what = Fluffy.getName();
 	}
 	if (what == "Scryer Formation"){
 		tooltipText = "<p>Trimps lose half of their attack, health and block but gain 2x resources from loot (not including Helium) and have a chance to find Dark Essence above Z180 in the world. This formation must be active for the entire fight to receive any bonus from enemies, and must be active for the entire map to earn a bonus from a Cache.</p>";
@@ -320,6 +327,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var building = game.buildings[item];
 			if (building.blockU2 && game.global.universe == 2) continue;
 			if (building.blockU1 && game.global.universe == 1) continue;
+			if (item == "Laboratory" && game.global.challengeActive != "Nurture") continue;
 			if (!building.AP) continue;
 			if (count != 0 && count % 2 == 0) tooltipText += "</tr><tr>";
 			setting = settingGroup[item];
@@ -1271,7 +1279,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		tooltipText += "<br/><br/>You can also manually set how many stacks of Equality should be used if Scaling is disabled changing the slider below. This allows you to customize exactly how many stacks of Equality to use without having to respec your Perks.<br/><br/><b>Your Equality stacks when Scaling is disabled will be <span id='equalityDisabledStackCount'>" + text + "</span>.</b><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='equalityDisabledSlider' min='0' max='" + max + "' value='" + disabledStackCount + "' />";
 		game.global.lockTooltip = true;
-		elem.style.left = "33.75%";
+		elem.style.left = "4.5%";
 		elem.style.top = "25%";
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Done</div></div>";
 		ondisplay = function(){
@@ -1395,6 +1403,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				var newValue = toTip[tipSplit[1]];
 				if (getPerkLevel("Motivation") > 0) newValue *= (1 + (getPerkLevel("Motivation") * 0.05));
 				if (getPerkLevel("Motivation_II") > 0) newValue *= (1 + (getPerkLevel("Motivation_II") * game.portal.Motivation_II.modifier));
+				if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) newValue *= game.portal.Observation.getMult();
 				if (Fluffy.isRewardActive('gatherer')) newValue *= 2;
 				tooltipText = tipSplit[0] + prettify(newValue) + tipSplit[2];
 			}
@@ -1826,6 +1835,11 @@ function getPsString(what, rawNum) {
 		motivationStrength = prettify(motivationStrength * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Motivation II</td><td class='bdPercent'>+ " + motivationStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
+	if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0){
+		var mult = game.portal.Observation.getMult();
+		currentCalc *= mult;
+		textString += "<tr><td class='bdTitle'>Observation</td><td class='bdPercent'>" + formatMultAsPercent(mult) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	//Add Fluffy Gatherer
 	if (Fluffy.isRewardActive('gatherer')) {
 		currentCalc  *= 2;
@@ -1911,6 +1925,11 @@ function getPsString(what, rawNum) {
 		var mult = game.challenges.Insanity.getLootMult();
 		currentCalc *= mult;
 		textString += "<tr><td class='bdTitle'>Insane (Insanity)</td><td class='bdPercent'>+ " + (100 * (mult - 1)).toFixed(4) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.challenges.Nurture.boostsActive() && what != "fragments"){
+		var mult = game.challenges.Nurture.getResourceBoost();
+		currentCalc *= mult;
+		textString += "<tr><td class='bdTitle'>Cruffys</td><td class='bdPercent'>" + formatMultAsPercent(mult) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 
 	if (game.global.challengeActive == "Daily"){
@@ -2337,6 +2356,12 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Anticipation</td><td>2% (x" + game.global.antiStacks + ")</td><td>" + prettify(getPerkLevel("Anticipation")) + "</td><td>+ " + antiStrength + "</td><td>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 
 	}
+	if (getPerkLevel("Observation") && game.portal.Observation.trinkets > 0 && (what == "attack" || what == "health")){
+		var obsMult = game.portal.Observation.getMult();
+		currentCalc *= obsMult;
+		textString += "<tr><td class='bdTitle'>Observation</td><td>" + game.portal.Observation.radLevel + "%</td><td>" + prettify(game.portal.Observation.trinkets) + "</td><td>" + formatMultAsPercent(obsMult) + "</td><td>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+
+	}
 	//Add formations
 	if (game.global.formation > 0 && game.global.formation != 5){
 		var formStrength = 0.5;
@@ -2604,12 +2629,11 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Chilled Enemy</td><td></td><td></td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
 
 	}
-	//Fluffy
+	//Fluffy/Scruffy
 	if (what == "attack" && Fluffy.isActive()){
 		amt = Fluffy.getDamageModifier();
 		currentCalc *= amt;
 		textString += "<tr><td class='bdTitle'>" + Fluffy.getName() + "</td><td></td><td></td><td>+ " + prettify((amt -1 ) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
-		
 	}
 	//Fluffy E8
 	if (what == "attack" && Fluffy.isRewardActive('voidSiphon') && game.stats.totalVoidMaps.value){
@@ -2620,14 +2644,20 @@ function getBattleStatBd(what) {
 		var voidE = ((game.talents.fluffyAbility.purchased) ? "8" : "9");
 		textString += "<tr><td class='bdTitle'>Void Siphon (" + Fluffy.getName() + " E" + voidE + ")</td><td>+ " + (voidWeight * 100) + "%</td><td>" + voids + "</td><td>+ " + prettify(amt * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
 	}
-		//Magma
-		if (mutations.Magma.active() && (what == "attack" || what == "health")){
-			mult = mutations.Magma.getTrimpDecay();
-			var lvls = game.global.world - mutations.Magma.start() + 1;
-			currentCalc *= mult;
-			var display = (mult > 0.0001) ? mult.toFixed(4) : mult.toExponential(3);
-			textString += "<tr style='color: red'><td class='bdTitle'>Overheating (Magma)</td><td>x 0.8</td><td>" + lvls + "</td><td class='bdPercent'>x " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
-		}
+	//Cruffys
+	if (game.challenges.Nurture.boostsActive() && (what == "attack" || what == "health")){
+		mult = game.challenges.Nurture.getStatBoost();
+		currentCalc *= mult;
+		textString += "<tr><td class='bdTitle'>Cruffys</td><td></td><td>" + game.challenges.Nurture.getLevel() + "</td><td class='bdPercent'>" + formatMultAsPercent(mult) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+	}
+	//Magma
+	if (mutations.Magma.active() && (what == "attack" || what == "health")){
+		mult = mutations.Magma.getTrimpDecay();
+		var lvls = game.global.world - mutations.Magma.start() + 1;
+		currentCalc *= mult;
+		var display = (mult > 0.0001) ? mult.toFixed(4) : mult.toExponential(3);
+		textString += "<tr style='color: red'><td class='bdTitle'>Overheating (Magma)</td><td>x 0.8</td><td>" + lvls + "</td><td class='bdPercent'>x " + display + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+	}
 	//Amalgamator health
 	if (what == "health" && game.jobs.Amalgamator.owned > 0){
 		amt = game.jobs.Amalgamator.getHealthMult();
@@ -3048,6 +3078,11 @@ function getLootBd(what) {
 		currentCalc *= mult;
 		textString += "<tr><td class='bdTitle'>Insane (Insanity)</td><td>+ 13.13%</td><td>" + game.challenges.Insanity.insanity + "</td><td>x " + mult.toFixed(4) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
+	if (game.challenges.Nurture.boostsActive() && what != "Helium"){
+		var mult = game.challenges.Nurture.getResourceBoost();
+		currentCalc *= mult;
+		textString += "<tr><td class='bdTitle'>Cruffys</td><td>Lv " + game.challenges.Nurture.getLevel() + "</td><td></td><td>" + formatMultAsPercent(mult) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
 	if (getPerkLevel("Looting")){
 		amt = (1 + (getPerkLevel("Looting") * game.portal.Looting.modifier));
 		currentCalc *= amt;
@@ -3210,6 +3245,12 @@ function getLootBd(what) {
 		var amt = game.challenges.Mayhem.getTrimpMult();
 		currentCalc *= amt;
 		textString += "<tr><td class='bdTitle'>Mayhem Completions</td><td>+ 10N%</td><td>" + game.global.mayhemCompletions + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Cruffys
+	if (game.global.challengeActive == "Nurture" && what == "Helium"){
+		var mult = game.challenges.Nurture.getRadonMult();
+		currentCalc *= mult;
+		textString += "<tr><td class='bdTitle'>Cruffys</td><td>Lv " + game.challenges.Nurture.getLevel() + "</td><td></td><td>x " + prettify(mult) + "</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Bonus from Domination challenge, keep right above Corruption/Healthy stuff, as regular boss bonus does not affect it
 	if (game.global.challengeActive == "Domination" && what == "Helium"){
@@ -4629,6 +4670,7 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			//portal Motivation
 			if (getPerkLevel("Motivation")) psText *= (1 + (getPerkLevel("Motivation") * game.portal.Motivation.modifier));
 			if (getPerkLevel("Motivation_II")) psText *= (1 + (getPerkLevel("Motivation_II") * game.portal.Motivation_II.modifier));
+			if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) psText *= game.portal.Observation.getMult();
 			if (increase == "food" || increase == "wood" || increase == "metal") psText *= getParityBonus();
 			if (getPerkLevel("Meditation") > 0) psText *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
 			if ((increase == "food" && game.buildings.Antenna.owned >= 5) || (increase == "metal" && game.buildings.Antenna.owned >= 15)) psText *= game.jobs.Meteorologist.getExtraMult();
@@ -4660,6 +4702,7 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			}
 			if (game.global.challengeActive == "Archaeology" && increase != "fragments") psText *= game.challenges.Archaeology.getStatMult("science");
 			if (game.global.challengeActive == "Insanity" && increase != "fragments") psText *= game.challenges.Insanity.getLootMult();
+			if (game.challenges.Nurture.boostsActive() && increase != "fragments") psText *= game.challenges.Nurture.getResourceBoost();			
 			if (game.global.challengeActive == "Watch") psText /= 2;
 			if (game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)) psText *= 2;
 			if (jobName != "Explorer" && getEmpowerment() == "Wind"){
