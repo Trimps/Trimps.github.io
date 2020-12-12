@@ -950,13 +950,11 @@ function load(saveString, autoLoad, fromPf) {
 		if (game.global.mayhemCompletions > game.challenges.Mayhem.maxRuns) game.global.mayhemCompletions = game.challenges.Mayhem.maxRuns;
 		for (var x = 0; x < 4; x++) game.achievements.oneOffs2.finished.push(false);
 	}
+	if (compareVersion([5,4,3], oldStringVersion)){
+		game.options.menu.showHoliday.locked = true;
+	}
 	//End compatibility
 	//Test server only
-	if (betaV < 1){
-		game.challenges.Nurture.growth = 2.5;
-		game.challenges.Nurture.firstLevelXp = 300000;
-		if (game.global.challengeActive == "Nurture") game.challenges.Nurture.calculateLevel();
-	}
 	//End test server only
 	//Temporary until next patch
 	if (compareVersion([5,4,2], oldStringVersion)){
@@ -16602,7 +16600,7 @@ var Fluffy = {
 				elem.innerHTML = 'From Enlightened Ice. Equal to (1 + (0.0025 * Ice Levels)), currently ' + prettify((1 + (0.0025 * game.empowerments.Ice.getLevel()))) + '. Does not apply to Best Fluffy Exp.'
 				return;
 			case "labs":
-				elem.innerHTML = 'From Nurture. Increases Exp gain by 25% (additive) per constructed Laboratory. Currently granting ' + prettify(game.buildings.Laboratory.getExpMult()) + 'x.';
+				elem.innerHTML = 'From Nurture. Increases Exp gain by 10% (compounding) per constructed Laboratory. Currently granting ' + prettify(game.buildings.Laboratory.getExpMult()) + 'x.';
 		}
 	},
 	cruffysToggled: false,
@@ -16649,7 +16647,7 @@ var Fluffy = {
 		var minZoneForExp = Fluffy.getMinZoneForExp() + 1;
 		if (game.global.universe == 1 && (this.getCurrentPrestige() > 0 || this.currentLevel == rewardsList.length)) topText += "<span style='color: #740774'>Evolution " + this.getCurrentPrestige() + " </span>";
 		topText += "Level " + fluffyInfo[0] + "</div><div class='fluffyThird'>";
-		if (savedLevel >= rewardsList.length && (!showCruffys || fluffyInfo[0] >= 14)) {
+		if (savedLevel >= rewardsList.length && (!showCruffys || fluffyInfo[0] >= 19)) {
 			topText += "Max"
 		}
 		else {
@@ -16662,7 +16660,7 @@ var Fluffy = {
 		if (showCruffys && game.global.challengeActive != "Nurture"){
 			topText += "- Cruffys cannot gain Experience after the Nurture Challenge ends, but will stick around for " + (game.challenges.Nurture.cruffysUntil - game.global.world) + " more Zones.<br/>- " + Fluffy.getFluff();
 		}
-		else if (!Fluffy.isMaxLevel() && (!showCruffys || fluffyInfo[0] < 14)){
+		else if (!Fluffy.isMaxLevel() && (!showCruffys || fluffyInfo[0] < 19)){
 			if (savedLevel > fluffyInfo[0]) topText += "<span class='red'>- " + name + "'s level and damage bonus are currently reduced. " + name + " will return to level " + savedLevel + " when points are placed back in Capable.</span>";
 			else if (!Fluffy.canGainExp()) topText += "<span class='red'>- " + name + " needs " + ((this.getCapableLevel() == 0) ? " at least one point of Capable to gain any Exp" + ((game.portal.Capable.locked) ? ". Complete Spire II to unlock Capable!" : "") : " more points in Capable to gain Exp above level " + this.getCapableLevel() + ".") + "</span>";
 			else {
@@ -16688,7 +16686,7 @@ var Fluffy = {
 
 		if (Fluffy.currentLevel == 10 && this.getCurrentPrestige() < prestigeRewardsList.length)
 			topText += "<span class='fluffyEvolveText'>" + name + " is ready to Evolve! This will reset his damage bonus and most abilities back to level 0, but he will regrow to be stronger than ever. You can cancel this Evolution at any point to return to level 10.<br/><span class='btn btn-md btn-success' onclick='Fluffy.prestige(); Fluffy.refreshTooltip(true);'>Evolve!</span></span><br/>";
-		if (Fluffy.canGainExp() && game.global.world >= minZoneForExp && (!showCruffys || fluffyInfo[0] < 14)) {
+		if (Fluffy.canGainExp() && game.global.world >= minZoneForExp && (!showCruffys || fluffyInfo[0] < 19)) {
 			topText += "- " + name + "'s Exp gain at the end of each Zone is equal to: ";
 			var fluffFormula = "<br/><span style='padding-left: 1em'>";
 			var startNumber = Fluffy.getMinZoneForExp();
@@ -16915,10 +16913,11 @@ var Fluffy = {
 		},
 		cruf10: {
 			get description(){
-				var text = "Multiplies Radon earned by 1.03, and increases Cruffys' Trimp attack, health, and resource bonuses by an additional 10%. Cruffys will stay in your Universe for 1 additional Zone after Nurture ends. This is repeatable up to 5 times to a max level of 14."
+				var text = "Multiplies Radon earned by 1.04, and increases Cruffys' Trimp attack, health, and resource bonuses by an additional 10%. Cruffys will stay in your Universe for 1 additional Zone after Nurture ends for every 2 levels earned (11, 13, 15 etc). This is repeatable up to 10 times to a max level of 19."
 				var level = game.challenges.Nurture.getLevel();
 				if (level > 10){
-					text += " <b>Currently increasing attack, health and resources by " + ((level - 9) * 10) + "% and Cruffys will stay for " + (level - 9) + " additional Zones.</b>";
+					var stick = Math.floor((level - 9) / 2);
+					text += "<br/><br/><b>Currently multiplying Radon earned by " + prettify(Math.pow(1.04, (level - 9))) + ", increasing attack, health and resources by " + prettify((level - 9) * 10) + "% and Cruffys will stay for " + stick + " additional Zone" + needAnS(stick) + ".</b>";
 				}
 				return text;
 			}

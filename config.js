@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.4.3',
+		stringVersion: '5.4.4',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -2717,7 +2717,7 @@ var toReturn = {
 			get tooltip(){
 				var text = "Grants your Trimps the ability to locate small Runetrinkets around the World. For each level of this perk, your Trimps will gain a chance per Zone cleared above Z100 to find a Runetrinket. Each Runetrinket increases your Trimps' attack, health, and gathered primary resources by 1% (additive) per perk level. You can store a maximum of " + this.trinketsPerLevel + " Runetrinkets per perk level, reducing levels in this perk will deactivate any trinkets above cap but not lose them. Runetrinkets persist through Portal and never reset. The chance to find a Runetrinket increases by about 50% per level of this Perk, and scales as the Zone number increases (up to Z200). You'll also find 1 guaranteed Runetrinket every 25 Zones above Z100 for every 2 levels of this perk.";
 				text += "<br/><br/>You have " + prettify(this.trinkets) + " Runetrinket" + needAnS(this.trinkets) + ".";
-				if (this.radLevel > 0) text += " You are currently gaining +" + prettify(this.getMult() * 100) + "% attack, health, and gathered primary resources.<br/><br/>" + this.getChanceText();
+				if (this.radLevel > 0) text += " You are currently gaining " + formatMultAsPercent(this.getMult()) + " attack, health, and gathered primary resources.<br/><br/>" + this.getChanceText();
 				return text;
 			},
 			specialGrowth: 2,
@@ -4795,7 +4795,7 @@ var toReturn = {
 			heliumThrough: 135,
 			heldHelium: 0,
 			completeAfterZone: 135,
-			unlockString: " reach Zone 130 and wait a few more days!",
+			unlockString: " reach Zone 130.",
 			fireAbandon: true,
 			rewardsList: ["cruf1", "cruf2", "cruf3", "cruf4", "cruf5", "cruf6", "cruf7", "cruf8", "cruf9", "cruf10"],
 			totalXp: 0,
@@ -4817,7 +4817,7 @@ var toReturn = {
 				if (level >= 7) mult *= 2;
 				if (level >= 8) mult *= 1.1;
 				if (level >= 9) mult *= 1.1;
-				if (level >= 10) mult *= Math.pow(1.03, (level - 9));
+				if (level >= 10) mult *= Math.pow(1.04, (level - 9));
 				return mult;
 			},
 			getResourceBoost: function(){
@@ -4843,7 +4843,7 @@ var toReturn = {
 				var bonus = 0;
 				if (level >= 8) bonus += 5;
 				if (level >= 9) bonus += 5;
-				if (level >= 10) bonus += (level - 9);
+				if (level >= 10) bonus += Math.floor((level - 9) / 2);
 				if (bonus > 15) bonus = 15;
 				return bonus;
 			},
@@ -4869,20 +4869,20 @@ var toReturn = {
 				return [experience, totalNeeded];
 			},
 			gaveExp: function(reward){
-				if (this.level >= 14) return;
+				if (this.level >= 19) return;
 				this.totalXp += reward * game.buildings.Laboratory.getExpMult();
 				this.calculateLevel();
 			},
 			calculateLevel: function(){
 				this.level = Math.floor(log10(((this.totalXp / this.firstLevelXp) * (this.growth - 1)) + 1) / log10(this.growth));
-				if (this.level > 14) this.level = 14;
+				if (this.level > 19) this.level = 19;
 			},
 			filter: function(){
-				return false;
 				return (getHighestLevelCleared(true) >= 129);
 			},
 			abandon: function(){
-				this.cruffysUntil = game.global.world + this.countBonusZones();
+				var world = Math.min(135, game.global.world);
+				this.cruffysUntil = world + this.countBonusZones();
 				game.buildings.Laboratory.locked = 1;
 				drawAllBuildings();
 			},
@@ -4900,6 +4900,7 @@ var toReturn = {
 				game.global.challengeActive = "";
 				if (game.portal.Observation.radLocked && this.getLevel() >= 10) {
 					unlockPerk("Observation");
+					if (game.portal.Observation.trinkets == 0) game.portal.Observation.trinkets = 10;
 					message("You have also unlocked the Observation Perk!", "Notices");
 				}
 			},
@@ -9976,7 +9977,7 @@ var toReturn = {
 			locked: 1,
 			owned: 0,
 			purchased: 0,
-			craftTime: 10000,
+			craftTime: 1000,
 			blockU1: true,
 			AP: true,
 			tooltip: function(){
