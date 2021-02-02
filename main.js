@@ -8207,6 +8207,7 @@ var visualMutations = {
 	},
 	TrimpmasSnow: {
 		active: function() {
+			return false;
 			return (game.options.menu.showSnow.enabled);
 		},
 		pattern: function(currentArray, mutationArray) {
