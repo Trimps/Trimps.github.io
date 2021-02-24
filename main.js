@@ -224,7 +224,7 @@ function save(exportThis, fromManual) {
 
 	if (game.options.menu.usePlayFab.enabled == 1 && playFabId){
 		var timeSinceSave = performance.now() - lastOnlineSave;
-		if ((timeSinceSave < 1800000 && !fromManual) || timeSinceSave < 60000){
+		if ((timeSinceSave < 7200000 && !fromManual) || timeSinceSave < 60000){
 			return;
 		}
 		saveToPlayFab(saveString);
