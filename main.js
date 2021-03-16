@@ -17256,7 +17256,7 @@ function playFabSaveCheckCallback(data, error){
 		}
 		if (!playFabSave || !playFabSave.global) return;
 		var playFabHelium = (playFabSave.global.totalHeliumEarned) ? playFabSave.global.totalHeliumEarned : 0;
-		var playFabHighestZone = (playFabSave.stats.zonesCleared.value) ? playFabSave.stats.zonesCleared.value : 0;
+		var playFabHighestZone = (playFabSave.stats.zonesCleared.value) ? playFabSave.stats.zonesCleared.value + playFabSave.stats.zonesCleared.valueTotal : 0;
 		var playFabTotalZones = (playFabSave.global.highestLevelCleared) ? playFabSave.global.highestLevelCleared : 0;
 		if (playFabHelium > parseFloat(game.global.totalHeliumEarned) || playFabHighestZone > parseFloat(game.global.highestLevelCleared) || (playFabTotalZones > (game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal))){
 			tooltip("PlayFab Conflict", null, "update", playFabHelium, playFabHighestZone, playFabTotalZones);
