@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.4.5',
+		stringVersion: '5.4.6',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -9509,7 +9509,7 @@ var toReturn = {
 		},
 		easterEgg: {
 			world: -1,
-			locked: true,
+			locked: false,
 			level: [0, 99],
 			title: "Colored Egg",
 			icon: "*droplet",
