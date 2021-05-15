@@ -1916,6 +1916,11 @@ body {
 	color: white;
 }
 
+.portalError{
+	display: block;
+	padding: 0.3vw;
+}
+
 .heirloomBtnActive, .heirloomRecycleWarning{
 	background-color: #3b0076;
 	color: #DDDDFF;
