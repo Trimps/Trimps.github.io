@@ -966,8 +966,6 @@ function load(saveString, autoLoad, fromPf) {
 		game.portal.Equality.reversingSetting = game.portal.Equality.scalingSetting + 1;
 		if (game.portal.Equality.reversingSetting > 10) game.portal.Equality.reversingSetting = 10;
 		addNewFeats([10,11,19,20,21,22], true);
-		if (game.portal.Observation.trinkets >= 7500) giveSingleAchieve("Heavy Trinker");
-		if (game.global.mayhemCompletions >= 25) giveSingleAchieve("Peace");
 		checkAchieve("zones2");
 		checkAchieve("totalRadon");
 		if (game.global.highestRadonLevelCleared >= 74){
@@ -979,6 +977,11 @@ function load(saveString, autoLoad, fromPf) {
 	//Test server only
 	//End test server only
 	//Temporary until next patch
+
+	//Move these back to 5,5,0 on next patch
+	if (game.portal.Observation.trinkets >= 7500) giveSingleAchieve("Heavy Trinker");
+	if (game.global.mayhemCompletions >= 25) giveSingleAchieve("Peace");
+	
 	//End Temporary
 	portalUniverse = game.global.universe;
 	Fluffy.handleBox();
