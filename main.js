@@ -981,7 +981,7 @@ function load(saveString, autoLoad, fromPf) {
 	//Move these back to 5,5,0 on next patch
 	if (game.portal.Observation.trinkets >= 7500) giveSingleAchieve("Heavy Trinker");
 	if (game.global.mayhemCompletions >= 25) giveSingleAchieve("Peace");
-	
+
 	//End Temporary
 	portalUniverse = game.global.universe;
 	Fluffy.handleBox();
@@ -4466,9 +4466,10 @@ function buyAutoJobs(allowRatios){
 function autoBalanceJob(which){
 	//Fired when miners and scientists are unlocked and maybe other places later, requires autoJobs
 	var setting = getAutoJobsSetting();
-	if (!setting.enabled || !bwRewardUnlocked("AutoJobs")) return;
-	if (!setting[which].enabled || !setting.Farmer.enabled) return;
+	if (!setting || !setting.enabled || !bwRewardUnlocked("AutoJobs")) return;
+	if (!setting[which] || !setting[which].enabled || !setting.Farmer.enabled) return;
 	var want = game.jobs.Farmer.owned * (setting[which].ratio / setting.Farmer.ratio);
+	want = Math.floor(want);
 	if (game.workspaces > want) autoBuyJob(which, true, want);
 }
 
