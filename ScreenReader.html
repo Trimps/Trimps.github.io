@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 5.4.6 (Screen Reader version)</title>
+	<title>Trimps 5.5.0 (Screen Reader version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Greensatellite">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?27" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?28" />
 <!-- <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -443,7 +443,9 @@
 						<li role="presentation" id="talentsTab" style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab" onmouseover="tooltip('Mastery', null, event)" onmouseout="tooltip('hide')"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
 						<li role="presentation" id="equalityTab" style='display: none'  onclick="tooltip('Scale Equality Scaling', null, 'update', true)" class="tabNotSelected buyTab" onmouseover="tooltip('Equality Scaling', null, event, true)" onmouseout="tooltip('hide')"><a id="equalityA">Equality</a></li>		
 						<li role="presentation" id="natureTab" style='display: none'  onclick="filterTabs('nature')" class="tabNotSelected buyTab empowerTabNone" onmouseover="tooltip('Empowerments of Nature', null, event)" onmouseout="tooltip('hide')"><a id="natureA">Nature</a></li>		
-						<li role="presentation" id="playerSpireTab" style='display: none' onclick="playerSpire.openPopup()" class="tabNotSelected buyTab pausedSpireNo"><a id="spireA">Spire</a></li>		
+						<li role="presentation" id="playerSpireTab" style='display: none' onclick="playerSpire.openPopup()" class="tabNotSelected buyTab pausedSpireNo"><a id="spireA">Spire</a></li>
+						<li role="presentation" id="alchemyTab" style='display: none' onclick="alchObj.openPopup()" class="tabNotSelected buyTab alchTabNone"><a id="alchemyA">Alchemy</a></li>
+						<li role="presentation" id="autoBattleTab" style='display: none' onclick="autoBattle.popup()" class="tabNotSelected buyTab abTabNone"><a id="autoBattleA">SA</a></li>
 					</ul>
 				</div>
 
@@ -760,8 +762,9 @@
 											<span id="goodGuyHealth">0</span>/<span id="goodGuyHealthMax">0</span>
 										</span>
 									</div>
-									<div class="progress-bar" role="progressbar" id="energyShield">&nbsp;</div>
-									<div class="progress-bar" role="progressbar" id="energyShieldLayer">&nbsp;</div>
+									<div class="progress-bar es0" role="progressbar" id="energyShield">&nbsp;</div>
+									<div class="progress-bar es1" role="progressbar" id="energyShieldLayer">&nbsp;</div>
+									<div class="progress-bar es2" role="progressbar" id="energyShieldLayer2">&nbsp;</div>
 									</h5>
 								</div>
 							</div>
@@ -1513,10 +1516,11 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?45"></script>
-	<script type="text/javascript" src="updates.js?45"></script>
-	<script type="text/javascript" src="playerSpire.js?45"></script>
-	<script type="text/javascript" src="main.js?45"></script>
+	<script type="text/javascript" src="config.js?46"></script>
+	<script type="text/javascript" src="updates.js?46"></script>
+	<script type="text/javascript" src="playerSpire.js?46"></script>
+	<script type="text/javascript" src="objects.js?46"></script>
+	<script type="text/javascript" src="main.js?46"></script>
 	
 </body>
 

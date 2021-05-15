@@ -1121,3 +1121,15 @@ color:#8F8F00
 #energyShield {
     background: linear-gradient(0deg, rgb(84, 41, 202) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 70%, rgb(84, 41, 202) 100%);
 }
+
+.alchemyPopupCraft.brew{
+	background-color: #182436;
+}
+
+.alchemyPopupCraft.potion{
+	background-color: #2d2e1d;
+}
+
+.alchemyCraftCost{
+	background-color: rgba(82, 82, 82, 0.5);
+}

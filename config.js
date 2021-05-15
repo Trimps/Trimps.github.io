@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.4.6',
+		stringVersion: '5.5.0',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -151,6 +151,7 @@ var toReturn = {
 		voidSeed: Math.floor(Math.random() * 1000000),
 		scrySeed: Math.floor(Math.random() * 1000000),
 		heirloomSeed: Math.floor(Math.random() * 1000000),
+		coreSeed: Math.floor(Math.random() * 1000000),
 		heirloomBoneSeed: Math.floor(Math.random() * 1000000),
 		eggSeed: Math.floor(Math.random() * 1000000),
 		mutationSeed: Math.floor(Math.random() * 1000000),
@@ -208,6 +209,7 @@ var toReturn = {
 		archThresh: 50,
 		trackedAchieve: null,
 		mayhemCompletions: 0,
+		pandCompletions: 0,
 		perkPresetU1: {
 			perkPreset1: {},
 			perkPreset2: {},
@@ -262,7 +264,7 @@ var toReturn = {
 		lowestShield: 100,
 		hemmTimer: 150,
 		armyAttackCount: 0,
-		enemyAttackCount: 0,
+		fightAttackCount: 0,
 		mapHealthActive: false,
 		voidPowerActive: false,
 		stormDone: false,
@@ -270,6 +272,13 @@ var toReturn = {
 		parityBonus: 1,
 		hazShieldCredit: 0,
 		zoneRes: [0],
+		alchemyUnlocked: false,
+		farmlandsUnlocked: false,
+		potionData: null,
+		potionAuto: null,
+		autoBattleData: null,
+		canGuString: false,
+		guString: "",
 		lastHeirlooms: {
 			u1: {
 				Shield: -1,
@@ -509,6 +518,28 @@ var toReturn = {
 			}
 			return Math.floor(amt);
 		}
+	},
+	herbs: {
+		Potatoes: {
+			owned: 0,
+			cowned: 0,
+		},
+		Mushrooms: {
+			owned: 0,
+			cowned: 0,
+		},
+		Seaweed: {
+			owned: 0,
+			cowned: 0,
+		},
+		Firebloom: {
+			owned: 0,
+			cowned: 0,
+		},
+		Berries: {
+			owned: 0,
+			cowned: 0,
+		},
 	},
 	empowerments: {
 		Poison: {
@@ -1081,6 +1112,10 @@ var toReturn = {
 				setZoneU2B: [{world: 10}],
 				U1Mode: 'a',
 				U2Mode: 'a',
+				getMaxSettings: function(){
+					if (game.global.universe == 1) return 6;
+					if (game.global.universe == 2) return 7;
+				},
 				getSetZone: function(){
 					if (game.global.universe == 2){
 						if (this.U2Mode == 'a') return this.setZoneU2;
@@ -1115,7 +1150,7 @@ var toReturn = {
 					this.setZoneB = setting;
 				},
 				addRow: function(){
-					for (var x = 0; x < 6; x++){
+					for (var x = 0; x < this.getMaxSettings(); x++){
 						var elem = document.getElementById('mazWorld' + x);
 						if (!elem) continue;
 						if (elem.value == -1) {
@@ -1129,7 +1164,7 @@ var toReturn = {
 						}
 					}
 					var btnElem = document.getElementById('mazAddRowBtn');
-					for (var y = 0; y < 6; y++){
+					for (var y = 0; y < this.getMaxSettings(); y++){
 						var elem = document.getElementById('mazWorld' + y);
 						if (elem && elem.value == "-1"){			
 							btnElem.style.display = 'inline-block';
@@ -1159,7 +1194,7 @@ var toReturn = {
 					var setting = [];
 					var error = "";
 					loop1: 
-					for (var x = 0; x < 6; x++){
+					for (var x = 0; x < this.getMaxSettings(); x++){
 						var world = document.getElementById('mazWorld' + x);
 						if (!world || world.value == "-1") {
 							continue;
@@ -1174,6 +1209,10 @@ var toReturn = {
 						var cell = parseInt(document.getElementById('mazCell' + x).value, 10);
 						var enableCheck = readNiceCheckbox(document.getElementById('mazEnableSetting' + x));
 						var times = parseInt(document.getElementById('mazTimes' + x).value, 10);
+						var through = parseInt(document.getElementById('mazThrough' + x).value, 10);
+						var rx = parseInt(document.getElementById('mazRx' + x).value, 10);
+						if (isNaN(through) || through > 999) through = 999;
+						else if (through < 10) through = 10;
 						if (isNaN(world) || world < 10){
 							error += " Preset " + (x + 1) + " needs a value for Exit At Zone that's greater than 10.";
 							continue;
@@ -1186,6 +1225,8 @@ var toReturn = {
 						if (cell < 1) cell = 1;
 						if (cell > 100) cell = 100;
 						for (var y = 0; y < setting.length; y++){
+							//No reason to run if one finishes before the other starts
+							if (through < setting[y].start || setting[y].through < world) continue;
 							//Only run conflict detection if both presets match on cell
 							if (setting[y].cell == cell){
 								var errorText = " Preset " + (x + 1) + " and Preset " + (y + 1) + " would conflict with this setup."
@@ -1307,21 +1348,23 @@ var toReturn = {
 								}
 							}
 						}
-						var presetMax = 7;
+						var presetMax = 8;
 						if (preset == 5 && (game.global.universe != 2 || game.global.highestRadonLevelCleared < 69)) preset = 0;
 						if (preset < 0 || preset > presetMax) preset = 0;
 						if (repeat < 0 || repeat > 2) repeat = 0;
-						if (until < 0 || until > 8) until = 0;
+						if (until < 0 || until > 9) until = 0;
 						if (until == 5 && preset != 3) until = 0;
 						if (exit < 0 || exit > 2) exit = 0;
-						
+						if (until == 9 && isNaN(rx) || rx < 1) rx = 10;
+						if (rx > 9999) rx = 9999;
 						if (!bwWorld || preset != 3 || isNaN(bwWorld) || bwWorld < 125 || bwWorld > 1000) bwWorld = 125;
 						if (bwWorld > 125){
 							var adj = bwWorld - 125;
 							if (bwWorld % 15 != 0) bwWorld = 125 + (Math.floor(adj / 15) * 15);
 						}
-						setting.push({
+						var thisSetting = {
 							world: world,
+							through: through,
 							cell: cell,
 							check: check,
 							preset: preset,
@@ -1331,7 +1374,9 @@ var toReturn = {
 							bwWorld: bwWorld,
 							times: times,
 							on: enableCheck
-						})
+						};
+						if (rx && until == 9) thisSetting.rx = rx;
+						setting.push(thisSetting);
 					}
 					if (error){
 						var elem = document.getElementById('mazError');
@@ -1424,7 +1469,9 @@ var toReturn = {
 			},
 			showSnow: {
 				enabled: 1,
-				locked: true,
+				lockUnless: function(){
+					return holidayObj.checkActive("Snowy");
+				},
 				extraTags: "general",
 				description: "Disable the snow effect in the world. <b>This will take effect on the next Zone after this setting is changed</b>. This setting is temporary, and will melt when the snow does.",
 				titles: ["No Snow", "Show Snow"]
@@ -1434,7 +1481,9 @@ var toReturn = {
 				extraTags: "general",
 				description: "<p>Choose between <b>Show Pumpkimps</b>, <b>Bordered Pumpkimps</b>, and <b>No Pumpkimps</b>. This setting applies only to the visual effect of Pumpkimp Zones in the world, does not apply to maps, and has no impact on how many Pumpkimps or Pumpkimp Zones actually spawn. This setting is temporary and will rot away after the Pumpkimp season!</p><p><b>Show Pumpkimps</b> is the default, and displays Pumpkimp Zones as normal.</p><p><b>Bordered Pumpkimps</b> displays Pumpkimp cells by changing the border color instead of the background color.</p><p><b>No Pumpkimps</b> will not show any indicator at all that a world Zone is a Pumpkimp Zone. Pumpkimps will still spawn at the same rate.</p>",
 				titles: ["No Pumpkimps", "Show Pumpkimps", "Bordered Pumpkimps"],
-				locked: true
+				lockUnless: function(){
+					return (holidayObj.checkActive("Pumpkimp"));
+				}
 			},
 			geneSend: {
 				enabled: 0,
@@ -1505,6 +1554,18 @@ var toReturn = {
 				extraTags: "layout",
 				description: "Show or hide completed achievements.",
 				titles: ["Hiding Achieves", "Showing all Achieves"]
+			},
+			sealedSpire: {
+				enabled: 0,
+				extraTags: "other",
+				description: "Your Spire is Sealed, but you can look at it here if you want to.",
+				titles: ["View the Spire"],
+				lockUnless: function(){
+					return (playerSpire.sealed);
+				},
+				onToggle: function(){
+					playerSpire.openPopup();
+				}
 			},
 			saveOnPause: {
 				enabled: 1,
@@ -2253,7 +2314,7 @@ var toReturn = {
 		Curious: {
 			level: 0,
 			locked: true,
-			modifier: 60,
+			modifier: 80,
 			priceBase: 1e14,
 			heliumSpent: 0,
 			get tooltip() {
@@ -2461,6 +2522,7 @@ var toReturn = {
 			specialGrowth: 1.5,
 			scalingActive: false,
 			scalingSetting: 5,
+			reversingSetting: 5,
 			scalingReverse: true,
 			disabledStackCount: -1,
 			scalingCount: 0
@@ -2635,6 +2697,29 @@ var toReturn = {
 			},
 			storedDamage: 0
 		},
+		Championism: {
+			radLocked: true,
+			priceBase: 1e9,
+			radLevel: 0,
+			radSpent: 0,
+			baseStats: 0.01,
+			statsPerLevel: 0.005,
+			get tooltip(){
+				var extra = (this.levelTemp) ? this.levelTemp : 0;
+				var text = "Huffy has learned much from Assaulting his Spire, now store some of that knowledge in your Portal! Gain " + (this.baseStats * 100) + "% attack and health plus another " + (this.statsPerLevel * 100) + "% per Spire Assault level cleared, compounding per perk level. "
+				if (this.radLevel + extra > 0) text += "<br/><br/>You are currently gaining " + formatMultAsPercent(this.getMult(0, extra), true) + " attack and health. Your next Spire Assault level will increase this bonus to " + formatMultAsPercent(this.getMult(1, extra), true) + ", or your next perk level will increase this bonus to " + formatMultAsPercent(this.getMult(0, 1 + extra), true) + ".";
+				return text;
+			},
+			getMult: function(addAb, addLev){
+				var level = this.radLevel;
+				var abLevel = autoBattle.maxEnemyLevel - 1;
+				if (addAb) abLevel += addAb;
+				if (addLev) level += addLev;
+				var base = this.baseStats + (this.statsPerLevel * abLevel);
+				return Math.pow(1 + base, level);
+			},
+			specialGrowth: 5,
+		},
 		Frenzy: {
 			radLocked: true,
 			priceBase: 1e15,
@@ -2718,7 +2803,7 @@ var toReturn = {
 			get tooltip(){
 				var text = "Grants your Trimps the ability to locate small Runetrinkets around the World. For each level of this perk, your Trimps will gain a chance per Zone cleared above Z100 to find a Runetrinket. Each Runetrinket increases your Trimps' attack, health, and gathered primary resources by 1% (additive) per perk level. You can store a maximum of " + this.trinketsPerLevel + " Runetrinkets per perk level, reducing levels in this perk will deactivate any trinkets above cap but not lose them. Runetrinkets persist through Portal and never reset. The chance to find a Runetrinket increases by about 50% per level of this Perk, and scales as the Zone number increases (up to Z200). You'll also find 1 guaranteed Runetrinket every 25 Zones above Z100 for every 2 levels of this perk.";
 				text += "<br/><br/>You have " + prettify(this.trinkets) + " Runetrinket" + needAnS(this.trinkets) + ".";
-				if (this.radLevel > 0) text += " You are currently gaining " + formatMultAsPercent(this.getMult()) + " attack, health, and gathered primary resources.<br/><br/>" + this.getChanceText();
+				if (this.radLevel > 0) text += " You are currently gaining " + formatMultAsPercent(this.getMult(), true) + " attack, health, and gathered resources.<br/><br/>" + this.getChanceText();
 				return text;
 			},
 			specialGrowth: 2,
@@ -2739,13 +2824,15 @@ var toReturn = {
 				if (trinkets > cap) trinkets = cap;
 				return 1 + ((trinkets * this.radLevel) / 100);
 			},
-			getDropChance: function(forceWorld){
+			getDropChance: function(forceWorld, ignoreAlch){
 				var useWorld = (forceWorld) ? forceWorld : game.global.world;
 				if (useWorld < 101) return 0;
 				if (useWorld > 201) useWorld = 200;
 				var base = this.radLevel;
 				var zones = useWorld - 100;
-				return ((1 + ((base - 1) / 2)) * Math.pow(1.03, zones));
+				var chance = ((1 + ((base - 1) / 2)) * Math.pow(1.03, zones));
+				if (game.global.challengeActive == "Alchemy" && !ignoreAlch) chance = alchObj.getRunetrinketMult(chance);
+				return chance;
 			},
 			giveTrinket: function(amt){
 				if (!amt) amt = 1;
@@ -2754,6 +2841,7 @@ var toReturn = {
 				if (this.trinkets + amt > cap) amt = cap - this.trinkets;
 				this.trinkets += amt;
 				message("You found " + amt + " Runetrinket" + needAnS(amt) + "!", "Loot", "*link4", "runetrinket", "runetrinket");
+				if (this.trinkets >= 7500) giveSingleAchieve("Heavy Trinker");
 			},
 			onNextWorld: function(){
 				var seed = this.seed++;
@@ -2768,7 +2856,7 @@ var toReturn = {
 			onChange: function(){
 				if (typeof game.global.messages.Loot.runetrinket === 'undefined') game.global.messages.Loot.runetrinket = true;
 			}
-		}
+		},
 	},
 	c2: {
 		Discipline: 0,
@@ -3627,7 +3715,7 @@ var toReturn = {
 			unlocks: "Equality"
 		},
 		Bublé: {
-			description: "Tweak the portal to bring you to an alternate reality where Trimps really really don't like taking damage. Your Trimps start in this reality with an extra 250% Prismatic Shield, but as soon as they take any damage to health at all, they will refuse to fight again and the challenge will end. Clearing <b>Zone 40</b> without failing will complete this Challenge - granting an additional 300% of all Radon earned up to that point. Failing this Challenge will grant an additional 100% of all Radon earned up to the spot where you failed.",
+			description: "Tweak the portal to bring you to an alternate reality where Trimps really really don't like taking damage. Your Trimps start in this reality with an extra 250% Prismatic Shield, but as soon as they take any damage to health at all, they will refuse to fight again and the challenge will end. Clearing <b>Zone 40</b> without failing will complete this Challenge - granting an additional 500% of all Radon earned up to that point. Failing this Challenge will grant an additional 200% of all Radon earned up to the spot where you failed.",
 			completed: false,
 			allowU2: true,
 			blockU1: true,
@@ -3641,7 +3729,7 @@ var toReturn = {
 				return (getHighestLevelCleared(true) >= 39);
 			},
 			onFail: function(){
-				var reward = game.challenges.Bublé.heldHelium;
+				var reward = game.challenges.Bublé.heldHelium * 2;
 				message("Oh no, you failed the Bublé challenge! You have been rewarded with " + prettify(reward) + " extra Radon, and you may try again.", "Notices");
 				game.global.challengeActive = "";
 				addHelium(reward);
@@ -3649,7 +3737,7 @@ var toReturn = {
 			onComplete: function(){
 				if (game.global.canRespecPerks && !game.global.bonePortalThisRun && game.portal.Prismal.radLevel == 0) giveSingleAchieve("Unpoppable");
 				var reward = game.challenges.Bublé.heldHelium;
-				reward *= 3;
+				reward *= 5;
 				message("You have completed the Bublé challenge! You're a hero among Trimps! You have been rewarded with " + prettify(reward) + " extra Radon, and you may repeat the challenge.", "Notices");
 				game.global.challengeActive = "";
 				addHelium(reward);			
@@ -4141,15 +4229,15 @@ var toReturn = {
 			unlocks: "Greed"
 		},
 		Archaeology: {
-			description: "Travel to a dimension with lots of buried Relics. When starting this challenge, you'll be granted access to 5 special new upgrades called Relics that grant a compounding increase to your Attack, Breed Speed, Radon, Resource Gain (Food, Wood, Metal, Science and Gems), and one that decreases Enemy Attack. These upgrades all cost science and increase in cost whenever any of them are purchased. However, your Attack, Breed Speed, Radon, Resource Gain, and Enemy Health Relics all decrease by 1 Relic level every Zone and can go negative. All Radon drops have a base increase of +200% in this dimension. Completing <b>Z95</b> with this Challenge active will grant an additional +500% of all Radon earned. After the first time you complete this Challenge, you'll gain the ability to create maps with Small and Large Research Caches!",
+			description: "Travel to a dimension with lots of buried Relics. When starting this challenge, you'll be granted access to 5 special new upgrades called Relics that grant a compounding increase to your Attack, Breed Speed, Radon, Resource Gain (Food, Wood, Metal, Science and Gems), and one that decreases Enemy Attack. These upgrades all cost science and increase in cost whenever any of them are purchased. However, your Attack, Breed Speed, Radon, Resource Gain, and Enemy Health Relics all decrease by 1 Relic level every Zone and can go negative. All Radon drops have a base increase of +200% in this dimension. Completing <b>Z90</b> with this Challenge active will grant an additional +500% of all Radon earned. After the first time you complete this Challenge, you'll gain the ability to create maps with Small and Large Research Caches! After the second time you complete this Challenge, you'll unlock powerful customization for AutoGold.",
 			completed: false,
 			blockU1: true,
 			allowU2: true,
 			allowSquared: false,
-			completeAfterZone: 95,
+			completeAfterZone: 90,
 			heldHelium: 0,
-			heliumThrough: 95,
-			unlockString: " reach Zone 95",
+			heliumThrough: 90,
+			unlockString: " reach Zone 90",
 			fireAbandon: true,
 			pauseAuto: false,
 			overZero: false,
@@ -4162,7 +4250,7 @@ var toReturn = {
 			},
 			purchases: 0,
 			filter: function(){
-				return (getHighestLevelCleared(true) >= 94);
+				return (getHighestLevelCleared(true) >= 90);
 			},
 			automatorTooltip: function(){
 				var text = "<div id='ArchaeologyAutomatorError' style='color: red'></div>";
@@ -4317,9 +4405,16 @@ var toReturn = {
 				var reward = game.challenges.Archaeology.heldHelium;
 				reward *= 5;
 				if (this.overZero == false) giveSingleAchieve("Unassisted");
-				message("You have completed the Archaeology challenge! You have gained an extra " + prettify(reward) + " Radon, and your world has been returned to normal.", "Notices");
+				message("You have completed the Archaeology Challenge! You have gained an extra " + prettify(reward) + " Radon, and your world has been returned to normal.", "Notices");
 				addHelium(reward);
-				game.global.ArchaeologyDone = true;
+				if (game.global.ArchaeologyDone && !game.global.canGuString){
+					game.global.canGuString = true;
+					message("Now that you've mastered the skill of Archaeology, you've gained the ability to use a more powerful Custom Golden Upgrade automator! See the AutoGold tooltip or Ctrl Click AutoGold for more info.", "Notices");
+				}
+				if (!game.global.ArchaeologyDone){
+					message("You've gained the ability to create Small and Large Research Caches in Maps!", "Notices");
+					game.global.ArchaeologyDone = true;
+				}
 				game.challenges.Archaeology.abandon();
 			},
 			onNextWorld: function(){
@@ -4340,8 +4435,8 @@ var toReturn = {
 			get description(){
 				var text = "";
 				if (game.global.mayhemCompletions >= this.maxRuns) text += "<b>NOTICE: You have already completed Mayhem " + this.maxRuns + " times, and will no longer gain a bonus for future runs.</b><br/>";
-				text += "Travel to a very hectic dimension. The final Cell of each Zone is a Poisonous boss enemy, and all Map enemies are also Poisonous. Poisonous Enemies stack 20% of their damage on your Trimps as poison, which is taken as damage after each attack until your Trimps die. Each Zone starts with " + this.getStartStacks() + " stacks of Mayhem, and each stack increases the damage and health of the final Cell Boss Enemy for that Zone by 10%. Completing a map reduces the Mayhem stacks for that Zone by 1 and an additional 1 for each level of the Map above the Zone's level (For example, a level 15 map will remove 3 stacks per completion when at Z13). Completing <b>Z100</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.mayhemCompletions * 10) + 10) + "%</b> bonus to Radon in U2 and to Trimp Attack and Health in Universes 1 and 2. Each time Mayhem is completed, the reward for next time increases by an additional 10% and Enemies gain 3x damage and health for all future runs of Mayhem. The amount of Mayhem stacks that each Zone starts with is always equal to 1000 minus 5 for each highest Zone cleared above Z100 in this Universe (You have cleared Z" + game.global.highestRadonLevelCleared + " and start each Zone with " + this.getStartStacks() + " stacks)";
-				text += " <b>You have completed Mayhem " + game.global.mayhemCompletions + " / " + this.maxRuns + " times. Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, and Radon, and your next run of Mayhem will spawn Bad Guys with " + prettify(Math.pow(3, game.global.mayhemCompletions)) + "x Attack and Health.</b>";
+				text += "Travel to a very hectic dimension. The final Cell of each Zone is a Poisonous boss enemy, and all Map enemies are also Poisonous. Poisonous Enemies stack 20% of their damage on your Trimps as poison, which is taken as damage after each attack until your Trimps die. Each Zone starts with " + this.getStartStacks() + " stacks of Mayhem, and each stack increases the damage and health of the final Cell Boss Enemy for that Zone by 10%. Completing a map reduces the Mayhem stacks for that Zone by 1 and an additional 1 for each level of the Map above the Zone's level (For example, a level 15 map will remove 3 stacks per completion when at Z13). Completing <b>Z100</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.mayhemCompletions * 10) + 10) + "%</b> bonus to Radon or Helium, and Trimp Attack and Health in Universes 1 and 2. Each time Mayhem is completed, the reward for next time increases by an additional 10% and Enemies gain 3x damage and health for all future runs of Mayhem. The amount of Mayhem stacks that each Zone starts with is always equal to 1000 minus 5 for each highest Zone cleared above Z100 in this Universe (You have cleared Z" + game.global.highestRadonLevelCleared + " and start each Zone with " + this.getStartStacks() + " stacks)";
+				text += " <b>You have completed Mayhem " + game.global.mayhemCompletions + " / " + this.maxRuns + " maximum times. Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, and Helium or Radon, and your next run of Mayhem will spawn Bad Guys with " + prettify(Math.pow(3, game.global.mayhemCompletions)) + "x Attack and Health.</b>";
 				return text;
 			},
 			stacks: 1000,
@@ -4416,9 +4511,10 @@ var toReturn = {
 				if (game.global.mayhemCompletions < this.maxRuns) {
 					game.global.mayhemCompletions++;
 					var newAmt = this.getTrimpMult();
-					message("You have completed the Mayhem Challenge! Your Trimps have gained +" + prettify((newAmt - oldAmt) * 100) + "% Radon in Universe 2 and Damage and Health in Universe 1 and 2, and future runs of this Challenge will be 3x more difficult. You have now completed Mayhem " + game.global.mayhemCompletions + " time" + needAnS(game.global.mayhemCompletions) + ". Your new total Mayhem bonus is +" + prettify((newAmt - 1) * 100) + "%", "Notices");
+					message("You have completed the Mayhem Challenge! Your Trimps have gained +" + prettify((newAmt - oldAmt) * 100) + "% Helium or Radon and Trimp Attack and Health in Universe 1 and 2, and future runs of this Challenge will be 3x more difficult. You have now completed Mayhem " + game.global.mayhemCompletions + " time" + needAnS(game.global.mayhemCompletions) + ". Your new total Mayhem bonus is +" + prettify((newAmt - 1) * 100) + "%", "Notices");
 				}
 				else message("You completed Mayhem again, just for fun!", "Notices");
+				if (this.mayhemCompletions >= 25) giveSingleAchieve("Peace");
 				game.global.challengeActive = "";
 				game.challenges.Mayhem.abandon();
 			},
@@ -4432,13 +4528,20 @@ var toReturn = {
 		},
 		Storm: {
 			get description(){
-				return "Travel to a dimension that storms year-round. Trimps gain Storm stacks after every attack, damaging them for " + prettify(this.alphaLoss * 100) + "% of their max hp per stack. Enemies gain Cloudy stacks after every attack. Every " + this.mutationThresh + " Cloudy particles causes a Stormcloud on that enemy, causing them to gain max hp and damage, and take extra damage from gamma bursts. Cloudy stacks stick around after bad guys die, and each new group of bad guys start with a Cloudy stack for each Stormcloud on the previous enemy. Cloudy stacks cannot accrue and Stormclouds have no effect in maps, but Trimps in maps have -0.05% attack per Cloudy stack on the enemy. Defeating an enemy in a map will remove 1 Cloudy stack. Completing Z105 with this Challenge active will reward you with a brand new building to help with the weather!";
+				return game.challenges.Storm.getDesc();
+			},
+			getDesc: function(forC3){
+				var text = "Travel to a dimension that storms year-round. Trimps gain Storm stacks after every attack, damaging them for " + prettify(this.alphaLoss * 100) + "% of their max hp per stack. Enemies gain Cloudy stacks after every attack. Every " + this.mutationThresh + " Cloudy particles causes a Stormcloud on that enemy, causing them to gain max hp and damage, and take extra damage from gamma bursts. Cloudy stacks stick around after bad guys die, and each new group of bad guys start with a Cloudy stack for each Stormcloud on the previous enemy. Cloudy stacks cannot accrue and Stormclouds have no effect in maps, but Trimps in maps have -0.05% attack per Cloudy stack on the enemy. Defeating an enemy in a map will remove 1 Cloudy stack.";
+				if (!forC3) text += " Completing <b>Z105</b> with this Challenge active will return the Dimension to normal" + ((game.global.stormDone) ? "." : " and reward you with a brand new building to help with the weather!");
+				return text;
 			},
 			completed: false,
 			blockU1: true,
 			allowU2: true,
 			allowSquared: true,
-			squaredDescription: "Same as storm but longer. You remember Storm, right?",
+			get squaredDescription(){
+				return game.challenges.Storm.getDesc(true);
+			},
 			completeAfterZone: 105,
 			unlockString: " reach Zone 105",
 			fireAbandon: true,
@@ -4634,7 +4737,7 @@ var toReturn = {
 			blockU1: true,
 			allowU2: true,
 			allowSquared: true,
-			squaredDescription: "Same as Berserk but you earn no perk. If you have the perk, that perk won't work.",
+			squaredDescription: "Travel to a dimension filled with lots of mild annoyances, sure to drive your Trimps berserk. All enemies in this dimension have 50% more attack and health. Every time your Trimps attack they have a 5% chance to become Frenzied, causing all kills to heal for 1% of max health, and also stack +50% attack and -2% max health, up to 25 times. If a frenzied group dies or is abandoned, your Trimps gain a permanent Weakened stack, reducing health by 4.99% per stack when outside of frenzy. If weakened stacks reach 20, Trimps can no longer become frenzied. Due to this dimension's annoying nature, the Angelic Mastery and Frenzy Perk do not work.",
 			completeAfterZone: 115,
 			unlockString: " reach Zone 115",
 			fireAbandon: true,
@@ -4742,6 +4845,7 @@ var toReturn = {
 			},
 			swarmStacks: 0,
 			experienced: false,
+			achieveDone: false,
 			drawStacks: function(){
 				if (this.experienced) manageStacks('Experienced', -1, true, 'experiencedStacks', 'icomoon icon-graduate', this.stackTooltip('experienced'), false);
 				else manageStacks(null, null, true, 'experiencedStacks', null, null, true);
@@ -4778,7 +4882,7 @@ var toReturn = {
 				return 1 + (0.5 * this.swarmStacks);
 			},
 			onComplete: function(){
-				if (this.swarmStacks >= 1000) giveSingleAchieve("The Tortoise and the Bugs");
+				if (this.achieveDone) giveSingleAchieve("The Tortoise and the Bugs");
 				game.global.exterminateDone = true;
 				unlockBuilding("Hub");
 				message("You have completed the Exterminate Challenge! You have unlocked the Hub, a revolutionary new way to store your extra Trimps!", "Notices");
@@ -4804,6 +4908,7 @@ var toReturn = {
 			growth: 2.5,
 			level: 0,
 			cruffysUntil: false,
+			achieveDone: false,
 			getLevel: function(){
 				return this.level;
 			},
@@ -4873,6 +4978,7 @@ var toReturn = {
 				if (this.level >= 19) return;
 				this.totalXp += reward * game.buildings.Laboratory.getExpMult();
 				this.calculateLevel();
+				if (this.level >= 19 && game.global.world <= 69) this.achieveDone = true;
 			},
 			calculateLevel: function(){
 				this.level = Math.floor(log10(((this.totalXp / this.firstLevelXp) * (this.growth - 1)) + 1) / log10(this.growth));
@@ -4904,11 +5010,211 @@ var toReturn = {
 					if (game.portal.Observation.trinkets == 0) game.portal.Observation.trinkets = 10;
 					message("You have also unlocked the Observation Perk!", "Notices");
 				}
+				if (this.achieveDone) giveSingleAchieve("Nurtured AF");
 			},
 			start: function(){
 				unlockBuilding("Laboratory");
 				Fluffy.cruffysToggled = true;
 				Fluffy.updateExp();
+			}
+		},
+		Pandemonium: {
+			get description(){
+				var text = "";
+				if (game.global.pandCompletions >= this.maxRuns) text += "<b>NOTICE: You have already completed Pandemonium " + this.maxRuns + " times, and will no longer gain a bonus for future runs.</b><br/>";
+				text += "Travel to a chaotically windy dimension. Map enemies at or below World level will obliterate 75% of your Metal, Wood and Food after each enemy killed. For each map level above world level, 5% (additively) fewer resources will be destroyed, with +10 map enemies destroying only 25%. You start the Challenge with 100 stacks of Order. Each Zone, 10% of your current Order stacks will be converted into Pandemonium stacks on the Enemy. Each Pandemonium stack increases Enemy's attack and health by 100% per stack, and has 10x effect on the final boss of each Zone. The final boss is a Windy enemy who will blow away 1% of your Food, Wood and Metal per stack of Pandemonium per attack. Completing a map grants you 1 Order stack for each level above your World Zone (Max 100), and reduces enemy Pandemonium by the same amount. Completing <b>Z150</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.pandCompletions * 10) + 10) + "%</b> bonus to Radon, Trimp Attack, Trimp Health, and Resources Gathered in Universe 2. Each time Pandemonium is completed, the reward for next time increases by an additional 10%, Enemies gain 5x damage and health, and Equipment is 5x more expensive for all future runs of Pandemonium. Starting on your fourth run, the Wind will be too strong for Trimps to hold a Shield. Another piece of equipment will be disabled every 2 completions after Shield is lost.";
+				var scaleMult = this.getEnemyMult();
+				text += " <b>You have completed Pandemonium " + game.global.pandCompletions + " / " + this.maxRuns + " maximum times. Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, Radon or Helium, and gathered resources in U1 and U2, and your next run of Pandemonium will spawn Bad Guys with " + prettify(scaleMult) + "x Attack and Health";
+				var disabledCount = this.disabledEquipCount();
+				if (disabledCount == 0) text += " and all Equipment will be " + prettify(scaleMult) + "x more expensive.</b>";
+				else text += ", all Equipment will be " + prettify(scaleMult) + "x more expensive, and the first " + disabledCount + " Equipment" + needAnS(disabledCount) + " will be disabled.</b>";
+				return text;
+			},
+			pandemonium: 0,
+			order: 100,
+			blockedEquips: [],
+			fireAbandon: true,
+			isEquipBlocked: function(which){
+				var equips = ["Shield", "Dagger", "Boots", "Mace", "Helmet", "Polearm", "Pants", "Battleaxe", "Shoulderguards", "Greatsword", "Breastplate"];
+				var index = equips.indexOf(which);
+				if (index == -1) return false;
+				var blocked = this.disabledEquipCount();
+				if (index >= blocked) return false;
+				return true;
+			},
+			unlockEquips: function(){
+				var equips = ["Shield", "Dagger", "Boots", "Mace", "Helmet", "Polearm", "Pants", "Battleaxe", "Shoulderguards", "Greatsword", "Breastplate"];
+				var blocked = this.disabledEquipCount();
+				for (var x = 0; x < blocked; x++){
+					var equipName = equips[x];
+					var worldUnlock = game.worldUnlocks[equipName];
+					console.log(worldUnlock);
+					if (worldUnlock.world > game.global.world) continue;
+					unlockEquipment(equipName);
+				}
+			},
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 149);
+			},
+			getEnemyMult: function(){
+				return Math.pow(5, game.global.pandCompletions);
+			},
+			getBossMult: function(){
+				return (1 + (this.pandemonium * 10)) * this.getEnemyMult();
+			},
+			getTrimpMult: function(){
+				var comps = game.global.pandCompletions;
+				return 1 + (((comps / 2) * (comps + 1)) / 10);
+			},
+			getPandMult: function(){
+				return (1 + this.pandemonium) * this.getEnemyMult();
+			},
+			bossShredMult: function(){
+				var amt = (0.01 * this.pandemonium);
+				if (amt > 1) amt = 1;
+				return amt;
+			},
+			mapShredMult: function(mapLevel){
+				var dif = mapLevel - game.global.world;
+				return (0.75 - (dif * 0.05));
+			},
+			onNextWorld: function(){
+				if (this.order == 0){
+					this.drawStacks();
+					return;
+				}
+				var remove = Math.ceil(this.order * 0.1);
+				this.order -= remove;
+				this.pandemonium += remove;
+				this.drawStacks();
+			},
+			onBossAttack: function(){
+				this.shredResources(this.bossShredMult());
+				this.drawStacks();
+			},
+			onMapEnemyKilled: function(level){
+				this.shredResources(this.mapShredMult(level));
+			},
+			shredResources: function(mult){
+				if (mult > 1) mult = 1;
+				var toRemove = ["food", "wood", "metal"];
+				for (var x = 0; x < toRemove.length; x++){
+					var name = toRemove[x];
+					var removeAmt = game.resources[name].owned * mult;
+					game.resources[name].owned -= removeAmt;
+					if (game.resources[name].owned < 0) game.resources[name].owned = 0;
+					addAvg(name, (removeAmt * -1));
+				}
+			},
+			clearedMap: function(level){
+				var dif = level - game.global.world;
+				if (this.order + dif > 100) dif = 100 - this.order;
+				if (dif > 0){
+					this.order += dif;
+					this.pandemonium -= dif;
+					if (this.pandemonium < 0 || this.order > 100){
+						this.pandemonium = 0;
+						this.order = 100;
+					}
+				}
+				this.drawStacks();
+				var cell = game.global.gridArray[game.global.lastClearedCell + 1];
+				if (cell.health < 0) return;
+				if (game.global.lastClearedCell == 98) cell.maxHealth = cell.preMayhemHealth * this.getBossMult();
+				else cell.maxHealth = cell.preMayhemHealth * this.getPandMult();
+				if (cell.health > cell.maxHealth)
+					cell.health = cell.maxHealth;
+			},
+			abandon: function(){
+				manageStacks(null, null, true, 'pandOrderStacks', null, null, true);
+				manageStacks(null, null, false, 'pandPandStacks', null, null, true);
+				this.unlockEquips();
+			},
+			drawStacks: function(){
+				manageStacks('Order', this.order, true, 'pandOrderStacks', 'icomoon icon-yingyang', this.orderTooltip(), false);
+				if (this.pandemonium > 0){
+					manageStacks('Pandemonium', this.pandemonium, false, 'pandPandStacks', 'icomoon icon-network', this.pandTooltip(), false);
+				}
+				else {
+					manageStacks(null, null, false, 'pandPandStacks', null, null, true);
+				}
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			disabledEquipCount: function(){
+				var count = game.global.pandCompletions - 2;
+				if (count <= 0) return 0;
+				return Math.min(11, Math.ceil(count / 2));
+			},
+			start: function(){
+				this.drawStacks();
+			},
+			pandTooltip: function(){
+				if (!game.global.mapsActive && game.global.lastClearedCell == 98) return "This Boss Enemy will shred " + prettify(this.bossShredMult() * 100) + "% of your resources with each Attack, and has " + prettify(1000 * this.pandemonium) + "% increased Attack and Health. Completing maps will remove some of these stacks.";
+				return "This Enemy has " + prettify(100 * this.pandemonium) + "% more Attack and Health. Completing maps will remove some of these stacks.";
+			},
+			orderTooltip: function(){
+				if (this.order == 0) return "There is no Order. Your Trimps are in full blown panic and one of them seems to have stolen your shoe.";
+				return "10% of these stacks will convert into Pandemonium stacks when this Zone is completed. Increases the orderliness of your Trimps by " + prettify(Math.pow(1.1111111, this.order)) + "%.";
+			},
+			onComplete: function(){
+				game.challenges.Pandemonium.abandon();
+				var oldAmt = this.getTrimpMult();
+				if (game.global.pandCompletions < this.maxRuns) {
+					game.global.pandCompletions++;
+					var newAmt = this.getTrimpMult();
+					message("You have completed the Pandemonium Challenge! Your Trimps have gained +" + prettify((newAmt - oldAmt) * 100) + "% Radon or Helium, Damage, Health and Gathered Resources in Universe 1 and 2, and future runs of this Challenge will be 5x more difficult. You have now completed Pandemonium " + game.global.pandCompletions + " time" + needAnS(game.global.pandCompletions) + ". Your new total Pandemonium bonus is +" + prettify((newAmt - 1) * 100) + "%", "Notices");
+				}
+				else message("You completed Pandemonium again, just for fun!", "Notices");
+				game.global.challengeActive = "";
+				
+			},
+			completed: false,
+			maxRuns: 25,
+			blockU1: true,
+			allowU2: true,
+			allowSquared: false,
+			completeAfterZone: 150,
+			unlockString: " reach Zone 150",
+		},
+		Alchemy: {
+			get description(){
+				// + ((!game.global.alchemyUnlocked) ? " <b>Complete a Z155 Void Map with 15 or more Gaseous Brews and no Potions of the Void while on this Challenge to unlock the permanent skill of Alchemy.</b>" : "")
+				return "Travel to a dimension where maps are filled with useful herbs. Collect different herbs from different types of maps, and use Alchemy to create powerful potions to strengthen your Trimps. Clearing <b>Z155</b> with this Challenge active will grant an additional 400% of all Radon earned up until that point, and will return the world to normal. You can repeat this challenge!" + ((!game.global.farmlandsUnlocked) ? " <b>Complete this Challenge once to unlock the ability to create a brand new type of map that should greatly aid your Alchemy.</b>" : "");
+			},
+			completed: false,
+			blockU1: true,
+			allowU2: true,
+			heliumThrough: 155,
+			heldHelium: 0,
+			completeAfterZone: 155,
+			unlockString: " reach Zone 155.",
+			fireAbandon: true,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 154);
+			},
+			abandon: function(){
+				if (!game.global.alchemyUnlocked) alchObj.tab.style.display = 'none';
+				cancelTooltip();
+			},
+			onLoad: function(){
+
+			},
+			onComplete: function(){
+				var reward = game.challenges.Alchemy.heldHelium;
+				reward *= 4;
+				message("You have completed the Alchemy challenge! You have gained an extra " + prettify(reward) + " Radon, and your world has been returned to normal.", "Notices");
+				if (!game.global.farmlandsUnlocked){
+					game.global.farmlandsUnlocked = true;
+					message("You have unlocked the ability to create Farmlands Maps! Farmlands Maps have +100% Loot in Universe 2 and rotate between the other map types based on the zone at which they're run. See the Map Creation biome selection tooltip for more info!", "Notices");
+				}
+				addHelium(reward);
+				game.challenges.Alchemy.abandon();
+				game.global.challengeActive = "";
+			},
+			start: function(){
+				alchObj.tab.style.display = 'table-cell';
 			}
 		},
 	},
@@ -5359,6 +5665,22 @@ var toReturn = {
 			display: function(){
 				return (playerSpire.initialized);
 			}
+		},
+		saDust: {
+			title: "SA Dust Earned",
+			value: 0,
+			valueTotal: 0,
+			display: function(){
+				return (game.global.highestRadonLevelCleared >= 74);
+			}
+		},
+		saKills: {
+			title: "SA Enemies Killed",
+			value: 0,
+			valueTotal: 0,
+			display: function(){
+				return (game.global.highestRadonLevelCleared >= 74);
+			}
 		}
 	},
 	generatorUpgrades: {
@@ -5492,7 +5814,7 @@ var toReturn = {
 			tiers: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8],
 			names: ["This is Easy", "Blimp Slayer", "Groundbreaker", "The Beginning", "Determined", "Professor", "Trimp Aficionado", "Slayer of Planets", "Motivated", "Electric", "Stronk", "Endurance", "Unwavering", "Coordinated", "Resolved", "Steadfast", "Grit", "Perseverance", "Persistence", "Tenacity", "The Instigator", "The Destroyer", "The Eradicator", "The Exterminator", "Heat Maker", "Heat Hater", "Heat Breaker", "Heat Slayer", "Heat Expert", "Heat Bender", "Volcanic", "Magma Master", "Acre of Nature", "Aspirer", "Insane", "Spire Master"],
 			icon: "icomoon icon-compass2",
-			newStuff: []
+			newStuff: [],
 		},
 		zones2: {
 			finished: 0,
@@ -5508,11 +5830,12 @@ var toReturn = {
 				return "Highest is " + game.global.highestRadonLevelCleared;
 			},
 			evaluate: function() {return game.global.highestRadonLevelCleared;},
-			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
-			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12],
-			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones"],
+			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
+			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13],
+			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones", "Bringer of Progress", "Major Zonage", "Master of Alchemy", "Ballistic", "Neverending Journey"],
 			icon: "icomoon icon-navigation",
-			newStuff: []
+			newStuff: [],
+			size: 1.4
 		},
 		damage: {
 			finished: 0,
@@ -5661,9 +5984,9 @@ var toReturn = {
 			display: function () {
 				return (game.global.totalRadonEarned > 0 || game.global.universe == 2);
 			},
-			breakpoints: [100, 1e4, 5e5, 1e7, 1e9, 1e11, 1e13, 1e16, 1e19],
-			tiers: [9, 9, 10, 10, 10, 11, 12, 12, 13],
-			names: ["Radon Runner", "The Irradiated", "Radonlicious", "Radon Quixote", "Radon Racer", "Raging Radon", "Radon Wrangler", "All Said and Radone", "Radominating"],
+			breakpoints: [100, 1e4, 5e5, 1e7, 1e9, 1e11, 1e13, 1e16, 1e19, 1e21, 1e24],
+			tiers: [9, 9, 10, 10, 10, 11, 12, 12, 13, 13, 13],
+			names: ["Radon Runner", "The Irradiated", "Radelicious", "Radon Quixote", "Radon Racer", "Raging Radon", "Radon Wrangler", "All Said and Radone", "Radominating", "Rads to Riches", "Radonculous"],
 			icon: "icomoon icon-battery",
 			newStuff: []
 		},
@@ -5805,9 +6128,9 @@ var toReturn = {
 			},
 			earnable: true,
 			lastZone: 0,
-			breakpoints: [20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150],
-			tiers: [10, 10, 11, 11, 11, 11, 11, 12, 12, 13, 13],
-			names: ["Map Misser", "Map Lacker", "Mapophobia", "GPS", "Undisoriented", "Need No Map", "The Efficient", "Bulldozer", "Worldly", "Big Pusher", "Defragmented"],
+			breakpoints: [20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175],
+			tiers: [10, 10, 11, 11, 11, 11, 11, 12, 12, 13, 13, 13],
+			names: ["Map Misser", "Map Lacker", "Mapophobia", "GPS", "Undisoriented", "Need No Map", "The Efficient", "Bulldozer", "Worldly", "Big Pusher", "Defragmented", "Stubborn"],
 			icon: "icomoon icon-map-signs",
 			newStuff: []
 		},
@@ -5835,10 +6158,10 @@ var toReturn = {
 			display: function(){
 				return (game.global.highestRadonLevelCleared >= 1);
 			},
-			breakpoints: [40, 50, 60, 70, 80, 90, 100, 125, 150],
-			breakpoints2: [25, 35, 45, 50, 50, 50, 60, 60, 70],
-			tiers: [11, 11, 11, 11, 12, 12, 12, 13, 13],
-			names: ["Crumb of Comfort", "Common Comfort", "Controlled Comfort", "Certain Comfort", "Copious Comfort", "Critical Comfort", "Cosmic Comfort", "Colossal Comfort", "Ceaseless Comfort"],
+			breakpoints: [40, 50, 60, 70, 80, 90, 100, 125, 150, 175],
+			breakpoints2: [25, 35, 45, 50, 50, 50, 60, 60, 70, 70],
+			tiers: [11, 11, 11, 11, 12, 12, 12, 13, 13, 13],
+			names: ["Crumb of Comfort", "Common Comfort", "Controlled Comfort", "Certain Comfort", "Copious Comfort", "Critical Comfort", "Cosmic Comfort", "Colossal Comfort", "Ceaseless Comfort", "Complete Comfort"],
 			icon: "icomoon icon-shield2",
 			newStuff: []
 		},
@@ -6295,24 +6618,24 @@ var toReturn = {
 		},
 		oneOffs2: {
 			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare. Yet I copy/pasted it again for Universe 2 and probably will do the same for U3. Oh well.
-			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
 			display: function(){
 				return (Fluffy.checkU2Allowed());
 			},
 			get descriptions () {
-				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Complete Revenge with exactly 19 stacks", "Complete 80/80 quests on Quest", "Complete Archaeology without ever having more than 0 of one Relic", "Complete Storm without ever encountering a Stormcloud", "Complete Insanity with 500 stacks without running a map above lvl 50", "Finish Berserk after reaching 20 Weakened Stacks before Z100", "Finish Exterminate with at least 1000 Swarm Stacks"];
+				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Kill 100 L5+ SA Enemies without dying", "Kill a L20+ SA Enemy without Shock, Bleed or Poison", "Complete Revenge with exactly 19 stacks", "Complete 80/80 quests on Quest", "Complete Archaeology without ever having more than 0 of one Relic", "Complete Storm without ever encountering a Stormcloud", "Complete Insanity with 500 stacks without running a map above lvl 50", "Finish Berserk after reaching 20 Weakened Stacks before Z100", "Reach 100 Swarm Stacks by Z120 then complete Exterminate", "Reach L19 Cruffys by Z70 then complete Nurture", "Collect 7500 Runetrinkets", "Complete all 25 Mayhems", "Complete a Z155 Void Map with 10 Gas Brews and 0 Void Pots"];
 			},
-			tiers: [10,10,10,11,11,11,11,11,12,12,12,12,12,13,13,13,13],
+			tiers: [10,10,10,11,11,11,11,11,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13],
 			description: function (number) {
 				return this.descriptions[number];
 			},
-			filters: [-1,14,19,24,34,39,44,49,59,69,79,84,94,104,109,114,119],
+			filters: [-1,14,19,24,34,39,44,49,59,69,75,75,79,84,94,104,109,114,119,135,135,100,150],
 			filterLevel: function(){
 				return game.global.highestRadonLevelCleared;
 			},
 			icon: "glyphicon glyphicon-flag",
-			names: ["Eliter Feat", "Don't Need Luck", "Perfectly Balanced", "Resourceyphobe", "Upsized", "Unpoppable", "Pwnd", "Solid", "Coastapalooza", "Witherproof", "Close Call", "Level Up", "Unassisted", "Clear Skies", "Actually Insane", "You're Doing it Wrong", "The Tortoise and the Bugs"],
+			names: ["Eliter Feat", "Don't Need Luck", "Perfectly Balanced", "Resourceyphobe", "Upsized", "Unpoppable", "Pwnd", "Solid", "Coastapalooza", "Witherproof", "Huffstle", "Just Smack It", "Close Call", "Level Up", "Unassisted", "Clear Skies", "Actually Insane", "You're Doing it Wrong", "The Tortoise and the Bugs", "Nurtured AF", "Heavy Trinker", "Peace", "Mad Scientist"],
 			newStuff: []
 		},
 	},
@@ -6564,6 +6887,7 @@ var toReturn = {
 			max: 10,
 			maxMod: 1,
 			realMax: function () {
+				//Mirror any changes here to canCommitCarpentry to check leveltemps
 				var num = this.max;
 				if (game.global.challengeActive == "Downsize"){
 					num = game.global.totalGifts + game.unlocks.impCount.TauntimpAdded + 10;
@@ -6572,6 +6896,7 @@ var toReturn = {
 				num *= this.maxMod;
 				if (getPerkLevel("Carpentry") > 0) num = Math.floor(num * (Math.pow(1 + game.portal.Carpentry.modifier, getPerkLevel("Carpentry"))));
 				if (getPerkLevel("Carpentry_II") > 0) num = Math.floor(num * (1 + (game.portal.Carpentry_II.modifier * getPerkLevel("Carpentry_II"))));
+				num *= alchObj.getPotionEffect("Elixir of Crafting");
 				return num;
 			},
 			working: 0,
@@ -6865,7 +7190,9 @@ var toReturn = {
 		},
 		Presimpt: {
 			location: "World",
-			locked: 1,
+			get locked(){
+				return (holidayObj.checkActive("Snowy") ? 0 : 1);
+			},
 			attack: 1.1,
 			health: 1.5,
 			fast: false,
@@ -7177,6 +7504,12 @@ var toReturn = {
 			health: 5,
 			fast: true,
 			loot: function (level, fromFluffy, fluffyCount) {
+				// if (game.global.challengeActive == "Alchemy" && !game.global.alchemyUnlocked && game.global.world == 155 && alchObj.getPotionCount("Potion of the Void") == 0 && alchObj.getPotionCount("Gaseous Brew") >= 15){
+				// 	game.global.alchemyUnlocked = true;
+				// 	message("You have successfully cleared a Z155 Void Map on Alchemy with " + alchObj.getPotionCount("Gaseous Brew") + " Gaseous Brews and no Potions of the Void! The Void recognizes your superiority, and has granted you the ability to use Alchemy in any dimension of this Universe.", "Notices");
+				// }
+				if (game.global.universe == 2) autoBattle.completedVoidMap(game.global.world);
+				if (game.global.challengeActive == "Alchemy" && game.global.world == 155 && alchObj.getPotionCount('Gaseous Brew') >= 10 && alchObj.getPotionCount('Potion of the Void') == 0) giveSingleAchieve("Mad Scientist");
 				if (game.resources.helium.owned == 0) fadeIn("helium", 10);
 				var amt = (game.global.world >= 60 && game.global.universe == 1) ? 10 : 2;
 				if (mutations.Magma.active()) amt *= 3;
@@ -7834,7 +8167,7 @@ var toReturn = {
 				game.global.titimpLeft = timeRemaining;
 				var roll = Math.floor(Math.random() * 100);
 				var text = "That " + name + " made your Trimps super strong!";
-				if (roll == 1 && !fromMagimp) text += "(Titimp wishes to remind you that his name is pronounced \"Tie Timp\")";
+				if (roll == 1 && !fromMagimp) text += " (Titimp wishes to remind you that his name is pronounced \"Tie Timp\")";
 				message(text, "Loot", "*hammer", "exotic", "exotic");
 			}
 		},
@@ -7925,7 +8258,7 @@ var toReturn = {
 			"Lake.Sea", "Jungle.Forest", "Island.Sea", "Ruins.Depths", "Temple.Depths", "Bog.Sea", "Grove.Forest", "Jungle.Forest",
 			"Thicket.Forest", "Woods.Forest", "Oasis.Forest", "Mineshaft.Depths", "Tunnel.Depths", "Depths.Depths", "Cavern.Depths",
 			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful",
-			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful"]
+			"Gardens.Plentiful", "Gardens.Plentiful", "Gardens.Plentiful", "Farms.Farmlands"]
 		},
 		locations: {
 		//Add new resources to function getMapIcon in updates.js to get icons on maps
@@ -7943,6 +8276,9 @@ var toReturn = {
 			},
 			Plentiful: {
 				resourceType: "Any"
+			},
+			Farmlands: {
+				resourceType: "Scaling"
 			},
 			Hell: {
 				resourceType: "Metal",
@@ -8033,7 +8369,7 @@ var toReturn = {
 			fire: function (fromTalent) {
 				var level = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
 				var bionicTier = parseInt(((level - 125) / 15), 10) + 1;
-				if (bionicTier == game.global.bionicOwned) {
+				if (level + 15 < (getObsidianStart() + 100) && bionicTier == game.global.bionicOwned) {
 					this.createMap(bionicTier);
 				}
 				if (fromTalent === true) return;
@@ -8185,10 +8521,14 @@ var toReturn = {
 			filterUpgrade: true,
 			canRunOnce: true,
 			fire: function(){
-				game.buildings.Smithy.owned++;
-				game.buildings.Smithy.purchased++;
+				var toAdd = (autoBattle.oneTimers.Smithriffic.owned) ? 2 : 1; 
+				game.buildings.Smithy.owned += toAdd;
+				game.buildings.Smithy.purchased += toAdd;
 				if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId == 6) game.challenges.Quest.checkQuest();
-				message("At the end of that very hot map, you find a tiny, dehydrated Smithy building. You bring it back to your town and drop it in a glass of water, and a full-sized Smithy instantly appears!", "Story", "*home5", "highlightStoryMessage");
+				var a = (toAdd == 2) ? "two" : "a";
+				var it = (toAdd == 2) ? "them" : "it";
+				var appear = (toAdd == 2) ? "appear" : "appears";
+				message("At the end of that very hot map, you find " + a + " tiny, dehydrated Smithy building" + needAnS(toAdd) + ". You bring " + it + " back to your town and drop " + it + " in a glass of water, and " + a + " full-sized Smithy" + needAnS(toAdd) + " instantly " + appear + "!", "Story", "*home5", "highlightStoryMessage");
 			}
 		},
 		Heirloom: {
@@ -8583,6 +8923,7 @@ var toReturn = {
 			startAt: 170,
 			level: [1, 15],
 			icon: 'th-large',
+			blockU2: true,
 			canRunOnce: true,
 			title: 'Imploding Star',
 			fire: function () {
@@ -9509,7 +9850,9 @@ var toReturn = {
 		},
 		easterEgg: {
 			world: -1,
-			locked: false,
+			get locked(){
+				return ((holidayObj.checkActive("Eggy") ? 0 : 1));
+			},
 			level: [0, 99],
 			title: "Colored Egg",
 			icon: "*droplet",
@@ -9847,7 +10190,9 @@ var toReturn = {
 			},
 			onUnlock: function(){
 				var buildings = game.buildings;
-				var total = buildings.Hut.owned + buildings.House.owned + buildings.Mansion.owned + buildings.Hotel.owned + buildings.Resort.owned + buildings.Gateway.owned + buildings.Collector.owned;
+				var collectors = buildings.Collector.owned;
+				if (autoBattle.oneTimers.Collectology.owned) collectors *= autoBattle.oneTimers.Collectology.getHubs();
+				var total = buildings.Hut.owned + buildings.House.owned + buildings.Mansion.owned + buildings.Hotel.owned + buildings.Resort.owned + buildings.Gateway.owned + collectors;
 				addMaxHousing(this.increase.by * total, bwRewardUnlocked("AutoStructure"));
 				this.owned = total;
 				this.purchased = total;
@@ -10760,6 +11105,7 @@ var toReturn = {
 			},
 			fire: function () {
 				unlockJob("Miner");
+				autoBalanceJob("Miner");
 			}
 		},
 		Scientists: {
@@ -10775,6 +11121,7 @@ var toReturn = {
 			},
 			fire: function () {
 				unlockJob("Scientist");
+				autoBalanceJob("Scientist")
 			}
 		},
 		Trainers: {

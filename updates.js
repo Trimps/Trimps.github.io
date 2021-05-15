@@ -21,7 +21,7 @@
 var customUp;
 var tooltipUpdateFunction = "";
 var lastMousePos = [];
-var lastTooltipFrom = "";
+var lastTooltipTitle = "";
 var onShift;
 var openTooltip = null;
 
@@ -88,7 +88,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			Loot: "This slider allows you to fine tune the map Loot modifier. Moving this slider from left to right will guarantee more loot from the map, but increase the cost.",
 			Size: "This slider allows you to fine tune the map Size modifier. Moving this slider from left to right will guarantee a smaller map, but increase the cost.",
 			Difficulty: "This slider allows you to fine tune the map Difficulty modifier. Moving this slider from left to right will guarantee an easier map, but increase the cost.",
-			Biome: "If you're looking to farm something specific, you can select the biome here. Anything other than random will increase the cost of the map.",
+			get Biome(){
+				var text = "<p>If you're looking to farm something specific, you can select the biome here. Anything other than random will increase the cost of the map.</p><ul>";
+				text += "<li><b>Mountain</b> - Contains a lot of Metal</li><li><b>Forest</b> - A great place to find some Wood</li><li><b>Sea</b> - Just filled with food to catch</li><li><b>Depths</b> - Ancient Gem mines</li>";
+				if (game.global.decayDone) text += "<li><b>Gardens</b> - 25% extra loot and a random assortment of resources</li>";
+				if (game.global.farmlandsUnlocked) text += "<li><b>Farmlands</b> - 100% extra loot in Universe 2, 50% extra Herbs. Mimics Mountains on Z6, Forest on Z7, Sea on Z8, Depths at Z9, Gardens at Z10. Continues on rotating every World Zone."
+				text += "</ul>";
+				return text;
+			},
 			get Special_Modifier() {
 				var text = "<p>Select a special modifier to add to your map from the drop-down below! You can only add one of these to each map. The following bonuses are currently available:</p><ul>"
 				for (var item in mapSpecialModifierConfig){
@@ -422,6 +429,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText += "<div id='genStateConfigTooltip'>" + getGenStateConfigTooltip() + "</div>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn-lg btn btn-info' onclick='saveGenStateConfig()'>Apply</div><div class='btn btn-lg btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
 	}
+	if (what == "Rename SA Preset"){
+		what += " " + textString;
+		elem.style.left = "33.75%";
+		elem.style.top = "25%";
+		tooltipText = autoBattle.renamePresetTooltip(textString);
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' onclick='autoBattle.savePresetName(" + textString + ")' class='btn-lg btn autoItemEquipped'>Save</div><div class='btn btn-lg autoItemHide' onclick='autoBattle.popup(false,false,false,true);'>Cancel</div>";
+	}
 	if (what == "Configure AutoJobs"){
 		tooltipText = "<div style='color: red; font-size: 1.1em; text-align: center;' id='autoJobsError'></div><p>Welcome to AutoJobs! <span id='autoTooltipHelpBtn' role='button' style='font-size: 0.6vw;' class='btn btn-md btn-info' onclick='toggleAutoTooltipHelp()'>Help</span></p><div id='autoTooltipHelpDiv' style='display: none'><p>The left side of this window is dedicated to jobs that are limited more by workspaces than resources. 1:1:1:1 will purchase all 4 of these ratio-based jobs evenly, and the ratio refers to the amount of workspaces you wish to dedicate to each job. You can use any number larger than 0. Ratio-based jobs will be purchased once at the end of every Zone AND once every 30 seconds, but not more often than once every 2 seconds.</p><p>The right side of this window is dedicated to jobs limited more by resources than workspaces. Set the dropdown to the percentage of resources that you'd like to be spent on each job, and add a max amount if you wish (0 for unlimited). Percentage-based jobs are purchased once every 2 seconds.</p></div><table id='autoStructureConfigTable' style='font-size: 1.1vw;'><tbody>";
 		var percentJobs = ["Explorer"];
@@ -498,6 +512,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText += '<p><b>AutoGold Void (' + game.goldenUpgrades.Void.purchasedAt.length + '/' + Math.round(game.goldenUpgrades.Void.currentBonus * 100) + '%)</b> which comes in 2 different flavors';
 		if (getTotalPortals() == 0) tooltipText += ", but you can't find Void Maps until you've found the Portal Device at least once, so you can't use them.</p>";
 		else tooltipText += ':<br/><b>' + voidHeName + '</b> - Will entrust your Scientists with purchasing as many Golden Voids as possible (to reach 72%) before switching to Golden ' + heName + ', or...<br/><b>Voidtle</b> - Where your Scientists will again attempt to buy as many Golden Voids as possible (to reach 72%), but will instead switch to Golden Battle afterwards.</p>';
+		if (game.global.canGuString) tooltipText += "<p><b>Custom AutoGold</b> - For the advanced Trimp commander/archaeologist who wants even more control. <b>Ctrl Click to customize your string</b></p>"
 		tooltipText += '<p>Please allow 4 seconds for Trimp retraining after clicking this button before any Golden Upgrades are automatically purchased, and don\'t forget to frequently thank your scientists! Seriously, they get moody.</p>';
 		costText = "";
 	}
@@ -633,6 +648,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "";
 		var rewardEach = squaredConfig.rewardEach;
 		var rewardGrowth = squaredConfig.rewardGrowth;
+		var uniArray = countChallengeSquaredReward(false, false, true);
 		if (game.talents.mesmer.purchased){
 			rewardEach *= 3;
 			rewardGrowth *= 3;
@@ -645,13 +661,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				tooltipText = "<p>Click to toggle a challenge mode for your challenges!</p>";
 			tooltipText += "<p>In Challenge<sup>" + sup + "</sup> mode, you can re-run some challenges in order to earn a permanent attack, health, and " + heliumOrRadon() + " bonus for your Trimps. MOST Challenge<sup>" + sup + "</sup>s will grant <b>" + rewardEach + "% " + ((sup == 2) ? "attack and health and " + prettify(rewardEach / 10) + "% increased " + heliumOrRadon() : "Challenge<sup>" + sup + "</sup> bonus") + " for every " + squaredConfig.rewardFreq + " Zones reached. Every " + squaredConfig.thresh + " Zones, " + ((sup == 2) ? "the attack and health bonus will increase by an additional " + rewardGrowth + "%, and the " + heliumOrRadon() + " bonus will increase by " + prettify(rewardGrowth / 10) + "%" : "this bonus will increase by an additional " + rewardGrowth + "%") + "</b>. This bonus is additive with all available Challenge<sup>" + sup + "</sup>s, and your highest Zone reached for each challenge is saved and used.</p><p><b>No Challenge<sup>" + sup + "</sup>s end at any specific Zone</b>, they can only be completed by using your portal or abandoning through the 'View Perks' menu. However, <b>no " + heliumOrRadon() + " can drop, and no bonus " + heliumOrRadon() + " will be earned during or after the run</b>. Void Maps will still drop heirlooms, and all other currency can still be earned.</p>";
 		}
-		if (game.global.highestRadonLevelCleared >= 49){
-			var uniArray = countChallengeSquaredReward(false, false, true);
+		if (game.global.highestRadonLevelCleared >= 49){		
 			tooltipText += "<p><b>Challenge<sup>2</sup> stacks multiplicatively with Challenge<sup>3</sup>, creating one big, beautiful Challenge<sup><span class='icomoon icon-infinity'></span></sup> modifier</b>. You have a " + prettify(uniArray[0]) + "% bonus from Challenge<sup>2</sup> in Universe 1, and a " + prettify(uniArray[1]) + "% bonus from Challenge<sup>3</sup> in Universe 2. This brings your total Challenge<sup><span class='icomoon icon-infinity'></span></sup> bonus to <b>" + prettify(game.global.totalSquaredReward) + "</b>, granting " + prettify(game.global.totalSquaredReward) + "% extra attack and health, and " + prettify(game.global.totalSquaredReward / 10) + "% extra " + heliumOrRadon() + ".";
 		}
 		else
 			tooltipText += "<p>You are currently gaining " + prettify(game.global.totalSquaredReward) + "% extra attack and health, and are gaining " + prettify(game.global.totalSquaredReward / 10) + "% extra " + heliumOrRadon() + " thanks to your Challenge<sup>" + sup + "</sup> bonus.</p>";
 		if (game.talents.headstart.purchased) tooltipText += "<p><b>Note that your Headstart mastery will be disabled during Challenge<sup>" + sup + "</sup> runs.</b></p>";
+		if (portalUniverse == 1 && uniArray[0] >= 35000){
+			var color = (uniArray[0] >= 50000) ? " style='color: red;'" : "";
+			tooltipText += "<p><b" + color + ">Note that Challenge<sup>2</sup> Bonus is capped at " + prettify(60000) + "%.</b></p>"
+		}
 		costText = "";
 	}
 	if (what == "Geneticistassist Settings"){
@@ -717,9 +736,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 	}
 	if (what == "Set Map At Zone"){
-		tooltipText = "<div id='mazError'></div><div class='row mazRow titles'><div class='mazCheckbox' style='width: 6%'>Active?</div><div style='width: 7.5%' class='mazWorld'>Exit On<br/>Zone</div><div style='width: 7.5%' class='mazCell'>Exit At<br/>Cell</div><div class='mazCheckbox'>Run Map?</div><div class='mazPreset'>Use<br/>Preset</div><div class='mazRepeat'>Map<br/>Repeat</div><div class='mazRepeatUntil'>Set<br/>Repeat Until</div><div class='mazExit'>Exit To</div><div class='mazTimes'>Zone<br/>Repeat</div></div>";
+		var maxSettings = game.options.menu.mapAtZone.getMaxSettings();
+		tooltipText = "<div id='mazError'></div><div class='row mazRow titles'><div class='mazCheckbox' style='width: 6%'>Active?</div><div class='mazWorld'>Start<br/>Zone</div><div class='mazThrough'>End<br/>Zone</div><div class='mazCell'>Exit At<br/>Cell</div><div class='mazCheckbox'>Run Map?</div><div class='mazPreset'>Use<br/>Preset</div><div class='mazRepeat'>Map<br/>Repeat</div><div class='mazRepeatUntil'>Set<br/>Repeat Until</div><div class='mazExit'>Exit To</div><div class='mazTimes'>Zone<br/>Repeat</div></div>";
 		var current = game.options.menu.mapAtZone.getSetZone();
-		for (var x = 0; x < 6; x++){
+		for (var x = 0; x < maxSettings; x++){
 			var vals = {
 				world: -1,
 				cell: 1,
@@ -730,7 +750,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				exit: 0,
 				bwWorld: 125,
 				times: -1,
-				on: true
+				on: true,
+				through: 999,
+				rx: 10
 			}
 			var style = "";
 			if (current.length - 1 >= x){
@@ -744,31 +766,37 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				vals.times = (current[x].times) ? current[x].times : -1;
 				vals.cell = (current[x].cell) ? current[x].cell : 1;
 				vals.on = (current[x].on === false) ? false : true;
+				vals.through = (current[x].through) ? current[x].through : 999;
+				vals.rx = (current[x].rx) ? current[x].rx : 10;
 			}
 			else style = " style='display: none' ";
 			var presetDropdown = "<option value='0'" + ((vals.preset == 0) ? " selected='selected'" : "") + ">Preset 1</option><option value='1'" + ((vals.preset == 1) ? " selected='selected'" : "") + ">Preset 2</option><option value='2'" + ((vals.preset == 2) ? " selected='selected'" : "") + ">Preset 3</option><option value='6'" + ((vals.preset == 6) ? " selected='selected'" : "") + ">Preset 4</option><option value='7'" + ((vals.preset == 7) ? " selected='selected'" : "") + ">Preset 5</option><option value='3'" + ((vals.preset == 3) ? " selected='selected'" : "") + ">Run Bionic</option><option value='4'" + ((vals.preset == 4) ? " selected='selected'" : "") + ">Run Void</option>";
+			if (game.global.universe == 2 && game.global.highestRadonLevelCleared >= 49) presetDropdown += "<option value='8'" + ((vals.preset == 8) ? " selected='selected'" : "") + ">Melting Point</option>";
 			if (game.global.universe == 2 && game.global.highestRadonLevelCleared >= 69) presetDropdown += "<option value='5'" + ((vals.preset == 5) ? " selected='selected'" : "") + ">Black Bog</option>";
 			var repeatDropdown = "<option value='0'" + ((vals.repeat == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.repeat == 1) ? " selected='selected'" : "") + ">Repeat On</option><option value='2'" + ((vals.repeat == 2) ? " selected='selected'" : "") + ">Repeat Off</option>";
-			var repeatUntilDropdown = "<option value='0'" + ((vals.until == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.until == 1) ? " selected='selected'" : "") + ">Repeat Forever</option><option value='2'" + ((vals.until == 2) ? " selected='selected'" : "") + ">Repeat to 10</option><option value='3'" + ((vals.until == 3) ? " selected='selected'" : "") + ">Repeat for Items</option><option value='4'" + ((vals.until == 4) ? " selected='selected'" : "") + ">Repeat for Any</option><option class='mazBwClimbOption' value='5'" + ((vals.until == 5) ? " selected='selected'" : "") + ">Climb BW to Level</option><option value='6'" + ((vals.until == 6) ? " selected='selected'" : "") + ">Repeat 25 Times</option><option value='7'" + ((vals.until == 7) ? " selected='selected'" : "") + ">Repeat 50 Times</option><option value='8'" + ((vals.until == 8) ? " selected='selected'" : "") + ">Repeat 100 Times</option>"	
+			var repeatUntilDropdown = "<option value='0'" + ((vals.until == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.until == 1) ? " selected='selected'" : "") + ">Repeat Forever</option><option value='2'" + ((vals.until == 2) ? " selected='selected'" : "") + ">Repeat to 10</option><option value='3'" + ((vals.until == 3) ? " selected='selected'" : "") + ">Repeat for Items</option><option value='4'" + ((vals.until == 4) ? " selected='selected'" : "") + ">Repeat for Any</option><option class='mazBwClimbOption' value='5'" + ((vals.until == 5) ? " selected='selected'" : "") + ">Climb BW to Level</option><option value='6'" + ((vals.until == 6) ? " selected='selected'" : "") + ">Repeat 25 Times</option><option value='7'" + ((vals.until == 7) ? " selected='selected'" : "") + ">Repeat 50 Times</option><option value='8'" + ((vals.until == 8) ? " selected='selected'" : "") + ">Repeat 100 Times</option><option value='9'" + ((vals.until == 9) ? " selected='selected'" : "") + ">Repeat X Times</option>"	
 			var exitDropdown = "<option value='0'" + ((vals.exit == 0) ? " selected='selected'" : "") + ">Don't Change</option><option value='1'" + ((vals.exit == 1) ? " selected='selected'" : "") + ">Exit to Maps</option><option value='2'" + ((vals.exit == 2) ? " selected='selected'" : "") + ">Exit to World</option>";
 			var timesDropdown = "<option value='-1'" + ((vals.times == -1) ? " selected='selected'" : "") + ">Just This Zone</option><option value='1'" + ((vals.times == 1) ? " selected='selected'" : "") + ">Run Every Zone</option><option value='2'" + ((vals.times == 2) ? " selected='selected'" : "") + ">Run Every Other Zone</option><option value='3'" + ((vals.times == 3) ? " selected='selected'" : "") + ">Run Every 3 Zones</option><option value='5'" + ((vals.times == 5) ? " selected='selected'" : "") + ">Run Every 5 Zones</option><option value='10'" + ((vals.times == 10) ? " selected='selected'" : "") + ">Run Every 10 Zones</option><option value='30'" + ((vals.times == 30) ? " selected='selected'" : "") + ">Run Every 30 Zones</option>";
 			var className = (vals.preset == 3) ? "mazBwMainOn" : "mazBwMainOff";
 			className += (vals.preset == 3 && vals.until == 5) ? " mazBwZoneOn" : " mazBwZoneOff"
+			className += (vals.until == 9) ? " mazRxOn" : " mazRxOff";
 			tooltipText += "<div id='mazRow" + x + "' class='row mazRow " + className + "'" + style + ">";
 			tooltipText += "<div class='mazDelete' onclick='game.options.menu.mapAtZone.removeRow(" + x + ")'><span class='icomoon icon-cross'></span></div>";
 			tooltipText += "<div class='mazCheckbox' style='text-align: center;'>" + buildNiceCheckbox("mazEnableSetting" + x, null, vals.on) + "</div>";
 			tooltipText += "<div class='mazWorld'><input value='" + vals.world + "' type='number' id='mazWorld" + x + "'/></div>";
+			tooltipText += "<div class='mazThrough'><input value='" + vals.through + "' type='number' id='mazThrough" + x + "'/></div>";
 			tooltipText += "<div class='mazCell'><input value='" + vals.cell + "' type='number' id='mazCell" + x + "'/></div>";
 			tooltipText += "<div class='mazCheckbox' style='text-align: center;'>" + buildNiceCheckbox("mazCheckbox" + x, null, vals.check) + "</div>";
 			tooltipText += "<div class='mazPreset' onchange='updateMazPreset(" + x + ")'><select value='" + vals.preset + "' id='mazPreset" + x + "'>" + presetDropdown + "</select></div>"
 			tooltipText += "<div class='mazRepeat'><select value='" + vals.repeat + "' id='mazRepeat" + x + "'>" + repeatDropdown + "</select></div>";
 			tooltipText += "<div class='mazRepeatUntil' onchange='updateMazPreset(" + x + ")'><select value='" + vals.until + "' id='mazRepeatUntil" + x + "'>" + repeatUntilDropdown + "</select></div>";
+			tooltipText += "<div class='mazRx'><div style='text-align: center;'>X Times</div><input value='" + vals.rx + "' type='number' id='mazRx" + x + "'/></div>";
 			tooltipText += "<div class='mazExit'><select value='" + vals.exit + "' id='mazExit" + x + "'>" + exitDropdown + "</select></div>";
 			tooltipText += "<div class='mazBwWorld'><div style='text-align: center;'>Exit After L</div><input value='" + vals.bwWorld + "' type='number' id='mazBwWorld" + x + "'/></div>";
 			tooltipText += "<div class='mazTimes select'><select value='" + vals.times + "' id='mazTimes" + x + "'>" + timesDropdown + "</select></div>";
 			tooltipText += "</div>"
 		}
-		tooltipText += "<div id='mazAddRowBtn' style='display: " + ((current.length < 6) ? "inline-block" : "none") + "' class='btn btn-success btn-md' onclick='game.options.menu.mapAtZone.addRow()'>+ Add Row</div>"
+		tooltipText += "<div id='mazAddRowBtn' style='display: " + ((current.length < maxSettings) ? "inline-block" : "none") + "' class='btn btn-success btn-md' onclick='game.options.menu.mapAtZone.addRow()'>+ Add Row</div>"
 		var currentPreset = ((game.global.universe == 1 && game.options.menu.mapAtZone.U1Mode == 'a') || (game.global.universe == 2 && game.options.menu.mapAtZone.U2Mode == 'a')) ? "a" : "b";
 		tooltipText += "<div id='mazSwapPresetBtn' style='display: " + ((game.talents.maz.purchased) ? "inline-block" : "none") + "' class='btn btn-" + ((currentPreset == "a") ? "info" : "danger") + " btn-md' onclick='game.options.menu.mapAtZone.swapPreset()'>Swap to Preset " + ((currentPreset == "a") ? "B" : "A") + "</div>";
 		costText = "<div class='maxCenter'><span class='btn btn-success btn-md' id='confirmTooltipBtn' onclick='game.options.menu.mapAtZone.save()'>Confirm</span><span class='btn btn-danger btn-md' onclick='cancelTooltip(true)'>Cancel</span></div>"
@@ -1266,10 +1294,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Scale Equality Scaling"){
 		var state = game.portal.Equality.scalingActive ? "On" : "Off";
-		if (textString) tooltipText = '<div class="maxCenter"><div style="width: 50%; margin-left: 25%" role="button" class="noselect pointer portalThing thing perkColorOff changingOff equalityColor' + state + '" id="equalityScaling2" onclick="toggleEqualityScale()"><span class="thingName">Scale Equality</span><br><span class="thingOwned"><span id="equalityScalingState2">' + state + '</span></span></div></div><br/>';
+		if (textString) tooltipText = '<div style="font-size: 1.7vh"><div class="maxCenter"><div style="width: 50%; margin-left: 25%" role="button" class="noselect pointer portalThing thing perkColorOff changingOff equalityColor' + state + '" id="equalityScaling2" onclick="toggleEqualityScale()"><span class="thingName">Scale Equality</span><br><span class="thingOwned"><span id="equalityScalingState2">' + state + '</span></span></div></div><br/>';
 		else tooltipText = "";
-		tooltipText += "Change this Slider to change the maximum amount of attacks Trimps need to make in order to not trigger Equality Scaling. Setting this slider to 0 will increase scaling whenever a group of Trimps is one-shot, 1 will increase if Trimps attack one or fewer times, 5 will only increase if they attack 5 or fewer times, etc. If Reversing is allowed, Equality stacks will also decrease whenever Trimps kill an enemy in more attacks than your current slider setting.<br/><br/><b>Your current setting is <span id='equalityCurrentScale'>" + game.portal.Equality.scalingSetting + "</span>.</b>";
-		tooltipText += "<br/><br/>" + buildNiceCheckbox("equalityReversing", null, game.portal.Equality.scalingReverse, "scaleEqualityScale(this, \"reverse\")") + " Allow Reversing<br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySlider' min='0' max='10' value='" + game.portal.Equality.scalingSetting + "' />";
+		tooltipText += "Change this Slider to change the maximum amount of attacks Trimps need to make in order to not trigger Equality Scaling. Setting this slider to 0 will increase scaling whenever a group of Trimps is one-shot, 1 will increase if Trimps attack one or fewer times, 5 will only increase if they attack 5 or fewer times, etc.<br/><br/><b>Your current setting is <span id='equalityCurrentScale'>" + game.portal.Equality.scalingSetting + "</span>.</b>";
+		tooltipText += "<br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySlider' min='0' max='10' value='" + game.portal.Equality.scalingSetting + "' />";
+		tooltipText += "<br/>If Reversing is allowed, Equality stacks will also decrease after the set amount of attacks against the same bad guy.<br/><br/>" + buildNiceCheckbox("equalityReversing", null, game.portal.Equality.scalingReverse, "scaleEqualityScale(this, \"reverse\")") + " Allow Reversing<br/><b>Your current reversing setting is <span id='equalityCurrentScaleReverse'>" + game.portal.Equality.reversingSetting + "</span>.</b><br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySliderReverse' min='1' max='10' value='" + game.portal.Equality.reversingSetting + "' />"
 		var disabledStackCount = game.portal.Equality.disabledStackCount;
 		var max = (game.portal.Equality.radLevel + 1);
 		var text = disabledStackCount;
@@ -1277,10 +1306,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			text = "Max (" + game.portal.Equality.radLevel + ")";
 			disabledStackCount = max;
 		}
-		tooltipText += "<br/><br/>You can also manually set how many stacks of Equality should be used if Scaling is disabled changing the slider below. This allows you to customize exactly how many stacks of Equality to use without having to respec your Perks.<br/><br/><b>Your Equality stacks when Scaling is disabled will be <span id='equalityDisabledStackCount'>" + text + "</span>.</b><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='equalityDisabledSlider' min='0' max='" + max + "' value='" + disabledStackCount + "' />";
+		tooltipText += "<br/>You can also manually set how many stacks of Equality should be used if Scaling is disabled by changing the slider below. This allows you to customize exactly how many stacks of Equality to use without having to respec your Perks.<br/><br/><b>Your Equality stacks when Scaling is disabled will be <span id='equalityDisabledStackCount'>" + text + "</span>.</b><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='equalityDisabledSlider' min='0' max='" + max + "' value='" + disabledStackCount + "' />";
+		if (textString) tooltipText += "</div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "4.5%";
-		elem.style.top = "25%";
+		elem.style.top = "5%";
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Done</div></div>";
 		ondisplay = function(){
 			verticalCenterTooltip();
@@ -1339,9 +1369,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			tooltipText = tooltipText.replace('<coord>', coordReplace);
 			if (!canAffordCoordinationTrimps()){
 				var currentSend = game.resources.trimps.getCurrentSend();
-				var amtToGo = Math.floor((currentSend * 3) - game.resources.trimps.realMax());
+				if (game.global.challengeActive == "Trappapalooza") currentSend *= 0.25;
+				else currentSend *= 3;
+				var trimpCount = (game.global.challengeActive == "Trappapalooza") ? (game.resources.trimps.owned - game.resources.trimps.employed) : game.resources.trimps.realMax();
+				var amtToGo = Math.floor((currentSend) - trimpCount);
 				var s = (amtToGo == 1) ? "" : "s";
-				tooltipText += " <b>You need enough room for " + prettify(currentSend * 3) + " max Trimps. You are short " + prettify(Math.floor(amtToGo)) + " Trimp" + s + ".</b>";
+				if (game.global.challengeActive == "Trappapalooza") tooltipText += " <b>You need " + prettify(currentSend) + " unemployeed Trimps available.";
+				else tooltipText += " <b>You need enough room for " + prettify(currentSend) + " max Trimps.";
+				tooltipText += " You are short " + prettify(Math.floor(amtToGo)) + " Trimp" + s + ".</b>";
 			}
 		}
 		if (typeof game.upgrades[what].name !== 'undefined') what = game.upgrades[what].name;
@@ -1357,12 +1392,19 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (attachFunction == null) attachFunction = "";
 		if (!noHide) attachFunction = attachFunction + "; cancelTooltip()";
 		attachFunction = (attachFunction) ? ' onclick="' + attachFunction + '"' : "";
-		costText = ' <div class="maxCenter" id="confirmTipCost"><div id="confirmTooltipBtn" class="btn btn-info"' + attachFunction + '>' + renameBtn + '</div>';
+		if (what != 'Spire Assault') costText = ' <div class="maxCenter" id="confirmTipCost"><div id="confirmTooltipBtn" class="btn btn-info"' + attachFunction + '>' + renameBtn + '</div>';
 		if (!hideCancel) costText += '<div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div>';
 		costText += '</div>';
 		game.global.lockTooltip = true;
-		elem.style.left = "33.75%";
-		elem.style.top = "25%";
+		if (numCheck == "Alchemy" || numCheck == "Spire Assault"){
+			elem.style.top = "2%";
+			elem.style.left = "5%";
+			swapClass('tooltipExtra', 'tooltipExtraBiggest', elem);
+		}
+		else{
+			elem.style.left = "33.75%";
+			elem.style.top = "25%";
+		}
 	}
 	if (isItIn == 'customText') {
 		costText = (attachFunction) ? attachFunction : "";
@@ -1396,6 +1438,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				if (toTip.increase.what == "trimps.max" && game.global.challengeActive == "Downsize") increase = 1;
 				if (getPerkLevel("Carpentry") && toTip.increase.what == "trimps.max") increase *= Math.pow(1.1, getPerkLevel("Carpentry"));
 				if (getPerkLevel("Carpentry_II") && toTip.increase.what == "trimps.max") increase *= (1 + (game.portal.Carpentry_II.modifier * getPerkLevel("Carpentry_II")));
+				increase *= alchObj.getPotionEffect("Elixir of Crafting");
 				tooltipText = tipSplit[0] + prettify(increase) + tipSplit[2];
 				tooltipText = tooltipText.replace('{s}', needAnS(increase));
 			}
@@ -1403,6 +1446,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				var newValue = toTip[tipSplit[1]];
 				if (getPerkLevel("Motivation") > 0) newValue *= (1 + (getPerkLevel("Motivation") * 0.05));
 				if (getPerkLevel("Motivation_II") > 0) newValue *= (1 + (getPerkLevel("Motivation_II") * game.portal.Motivation_II.modifier));
+				if (game.global.challengeActive == "Alchemy") newValue *= alchObj.getPotionEffect("Potion of Finding");
+				newValue *= alchObj.getPotionEffect("Elixir of Finding");
+				if (game.global.pandCompletions) newValue *= game.challenges.Pandemonium.getTrimpMult();
 				if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) newValue *= game.portal.Observation.getMult();
 				if (Fluffy.isRewardActive('gatherer')) newValue *= 2;
 				tooltipText = tipSplit[0] + prettify(newValue) + tipSplit[2];
@@ -1424,6 +1470,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 	}
 	titleText = (titleText) ? titleText : what;
+	lastTooltipTitle = titleText;
 	var tipNum = (tip2) ? "2" : "";
 	if (usingScreenReader){
 		if (event == "screenRead") {
@@ -1471,6 +1518,8 @@ function updateMazPreset(index){
 		until = 0;
 		document.getElementById('mazRepeatUntil' + index).selectedIndex = until;
 	}
+	newClass = (until == 9) ? 'mazRxOn' : 'mazRxOff';
+	swapClass('mazRx', newClass, row);
 	newClass = (preset == 3 && until == 5) ? 'mazBwZoneOn' : 'mazBwZoneOff';
 	swapClass('mazBwZone', newClass, row);
 }
@@ -1625,11 +1674,17 @@ function addTooltipPricing(toTip, what, isItIn) {
 					if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.metallicThumb !== 'undefined'){
 						price *= dailyModifiers.metallicThumb.getMult(game.global.dailyChallenge.metallicThumb.strength);
 					}
+					if (autoBattle.oneTimers.Artisan.owned && game.global.universe == 2){
+						price *= autoBattle.oneTimers.Artisan.getMult();
+					}
 					if (game.global.challengeActive == "Obliterated"){
 						price *= 1e12;
 					}
 					if (game.global.challengeActive == "Eradicated"){
 						price *= game.challenges.Eradicated.scaleModifier;
+					}
+					if (game.global.challengeActive == "Pandemonium"){
+						price *= game.challenges.Pandemonium.getEnemyMult();
 					}
 					price *= Math.pow(1 - game.portal.Artisanistry.modifier, getPerkLevel("Artisanistry"));
 				}
@@ -1781,7 +1836,7 @@ function getPsString(what, rawNum) {
 	var book = game.upgrades["Speed" + books[index]];
 	var mBook = game.upgrades["Mega" + books[index]];
 	var base = (what == "fragments") ? 0.4 : 0.5;
-	var textString =  "<table class='bdTable table table-striped'><tbody>";
+	var textString =  "<table class='bdTableSm table table-striped'><tbody>";
 	//Add base
 	textString += "<tr><td class='bdTitle'>Base</td><td class='bdPercent'></td><td class='bdNumber'>" + prettify(base) + "</td></tr>";
 	//Add job count
@@ -1843,7 +1898,7 @@ function getPsString(what, rawNum) {
 	//Add Fluffy Gatherer
 	if (Fluffy.isRewardActive('gatherer')) {
 		currentCalc  *= 2;
-		textString += "<tr><td class='bdTitle'>Gatherer (" + Fluffy.getName() + "</td><td class='bdPercent'>+ 100%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";	
+		textString += "<tr><td class='bdTitle'>Gatherer (" + Fluffy.getName() + ")</td><td class='bdPercent'>+ 100%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";	
 	}
 	//Add Meditation
 	if (getPerkLevel("Meditation") > 0){
@@ -1853,6 +1908,17 @@ function getPsString(what, rawNum) {
 			currentCalc *= (1 + (medStrength * .01));
 			textString += "<tr><td class='bdTitle'>Meditation</td><td class='bdPercent'>" + (meditation.getBonusPercent(true) * 10) + " minutes (+" + medStrength + "%)</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 		}
+	}
+	var potionFinding;
+	if (game.global.challengeActive == "Alchemy") potionFinding = alchObj.getPotionEffect("Potion of Finding");
+	if (potionFinding > 1 && what != "fragments" && what != "science"){
+		currentCalc  *= potionFinding;
+		textString += "<tr><td class='bdTitle'>Potion of Finding</td><td class='bdPercent'>+ " + prettify((potionFinding - 1) * 100) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	potionFinding = alchObj.getPotionEffect("Elixir of Finding");
+	if (potionFinding > 1 && what != "fragments" && what != "science"){
+		currentCalc  *= potionFinding;
+		textString += "<tr><td class='bdTitle'>Elixir of Finding</td><td class='bdPercent'>+ " + prettify((potionFinding - 1) * 100) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Magmamancer
 	if (game.jobs.Magmamancer.owned > 0 && what == "metal"){
@@ -1931,7 +1997,11 @@ function getPsString(what, rawNum) {
 		currentCalc *= mult;
 		textString += "<tr><td class='bdTitle'>Cruffys</td><td class='bdPercent'>" + formatMultAsPercent(mult) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
-
+	if (game.global.pandCompletions && what != "fragments"){
+		var mult = game.challenges.Pandemonium.getTrimpMult();
+		currentCalc *= mult;
+		textString += "<tr><td class='bdTitle'>Pandemonium</td><td class='bdPercent'>" + formatMultAsPercent(mult) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
 	if (game.global.challengeActive == "Daily"){
 		var mult = 0;
 		if (typeof game.global.dailyChallenge.dedication !== 'undefined'){
@@ -1954,6 +2024,11 @@ function getPsString(what, rawNum) {
 		var mult = getParityBonus();
 		currentCalc *= mult;
 		textString += "<tr><td class='bdTitle'>Parity (Staff)</td><td class='bdPercent'>+ " + prettify((mult - 1) * 100) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if ((what == "food" || what == "metal" || what == "wood") && autoBattle.oneTimers.Gathermate.owned && game.global.universe == 2){
+		var mult = autoBattle.oneTimers.Gathermate.getMult();
+		currentCalc *= mult;
+		textString += "<tr><td class='bdTitle'>Gathermate</td><td class='bdPercent'>" + formatMultAsPercent(mult) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (what != "fragments" && getEmpowerment() == "Wind"){
 		var windMod = game.empowerments.Wind.getCombatModifier();
@@ -2269,9 +2344,15 @@ function getBattleStatBd(what) {
 			currentCalc += (bonus / 100);
 			textString += "<tr><td class='bdTitle'>Heirloom</td><td>&nbsp;</td><td>&nbsp;</td><td>" + prettify(bonus) + "%</td><td>" + Math.round(currentCalc * 100) + "%</td></tr>";
 		}
+		if (autoBattle.oneTimers.Suprism.owned){
+			var bonus = autoBattle.oneTimers.Suprism.getMult();
+			currentCalc += bonus;
+			textString += "<tr><td class='bdTitle'>Suprism</td><td>3%</td><td>" + (autoBattle.maxEnemyLevel - 1) + "</td><td>" + prettify(bonus * 100) + "%</td><td>" + Math.round(currentCalc * 100) + "%</td></tr>";
+		}
 		if (Fluffy.isRewardActive('shieldlayer')){
-			currentCalc *= 2;
-			textString += "<tr class='shieldLayerCalcRow'><td class='bdTitle'>Shield Layer</td><td>&nbsp;</td><td>&nbsp;</td><td>x 2</td><td>" + Math.round(currentCalc * 100) + "%</td></tr>";
+			var layers = (Fluffy.isRewardActive('shieldlayer') + 1);
+			currentCalc *= layers
+			textString += "<tr class='shieldLayerCalcRow'><td class='bdTitle'>Shield Layer</td><td>&nbsp;</td><td>&nbsp;</td><td>x " + layers + "</td><td>" + Math.round(currentCalc * 100) + "%</td></tr>";
 		}
 		textString += "<tr><td colspan='5' style='font-weight: bold'>Your Prismatic Shield is equal to " + Math.round(currentCalc * 100) + "% of your Trimps' maximum Health. All enemy damage hits your Prismatic Shield before Health, and Prismatic Shield always regenerates to full after an enemy is killed.</td></tr>";
 	}
@@ -2400,6 +2481,16 @@ function getBattleStatBd(what) {
 		currentCalc  *= mult;
 		textString += "<tr><td class='bdTitle'>Mayhem Completions</td><td>+ 10N%</td><td>" + game.global.mayhemCompletions + "</td><td>+ " + prettify((mult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
+	if ((what == "attack" || what == "health") && game.global.pandCompletions){
+		var mult = game.challenges.Pandemonium.getTrimpMult();
+		currentCalc  *= mult;
+		textString += "<tr><td class='bdTitle'>Pandemonium Completions</td><td>+ 10N%</td><td>" + game.global.pandCompletions + "</td><td>+ " + prettify((mult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+	}
+	if ((what == "attack" || what == "health") && autoBattle.bonuses.Stats.level > 0 && game.global.universe == 2){
+		var mult = autoBattle.bonuses.Stats.getMult();
+		currentCalc  *= mult;
+		textString += "<tr><td class='bdTitle'>Spire Assault Stats</td><td>+ 10%</td><td>" + autoBattle.bonuses.Stats.level + "</td><td>+ " + prettify((mult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+	}
 	//Add challenges
 	if (what == "health" && game.global.challengeActive == "Life"){
 		currentCalc *= game.challenges.Life.getHealthMult();
@@ -2519,6 +2610,16 @@ function getBattleStatBd(what) {
 		var mult = game.portal.Frenzy.getAttackMult();
 		currentCalc *= mult;
 		textString += "<tr><td class='bdTitle'>Frenzied</td><td>+50%</td><td>" + getPerkLevel("Frenzy") + "</td><td>x " + prettify(mult) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+	}
+	if ((what == "attack" || what == "health") && getPerkLevel("Championism")){
+		var mult = game.portal.Championism.getMult();
+		currentCalc  *= mult;
+		textString += "<tr><td class='bdTitle'>Championism</td><td>" + (1 + (0.5 * (autoBattle.maxEnemyLevel - 1))) + "%</td><td>" + getPerkLevel("Championism") + "</td><td>" + formatMultAsPercent(mult) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+	}
+	if ((what == "attack" || what == "health") && game.global.challengeActive == "Alchemy" && game.global.universe == 2){
+		var mult = alchObj.getPotionEffect("Potion of Strength");
+		currentCalc  *= mult;
+		textString += "<tr><td class='bdTitle'>Potion of Strength</td><td>+ 15%</td><td>" + alchObj.getPotionCount("Potion of Strength") + "</td><td>" + formatMultAsPercent(mult) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
 	if (game.global.challengeActive == "Daily"){
 		var mult = 0;
@@ -2766,10 +2867,11 @@ function getBattleStatBd(what) {
 	}
 }
 
-function formatMultAsPercent(mult){
+function formatMultAsPercent(mult, noSpace){
+	var space = (noSpace) ? "" : " ";
 	if (mult < 1)
-		return "- " + (Math.round(10000 * (1 - mult)) / 100) + "%";
-	return "+ " + (Math.round(10000 * (mult - 1)) / 100) + "%";
+		return "-" + space + prettify(100 * (1 - mult)) + "%";
+	return "+" + space + prettify(100 * (mult - 1)) + "%";
 }
 
 function verticalCenterTooltip(makeLarge, makeSuperLarge){
@@ -2837,6 +2939,12 @@ function getMaxTrimps() {
 		currentCalc = Math.floor(currentCalc);
 		carpentryStrength = prettify(carpentryStrength * 100) + "%";
 		textString += "<tr><td class='bdTitle'>Carpentry II</td><td class='bdPercent'>+ " + carpentryStrength + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+	}
+	var potionCrafting = alchObj.getPotionEffect("Elixir of Crafting");
+	if (potionCrafting > 1){
+		currentCalc  *= potionCrafting;
+		currentCalc = Math.floor(currentCalc);
+		textString += "<tr><td class='bdTitle'>Elixir of Crafting</td><td class='bdPercent'>+ " + prettify((potionCrafting - 1) * 100) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Size Challenge
 	if (game.global.challengeActive == "Size"){
@@ -2924,9 +3032,9 @@ function getLootBd(what) {
 	var amt = 0;
 	switch(what) {
 		case "Food/Wood/Metal":
-			var tempModifier = 0.5 * Math.pow(1.25, (game.global.world >= 59) ? 59 : game.global.world);
+			var tempModifier = 0.5 * Math.pow(1.25, (game.global.world >= 59 && game.global.universe == 1) ? 59 : game.global.world);
 			//Mega books
-			if (game.global.world >= 60) {
+			if (game.global.world >= 60 && game.global.universe == 1) {
 				if (game.global.frugalDone) tempModifier *= Math.pow(1.6, game.global.world - 59);
 				else tempModifier *= Math.pow(1.5, game.global.world - 59);
 			}
@@ -3098,6 +3206,21 @@ function getLootBd(what) {
 		currentCalc *= amt;
 		textString += "<tr><td class='bdTitle'>Greed (perk)</td><td>x" + " " + prettify(game.portal.Greed.getBonusAmt()) + "</td><td>" + getPerkLevel("Greed") + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
+	var potionFinding = (game.global.challengeActive == "Alchemy") ? alchObj.getPotionEffect("Potion of Finding") : "";
+	if (what != "Helium" && what != "Fragments" && potionFinding > 1){
+		currentCalc *= potionFinding;
+		textString += "<tr><td class='bdTitle'>Potion of Finding</td><td>+ 25%</td><td>" + alchObj.getPotionCount("Potion of Finding") + "</td><td>+ " + prettify((potionFinding - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	potionFinding = alchObj.getPotionEffect("Elixir of Finding");
+	if (what != "Helium" && what != "Fragments" && potionFinding > 1){
+		currentCalc *= potionFinding;
+		textString += "<tr><td class='bdTitle'>Elixir of Finding</td><td>x 1.05</td><td>" + alchObj.getPotionCount("Elixir of Finding") + "</td><td>+ " + prettify((potionFinding - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	var gaseousPotion = alchObj.getRadonMult();
+	if (what == "Helium" && gaseousPotion > 1){
+		currentCalc *= gaseousPotion;
+		textString += "<tr><td class='bdTitle'>Gaseous Brew</td><td>+ 25%</td><td>" + alchObj.getPotionCount("Gaseous Brew") + "</td><td>+ " + prettify((gaseousPotion - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
 	if (game.global.challengeActive == "Quagmire"){
 		amt = game.challenges.Quagmire.getLootMult();
 		currentCalc *= amt;
@@ -3241,10 +3364,20 @@ function getLootBd(what) {
 		currentCalc *= 1.25;
 		textString += "<tr><td class='bdTitle'>" + game.singleRunBonuses.heliumy.name + "</td><td>25%</td><td></td><td>+ 25%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
-	if (game.global.mayhemCompletions > 0 && game.global.universe == 2 && what == "Helium"){
+	if (game.global.mayhemCompletions > 0 && what == "Helium"){
 		var amt = game.challenges.Mayhem.getTrimpMult();
 		currentCalc *= amt;
 		textString += "<tr><td class='bdTitle'>Mayhem Completions</td><td>+ 10N%</td><td>" + game.global.mayhemCompletions + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (game.global.pandCompletions > 0 && what == "Helium"){
+		var amt = game.challenges.Pandemonium.getTrimpMult();
+		currentCalc *= amt;
+		textString += "<tr><td class='bdTitle'>Pandemonium Completions</td><td>+ 10N%</td><td>" + game.global.pandCompletions + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	if (autoBattle.bonuses.Radon.level > 0 && game.global.universe == 2 && what == "Helium"){
+		var amt = autoBattle.bonuses.Radon.getMult();
+		currentCalc *= amt;
+		textString += "<tr><td class='bdTitle'>Spire Assault Radon</td><td>+ 10%</td><td>" + autoBattle.bonuses.Radon.level + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Cruffys
 	if (game.global.challengeActive == "Nurture" && what == "Helium"){
@@ -3528,6 +3661,7 @@ function resetGame(keepPortal) {
 	document.getElementById('autoGoldenBtn').style.display = "none";
 	document.getElementById('scienceCollectBtn').style.display = "block";
 	document.getElementById('trimpsBreedingTitle').innerHTML = "breeding";
+	document.getElementById('alchemyTab').style.display = 'none';
 	lookingAtCurrentChallenge = false;
 	swapClass("col-xs", "col-xs-10", document.getElementById("gridContainer"));
 	swapClass("col-xs", "col-xs-off", document.getElementById("extraMapBtns"));
@@ -3651,9 +3785,17 @@ function resetGame(keepPortal) {
 	var archString;
 	var archThresh;
 	var mayhemCompletions;
+	var pandCompletions;
 	var stormDone;
 	var exterminateDone;
 	var antennaLevel;
+	var herbs;
+	var potionData;
+	var alchemyUnlocked;
+	var farmlandsUnlocked;
+	var potionAuto;
+	var canGuString;
+	var guString;
 	if (keepPortal){
 		oldUniverse = game.global.universe;
 		portal = game.portal;
@@ -3808,9 +3950,17 @@ function resetGame(keepPortal) {
 		archString = game.global.archString;
 		archThresh = game.global.archThresh;
 		mayhemCompletions = game.global.mayhemCompletions;
+		pandCompletions = game.global.pandCompletions;
 		stormDone = game.global.stormDone;
 		exterminateDone = game.global.exterminateDone;
 		antennaLevel = game.buildings.Antenna.owned;
+		herbs = game.herbs;
+		potionData = game.global.potionData;
+		alchemyUnlocked = game.global.alchemyUnlocked;
+		farmlandsUnlocked = game.global.farmlandsUnlocked;
+		potionAuto = game.global.potionAuto;
+		canGuString = game.global.canGuString;
+		guString = game.global.guString;
 	}
 	game = null;
 	game = newGame();
@@ -3818,6 +3968,13 @@ function resetGame(keepPortal) {
 	game.global.messages = messages;
 	game.options = options;
 	if (keepPortal){
+		game.herbs = herbs;
+		game.global.potionData = potionData;
+		game.global.potionAuto = potionAuto;
+		game.global.alchemyUnlocked = alchemyUnlocked;
+		game.global.farmlandsUnlocked = farmlandsUnlocked;
+		game.global.canGuString = canGuString;
+		game.global.guString = guString;
 		game.achievements = achieves;
 		calculateAchievementBonus();
 		game.global.bestHelium = bestHelium;
@@ -3914,6 +4071,7 @@ function resetGame(keepPortal) {
 		game.global.archString = archString;
 		game.global.archThresh = archThresh;
 		game.global.mayhemCompletions = mayhemCompletions;
+		game.global.pandCompletions = pandCompletions;
 		if (microchipLevel){
 			game.buildings.Microchip.owned = microchipLevel;
 			game.buildings.Microchip.purchased = microchipLevel;
@@ -3927,6 +4085,8 @@ function resetGame(keepPortal) {
 		}
 		game.stats = stats;
 		game.global.repeatMap = repeat;
+
+		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 
 		var afterPortalSLevel = getSLevel();
 		if (afterPortalSLevel >= 1) applyS1();
@@ -3942,7 +4102,6 @@ function resetGame(keepPortal) {
 			document.getElementById("autoStorageBtn").style.display = "block";
 			toggleAutoStorage(true);
 		}
-		if (challenge !== "" && typeof game.challenges[challenge].start !== 'undefined') game.challenges[challenge].start();
 		game.portal.Coordinated.currentSend = 1;
 		if (pres == "gems" || pres == "fragments"){
 			pres = "food";
@@ -3962,6 +4121,7 @@ function resetGame(keepPortal) {
 		if (game.global.challengeActive == "Trapper" || game.global.challengeActive == "Trappapalooza"){
 			getAutoJobsSetting().enabled = false;
 		}
+		alchObj.portal();
 	}
 	else {
 		game.options.menu.darkTheme.enabled = 1;
@@ -4070,6 +4230,8 @@ function resetGame(keepPortal) {
 		if (newSetting.Staff != -1) equipHeirloomById(newSetting.Staff, "Staff");
 	}
 	setTrimpColSize();
+	alchObj.tab.style.display = 'none';
+	alchObj.load();
 }
 
 function setTrimpColSize(){
@@ -4128,6 +4290,7 @@ function applyS2(){
 		}
 		for (var x = 0; x < toUnlock.length; x++){
 			var upgradeToUnlock = game.mapUnlocks[toUnlock[x]];
+			if (game.global.challengeActive == "Pandemonium" && upgradeToUnlock.prestige && game.challenges.Pandemonium.isEquipBlocked(game.upgrades[toUnlock[x]].prestiges)) continue;			
 			upgradeToUnlock.fire();
 			upgradeToUnlock.last += 5;
 		}
@@ -4670,8 +4833,16 @@ function updatePs(jobObj, trimps, jobName){ //trimps is true/false, send PS as f
 			//portal Motivation
 			if (getPerkLevel("Motivation")) psText *= (1 + (getPerkLevel("Motivation") * game.portal.Motivation.modifier));
 			if (getPerkLevel("Motivation_II")) psText *= (1 + (getPerkLevel("Motivation_II") * game.portal.Motivation_II.modifier));
+			if (increase != "fragments" && increase != "science"){
+				if (game.global.challengeActive == "Alchemy") psText *= alchObj.getPotionEffect("Potion of Finding");
+				psText *= alchObj.getPotionEffect("Elixir of Finding");
+			}
+			if (game.global.pandCompletions && increase != "fragments") psText *= game.challenges.Pandemonium.getTrimpMult();
 			if (getPerkLevel("Observation") > 0 && game.portal.Observation.trinkets > 0) psText *= game.portal.Observation.getMult();
-			if (increase == "food" || increase == "wood" || increase == "metal") psText *= getParityBonus();
+			if (increase == "food" || increase == "wood" || increase == "metal"){
+				psText *= getParityBonus();
+				if (autoBattle.oneTimers.Gathermate.owned && game.global.universe == 2) psText *= autoBattle.oneTimers.Gathermate.getMult();
+			}
 			if (getPerkLevel("Meditation") > 0) psText *= (1 + (game.portal.Meditation.getBonusPercent() * 0.01));
 			if ((increase == "food" && game.buildings.Antenna.owned >= 5) || (increase == "metal" && game.buildings.Antenna.owned >= 15)) psText *= game.jobs.Meteorologist.getExtraMult();
 			if (Fluffy.isRewardActive('gatherer')) psText *= 2;
@@ -4860,6 +5031,7 @@ function getMapIcon(mapObject, nameOnly) {
 	if (nameOnly) return icon;
 	if (mapObject.voidBuff)
 		return voidBuffConfig[mapObject.voidBuff].icon;
+	if (icon == "Scaling") icon = getFarmlandsResType();
 	switch (icon){
 		case "Food":
 			return "glyphicon glyphicon-apple";
@@ -5461,6 +5633,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 
 	function giveSingleAchieve(index){
 		var area = (game.global.universe == 2) ? "oneOffs2" : "oneOffs";
+		if (index == "Huffstle" || index == "Just Smack It") area = "oneOffs2"; //U2 achievements but completable in U1
 		var achievement = game.achievements[area];
 		index = game.achievements[area].names.indexOf(index);
 		if (index == -1 || achievement.finished[index]) return;
@@ -5587,7 +5760,8 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 				else tierValue = "&nbsp;";
 				var icon = (displayColor == "achieveColorRed") ? "icomoon icon-cross2" : achievement.icon;
 				tierValue = tierValue.replace('{ICONCLASS}', icon);
-				tempHtmlString += '<div onclick="startTrackAchieve(\'' + item + '\', ' + x + ')" onmouseover="displayAchievementPopup(\'' + item + '\', true, ' + x + ')" class="achievementContainer achieveTier' + achievement.tiers[x] + ' ' + displayColor + '" style="width: ' + width + '%;">' + tierValue + '</div>';
+				var sizeOvr = (achievement.size) ? " font-size: " + achievement.size + "vw;" : "";
+				tempHtmlString += '<div onclick="startTrackAchieve(\'' + item + '\', ' + x + ')" onmouseover="displayAchievementPopup(\'' + item + '\', true, ' + x + ')" class="achievementContainer achieveTier' + achievement.tiers[x] + ' ' + displayColor + '" style="width: ' + width + '%;' + sizeOvr + '">' + tierValue + '</div>';
 			}
 			tempHtmlString += '</span><div id="' + item + 'Description" class="achievementDescription")"></div></div>';
 			if (added > 0) htmlString += tempHtmlString;
@@ -5793,7 +5967,13 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 				return (game.global.challengeActive == "Berserk" && (game.global.world < 100 || (game.challenges.Berserk.fullWeakAt != -1 && game.challenges.Berserk.fullWeakAt < 100)));
 			},
 			The_Tortoise_and_the_Bugs: function(){
-				return (game.global.challengeActive == "Exterminate");
+				return (game.global.challengeActive == "Exterminate" && (game.global.world < 120 || game.challenges.Exterminate.achieveDone));
+			},
+			Nurtured_AF: function(){
+				return (game.global.challengeActive == "Nurture" && (game.global.world <= 69 || game.challenges.Nurture.achieveDone));
+			},
+			Mad_Scientist: function(){
+				return (game.global.challengeActive == "Alchemy" && alchObj.getPotionCount("Potion of the Void") == 0);
 			}
 
 		};
@@ -6055,7 +6235,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 			w24: "Knowing that Druopitee is in your Universe, you ask Scruffy who is manning the Spires. He hangs his head in shame and lets you know that there are 5 Trimps, previously friends of Scruffy's, that were enticed by Druopitee's magic. He doesn't seem to want to talk much more about it.",
 			w26: "Your Trimps catch a bird and build a little home for it, but it flies away.",
 			w28: "Your memories of the last Universe are fading and you have no idea how many times you've been here in this Universe. This could be your first or thousandth time here. Neat!",
-			w30: "You're not sure how much more beautiful this one is than the last one, but it's hard not to stop and take in all the scenery every once in a while. Sprawling hills and flowing rivers in every direction make it almost worth the frankly ridiculous amount of enemies hiding everywhere.",
+			w30: "You're not sure how much more beautiful this Universe is than the last one, but it's hard not to stop and take in all the scenery every once in a while. Sprawling hills and flowing rivers in every direction make it almost worth the frankly ridiculous amount of enemies hiding everywhere.",
 			w31: "You deserve hazard pay or something.",
 			w32: "One of your regular Trimps seems to have picked up the ability to speak a few words from Scruffy. They're too dirty to repeat though.",
 			w34: "As you reach the top of another in this seemingly infinite sea of hills, you notice a tiny tablet. It's written in some language you've never seen, so you figure you'll hold on to it and see if Scruffy can translate.",
@@ -6070,9 +6250,9 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 			w50: "This zone is really freaking hot.",
 			w52: "You catch Scruffy helping a group of small Trimps across a river. What a cool dude.",
 			w57: "A few of your Trimps are getting whiny so you take them for a walk. Seemed to do the trick, they just needed to burn some energy and pee.",
-			w60: "Scruffy is finally in a good mood and seems quite a bit stronger than before, so you figure now is a good time to ask him about Fluffy. In exchange for his good mood, he agrees to tell you the rest of the story. According to him, Fluffy was stationed at the seventh Spire while Scruffy was at the sixth. Fluffy and Scruffy each destroyed their own Spires, but Fluffy was caught by Druopitee and took the fall for both of them. Druopitee left the six remaining enhanced Trimps to take care of the remaining five Spires, and took Fluffy with him. You ask what the names of the other five Trimps are and he tells you - names so horrible that just hearing them could drive anyone to the brink of insanity: Huffy, Stuffy, Buffy, Tuffy, and Puffy.",
+			w60: "Scruffy is finally in a good mood and seems quite a bit stronger than before, so you figure now is a good time to ask him about Fluffy. In exchange for his good mood, he agrees to tell you the rest of the story. According to him, Fluffy was stationed at the seventh Spire while Scruffy was at the sixth. Fluffy and Scruffy each destroyed their own Spires, but Fluffy was caught by Druopitee and took the fall for both of them. Druopitee left the six remaining enhanced Trimps to take care of the remaining five Spires, and took Fluffy with him. You ask what the names of the other five Trimps are and he tells you: Huffy, Stuffy, Buffy, Tuffy, and Puffy.",
 			w61: "Scruffy finally seems more inspired than sad. Looks like he wants to go take down some bad guys.",
-			w62: "It seems like you've gotta take down the Five Evil Trimps. Scruffy reminds you that you're still about 140 Zones away from the first one though. You try to find something else to direct anger at, like that tree over there.",
+			w62: "It seems like you've gotta find Scruffy's 5 missing brothers. Scruffy reminds you that they were evil the last time he saw them and to be prepared, but that some may have changed sides since.",
 			w65: "You wonder if Trimps came from this Universe, your original one, or somewhere else. Scruffy shrugs.",
 			w67: "The weather is finally starting to cool back down, you and your Trimps are quite relieved.",
 			get w69(){
@@ -6080,15 +6260,44 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 				return "The Trimps are still enjoying the nice weather, and have even found a couple of sweet lakes to swim in!"
 			},
 			w70: "Your tenacity is inspiring.",
+			w71: "You reach the top of a hill and can see the next 5 Zones stretched out in a valley ahead of you. Towards the end, you see the largest spire you've ever seen. In fact, you can't even see the top of it! It seems to stretch upward infinitely. You look to Scruffy who tells you that one belongs to Huffy. You really hope Huffy isn't evil...",
 			w72: "You really don't like Druopitee. You've spent an unknown amount of lifetimes cleaning up his mess, and who knows how many different Universes he's corrupted.",
-			w75: "You miss Fluffy, you should go visit him soon.",
-			w79: "You're a little bit closer to the first Spire. Coming for you, Huffy.",
-			w82: "You thought you saw Druopitee but it was just a tree. On closer inspection it doesn't even look anything close to him.",
+			w73: "Scruffy tells you that if any of his brothers have come around to the good side since he saw them last, Huffy was the one to do it. Huffy was also the most experienced in hand to hand combat, so you really hope you're not going to have to fight against him.",
+			w74: "You're very close to the Spire. You feel like you should be able to smell the Corruption pumping out of it by now but you can't! You take that as a good sign.",
+			w75: "As you approach the infinitely tall Spire, a Trimp rushes out and embraces Scruffy. Scruffy introduces you to Huffy, who seems to have also realized that Druopitee is kind of a prick. Huffy lets you know that he managed to destroy the Corruption device at the top, but that it was now crawling with horrible shadowy enemies. Huffy lets you know that he is shielded from the Portal inside the Spire, but that even when you Portal and forget him, he can use your subconscious to help direct him in cleansing the Spire and finding artifacts to make your Trimps stronger.",
+			w77: "Huffy is cool and all but you miss Fluffy, you should go visit him soon.",
+			w82: "You thought you saw Druopitee but it was just a tree. On closer inspection it doesn't even look anything like him at all.",
 			w85: "This zone feels needy, like it wants your help with something.",
-			w90: "As you near the halfway point to the first Spire, Scruffy sits you down for another story. Excited to hear more about Fluffy and Scruffy's history together, you listen intently. Scruffy just rambles about gems and how we could be rich selling jewelry then starts dancing. Seems like Scruffy's been fermenting berries again.",
+			w90: "As you clear another Zone, Scruffy sits you down for another story. Excited to hear more about Fluffy and Scruffy's history together, you listen intently. Scruffy just rambles about gems and how we could be rich selling jewelry then starts dancing. Seems like Scruffy's been fermenting berries again.",
 			w93: "Scruffy created some sort of instrument out of a Snimp and some wood that he calls the Riflunger. It makes better music than you expected, but you wouldn't buy any albums.",
 			w95: "Scruffy lets you know that Fluffy was the first modified Trimp created by Druopitee, and was always Druopitee's favorite. Druopitee was probably extra pissed when Fluffy was the one who rebelled and destroyed a couple Spires, that's probably why he was caged when you found him.",
-			w100: "Halfway there. The lands ahead are bare and undeveloped, but you appear to be pressing on anyways.",
+			w100: "There is an extremely chaotic energy flowing around this Zone.",
+			w101: "3 or 4 zones ahead of you, you see the biggest storm you've ever seen in your lives. You'd love to find some way to go around it, but it doesn't seem possible.",
+			w105: "The storm is raging! Your Trimps are flying eachother as kites.",
+			w107: "You hope Huffy is doing alright back there at the Spire, those Enemies looked pretty scary.",
+			w110: "You feel a sudden urge to repeat something multiple times expecting different results and wonder what that's all about.",
+			w112: "Scruffy tells you how glad he is that Huffy had come around, but that he's not as hopeful about Stuffy. Stuffy was stubborn and took any opportunity to prove his loyalty to Druopitee. Guess you'll have to find him and see.",
+			w115: "You're having even more trouble than usual trying to control your Trimps here. You and Scruffy debate the pros and cons of asking your Scientists to come up with a mild tranquilizer to put in their food, but you're too busy herding them to come to any conclusion.",
+			get w118(){
+				if (game.global.challengeActive == "Nurture") return "Cruffys tells you about the time he put a bucket of water above one of Druopitee's doors as a prank and got banished from the dimension for it."
+				return "Scruffy lets you know that they had another brother named Cruffys who was banished from this dimension before he even had a chance to be assigned a Spire."
+			},
+			w120: "This Zone is filled with bugs and is NOT a great spot to have a picnic.",
+			get w124(){return "The next Zone is connected to this one by a large downward sloping hill. All " + prettify(game.resources.trimps.getCurrentSend()) + " of your Trimps all tuck themselves into a ball and roll down it, what a sight!"},
+			get w130(){
+				if (game.global.challengeActive == "Nurture") return "Scruffy plays his Riflunger while Cruffys sings, and you really wish you had some earplugs or something.";
+				return "You wonder if you'll ever get the chance to meet Cruffys. Maybe your Portal can bring you to his dimension some day.";
+			},
+			w133: "Some new Trimp reinforcements have brought a Z1 Turtlimp up with them in a box. The Trimps take turns feeding it and they're doing a good job taking care of it!",
+			w134: "One of the Trimps on feeding duty was a bit confused and seems to have eaten the Turtlimp.",
+			get w140(){
+				if (autoBattle.sessionEnemiesKilled > autoBattle.sessionTrimpsKilled) return "Huffy pops a quick message into your head to let you know he's doing fine in the Spire!";
+				return "Huffy pops a message into your head stating that as much as he likes constantly losing, he would appreciate a little help!"
+			},
+			w150: "As you near a gigantic lake, you notice that this part of the World is becoming filled with wild varieties of plants you've never seen before. You've already taught your Trimps not to eat strange plants, but it looks like it's time for a reminder.",
+			w155: "The plant biodiversity around this Zone is incredible, it feels like this Zone is its own isolated ecosystem. The ground around here must be extremely arable.",
+			w160: "The lands ahead are barren and undeveloped, but you press on because Huffy really wants some new items."
+
 		}
 		var thisUniverse = (game.global.universe == 2) ? universe2 : universe1;
 		if (typeof thisUniverse['w' + zoneNumber] !== 'undefined') return thisUniverse['w' + zoneNumber];
@@ -6122,8 +6331,9 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 			var count = countExtraAchievementGoldens();
 			if (bonus <= 10000)
 				html += " Start with 1 extra Golden Upgrade after each Portal for every 500% earned between 2000% and " + prettify(10000);
-			else
-				html += " Start with 1 extra Golden Upgrade after each Portal for every 2000% earned above " + prettify(10000);
+			else if (bonus <= 50000)
+				html += " Start with 1 extra Golden Upgrade after each Portal for every 2000% earned between " + prettify(10000) + " and " + prettify(50000);
+			else html += " Start with 1 extra Golden Upgrade after each Portal for every " + prettify(10000) + "% earned above " + prettify(50000);
 			html += "%. Currently gaining " + count + " extra Golden Upgrade" + ((count == 1) ? "" : "s") + ".";
 		}
 		elem.innerHTML = html;
@@ -6144,8 +6354,12 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 	function countExtraAchievementGoldens(){
 		var totalAchieves = game.global.achievementBonus;
 		var bonus = 0;
+		if (totalAchieves > 50000){
+			bonus += Math.floor((totalAchieves - 50000) / 10000);
+			totalAchieves = 50000;
+		}
 		if (totalAchieves > 10000){
-			bonus = Math.floor((totalAchieves - 10000) / 2000);
+			bonus += Math.floor((totalAchieves - 10000) / 2000);
 			totalAchieves = 10000;
 		}
 		bonus += Math.floor((totalAchieves - 2000) / 500);

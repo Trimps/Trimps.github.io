@@ -32,6 +32,7 @@ var playerSpire = {
     dontDraw: false,
     paused: false,
     tooltipUpdate: null,
+    sealed: false,
     settings: {
         fctTrap: true,
         fctPoison: true,
@@ -81,6 +82,7 @@ var playerSpire = {
         this.nextIcon = 0;
         this.peakThreat = 0;
         this.paused = false;
+        this.sealed = false;
         this.settings = {
             fctTrap: true,
             fctPoison: true,
@@ -434,6 +436,25 @@ var playerSpire = {
         text += " / " + prettify(nextCost) + "</span>"
         return text;
     },
+    canSeal: function(){
+        return (playerSpireTraps.Strength.owned >= 10 && playerSpireTraps.Knowledge.owned >= 10 && playerSpireTraps.Condenser.owned >= 10);
+    },
+    seal: function(){
+        this.sealed = true;
+        this.clearEnemies();
+        playerSpireTraps.Knowledge.owned = 11;
+        playerSpireTraps.Strength.owned = 11;
+        playerSpireTraps.Condenser.owned = 11;
+        document.getElementById('playerSpireTab').style.display = 'none';
+    },
+    unseal: function(){
+        playerSpireTraps.Knowledge.owned = 10;
+        playerSpireTraps.Strength.owned = 10;
+        playerSpireTraps.Condenser.owned = 10;
+        this.sealed = false;
+        document.getElementById('playerSpireTab').style.display = 'table-cell';
+        this.drawInfo();
+    },
     togglePause: function(){
         this.paused = !this.paused;
         this.drawInfo();
@@ -469,6 +490,10 @@ var playerSpire = {
     },
     drawInfo: function(){
         if (!this.popupOpen) return;
+        if (this.sealed){
+            document.getElementById('playerSpireInfoPanel').innerHTML = "<div style='text-align: center; font-weight: bold'>The Spire is Sealed, but you are still earning bonuses from having 11 of each Tower.<br/><br/>You can unseal the Spire if you want to, but will lose your 11th towers.<br/><br/><div onclick='playerSpire.unseal()' id='unsealSpireBtn' class='spireControlBox'>Unseal Spire</div></div><span id='playerSpireCloseBtn' class='icomoon icon-close' onclick='playerSpire.closePopup()'></span>"
+            return;
+        }
         if (this.smallMode){
             this.drawSmallInfo();
             return;
@@ -505,7 +530,12 @@ var playerSpire = {
             if (this.settings.trapIcons) trapIcon = "<span class='icomoon icon-" + trap.icon + "'></span> ";
             var cost = this.getTrapCost(item);
             var color = (this.runestones >= cost) ? trap.color : "grey";
-            infoHtml += "<div style='background-color: " + color + "' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"" + item + "\", event)' onclick='playerSpire.selectTrap(\"" + item + "\")' id='" + item + "TrapBox' class='spireTrapBox" + ((item == this.selectedTrap) ? " selected" : "") + "'>" + trapIcon + item + " " + trapText + "<br/>" + prettify(this.getTrapCost(item)) + " Rs</div>"
+            var costText = prettify(this.getTrapCost(item)) + " Rs";
+            if (trap.isTower && trap.owned >= 10) {
+                costText = "Max Level"
+                color = "grey";
+            }
+            infoHtml += "<div style='background-color: " + color + "' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"" + item + "\", event)' onclick='playerSpire.selectTrap(\"" + item + "\")' id='" + item + "TrapBox' class='spireTrapBox" + ((item == this.selectedTrap) ? " selected" : "") + "'>" + trapIcon + item + " " + trapText + "<br/>" + costText + "</div>"
             if (this.runestones < cost && (cheapestTrap == -1 || cost < cheapestTrap)) cheapestTrap = cost;
         }
         this.nextTrap = cheapestTrap;
@@ -513,6 +543,9 @@ var playerSpire = {
         infoHtml += "<span id='playerSpireCloseBtn' class='icomoon icon-close' onclick='playerSpire.closePopup()'></span>";
         infoHtml += "<div id='playerSpireUpgradesArea'>";
         infoHtml += this.getUpgradesHtml();
+        if (this.canSeal()){
+            infoHtml += "<div id='spireSealInfo' style='font-weight: bold; text-align: center;'>You now have 10 of each Tower and have successfully reinforced every floor of this Spire. Your Trimps would be incredibly proud of you if they could process such strong emotions, for this was no small feat! Your Scientists can now construct one more of each Tower for free, but doing so will seal the Spire. If you choose to Seal the Spire, you'll earn World bonuses as if you had 11 of each Tower, but enemies will no longer spawn in the Spire.<br/>NOTE: Sealing the Spire will remove the tab used to access this window, but a Setting will be added under Other should you want to unseal it for any reason.<br/><div onclick='playerSpire.seal()' id='sealSpireBtn' class='spireControlBox'>Seal Spire</div></div>"
+        }
         infoHtml += "</div>"; //playerSpireUpgradesArea
         elem.innerHTML = infoHtml;
     },
@@ -533,6 +566,7 @@ var playerSpire = {
             if (playerSpireTraps[item].locked) continue;
             var cost = this.getTrapCost(item);
             var color = (this.runestones >= cost) ? playerSpireTraps[item].color : "grey";
+            if (playerSpireTraps[item].isTower && playerSpireTraps[item].owned >= 10) color = "grey";
             var trapIcon = "";
             if (this.settings.trapIcons) trapIcon = "<span class='icomoon icon-" + playerSpireTraps[item].icon + "'></span> ";
             html += "<div style='background-color: " + color + "' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"" + item + "\", event)' onclick='playerSpire.selectTrap(\"" + item + "\")' id='" + item + "TrapBox' class='spireTrapBoxSmall" + ((item == this.selectedTrap) ? " selected" : "") + "'>" + trapIcon + item + "</div>";
@@ -968,7 +1002,8 @@ var playerSpire = {
             reward *= (1 + (rsBonus / 100));
         }
         if (enemy.slowTot && playerSpireTraps.Frost.level >= 5){
-            reward *= (1 + (enemy.slowTot * 0.02))
+            var mult = playerSpireTraps.Frost.rsPerSlow();
+            reward *= (1 + (enemy.slowTot * (mult / 100)))
         }
         return reward;
     },
@@ -1124,6 +1159,7 @@ var playerSpire = {
         if (!trap) return;
         var oldTrap = this.layout[cell].trap.name;
         if (trap == oldTrap) return;
+        if (playerSpireTraps[trap].isTower && playerSpireTraps[trap].owned >= 10) return;
         var cost = this.getTrapCost(trap);
         var refund = 0;
         if (oldTrap) refund = this.getTrapCost(oldTrap, true);
@@ -1266,6 +1302,7 @@ var playerSpire = {
         return cell % 5;  
     },
     moveEnemies: function(catchingUp){
+        if (this.sealed) return;
         if (this.paused) return;
         var layout = playerSpire.layout;
         var totalEnemies = 0;
@@ -1383,6 +1420,7 @@ var playerSpire = {
         saveObject.main.difficultyHidden = this.difficultyHidden;
         saveObject.main.peakThreat = this.peakThreat;
         saveObject.main.paused = this.paused;
+        saveObject.main.sealed = this.sealed;
         saveObject.settings = this.settings;
 
         for (var item in playerSpireTraps){
@@ -1412,6 +1450,7 @@ var playerSpire = {
             playerSpireTraps[item].level = saveObj.traps[item].level;
             playerSpireTraps[item].locked = saveObj.traps[item].locked;
         }
+        if (this.smallMode && ((this.canSeal() && !this.sealed) || this.sealed)) this.smallMode = false;
         if (this.popupOpen)
             this.openPopup();
         else this.closePopup();
@@ -1422,7 +1461,8 @@ var playerSpire = {
         this.drawSpire();
         this.drawInfo();
         this.initalized = true;
-        document.getElementById('playerSpireTab').style.display = 'table-cell';
+        if (!this.sealed) document.getElementById('playerSpireTab').style.display = 'table-cell';
+        else document.getElementById('playerSpireTab').style.display = 'none';
         this.updateTabColor();
     }
 
@@ -1544,6 +1584,18 @@ var playerSpireTraps = {
                 description: "Multiply Frost Trap damage <b>by 5</b>, and increase the duration of Chilled by 1 cell.",
                 unlockAt: 530,
                 cost: 5e10,
+            },
+            {
+                //level 7
+                description: "Multiply Frost Trap damage <b>by 2</b>, and each time an enemy can't move because it is slowed, that enemy becomes worth +2% more Runestones. This effect stacks additively.",
+                unlockAt: 630,
+                cost: 5e13
+            },
+            {
+                //level 8
+                description: "Multiply Frost Trap damage <b>by 2</b>, and each time an enemy can't move because it is slowed, that enemy becomes worth +2% more Runestones. This effect stacks additively.",
+                unlockAt: 730,
+                cost: 1e18
             }
         ],
         level: 1,
@@ -1554,9 +1606,15 @@ var playerSpireTraps = {
             var desc = "Deals " + prettify(this.totalDamage()) + " damage when stepped on, and causes the target to become Chilled, slowing movement to 50% speed for " + this.slowTurns() + " moves. This speed reduction causes the target to stay on each Trap for twice as long, triggering each Trap twice. Note that Frost Traps are coated with antifreeze, preventing chill effects from working while an enemy is standing on a Frost Trap."
             if (this.level >= 3) desc += "<br/><br/>Enemies chilled by Frost Traps take 25% extra damage from Fire Traps."
             if (this.level >= 4) desc += "<br/><br/>Any Poison Traps placed directly before a Frost Trap become 4x as effective.";
-            if (this.level >= 5) desc += "<br/><br/>Each time an enemy can't move because it's slowed (from Chilled or Frozen), it becomes worth 2% more Runestones. This effect stacks additively."
+            if (this.level >= 5) desc += "<br/><br/>Each time an enemy can't move because it's slowed (from Chilled or Frozen), it becomes worth " + this.rsPerSlow() + "% more Runestones. This effect stacks additively."
             desc += "<br/><br/>(Hotkey 2)";
             return desc;
+        },
+        rsPerSlow: function(){
+            if (this.level < 5) return 0;
+            if (this.level == 7) return 4;
+            if (this.level == 8) return 6;
+            return 2;
         },
         slowTurns: function(){
             if (this.level < 2) return 3;
@@ -1566,7 +1624,7 @@ var playerSpireTraps = {
         totalDamage: function (enemy){
             var effect = (enemy && enemy.shockTurns && enemy.shockTurns > 0) ? playerSpireTraps.Lightning.shockedDamage() : 0;
             var level = this.level;
-            var dmgs = [10, 50, 500, 2500, 5000, 25000];
+            var dmgs = [10, 50, 500, 2500, 5000, 25000, 50000, 100000];
             var dmg;
             if (level > dmgs.length)
                 dmg = dmgs[dmgs.length - 1];
@@ -1627,6 +1685,18 @@ var playerSpireTraps = {
                 description: "<b>Double</b> the amount of Toxicity added when an enemy steps on any Poison Trap.",
                 unlockAt: 625,
                 cost: 4e13
+            },
+            {
+                //Level 8
+                description: "<b>Triple</b> the amount of Toxicity added when an enemy steps on any Poison Trap.",
+                unlockAt: 700,
+                cost: 1e16
+            },
+            {
+                //Level 9
+                description: "<b>Quadruple</b> the amount of Toxicity added when an enemy steps on any Poison Trap.",
+                unlockAt: 750,
+                cost: 5e19
             }
         ],
         damage: 5,
@@ -1643,7 +1713,7 @@ var playerSpireTraps = {
         },
         totalDamage: function (enemy, cell){
             var level = this.level;
-            var dmgs = [5, 10, 10, 20, 40, 80, 160];
+            var dmgs = [5, 10, 10, 20, 40, 80, 160, 480, 1920];
             var dmg;
             if (level > dmgs.length)
                 dmg = dmgs[dmgs.length - 1];

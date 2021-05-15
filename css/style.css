@@ -52,6 +52,11 @@ body {
 	transition: width .1s ease;
 }
 
+.autoBattleBarHolder .progress-bar {
+    -webkit-transition: width .33s ease;
+	transition: width .33s ease;
+}
+
 #wrapper {
     height: 100vh;
     background-size: auto 100%;
@@ -1067,6 +1072,12 @@ body {
 	color: black;
 }
 
+.btn-disabled, .btn-disabled:hover, .colorDisabled, .colorDisabled:hover{
+	color: white;
+	background-color: grey;
+	border-color:rgb(100, 100, 100);
+}
+
 .settingBtn3{
 	background-color: #318696;
 }
@@ -1084,11 +1095,11 @@ body {
 }
 
 .settingBtn5{
-	background-color: #53025a;
+	background-color: #423705;
 }
 
 .settingBtn5:hover{
-	background-color: #1f0022;
+	background-color: #2e2604;
 }
 
 .settingBtn0, .settingBtn1, .settingBtn3, .settingBtn4 {
@@ -1889,11 +1900,6 @@ body {
 	margin-top: 1vw;
 }
 
-.portalError{
-	display: block;
-	padding: 2%;
-}
-
 .squaredError{
 	background-color: #000;
 	color: white;
@@ -2685,11 +2691,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .doubleTall{
-	line-height: 3.75vw;
+	line-height: 4.1vw;
 }
 
 .tripleTall{
-	line-height: 6.4vw;
+	line-height: 6.52vw;
 }
 
 .quadTall{
@@ -2697,7 +2703,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .quinTall{
-	line-height: 11.4vw;
+	line-height: 11.59vw;
 }
 
 #achievementPopup{
@@ -3363,6 +3369,13 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	cursor: pointer;	
 }
 
+.fluffFormBattlescruff{
+	color: #0e198f;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
 #fluffyExpBreakdown{
 	min-height: calc(1.5em + 1vw);
 	padding: 0.5vw 1.5vw;
@@ -3573,9 +3586,63 @@ color: #DDDDFF !important;
 
 .successColor, .colorSuccess{
 	background-color: #5cb85c;
+	color: white;
 }
+
+.btn.colorSuccess{
+	border: 1px solid #4cae4c;
+}
+
+.successColor:hover, .colorSuccess:hover{
+	background-color: #449d44;
+	border-color: #398439;
+	color: white;
+}
+
+.colorVoidy{
+	background-color: #3e1b5a;
+	border: 1px solid #844eaf;
+	color: white;
+}
+
+.colorVoidy:hover{
+	background-color: #28113b;
+	border-color: #653c86;
+	color: white;
+}
+
+.colorVoidy.darkBorder{
+	border: 1px solid #251036;
+}
+
+.colorVoidy.darkBorder:hover{
+	border-color: #13081b;
+}
+
+.colorNavy{
+	background-color: #070b3b;
+	border-color: #0e1569;
+	color: white;
+}
+
+.colorNavy:hover{
+	background-color: #060925;
+	border-color: #060b42;
+	color: white;
+}
+
 .dangerColor, .colorDanger, .stateDanger{
 	background-color: #d9534f;
+	color: white;
+}
+
+.btn.colorDanger{
+	border: 1px solid #d43f3a;
+}
+
+.colorDanger:hover{
+	background-color: #c9302c;
+	border-color: #ac2925;
 	color: white;
 }
 
@@ -3612,6 +3679,16 @@ background-color: rgba(255,255,255,0.25);
 .infoColor, .colorInfo{
 	background-color: #5bc0de;
 }
+
+.btn.colorInfo{
+	border: 1px solid #46b8da;
+}
+
+.infoColor:hover, .colorInfo:hover{
+	border-color: #269abc;
+	background-color: #31b0d5;
+}
+
 .warningColor, .colorWarning{
 	background-color: yellow;
 	color: black;
@@ -4066,7 +4143,10 @@ background-color: rgba(255,255,255,0.25);
 #portalError{
 	background-color: black;
 	color: red;
-	font-size: 1.1vw;
+	display: block;
+	padding: 2%;
+	font-size: 0.9vw;
+	margin-top: -3%
 }
 
 .challengeThing{
@@ -4751,6 +4831,10 @@ sup{
 
 #tooltipDiv.tooltipExtraSuperLg{
 	width: 65%;
+}
+
+#tooltipDiv.tooltipExtraBiggest{
+	width: 90%;
 }
 
 #playFabLoginInfo{
@@ -5499,8 +5583,8 @@ sup{
 
 } */
 
-#energyShield, #energyShieldLayer{
-	background: linear-gradient(0deg, rgb(33, 0, 124) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 70%, rgb(33, 0, 124) 100%);
+#energyShield, #energyShieldLayer, #energyShieldLayer2{
+	
 	position: absolute;
 	width: 0%;
 	height: 100%;
@@ -5510,9 +5594,16 @@ sup{
 	pointer-events:none;
 }
 
-#energyShieldLayer{
-	background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgb(179, 56, 56) 30%, rgb(209, 87, 87) 50%, rgb(165, 54, 54) 70%, rgba(0, 0, 0, 0) 100%);
+.es0{
+	background: linear-gradient(0deg, rgb(33, 0, 124) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 70%, rgb(33, 0, 124) 100%);
+}
 
+.es1{
+	background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgb(179, 56, 56) 30%, rgb(209, 87, 87) 50%, rgb(165, 54, 54) 70%, rgba(0, 0, 0, 0) 100%);
+}
+
+.es2{
+	background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgb(14, 78, 19) 30%, rgb(74, 190, 119) 50%, rgb(54, 165, 104) 70%, rgba(0, 0, 0, 0) 100%);
 }
 
 .energyShieldIcon{
@@ -5565,7 +5656,7 @@ sup{
 	text-decoration: italic;
 }
 
-#challengeTrappapalooza .thingName{
+#challengeTrappapalooza .thingName, #challengePandemonium .thingName{
 	font-size: 0.9vw;
 }
 
@@ -5765,7 +5856,7 @@ sup{
 	margin-top: 0.5vw;
 }
 
-.mazDelete, .mazWorld, .mazCheckbox, .mazPreset, .mazRepeat, .mazRepeatUntil, .mazExit, .mazBwWorld, .mazCell, .mazTimes{
+.mazDelete, .mazWorld, .mazCheckbox, .mazPreset, .mazRepeat, .mazRepeatUntil, .mazExit, .mazBwWorld, .mazCell, .mazTimes, .mazThrough, .mazRx{
 	display: inline-block;
 }
 
@@ -5788,7 +5879,7 @@ sup{
 	cursor: pointer;
 }
 
-.mazWorld, .mazCell{
+.mazWorld, .mazCell, .mazThrough{
 	width: 7.5%;
 }
 
@@ -5805,46 +5896,46 @@ sup{
 }
 
 .mazRepeatUntil{
-	width: 16.5%;
+	width: 14.5%;
 }
 
 .mazExit{
-	width: 16.5%;
+	width: 14.5%;
 }
 
 .mazTimes{
-	width: 15.5%;
+	width: 13.5%;
 }
 
-.mazBwZoneOff .mazTimes.select{
-	width: 18%;
+.mazBwZoneOff.mazRxOff .mazTimes.select{
+	width: 14.5%;
 }
 
-.mazBwZoneOn .mazRepeatUntil{
-	width: 17.5%;
+.mazBwZoneOn .mazRepeatUntil, .mazRxOn .mazRepeatUntil{
+	width: 14%;
 }
 
-.mazBwZoneOn .mazExit{
-	width: 13%;
+.mazBwZoneOn .mazExit, .mazRxOn .mazExit{
+	width: 11.5%;
 }
 
-.mazBwZoneOn .mazRepeat{
-	width: 12%;
-}
-
-.mazBwZoneOn .mazPreset{
+.mazBwZoneOn .mazRepeat, .mazRxOn .mazRepeat{
 	width: 10%;
 }
 
-.mazBwZoneOff .mazBwWorld{
+.mazBwZoneOn .mazPreset, .mazRxOn .mazPreset{
+	width: 10%;
+}
+
+.mazBwZoneOff .mazBwWorld, .mazRxOff .mazRx{
 	display: none;
 }
 
-.mazBwZoneOn .mazBwWorld{
+.mazBwZoneOn .mazBwWorld, .mazRxOn .mazRx{
 	width: 8%;
 }
 
-.mazBwZoneOn .mazTimes{
+.mazBwZoneOn .mazTimes, .mazRxOn .mazTimes{
 	width: 14%;
 }
 
@@ -5965,7 +6056,7 @@ sup{
 	display: none;
 }
 
-#challengeMayhem:not(.finishedChallenge){
+#challengeMayhem:not(.finishedChallenge), #challengePandemonium:not(.finishedChallenge){
 	background-color: #0d9208;
 }
 
@@ -5990,6 +6081,497 @@ sup{
 .gridOverlayGreenGradientliquid ul li{
 	border: 0;
 }
+
+.alchemyPopupHerb{
+	display: inline-block;
+	width: 20%;
+	font-size: 1.3vw;
+	border: 1px solid black;
+	text-align: center;
+}
+
+#alchemyCraftTable{
+	width: 100%;
+}
+
+.alchemyPopupCraft.brew:nth-child(2){
+	border-right: 3px solid black;
+}
+
+.alchemyPopupCraft{
+	width: 20%;
+	border: 1px solid black;
+	height: 10vw;
+	vertical-align: top;
+	padding: 0.5em;
+}
+
+.alchemyPopupCraft .btn{
+	font-size: 0.8em;
+	border: 1px solid white;
+}
+
+.alchemyPopupCraft.brew{
+	background-color: #a8c3eb;
+}
+
+.alchemyPopupCraft.potion{
+	background-color: #dce0a1;
+}
+
+.alchemyEnemyStats{
+	font-weight: bold;
+	font-style: italic;
+	text-align: center;
+	color: white;
+	background-color: black;
+	padding: 1%;
+	font-size: 1.1em;
+}
+
+.alchemyPopupName{
+	text-align: center;
+	font-weight: bold;
+}
+
+.alchemyTitle{
+	text-align: center;
+	font-weight: bold;
+	font-size: 1.5vw;
+	margin-top: 0.5%;
+	margin-bottom: 0.25%;
+}
+
+.alchemyNegative{
+	color: red;
+}
+
+.alchemyPotionEffect{
+	font-style: italic;
+	font-size: 0.9em;
+}
+
+.alchemyCraftCost{
+	background-color: rgba(163, 162, 162, 0.7);
+	display: block;
+	margin: 0 -0.5em;
+	padding: 0.1em 0.5em;
+}
+
+#alchemyDropsTable{
+	width: 100%;
+	text-align: center;
+	font-size: 1.2em;
+}
+
+#alchemyDropsTable tbody tr:first-child td{
+	font-weight: bold;
+}
+
+#alchemyDropsTable tbody tr td{
+	width: calc(100% / 13);
+	border: 1px solid black;
+}
+
+.alchemyAuto input{
+	width: 30%;
+}
+
+#autoItemsDiv{
+	max-height: 11em;
+	overflow-y: auto;
+	background-color: #222222;
+	overflow-x: hidden;
+}
+
+#autoItemsDiv.modeLg{
+	max-height: 15em;
+}
+
+.abOptions .btn{
+	min-width: 15%;
+}
+
+.abOptions{
+	color: white;
+	padding: 0.5%;
+	border: 3px solid white;
+	margin: 0.5%;
+	margin-bottom: 0;
+}
+
+.abMiscBox{
+	display: inline-block;
+	color: white;
+	width: 33.33%;
+	padding: 0.25% 0.5%;
+	text-align: center;
+	border: 3px solid white;
+	margin: 0.5%;
+	vertical-align: top;
+	min-height: 10.4em;
+}
+
+.presetItems{
+	min-height: 5vw;
+	font-size: 0.9em;
+}
+
+.abMiscBox.preset{
+	width: calc((63.66% - 24px) / 3)
+}
+
+.autoItem{
+	display: inline-block;
+	width: calc((100% - 1.4em - 2px) / 7);
+	text-align: center;
+	cursor: pointer;
+	padding: 0.2em;
+	color: white;
+	margin-right: 0.1em;
+	margin-left: 0.1em;
+	margin-top: 0.1em;
+}
+
+.autoItem:first-child{
+	margin-left: calc(0.1em + 1px);
+}
+
+/* .autoItem:nth-child(7){
+	margin-right: 0;
+} */
+
+.autoItemEquipped{
+	border: 1px solid #42bd7f;
+	background-color: #097740;
+	color: white;
+}
+
+.autoItemEquipped:hover{
+	border: 1px solid #2e865a;
+	background-color: #054e2a;
+	color: white;
+}
+
+.autoColorOrange{
+	border: 1px solid #d69252;
+	background-color: #8f4907;
+	color: white;
+}
+
+.autoColorOrange:hover{
+	border: 1px solid #8f6136;
+	background-color: #613003;
+	color: white;
+}
+
+.autoColorGrey{
+	border: 1px solid #ddddff; 
+	color: white !important; 
+	background-color: #43434d;
+	cursor: default;
+}
+
+.autoColorGrey.active{
+	cursor: pointer;
+}
+
+.autoColorGrey.active:hover{
+	border: 1px solid #4c4c58; 
+	color: white;
+	background-color: #26262c;
+}
+
+.autoItemEquipped.btn-md, .autoItemHide.btn-md, .autoColorOrange.btn-md, .autoColorGrey.btn-md, .autoItemUpgrade.btn-md, .colorVoidy.btn-md{
+	font-size: 0.75vw;
+	padding: 0.25vw 0.5vw;
+}
+
+.autoItemEquipped.btn-lg, .autoItemUpgrade.btn-lg, .autoColorOrange.btn-lg, .autoColorGrey.btn-lg, .autoItemHide.btn-lg, .colorVoidy.btn-lg{
+	font-size: 1vw;
+	padding: 0.3vw 0.5vw;
+}
+
+.autoItemNotEquipped{
+	border: 1px solid #6b6a6a;
+	background-color: black;
+}
+
+.autoItemNotEquipped:hover{
+	border: 1px solid #4b4a4a;
+	background-color: #202020;
+}
+
+#autoDust{
+	text-align: center;
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+#abLevelButtons{
+	text-align: center;
+}
+
+.autoItemUpgrade{
+	border: 1px solid #5e5de8;
+	background-color: #090792;
+	margin-bottom: 0.1em;
+	margin-top: 0;
+	color: white;
+}
+
+.autoItemUpgrade.btn{
+	margin: 0;
+}
+
+.autoItemUpgrade:hover{
+	border: 1px solid #3f3fa0;
+	background-color: #060472;
+	color: white;
+}
+
+.abError{
+	color: #921707;
+}
+
+.autoItemHide{
+	border: 1px solid #d73e2b;
+	background-color: #921707;
+	margin-bottom: 0.1em;
+	margin-top: 0;
+	color: white;
+}
+
+.btn.autoItemHide{
+	margin: 0;
+}
+
+.autoItemHide:hover{
+	border: 1px solid #86271b;
+	background-color: #641005;
+	color: white;
+}
+
+.autoItemRestore{
+	border: 1px solid #2fac6d;
+	background-color: #097740;
+	margin-bottom: 0.1em;
+	margin-top: 0;
+}
+
+.autoItemRestore:hover{
+	border: 1px solid #1f7449;
+	background-color: #064b29;
+}
+
+#autoBattleNotes{
+	font-size: 1.2em;
+	font-weight: bold;
+	text-align: center;
+	height: 4em;
+	background-color: #222222;
+	color: white;
+}
+
+.autoStats{
+	display: inline-block;
+	width: 50%;
+	padding: 1%;
+	font-size: 0.9vw;
+	vertical-align: top;
+}
+
+.autoBattleBarHolder{
+	width: 48%;
+	margin-left: 1%;
+	margin-right: 1%;
+	display: inline-block;
+	background-color: black;
+	border-radius: 20px;
+}
+
+.autoBattleBarHolder .progress-bar{
+	border-radius: 20px;
+}
+
+.rightBar{
+	float: right !important;
+}
+
+.autoBattleBarHolder .progress-bar .innerFightBar{
+	text-align: center;
+	display: block;
+	min-width: 100%;
+	float: left;
+}
+
+.autoBattleBarHolder .progress-bar.rightBar .innerFightBar{
+	float: right;
+}
+
+
+
+.autoBattleTopName{
+	font-weight: bold;
+	display: inline-block;
+	width: 50%;
+	text-align: center;
+	font-size: 1.5em;
+}
+
+.autoBonusBox{
+	width: calc((100% - 2px) / 6);
+	border: 1px solid black;
+	cursor: pointer;
+	display: inline-block;
+	padding: 0.5%;
+	color: white;
+	text-align: center;
+	vertical-align: top;
+	height: 9.5em;
+	border-color: #918f8f;
+	font-size: 0.9vw;
+}
+
+#Extra_LimbsBonusBox{
+	background-color: #443b05;
+	border-color: #e7d156;
+}
+
+#Extra_LimbsBonusBox:hover{
+	background-color: #2c2604;
+	border-color: #b1a044;
+}
+
+.autoOneTimerNotOwned{
+	background-color: #070b3b;
+	border-color: #3a48e6;
+}
+
+.autoOneTimerNotOwned:hover{
+	background-color: #060925 !important;
+	border-color: #3a48e6 !important;
+}
+
+.autoOneTimerOwned, .autoOneTimerOwned:hover{
+	background-color: #171931 !important;
+	border-color: #5b66e9 !important;
+	cursor: default;
+}
+
+
+.autoBonusBox:hover{
+	background-color: #111111;
+}
+
+.autoStatsBreakup{
+	display: inline-block;
+	width: 33.332%;
+	vertical-align: top;
+}
+
+.contractBox{
+	width: calc((100% / 3));
+	border: 1px solid black;
+	display: inline-block;
+	text-align: center;
+	background-color: #140716;
+	color: white;
+	padding: 0.5%;
+}
+
+.contractTitle{
+	font-weight: bold;
+	font-size: 1.3em;
+}
+
+.contractDescription{
+	height: 6em;
+	font-size: 0.95em;
+}
+
+#autoBattleMenuButtons .btn{
+	border-radius: 12px 12px 0 0;
+	padding: 0.35vw 1.5vw;
+	font-size: 0.95vw;
+}
+
+.darkBorder.btn.autoColorOrange{
+	border: 1px solid #613003;
+}
+
+.darkBorder.btn.autoItemHide{
+	border: 1px solid #641005;
+}
+
+.darkBorder.btn.autoItemUpgrade{
+	border: 1px solid #060472;
+}
+
+.darkBorder.btn.autoColorGrey{
+	border: 1px solid #26262c;
+}
+
+.contractBox .btn{
+	font-size: 1em;
+}
+
+.abTabNone a{
+	background-color: #3e1b5a;
+	color: white;
+}
+
+.abTabNone:hover a{
+	background-color: #28113b !important;
+}
+
+.abTabWinning a{
+	background-color: #097740;
+	color: white;
+}
+
+.abTabWinning:hover a{
+	background-color: #054e2a !important;
+}
+
+.abTabLosing a{
+	background-color: #921707;
+	color: white;
+}
+
+.abTabLosing:hover a{
+	background-color: #641005 !important;
+	color: white;
+}
+
+#alchemyTab a{
+	background-color: #072b09;
+	color: white;
+}
+
+#alchemyTab:hover a{
+	background-color: #041605;
+	color: white;
+}
+
+#abHelpBtn{
+	top: 0.05em;
+	left: 84vw;
+	position: absolute; 
+	font-size: 2.5em; 
+	color: #090792;
+	cursor: pointer;
+}
+
+#abCloseBtn{
+	top: 0;
+	left: 87vw;
+	position: absolute;
+	font-size: 2.7em;
+	cursor: pointer;
+	color: #921707;
+}
+
 
 input[type=range] {
 	-webkit-appearance: none;
