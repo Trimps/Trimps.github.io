@@ -4295,12 +4295,7 @@ background-color: rgba(255,255,255,0.25);
 .btn-new{
 	color: white;
 	font-weight: bold;
-	background: radial-gradient(circle, rgba(97,1,1,1) 0%, rgba(138,60,15,1) 11%, rgba(171,108,26,1) 27%, rgba(198,194,20,1) 47%, rgba(171,108,26,1) 82%, rgba(97,1,1,1) 100%);
-	text-shadow:
-	-1px -1px 0 black,  
-		1px -1px 0 black,
-	-1px 1px 0 black,
-		1px 1px 0 black;
+	background: linear-gradient(90deg, rgba(67,67,77,1) 0%, rgba(9,7,146,1) 16%, rgba(7,11,59,1) 33%, rgba(62,27,90,1) 50%, rgba(143,73,7,1) 66%, rgba(146,23,7,1) 83%, rgba(67,67,77,1) 100%);
 	width: 100%;
 }
 
@@ -4310,9 +4305,8 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: #610000;
-	font-weight: bold;
-	animation: heirRare10Animated 10s infinite;
+	color: white;
+	background: linear-gradient(90deg, rgba(6,4,114,1) 10%, rgba(6,9,37,1) 30%, rgba(40,17,59,1) 50%, rgba(97,48,3,1) 70%, rgba(100,16,5,1) 90%);
 }
 
 .btn-new:active,

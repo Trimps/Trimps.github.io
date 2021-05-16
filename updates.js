@@ -3219,7 +3219,7 @@ function getLootBd(what) {
 	var gaseousPotion = alchObj.getRadonMult();
 	if (what == "Helium" && gaseousPotion > 1){
 		currentCalc *= gaseousPotion;
-		textString += "<tr><td class='bdTitle'>Gaseous Brew</td><td>+ 25%</td><td>" + alchObj.getPotionCount("Gaseous Brew") + "</td><td>+ " + prettify((gaseousPotion - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+		textString += "<tr><td class='bdTitle'>Gaseous Brew</td><td>+ 10%</td><td>" + alchObj.getPotionCount("Gaseous Brew") + "</td><td>+ " + prettify((gaseousPotion - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.global.challengeActive == "Quagmire"){
 		amt = game.challenges.Quagmire.getLootMult();
