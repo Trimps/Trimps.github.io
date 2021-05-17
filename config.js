@@ -5048,7 +5048,6 @@ var toReturn = {
 				for (var x = 0; x < blocked; x++){
 					var equipName = equips[x];
 					var worldUnlock = game.worldUnlocks[equipName];
-					console.log(worldUnlock);
 					if (worldUnlock.world > game.global.world) continue;
 					unlockEquipment(equipName);
 				}
@@ -5120,9 +5119,11 @@ var toReturn = {
 				this.drawStacks();
 				var cell = game.global.gridArray[game.global.lastClearedCell + 1];
 				if (cell.health < 0) return;
-				if (game.global.lastClearedCell == 98) cell.maxHealth = cell.preMayhemHealth * this.getBossMult();
-				else cell.maxHealth = cell.preMayhemHealth * this.getPandMult();
-				if (cell.health > cell.maxHealth)
+				if (cell.preMayhemHealth){
+					if (game.global.lastClearedCell == 98) cell.maxHealth = cell.preMayhemHealth * this.getBossMult();
+					else cell.maxHealth = cell.preMayhemHealth * this.getPandMult();
+				}
+				if (cell.maxHealth != -1 && cell.health > cell.maxHealth)
 					cell.health = cell.maxHealth;
 			},
 			abandon: function(){
