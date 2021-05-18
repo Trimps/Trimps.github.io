@@ -4470,7 +4470,7 @@ function autoBalanceJob(which){
 	if (!setting[which] || !setting[which].enabled || !setting.Farmer || !setting.Farmer.enabled) return;
 	var want = game.jobs.Farmer.owned * (setting[which].ratio / setting.Farmer.ratio);
 	want = Math.floor(want);
-	if (setting.buyMax) want = Math.max(want, buyMax);
+	if (setting.buyMax) want = Math.max(want, setting.buyMax);
 	if (game.workspaces > want) autoBuyJob(which, true, want);
 }
 
