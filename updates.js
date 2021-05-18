@@ -4269,7 +4269,7 @@ function enableImprovedAutoStorage(){
 }
 
 function applyS1(){
-	game.resources.science.owned += 5000;
+	if (game.global.challengeActive != "Scientist") game.resources.science.owned += 5000;
 	fadeIn("science", 10);
 	document.getElementById("upgradesTitleSpan").innerHTML = "Upgrades";
 	game.resources.wood.owned += 100;

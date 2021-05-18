@@ -3119,8 +3119,8 @@ function importPerks() {
 		if (game.portal[perk].locked || level > game.portal[perk].max || isNumberBad(level))
 			return "Cannot set " + perk + " to level " + level + ".";
 
-		if (level < game.portal[perk].level)
-			respecNeeded = true;
+		if (portalUniverse == 1 && level < game.portal[perk].level) respecNeeded = true;
+		else if (portalUniverse == 2 && level < game.portal[perk].radLevel) respecNeeded = true;
 
 		changeAmt[perk] = level - game.portal[perk][levelName] - game.portal[perk].levelTemp;
 		price[perk] = changeAmt[perk] > 0 ? getPortalUpgradePrice(perk, false, changeAmt[perk]) :
@@ -4467,9 +4467,10 @@ function autoBalanceJob(which){
 	//Fired when miners and scientists are unlocked and maybe other places later, requires autoJobs
 	var setting = getAutoJobsSetting();
 	if (!setting || !setting.enabled || !bwRewardUnlocked("AutoJobs")) return;
-	if (!setting[which] || !setting[which].enabled || !setting.Farmer.enabled) return;
+	if (!setting[which] || !setting[which].enabled || !setting.Farmer || !setting.Farmer.enabled) return;
 	var want = game.jobs.Farmer.owned * (setting[which].ratio / setting.Farmer.ratio);
 	want = Math.floor(want);
+	if (setting.buyMax) want = Math.max(want, buyMax);
 	if (game.workspaces > want) autoBuyJob(which, true, want);
 }
 
@@ -18044,6 +18045,13 @@ document.addEventListener('keydown', function (e) {
 			// F for fight
 			if (checkLettersOk() && game.upgrades.Battle.done) {
 				fightManual();
+			}
+			break;
+		case 73: 
+			//i for spIre Assault
+			if (game.global.highestRadonLevelCleared >= 74){
+				if (game.global.lockTooltip && lastTooltipTitle == "Spire Assault") cancelTooltip();
+				else if (checkLettersOk()) autoBattle.popup();
 			}
 			break;
 		case 80: //p for sPire
