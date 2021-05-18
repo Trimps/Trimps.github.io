@@ -2522,6 +2522,7 @@ var autoBattle = {
         if (this.dust < cost) return;
         bonus.level++;
         this.dust -= cost;
+        this.saveLastAction('bonus', null, cost);
         this.popup(true, false, true);
     },
     buyOneTimer: function(what){
@@ -2531,6 +2532,7 @@ var autoBattle = {
         bonus.owned = true;
         if (bonus.onPurchase) bonus.onPurchase();
         this.dust -= cost;
+        this.saveLastAction('bonus', null, cost);
         this.popup(true, false, true);
     },
     hoverItem: function(item, upgrade){
@@ -2555,7 +2557,7 @@ var autoBattle = {
     },
     upgrade: function(item){
         var itemObj = this.items[item];
-        if (!itemObj) return;
+        if (!itemObj) return; 
         var cost = this.upgradeCost(item);
         if (this.dust < cost) return;
         this.saveLastAction("upgrade", item);
@@ -2573,7 +2575,19 @@ var autoBattle = {
         }
         if (!somethinGood) this.lastActions = [];
     },
-    saveLastAction: function(type, what){
+    saveLastAction: function(type, what, cost){
+        if (type == "bonus" || type == "contract"){
+            for (var x = 0; x < this.lastActions.length; x++){
+                this.lastActions[x][2] -= cost;
+            }
+            return;
+        }
+        if (type == "cancelContract"){
+            for (var x = 0; x < this.lastActions.length; x++){
+                this.lastActions[x][2] += cost;
+            }
+            return;
+        }
         var lastLastAction = (this.lastActions.length) ? this.lastActions[this.lastActions.length - 1] : [];
         if (lastLastAction && lastLastAction[0] == 'upgrade' && type == 'upgrade' && lastLastAction[1] == what) lastLastAction[5]++;
         else this.lastActions.push([type, what, this.dust, this.maxEnemyLevel, this.enemiesKilled, 1]);
@@ -2674,6 +2688,7 @@ var autoBattle = {
         var price = this.contractPrice(this.activeContract);
         this.activeContract = "";
         this.dust += price;
+        this.saveLastAction('cancelContract', null, price);
         this.popup(false,false,true);
     },
     acceptContract: function(item){
@@ -2681,6 +2696,7 @@ var autoBattle = {
         var price = this.contractPrice(item);
         if (this.dust < price) return;
         this.dust -= price;
+        this.saveLastAction('contract', null, price);
         this.activeContract = item;
         this.popup(false, false, true);
     },
@@ -2985,8 +3001,7 @@ var autoBattle = {
             var action = this.lastActions[this.lastActions.length - 1];
             if (action){
                 var itemName = action[1].split("_").join(' ');
-                if (action[0] == "contract") text += "Return " + itemName + " to the Void";
-                else if (action[0] == "upgrade") text += "Downgrade " + itemName + " by " + action[5] + " level" + needAnS(action[5]);
+                text += "Downgrade " + itemName + " by " + action[5] + " level" + needAnS(action[5]);
                 text += ", and <b>SET YOUR DUST TO " + prettify(action[2]) + "</b> (The amount you had the moment before you spent it).";
                 if (this.maxEnemyLevel > action[3]) text += " Your progress will be set back to level " + action[3] + ".";
                 else if (this.enemiesKilled > action[4]) text += " Your kill counter will be reduced by " + prettify(this.enemiesKilled - action[4]) + ".";
