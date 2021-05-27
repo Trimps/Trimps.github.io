@@ -2090,7 +2090,7 @@ var autoBattle = {
         }
         if (this.oneTimers.Whirlwind_of_Arms.owned){
             this.trimp.maxHealth += 1000;
-            this.trimp.attack == 25;
+            this.trimp.attack += 25;
             this.trimp.poisonMod += 10;
         }
         for (var item in this.items){
