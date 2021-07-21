@@ -932,7 +932,7 @@ var toReturn = {
 			darkTheme: {
 				extraTags: "general",
 				enabled: 1,
-				description: "Toggle between the default Trimps theme, a custom dark theme made by u/Grabarz19, a gradient theme by u/k1d_5h31d0n, and the default theme with a black background.",
+				description: "Toggle between the default Trimps theme, a custom dark theme made by u/Grabarz19, a gradient theme by u/5h3i1ah, and the default theme with a black background.",
 				titles: ["Black Background", "Default Theme", "Dark Theme", "Gradient Theme"],
 				//styleName index should always be equal to title index minus 2, and should match the css file name
 				styleNames: ["dark", "gradient"],
