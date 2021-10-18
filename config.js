@@ -7238,7 +7238,9 @@ var toReturn = {
 		},
 		Pumpkimp: {
 			location: "Maps",
-			locked: 1,
+			get locked(){
+				return (holidayObj.checkActive("Pumpkimp") ? 0 : 1);
+			},
 			attack: 0.9,
 			health: 1.5,
 			fast: false,
