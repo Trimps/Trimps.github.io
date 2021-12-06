@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.5.1',
+		stringVersion: '5.6.0',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -102,6 +102,7 @@ var toReturn = {
 		selectedChallenge: "",
 		lastOfflineProgress: "",
 		sLevel: 0,
+		portalColor: 0,
 		totalGifts: 0,
 		brokenPlanet: false,
 		formation: 0,
@@ -118,6 +119,7 @@ var toReturn = {
 		antiStacks: 0,
 		prisonClear: 0,
 		frugalDone: false,
+		glassDone: false,
 		lastUnlock: 0,
 		lowestGen: -1,
 		breedBack: -1,
@@ -279,6 +281,7 @@ var toReturn = {
 		autoBattleData: null,
 		canGuString: false,
 		guString: "",
+		lastU2Voids: 0,
 		lastHeirlooms: {
 			u1: {
 				Shield: -1,
@@ -1211,14 +1214,14 @@ var toReturn = {
 						var times = parseInt(document.getElementById('mazTimes' + x).value, 10);
 						var through = parseInt(document.getElementById('mazThrough' + x).value, 10);
 						var rx = parseInt(document.getElementById('mazRx' + x).value, 10);
-						if (isNaN(through) || through > 999) through = 999;
+						if (isNaN(through) || through > 1000) through = 1000;
 						else if (through < 10) through = 10;
 						if (isNaN(world) || world < 10){
-							error += " Preset " + (x + 1) + " needs a value for Exit At Zone that's greater than 10.";
+							error += " Preset " + (x + 1) + " needs a value for Start Zone that's greater than 10.";
 							continue;
 						}
 						else if (world > 1000) {
-							error += " Preset " + (x + 1) + " needs a value for Exit At Zone that's less than 1000.";
+							error += " Preset " + (x + 1) + " needs a value for Start Zone that's less than 1000.";
 							continue;
 						}
 						if (times != -1 && times != 1 && times != 2 && times != 3 && times != 5 && times != 10 && times != 30) times = -1;
@@ -1348,7 +1351,7 @@ var toReturn = {
 								}
 							}
 						}
-						var presetMax = 8;
+						var presetMax = 9;
 						if (preset == 5 && (game.global.universe != 2 || game.global.highestRadonLevelCleared < 69)) preset = 0;
 						if (preset < 0 || preset > presetMax) preset = 0;
 						if (repeat < 0 || repeat > 2) repeat = 0;
@@ -2066,7 +2069,16 @@ var toReturn = {
 		},
 		voidSpecial2: {
 			get description(){
-				 var text = "<p>Gain a second Void Map per 100 Zones cleared last run, but the first one is earned at Z50 (then 150, 250 etc). In addition, if Fluffy's level 6 bonus is active, this allows Fluffy to stack 1 additional Void Map, adding another 50% Helium bonus to the stack.</p>";
+				var petName = Fluffy.getName();
+				var stackLevel = (game.global.universe == 2) ? 17 : 6;
+				var resName = heliumOrRadon();
+				if (game.global.universe == 2 && Fluffy.getLevel() < 15){
+					//no spoilers
+					petName = "Fluffy";
+					stackLevel = 6;
+					resName = "Helium";
+				}
+				 var text = "<p>Gain a second Void Map per 100 Zones cleared last run, but the first one is earned at Z50 (then 150, 250 etc). In addition, if " + petName + "'s level " + stackLevel + " bonus is active, this allows " + petName + " to stack 1 additional Void Map, adding another 50% " + resName + " bonus to the stack.</p>";
 				 text += "<p>You reached <b>Z" + getLastPortal() + "</b> last Portal,";
 				 if (this.purchased) text += " earning you a bonus of ";
 				 else text += " which would earn you a bonus of ";
@@ -2142,10 +2154,19 @@ var toReturn = {
 			get description(){
 				var voidStackCount = Fluffy.getVoidStackCount();
 				var text = "<p>Grants 3 spectacular bonuses to your Void Maps";
-				if (game.global.universe == 2) text += ", though the first two are incompatible with Scruffy. Scruffy tries but seriously just can't figure out the whole stacking thing yet.";
+				if (game.global.universe == 2 && !Fluffy.isRewardActive('void')) text += ", though the first two are currently incompatible with Scruffy. Scruffy tries but seriously just can't figure out the whole stacking thing yet.";
 				else text += "!";
-				text += "</p><p>1. The Fluffy bonus for stacked Void Maps calculates with compounding gains, rather than additive. Each Void Map in the stack increases the Helium gain from the stack by x1.5 rather than +50%.</p>";
-				text += "<p>2. If Fluffy's level 6 bonus is active, allows Void Maps to infinitely stack. HOWEVER, this requires  the bonus " + heliumOrRadon() + " does not increase past the amount that Fluffy can normally stack, which for you would cap the bonus to a " + voidStackCount + " stack. To clarify, a 100 stack or a " + voidStackCount + " stack map would both grant " + prettify((Math.pow(1.5, voidStackCount - 1) - 1) * 100) + "% bonus " + heliumOrRadon() + " to each map in the stack, but the entire stack will still be completed instantly and each map in the stack will receive the maximum bonus.</p>";
+				var petName = Fluffy.getName();
+				var stackLevel = (game.global.universe == 2) ? 17 : 6;
+				var resName = heliumOrRadon();
+				if (game.global.universe == 2 && Fluffy.getLevel() < 15){
+					//no spoilers
+					petName = "Fluffy";
+					stackLevel = 6;
+					resName = "Helium";
+				}
+				text += "</p><p>1. The " + petName + " bonus for stacked Void Maps calculates with compounding gains, rather than additive. Each Void Map in the stack increases the " + resName + " gain from the stack by x1.5 rather than +50%.</p>";
+				text += "<p>2. If " + petName + "'s level " + stackLevel + " bonus is active, allows Void Maps to infinitely stack. HOWEVER, this requires that the bonus " + resName + " does not increase past the amount that " + petName + " can normally stack, which for you would cap the bonus to a " + voidStackCount + " stack. To clarify, a 100 stack or a " + voidStackCount + " stack map would both grant " + prettify((Math.pow(1.5, voidStackCount - 1) - 1) * 100) + "% bonus " + heliumOrRadon() + " to each map in the stack, but the entire stack will still be completed instantly and each map in the stack will receive the maximum bonus.</p>";
 				text += "<p>3. Your Trimps gain 5x damage inside Void Maps</p>";
 				return text;
 			},
@@ -2177,7 +2198,7 @@ var toReturn = {
 		},
 		liquification3: {
 			get description () {
-				if (game.global.universe == 2) return "Liquification is disabled in Universe 2, but <b>Hyperspeed II's bonus will now function up to 75% of your Highest Zone Reached (through Z" + Math.floor(game.global.highestLevelCleared * 0.75) + ") rather than a measly 50%</b>";
+				if (game.global.universe == 2) return "Liquification is disabled in Universe 2, but <b>Hyperspeed II's bonus will now function up to 75% of your Highest Zone Reached (through Z" + Math.floor(game.global.highestRadonLevelCleared * 0.75) + ") rather than a measly 50%</b>";
 				var text = (this.purchased) ? "This mastery is increasing " : "This mastery would increase ";
 				var totalSpires = game.global.spiresCompleted;
 				if (game.talents.liquification.purchased) totalSpires++;
@@ -2436,13 +2457,22 @@ var toReturn = {
 			tooltip: "You've seen too many Trimps fall, it's time for more aggressive training. Bringing back these memories will cause your Trimps to gain a 5% chance to critically strike for +130% damage at level 1, and they will gain an additional 5% crit chance and 30% crit damage per level. <b>Maximum of 10 levels.</b>",
 			max: 10
 		},
+		Masterfulness: {
+			radLocked: true,
+			priceBase: 100e21,//sx
+			radLevel: 0,
+			max: 10,
+			radSpent: 0,
+			specialGrowth: 50,
+			tooltip: "Each level of Masterfulness grants +1 to levels of both Greed and Tenacity beyond their caps. Maximum of 10 levels."
+		},
 		Greed: {
 			priceBase: 10e9,
 			radLocked: true,
 			radLevel: 0,
 			radSpent: 0,
 			getMult: function(){
-				return Math.pow(this.getBonusAmt(), getPerkLevel("Greed"));
+				return Math.pow(this.getBonusAmt(), getPerkLevel("Greed") + getPerkLevel("Masterfulness"));
 			},
 			getBonusAmt: function(){
 				var tribs = game.buildings.Tribute.owned;
@@ -2464,11 +2494,11 @@ var toReturn = {
 			radSpent: 0,
 			timeLastZone: -1,
 			getMult: function(){
-				return Math.pow(this.getBonusAmt(), getPerkLevel("Tenacity"));
+				return Math.pow(this.getBonusAmt(), getPerkLevel("Tenacity") + getPerkLevel("Masterfulness"));
 			},
 			getCarryoverMult: function(){
 				var mult = 0.5
-				if (Fluffy.isRewardActive('tenacity')) mult += 0.15;
+				mult += 0.15 * Fluffy.isRewardActive('tenacity');
 				return mult;
 			},
 			getTime: function(){
@@ -2510,8 +2540,16 @@ var toReturn = {
 			radLevel: 0,
 			radSpent: 0,
 			tooltip: "Produce a Calming Aura from your Portal Device, reducing the Attack of Bad Guys AND Trimps by 10% (compounding). You can enable Equality Scaling, which causes Equality to start inactive and gain one level each time your Trimps die up to your purchased Perk level.",
-			getMult: function(){
-				return Math.pow(this.modifier, this.getActiveLevels());
+			getModifier: function(isTrimp){
+				var modifier = this.modifier;
+				if (!isTrimp) return modifier;
+				var tempModifier = 1 - this.modifier;
+				tempModifier *= (game.heirlooms.Shield.inequality.currentBonus / 1000);
+				modifier += tempModifier;
+				return modifier;
+			},
+			getMult: function(isTrimp){
+				return Math.pow(this.getModifier(isTrimp), this.getActiveLevels());
 			},
 			getActiveLevels: function(){
 				var perkLevel = getPerkLevel("Equality");
@@ -2737,7 +2775,7 @@ var toReturn = {
 				return remaining;
 			},
 			drawStacks: function(){
-				if (this.frenzyStarted == -1) manageStacks(null, null, true, 'frenzyPerkStacks', null, null, true);
+				if (this.frenzyStarted == -1 || autoBattle.oneTimers.Mass_Hysteria.owned) manageStacks(null, null, true, 'frenzyPerkStacks', null, null, true);
 				else{
 					var icon = "";
 					if (this.canRecharge()) icon = 'icon-star-full';
@@ -2756,8 +2794,16 @@ var toReturn = {
 				else text += "The Trimps that earned this Frenzy buff are still alive, and they will be able to refresh its duration starting in " + rechargeTime + " second" + needAnS(rechargeTime) + ".";
 				return text;
 			},
+			frenzyActive: function(){
+				if (game.global.universe == 1) return false;
+				if (this.radLevel <= 0) return false;
+				if (game.global.challengeActive == "Berserk") return false;
+				if (autoBattle.oneTimers.Mass_Hysteria.owned) return true;
+				if (this.frenzyStarted == -1) return false;
+				return true;
+			},
 			getAttackMult: function(){
-				if (this.frenzyStarted == -1) return 1;
+				if (!this.frenzyActive()) return 1;
 				return 1 + (0.5 * this.radLevel);
 			},
 			canRecharge: function(){
@@ -2770,6 +2816,7 @@ var toReturn = {
 			},
 			trimpAttacked: function(){
 				if (game.global.challengeActive == "Berserk") return;
+				if (autoBattle.oneTimers.Mass_Hysteria.owned) return;
 				if (this.frenzyLeft() > 0 && !this.canRecharge()) return;
 				var chance = this.radLevel;
 				var roll = Math.floor(Math.random() * 1000);
@@ -2801,42 +2848,48 @@ var toReturn = {
 			max: 50,
 			radSpent: 0,
 			get tooltip(){
+				var useTemp = false;
+				if (game.global.viewingUpgrades || portalWindowOpen) useTemp = true;
+				var perkLevel = this.radLevel + 1;
+				if (useTemp) perkLevel += this.levelTemp;
 				var text = "Grants your Trimps the ability to locate small Runetrinkets around the World. For each level of this perk, your Trimps will gain a chance per Zone cleared above Z100 to find a Runetrinket. Each Runetrinket increases your Trimps' attack, health, and gathered primary resources by 1% (additive) per perk level. You can store a maximum of " + this.trinketsPerLevel + " Runetrinkets per perk level, reducing levels in this perk will deactivate any trinkets above cap but not lose them. Runetrinkets persist through Portal and never reset. The chance to find a Runetrinket increases by about 50% per level of this Perk, and scales as the Zone number increases (up to Z200). You'll also find 1 guaranteed Runetrinket every 25 Zones above Z100 for every 2 levels of this perk.";
 				text += "<br/><br/>You have " + prettify(this.trinkets) + " Runetrinket" + needAnS(this.trinkets) + ".";
-				if (this.radLevel > 0) text += " You are currently gaining " + formatMultAsPercent(this.getMult(), true) + " attack, health, and gathered resources.<br/><br/>" + this.getChanceText();
+				text += " You are currently gaining " + formatMultAsPercent(this.getMult(useTemp), true) + " attack, health, and gathered resources and you can store a total of " + prettify(perkLevel * 1000) + " Runetrinkets.<br/><br/>" + this.getChanceText(useTemp);
 				return text;
 			},
 			specialGrowth: 2,
 			trinkets: 0,
 			trinketsPerLevel: 1000,
 			seed: Math.floor(Math.random() * 1e6),
-			getChanceText: function(){
-				var text = "";
-				var chance = this.getDropChance(game.global.world + 1);
+			getChanceText: function(useTemp){
+				var chance = this.getDropChance(game.global.world + 1, false, useTemp);
 				if (chance <= 0){
-					return "You will have a <b>" + prettify(this.getDropChance(101)) + "%</b> chance to find a Runetrinket at Z100.";
+					return "You will have a <b>" + prettify(this.getDropChance(101, false, useTemp)) + "%</b> chance to find a Runetrinket at Z100.";
 				}
 				return "You have a <b>" + prettify(chance) + "%</b> chance to find a Runetrinket at the end of this Zone.";
 			},
-			getMult: function(){
+			getMult: function(useTemp){
+				var perkLevel = this.radLevel + 1;
+				if (useTemp) perkLevel += this.levelTemp;
 				var trinkets = this.trinkets;
-				var cap = this.radLevel * this.trinketsPerLevel;
+				var cap = perkLevel * this.trinketsPerLevel;
 				if (trinkets > cap) trinkets = cap;
-				return 1 + ((trinkets * this.radLevel) / 100);
+				return 1 + ((trinkets * perkLevel) / 100);
 			},
-			getDropChance: function(forceWorld, ignoreAlch){
+			getDropChance: function(forceWorld, ignoreAlch, useTemp){
+				var perkLevel = this.radLevel + 1;
+				if (useTemp) perkLevel += this.levelTemp;
 				var useWorld = (forceWorld) ? forceWorld : game.global.world;
 				if (useWorld < 101) return 0;
 				if (useWorld > 201) useWorld = 200;
-				var base = this.radLevel;
 				var zones = useWorld - 100;
-				var chance = ((1 + ((base - 1) / 2)) * Math.pow(1.03, zones));
+				var chance = ((1 + ((perkLevel - 1) / 2)) * Math.pow(1.03, zones));
 				if (game.global.challengeActive == "Alchemy" && !ignoreAlch) chance = alchObj.getRunetrinketMult(chance);
 				return chance;
 			},
 			giveTrinket: function(amt){
 				if (!amt) amt = 1;
-				var cap = (this.trinketsPerLevel * this.radLevel);
+				var cap = (this.trinketsPerLevel * (this.radLevel + 1));
 				if (this.trinkets >= cap) return;
 				if (this.trinkets + amt > cap) amt = cap - this.trinkets;
 				this.trinkets += amt;
@@ -2856,7 +2909,7 @@ var toReturn = {
 			onChange: function(){
 				if (typeof game.global.messages.Loot.runetrinket === 'undefined') game.global.messages.Loot.runetrinket = true;
 			}
-		},
+		}
 	},
 	c2: {
 		Discipline: 0,
@@ -2886,7 +2939,8 @@ var toReturn = {
 		Wither: 0,
 		Quest: 0,
 		Storm: 0,
-		Berserk:0
+		Berserk:0,
+		Glass: 0
 	},
 	challenges: {
 		Daily: {
@@ -3573,6 +3627,88 @@ var toReturn = {
 			zoneScaleFreq: 2,
 			start: function(){
 				startTheMagma();
+			}
+		},
+		Experience: {
+			description: "Fluffy tells you about a special dimension with some interesting sights he'd like to see. Starting at Z300, any Map at World level or higher has a 20% chance to contain a Wonder. Clearing that cell will grant Fluffy 3 Zones worth of Exp, but will also increase Enemy Attack and Health by 15% (compounding) for the rest of the Challenge. Once a Wonder is found, another cannot be found for 5 more World Zones. Completing Bionic Wonderland XXXIII (L605) or higher while above Z600 OR clearing Z700 will complete the Challenge. When the Challenge ends, Fluffy gains an extra 5% of all Experience earned during the Challenge for every Wonder he saw, plus another 50% for every BW tier above XXXIII this Challenge was completed on (up to +350% for XL). This Challenge can be repeated!",
+			wonders: 0,
+			nextWonder: 300,
+			completeAfterZone: 700,
+			heldExperience: 0,
+			unlockString: "reach Zone 600",
+			fireAbandon: true,
+			onMapEnemyKilled: function(mapLevel){
+				if (game.global.world < this.nextWonder) return;
+				if (mapLevel < game.global.world) return;
+				var mapObj = getCurrentMapObject();
+				var chance = 5 * mapObj.size;
+				var roll = Math.floor(Math.random() * chance);
+				if (roll == 0){
+					this.nextWonder = game.global.world + 5;
+					this.wonders++;
+					message("Fluffy has Experienced the Wonder of " + mapObj.name + "!", "Notices");
+					Fluffy.rewardExp(3);
+					this.drawStacks();
+				}
+			},
+			start: function(){
+				this.drawStacks();
+			},
+			onNextWorld: function(){
+				this.drawStacks();
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			abandon: function(){
+				this.clearStacks();
+			},
+			onComplete: function(mapLevel){
+				game.global.challengeActive = "";
+				var extraTiers = Math.floor((mapLevel - 605) / 15);
+				if (extraTiers > 7) extraTiers = 7;
+				var xp = this.heldExperience;
+				xp *= this.getFinalXpMult(extraTiers);
+				if (Fluffy.canGainExp()){
+					game.global.fluffyExp += xp;
+					Fluffy.getBestExpStat().value += xp;
+				}
+				
+				message("You have completed the Experience Challenge! Fluffy has gained an additional " + prettify(xp) + " Experience (" + prettify(this.heldExperience) + " earned, " + prettify(this.wonders * 5) + "% from " + this.wonders + " Wonder" + needAnS(this.wonders) + " + " + prettify(extraTiers * 50) + "% from extra BW tiers), and your World has been returned to normal.", "Notices");
+				this.wonders = 0;
+				this.heldExperience = 0;
+				this.clearStacks();
+			},
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 599)
+			},
+			clearStacks: function(){
+				manageStacks(null, null, true, 'experienceWonderStacks', null, null, true);
+			},
+			drawStacks: function(){
+				var color = (this.nextWonder == 300) ? "Grey" : (game.global.world >= this.nextWonder) ? "Green" : "Red";
+				manageStacks('Wonders Experienced', this.wonders, true, 'experienceWonderStacks', 'icomoon icon-pictures', this.wonderTooltip(), false, false, 'xpColor');
+				swapClass('xpColor', 'xpColor' + color, document.getElementById('experienceWonderStacks'));
+			},
+			getFinalXpMult: function(extraTiers){
+				var addBw = 0;
+				if (extraTiers && extraTiers > 0){					
+					addBw = (extraTiers * 0.5);
+				}
+				return (this.wonders * 0.05) + addBw;
+			},
+			getEnemyMult: function(){
+				return Math.pow(1.15, this.wonders);
+			},
+			wonderTooltip: function(){
+				var text = "Fluffy has seen " + this.wonders + " Wonder" + needAnS(this.wonders) + ", bringing the extra Experience bonus at the end of the Challenge to " + prettify(this.getFinalXpMult() * 100) + "% of all Exp earned. Enemies have +" + prettify((this.getEnemyMult() - 1) * 100) + "% increased Attack and Health.<br/><br/>";
+				if (this.nextWonder == 300) text += "The first Wonder can be seen starting at Z300."
+				else if (game.global.world <= this.nextWonder) text += "Fluffy last saw a Wonder on Z" + (this.nextWonder - 5) + ", and the next one is available at Z" + this.nextWonder + ".";
+				else text += "Fluffy thinks you could find a Wonder now if you ran a few maps!";
+				if (this.heldExperience > 0){
+					text += "<br/><br/>Fluffy has earned a total of " + prettify(this.heldExperience) + " Exp so far, and will gain an extra " + prettify(this.heldExperience * this.getFinalXpMult()) + "&nbsp;-&nbsp;" + prettify(this.heldExperience * this.getFinalXpMult(7)) + " Exp on completion (depending on BW tier)."
+				}
+				return text;
 			}
 		},
 		//U2 Challenges
@@ -5095,6 +5231,9 @@ var toReturn = {
 				this.shredResources(this.mapShredMult(level));
 			},
 			shredResources: function(mult){
+				buyAutoEquip();
+				autoUpgrades();
+				buyAutoStructures();
 				if (mult > 1) mult = 1;
 				var toRemove = ["food", "wood", "metal"];
 				for (var x = 0; x < toRemove.length; x++){
@@ -5217,6 +5356,213 @@ var toReturn = {
 			start: function(){
 				alchObj.tab.style.display = 'table-cell';
 			}
+		},
+		Hypothermia: {
+			description: "Travel to a dimension where heat is hard to come by. Every time you start a new Zone with enough Wood your Trimps will automatically construct a Bonfire, which will generate 1 Ember Stack per Zone per active Bonfire. Ember stacks increase Radon earned by +300% (additive) and Enemy Stats by 3% (compounding). Ember stacks reduce gathered and looted Wood by 5% (compounding) in the World, and reduce wood in Maps only when a Bonfire is currently burning. Bonfires burn for 5 Zones each before they burn out, but only 1 will burn out every 5 Zones. The amount of Wood required to build a Bonfire increases every time one is built. In addition, the air is so cold that the door to your ship has frozen shut, and Perks cannot be modified while this Challenge is active. Completing <b>Frozen Castle</b> with this Challenge active will grant you an additional 400% of all Radon earned up to that point and return the world to normal. Completing Z200 without clearing Frozen Castle will fail the Challenge. The first time you complete this Challenge unlocks a new Perk!",
+			completed: false,
+			blockU1: true,
+			allowU2: true,
+			failAfterZone: 200,
+			heliumThrough: 200,
+			heldHelium: 0,
+			unlockString: " reach Zone 175.",
+			fireAbandon: true,
+			bonfires: 0,
+			totalBonfires: 0,
+			lastBurn: 0,
+			embers: 0,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 174);
+			},
+			start: function(){
+				this.drawStacks();
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			getEnemyMult: function(){
+				return Math.pow(1.03, this.embers);
+			},
+			abandon: function(){
+				manageStacks(null, null, true, 'hypoBonfireStacks', null, null, true);
+				manageStacks(null, null, true, 'hypoEmberStacks', null, null, true);
+			},
+			onFail: function(){
+				message("You completed Z200 without completing Frozen Castle, and have failed Hypothermia! Your world has been returned to normal.", "Notices");
+				game.challenges.Hypothermia.abandon();
+				game.global.challengeActive = "";
+			},
+			onComplete: function(){
+				var reward = game.challenges.Hypothermia.heldHelium;
+				reward *= 4;
+				if (game.portal.Masterfulness.radLocked){
+					message("You have completed your first Hypothermia challenge! You have gained an extra " + prettify(reward) + " Radon, unlocked the Masterfulness Perk, and your world has been returned to normal!", "Notices");
+					game.portal.Masterfulness.radLocked = false;
+				}
+				else message("You have completed the Hypothermia challenge! You have gained an extra " + prettify(reward) + " Radon, and your world has been returned to normal.", "Notices");
+				addHelium(reward);
+				game.challenges.Hypothermia.abandon();
+				game.global.challengeActive = "";
+				if (this.embers >= 400) giveSingleAchieve("Burn Baby Burn");
+				
+			},
+			drawStacks: function(){
+				manageStacks('Bonfires', this.bonfires, true, 'hypoBonfireStacks', 'icomoon icon-fire', this.bonfireTooltip(), false);
+				manageStacks('Embers', this.embers, true, 'hypoEmberStacks', 'icomoon icon-fire2', this.emberTooltip(), false);
+			},
+			getBonfireLength: function(){
+				return 5;
+			},
+			bonfireTooltip: function(){
+				if (this.bonfires == 0) return "You have no Bonfires. Your Trimps are sad and cold. Next Bonfire will be constructed at " + prettify(this.bonfirePrice()) + " Wood.";
+				var bonfireLength = this.getBonfireLength();
+				return "You have " + this.bonfires + " Bonfire" + needAnS(this.bonfires) + ". Your Trimps will automatically construct another Bonfire once you start a Zone with " + prettify(this.bonfirePrice()) + " total Wood. Your next bonfire will expire at the start of Zone " + (this.lastBurn + bonfireLength) + ".";
+			},
+			emberTooltip: function(){
+				return "You have " + this.embers + " Ember" + needAnS(this.embers) + ", increasing your Radon gain by " + prettify((this.getRadonMult() - 1) * 100) + "% and Enemy stats by " + prettify((this.getEnemyMult() - 1) * 100) + "%. In the World and when a Bonfire is burning, multiplies Wood gain by " + prettifyTiny(this.getWoodMult(true)) + ".";
+			},
+			getRadonMult: function(){
+				return 1 + (3 * this.embers);
+			},
+			getWoodMult: function(checkBurning){
+				if (!checkBurning && game.global.mapsActive && this.bonfires == 0) return 1;
+				return Math.pow(0.95, this.embers);
+			},
+			onNextWorld: function(){
+				//expire bonfires
+				if (this.bonfires > 0){
+					this.embers += this.bonfires;
+					var burnFreq = this.getBonfireLength();
+					if (this.lastBurn + burnFreq <= game.global.world){
+						this.bonfires--;
+						this.lastBurn = game.global.world;
+					}
+				}
+				//buy new
+				var price = this.bonfirePrice();
+				if (game.resources.wood.owned >= price){
+					this.addBonfire();
+					game.resources.wood.owned -= price;
+				}
+				this.drawStacks();
+			},
+			bonfirePrice: function(){
+				return Math.pow(100, this.totalBonfires) * 1e10;
+			},
+			addBonfire: function(){
+				if (this.bonfires == 0) this.lastBurn = game.global.world;
+				this.bonfires++;
+				this.totalBonfires++;
+				this.drawStacks();
+			}
+		},
+		Glass: {
+			get description() {
+				return "Travel to a dimension with fragile but dangerous Enemies. All Bad Guys are Fast and have x100 Attack. Hitting a Bad Guy without killing it creates a stack of Glass. Each Glass stack increases the base Enemy Attack multiplier by +1x. Every 100 Glass, Enemy Attack doubles. Every 1000 Glass, Enemy Health doubles. Every " + prettify(10000) + " Glass, Enemies gain a Crystallized stack and Glass stacks reset to 0. Each Crystallized stack reduces Enemy Health by 20% (compounding) but also gives them a 10% chance to reflect an attack, and reaching 10 Crystallized stacks fails this Challenge. Killing an Enemy at or above World level removes two stacks of Glass plus one for every Crystallized stack on the Enemy, but Crystallized can never be removed. Completing <b>Z175</b> with this Challenge active will permanently cause all Radon earned to be increased by 10% (compounding) per Zone above Z175.";
+			},
+			get squaredDescription() {
+				return "Travel to a dimension with fragile but dangerous Enemies. All Bad Guys are Fast and have x100 Attack. Hitting a Bad Guy without killing it creates a stack of Glass. Each Glass stack increases the base Enemy Attack multiplier by +1x. Every 100 Glass, Enemy Attack doubles. Every 1000 Glass, Enemy Health doubles. Every " + prettify(10000) + " Glass, Enemies gain a Crystallized stack and Glass stacks reset to 0. Each Crystallized stack reduces Enemy Health by 20% (compounding) but also gives them a 10% chance to reflect an attack, and reaching 10 Crystallized stacks fails this Challenge. Killing an Enemy at or above World level removes two stacks of Glass plus one for every Crystallized stack on the Enemy, but Crystallized can never be removed.";
+			},
+			filter: function () {
+				return (getHighestLevelCleared(true) >= 174);
+			},
+			shards: 0,
+			crystals: 0,
+			blockU1: true,
+			allowU2: true,
+			allowSquared: true,
+			fireAbandon: true,
+			allowMesmer: true,
+			unlockString: "reach Zone 175",
+			cellStartHealth: 0,
+			completeAfterZone: 175,
+			highestGlass: 0,
+			onEnemyKilled: function(){
+				if (this.shards <= 0) return;
+				if (game.global.mapsActive && getCurrentMapObject().level < game.global.world) return;
+				this.shards -= (2 + this.crystals);
+				this.drawStacks();
+			},
+			notOneShot: function(){		
+				this.shards++;
+				if (this.shards >= 10000){
+					this.shards = 0;
+					this.crystals++;
+					this.updateCellHealth();
+					if (this.crystals == 10){
+						abandonChallenge();
+						message("You hit 10 Crystallized stacks and have failed the Glass Challenge! Your World has been returned to normal.", "Notices");
+						return;
+					}
+				}
+				if (this.shards > this.highestGlass) this.highestGlass = this.shards;
+				if (this.shards % 1000 == 0) this.updateCellHealth();
+				this.drawStacks();
+			},
+			abandon: function(){
+				this.shards = 0;
+				this.crystals = 0;
+				this.updateCellHealth();
+				manageStacks(null, null, false, 'glassShardStacks', null, null, true);
+				manageStacks(null, null, false, 'glassCrystalStacks', null, null, true);
+			},
+			checkReflect: function(cell, trimpAttack){
+				if (this.crystals <= 0) return;
+				var reflectChance = (this.reflectChance() * 10) - 1;
+				var roll = Math.floor(Math.random() * 10);
+				if (roll <= reflectChance){
+					reduceSoldierHealth(Math.min(cell.maxHealth, trimpAttack));
+				}
+			},
+			onComplete: function(){
+				message("You have completed the Glass Challenge! Your World has been returned to normal, and from now on every Zone above Z175 will grant an extra 10% compounding Radon per Zone!", "Notices");
+				game.global.challengeActive = "";
+				this.abandon();
+				game.global.glassDone = true;
+				if (this.highestGlass < 3) giveSingleAchieve("Unbreakable");
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			start: function(){
+				this.drawStacks();
+			},
+			updateCellHealth: function(){
+				var cell = (game.global.mapsActive) ? game.global.mapGridArray[game.global.lastClearedMapCell + 1] : game.global.gridArray[game.global.lastClearedCell + 1];
+				if (!cell || cell.health <= 0) return;
+				var startHealth = cell.maxHealth;
+				cell.maxHealth = this.cellStartHealth * this.healthMult();
+				var healthChange = cell.maxHealth - startHealth;
+				if (healthChange > 0) cell.health += healthChange;
+				if (cell.health > cell.maxHealth) cell.health = cell.maxHealth;
+			},
+			drawStacks: function(){
+				manageStacks('Glass', this.shards, false, 'glassShardStacks', 'icomoon icon-tint', this.shardTooltip(), false, true);
+				manageStacks('Crystallized', this.crystals, false, 'glassCrystalStacks', 'icomoon icon-glass3', this.crystalTooltip(), false);
+			},
+			attackMult: function(){
+				return Math.pow(2, Math.floor(this.shards / 100)) * (100 + this.shards);
+			},
+			shardHealthMult: function(){
+				return Math.pow(2, Math.floor(this.shards / 100));
+			},
+			crystalHealthMult: function(){
+				return Math.pow(0.8, this.crystals);
+			},
+			healthMult: function(){
+				return this.shardHealthMult() * this.crystalHealthMult();
+			},
+			shardTooltip: function(){
+				var doubles = Math.floor(this.shards / 100);
+				return "Enemies gain a stack of Glass when hit but not killed. Enemies have " + prettify(100 + this.shards) + "x base attack, doubled " + doubles + " time" + needAnS(doubles) + ", bringing total Enemy Attack to +" + prettify((this.attackMult() - 1) * 100) + "%. Enemy Health increased by +" + prettify((this.healthMult() - 1) * 100) + "%. Remove two stacks of Glass when killing any Enemy at or above World Level.";
+			},
+			reflectChance: function(){
+				return 0.1 * this.crystals;
+			},
+			crystalTooltip: function(){
+				return "Enemies gain a stack of Crystalized on reaching 10,000 Glass. " + prettify(this.reflectChance() * 100) + "% chance of reflecting an attack, and Health reduced by " + prettify((1 - this.healthMult()) * 100) + "%. Challenge will fail on reaching 10 Crystallized stacks. Enemies killed at or above World Level cause " + (2 + this.crystals) + " stacks of Glass to be removed.";
+			}
+			
 		},
 	},
 	stats:{
@@ -5675,9 +6021,24 @@ var toReturn = {
 				return (game.global.highestRadonLevelCleared >= 74);
 			}
 		},
+		saShards: {
+			title: "SA Shards Earned",
+			value: 0,
+			valueTotal: 0,
+			display: function(){
+				return (this.value + this.valueTotal > 0);
+			}
+		},
 		saKills: {
 			title: "SA Enemies Killed",
 			value: 0,
+			valueTotal: 0,
+			display: function(){
+				return (game.global.highestRadonLevelCleared >= 74);
+			}
+		},
+		saHighestLevel: {
+			title: "SA Highest Level",
 			valueTotal: 0,
 			display: function(){
 				return (game.global.highestRadonLevelCleared >= 74);
@@ -5796,7 +6157,7 @@ var toReturn = {
 		}
 	},
 	//Total 4448% after 4.6
-	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80, 160, 250, 400, 750, 1200],
+	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80, 160, 250, 400, 750, 1200, 2000],
 	//rip colorsList, 11/28/15 - 11/28/17. He served us well until it became obvious that CSS was better.
 	//colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5", "#d58565", "#d53535"],
 	achievements: {
@@ -5831,9 +6192,9 @@ var toReturn = {
 				return "Highest is " + game.global.highestRadonLevelCleared;
 			},
 			evaluate: function() {return game.global.highestRadonLevelCleared;},
-			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
-			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13],
-			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones", "Bringer of Progress", "Major Zonage", "Master of Alchemy", "Ballistic", "Neverending Journey"],
+			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250],
+			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14],
+			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones", "Bringer of Progress", "Major Zonage", "Master of Alchemy", "Ballistic", "Neverending Journey", "Zone Eater", "Zone Feaster"],
 			icon: "icomoon icon-navigation",
 			newStuff: [],
 			size: 1.4
@@ -6159,10 +6520,10 @@ var toReturn = {
 			display: function(){
 				return (game.global.highestRadonLevelCleared >= 1);
 			},
-			breakpoints: [40, 50, 60, 70, 80, 90, 100, 125, 150, 175],
-			breakpoints2: [25, 35, 45, 50, 50, 50, 60, 60, 70, 70],
-			tiers: [11, 11, 11, 11, 12, 12, 12, 13, 13, 13],
-			names: ["Crumb of Comfort", "Common Comfort", "Controlled Comfort", "Certain Comfort", "Copious Comfort", "Critical Comfort", "Cosmic Comfort", "Colossal Comfort", "Ceaseless Comfort", "Complete Comfort"],
+			breakpoints: [40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 225],
+			breakpoints2: [25, 35, 45, 50, 50, 50, 60, 60, 70, 70, 70, 75],
+			tiers: [11, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14],
+			names: ["Crumb of Comfort", "Common Comfort", "Controlled Comfort", "Certain Comfort", "Copious Comfort", "Critical Comfort", "Cosmic Comfort", "Colossal Comfort", "Ceaseless Comfort", "Complete Comfort", "Couple-Cent Comfort", "Crazy Comfort"],
 			icon: "icomoon icon-shield2",
 			newStuff: []
 		},
@@ -6619,43 +6980,43 @@ var toReturn = {
 		},
 		oneOffs2: {
 			//Turns out this method of handling the feats does NOT scale well... adding stuff to the middle is a nightmare. Yet I copy/pasted it again for Universe 2 and probably will do the same for U3. Oh well.
-			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
-			title: "Feats",
+			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+			title: "U2 Feats",
 			display: function(){
 				return (Fluffy.checkU2Allowed());
 			},
 			get descriptions () {
-				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Reach a session score of 100-0 at L5+ in SA", "Kill a L20+ SA Enemy without Shock, Bleed or Poison", "Complete Revenge with exactly 19 stacks", "Complete 80/80 quests on Quest", "Complete Archaeology without ever having more than 0 of one Relic", "Complete Storm without ever encountering a Stormcloud", "Complete Insanity with 500 stacks without running a map above lvl 50", "Finish Berserk after reaching 20 Weakened Stacks before Z100", "Reach 100 Swarm Stacks by Z120 then complete Exterminate", "Reach L19 Cruffys by Z70 then complete Nurture", "Collect 7500 Runetrinkets", "Complete all 25 Mayhems", "Complete a Z155 Void Map with 10 Gas Brews and 0 Void Pots"];
+				return ["Reach exactly 1337 Rn/Hr", "One-shot a Dimension of Rage enemy on Unlucky while Unlucky", "Complete Downsize with an equal amount of Huts, Houses, Mansions, Hotels and Resorts", "Complete Transmute without hiring a single Trimp", "Complete Unbalance with 500 stacks of Unbalance", "Complete Bublé without using Prismal or respeccing Perks", "Complete Duel without ever falling below 20 points", "Complete Melt without ever having more than 150 stacks", "Complete Trappapalooza without Trapping on or above Z50", "Complete Wither with " + prettify(10000) + " stacks of Hardened", "Reach a session score of 100-0 at L5+ in SA", "Kill a L20+ SA Enemy without Shock, Bleed or Poison", "Complete Revenge with exactly 19 stacks", "Complete 80/80 quests on Quest", "Complete Archaeology without ever having more than 0 of one Relic", "Complete Storm without ever encountering a Stormcloud", "Complete Insanity with 500 stacks without running a map above lvl 50", "Finish Berserk after reaching 20 Weakened Stacks before Z100", "Reach 100 Swarm Stacks by Z120 then complete Exterminate", "Reach L19 Cruffys by Z70 then complete Nurture", "Collect 7500 Runetrinkets", "Complete all 25 Mayhems", "Complete a Z155 Void Map with 10 Gas Brews and 0 Void Pots", "Complete Hypothermia with at least 400 Embers", "Complete Glass without ever having more than 2 stacks"];
 			},
-			tiers: [10,10,10,11,11,11,11,11,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13],
+			tiers: [10,10,10,11,11,11,11,11,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,14,14],
 			description: function (number) {
 				return this.descriptions[number];
 			},
-			filters: [-1,14,19,24,34,39,44,49,59,69,75,75,79,84,94,104,109,114,119,135,135,100,150],
+			filters: [-1,14,19,24,34,39,44,49,59,69,75,75,79,84,94,104,109,114,119,135,135,100,150,175,175],
 			filterLevel: function(){
 				return game.global.highestRadonLevelCleared;
 			},
 			icon: "glyphicon glyphicon-flag",
-			names: ["Eliter Feat", "Don't Need Luck", "Perfectly Balanced", "Resourceyphobe", "Upsized", "Unpoppable", "Pwnd", "Solid", "Coastapalooza", "Witherproof", "Huffstle", "Just Smack It", "Close Call", "Level Up", "Unassisted", "Clear Skies", "Actually Insane", "You're Doing it Wrong", "The Tortoise and the Bugs", "Nurtured AF", "Heavy Trinker", "Peace", "Mad Scientist"],
+			names: ["Eliter Feat", "Don't Need Luck", "Perfectly Balanced", "Resourceyphobe", "Upsized", "Unpoppable", "Pwnd", "Solid", "Coastapalooza", "Witherproof", "Huffstle", "Just Smack It", "Close Call", "Level Up", "Unassisted", "Clear Skies", "Actually Insane", "You're Doing it Wrong", "The Tortoise and the Bugs", "Nurtured AF", "Heavy Trinker", "Peace", "Mad Scientist", "Burn Baby Burn", "Unbreakable"],
 			newStuff: []
 		},
 	},
 
 	heirlooms: { //Basic layout for modifiers. Steps can be set specifically for each modifier, or else default steps will be used
 		//NOTE: currentBonus is the only thing that will persist!
-		values: [10, 20, 30, 50, 150, 300, 800, 2000, 5000, 15000, 100000],
-		recycleOverride: [-1,-1,-1,-1,-1,-1,-1,-1,-1,25e4,1e6],
+		values: [10, 20, 30, 50, 150, 300, 800, 2000, 5000, 15000, 100000, 750000],
+		recycleOverride: [-1,-1,-1,-1,-1,-1,-1,-1,-1,25e4,1e6, 7.5e7],
 		coreValues: function(tier){
 			return Math.floor(Math.pow(10, tier) * 20) * 2;
 		},
-		slots: [1,2,3,3,3,4,4,5,5,6,6],
-		defaultSteps: [[3, 6, 1], [3, 6, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8], [128, 320, 16], [256, 640, 32], [512, 1280, 64], [1024, 2560, 128]],
-		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal', 'Magmatic', 'Plagued', 'Radiating', 'Hazardous'],
-		rarities:[[5000,3500,1500,-1,-1,-1,-1,-1,-1,-1,-1],[1000,5000,4000,-1,-1,-1,-1,-1,-1,-1,-1],[-1,3500,5000,1500,-1,-1,-1,-1,-1,-1,-1],[-1,2000,4000,4000,-1,-1,-1,-1,-1,-1,-1],[-1,1500,3000,5000,500,-1,-1,-1,-1,-1,-1],[-1,800,2000,6000,1000,200,-1,-1,-1,-1,-1],[-1,400,1000,7000,1000,500,100,-1,-1,-1,-1],[-1,200,500,6000,2200,800,300,-1,-1,-1,-1],[-1,-1,-1,5000,3000,1700,300,-1,-1,-1,-1],[-1,-1,-1,2500,5000,2000,500,-1,-1,-1,-1],[-1,-1,-1,-1,7000,2400,500,100,-1,-1,-1],[-1,-1,-1,-1,6000,3170,680,150,-1,-1,-1],[-1,-1,-1,-1,3000,5000,1650,350,-1,-1,-1],[-1,-1,-1,-1,-1,4500,3000,2000,500,-1,-1],[-1,-1,-1,-1,-1,1500,2000,5000,1500,-1,-1],[-1,-1,-1,-1,-1,-1,1000,6000,3000,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,7500,2500,-1],[-1,-1,-1,-1,-1,-1,-1,-1,5000,5000,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,10000,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,8500,1500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,7000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,3000,7000]],
-		rarityBreakpoints:[41,60,80,100,125,146,166,181,201,230,300,400,500,600,700,1,40,80,100,135,175],
-		universeBreakpoints: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2],
-		priceIncrease: [1.5, 1.5, 1.25, 1.19, 1.15, 1.12, 1.1, 1.06, 1.04, 1.03, 1.02],
-		canReplaceMods: [true, true, true, true, true, true, true, true, false, false, false],
+		slots: [1,2,3,3,3,4,4,5,5,6,6,7],
+		defaultSteps: [[3, 6, 1], [3, 6, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8], [128, 320, 16], [256, 640, 32], [512, 1280, 64], [1024, 2560, 128], [2048, 5120, 256]],
+		rarityNames: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal', 'Magmatic', 'Plagued', 'Radiating', 'Hazardous', 'Enigmatic'],
+		rarities:[[5000,3500,1500],[1000,5000,4000],[-1,3500,5000,1500],[-1,2000,4000,4000],[-1,1500,3000,5000,500],[-1,800,2000,6000,1000,200],[-1,400,1000,7000,1000,500,100],[-1,200,500,6000,2200,800,300],[-1,-1,-1,5000,3000,1700,300],[-1,-1,-1,2500,5000,2000,500],[-1,-1,-1,-1,7000,2400,500,100],[-1,-1,-1,-1,6000,3170,680,150],[-1,-1,-1,-1,3000,5000,1650,350],[-1,-1,-1,-1,-1,4500,3000,2000,500],[-1,-1,-1,-1,-1,1500,2000,5000,1500],[-1,-1,-1,-1,-1,-1,1000,6000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,7500,2500],[-1,-1,-1,-1,-1,-1,-1,-1,5000,5000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,10000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,8500,1500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,7000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,3000,7000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,1000,8500,500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,9000,1000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,7000,3000]],
+		rarityBreakpoints:[41,60,80,100,125,146,166,181,201,230,300,400,500,600,700,1,40,80,100,135,175,200,225,250],
+		universeBreakpoints: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2],
+		priceIncrease: [1.5, 1.5, 1.25, 1.19, 1.15, 1.12, 1.1, 1.06, 1.04, 1.03, 1.02, 1.015],
+		canReplaceMods: [true, true, true, true, true, true, true, true, false, false, false, false],
 		Core: {
 			fireTrap: {
 				name: "Fire Trap Damage",
@@ -6697,8 +7058,6 @@ var toReturn = {
 					return "Increases the amount of Poison damage compounded by the Condenser Tower by " + prettify(modifier) + "%. Does not increase the world bonus to Trimps.";
 				}
 			},
-
-
 		},
 		Staff: {
 			metalDrop: {
@@ -6751,7 +7110,12 @@ var toReturn = {
 					return "Pet (" + Fluffy.getName() + ") Exp";
 				},
 				currentBonus: 0,
-				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [25, 50, 1],[50,100,1],[75,200,1]]
+				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [25, 50, 1],[50,100,1],[75,200,1],[124,400,1.2]]
+			},
+			ParityPower: {
+				name: "Parity Power",
+				currentBonus: 0,
+				steps: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,[200,500,10]]
 			},
 			empty: {
 				name: "Empty",
@@ -6762,42 +7126,42 @@ var toReturn = {
 			playerEfficiency: {
 				name: "Player Efficiency",
 				currentBonus: 0,
-				steps: [[8,16,1],[8,16,1],[8,16,1],[16,32,2],[32,64,4],[64,128,8],[128,256,16],[256,512,32],[512,1024,64],[1024,2048,128],[2048,4096,256]]
+				steps: [[8,16,1],[8,16,1],[8,16,1],[16,32,2],[32,64,4],[64,128,8],[128,256,16],[256,512,32],[512,1024,64],[1024,2048,128],[2048,4096,256],[4096,8192,512]]
 			},
 			trainerEfficiency: {
 				name: "Trainer Efficiency",
 				currentBonus: 0,
-				steps: [[10,20,1],[10,20,1],[10,20,1],[20,40,2],[40,60,2],[60,80,2],[80,100,2],[100,120,2],[120,140,2],-1,-1]
+				steps: [[10,20,1],[10,20,1],[10,20,1],[20,40,2],[40,60,2],[60,80,2],[80,100,2],[100,120,2],[120,140,2],-1,-1,-1]
 			},
 			storageSize: {
 				name: "Storage Size",
 				currentBonus: 0,
-				steps: [[32,64,4],[32,64,4],[32,64,4],[64,128,4],[128,256,8],[256,512,16],[512,768,16],[768,1024,16],[1024,1280,16],-1,-1]
+				steps: [[32,64,4],[32,64,4],[32,64,4],[64,128,4],[128,256,8],[256,512,16],[512,768,16],[768,1024,16],[1024,1280,16],-1,-1,-1]
 			},
 			breedSpeed: {
 				name: "Breed Speed",
 				currentBonus: 0,
-				steps: [[5,10,1],[5,10,1],[5,10,1],[10,20,1],[70,100,3],[100,130,3],[130,160,3],[160,190,3],[190,220,3],[220,280,5],[260, 360, 10]]
+				steps: [[5,10,1],[5,10,1],[5,10,1],[10,20,1],[70,100,3],[100,130,3],[130,160,3],[160,190,3],[190,220,3],[220,280,5],[260, 360, 10],[300,400,10]]
 			},
 			trimpHealth: {
 				name: "Trimp Health",
 				currentBonus: 0,
-				steps: [[6,20,2],[6,20,2],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200,260,6],[260,356,8],[360,460,10],[600,750,10]]
+				steps: [[6,20,2],[6,20,2],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200,260,6],[260,356,8],[360,460,10],[600,750,10],[800,1100,20]]
 			},
 			trimpAttack: {
 				name: "Trimp Attack",
 				currentBonus: 0,
-				steps: [[6,20,2],[6,20,2],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200,260,6],[260,356,8],[360,460,10],[600,750,10]]
+				steps: [[6,20,2],[6,20,2],[6,20,2],[20,40,2],[50,100,5],[100,150,5],[150,200,5],[200,260,6],[260,356,8],[360,460,10],[600,750,10],[800,1100,20]]
 			},
 			trimpBlock: {
 				name: "Trimp Block",
 				currentBonus: 0,
-				steps: [[4,7,1],[4,7,1],[4,7,1],[7,10,1],[28,40,1],[48,60,1],[68,80,1],[88,100,1],[108,120,1],-1,-1]
+				steps: [[4,7,1],[4,7,1],[4,7,1],[7,10,1],[28,40,1],[48,60,1],[68,80,1],[88,100,1],[108,120,1],-1,-1,-1]
 			},
 			critDamage: {
 				name: "Crit Damage, additive",
 				currentBonus: 0,
-				steps: [[40,60,5],[40,60,5],[40,60,5],[60,100,5],[100,200,10],[200,300,10],[300,400,10],[400,500,10],[500,650,15],[650,850,20],[850,1100,25]],
+				steps: [[40,60,5],[40,60,5],[40,60,5],[60,100,5],[100,200,10],[200,300,10],[300,400,10],[400,500,10],[500,650,15],[650,850,20],[850,1100,25],[1100,1700,50]],
 				filter: function () {
 					return (!game.portal.Relentlessness.locked);
 				}
@@ -6806,11 +7170,11 @@ var toReturn = {
 				name: "Crit Chance, additive",
 				currentBonus: 0,
 				heirloopy: true,
-				steps: [[1.4,2.6,0.2],[1.4,2.6,0.2],[1.4,2.6,0.2],[2.6,5,0.2],[5,7.4,0.2],[7.4,9.8,0.2],[9.8,12.2,0.2],[12.3,15.9,0.3],[20,30,0.5],[30,50,0.5],[50,80,0.25]],
+				steps: [[1.4,2.6,0.2],[1.4,2.6,0.2],[1.4,2.6,0.2],[2.6,5,0.2],[5,7.4,0.2],[7.4,9.8,0.2],[9.8,12.2,0.2],[12.3,15.9,0.3],[20,30,0.5],[30,50,0.5],[50,80,0.25],[80,95,0.3]],
 				filter: function () {
 					return (!game.portal.Relentlessness.locked);
 				},
-				max: [30,30,30,30,30,30,30,30,100,125,200]
+				max: [30,30,30,30,30,30,30,30,100,125,200,260]
 			},
 			voidMaps: {
 				name: "Void Map Drop Chance",
@@ -6819,8 +7183,8 @@ var toReturn = {
 				specialDescription: function(modifier){
 					return "*Void Map Drop Chance on Hazardous and higher Heirlooms has a lower percentage than previous Heirloom tiers, but also causes 1 extra Void Map to drop every 10th zone you clear."
 				},
-				steps: [[5,7,0.5],[5,7,0.5],[5,7,0.5],[8,11,0.5],[12,16,0.5],[17,22,0.5],[24,30,0.5],[32,38,0.5],[40,50,0.25],[50,60,0.25],[5,7,0.1]],
-				max: [50,50,50,50,50,50,50,50,80,99,40]
+				steps: [[5,7,0.5],[5,7,0.5],[5,7,0.5],[8,11,0.5],[12,16,0.5],[17,22,0.5],[24,30,0.5],[32,38,0.5],[40,50,0.25],[50,60,0.25],[5,7,0.1],[8,12,0.1]],
+				max: [50,50,50,50,50,50,50,50,80,99,40,50]
 			},
 			plaguebringer: {
 				name: "Plaguebringer",
@@ -6829,8 +7193,8 @@ var toReturn = {
 				specialDescription: function (modifier) {
 					return modifier + "% of all non-lethal damage and nature stacks you afflict on your current enemy are copied onto the next enemy. Plaguebringer damage cannot bring an enemy below 5% health, but nature stacks will continue to accumulate."
 				},
-				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [1, 15, 0.5],[15,30,0.5],[30,45,0.5]],
-				max: [0,0,0,0,0,0,0,0,75,100,125]
+				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [1, 15, 0.5],[15,30,0.5],[30,45,0.5],[40,50,0.5]],
+				max: [0,0,0,0,0,0,0,0,75,100,125,150]
 			},
 			prismatic: {
 				name: "Prismatic Shield",
@@ -6839,8 +7203,8 @@ var toReturn = {
 				specialDescription: function(){
 					return "ADDS this amount on to your total Prismatic Shield. This modifier can only function in the Radon Universe."
 				},
-				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[10,50,1],[10,40,1]],
-				max:[0,0,0,0,0,0,0,0,0,250,500]
+				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[10,50,1],[10,40,1],[30,60,2]],
+				max:[0,0,0,0,0,0,0,0,0,250,500,750]
 			},
 			gammaBurst: {
 				name: "Gamma Burst",
@@ -6849,7 +7213,16 @@ var toReturn = {
 				specialDescription: function(modifier){
 					return "Each attack by your Trimps adds 1 stack of Charging. When Charging reaches 5 stacks, your Trimps will release a burst of energy, dealing " + prettify(modifier) + "% of their attack damage. Stacks reset after releasing a Burst or when your Trimps die.";
 				},
-				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[1000,2000,100],-1],
+				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[1000,2000,100],-1,-1],
+			},
+			inequality: {
+				name: "Inequality",
+				currentBonus: 0,
+				specialDescription: function(){
+					return "Reduces the Equality penalty on your Trimps by this amount without changing Enemy reduction.";
+				},
+				steps: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,[50,200,0.25]],
+				max:[0,0,0,0,0,0,0,0,0,0,0,400]
 			},
 			empty: {
 				name: "Empty",
@@ -6897,7 +7270,8 @@ var toReturn = {
 				num *= this.maxMod;
 				if (getPerkLevel("Carpentry") > 0) num = Math.floor(num * (Math.pow(1 + game.portal.Carpentry.modifier, getPerkLevel("Carpentry"))));
 				if (getPerkLevel("Carpentry_II") > 0) num = Math.floor(num * (1 + (game.portal.Carpentry_II.modifier * getPerkLevel("Carpentry_II"))));
-				num *= alchObj.getPotionEffect("Elixir of Crafting");
+				num = Math.floor(num * alchObj.getPotionEffect("Elixir of Crafting"));
+				if (autoBattle.bonuses.Scaffolding.level > 0) num = Math.floor(num * autoBattle.bonuses.Scaffolding.getMult());
 				return num;
 			},
 			working: 0,
@@ -7779,6 +8153,7 @@ var toReturn = {
 				var mapLevel = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
 				if (mapLevel >= game.global.world + 45) giveSingleAchieve("Bionic Sniper");
 				if (mapLevel >= game.global.world + 200) giveSingleAchieve("Bionic Nuker");
+				if (game.global.challengeActive == "Experience" && mapLevel >= 605 && game.global.world > 600) game.challenges.Experience.onComplete(mapLevel);
 				checkAchieve("bionicTimed");
 				var amt1 = rewardResource("wood", 1, level, true);
 				var amt2 = rewardResource("food", 1, level, true);
@@ -8012,6 +8387,28 @@ var toReturn = {
 					else game.challenges.Quagmire.drawStacks();
 				}
 			}
+		},
+		Freezo: {
+			location: "Frozen",
+			locked: 0,
+			last: true,
+			fast: false,
+			world: -1,
+			attack: 3,
+			health: 4,
+			loot: function(){
+				createHeirloom(null, false, false, true);
+				var rarity = getHeirloomRarity(game.global.world, game.global.heirloomSeed, false, true);
+				rarity = game.heirlooms.rarityNames[rarity];
+				message("You have completed the Frozen Castle! The map has melted, but you managed to find a " + rarity + " Heirloom!", "Notices");			
+				if (game.global.challengeActive == "Hypothermia") game.challenges.Hypothermia.onComplete();
+			}
+		},
+		Frosnimp: {
+			location: "Frozen",
+			attack: 1.5,
+			health: 1,
+			fast: true
 		},
 		//Exotics
 		Goblimp: {
@@ -8322,6 +8719,9 @@ var toReturn = {
 			Void: {
 				resourceType: "Any",
 				upgrade: ["AutoStorage", "Heirloom", "ImprovedAutoStorage", "MapAtZone", "AutoEquip"]
+			},
+			Frozen: {
+				resourceType: "Any"
 			},
 			Star: {
 				resourceType: "Metal"
@@ -9514,7 +9914,7 @@ var toReturn = {
 			level: 39,
 			icon: "book",
 			title: "Megascience",
-			hideU2: true,
+			blockU2: true,
 			fire: function () {
 				unlockUpgrade("Megascience");
 			}
@@ -9598,6 +9998,7 @@ var toReturn = {
 			world: 230,
 			level: 90,
 			icon: "book",
+			blockU2: true,
 			title: "Magmamancers",
 			fire: function () {
 				if (game.global.challengeActive == "Metal" || game.global.challengeActive == "Transmute"){
@@ -9629,7 +10030,7 @@ var toReturn = {
 			level: 79,
 			icon: "book",
 			title: "Megafarming",
-			hideU2: true,
+			blockU2: true,
 			fire: function () {
 				unlockUpgrade("Megafarming");
 			}
@@ -9654,7 +10055,7 @@ var toReturn = {
 			level: 69,
 			icon: "book",
 			title: "Megalumber",
-			hideU2: true,
+			blockU2: true,
 			fire: function () {
 				unlockUpgrade("Megalumber");
 			}
@@ -9690,7 +10091,7 @@ var toReturn = {
 			level: 59,
 			icon: "book",
 			title: "Megaminer",
-			hideU2: true,
+			blockU2: true,
 			fire: function() {
 				if (game.global.challengeActive == "Metal"){
 					message("Your scientists appreciate the fact that you've managed to find another useless book, but they make sure to let you know it's still useless.", "Notices");

@@ -93,6 +93,16 @@ body {
 	margin-right: 0;
 }
 
+/* .critTier6{
+	color: #069cf3;
+	text-shadow: 0.05vw 0.05vw 0.05vw #ff0000, -0.05vw 0.05vw 0.05vw #ff0000, 0.05vw -0.05vw 0.05vw #ff0000, -0.05vw -0.05vw 0.05vw #ff0000, 0.15vw 0.15vw 0.15vw #2608ac, -0.15vw 0.15vw 0.15vw #2608ac, 0.15vw -0.15vw 0.15vw #2608ac, -0.15vw -0.15vw 0.15vw #2608ac,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+} */
+
+.critTier6{
+	color: #06f32e;
+	text-shadow: 0.05vw 0.05vw 0.05vw #036113, -0.05vw 0.05vw 0.05vw #036113, 0.05vw -0.05vw 0.05vw #036113, -0.05vw -0.05vw 0.05vw #036113, 0.15vw 0.15vw 0.15vw #2608ac, -0.15vw 0.15vw 0.15vw #2608ac, 0.15vw -0.15vw 0.15vw #2608ac, -0.15vw -0.15vw 0.15vw #2608ac,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+}
+
 
 .talentItem{
 	display: inline-block;
@@ -1312,6 +1322,10 @@ body {
 	font-size: 1.5vw;
 }
 
+#tooltipDiv .selectedHeirloomItem.heirloomRare11{
+	font-size: 1.25vw;
+}
+
 #tooltipDiv.tooltipExtraHeirloom hr{
 	display: none;
 }
@@ -1643,7 +1657,19 @@ body {
 }
 
 .orange{
-	color: #ff6519;
+	color: #ac4816;
+}
+
+.xpColorGrey .badge{
+	background-color: #3b3b3b;
+}
+
+.xpColorGreen .badge{
+	background-color: #097740;
+}
+
+.xpColorRed .badge{
+	background-color: #921707;
 }
 
 #portalWrapper{
@@ -1654,6 +1680,24 @@ body {
 	text-align: center;
 	padding-left: 5vw;
 	padding-right: 5vw;
+}
+
+.portalPreview{
+	display: inline-block;
+	border: 1px solid white;
+	margin: 0.4%;
+	width: 30%;
+	height: 5vw;
+	padding-top: 1.9vw;
+	font-size: 1vw;
+}
+
+.portalTitleBtn:hover{
+	text-decoration: underline;
+}
+
+.portalPreview.selected{
+	border: 1px solid yellow;
 }
 
 .portalMk1{
@@ -1890,7 +1934,7 @@ body {
 }
 
 .modUpgradeBtn{
-	width: 45%;
+	width: 30%;
 	display: inline-block;
 	font-size: 0.8em;
 	padding: 0.25vw;
@@ -2324,6 +2368,61 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	}
 }
 
+.selectedHeirloomItem.heirloomRare11{
+	font-size: 1.55vw;
+}
+
+.rarityBdBox.heirloomRare11, .heirloomRare11{
+    color: #1989d4;
+	text-shadow: 0.05vw 0.05vw 0.05vw #050c49, -0.05vw 0.05vw 0.05vw #050c49, 0.05vw -0.05vw 0.05vw #050c49, -0.05vw -0.05vw 0.05vw #050c49, 0.15vw 0.15vw 0.15vw #5f0468, -0.15vw 0.15vw 0.15vw #5f0468, 0.15vw -0.15vw 0.15vw #5f0468, -0.15vw -0.15vw 0.15vw #5f0468,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+}
+
+.specDesc11{
+	color: #1989d4;
+}
+
+.heirloomRare11 .heirloomMod:hover, .heirloomRare11.rarityBdBox{
+	border: 0.2vw solid #1989d4;
+}
+
+.heirloomRare11 .heirloomMod{
+	background-color: initial;
+}
+
+.selectedHeirloomItem.heirloomRare11{
+	background: linear-gradient(15deg,  #000 0%, #050c49 25%, #000 50%, #af00bf 75%,#000b38 100%); 
+}
+
+.heirloomRare11.heirloomThing, .heirloomRare11 div .selectedHeirloomIcon, .rarityBdBox.heirloomRare11 {
+    color: #1989d4;
+	text-shadow: 0.05vw 0.05vw 0.05vw #af00bf, -0.05vw 0.05vw 0.05vw #af00bf, 0.05vw -0.05vw 0.05vw #af00bf, -0.05vw -0.05vw 0.05vw #af00bf, 0.15vw 0.15vw 0.15vw #af00bf, -0.15vw 0.15vw 0.15vw #af00bf, 0.15vw -0.15vw 0.15vw #af00bf, -0.15vw -0.15vw 0.15vw #af00bf,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+}
+
+.heirloomRare11.heirloomThing.animated, .heirloomRare11 div .selectedHeirloomIcon.animated, .rarityBdBox.heirloomRare11 {
+	animation: heirRare11Animated 60s infinite;
+}
+
+@keyframes heirRare11Animated{
+	0% {
+		text-shadow: 0.05vw 0.05vw 0.05vw #abd6da, -0.05vw 0.05vw 0.05vw #abd6da, 0.05vw -0.05vw 0.05vw #abd6da, -0.05vw -0.05vw 0.05vw #abd6da, 0.15vw 0.15vw 0.15vw #abd6da, -0.15vw 0.15vw 0.15vw #abd6da, 0.15vw -0.15vw 0.15vw #abd6da, -0.15vw -0.15vw 0.15vw #abd6da,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+	}
+	20% {
+		text-shadow: 0.05vw 0.05vw 0.05vw #af00bf, -0.05vw 0.05vw 0.05vw #af00bf, 0.05vw -0.05vw 0.05vw #af00bf, -0.05vw -0.05vw 0.05vw #af00bf, 0.15vw 0.15vw 0.15vw #af00bf, -0.15vw 0.15vw 0.15vw #af00bf, 0.15vw -0.15vw 0.15vw #af00bf, -0.15vw -0.15vw 0.15vw #af00bf,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+	}
+	40% {
+		text-shadow: 0.05vw 0.05vw 0.05vw #af00bf, -0.05vw 0.05vw 0.05vw #af00bf, 0.05vw -0.05vw 0.05vw #af00bf, -0.05vw -0.05vw 0.05vw #af00bf, 0.15vw 0.15vw 0.15vw #091374, -0.15vw 0.15vw 0.15vw #091374, 0.15vw -0.15vw 0.15vw #091374, -0.15vw -0.15vw 0.15vw #091374,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+	}
+	60% {
+		text-shadow: 0.05vw 0.05vw 0.05vw #091374, -0.05vw 0.05vw 0.05vw #091374, 0.05vw -0.05vw 0.05vw #091374, -0.05vw -0.05vw 0.05vw #091374, 0.15vw 0.15vw 0.15vw #af00bf, -0.15vw 0.15vw 0.15vw #af00bf, 0.15vw -0.15vw 0.15vw #af00bf, -0.15vw -0.15vw 0.15vw #af00bf,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+	}
+	80% {
+		text-shadow: 0.05vw 0.05vw 0.05vw #091374, -0.05vw 0.05vw 0.05vw #091374, 0.05vw -0.05vw 0.05vw #091374, -0.05vw -0.05vw 0.05vw #091374, 0.15vw 0.15vw 0.15vw #091374, -0.15vw 0.15vw 0.15vw #091374, 0.15vw -0.15vw 0.15vw #091374, -0.15vw -0.15vw 0.15vw #091374,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+	}
+	100% {
+		text-shadow: 0.05vw 0.05vw 0.05vw #abd6da, -0.05vw 0.05vw 0.05vw #abd6da, 0.05vw -0.05vw 0.05vw #abd6da, -0.05vw -0.05vw 0.05vw #abd6da, 0.15vw 0.15vw 0.15vw #abd6da, -0.15vw 0.15vw 0.15vw #abd6da, 0.15vw -0.15vw 0.15vw #abd6da, -0.15vw -0.15vw 0.15vw #abd6da,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+	}
+}
+
 
 .upgradeCostTextMax{
 	font-size: 0.7em;
@@ -2378,8 +2477,8 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 #modBreakdown{
 	margin-top: 0.65vw;
-	width: 90%;
-	margin-left: 5%;
+	width: 95%;
+	margin-left: 2.5%;
 }
 
 .selectedHeirloomIcon{
@@ -2583,7 +2682,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 .selectedHeirloomItem{
-	font-size: 1.85vw;
+	font-size: 1.8vw;
 	border: 0.3vw solid #555;
 	padding: 0.4vw;
 	padding-left: 2vw;
@@ -3012,6 +3111,20 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .achievementPopupIcon.achieveTier13, #achievementHoverTitle.achieveTier13, #achievementPopupTitle.achieveTier13, #achievementTrackerTitle.achieveTier13 {
 	background-image: radial-gradient(ellipse at center, rgba(136,5,136,1) 0%, rgba(75,40,80,1) 15%, rgba(6,124,33,1) 30%, rgba(179,0,255,1) 45%, rgba(6,7,84,1) 50%, rgba(179,0,255,1) 55%, rgba(6,124,33,1) 70%, rgba(75,40,80,1) 85%, rgba(136,5,136,1) 100%);
+	color: black;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	border-radius: 25px;
+}
+
+.achieveTier14 {
+	border-image: linear-gradient(to top, #000000 0%,#ff00ff 13%,#000000 33%, #ff00ff 46%,#000000 66%,#ff00ff 80%,#000000 100%);
+	border-image-slice: 3;
+}
+
+.achievementPopupIcon.achieveTier14, #achievementHoverTitle.achieveTier14, #achievementPopupTitle.achieveTier14, #achievementTrackerTitle.achieveTier14 {
+	background-image: radial-gradient(ellipse at center, #000000 0%,#ff00ff 13%,#000000 33%, #ff00ff 46%,#000000 66%,#ff00ff 80%,#000000 100%);
 	color: black;
 	-webkit-background-clip: text;
 	background-clip: text;
@@ -4227,6 +4340,15 @@ background-color: rgba(255,255,255,0.25);
 	display: none;
 }
 
+#offlineFormations{
+	text-align: center;
+}
+
+.formationBtn.offlineForm{
+	display: inline-block;
+	width: 10%;
+}
+
 #helpContainer {
 	font-size: 1.1vw;
 }
@@ -4293,9 +4415,9 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new{
-	color: white;
+	background-color: black;
+	color: #ff00ff;
 	font-weight: bold;
-	background: linear-gradient(90deg, rgba(67,67,77,1) 0%, rgba(9,7,146,1) 16%, rgba(7,11,59,1) 33%, rgba(62,27,90,1) 50%, rgba(143,73,7,1) 66%, rgba(146,23,7,1) 83%, rgba(67,67,77,1) 100%);
 	width: 100%;
 }
 
@@ -4305,8 +4427,23 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	color: white;
-	background: linear-gradient(90deg, rgba(6,4,114,1) 10%, rgba(6,9,37,1) 30%, rgba(40,17,59,1) 50%, rgba(97,48,3,1) 70%, rgba(100,16,5,1) 90%);
+	animation: btnNewAnimated 15s infinite;
+}
+
+@keyframes btnNewAnimated{
+	0% {
+		background-color: black;
+		color: #ff00ff;
+		
+	}
+	50% {
+		color: black;
+		background-color: #ff00ff;
+	}
+	100% {
+		background-color: black;
+		color: #ff00ff;
+	}
 }
 
 .btn-new:active,
@@ -6264,6 +6401,18 @@ sup{
 	color: white;
 }
 
+.autoColorTeal{
+	border: 1px solid #3c96a7;
+	background-color: #077b8f;
+	color: white;
+}
+
+.autoColorTeal:hover{
+	border: 1px solid #2b6c79;
+	background-color: #045361;
+	color: white;
+}
+
 .autoColorGrey{
 	border: 1px solid #ddddff; 
 	color: white !important; 
@@ -6570,6 +6719,24 @@ sup{
 	cursor: pointer;
 	color: #921707;
 }
+
+.ringContainer{
+	width: 33.33333%;
+	height: 12.5em;
+	vertical-align: top;
+	display: inline-block;
+	padding: 0.5%;
+	background-color: #3a3939;
+	color: white;
+}
+
+.autoRingSelect{
+	width: 100%;
+	color: black;
+	padding: 0.2em;
+}
+
+
 
 
 input[type=range] {

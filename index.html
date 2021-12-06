@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 5.5.1</title>
+	<title>Trimps 5.6.0</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Greensatellite">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?28" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?29" />
 <!-- <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -39,7 +39,7 @@
 		author's website, you can find a copy at
 		<trimps.github.io/license.txt>). If not, see
 		<http://www.gnu.org/licenses/>. -->
-<body>
+<body onblur="gameUnfocused()">
 	<noscript>
 	<div id="checkJavascript" style="position: absolute; height: 100%; width: 100%; font-size: 2vw; padding: 10%; color: white; background-color: black; z-index: 1000000;">
 		For some reason, your browser is having trouble loading this game. This game runs on javascript, and if you have an addon such as noscript, you may need to tell it to allow scripts from http://trimps.github.io, which is where this game is hosted.<br/><br/>
@@ -82,6 +82,7 @@
 					<div id='offlineTimeOffline'></div>
 					<div class='btn btn-lg btn-info offlineExtraBtn' onclick="tooltip('Lost Time', null, 'update');">What is This?!</div>
 					<div class='btn btn-lg btn-danger offlineExtraBtn' onclick='usingRealTimeOffline = false'>Stop Here</div>
+					<div id='offlineFormations'></div>
 					<div id='offlineSettingContainer'></div>
 					<div id='offlineEffective'></div>
 				</div>
@@ -1342,8 +1343,9 @@
 						</div>
 						<div class="col-xs-6" id="modUpgradeBox">
 							<div id="modUpgradeCost"></div>
-							<div id="modUpgradeBtn" class="heirloomBtnActive heirBtn noselect modUpgradeBtn" onclick="upgradeMod()">Upgrade x1<br/>&nbsp;</div>
-							<div id="modUpgradeBtn10" class="heirloomBtnActive heirBtn noselect modUpgradeBtn" onclick="upgradeMod(false, 10)">Upgrade x10<br/>&nbsp;</div>
+							<div id="modUpgradeBtn" class="heirloomBtnActive heirBtn noselect modUpgradeBtn" onclick="upgradeMod()">x1<br/>&nbsp;</div>
+							<div id="modUpgradeBtn10" class="heirloomBtnActive heirBtn noselect modUpgradeBtn" onclick="upgradeMod(false, 10)">x10<br/>&nbsp;</div>
+							<div id="modUpgradeBtn100" class="heirloomBtnActive heirBtn noselect modUpgradeBtn" onclick="upgradeMod(false, 100)">x100<br/>&nbsp;</div>
 						</div>
 					</div>			
 				</div>
@@ -1406,11 +1408,11 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?47"></script>
-	<script type="text/javascript" src="updates.js?47"></script>
-	<script type="text/javascript" src="playerSpire.js?47"></script>
-	<script type="text/javascript" src="objects.js?47"></script>
-	<script type="text/javascript" src="main.js?47"></script>
+	<script type="text/javascript" src="config.js?48"></script>
+	<script type="text/javascript" src="updates.js?48"></script>
+	<script type="text/javascript" src="playerSpire.js?48"></script>
+	<script type="text/javascript" src="objects.js?48"></script>
+	<script type="text/javascript" src="main.js?48"></script>
 	
 </body>
 
