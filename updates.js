@@ -1351,10 +1351,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (isItIn == "equipment"){
 		costText = canAffordBuilding(what, false, true, true);
-		if (what == "Shield" && game.equipment.Shield.blockNow){
-			var blockPerShield = game.equipment.Shield.blockCalculated + (game.equipment.Shield.blockCalculated * game.jobs.Trainer.owned * (game.jobs.Trainer.modifier / 100));
-			tooltipText += " (" + prettify(blockPerShield) + " after Trainers)";
-		}
+		if (what == "Shield" && game.equipment.Shield.blockNow)
+			tooltipText += "<br><br>Taking into account your current level of Coordinations and other current buffs and debuffs, each " + what + " provides " + prettify(getEquipmentStatsPerGroup(game.equipment[what].blockCalculated, "block")) + " block per group of Trimps sent to fight.";
+		else if(what == "Dagger" || what == "Mace" || what == "Polearm" || what == "Battleaxe" || what == "Greatsword" || what == "Arbalest")
+			tooltipText += "<br><br>Taking into account your current level of Coordinations and other current buffs and debuffs, each " + what + " provides " + prettify(getEquipmentStatsPerGroup(game.equipment[what].attackCalculated, "attack")) + " attack per group of Trimps sent to fight.";
+		else if(what == "Shield" || what == "Boots" || what == "Helmet" || what == "Pants" || what == "Shoulderguards" || what == "Breastplate" || what == "Gambeson")
+			tooltipText += "<br><br>Taking into account your current level of Coordinations and other current buffs and debuffs, each " + what + " provides " + prettify(getEquipmentStatsPerGroup(game.equipment[what].healthCalculated, "health")) + " health per group of Trimps sent to fight.";
+
 		if (game.global.buyAmt != 1) {
 			what += " X " + ((game.global.buyAmt == "Max") ? calculateMaxAfford(game.equipment[what], false, true) : game.global.buyAmt);
 		}
@@ -1366,8 +1369,18 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			return;
 		}
 		if (typeof tooltipText.split('@')[1] !== 'undefined'){
-			var prestigeCost = "<b>You may not want to do this right away.</b> Your next " + game.upgrades[what].prestiges + " will grant " + getNextPrestigeValue(what) + ".";
+			var prestigeCost = "<b>You may not want to do this right away.</b> Your next " + game.upgrades[what].prestiges + " will grant " + getNextPrestigeValue(what) + " to each soldier per level.";
 			tooltipText = tooltipText.replace('@', prestigeCost);
+
+			var name = game.upgrades[what].prestiges;
+			var equipment = game.equipment[name];
+
+			if (what == "Shield" && game.equipment.Shield.blockNow)
+				tooltipText += "<br><br>Taking into account your current level of Coordinations and other current buffs and debuffs, your next " + what + " will provide " + prettify(getEquipmentStatsPerGroup(Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige) * game.global.prestige[stat]) + 1)), "block")) + " block per group of Trimps sent to fight.";
+			else if(what == "Dagger" || what == "Mace" || what == "Polearm" || what == "Battleaxe" || what == "Greatsword" || what == "Arbalest")
+				tooltipText += "<br><br>Taking into account your current level of Coordinations and other current buffs and debuffs, your next " + what + " will provide " + prettify(getEquipmentStatsPerGroup(Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige) * game.global.prestige[stat]) + 1)), "attack")) + " attack per group of Trimps sent to fight.";
+			else if(what == "Shield" || what == "Boots" || what == "Helmet" || what == "Pants" || what == "Shoulderguards" || what == "Breastplate" || what == "Gambeson")
+				tooltipText += "<br><br>Taking into account your current level of Coordinations and other current buffs and debuffs, your next " + what + " will provide " + prettify(getEquipmentStatsPerGroup(Math.round(equipment[stat] * Math.pow(1.19, ((equipment.prestige) * game.global.prestige[stat]) + 1)), "health")) + " health per group of Trimps sent to fight.";
 		}
 		if (typeof tooltipText.split('$')[1] !== 'undefined'){
 			var upgradeTextSplit = tooltipText.split('$');
@@ -2257,6 +2270,177 @@ function getFluctuation(number, minFluct, maxFluct){
 	return "<td>" + prettify(min) + "</td><td>" + prettify(max) + "</td>";
 }
 
+//Takes in the base amount that was already calculated for the piece of equipment, and whether it improves attack, health, or block.
+//Outputs the amount the piece of equipment contributes for a group of Trimps sent out to fight, taking into account the current
+//Coordination level and various permanent buffs (or at least permanent for the current run)
+function getEquipmentStatsPerGroup(equipment_value_calculated_per_trimp, attack_health_or_block)
+{
+	var equipment = {};
+	var name = attack_health_or_block.charAt(0).toUpperCase() + attack_health_or_block.substr(1, attack_health_or_block.length);
+	var currentCalc = equipment_value_calculated_per_trimp;
+	var maxFluct = 0.2;
+	var minFluct = 0.2;
+	var percent = 0;
+	if (attack_health_or_block == "health" || attack_health_or_block == "attack"){
+		currentCalc += (attack_health_or_block == "health") ? 50 : 6;
+		if (attack_health_or_block == "attack"){
+			//Discipline
+			if (game.global.challengeActive == "Discipline"){
+				minFluct = 0.995;
+				maxFluct = 0.995;
+			}
+			else {
+				//Range
+				if (game.portal.Range.level > 0){
+					minFluct -= (0.02 * game.portal.Range.level);
+				}
+				//MinDamageDaily
+				if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
+					var addMin = dailyModifiers.minDamage.getMult(game.global.dailyChallenge.minDamage.strength);
+					minFluct += addMin;
+					if (minFluct > 1) minFluct = 1;
+				}
+				//MaxDamageDaily
+				if (typeof game.global.dailyChallenge.maxDamage !== 'undefined'){
+					var addMax = dailyModifiers.maxDamage.getMult(game.global.dailyChallenge.maxDamage.strength);
+					maxFluct += addMax;
+				}
+			}
+		}
+	}
+	else if (attack_health_or_block == "block"){
+		var shield = game.equipment.Shield;
+		if (shield.blockNow && shield.level > 0){
+			var shieldStrength = shield.level * shield.blockCalculated;
+			currentCalc = shieldStrength;
+		}
+		var trainer = game.jobs.Trainer;
+		if (trainer.owned > 0){
+			var trainerStrength = trainer.owned * (trainer.modifier / 100);
+			trainerStrength = calcHeirloomBonus("Shield", "trainerEfficiency", trainerStrength);
+			currentCalc  *= (trainerStrength + 1);
+		}
+	}
+	//Add coordination
+	currentCalc  *= game.resources.trimps.maxSoldiers;
+	//Add achievements
+	if (attack_health_or_block == "attack" && game.global.achievementBonus > 0){
+		currentCalc *= 1 + (game.global.achievementBonus / 100);
+	}
+	//Add perk
+	var perk = "";
+	if (attack_health_or_block == "health") perk = "Toughness";
+	if (attack_health_or_block == "attack") perk = "Power";
+	if (perk && game.portal[perk].level > 0){
+		var PerkStrength = (game.portal[perk].level * game.portal[perk].modifier);
+		currentCalc  *= (PerkStrength + 1);
+	}
+	perk = perk + "_II";
+	if (game.portal[perk] && game.portal[perk].level > 0){
+		var PerkStrength = (game.portal[perk].level * game.portal[perk].modifier);
+		currentCalc  *= (PerkStrength + 1);
+	}	
+	//Add resilience
+	if (attack_health_or_block == "health" && game.portal.Resilience.level > 0){
+		var resStrength = Math.pow(game.portal.Resilience.modifier + 1, game.portal.Resilience.level);
+		currentCalc *= resStrength;
+	}
+	//Add Geneticist
+	var geneticist = game.jobs.Geneticist;
+	if (game.global.lastLowGen > 0 && attack_health_or_block == "health"){
+		var calcedGenes = game.global.lastLowGen;
+		var geneticistStrength = Math.pow(1.01, calcedGenes);
+		currentCalc  *= geneticistStrength;
+	}
+	//Add Anticipation
+	var anticipation = game.portal.Anticipation;
+	if (anticipation.level > 0 && attack_health_or_block == "attack"){
+		var antiStrength = ((anticipation.level * anticipation.modifier * game.global.antiStacks) + 1);
+		currentCalc *= antiStrength;	
+	}
+	//Add formations
+	if (game.global.formation > 0){
+		var formStrength = 0.5;
+		if ((game.global.formation == 1 && attack_health_or_block == "health") || (game.global.formation == 2 && attack_health_or_block == "attack") || (game.global.formation == 3 && attack_health_or_block == "block")) formStrength = 4;
+		currentCalc *= formStrength;
+	}
+	//Add Titimp
+	if (game.global.titimpLeft > 1 && game.global.mapsActive && attack_health_or_block == "attack"){
+		currentCalc *= 2;
+	}
+	//Add map bonus
+	if (!game.global.mapsActive && game.global.mapBonus > 0 && attack_health_or_block == "attack"){
+		var mapBonusMult = 0.2 * game.global.mapBonus;
+		currentCalc *= (1 + mapBonusMult);
+	}
+	//Add RoboTrimp
+	if (attack_health_or_block == "attack" && game.global.roboTrimpLevel > 0){
+		var roboTrimpMod = 0.2 * game.global.roboTrimpLevel;
+		currentCalc *= (1 + roboTrimpMod);
+	}
+	//Add challenges
+	if (attack_health_or_block == "health" && game.global.challengeActive == "Balance"){
+		currentCalc *= game.challenges.Balance.getHealthMult();
+	}
+	if (attack_health_or_block == "attack" && game.global.challengeActive == "Lead" && ((game.global.world % 2) == 1)){
+		currentCalc *= 1.5;
+	}
+	var heirloomBonus = calcHeirloomBonus("Shield", "trimp" + capitalizeFirstLetter(attack_health_or_block), 0, true);
+	if (heirloomBonus > 0){
+		currentCalc *= ((heirloomBonus / 100) + 1);
+	}
+	if (game.global.challengeActive == "Decay" && attack_health_or_block == "attack"){
+		currentCalc *= 5;
+		textString += "<tr><td class='bdTitle'>Sanity (Decay)</td><td></td><td></td><td class='bdPercent'>x 5</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+		var stackStr = Math.pow(0.995, game.challenges.Decay.stacks);
+		currentCalc *= stackStr;
+	}
+	if (game.global.challengeActive == "Daily"){
+		var mult = 0;
+		if (typeof game.global.dailyChallenge.weakness !== 'undefined' && attack_health_or_block == "attack"){
+			mult = dailyModifiers.weakness.getMult(game.global.dailyChallenge.weakness.strength, game.global.dailyChallenge.weakness.stacks);
+			currentCalc *= mult;
+		}
+		if (typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && attack_health_or_block == "attack" && (game.global.world % 2 == 1)){
+			mult = dailyModifiers.oddTrimpNerf.getMult(game.global.dailyChallenge.oddTrimpNerf.strength);
+			currentCalc *= mult;
+		}
+		if (typeof game.global.dailyChallenge.evenTrimpBuff !== 'undefined' && attack_health_or_block == "attack" && (game.global.world % 2 == 0)){
+			mult = dailyModifiers.evenTrimpBuff.getMult(game.global.dailyChallenge.evenTrimpBuff.strength);
+			currentCalc *= mult;
+		}
+		if (typeof game.global.dailyChallenge.rampage !== 'undefined' && attack_health_or_block == "attack"){
+			mult = dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
+			currentCalc *= mult;
+		}
+	}
+	//Add golden battle
+	if (attack_health_or_block != "block" && game.goldenUpgrades.Battle.currentBonus > 0){
+		amt = game.goldenUpgrades.Battle.currentBonus;
+		currentCalc *= 1 + amt;
+	}
+	if (attack_health_or_block != "block" && game.talents.voidPower.purchased && game.global.voidBuff){
+		amt = (game.talents.voidPower2.purchased) ? 35 : 15;
+		currentCalc *= (1 + (amt / 100));
+	}
+	//Magma
+	if (mutations.Magma.active() && (attack_health_or_block == "attack" || attack_health_or_block == "health")){
+		mult = mutations.Magma.getTrimpDecay();
+		var lvls = game.global.world - mutations.Magma.start() + 1;
+		currentCalc *= mult;
+	}	
+	if (game.global.totalSquaredReward > 0 && (attack_health_or_block == "attack" || attack_health_or_block == "health")){
+		amt = game.global.totalSquaredReward;
+		currentCalc *= (1 + (amt / 100));
+	}
+
+	//Find the average damage, taking into account the min and max fluctuations.
+	if(attack_health_or_block == "attack")
+		currentCalc = currentCalc * (1 + (maxFluct - minFluct) / 2);
+	
+	return currentCalc;
+}
+
 function getBattleStatBd(what) {
 	var equipment = {};
 	var name = what.charAt(0).toUpperCase() + what.substr(1, what.length);
@@ -2469,7 +2653,6 @@ function getBattleStatBd(what) {
 		if ((game.global.formation == 1 && what == "health") || (game.global.formation == 2 && what == "attack") || (game.global.formation == 3 && what == "block")) formStrength = 4;
 		currentCalc *= formStrength;
 		textString += "<tr><td class='bdTitle'>Formation</td><td></td><td></td><td>x " + formStrength + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
-
 	}
 	//Add Titimp
 	if (game.global.titimpLeft > 1 && game.global.mapsActive && what == "attack"){

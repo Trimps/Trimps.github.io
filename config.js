@@ -7341,7 +7341,7 @@ var toReturn = {
 		},
 		Dagger: {
 			locked: 1,
-			tooltip: "Better than nothing. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "Better than nothing. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7354,7 +7354,7 @@ var toReturn = {
 		},
 		Boots: {
 			locked: 1,
-			tooltip: "At least their feet will be safe. Adds $healthCalculated$ health to each soldier per level",
+			tooltip: "At least their feet will be safe. Adds $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7368,7 +7368,7 @@ var toReturn = {
 		//2
 		Mace: {
 			locked: 1,
-			tooltip: "It's kind of heavy for your Trimps, but they'll manage. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "It's kind of heavy for your Trimps, but they'll manage. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7395,7 +7395,7 @@ var toReturn = {
 		//3
 		Polearm: {
 			locked: 1,
-			tooltip: "This thing is big and pointy. It adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "This thing is big and pointy. It adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7422,7 +7422,7 @@ var toReturn = {
 		//4
 		Battleaxe: {
 			locked: 1,
-			tooltip: "This weapon is pretty intimidating, but your Trimps think they can handle it. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "This weapon is pretty intimidating, but your Trimps think they can handle it. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7435,7 +7435,7 @@ var toReturn = {
 		},
 		Shoulderguards: {
 			locked: 1,
-			tooltip: "These shoulderguards will help keep your Trimps' necks and shoulders safe, and they look cool too. Adds $healthCalculated$ health to each soldier per level",
+			tooltip: "These shoulderguards will help keep your Trimps' necks and shoulders safe, and they look cool too. Adds $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7449,7 +7449,7 @@ var toReturn = {
 		//5
 		Greatsword: {
 			locked: 1,
-			tooltip: "This sword looks sweet. Seriously, if you could see it you'd think it looked sweet. Trust me. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "This sword looks sweet. Seriously, if you could see it you'd think it looked sweet. Trust me. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7462,7 +7462,7 @@ var toReturn = {
 		},
 		Breastplate: {
 			locked: 1,
-			tooltip: "Some real, heavy duty armor. Everyone looks badass in heavy duty armor. Adds $healthCalculated$ health to each soldier per level",
+			tooltip: "Some real, heavy duty armor. Everyone looks badass in heavy duty armor. Adds $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7475,7 +7475,7 @@ var toReturn = {
 		},
 		Arbalest: {
 			locked: 1,
-			tooltip: "A powerful ranged weapon. Your Trimps can do some damage with this sucker. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "A powerful ranged weapon. Your Trimps can do some damage with this sucker. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
