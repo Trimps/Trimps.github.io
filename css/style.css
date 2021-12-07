@@ -6626,6 +6626,8 @@ sup{
 	background-color: #140716;
 	color: white;
 	padding: 0.5%;
+	height: 11em;
+	vertical-align: top;
 }
 
 .contractTitle{
@@ -6634,8 +6636,12 @@ sup{
 }
 
 .contractDescription{
-	height: 6em;
+	height: 60%;
 	font-size: 0.95em;
+}
+
+.contractDescription.descriptionSm{
+	font-size: 0.9em;
 }
 
 #autoBattleMenuButtons .btn{

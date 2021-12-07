@@ -2177,6 +2177,7 @@ var autoBattle = {
             hidden: false,
             level: 1,
             zone: 190,
+            longText: true,
             description: function(){
                 return "Summon a Doppelganger which grants you 50% damage reduction, 2x Attack, and +1 Poison Stack Rate while it is alive. Your Doppelganger will explode after taking damage equal to your Max Health or if it would kill the Enemy, redealing all damage dealt so far this fight, and shredding 50% Enemy Defense.";
             },
@@ -3173,9 +3174,14 @@ var autoBattle = {
     abandonContract: function(){
         if (!this.activeContract) return;
         var price = this.contractPrice(this.activeContract);
+        if (this.items[this.activeContract].dustType == "shards"){
+            this.shards += price;
+        }
+        else{
+            this.dust += price;
+        }
+        this.saveLastAction('cancelContract', this.activeContract, price);
         this.activeContract = "";
-        this.dust += price;
-        this.saveLastAction('cancelContract', item, price);
         this.popup(false,false,true);
     },
     acceptContract: function(item){
@@ -3682,7 +3688,9 @@ var autoBattle = {
                 var description;
                 if (accepted) description = "You have paid the Dust and accepted this Contract.<br/>Huffy will gain access to this item as soon as you<br/><b style='font-size:1.3em'>Complete a U2 Z" + itemObj.zone + "+ Void Map</b>";
                 else description = itemObj.description();
-                text += "<div class='contractBox" + accepted + "'><div class='contractTitle'>" + this.cleanName(item) + "</div><div class='contractDescription'>" + description + "</div>";
+                var extraClass = "";
+                if (itemObj.longText) extraClass = " descriptionSm";
+                text += "<div class='contractBox" + accepted + "'><div class='contractTitle'>" + this.cleanName(item) + "</div><div class='contractDescription" + extraClass + "'>" + description + "</div>";
                 if (accepted) text += "<span onclick='autoBattle.abandonContract()' class='btn btn-lg autoItemHide'>Abandon and Refund</span>";
                 else if (!this.activeContract) text += "<span onclick='autoBattle.acceptContract(\"" + item + "\")' class='btn btn-lg colorVoidy'>Accept (" + prettify(this.contractPrice(item)) + " " + this.getCurrencyName(item) + ", Complete a Z" + itemObj.zone + " Void Map)</span>";
                 else text += "<span class='btn btn-lg autoColorGrey'>Other Contract in Progress</span>";

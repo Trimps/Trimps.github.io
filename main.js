@@ -14025,6 +14025,8 @@ function fight(makeUp) {
 				else if (currentMapObj.location == "Frozen"){
 					document.getElementById("mapsHere").removeChild(document.getElementById(currentMapObj.id));
 					game.global.mapsOwnedArray.splice(getMapIndex(currentMapObj.id), 1);
+					game.global.lookingAtMap = "";
+					mapsSwitch(true);
 				}
 				return;
 			}

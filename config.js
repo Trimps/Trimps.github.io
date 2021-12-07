@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.6.0',
+		stringVersion: '5.6.1',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -3630,7 +3630,7 @@ var toReturn = {
 			}
 		},
 		Experience: {
-			description: "Fluffy tells you about a special dimension with some interesting sights he'd like to see. Starting at Z300, any Map at World level or higher has a 20% chance to contain a Wonder. Clearing that cell will grant Fluffy 3 Zones worth of Exp, but will also increase Enemy Attack and Health by 15% (compounding) for the rest of the Challenge. Once a Wonder is found, another cannot be found for 5 more World Zones. Completing Bionic Wonderland XXXIII (L605) or higher while above Z600 OR clearing Z700 will complete the Challenge. When the Challenge ends, Fluffy gains an extra 5% of all Experience earned during the Challenge for every Wonder he saw, plus another 50% for every BW tier above XXXIII this Challenge was completed on (up to +350% for XL). This Challenge can be repeated!",
+			description: "Fluffy tells you about a special dimension with some interesting sights he'd like to see. Starting at Z300, any Map at World level or higher has a 20% chance to contain a Wonder. Clearing that cell will grant Fluffy 3 Zones worth of Exp, but will also increase Enemy Attack and Health by 15% (compounding) for the rest of the Challenge. Once a Wonder is found, another cannot be found for 5 more World Zones. Completing Bionic Wonderland XXXIII (L605) or higher while at or above Z601 in the World will complete the Challenge. When the Challenge ends, Fluffy gains an extra 5% of all Experience earned during the Challenge for every Wonder he saw, plus another 50% for every BW tier above XXXIII this Challenge was completed on (up to +350% for XL). The Challenge will also automatically complete with no extra bonus from Bionic Wonderlands after beating World Z700. This Challenge can be repeated!",
 			wonders: 0,
 			nextWonder: 300,
 			completeAfterZone: 700,
@@ -3667,6 +3667,7 @@ var toReturn = {
 				game.global.challengeActive = "";
 				var extraTiers = Math.floor((mapLevel - 605) / 15);
 				if (extraTiers > 7) extraTiers = 7;
+				if (!extraTiers) extraTiers = 0;
 				var xp = this.heldExperience;
 				xp *= this.getFinalXpMult(extraTiers);
 				if (Fluffy.canGainExp()){
@@ -5419,7 +5420,7 @@ var toReturn = {
 				return "You have " + this.bonfires + " Bonfire" + needAnS(this.bonfires) + ". Your Trimps will automatically construct another Bonfire once you start a Zone with " + prettify(this.bonfirePrice()) + " total Wood. Your next bonfire will expire at the start of Zone " + (this.lastBurn + bonfireLength) + ".";
 			},
 			emberTooltip: function(){
-				return "You have " + this.embers + " Ember" + needAnS(this.embers) + ", increasing your Radon gain by " + prettify((this.getRadonMult() - 1) * 100) + "% and Enemy stats by " + prettify((this.getEnemyMult() - 1) * 100) + "%. In the World and when a Bonfire is burning, multiplies Wood gain by " + prettifyTiny(this.getWoodMult(true)) + ".";
+				return "You have " + this.embers + " Ember" + needAnS(this.embers) + ", increasing your Radon gain by " + prettify((this.getRadonMult() - 1) * 100) + "% and Enemy stats by " + prettify((this.getEnemyMult() - 1) * 100) + "%. All wood gathered and looted from the World is reduced by " + prettifyTiny(this.getWoodMult(true)) + ", wood from Maps is reduced by the same amount but only when a Bonfire is burning.";
 			},
 			getRadonMult: function(){
 				return 1 + (3 * this.embers);
