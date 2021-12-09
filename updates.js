@@ -1325,7 +1325,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (textString) tooltipText += "</div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "4.5%";
-		elem.style.top = "5%";
+		elem.style.top = "1%";
+		swapClass('tooltipExtra', 'tooltipExtraEquality', elem);
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Done</div></div>";
 		ondisplay = function(){
 			verticalCenterTooltip();
@@ -2914,6 +2915,8 @@ function verticalCenterTooltip(makeLarge, makeSuperLarge){
 		tipElem.style.left = "17.5%";
 	}
 	var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+	var settingsElem = document.getElementById('settingsRow');
+	height -= Math.max(settingsElem.clientHeight, settingsElem.innerHeight || 0);
 	var tipHeight = Math.max(tipElem.clientHeight, tipElem.innerHeight || 0);
 	if (makeLarge && tipHeight / height > 0.95){
 		document.getElementById('tipText').className = "tinyTextTip";
@@ -3859,7 +3862,7 @@ function resetGame(keepPortal) {
 	var lastU2Voids;
 	if (keepPortal){
 		oldUniverse = game.global.universe;
-		if (oldUniverse == 2) lastU2Voids = game.stats.totalVoidMaps.value;
+		if (oldUniverse == 2 && (game.global.world > 25 || game.stats.totalVoidMaps.value > 0)) lastU2Voids = game.stats.totalVoidMaps.value;
 		else lastU2Voids = game.global.lastU2Voids;
 		portal = game.portal;
 		helium = game.global.heliumLeftover;
@@ -5094,6 +5097,7 @@ function getUniqueColor(item){
 		if (item.name == "Imploding Star" && game.global.challengeActive == "Devastation")
 			return " noRecycle";
 	}
+	if (item.name == "Frozen Castle") return " noRecycle";
 
 	if (item.location && game.mapConfig.locations[item.location].upgrade){
 		var upgrade = game.mapConfig.locations[item.location].upgrade;

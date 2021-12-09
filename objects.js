@@ -1778,7 +1778,7 @@ var autoBattle = {
             doStuff: function(){
                 autoBattle.trimp.attack += this.attack();
                 autoBattle.trimp.maxHealth += this.health();
-                autoBattle.trimp.attackTime *= this.attackTime();
+                autoBattle.trimp.attackSpeed *= this.attackTime();
                 autoBattle.trimp.defense += this.defense();
             },
             dustType: "shards",
@@ -1853,6 +1853,7 @@ var autoBattle = {
                 autoBattle.trimp.shockMod += this.shockMod();
                 autoBattle.trimp.poisonMod += this.poisonMod();
                 autoBattle.trimp.poisonTick *= 0.9;
+                autoBattle.trimp.poisonRate++;
             },
             dustType: "shards",
             startPrice: 6300,
@@ -3059,7 +3060,7 @@ var autoBattle = {
         if (type == "ring" || ((type == "contract" || type == "cancelContract") && this.items[what].dustType == "shards")) useShards = true;
         if (type == "oneTimer" && this.oneTimers[what].useShards) useShards = true;
         else if (type == "bonus" && this.bonuses[what].useShards) useShards = true;
-        if (type == "bonus" || type == "oneTimer" || type == "contract" || type == "ring"){
+        if (type == "bonus" || type == "oneTimer" || type == "contract"){
             for (var x = 0; x < this.lastActions.length; x++){
                 if (useShards) this.lastActions[x][6] -= cost;
                 else this.lastActions[x][2] -= cost;
@@ -3075,6 +3076,8 @@ var autoBattle = {
         }
         var lastLastAction = (this.lastActions.length) ? this.lastActions[this.lastActions.length - 1] : [];
         if (lastLastAction && lastLastAction[0] == 'upgrade' && type == 'upgrade' && lastLastAction[1] == what) lastLastAction[5]++;
+        else if (lastLastAction && lastLastAction[0] == 'ring' && type == 'ring') lastLastAction[5]++;
+        else if (type == "ring") this.lastActions.push(['ring', null, this.dust, this.maxEnemyLevel, this.enemiesKilled, 1, this.shards])
         else this.lastActions.push([type, what, this.dust, this.maxEnemyLevel, this.enemiesKilled, 1, this.shards]);
         if (this.lastActions.length > 3) this.lastActions.splice(0,1);
     },
@@ -3091,10 +3094,18 @@ var autoBattle = {
             this.items[action[1]].equipped = false;
             this.items[action[1]].owned = false;
         }
+        else if (action[0] == "ring"){
+            this.rings.level -= action[5];
+            var removeMods = this.rings.mods.length - this.getRingSlots();
+            if (removeMods > 0){
+                autoBattle.rings.mods.splice(autoBattle.rings.mods.length - removeMods, removeMods);
+            }
+        }
         if (this.enemyLevel > this.maxEnemyLevel) this.enemyLevel = this.maxEnemyLevel;
         this.confirmUndo = false;
         this.resetStats();
         this.resetCombat();
+        this.checkLastActions();
         this.popup(false, false, true);
     },
     confirmUndo: false,
@@ -3265,8 +3276,8 @@ var autoBattle = {
     levelRing: function(){
         var cost = this.getRingLevelCost();
         if (this.shards < cost) return;
-        this.shards -= cost;
         this.saveLastAction("ring", null, cost);
+        this.shards -= cost;
         this.rings.level++;
         var slots = this.getRingSlots();
         if (this.rings.mods.length < slots){
@@ -3712,8 +3723,13 @@ var autoBattle = {
             text += "<div class='abMiscBox'><b style='font-size: 1.1em;'>Undo last change</b><br/>";
             var action = this.lastActions[this.lastActions.length - 1];
             if (action){
-                var itemName = this.cleanName(action[1]);
-                text += "Downgrade " + itemName + " by " + action[5] + " level" + needAnS(action[5]);
+                if (action[0] == "ring"){
+                    text += "Downgrade your ring by " + action[5] + " level" + needAnS(action[5]);
+                }
+                else {
+                    var itemName = this.cleanName(action[1]);
+                    text += "Downgrade " + itemName + " by " + action[5] + " level" + needAnS(action[5]);
+                }
                 text += ", and <b>SET YOUR DUST TO " + prettify(action[2]);
                 if (this.maxEnemyLevel >= 51) text += " AND SHARDS TO " + prettify(action[6]);
                 text += "</b> (The amount you had the moment before the upgrade).";

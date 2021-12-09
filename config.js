@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.6.1',
+		stringVersion: '5.6.2',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -5482,6 +5482,7 @@ var toReturn = {
 				if (this.shards <= 0) return;
 				if (game.global.mapsActive && getCurrentMapObject().level < game.global.world) return;
 				this.shards -= (2 + this.crystals);
+				if (this.shards < 0) this.shards = 0;
 				this.drawStacks();
 			},
 			notOneShot: function(){		

@@ -1317,6 +1317,13 @@ body {
 	background-color: initial;
 	border: initial;
 }
+@media only screen and (max-width: 1000px) {
+	#tooltipDiv.tooltipExtraEquality{
+		width: 80%;
+		left: 10% !important;
+	}
+  }
+
 
 #tooltipDiv .selectedHeirloomItem{
 	font-size: 1.5vw;
@@ -6638,6 +6645,14 @@ sup{
 .contractDescription{
 	height: 60%;
 	font-size: 0.95em;
+}
+
+.equalityTabScalingOff{
+	background-color: #504e2b;
+}
+
+.equalityTabScalingOn{
+	background-color: #333a74;
 }
 
 .contractDescription.descriptionSm{
