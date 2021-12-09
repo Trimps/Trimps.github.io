@@ -2210,14 +2210,13 @@ function manageEqualityStacks(){
 		swapClass('equalityTabScaling', 'equalityTabScalingOn', tabElem);
 		tabTextElem.innerHTML = "Equality (Scaling On)";
 		text += ". Scaling is on.";
-		manageStacks('Equality Scaling', stacks, true, 'equalityStacks', 'icomoon icon-arrow-bold-down', text, false);
+		manageStacks('Equality Scaling', activeStacks, true, 'equalityStacks', 'icomoon icon-arrow-bold-down', text, false);
 	}
 	else{
-		var stacks = (game.portal.Equality.disabledStackCount > -1) ? game.portal.Equality.disabledStackCount : game.portal.Equality.radLevel;
 		text += ". Scaling is off.";
 		swapClass('equalityTabScaling', 'equalityTabScalingOff', tabElem);
 		tabTextElem.innerHTML = "Equality (Scaling Off)";
-		manageStacks('Equality Scaling', stacks, true, 'equalityStacks', 'icomoon icon-arrow-bold-down', text, false);
+		manageStacks('Equality Scaling', activeStacks, true, 'equalityStacks', 'icomoon icon-arrow-bold-down', text, false);
 	}
 }
 
