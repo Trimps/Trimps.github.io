@@ -6647,12 +6647,18 @@ sup{
 	font-size: 0.95em;
 }
 
-.equalityTabScalingOff{
-	background-color: #504e2b;
+.equalityTabScalingOff a{
+	background-color: #504e2b !important;
+}
+.equalityTabScalingOff a:hover{
+	background-color: #3b3a21 !important;
 }
 
-.equalityTabScalingOn{
-	background-color: #333a74;
+.equalityTabScalingOn a{
+	background-color: #333a74 !important;
+}
+.equalityTabScalingOn a:hover{
+	background-color: #252953 !important;
 }
 
 .contractDescription.descriptionSm{
