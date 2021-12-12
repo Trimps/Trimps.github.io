@@ -2401,6 +2401,7 @@ var autoBattle = {
             this.trimpDied();
             return;
         }
+        if (!this.enemy.noSlow) this.enemy.attackSpeed *= this.trimp.slowAura;
         var enemyAttackTime = this.enemy.attackSpeed;
         if (this.enemy.lastAttack >= enemyAttackTime){
             this.enemy.lastAttack -= enemyAttackTime;
@@ -2471,9 +2472,6 @@ var autoBattle = {
             this.trimp.slowAura += ((500 - this.trimp.attackSpeed) / 1000)
             this.trimp.attackSpeed = 500;
         }
-        if (!this.enemy.noSlow) this.enemy.attackSpeed *= this.trimp.slowAura;
-        
-
     },
     damageCreature: function(creature, dmg, fromGoo, ignoreEth){
         dmg *= creature.damageTakenMult;
@@ -2576,6 +2574,7 @@ var autoBattle = {
             var roll = Math.floor(Math.random() * 100);
             if (roll < bleedChance){
                 if (this.items.Bloodstained_Gloves.equipped) this.items.Bloodstained_Gloves.onBleed();
+                if (this.items.Bag_of_Nails.equipped) this.enemy.noSlow = true;
                 if (defender.bleed.mod < attacker.bleedMod) defender.bleed.mod = (1 + attacker.bleedMod);
                 if (defender.bleed.time < attacker.bleedTime) defender.bleed.time = attacker.bleedTime;
             }
@@ -2901,8 +2900,7 @@ var autoBattle = {
         if (this.sessionEnemiesKilled > this.sessionTrimpsKilled) swapClass('abTab', 'abTabWinning', document.getElementById('autoBattleTab'));
         this.resetCombat();
         this.checkLastActions();
-        if (this.popupMode == "rings") this.popup(true, true);
-        else this.popup(true, false, true);
+        this.popup(true, false, false, false, true);
     },
     nextLevelCount: function(){
         if (this.enemyLevel < 20) return 10 * this.enemyLevel;
@@ -2960,6 +2958,7 @@ var autoBattle = {
         }
         if (!itemObj) return;
         itemObj.equipped = !itemObj.equipped;
+        if (itemObj.hidden) this.restore(item);
         this.resetCombat(true);
         this.popup(true);
     },
@@ -3404,8 +3403,47 @@ var autoBattle = {
         var curName = this.items[item].dustType ? this.items[item].dustType : "dust";
         return curName.charAt(0).toUpperCase() + curName.slice(1);
     },
+    updateBonusPrices: function(){
+        for (var bonus in this.bonuses){
+            var bonusObj = this.bonuses[bonus];
+            if (bonusObj.useShards && this.maxEnemyLevel < 51) continue;
+            var cost = this.getBonusCost(bonus);
+            var costColor = ((!bonusObj.useShards && cost <= this.dust) || (bonusObj.useShards && cost <= this.shards)) ? "green" : "red";
+            var elem = document.getElementById(bonus + "BonusPrice");
+            if (!elem) return false;
+            elem.className = costColor;
+        }
+        var oneCount = 0;
+        var ownedItems = this.countOwnedItems();
+        for (var oneTime in this.oneTimers){
+            var oneObj = this.oneTimers[oneTime];
+            if (oneObj.owned) continue;
+            oneCount++;
+            if (this.maxEnemyLevel >= 51 && oneCount >= 3) break;
+            if (oneCount >= 4) break;
+            var cost = this.oneTimerPrice(oneTime);
+            var costColor = ((!oneObj.useShards && cost <= this.dust) || (oneObj.useShards && cost <= this.shards)) ? "green" : "red";
+            if (ownedItems < oneObj.requiredItems){
+                continue;
+            }
+            var elem = document.getElementById(oneTime + "BonusPrice");
+            if (!elem) return false;
+            elem.className = costColor;
+        }
+        return true;
+    },
     hideMode: false,
-    popup: function(updateOnly, statsOnly, itemsOnly, leaveMode){
+    popup: function(updateOnly, statsOnly, itemsOnly, leaveMode, fromBattle){
+        if (fromBattle){
+            if (this.popupMode == "bonuses" && !this.updateBonusPrices()){
+                itemsOnly = true;
+                statsOnly = false;
+            }
+            else{
+                statsOnly = true;
+                itemsOnly = false;
+            }
+        }
         if (!updateOnly && !statsOnly && !itemsOnly) {
             if (!leaveMode) this.popupMode = "items";
             this.hideMode = false;
@@ -3661,7 +3699,7 @@ var autoBattle = {
                 if (bonusObj.useShards && this.maxEnemyLevel < 51) continue;
                 var cost = this.getBonusCost(bonus);
                 var costText = ((!bonusObj.useShards && cost <= this.dust) || (bonusObj.useShards && cost <= this.shards)) ? "green" : "red";
-                costText = "<span class='" + costText + "'>" + prettify(cost) + " " + ((bonusObj.useShards) ? "Shards" : "Dust") + "</span>";
+                costText = "<span id='" + bonus + "BonusPrice' class='" + costText + "'>" + prettify(cost) + " " + ((bonusObj.useShards) ? "Shards" : "Dust") + "</span>";
                 text += "<div id='" + bonus + "BonusBox' onclick='autoBattle.buyBonus(\"" + bonus + "\")' class='autoBonusBox'>" + this.cleanName(bonus) + "<br/>Level: " + bonusObj.level + " - " + costText + "<br/>" + bonusObj.description() + "<br/>Unlimited Purchases</div>";
             }
             var oneCount = 0;
@@ -3675,7 +3713,7 @@ var autoBattle = {
                 var cost = this.oneTimerPrice(oneTime);
                 var costText = ((!oneObj.useShards && cost <= this.dust) || (oneObj.useShards && cost <= this.shards)) ? "green" : "red";
 
-                costText = "<span class='" + costText + "'>" + prettify(cost) + " " + ((oneObj.useShards) ? "Shards" : "Dust") + "</span>";
+                costText = "<span id='" + oneTime + "BonusPrice' class='" + costText + "'>" + prettify(cost) + " " + ((oneObj.useShards) ? "Shards" : "Dust") + "</span>";
                 if (ownedItems < oneObj.requiredItems){
                     var need = (oneObj.requiredItems - ownedItems);
                     text += "<div class='autoBonusBox autoOneTimerNotOwned' style='padding-top: 2%'><br/>Complete " + need + " more Contract" + needAnS(need) + " to reveal this bonus!</div>";

@@ -7049,6 +7049,7 @@ function createHeirloom(zone, fromBones, spireCore, forceBest){
 	var rarityNames = game.heirlooms.rarityNames;
 	//Determine Type
 	var seed = (fromBones) ? game.global.heirloomBoneSeed : game.global.heirloomSeed;
+	if (forceBest) seed = game.global.bestHeirloomSeed;
 	var type;
 	var rarity;
 	if (spireCore){
@@ -7112,6 +7113,7 @@ function createHeirloom(zone, fromBones, spireCore, forceBest){
 	if (heirloomsShown) displayExtraHeirlooms();
 	if (spireCore) game.global.coreSeed = seed;
 	else if (fromBones) game.global.heirloomBoneSeed = seed;
+	else if (forceBest) game.global.bestHeirloomSeed = seed;
 	else game.global.heirloomSeed = seed;
 }
 

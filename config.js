@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.6.2',
+		stringVersion: '5.6.3',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -155,6 +155,7 @@ var toReturn = {
 		heirloomSeed: Math.floor(Math.random() * 1000000),
 		coreSeed: Math.floor(Math.random() * 1000000),
 		heirloomBoneSeed: Math.floor(Math.random() * 1000000),
+		bestHeirloomSeed: Math.floor(Math.random() * 1000000),
 		eggSeed: Math.floor(Math.random() * 1000000),
 		mutationSeed: Math.floor(Math.random() * 1000000),
 		enemySeed: Math.floor(Math.random() * 1000000),
