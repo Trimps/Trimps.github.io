@@ -1887,10 +1887,10 @@ body {
 
 #modReplaceBox, #modUpgradeBox{
 	border: 0.1vw solid #777;
-	font-size: 1.2vw;
-	padding: 0.25vw;
-	padding-top: 0.6vw;
-	height: 7vw;
+	font-size: 1.05vw;
+	padding: 0.2vw;
+	padding-top: 0.55vw;
+	height: 6vw;
 }
 
 #addCarriedBtn, #recycleAllHeirloomsBtn, #sortHeirloomsBtn{
@@ -2375,8 +2375,12 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	}
 }
 
-.selectedHeirloomItem.heirloomRare11{
+.selectedHeirloomItem.heirloomRare10{
 	font-size: 1.55vw;
+}
+
+.selectedHeirloomItem.heirloomRare11{
+	font-size: 1.35vw;
 }
 
 .rarityBdBox.heirloomRare11, .heirloomRare11{
@@ -2447,8 +2451,8 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 #specialModDescription{
-	font-size: 0.9vw;
-	margin-bottom: 0.65vw;
+	font-size: 0.8vw;
+	margin-bottom: 0.45vw;
 }
 
 #heirRare{
@@ -2483,7 +2487,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 
 #modBreakdown{
-	margin-top: 0.65vw;
+	margin-top: 0.45vw;
 	width: 95%;
 	margin-left: 2.5%;
 }
