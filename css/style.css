@@ -6332,7 +6332,7 @@ sup{
 }
 
 #autoItemsDiv.modeLg{
-	max-height: 15em;
+	max-height: 16em;
 }
 
 .abOptions .btn{
@@ -6356,11 +6356,11 @@ sup{
 	border: 3px solid white;
 	margin: 0.5%;
 	vertical-align: top;
-	min-height: 10.4em;
+	min-height: 11.4em;
 }
 
 .presetItems{
-	min-height: 5vw;
+	min-height: 6vw;
 	font-size: 0.9em;
 }
 

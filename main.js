@@ -15043,6 +15043,7 @@ function unlockFormation(what){
 	if ((game.global.world >= 60 && getHighestLevelCleared() >= 180) && (what == "start" || what == "all" || what == 4)){
 		document.getElementById("formation4").style.display = "block";
 	}
+	if (usingRealTimeOffline) offlineProgress.updateFormations();
 }
 
 function hideFormations() {

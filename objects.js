@@ -638,6 +638,14 @@ var autoBattle = {
         for (var item in this.items){
             if (this.items[item].equipped) this.presets[slot].push(item);
         }
+        this.presets[slot].push(["level", this.enemyLevel]);
+        if (this.rings.mods.length) {
+            var ringMods = ["ring"];
+            for (var x = 0; x < this.rings.mods.length; x++){
+                ringMods.push(this.rings.mods[x]);
+            }
+            this.presets[slot].push(ringMods);
+        }
         this.popup(true, false, true);
     },
     loadPreset: function(slot){
@@ -649,9 +657,21 @@ var autoBattle = {
             if (this.settings.loadHide.enabled) this.items[item].hidden = (this.items[item].owned) ? true : false;
         }
         for (var x = 0; x < plength; x++){
-            if (!this.items[preset[x]] || !this.items[preset[x]].owned) continue;
-            this.items[preset[x]].equipped = true;
-            this.items[preset[x]].hidden = false;
+            var thisPreset = preset[x];
+            if (Array.isArray(thisPreset)){
+                if (this.settings.loadLevel.enabled && thisPreset[0] == "level" && thisPreset[1] <= this.maxEnemyLevel){
+                    this.enemyLevel = thisPreset[1];
+                }
+                else if (this.settings.loadRing.enabled && thisPreset[0] == "ring"){
+                    for (var y = 1; y < thisPreset.length; y++){
+                        this.changeRing(null, y - 1, thisPreset[y])
+                    }
+                }
+                continue;
+            }
+            if (!this.items[thisPreset] || !this.items[thisPreset].owned) continue;
+            this.items[thisPreset].equipped = true;
+            this.items[thisPreset].hidden = false;
         }
         this.popupMode = 'items';
         this.resetCombat(true);
@@ -710,6 +730,19 @@ var autoBattle = {
             enabled: 1,
             default: 1,
             text: ["Leave Items on Preset Load", "Hide Unused Items on Preset Load"]
+        },
+        loadLevel: {
+            enabled: 1,
+            default: 1,
+            text: ["Leave Enemy Level on Preset Load", "Set Enemy Level on Preset Load"]
+        },
+        loadRing: {
+            enabled: 1,
+            default: 1,
+            text: ["Leave Ring on Preset Load", "Load Ring Mods on Preset Load"],
+            hideUnless: function(){
+                return (autoBattle.oneTimers.The_Ring.owned);
+            }
         },
         practice: {
             enabled: 0,
@@ -3294,10 +3327,12 @@ var autoBattle = {
         }
         return availableMods;
     },
-    changeRing: function(elem, slot){
+    changeRing: function(elem, slot, useValue){
         var availableMods = this.getAvailableRingMods();
-        if (availableMods.indexOf(elem.value) == -1) return;
-        this.rings.mods[slot] = elem.value;
+        if (!useValue) useValue = elem.value;
+        if (availableMods.indexOf(useValue) == -1) return;
+        if (slot > this.getRingSlots() - 1) return;
+        this.rings.mods[slot] = useValue;
         this.resetCombat();
         this.popup(false, false, true);
     },
@@ -3754,6 +3789,7 @@ var autoBattle = {
             text += "<div class='abOptions'>Settings:&nbsp;";
             for (var setting in this.settings){
                 var thisSetting = this.settings[setting];
+                if (typeof thisSetting.hideUnless !== 'undefined' && !thisSetting.hideUnless()) continue;
                 var className = (thisSetting.enabled) ? "autoItemEquipped" : "autoItemHide";
                 text += "<span class='btn btn-md " + className + "' onclick='autoBattle.toggleSetting(\"" + setting + "\")'>" + thisSetting.text[thisSetting.enabled] + "</span>";
             }
@@ -3761,6 +3797,9 @@ var autoBattle = {
             text += "<div class='abMiscBox'><b style='font-size: 1.1em;'>Undo last change</b><br/>";
             var action = this.lastActions[this.lastActions.length - 1];
             if (action){
+                if (!this.confirmUndo) text += "<span class='btn autoItemUpgrade btn-md' onclick='autoBattle.confirmUndoClicked()'>Undo</span>";
+                else text += "<b>Are you sure?!</b><br/><span class='btn autoItemUpgrade btn-md' onclick='autoBattle.restoreLastAction()'>Yes, Undo</span><span class='btn autoItemHide btn-md' onclick='autoBattle.confirmUndoClicked()'>No, Cancel</span>";
+                text += "<br/>";
                 if (action[0] == "ring"){
                     text += "Downgrade your ring by " + action[5] + " level" + needAnS(action[5]);
                 }
@@ -3774,25 +3813,38 @@ var autoBattle = {
                 if (this.maxEnemyLevel > action[3]) text += " Your progress will be set back to level " + action[3] + ".";
                 else if (this.enemiesKilled > action[4]) text += " Your kill counter will be reduced by " + prettify(this.enemiesKilled - action[4]) + ".";
                 text += "<br/>";
-                if (!this.confirmUndo) text += "<span class='btn autoItemUpgrade btn-lg' onclick='autoBattle.confirmUndoClicked()'>Undo</span>";
-                else text += "<b>Are you sure?!</b><br/><span class='btn autoItemUpgrade btn-lg' onclick='autoBattle.restoreLastAction()'>Yes, Undo</span><span class='btn autoItemHide btn-lg' onclick='autoBattle.confirmUndoClicked()'>No, Cancel</span>";
             }
             else text += "Undoing your last 3 actions would still leave you with less currency than you have now."
             text += "</div>"
             for (var x = 1; x <= 3; x++){
-                text += "<div class='abMiscBox preset'><b style='font-size: 1.1em;'>" + this.presets.names[x-1] + "</b><br/><div class='presetItems'>";
+                var pname = 'p' + x;
+                var preset = this.presets[pname];
+                text += "<div class='abMiscBox preset'><b style='font-size: 1.1em;'>" + this.presets.names[x-1] + "</b><br/>";
+                text += "<span class='btn autoItemEquipped btn-md' onclick='autoBattle.savePreset(\"p" + x + "\")'>Save</span>";
+                if (preset.length) text += "<span class='btn autoItemUpgrade btn-md' onclick='autoBattle.loadPreset(\"p" + x + "\")'>Load</span>";
+                text += "<span class='btn autoColorOrange btn-md' onclick='tooltip(\"Rename SA Preset\", null, \"update\", " + x + ")'>Rename</span>";
+                text += "<div class='presetItems'>";
                 var pname = 'p' + x;
                 var preset = this.presets[pname];
                 if (!preset.length) text += "Nothing Yet";
                 for (var y = 0; y < preset.length; y++){
+                    if (Array.isArray(preset[y])){
+                        if (preset[y][0] == "level" && this.settings.loadLevel.enabled) text += ". Level " + preset[y][1];
+                        if (preset[y][0] == "ring" && this.settings.loadRing.enabled){
+                            text += ". Ring: ";
+                            for (var z = 1; z < preset[y].length; z++){
+                                if (z != 1) text += ", ";
+                                text += autoBattle.ringStats[preset[y][z]].name
+                            }
+                        }
+                        continue;
+                    }
                     if (!this.items[preset[y]] || !this.items[preset[y]].owned) continue;
                     if (y != 0) text += ", ";
                     text += this.cleanName(preset[y]);
                 }
                 text += "</div>";
-                text += "<span class='btn autoItemEquipped btn-lg' onclick='autoBattle.savePreset(\"p" + x + "\")'>Save</span>";
-                if (preset.length) text += "<span class='btn autoItemUpgrade btn-lg' onclick='autoBattle.loadPreset(\"p" + x + "\")'>Load</span>";
-                text += "<span class='btn autoColorOrange btn-lg' onclick='tooltip(\"Rename SA Preset\", null, \"update\", " + x + ")'>Rename</span>";
+
                 text += "</div>";
             }
             text += "</div>";
