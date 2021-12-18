@@ -651,7 +651,8 @@ var autoBattle = {
     loadPreset: function(slot){
         var preset = this.presets[slot];
         var plength = preset.length;
-        if (plength > this.getMaxItems()) plength = this.getMaxItems();
+        var maxAdd = this.getMaxItems();
+        var added = 0;
         for (var item in this.items){
             this.items[item].equipped = false;
             if (this.settings.loadHide.enabled) this.items[item].hidden = (this.items[item].owned) ? true : false;
@@ -670,8 +671,10 @@ var autoBattle = {
                 continue;
             }
             if (!this.items[thisPreset] || !this.items[thisPreset].owned) continue;
+            if (added >= maxAdd) continue;
             this.items[thisPreset].equipped = true;
             this.items[thisPreset].hidden = false;
+            added++;
         }
         this.popupMode = 'items';
         this.resetCombat(true);
