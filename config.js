@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.6.4',
+		stringVersion: '5.6.5',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -3631,7 +3631,7 @@ var toReturn = {
 			}
 		},
 		Experience: {
-			description: "Fluffy tells you about a special dimension with some interesting sights he'd like to see. Starting at Z300, any Map at World level or higher has a 20% chance to contain a Wonder. Clearing that cell will grant Fluffy 3 Zones worth of Exp, but will also increase Enemy Attack and Health by 15% (compounding) for the rest of the Challenge. Once a Wonder is found, another cannot be found for 5 more World Zones. Completing Bionic Wonderland XXXIII (L605) or higher while at or above Z601 in the World will complete the Challenge. When the Challenge ends, Fluffy gains an extra 5% of all Experience earned during the Challenge for every Wonder he saw, plus another 50% for every BW tier above XXXIII this Challenge was completed on (up to +350% for XL). The Challenge will also automatically complete with no extra bonus from Bionic Wonderlands after beating World Z700. This Challenge can be repeated!",
+			description: "Fluffy tells you about a special dimension with some interesting sights he'd like to see. Starting at Z300, any Map at World level or higher has a 20% chance to contain a Wonder. Clearing that cell will grant Fluffy 3 Zones worth of Exp, but will also increase Enemy Attack and Health by 15% (compounding) for the rest of the Challenge. Once a Wonder is found, another cannot be found for 5 more World Zones. Completing Bionic Wonderland XXXIII (L605) or higher while at or above Z601 in the World will complete the Challenge. When the Challenge ends, Fluffy gains an extra 5% of all Experience earned during the Challenge for every Wonder he saw, plus another 50% for every BW tier above XXXIII this Challenge was completed on (up to +350% for XL). Experience can also be completed by clearing Z700, and will grant the same +50% per tier bonus based on your highest BW completed during the Challenge. This Challenge can be repeated!",
 			wonders: 0,
 			nextWonder: 300,
 			completeAfterZone: 700,
@@ -3664,11 +3664,11 @@ var toReturn = {
 			abandon: function(){
 				this.clearStacks();
 			},
-			onComplete: function(mapLevel){
+			onComplete: function(){
 				game.global.challengeActive = "";
-				var extraTiers = Math.floor((mapLevel - 605) / 15);
+				var extraTiers = Math.floor((game.stats.highestBw.value - 605) / 15);
 				if (extraTiers > 7) extraTiers = 7;
-				if (!extraTiers) extraTiers = 0;
+				if (extraTiers < 0) extraTiers = 0;
 				var xp = this.heldExperience;
 				xp *= this.getFinalXpMult(extraTiers);
 				if (Fluffy.canGainExp()){
@@ -3708,7 +3708,10 @@ var toReturn = {
 				else if (game.global.world <= this.nextWonder) text += "Fluffy last saw a Wonder on Z" + (this.nextWonder - 5) + ", and the next one is available at Z" + this.nextWonder + ".";
 				else text += "Fluffy thinks you could find a Wonder now if you ran a few maps!";
 				if (this.heldExperience > 0){
-					text += "<br/><br/>Fluffy has earned a total of " + prettify(this.heldExperience) + " Exp so far, and will gain an extra " + prettify(this.heldExperience * this.getFinalXpMult()) + "&nbsp;-&nbsp;" + prettify(this.heldExperience * this.getFinalXpMult(7)) + " Exp on completion (depending on BW tier)."
+					var currentTiers = Math.floor((game.stats.highestBw.value - 605) / 15);
+					if (currentTiers < 0) currentTiers = 0;
+					if (currentTiers > 7) currentTiers = 7;
+					text += "<br/><br/>Fluffy has earned a total of " + prettify(this.heldExperience) + " Exp so far, and will gain an extra " + prettify(this.heldExperience * this.getFinalXpMult(currentTiers)) + " Exp on completion (+" + prettify(game.challenges.Experience.getFinalXpMult() * 100) + "% from Wonders, + " + prettify(currentTiers * 50) + "% from BW).";
 				}
 				return text;
 			}
@@ -5814,6 +5817,22 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0
 		},
+		highestBw: {
+			title: "Highest BW Clear",
+			display: function() {
+				return (this.value > 0 || this.valueTotal > 0);
+			},
+			displayCurrent: function() {
+				return (game.global.universe == 1);
+			},
+			value: 0,
+			valueTotal: 0,
+			noAdd: true,
+			evaluate: function(bwLevel){
+				if (bwLevel > this.value) this.value = bwLevel;
+				if (bwLevel > this.valueTotal) this.valueTotal = bwLevel;
+			}
+		},
 		trimpsGenerated: {
 			title: "Trimps from Generator",
 			display: function() {
@@ -6973,7 +6992,7 @@ var toReturn = {
 			description: function (number) {
 				return this.descriptions[number];
 			},
-			filters: [19, 29, 29, -1, 39, 59, -1, 79, -1, 99, 124, 59, 119, 74, -1, -1, 59, 59, 59, 124, 144, 59, 59, 109, -1, 164, 59, -1, 179, 179, 199, 199, 229, 245, 179, 189, 214, 199, 229, 299, 235, 65, 169, 199, 424, 349, -1, 129, 399, 549, 599, 199, 324, 299, 299, 424, 229, 179, 424, 549],
+			filters: [19, 29, 29, -1, 39, 59, -1, 79, -1, 99, 124, 59, 119, 74, -1, 74, 59, 59, 59, 124, 144, 59, 59, 109, -1, 164, 59, -1, 179, 179, 199, 199, 229, 245, 179, 189, 214, 199, 229, 299, 235, 65, 169, 199, 424, 349, -1, 129, 399, 549, 599, 199, 324, 299, 299, 424, 229, 179, 424, 549],
 			filterLevel: function(){
 				return game.global.highestLevelCleared;
 			},
@@ -8156,7 +8175,9 @@ var toReturn = {
 				var mapLevel = game.global.mapsOwnedArray[getMapIndex(game.global.currentMapId)].level;
 				if (mapLevel >= game.global.world + 45) giveSingleAchieve("Bionic Sniper");
 				if (mapLevel >= game.global.world + 200) giveSingleAchieve("Bionic Nuker");
-				if (game.global.challengeActive == "Experience" && mapLevel >= 605 && game.global.world > 600) game.challenges.Experience.onComplete(mapLevel);
+				game.stats.highestBw.evaluate(mapLevel);
+				if (game.global.challengeActive == "Experience" && mapLevel >= 605 && game.global.world > 600) game.challenges.Experience.onComplete();	
+				if (game.global.challengeActive == "Experience") game.challenges.Experience.drawStacks();
 				checkAchieve("bionicTimed");
 				var amt1 = rewardResource("wood", 1, level, true);
 				var amt2 = rewardResource("food", 1, level, true);

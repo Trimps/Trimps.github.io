@@ -1311,17 +1311,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var state = game.portal.Equality.scalingActive ? "On" : "Off";
 		if (textString) tooltipText = '<div style="font-size: 1.7vh"><div class="maxCenter"><div style="width: 50%; margin-left: 25%" role="button" class="noselect pointer portalThing thing perkColorOff changingOff equalityColor' + state + '" id="equalityScaling2" onclick="toggleEqualityScale()"><span class="thingName">Scale Equality</span><br><span class="thingOwned"><span id="equalityScalingState2">' + state + '</span></span></div></div><br/>';
 		else tooltipText = "";
-		tooltipText += "Change this Slider to change the maximum amount of attacks Trimps need to make in order to not trigger Equality Scaling. Setting this slider to 0 will increase scaling whenever a group of Trimps is one-shot, 1 will increase if Trimps attack one or fewer times, 5 will only increase if they attack 5 or fewer times, etc.<br/><br/><b>Your current setting is <span id='equalityCurrentScale'>" + game.portal.Equality.scalingSetting + "</span>.</b>";
-		tooltipText += "<br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySlider' min='0' max='10' value='" + game.portal.Equality.scalingSetting + "' />";
-		tooltipText += "<br/>If Reversing is allowed, Equality stacks will also decrease after the set amount of attacks against the same bad guy.<br/><br/>" + buildNiceCheckbox("equalityReversing", null, game.portal.Equality.scalingReverse, "scaleEqualityScale(this, \"reverse\")") + " Allow Reversing<br/><b>Your current reversing setting is <span id='equalityCurrentScaleReverse'>" + game.portal.Equality.reversingSetting + "</span>.</b><br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySliderReverse' min='1' max='10' value='" + game.portal.Equality.reversingSetting + "' />"
-		var disabledStackCount = game.portal.Equality.disabledStackCount;
-		var max = (game.portal.Equality.radLevel + 1);
-		var text = disabledStackCount;
-		if (disabledStackCount == -1){
-			text = "Max (" + game.portal.Equality.radLevel + ")";
-			disabledStackCount = max;
-		}
-		tooltipText += "<br/>You can also manually set how many stacks of Equality should be used if Scaling is disabled by changing the slider below. This allows you to customize exactly how many stacks of Equality to use without having to respec your Perks.<br/><br/><b>Your Equality stacks when Scaling is disabled will be <span id='equalityDisabledStackCount'>" + text + "</span>.</b><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='equalityDisabledSlider' min='0' max='" + max + "' value='" + disabledStackCount + "' />";
+		tooltipText += getEqualitySliders();
 		if (textString) tooltipText += "</div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "4.5%";
@@ -1538,6 +1528,25 @@ function updateMazPreset(index){
 	swapClass('mazRx', newClass, row);
 	newClass = (preset == 3 && until == 5) ? 'mazBwZoneOn' : 'mazBwZoneOff';
 	swapClass('mazBwZone', newClass, row);
+}
+
+function getEqualitySliders(short){
+	var text = "";
+	if (!short) text += "Change this Slider to change the maximum amount of attacks Trimps need to make in order to not trigger Equality Scaling. Setting this slider to 0 will increase scaling whenever a group of Trimps is one-shot, 1 will increase if Trimps attack one or fewer times, 5 will only increase if they attack 5 or fewer times, etc.<br/><br/>";
+	text += "<b>Your current setting is <span id='equalityCurrentScale'>" + game.portal.Equality.scalingSetting + "</span>.</b>";
+	text += "<br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySlider' min='0' max='10' value='" + game.portal.Equality.scalingSetting + "' />";
+	if (!short) text += "<br/>If Reversing is allowed, Equality stacks will also decrease after the set amount of attacks against the same bad guy.<br/><br/>";
+	text += buildNiceCheckbox("equalityReversing", null, game.portal.Equality.scalingReverse, "scaleEqualityScale(this, \"reverse\")") + " Allow Reversing<br/><b>Your current reversing setting is <span id='equalityCurrentScaleReverse'>" + game.portal.Equality.reversingSetting + "</span>.</b><br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySliderReverse' min='1' max='10' value='" + game.portal.Equality.reversingSetting + "' />"
+	var disabledStackCount = game.portal.Equality.disabledStackCount;
+	var max = (game.portal.Equality.radLevel + 1);
+	var stackText = disabledStackCount;
+	if (disabledStackCount == -1){
+		stackText = "Max (" + game.portal.Equality.radLevel + ")";
+		disabledStackCount = max;
+	}
+	if (!short) text += "<br/>You can also manually set how many stacks of Equality should be used if Scaling is disabled by changing the slider below. This allows you to customize exactly how many stacks of Equality to use without having to respec your Perks.<br/><br/>";
+	text += "<b>Your Equality stacks when Scaling is disabled will be <span id='equalityDisabledStackCount'>" + stackText + "</span>.</b><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='equalityDisabledSlider' min='0' max='" + max + "' value='" + disabledStackCount + "' />";
+	return text;
 }
 
 function getExtraScryerText(fromForm){

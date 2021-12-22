@@ -2250,6 +2250,7 @@ function scaleEqualityScale(slider, whatDo){
 
 function updateEqualityScaling(){
 	var suffix = (game.global.viewingUpgrades || portalWindowOpen) ? "" : "2";
+	if (usingRealTimeOffline) suffix = "3";
 	var elem = document.getElementById("equalityScaling" + suffix);
 	if (!elem) return;
 	var stateElem = document.getElementById("equalityScalingState" + suffix);
@@ -2352,6 +2353,7 @@ var offlineProgress = {
 	mapBtnsInnerElem: document.getElementById('offlineMapBtnsInner'),
 	effectiveElem: document.getElementById('offlineEffective'),
 	formationsElem: document.getElementById('offlineFormations'),
+	equalityBtn: document.getElementById('offlineEqualityBtn'),
 	mapBtns: [document.getElementById('offlineMapBtn0'), document.getElementById('offlineMapBtn1'), document.getElementById('offlineMapBtn2'), document.getElementById('offlineMapBtn3')],
 	progressMax: -1,
 	startTime: -1,
@@ -2368,6 +2370,8 @@ var offlineProgress = {
 	loop: null,
 	lastLoop: -1,
 	loopTicks: 0,
+	showingEquality: false,
+	totalOfflineTime: 0,
 	fluff: function(){
 		var fluffs = ["Your Trimps really missed you", "Your Trimps didn't do dishes while you were gone", "A Scientist has been locked outside all night", "There's a Snimp in the pantry", "Your Trimps threw a party while you were out", "Your Trimps raided your fridge while you were gone", "Some Trimps toilet papered your ship", "Your Trimps were a few minutes away from burning the place down", "The Turkimps escaped again", "Your Trimps ran the AC all night", "Wow, such speed", "Your Trimps dinged your ship while out on a joyride", "One of your Trimps got a tattoo while you were gone"];
 		if (game.global.fluffyExp > 0) {
@@ -2380,6 +2384,20 @@ var offlineProgress = {
 		}
 		this.currentFluff = fluffs[Math.floor(Math.random() * fluffs.length)];
 		return this.currentFluff;
+	},
+	showEquality: function(){
+		if (this.showingEquality || game.global.universe == 1 || game.portal.Equality.radLocked){
+			this.timeOfflineElem.innerHTML = "Welcome back! You were offline for " + this.formatTime(Math.floor(this.totalOfflineTime / 1000)) + ".";
+			this.equalityBtn.innerHTML = "Show Equality";
+			this.showingEquality = false;
+			return;
+		}
+		var text = '<div style="font-size: 0.75vw; margin-top: -3.5vw;"><div style="width: 50%; font-size: 0.75vw;" role="button" class="noselect pointer portalThing thing perkColorOff changingOff equalityColorOn" id="equalityScaling3" onclick="toggleEqualityScale()"><span class="thingName">Scale Equality</span><br><span class="thingOwned"><span id="equalityScalingState3">On</span></span></div><br/>'
+		text += getEqualitySliders(true);
+		text += "</div>";
+		this.timeOfflineElem.innerHTML = text;
+		this.equalityBtn.innerHTML = "Hide Equality";
+		this.showingEquality = true;
 	},
 	updateFormations: function(){
 		if (!game.upgrades.Formations.done) {
@@ -2473,6 +2491,7 @@ var offlineProgress = {
 		this.repeatSetting = game.global.repeatMap;
 		this.repeatUntil = game.options.menu.repeatUntil.enabled;
 		this.exitTo = game.options.menu.exitTo.enabled;
+		this.totalOfflineTime = offlineTime;
 		this.timeOfflineElem.innerHTML = "Welcome back! You were offline for " + this.formatTime(Math.floor(offlineTime / 1000)) + ".";
 		this.updateBar(0);
 		var x = 0;
@@ -2482,6 +2501,7 @@ var offlineProgress = {
 		var updateFreq = 2000;
 		var nextUpdate = updateFreq;
 		this.updateFormations();
+		this.equalityBtn.style.display = (game.portal.Equality.radLocked || game.global.universe == 1) ? 'none' : 'inline-block';
 		(function loop() {
 			x += loopTicks;
 			if (x >= nextUpdate){
@@ -2517,6 +2537,9 @@ var offlineProgress = {
 		clearTimeout(this.loop);
 		this.loop = null;
 		usingRealTimeOffline = false;
+		this.timeOfflineElem.innerHTML = '';
+		this.equalityBtn.innerHTML = "Show Equality";
+		this.showingEquality = false;
 		this.wrapperElem.style.display = 'none';
 		this.innerWrapperElem.style.display = 'block';
 		game.global.repeatMap = this.repeatSetting;
@@ -12118,13 +12141,13 @@ function runMapAtZone(index){
 		var meltMap = -1;
 		for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
 			if (game.global.mapsOwnedArray[x].location == location){
-				meltMap = x;
+				meltMap = game.global.mapsOwnedArray[x];
 				break;
 			}
 		}
-		if (meltMap > -1){
+		if (meltMap){
 			if (game.global.currentMapId) recycleMap();
-			selectMap(game.global.mapsOwnedArray[meltMap].id);
+			selectMap(meltMap.id);
 			runMap();
 		}
 		if (setting.until == 6) game.global.mapCounterGoal = 25;

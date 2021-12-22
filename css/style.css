@@ -5943,13 +5943,24 @@ sup{
 #offlineTimeOffline{
 	padding-top: 2vw;
 	text-align: center;
+	margin-bottom: 1.8vw;
+}
+
+#offlineTimeOffline div input{
+	margin: 0.5vw 0;
+	font-size: 1vw;
 }
 
 .offlineExtraBtn{
 	width: 45%;
-	margin: 2vw 2%;
+	margin: 0.2vw 2%;
 	display: inline-block;
 	font-size: 1.2vw;
+	padding: 0.4vw 0.64vw;
+}
+
+#offlineExtraBtnsContainer{
+	text-align: center;
 }
 
 #offlineExtraBtnsContainer, #offlineMapBtns, #offlineZoneBtns{
