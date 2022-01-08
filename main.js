@@ -18199,7 +18199,7 @@ document.addEventListener('keydown', function (e) {
 				break;
 			}
 		case 83: //s
-			if (checkStatus() && game.global.world >= 60 && getHighestLevelCleared() >= 180) setFormation('4');
+			if (checkStatus() && game.global.world >= 60 && getHighestLevelCleared() >= 180 && game.global.universe == 1) setFormation('4');
 			break;
 		case 54: //6
 		case 102: //num6

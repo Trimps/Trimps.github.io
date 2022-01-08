@@ -593,7 +593,9 @@ var toReturn = {
 				return "When this Empowerment is active, each successful attack by your Trimps stacks a debuff on the enemy, causing winds to swell and knock extra resources into your reach. Each stack increases Helium gained from the World by <b>" + this.formatModifier(this.getModifier(0, true)) + "%</b> and increases all other basic resources gained from all sources by <b>" + this.formatModifier(this.getModifier()) + "%</b> until that enemy dies (maximum of " + this.stackMax() + " stacks). This bonus does not apply to Fragments, and the helium bonus does not apply to maps.";
 			},
 			upgradeDescription: function () {
-				return "Increases the amount of extra Helium you find in the World by <b>" + this.formatModifier(this.baseModifier) + "%</b> and non-Helium basic resources from all sources by <b>" + this.formatModifier(this.baseModifier * 10) + "%</b> per stack when the Empowerment of Wind is active. Your current bonus is <b>" + this.formatModifier(this.getModifier(0, true)) + "%</b> Helium, and next level will bring your bonus to <b>" + this.formatModifier(this.getModifier(1, true)) + "%</b> extra helium. Non-Helium resource gain is always " + ((Fluffy.isRewardActive('naturesWrath')) ? "double" : "10x") + " that of Helium, and the Helium bonus does not apply in maps.";
+				var heMod = this.baseModifier;
+				if (Fluffy.isRewardActive("naturesWrath")) heMod *= 5;
+				return "Increases the amount of extra Helium you find in the World by <b>" + this.formatModifier(heMod) + "%</b> and non-Helium basic resources from all sources by <b>" + this.formatModifier(this.baseModifier * 10) + "%</b> per stack when the Empowerment of Wind is active. Your current bonus is <b>" + this.formatModifier(this.getModifier(0, true)) + "%</b> Helium, and next level will bring your bonus to <b>" + this.formatModifier(this.getModifier(1, true)) + "%</b> extra helium. Non-Helium resource gain is always " + ((Fluffy.isRewardActive('naturesWrath')) ? "double" : "10x") + " that of Helium, and the Helium bonus does not apply in maps.";
 			},
 			baseModifier: 0.001,
 			getModifier: function (change, forHelium) {
