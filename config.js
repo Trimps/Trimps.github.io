@@ -1002,8 +1002,8 @@ var toReturn = {
 			voidPopups: {
 				extraTags: "alerts",
 				enabled: 1,
-				description: "Decide whether or not you want popups on looting an Heirloom.",
-				titles: ["No Heirloom Pop", "Popping Heirlooms"]
+				description: "Decide whether or not you want popups on looting an Heirloom, depending on the rarity of your currently equipped heirloom",
+				titles: ["No Heirloom Pop", "Popping Heirlooms", "Same or better Heirlooms", "Better Heirlooms"]
 			},
 			detailedPerks: {
 				extraTags: "qol",
