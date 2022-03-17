@@ -1149,10 +1149,15 @@ function load(saveString, autoLoad, fromPf) {
 	if (game.talents.turkimp2.purchased || game.global.turkimpTimer > 0) document.getElementById("turkimpBuff").style.display = "block";
 	if (game.global.totalPortals >= 5) document.getElementById("heirloomBtnContainer").style.display = "block";
 	calculateAchievementBonus();
-	if(game.global.firing)
-		swapClass("fireBtn", "fireBtnFiring", document.getElementById("fireBtn"));
-	else
-		swapClass("fireBtn", "fireBtnNotFiring", document.getElementById("fireBtn"));
+	var fireButton = document.getElementById("fireBtn");
+	if(game.global.firing) {
+		swapClass("fireBtn", "fireBtnFiring", fireButton);
+		fireButton.setAttribute("aria-checked", true);
+	} else {
+		swapClass("fireBtn", "fireBtnNotFiring", fireButton);
+		fireButton.setAttribute("aria-checked", false);
+	}
+	
 	loadSingleBonusColors()
 	handlePoisonDebuff();
 	handleIceDebuff();
@@ -3936,7 +3941,8 @@ function fireMode(noChange) {
     } else {
         elem.className = elem.className.replace("fireBtnFiring", "fireBtnNotFiring");
         elem.innerHTML = "Fire";
-    }
+	}
+	elem.setAttribute("aria-checked", game.global.firing);
     if (!noChange && !game.global.lockTooltip)
 		 tooltip("Fire Trimps", null, "update");
 }
@@ -16409,6 +16415,7 @@ function toggleAutoTrap(updateOnly) {
 	if (!game.global.trapBuildAllowed){
 		elem.style.display = "none";
 		elem.innerHTML = "AutoTraps Off";
+		elem.setAttribute("aria-checked", false)
 		swapClass("color", "colorDanger", elem);
 		return;
 	}
@@ -16417,10 +16424,12 @@ function toggleAutoTrap(updateOnly) {
 	if (game.global.trapBuildToggled){
 		swapClass("color", "colorSuccess", elem);
 		elem.innerHTML = "AutoTraps On";
+		elem.setAttribute("aria-checked", true);
 		return;
 	}
 	swapClass("color", "colorDanger", elem);
 	elem.innerHTML = "AutoTraps Off";
+	elem.setAttribute("aria-checked", false)
 }
 
 function toggleAutoStorage(noChange){
