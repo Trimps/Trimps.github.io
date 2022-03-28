@@ -847,6 +847,10 @@ body {
 	background-color: rgba(0,0,102,1);
 }
 
+.d-flex {
+	display: flex;
+}
+
 #generatorWindow{
 	width: 98.3%;
 	margin-bottom: 2px;
@@ -5157,7 +5161,7 @@ sup{
 	width: 5vw;
 	display: inline-block;
 	position: relative;
-	margin-top: 3%;
+	margin: auto;
 }
 
 #fuelContainer{
@@ -5166,7 +5170,7 @@ sup{
 	display: inline-block;
 	position: relative;
 	border: 1px solid black;
-	margin-top: 3%;
+	margin: auto;
 	transform: rotate(180deg);
 }
 
@@ -5181,6 +5185,7 @@ sup{
 	display: inline-block;
 	width: 40%;
 	float: left;
+	margin: auto;
 }
 
 
