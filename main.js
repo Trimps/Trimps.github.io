@@ -9554,8 +9554,9 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 				className += " " + game.global.mapGridArray[counter].vm;
 			}
 			if (!maps && game.global.gridArray[counter].empowerment){
+				var reward = rewardToken(getEmpowerment());
 				className += " empoweredCell" + game.global.gridArray[counter].empowerment;
-				cell.title = "Token of " + game.global.gridArray[counter].empowerment;
+				cell.title = reward + " Token" + (reward > 1 ? "s" : "") + " of " + game.global.gridArray[counter].empowerment;
 			}
 			else if (!maps && checkIfSpireWorld() && game.global.spireActive) className += " spireCell";
             cell.className = className;
