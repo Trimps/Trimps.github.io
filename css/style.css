@@ -649,6 +649,10 @@ body {
 	color: #DDDDFF;
 }
 
+#heirloomsBtn .alert{
+	background-color: black;
+}
+
 
 #foremenCount,
 #buildSpeed {

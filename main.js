@@ -1165,6 +1165,8 @@ function load(saveString, autoLoad, fromPf) {
 	setTrimpColSize();
 	setUniverseStyle();
 	if (game.global.totalVoidMaps > 0 && !game.global.mapsActive) addVoidAlert();
+	addHeirloomAlert();
+
 	if (!game.options.menu.pauseGame.enabled) {
 		//If not paused and offline progress is enabled, run offline progress
 		if (game.options.menu.offlineProgress.enabled)
@@ -6049,6 +6051,36 @@ function addVoidAlert(){
 	document.getElementById('mapsBtnText').innerHTML += ' <span id="voidAlert" class="alert badge">' + game.global.totalVoidMaps + '</span>';
 }
 
+function addHeirloomAlert(){
+	var alert = document.getElementById('heirloomAlert');
+	if (!game.global.heirloomsExtra.length) {
+		if (alert !== null) alert.remove();
+		return;
+	}
+
+	var highestRarityExtraHeirloom = 0;
+	var highestRarityExtraHeirloomCount = 0;
+	for (var extraHeirloom of game.global.heirloomsExtra) {
+		if (extraHeirloom.rarity < highestRarityExtraHeirloom) continue;
+		if (extraHeirloom.rarity > highestRarityExtraHeirloom) {
+			highestRarityExtraHeirloom = extraHeirloom.rarity;
+			highestRarityExtraHeirloomCount = 0;
+		}
+		++highestRarityExtraHeirloomCount;
+	}
+
+	if (alert !== null) {
+		alert.innerHTML = highestRarityExtraHeirloomCount;
+		alert.className = 'alert badge heirloomRare' + highestRarityExtraHeirloom;
+		return;
+	}
+
+	document.getElementById('heirloomsBtn').innerHTML +=
+		' <span id="heirloomAlert" class="alert badge heirloomRare' + highestRarityExtraHeirloom + '">' +
+			highestRarityExtraHeirloomCount +
+		'</span>';
+}
+
 var voidBuffConfig = {
 		doubleAttack: {
 			icon: 'icomoon icon-pushpin',
@@ -6392,6 +6424,7 @@ function recycleHeirloom(confirmed){
 	else game.global.nullifium += value;
 	game.global.heirloomsExtra.splice(game.global.selectedHeirloom[0], 1);
 	populateHeirloomWindow();
+	addHeirloomAlert();
 }
 
 function recycleAllExtraHeirlooms(valueOnly, checkCores){
@@ -6414,6 +6447,7 @@ function recycleAllExtraHeirlooms(valueOnly, checkCores){
 	game.global.nullifium += value;
 	playerSpire.giveSpirestones(coreValue);
 	game.global.heirloomsExtra = [];
+	addHeirloomAlert();
 }
 
 function recycleAllHeirloomsClicked(confirmed){
@@ -6463,7 +6497,10 @@ function unequipHeirloom(heirloom, toLocation, noScreenUpdate){
 	}
 	game.global[heirloom.type + "Equipped"] = {};
 	if (toLocation == "heirloomsCarried") game.global.heirloomsCarried.push(heirloom);
-	else game.global.heirloomsExtra.push(heirloom);
+	else {
+		game.global.heirloomsExtra.push(heirloom);
+		addHeirloomAlert();
+	}
 	//Remove bonuses
 	for (var item in game.heirlooms[heirloom.type]){
 		var stat = game.heirlooms[heirloom.type][item];
@@ -6493,8 +6530,10 @@ function equipHeirloomById(id, type){
 function equipHeirloom(noScreenUpdate){
 	var heirloom = getSelectedHeirloom();
 	if (heirloom == game.global.ShieldEquipped || heirloom == game.global.StaffEquipped) return;
-	if (game.global.selectedHeirloom[1] == "heirloomsExtra") game.global.heirloomsExtra.splice(game.global.selectedHeirloom[0], 1);
-	else game.global.heirloomsCarried.splice(game.global.selectedHeirloom[0], 1);
+	if (game.global.selectedHeirloom[1] == "heirloomsExtra") {
+		game.global.heirloomsExtra.splice(game.global.selectedHeirloom[0], 1);
+		addHeirloomAlert();
+	} else game.global.heirloomsCarried.splice(game.global.selectedHeirloom[0], 1);
 	if (typeof game.global[heirloom.type + "Equipped"].name !== 'undefined') unequipHeirloom(game.global[heirloom.type + "Equipped"], game.global.selectedHeirloom[1], noScreenUpdate);
 	game.global[heirloom.type + "Equipped"] = heirloom;
 	//Add bonuses
@@ -6527,6 +6566,7 @@ function carryHeirloom(){
 	game.global.heirloomsExtra.splice(game.global.selectedHeirloom[0], 1);
 	game.global.heirloomsCarried.push(heirloom);
 	populateHeirloomWindow();
+	addHeirloomAlert();
 }
 
 function stopCarryHeirloom(){
@@ -6534,6 +6574,7 @@ function stopCarryHeirloom(){
 	game.global.heirloomsCarried.splice(game.global.selectedHeirloom[0], 1);
 	game.global.heirloomsExtra.push(heirloom);
 	populateHeirloomWindow();
+	addHeirloomAlert();
 }
 
 function getSelectedHeirloom(locationOvr, indexOvr){
@@ -7133,6 +7174,7 @@ function createHeirloom(zone, fromBones, spireCore, forceBest){
 	displaySelectedHeirloom(false, 0, false, "heirloomsExtra", game.global.heirloomsExtra.length - 1, true);
 	game.stats.totalHeirlooms.value++;
 	checkAchieve("totalHeirlooms");
+	addHeirloomAlert();
 	if (heirloomsShown) displayExtraHeirlooms();
 	if (spireCore) game.global.coreSeed = seed;
 	else if (fromBones) game.global.heirloomBoneSeed = seed;
