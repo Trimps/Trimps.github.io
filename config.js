@@ -1054,7 +1054,7 @@ var toReturn = {
 				enabled: 1,
 				extraTags: 'qol',
 				description: 'Enables/disables blue highlighting of equipment based on resource efficiency. Default is to only show highest available tier, or you can set this to <b>Highlight all Tiers</b> to check old tiers of Equipment too.',
-				titles: ["No Equip Highlight", "Highlight Equipment", "Higlight all Tiers"],
+				titles: ["No Equip Highlight", "Highlight Equipment", "Highlight all Tiers"],
 				onToggle: function(){
 					if (this.enabled == 0){
 						for (var item in game.equipment){
@@ -1604,6 +1604,8 @@ var toReturn = {
 							if (bwWorld % 15 != 0) bwWorld = 125 + (Math.floor(adj / 15) * 15);
 						}
 						if (isNumberBad(prio)) prio = x;
+						var currSetting = this.getSetZone();
+						if (currSetting) currSetting = currSetting[x];
 						var thisSetting = {
 							world: world,
 							through: through,
@@ -1617,7 +1619,7 @@ var toReturn = {
 							times: times,
 							on: enableCheck,
 							prio: prio,
-							done: false
+							done: (currSetting && currSetting.done) ? currSetting.done : false
 						};
 						if (rx && until == 9) thisSetting.rx = rx;
 						if (tx && times == -2) thisSetting.tx = tx;
