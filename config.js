@@ -771,7 +771,7 @@ var toReturn = {
 		voidMaps: {
 			name: "Void Maps",
 			text: "Upgrade your Void Map harvesting devices with the power of Bone! Each upgrade will cause 1 out of 100 Void Maps you find to be duplicated, guaranteed.",
-			confirmation: "You are about to purchase a level of Bone Void Maps for 50 Bones, causing +1 out of 100 Void Maps you find to be duplicated. Is this what you wanted to do?", 
+			confirmation: "You are about to purchase a level of Bone Void Maps, causing +1 out of 100 Void Maps you find to be duplicated. Is this what you wanted to do?", 
 			owned: 0,
 			tracker: 0,
 			checkDupe: function(prefix, suffix){
@@ -796,7 +796,7 @@ var toReturn = {
 				return "Gain 1 Bone Charge every " + prettify(this.chargeTime(true)) + " hours, up to a max of 10 Bone Charges that persist through Portals. Consume 1 Bone Charge to gain " + prettify(this.timeGranted()) + " minutes of all primary resources as loot. Gain +10 mins per level, levels 5 and 10 reduce time to gain a charge by 30 minutes each." 
 			},
 			get confirmation(){
-				var text = "You are about to purchase a level of Bone Shrine for 50 Bones, granting +10 minutes of primary resources as loot when worshipping the Shrine"
+				var text = "You are about to purchase a level of Bone Shrine, granting +10 minutes of primary resources as loot when worshipping the Shrine"
 				if (this.owned == 4 || this.owned == 9) text += ", and -30 minutes on the cooldown time per charge";
 				text += ". Is this what you wanted to do?";
 				return text;
