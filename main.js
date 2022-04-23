@@ -4667,7 +4667,7 @@ function buyJob(what, confirmed, noTip) {
 	if (game.global.firing){
 		if (game.jobs[what].owned < 1) return;
 		purchaseAmt = (game.global.buyAmt == "Max") ? calculateMaxAfford(game.jobs[what], false, false, true) : game.global.buyAmt;
-		if (what == "Farmer" || what == "Lumberjack" || what == "Miner" || what == "Scientist")
+		if (what == "Farmer" || what == "Lumberjack" || what == "Miner" || what == "Scientist" || what == "Geneticist")
 			fireTrimps(what, purchaseAmt);
 		else{
 			var name = what + needAnS(purchaseAmt);

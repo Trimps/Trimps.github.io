@@ -374,10 +374,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText += "</tr></tbody></table>";
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info btn-lg' onclick='saveAutoStructureConfig()'>Apply</div><div class='btn-lg btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
-		elem.style.left = "33.75%";
-		elem.style.top = "25%";
 		ondisplay = function(){
-			verticalCenterTooltip(true);
+			verticalCenterTooltip(false, true);
 		};
 	}
 	if (what == "AutoStructure"){
