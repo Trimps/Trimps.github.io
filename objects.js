@@ -44,6 +44,261 @@ var holidayObj = {
     }
 }
 
+var tutorial = {
+    open: false,
+    viewingStep: 0,
+    start: function(){
+        game.global.tutorialActive = true;
+        game.global.tutorialOpen = true;
+        this.load();
+    },
+    load: function(){
+        if (game.global.tutorialOpen) this.openWindow();
+        document.getElementById('openTutorialContainer').style.display = 'block';
+        document.getElementById('openTutorialContainer2').style.display = 'block';
+        this.toggleSize(true);
+    },
+    popup: function(){
+        game.global.tutorialOpen = !game.global.tutorialOpen;
+        if (game.global.totalPortals >= 1) game.global.tutorialStep = 15;
+        if (game.global.tutorialOpen) this.openWindow();
+        else this.closeWindow();
+    },
+    closeWindow: function(){
+        game.global.tutorialOpen = false;
+        document.getElementById('tutorialDiv').style.display = 'none';
+    },
+    openWindow: function(){
+        game.global.tutorialOpen = true;
+        this.viewingStep = game.global.tutorialStep;
+        document.getElementById('tutorialDiv').style.display = 'block';
+        this.getText();
+        this.stopFlash();
+    },
+    reset: function(){
+        this.closeWindow();
+        document.getElementById('openTutorialContainer').style.display = 'none';
+        document.getElementById('openTutorialContainer2').style.display = 'none';
+    },
+    makeFlash: function(){
+        swapClass('flash', 'flashing', document.getElementById('openTutorialBtn'));
+        swapClass('flash', 'flashing', document.getElementById('openTutorialBtn2'));
+    },
+    stopFlash: function(){
+        swapClass('flash', 'flashNo', document.getElementById('openTutorialBtn'));
+        swapClass('flash', 'flashNo', document.getElementById('openTutorialBtn2'));
+    },
+    check: function(){
+        var oldStep = game.global.tutorialStep;
+        if (oldStep == 15) return;
+        switch(game.global.tutorialStep){
+            case 0:
+                if (game.upgrades.Bloodlust.allowed > 0) game.global.tutorialStep++;
+                break;
+            case 1:
+                if (game.global.world >= 2) game.global.tutorialStep++;
+                break;
+            case 2:
+                if (game.global.world >= 4) game.global.tutorialStep++;
+                break;
+            case 3:
+                if (game.global.mapsUnlocked) game.global.tutorialStep++;
+                break;
+            case 4:
+                if (game.global.preMapsActive || game.upgrades.Supershield.allowed > 0 || game.global.mapsActive) game.global.tutorialStep++;
+                break;
+            case 5:
+                if (game.global.mapsActive || game.upgrades.Supershield.allowed > 0) game.global.tutorialStep++;
+                break;
+            case 6:
+                if (game.upgrades.Supershield.allowed > 0 && game.upgrades.Dagadder.allowed > 0 && game.upgrades.Bootboost.allowed > 0) game.global.tutorialStep++;
+                break;
+            case 7:
+                if (game.global.world >= 7 && (game.global.preMapsActive || game.upgrades.Megamace.allowed > 0)) game.global.tutorialStep++;
+                break;
+            case 8:
+                if (game.upgrades.Megamace.allowed > 0 && game.upgrades.Hellishmet.allowed > 0) game.global.tutorialStep++;
+                break;
+            case 9:
+                if (game.upgrades.Trapstorm.allowed > 0) game.global.tutorialStep++;
+                break;
+            case 10:
+                if ((game.upgrades.Shieldblock.allowed > 0) || (!game.mapUnlocks.TheBlock.canRunOnce && game.global.preMapsActive)) game.global.tutorialStep++;
+                break;
+            case 11:
+                if (game.upgrades.Shieldblock.allowed > 0) game.global.tutorialStep++;
+                break;
+            case 12:
+                if (game.upgrades.Bounty.allowed > 0) game.global.tutorialStep++;
+                break;
+            case 13:
+                if (game.upgrades.Anger.done > 0) game.global.tutorialStep++;
+                break;
+            case 14:
+                if (game.global.portalActive) game.global.tutorialStep++;
+                break;
+        }
+        if (oldStep != game.global.tutorialStep) {
+            if (!game.global.tutorialOpen){
+                this.makeFlash();
+            }
+            else{
+                this.viewingStep = game.global.tutorialStep;
+                this.getText();
+                this.resetScroll();
+            }
+        }
+    },
+    setWinSize: function(){
+        var className = (game.global.preMapsActive) ? 'tutorialDivSm' : 'tutorialDiv';
+        var classWidth = (game.global.tutorialLg) ? 'tutorialWidthLg' : 'tutorialWidth'
+        swapClass('tutorialDiv', className, document.getElementById('tutorialDiv'));
+        swapClass('tutorialWidth', classWidth, document.getElementById('tutorialDiv'));
+        document.getElementById('tutorialBookmarks').style.display = (game.global.tutorialLg) ? 'inline-block' : 'none';
+        document.getElementById('tutorialInner').style.width = (game.global.tutorialLg) ? '79%' : '100%';
+        this.resetScroll();
+    },
+    toggleSize: function(updateOnly){
+        if (!updateOnly) game.global.tutorialLg = !game.global.tutorialLg;
+        this.setWinSize();
+        document.getElementById('tutorialSizeBtn').className = (game.global.tutorialLg) ? 'icomoon icon-shrink' : 'icomoon icon-expand';
+        if (game.global.tutorialLg) this.setBookmarks();
+
+    },
+    resetScroll: function(){
+        var elem = document.getElementById('tutorialTextInner');
+        elem.scrollTop = 0;
+    },
+    next: function(){
+        if (game.global.tutorialStep > this.viewingStep) {
+            this.viewingStep++;
+            this.getText();
+            this.resetScroll();
+        }
+    },
+    back: function(){
+        if (this.viewingStep > 0){
+            this.viewingStep--;
+            this.getText();
+            this.resetScroll();
+        }
+    },
+    setViewStep: function(to){
+        if (to > game.global.tutorialStep || to < 0) return;
+        this.viewingStep = to;
+        this.getText();
+        this.resetScroll();
+    },
+    setBookmarks: function(){
+        var elem = document.getElementById('tutorialBookmarks');
+        var titles = ["Battle", "Zones", "Tips 1", "Tips 2", "Found a Map", "Map Chamber", "Mapping", "Equipment Prestige", "Custom Maps", "Map Settings", "Trapstorm", "Unique Maps", "Block", "Bounty", "Anger", "Portal"];
+        var text = "";
+        for (var x = 0; x <= game.global.tutorialStep; x++){
+            if (x > titles.length) break;
+            var selected = (x == this.viewingStep) ? ' selected' : '';
+            text += "<div class='tutorialBookmark" + selected + "' onclick='tutorial.setViewStep(" + x + ")'>" + titles[x] + "</div>";
+        }
+        
+        elem.innerHTML = text;
+    },
+    getText: function(){
+        var text = "";
+        var goal = "";
+        var totalSteps = 16;
+        switch(this.viewingStep){
+            case 0:
+                text = "Hello there! Didn't mean to startle you, your look of confusion indicates that you do not remember me. I am your ship's Automated Defensive Voice and Idea Synthesizing On-board Robot, but you can call me ADVISOR. I have noticed that the wildlife in the area seems to be scared of the Ship for now, but if you want to be able to leave the immediate area, you'll need to fight to do it. Luckily I have already completed an analysis of the Trimps, and with enough training they could be used to fight!"
+                text += "<br/><br/>After researching Battle, press the F key or click the 'Fight' button to send Trimps to battle. You need 1 free Trimp in your town before you can send it to fight - Trap more Trimps or wait for 2 or more unemployed Trimps to breed if you run out!<br/><br/><i>You can show/hide the ADVISOR window by pressing the 'V' key, or by clicking the gold Star on the middle right after you research Battle. You can also click the <span class='icomoon icon-close' style='color: red'></span> button to close the ADVISOR window, or the <span class='icomoon icon-expand'></span> button next to it to expand this window and see a table of contents.</i>"
+                goal = "Research Battle and kill 10 Bad Guys";
+                break;
+            case 1: //if bloodlust has been unlocked
+                text = "I am quite pleased. With your newly found Upgrade Book, you can now Train your Trimps to fight on their own! In order to maximize breed speed, you should teach the Trimps to only go out and fight when housing is completely full.<br/><br/>";
+                text += "My sensors have scanned the area, and the map of your current Zone will show you any Bad Guys with special rewards:<br/><span class='glyphicon glyphicon-apple'></span><span class='glyphicon glyphicon-tree-deciduous'></span><span class='icomoon icon-cubes'></span> - Food, Wood, or Metal respectively<br/>";
+                text += "<span class='glyphicon glyphicon-question-sign'></span> - New Equipment<br/><span class='glyphicon glyphicon-book'></span> - An Upgrade Book (mouse over it to see Upgrade name)<br/><span class='glyphicon glyphicon-gift'></span> - Increases your max population by 5";
+                text += "<br/><span class='glyphicon glyphicon-user'></span> - A foreman to help automatically build things in the queue<br/><br/>You now have lots of tools at your disposal. Keep your Trimps well equipped, research your upgrades, build more housing and you'll be in Zone 2 before you know it."
+                goal = "Clear this Zone"
+                break;
+            case 2: //if on z2+
+                text = "You're doing great so far! That Coordination Book you found will allow you to send larger groups of Trimps to fight together at a time. Upgrading this will increase your breeding requirements to maintain a fighting army, but is always worth researching as soon as you can. You will find a Coordination Book at the end of every Zone, allowing you to build a truly massive army. Don't forget that you can build and use Traps to get armies together faster!<br/><br/>";
+                text += "You also notice there's blueprints for a Gym on this Zone, which will grant your Trimps the ability to Block some damage from attacks. This is a flat damage reduction per Trimp, meaning it scales with army size as you research more levels of Coordination.<br/><br/>";
+                text += "By the way, you can click many of the numbers on the screen to see breakdowns of where those numbers are coming from. For example, click your Trimps' Health to see all of their Health bonuses, Food per Second to see all Food gathering bonuses, or your total number of Trimps to see totals from various sources of Max Trimps.<br/><br/>";
+                text += "Continue to improve your town and army. These Bad Guys won't know what hit them.";
+                goal = "Reach Zone 4";
+                break;
+            case 3: //if on z4+
+                text = "Here's a couple of tips the Bad Guys don't want you to know:<br/><br/><ul><li>You can click the 'Custom' number button, then type '1/4' to select one quarter of your current available workspaces. This makes it easy to evenly split your workers!</li><li>All Equipment shows how many resources you need to spend for each point of a stat. The lower this number, the more efficient that piece of Equipment is!</li><li>If you ever notice that everything is suddenly really expensive, you probably just need to click '+1' again.</li></ul>"
+                goal = "Find something interesting on Zone 6"
+                break;
+            case 4: //unlocked maps
+                text = "You've certainly found something interesting, your first Map! You should try running it.<br/><br/>Click the orange Maps button under AutoFight. Your current group of soldiers can't come with you, so you can either wait for them to... finish fighting, or you can click the button a second time to go on without them.";
+                goal = "Enter the Map Chamber";
+                break;
+            case 5: //entered map chamber
+                text = "Welcome to the map chamber! Select the map 'Tricky Paradise' in your map inventory.<br/><br/>Ignore the sliders at the top of this window for now, and take a look directly above the 'Run Map' map button. You'll see that there are currently 3 unique items inside this map, and we want them. To the right, you'll see Size 45 which indicates that this map will have 45 cells, Difficulty 85% indicating that Cell 1 has 15% less health and attack than Cell 1 in Zone 6, and Loot 120% indicating that each drop in this map is worth 20% more resources than the same drop in Zone 6.<br/><br/>Now click 'Run Map' and let's see what happens!"
+                goal = "Start Tricky Paradise";
+                break;
+            case 6: //entered a map
+                text = "And they're off! Remember that we want 3 items out of this map, and we can see one of these Upgrade Books at the end right now. Press the 'R' key or click the red button that currently says 'Repeat Off' to turn Map Repeating on, so your Trimps will automatically rerun this map after they get the first upgrade.";
+                text += "<br/><br/>You'll need to clear this map 3 times to earn all of its items. Keep an eye on your City and Equipment and this will be a breeze.";
+                goal = "Unlock all 3 Map Items from Zone 6";
+                break;
+            case 7: //Unlocked supershield, dagadder, bootboost
+                text = "Amazing job! You've earned all of the Map Items from Zone 6. Remember how you unlocked 3 pieces of Equipment on Zone 1, then 2 pieces each on Zones 2 through 5? From now on, you'll earn upgrades for these Equipments from maps with the same pattern, repeating every 5 Zones. 6, 11, 16 and so on will always have Shield, Dagger, and Boot upgrades, while Maps at all other Zone levels will have 2 upgrades.<br/><br/>";
+                text += "These 'prestige' upgrades for your Equipment will reset the Equipment to level 1, but they are extremely powerful. If you have the upgrade available, Prestiging your Equipment before buying more Levels is always more efficient. Because your Equipment resets to level 1, you generally want to try and earn these Upgrades soon after they become available.";
+                text += "You also may have noticed that the orange 'Maps' button now has a number next to it, indicating how many maps you've completed. Every time you complete a map with a level equal to your current Zone level, you'll gain a +20% damage buff for the rest of the Zone! This stacks up to 10 times. Remember you can click your Trimps' 'DMG' numbers to see all currently active bonuses.";
+                text += "<br/><br/>You can exit your Map the same way you got in, the orange 'Maps' button. Once you're back in the Map Chamber, click it one more time to return to the World."
+                goal = "Reach Zone 7, then go back to the Map Chamber";
+                break;
+            case 8: //entered map chamber on Z7
+                text = "Welcome back! We're finally going to take a look at those sliders and settings at the top of the Map Chamber. We don't have a level 7 Map so we'll need to make our own!<br/><br/>";
+                text += "The Loot, Size and Difficulty sliders all let you reduce the randomness of the Map Generator. For example, the default roll for Size is 25 to 75 Cells, but if you drag that slider all the way to the right, the roll becomes 25-30, guaranteeing a nice small Map to quickly grab your Upgrades and damage bonuses. However, you'll also notice that there's a Fragment cost displayed at the top that increases or decreases as you drag the sliders.<br/><br/>";
+                text += "You don't have a ton of Fragments to work with right now, so you'll need to find a balance you're happy with. I'd suggest leaving the Loot slider alone for now and balancing the Size and Difficulty sliders to whatever you can afford, but you can do whatever you'd like. You can mouse over 'Biome' to see how that Dropdown works, but it doubles the Fragment cost and is best left on 'Random' until later."
+                goal = "Create a Level 7 Map and complete it at least twice."
+                break;
+            case 9: //Unlocked megamace and hellishmet
+                text = "You're really getting the hang of this!<br/><br/>Now would be a good time to mention that you can click the grey cogwheel icon next to the maps button to customize some nifty map settings based on what you need. If you like getting 10 stacks of Map Bonus, turn on 'Repeat to 10' and 'Exit to World' and watch your Trimps automatically travel back to your current Zone after their 10th map. If you just want to get your upgrades and get out, 'Repeat for Items' is for you. Check each setting's tooltip for more information!";
+                text += "<br/><br/>Speaking of automation, there's another important book we could use for our automation arsenal hiding in a map up ahead. See if you can claim it for our city!"
+                goal = "Find a new upgrade in a Zone 10 Map";
+                break;
+            case 10: //Unlocked trapstorm
+                text = "Look at that! Gone are the days of adding traps to the building queue yourself, now Trapstorm can handle that for you!<br/><br/>By the way, when in a map you can mouse over the name of the map above the Fight button for some useful information like how long you've been in this map, and how many upgrades remain.<br/><br/>I'm detecting something we haven't seen yet inside a map on the next Zone. Let's go check it out!"
+                goal = "Run a Level 11 Map, then enter the Map Chamber"
+                break;
+            case 11: //Entered map chamber with The Block unlocked
+                text = "Looks like we've found a Unique Map! These special maps have unique upgrades that cannot be found any other way. Unique Maps are not recyclable, generally have high loot and large size, and they change color from green to red after they've been completed. You can still run a red Unique Map as much as you want, but the color makes it easy to tell at a glance if you've earned the special upgrade from that map yet.<br/><br/>Note that this map has a size of 100 and a difficulty of 130%, so it will be more difficult than Zone 11. If The Block is too hard for you right now, you could farm an easier map first, go for another Coordination, or whatever else you think might be a good idea. Since this map is not recyclable, you can start it and then switch to a different map without destroying your Unique Map, but doing so will reset your progress in the Unique Map to Cell 1.";
+                goal = "Find a way to clear The Block";
+                break;
+            case 12: //Unlocked Shieldblock
+                text = "You've done it! This special new upgrade will convert your Shield from an accessory that provides Health, to a fully fledged Shield that can actually block damage. What crazy technology!<br/><br/>Block should be a major part of your arsenal now. With enough investment you can even get your Trimps' block higher than enemy Attack, causing your Trimps to take no damage!<br/><br/>You've now shown proficiency with most of the basic skills required to lead a Trimp civilization. My sensors are detecting another Unique Map on Zone 15, and I strongly believe you have what it takes to find and complete it.";
+                goal = "Find and complete the Zone 15 Unique Map";
+                break;
+            case 13: //Unlocked Bounty
+                text = "Excellent work! You've found and cleared The Wall, and earned the ultra powerful Bounty upgrade.<br/><br/>You've now amassed a powerful army, built a sprawling city, and culled thousands of enemies. There's something frightening at the end of Zone 20, but there's no doubt in my cold artificial mind that you have what it takes to defeat it.";
+                goal = "Research the Upgrade Book at the end of Zone 20";
+                break;
+            case 14: //Unlocked Dimension of Anger
+                text = "My scanners are indicating that there is advanced Portal technology inside this Unique Map you've just created, but that it is filled with dangers. It will be a tough map to clear, but you should try to complete this one before finishing Zone 21 if possible.<br/><br/>Good luck.";
+                goal = "Complete the Dimension of Anger";
+                break;
+            case 15: //Completed Dimension of Anger
+                text = "You're the best! You've accomplished every task I've asked of you with hardly any complaining, and I couldn't be more proud.<br/><br/>This Portal that you've unlocked is a powerful, ancient technology, powered by Helium. Luckily you also found a contraption that allows you to harvest Helium from the most powerful enemy of each Zone. Whenever you feel like enemies are getting too hard, you can use this Portal to return to Zone 1, and use Helium to make yourself and your Trimps permanently more powerful. The more Helium you find before you use the Portal, the more powerful you'll be after you use it!<br/><br/>This power is gained in the form of 'Perks', which you'll see on the left side of the Portal screen. You can mouse over any of these Perks to see what they do and how much they cost on their tooltip. Each time you buy 1 level of a Perk it becomes more expensive, so if you're looking for a general rule of thumb, try to spend evenly into all of them for now.<br/><br/>";
+                text += "The other important thing to know about Portals is that they can be used to start Challenges with powerful rewards. I highly suggest clicking either the 'Discipline' or 'Metal' Challenge on your Portal screen before you activate your Portal, so you can earn a new Perk on your next run!<br/><br/>";
+                text += "Your choices from now on are up to you. There's a big World out there to explore, filled with thousands of Upgrade Books to research.<br/><br/>See if you can clear Zone 22 to earn a little more Helium for next run, then activate your Portal.";
+                goal += "Clear Zone 22, then Portal with a Challenge"
+                break;
+            
+        }
+        if (this.viewingStep != 0 && this.viewingStep != 15) text += "<br/><br/><i>Remember you can toggle the ADVISOR window by pressing V or clicking the gold star by the enemy's name.</i>";
+        this.setWinSize();
+        document.getElementById('tutorialTextInner').innerHTML = text;
+        document.getElementById('tutorialGoal').innerHTML = goal;
+        document.getElementById('tutorialStep').innerHTML = "(" + (this.viewingStep + 1) + "/" + totalSteps + ")";
+        document.getElementById('tutorialBackBtn').style.display = (this.viewingStep > 0) ? 'inline-block' : 'none';
+        document.getElementById('tutorialNextBtn').style.display = (this.viewingStep < game.global.tutorialStep) ? 'inline-block' : 'none';
+        if (game.global.tutorialLg) this.setBookmarks();
+    }
+}
+
 var alchObj = {
     tab: document.getElementById('alchemyTab'),
     load: function(){
@@ -63,7 +318,6 @@ var alchObj = {
             }
         }
         this.tab.style.display = (game.global.alchemyUnlocked || game.global.challengeActive == "Alchemy") ? 'table-cell' : 'none';
-        this.unlock();
     },
     rewards: {
         Metal: "Potatoes",
@@ -3863,7 +4117,7 @@ var autoBattle = {
         if (itemsElem){
             scrollTop = itemsElem.scrollTop;
         }
-        if (!(itemsOnly && itemsElem)) tooltip('confirm', null, 'update', text, '', 'Spire Assault', 'Close', false, true)
+        if (!(itemsOnly && itemsElem)) {cancelTooltip(); tooltip('confirm', null, 'update', text, '', 'Spire Assault', 'Close', false, true)}
         if (!(updateOnly && statsOnly)) this.updatePopupBtns();
         if (scrollTop > 0){
             itemsElem = document.getElementById('autoItemsDiv');

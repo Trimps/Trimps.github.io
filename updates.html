@@ -47,10 +47,167 @@
 	.g{
 		color: #065806;
 	}
+	#linksTable{
+		position: absolute;
+		left: 69%;
+		top: 0%;
+		background-color: #dadada;
+		padding: 0.5%;
+		text-align: center;
+	}
+	#linksTable tbody tr.linksRow td a, #linksTableTitle{
+		font-size: 1.2em;
+		font-weight: bold;
+		padding: 5px 20px;
+		text-decoration: none;
+		color: black;
+	}
+
+	.linksRow td a{
+		display: inline-block;
+		cursor: pointer;
+	}
+	.linksRow td a:hover{
+		background-color: #8a8989;
+	}
+	#linksTable img{
+		width: 50px;
+		height: 50px;
+	}
+	#linksTable img#discordLogo{
+		width: 50px; 
+		height: 56px;
+	}
+	#linksTable img#steamLogo{
+		width: 53px;
+		height: 50px;
+	}
+	.linksRow td{
+		border: 1px solid black;
+	}
+	.legal{
+		font-size: 0.8em;
+		font-style: italic;
+	}
+	.linksSpacer{
+		height: 6px;
+	}
+	@media (max-width: 1020px) {
+		#linksTable{
+			position: initial;
+			margin-left: calc(50vw - 190px);
+			margin-top: -10px;
+		}
+	}
 </style>
 <body>
-<div id="wrapper">
-<span style="font-size: 1.3em; font-weight: bold; display: block; width: 100%; text-align: center">Trimps Updates!</span>
+<div id="wrapper" style="position: relative">
+	<table id="linksTable">
+		<tbody>
+			<tr id="linksTableTitle">
+				<td colspan="3">Find Trimps on:</td>
+			</tr>
+			<tr id="linksRow" class="linksRow">
+				<td>
+					<a href="https://store.steampowered.com/app/1877960/Trimps/" target="_blank"><img id="steamLogo" src='imgs/steam_logo.png'/><div class='linksSpacer'></div>Steam</a>
+				</td>
+				<td>
+					<a href="https://reddit.com/r/Trimps" target="_blank"><img id="redditLogo" src='imgs/reddit_logo.png'/><div class='linksSpacer'></div>Reddit</a>
+				</td>
+				<td>
+					<a href="https://discord.gg/Trimps" target="_blank"><img id="discordLogo" src='imgs/discord_logo.png'/><br/>Discord</a>
+				</td>
+			</tr>
+			<tr id="desktopLinksRow" class="linksRow" style="display: none">
+				<td>
+					<a onclick="nwOpen('https://reddit.com/r/trimps')"><img id="redditLogo" src='imgs/reddit_logo.png'/><div class='linksSpacer'></div>Reddit</a>
+				</td>
+				<td>
+					<a onclick = "nwOpen('https://discord.gg/trimps')" target="_blank"><img id="discordLogo" src='imgs/discord_logo.png'/><br/>Discord</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<script type="text/javascript">
+		if (typeof nw !== 'undefined'){
+			document.getElementById('linksRow').style.display = 'none';
+			document.getElementById('desktopLinksRow').style.display = 'table-row';
+		}
+		function nwOpen(link){
+			var gui = require('nw.gui');
+			gui.Shell.openExternal(link)
+		}
+	</script>
+<div style="font-size: 1.3em; font-weight: bold; display: block; width: 100%; text-align: center;">Trimps Updates!</div>
+<ul class="betterList">
+	<li>5.7.0 - </li>
+	<ul>
+		<li>Content Changes</li>
+		<li>Added a Tutorial that triggers after researching your first point of Science on a fresh save. This tutorial gives some tips to new players who might not be familiar with the genre, hopefully allowing them to complete their first Portal without feeling like they need to Google anything. The tutorial is narrated by ADVISOR, your ship's Automated Defensive Voice and Idea Synthesizing On-board Robot.</li>
+		<li>Time Warp now accelerates the Skeletimp timer, so it's possible to find multiple Skeletimps per Time Warp. You should now be earning the same amount of Bones from Time Warp when not playing as you would if you left the game running.</li>
+		<li>Deca Build has been removed as a Mastery and added instead as a 305 BW reward. In its place is 'Kerfluffle', which grants +10% attack when Fluffy is active, and another 10% compounding attack every time Fluffy evolves. If you had Deca Build purchased before loading 5.7.0, you'll automatically have Kerfluffle purchased instead. If you had completed a Z305 BW before 5.7.0, you'll automatically have Deca Build.</li>
+		<li>Universe 2 - Added a new unique bonus for Scruffy Level 20, and 2 new blank damage levels for Levels 21 and 22</li>
+	</ul>
+	<ul>
+		<li>Bone Trader Changes</li>
+		<li>For the first time in nearly 7 years, the Bone Trader has received some major changes!</li>
+		<li>12/36 hour resource Boosts have been removed. Well, reworked at least. The whole left section has been replaced by a brand new "Permanent Upgrades" section. Each upgrade starts at 10 Bones with the cost increasing by +10 Bones per purchase, and each can be purchased a maximum of 10 times. This is a total cost of 2,200 Bones to max all upgrades.</li>
+		<li>The first new Permanent Bone Upgrade grants a 1% chance to duplicate a Void Map per level, or 10% more Void Maps at 10 levels, guaranteed. If you have 5 levels of Bone Void Maps then every 20th Void Map will be duplicated, if you have 10 levels every 10th Void Map will be duplicated. No RNG!</li>
+		<li>The second Upgrade is in the spirit of the old Boosts, adding a new mechanic called the Bone Shrine. At 1 level of Bone Shrine, you will unlock a new button by Food at the top left of the screen, and will start accumulating 1 Bone Charge every 4 hours, stacking to a max of 10 Bone Charges. You can click this new button to consume a Bone Charge whenever you want, which at level 1 will grant 10 minutes of your current gathering rates for Food, Wood, and Metal <i>as Loot</i>, meaning it gets gathering and looting bonuses. Any storages required to hold your spoils will be constructed automatically, and their costs deducted from the pot. Each level of this upgrade increases the base resources granted by +10 minutes of gathering time. Levels 5 and 10 reduce the Bone Charge generation cooldown by 30 minutes each. At level 10, grants 1 charge every 3 hours that grant 100 minutes of gathering per use. Bone Charges persist through Portal, allowing you to save them up for when you need them and pop them all at once! Check the handy dandy tooltip on the Bone Charges button to see a preview of what you'll get and how many storages will be constructed.</li>
+		<li>Upgrade 3 increases the chance for Exotic Imports to spawn in your world by +0.05% per level. At 10 levels, not counting any other bonuses, Exotic Imports will have a 3.5% chance to spawn per cell.</li>
+		<li>Upgrade 4, "Multitasking", allows 5% per level of your employed Trimps to breed while working, and allows 5% of your unemployed Trimps to assist with Gathering while your town is full and they're not breeding. The 5% Trimps per level that can breed while working are actually shown as extra breeding Trimps - if you have 10 levels and 1000 max Trimps, you can have 500 employed and will see 750 breeding. The 5% unemployed Trimps that assist with gathering when not breeding is displayed as a 5% increase to all trimp-employable resource gathering (not gems).</li>
+		<li>Permanent Boosts are locked until all Exotic Imports are purchased.</li>
+		<li>Changed descriptions of Exotic Imports to actually describe what they do. Technology sure is amazing these days</li>
+	</ul>
+	<ul>
+		<li>Map at Zone Improvements</li>
+		<li>Map at Zone no longer checks your presets for conflicts where two would try to run at the same cell. Instead, MaZ now completes each preset in order at the selected cell!</li>
+		<li>Added a new box for 'Priority'. If two presets want to run maps at the same cell, the one with the lowest number for Priority will run first. When saving your MaZ presets, these will be resorted on the UI based on their Priority.</li>
+		<li>Added a new option to Zone Repeat for 'Repeat Every X Zones'. Selecting this option will cause a new input box to magically appear in the form, allowing you to set a custom amount of Zones for how often that preset should repeat.</li>
+		<li>Renamed the 'Confirm' button to 'Save and Close', and added a new button to the right of 'Cancel' that's simply 'Save'. 'Save' will save your settings, sort your presets, and keep the window open.</li>
+		<li>Repeat X Times and Exit BW after L no longer silently change the number to 10/125 if an invalid number is entered, and instead give an error message</li>
+		<li>Repeat X Times now works on BWs if not looking to climb</li>
+		<li>Added more detailed preset names to Map at Zone</li>
+		<li>When adding a new line to Map at Zone, the 'Run Map' checkbox is now checked by default.</li>
+		<li>Added a Help button to Map at Zone with an explanation of all settings</li>
+		<li>Updated the sizings of columns on the MaZ UI to better fit the contents of all dropdowns and make it look less hectic when extra input boxes are added for things like Climb BW or Repeat every X Zones</li>
+	</ul>
+	<ul>
+		<li>Other UI/QOL Changes</li>
+		<li>Added a button to the Heirlooms Window to see drop chances (or press C with the Heirloom window open). This opens up with chances at your current zone, and includes arrows to see other breakpoints you've unlocked. Works with keyboard arrow keys as well!</li>
+		<li>You can now press K or click the button under settings to open up a list of all Hot(K)eys</li>
+		<li>Added hotkey for Heirloom window (L)</li>
+		<li>Added a line of text to the bottom of all Equipment, showing the cost in resources per stat point earned from this item. This should be useful for deciding which Equipment to purchase next - the lower the number the more efficient the purchase.</li>
+		<li>Added a new setting to highlight the most efficient equipment based on metal spent per stat point gained. Highlights top attack and health item. Default is to only show most efficient equipment at your highest available tier, but this can be toggled to show all equipment, or disabled entirely.</li>
+		<li>Challenges no longer move 1px away from the selected challenge</li>
+		<li>The Heirlooms button now unlocks after finding your first Heirloom rather than immediately after your fifth Portal</li>
+		<li>Made some UI improvements/fixes for windows < 1000px width</li>
+		<li>Pressing escape while no windows are open will toggle the Settings menu</li>
+		<li>Opening Achievements, Stats, Heirlooms and Bone Trader now closes all tooltips</li>
+		<li>Attempting to fire any jobs other than Farmer, Lumberjack, Miner or Scientist now opens a confirmation popup</li>
+		<li>Void Map and Stacked Void Map counts are now always displayed on the Zone info tooltip (not just when in a Void Map)</li>
+	</ul>
+	<ul>
+		<li>Bug Fixes</li>
+		<li>Fixed an issue that was causing Alchemy to appear in the message configuration before it was unlocked.</li>
+		<li>Trimple of Doom is now properly green the very first time you find it when it will reward a Perk.</li>
+		<li>Fixed a message on the Metal challenge that referenced Scientists if you didn't have any hired</li>
+		<li>Fixed an issue where some of the AutoSomething buttons on the main page didn't have uniform border appearance on hover</li>
+		<li>Fixed an issue where the Obsidian tooltip failed to open in some situations</li>
+		<li>Resetting your save now properly hides the SA tab</li>
+		<li>Prettified the Plaguebringer modifier description in the Heirloom window</li>
+		<li>Fixed an issue with Time Warp where formations weren't showing up until the second formation was unlocked.</li>
+		<li>Fixed an issue that could grant double Trimps from unlocking Hubs while in Time Warp.</li>
+		<li>Fixed a bug where the Maps button was grey when reaching Z6 after starting on a fresh browser without refreshing the window</li>
+		<li>Fixed a display bug when running Duel<sup>3</sup> where the stack tooltip would say Trimps are fast when they're not.</li>
+		<li>Heirloom Gamma Burst description now properly shows 4 stacks to trigger after Burstier is purchased</li>
+		<li>Removed the S from Fragments in map price if the map only costs 1 Fragment</li>
+		<li>All jobs, buildings, upgrades, and equipment are now redrawn when Time Warp ends. This should fix a few rare bugs such as unpurchaseable golden upgrade spam after Time Warp ends.</li>
+		<li>Fixed a bug where using Map at Zone's 'Repeat X Times' wasn't showing up on the button until after the first map was completed</li>
+		<li>Fixed a bug that could cause the extra map side buttons to be blank on a fresh save that hadn't refreshed</li>
+		<li>Fixed a bug that could cause Improbabilities and other bosses to have infinite Health on Coordinate<sup>2</sup></li>
+	</ul>
+</ul>
 <ul class="betterList">
 	<li>5.6.5 - 12/22/21</li>
 	<ul>
@@ -2876,6 +3033,7 @@
 <li>Increased the amount of equipment in game. I tried really hard to tune it right, but I would really really love some feedback on the tuning.</li>
 <li>A few other random surprises</li>
 </ul>
+<span class="legal">The Steam Logo is ©2022 Valve Corporation. Steam and the Steam logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries.</span>
 </div>
 </body>
 </html>

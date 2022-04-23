@@ -3,26 +3,16 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 5.6.5 (Screen Reader version)</title>
+	<title>Trimps 5.7.0 (Screen Reader version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Greensatellite">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?33" />
-<!-- <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-64748869-1', 'auto');
-  ga('send', 'pageview');
-
-</script> -->
+	<link rel="stylesheet" type="text/css" href="css/style.css?34" />
 </head>
 <!-- 		Trimps
-		Copyright (C) 2021 Zach Hood
+		Copyright (C) 2022 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -81,7 +71,7 @@
 				<div id='offlineExtraBtnsContainer' class='col-xs-6' style='position: absolute; left: 50%; width: 25%;'>
 					<div id='offlineTimeOffline'></div>
 					<div class='btn btn-lg btn-info offlineExtraBtn' onclick="tooltip('Lost Time', null, 'update');">What is This?!</div>
-					<div class='btn btn-lg btn-danger offlineExtraBtn' onclick='usingRealTimeOffline = false'>Stop Here</div>
+					<div class='btn btn-lg btn-danger offlineExtraBtn' onclick='offlineProgress.finish()'>Stop Here</div>
 					<div class='btn btn-lg btn-warning offlineExtraBtn' id='offlineEqualityBtn' onclick='offlineProgress.showEquality()'>Show Equality</div>
 					<div id='offlineFormations'></div>
 					<div id='offlineSettingContainer'></div>
@@ -103,9 +93,8 @@
 					<div id="boneOwnedContainer">
 						You have <span id="bonesOwned">0</span>
 					</div>
-					<div id="mainBoneHowTo">
-						You can earn bones as you progress through the world by killing Skeletimps and Megaskeletimps.
-					</div>
+					<span id="bonesFrom">You Can Also Earn Bones In Game By Killing Skeletimps</span>
+					<br/>
 					<div id="boneFlavorRow">
 						The Bone Trader trades bones for... bonuses
 					</div>
@@ -117,78 +106,33 @@
 				</div>
 			</div>
 			<div id="boneBuyRow" class="row">
-				<div id="boneBoostsColumn" class="col-xs-4 boneBuyColumn">
-					<div class="boneBuyTitle">Boosts</div>
-					<div class="boostSpacer">
-					<div class="boneBuyDesc">Instantly earn the next 12 or 36 hours worth of resources! If you don't have enough storage, storage will be purchased (and the cost deducted) automatically.</div>
-					<div id="boostSelectContainer">
-						<div id="boost0" class="thingSmall pointer noselect boneBtnStateTeal" onclick="selectBoost(0)">
-							12 hours
-						</div>
-						<div id="boost1" class="thingSmall pointer noselect boneBtnStateOff" onclick="selectBoost(1)">
-							36 hours
-						</div>
-					</div>
-					<div id="boostPreviewContainer">
-						<table id="boostPreview" class="table table-striped">
-							<tbody>
-							<tr>
-								<td>+ <span class="glyphicon glyphicon-apple" title="food"></span> <span id="foodBoostPreview">0</span></td>
-								<td><span class="glyphicon glyphicon-home" title="storage added"></span> <span id="BarnAdded">0</span> Barns Auto-purchased</td>
-							</tr>
-							<tr>
-								<td>+ <span class="glyphicon glyphicon-tree-deciduous" title="wood"></span> <span id="woodBoostPreview">0</span></td>
-								<td><span class="glyphicon glyphicon-home" title="storage added"></span> <span id="ShedAdded">0</span> Sheds Auto-purchased</td>
-							</tr>
-							<tr>
-								<td>+ <span class="icomoon icon-cubes" title="metal"></span> <span id="metalBoostPreview">0</span></td>
-								<td><span class="glyphicon glyphicon-home" title="storage added"></span> <span id="ForgeAdded"></span> Forges Auto-purchased</td>
-							</tr>
-							<tr>
-								<td colspan="2">+ <span class="icomoon icon-diamond" title="gems"></span> <span id="gemsBoostPreview">0</span></td>
-							</tr>
-							<tr>
-								<td colspan="2">+ <span class="glyphicon glyphicon-th" title="fragments"></span> <span id="fragmentsBoostPreview">0</span></td>
-							</tr>
-							</tbody>
-						</table>
-						<div id="minusRes" style="display: none">
-							One of your storage structures will be more expensive than the amount you can receive from this boost. Spend some resources first to get the most benefit!
-						</div>
-					</div>
-					</div>
-					<div id="purchaseContainerBoost">
-						<div class="boneBtn boneBtnStateOn pointer noselect buyBoostBtn" id="boostPurchaseBtn0" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase 12 hours of instant production for 20 bones. Is this what you wanted to do?', 'purchaseBoost(0)', 20)">
-							Buy 12 Hours (20 bones)
-						</div>
-						<div class="boneBtn boneBtnStateOn pointer noselect buyBoostBtn" id="boostPurchaseBtn1" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase 36 hours of instant production for 40 bones. Is this what you wanted to do?', 'purchaseBoost(1)', 40)">
-							Buy 36 Hours (40 bones)
-						</div>
-					</div>
+				<div class="col-xs-4 boneBuyColumn">
+					<div class="boneBuyTitle">Permanent Upgrades</div>
+					<div class="boneBuyDesc" id="permaBonesDesc"></div>
+					<div id="permaBoneBonuses"></div>
 				</div>
 				<div id="boneImportsColumn" class="col-xs-4 boneBuyColumn">
 					<div class="boneBuyTitle">Exotic Imp-orts</div>
 					<div class="boostSpacerImports boostSpacer">
-					<div class="boneBuyDesc">Exotic Imp-orts will be unlocked permanently once purchased, and will stick around through portals. Each has a 3% chance to spawn per cell and better loot than normal enemies. Collect them all!</div>
-					<div class="importsPreview">
-						<div class="importLocation">Spawns in World</div>
-						<table class="table importsTable" id="importsTableWorld0">						
-						</table>
-						<div class="importLocation table-hover">Spawns in Maps</div>
-						<table class="table importsTable" id="importsTableMaps0">					
-						</table>
+						<div class="boneBuyDesc">Exotic Imp-orts will be unlocked permanently once purchased. Each has a <span id="exoticImpSpawnChance"></span>% chance to spawn per cell and better loot than normal enemies. Any stacking multipliers from killing Imp-orts reset on Portal but the imps do not have to be unlocked again.</div>
+						<div class="importsPreview">
+							<div class="importLocation">Spawns in World</div>
+							<table class="table importsTable" id="importsTableWorld0">						
+							</table>
+							<div class="importLocation table-hover">Spawns in Maps</div>
+							<table class="table importsTable" id="importsTableMaps0">					
+							</table>
+						</div>
+						<div id="purchaseContainerImports">
+							<div class="boneBtn boneBtnStateOn pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new Bad Guy will begin spawning in your next Zone or Map at an average of 3 spawns per 100 enemies. Is this what you wanted to do?', 'purchaseImport()', 50)"></div>
+						</div>
 					</div>
-					<div id="purchaseContainerImports">
-						<div class="boneBtn boneBtnStateOff pointer noselect" id="importPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase a new Exotic Import for 50 bones. This new Bad Guy will begin spawning in your next Zone or Map at about an average of 3 spawns per 100 squares. Is this what you wanted to do?', 'purchaseImport()', 50)"></div>
-					</div>
-				</div>
-
 				</div>
 				<div id="boneMiscColumn" class="col-xs-4 boneBuyColumn">
 					<div class="boneBuyTitle">Other Goodies</div>
 						<div class="boostSpacer">
 						<div id="buyHeliumArea">
-							<div class="boneBtn boneBtnStateOn pointer noselect" id="heliumPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Instant Portal for 100 bones. Your new helium will appear in the View Perks menu at the bottom of the screen. Is this what you wanted to do?', 'purchaseMisc(\'helium\')', 100)"> 
+							<div class="boneBtn boneBtnStateOn pointer noselect" id="heliumPurchaseBtn" onclick="tooltip('Confirm Purchase', null, 'update', 'You are about to purchase one Instant Portal for 100 bones. Your new Helium will appear in the View Perks menu at the bottom of the screen available for immediate spending, and your Respec will be refreshed. Is this what you wanted to do?', 'purchaseMisc(\'helium\')', 100)"> 
 								Buy Bone Portal (100 bones)
 							</div>
 							<div class="miscDesc">
@@ -221,6 +165,7 @@
 				<div class="row resourceRow">
 					<div class="col-xs-6 maxH">
 						<div id="food" class="playerGather">
+							<div id="boneShrineBtn" style="display: none" class="isEmpty noselect" onmouseover="tooltip('Bone Shrine', null, event)" onclick="game.permaBoneBonuses.boosts.consume()" onmouseout="tooltip('hide')"></div>
 							<h1 class="title">Food</h1>
 							<span class="ownedArea bdHover" onclick="getMaxResources('Food')"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
 							<br/>
@@ -405,7 +350,7 @@
 						</div>
 					</div>
 					<div id="log" class="niceScroll">
-						<span class="storyMessage message"><span class='glyphicon glyphicon-star'></span>A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...</span>
+						<span class="StoryMessage message"><span class='glyphicon glyphicon-star'></span>A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...</span>
 					</div>		
 				</div>
 				<h3>End of Log</h3>
@@ -474,7 +419,7 @@
 							</li>
 						</ul>
 					</div>
-					<div id="buyContainer" class="niceScroll">
+					<div id="buyContainer" class="niceScroll buyContainerSizeSm">
 
 
 						<div id="buyHere" class="niceScroll buttonSizeLarge">
@@ -783,8 +728,11 @@
 								</div>
 									</div>
 									<div class="col-xs-1" style="font-size: 1.5em; padding: 0;">
-										<div id="lootBdContainer">
-										<span id="lootBdBtn" class="icomoon icon-gift2 pointer" onclick="getLootBd('Food/Wood/Metal')"></span>
+										<div id="lootBdContainer" style="position: relative;">
+											<span id="lootBdBtn" class="icomoon icon-gift2 pointer" onclick="getLootBd('Food/Wood/Metal')"></span>
+											<div id="openTutorialContainer" style="display: none;">
+												<span id="openTutorialBtn" class="flashNo icomoon icon-star pointer tutorialStar" onclick="tutorial.popup()" style="color: gold;"></span>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -818,7 +766,7 @@
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<div id="mapsBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" style="display: none">
+								<div id="mapsBtn" class="btn btn-warning fightBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" style="display: none">
 									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div><div role="button" title='Configure Map Settings. Press S after clicking.' onclick="tooltip('Configure Maps', null, 'update')">
 										<span class='glyphicon glyphicon-cog'></span></div>
 								</div>
@@ -862,6 +810,9 @@
 							<div id="grid"></div>
 							<div id="preMaps" style="display: none">
 							<div style="display: none" id="mapsCreateRow" class="row">
+								<div id="openTutorialContainer2" style="display: none;">
+									<span id="openTutorialBtn2" class="flashNo icomoon icon-star pointer tutorialStar" onclick="tutorial.popup()" style="color: gold;"></span>
+								</div>
 								<div id='advMapsControlBtns'>
 									<span id='advMapsHideBtn' role="button" title="Show/Hide map settings" class='icomoon icon-minus-circle pointer' onclick='hideAdvMaps()' onmouseover="tooltip('Show/Hide Map Config', 'advMaps', event)" onmouseout="tooltip('hide')">&nbsp;</span>
 									<span id='advMapsPreset1' role="button" title="Load Preset 1" class='pointer mapPreset presetSelectionOff' onclick='selectAdvMapsPreset(1)' onmouseover="tooltip('Map Preset', 'advMaps', event)" onmouseout="tooltip('hide')">1</span>
@@ -1231,11 +1182,14 @@
 		<div class="btn btn-danger inPortalBtn" id="closeStatsBtn" onclick="toggleStats()">Close</div>&nbsp;<div class="btn btn-info inPortalBtn" id="closeStatsBtn" onclick="tooltip('Trimps Info', null, 'update')">Trimps Info</div>
 	</div>
 	<div id="heirloomWrapper" style="display: none">
-		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><h1 class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></h1><div class="col-xs-1"><div onclick="toggleHeirloomHelp()" role="button" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div></div><div class="col-xs-1"><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()" role="button">Close</div></div></div>
+		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><div class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></div><div class="col-xs-2"><div onclick="lastMainHeirIndex = -1; toggleHeirloomChances()" class="pointer noselect colorInfo heirBtn heirInfo">Chances</div><div onclick="toggleHeirloomHelp()" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()">Close</div></div></div>
 		<div id="heirloomHelp" style="display: none">
 			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. Once you have an Heirloom, you can click the icon below to select it.<br/><br/>
 			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b style='color: red'>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b style='color: red'>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. <b style='color: rgb(75, 41, 197)'>You can also click on the Heirloom's name on this menu to rename it, or click on the icon to change it!</b> <b style='color: red'>You can upgrade any Staff and Shield to HALF the value of your total earned Nu. Nu is not spent, but dictates how powerful your Heirlooms can be!</b><br/><br/>
 			You can only carry a few Heirlooms (other than the two you have equipped) back through the Portal with you when you use it. <b style='color: red'>Any Heirlooms in the "Temporary" section will be recycled for Nullifium on portal.</b>
+		</div>
+		<div id="heirloomDropChances" style="display: none;" class="noselect">
+			<div class='heirloomChanceBtnContainer'><span id="heirloomChanceLeft" onclick="changeHeirloomRarityRange(-1)" class='icomoon icon-arrow-left'></span></div><div id="heirloomRarityMain"></div><div class='heirloomChanceBtnContainer'><span id="heirloomChanceRight" class='icomoon icon-arrow-right' onclick="changeHeirloomRarityRange(1)"></span></div>
 		</div>
 		<div class="row">
 			<div class="col-xs-6">
@@ -1341,6 +1295,19 @@
 		<hr title='middle of tooltip'/>
 		<div id="tipCost2"></div>
 		<hr title='bottom of tooltip'/>
+	</div>
+	<div id="tutorialDiv" style="display: none" class="tutorialWidth tutorialDiv">
+		<div id="tutorialBookmarks" class="niceScroll noselect">
+			&nbsp;
+		</div>
+		<div id="tutorialInner">
+			<hr title="Tutorial"/>
+			<div id="tutorialTitle" class="noselect"><span id='tutorialSizeBtn' onclick="tutorial.toggleSize()" class='icomoon icon-expand'></span><span id="tutorialCloseBtn" onclick="tutorial.closeWindow()" class='icmoon icon-close'></span><span class="pointer" onclick='tutorial.back()'><span id="tutorialBackBtn" class='icomoon icon-arrow-left'></span><span class='icomoon icon-star tutorialStar'></span></span>  ADVISOR <span id='tutorialStep'></span>  <span class="pointer" onclick='tutorial.next()'><span class='icomoon icon-star tutorialStar'></span><span id="tutorialNextBtn" class='icomoon icon-arrow-right'></span></span></div>
+			<hr/>
+			<div id="tutorialText"><div id="tutorialTextInner" class="niceScroll"></div></div>
+			<hr/>
+			<div id="tutorialGoal"></div>
+		</div>
 	</div>
 	<table style='position: absolute; display: block; width: 20vw; left: 80%; top: 50%; background-color: grey; z-index: 99' id="screenReaderSummary">
 		<tbody>
@@ -1489,6 +1456,7 @@
 							<li role="presentation"  id='AlertsTab' onclick="settingTab('Alerts')" class="tabNotSelected settingTab"><a>Pop-ups and Alerts</a></li>
 							<li role="presentation"  id='LayoutTab' onclick="settingTab('Layout')" class="tabNotSelected settingTab"><a>Layout</a></li>
 							<li role="presentation"  id='OtherTab' onclick="settingTab('Other')" class="tabNotSelected settingTab"><a>Other</a></li>
+							<li role="presentation"  id='HotkeyTab' onclick="tooltip('Hotkeys', null, 'update')" class="tabNotSelected settingTab"><a>Hotkeys</a></li>
 						</ul>
 					</div>
 				</div>					
@@ -1519,11 +1487,11 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?53"></script>
-	<script type="text/javascript" src="updates.js?53"></script>
-	<script type="text/javascript" src="playerSpire.js?53"></script>
-	<script type="text/javascript" src="objects.js?53"></script>
-	<script type="text/javascript" src="main.js?53"></script>
+	<script type="text/javascript" src="config.js?54"></script>
+	<script type="text/javascript" src="updates.js?54"></script>
+	<script type="text/javascript" src="playerSpire.js?54"></script>
+	<script type="text/javascript" src="objects.js?54"></script>
+	<script type="text/javascript" src="main.js?54"></script>
 	
 </body>
 

@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.6.5',
+		stringVersion: '5.7.0',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -283,6 +283,12 @@ var toReturn = {
 		canGuString: false,
 		guString: "",
 		lastU2Voids: 0,
+		SB: 0,
+		tutorialStep: 0,
+		tutorialOpen: true,
+		tutorialActive: false,
+		tutorialLg: false,
+		mazBw: -1,
 		lastHeirlooms: {
 			u1: {
 				Shield: -1,
@@ -761,6 +767,167 @@ var toReturn = {
 			}
 		}
 	},
+	permaBoneBonuses: {
+		voidMaps: {
+			name: "Void Maps",
+			text: "Upgrade your Void Map harvesting devices with the power of Bone! Each upgrade will cause 1 out of 100 Void Maps you find to be duplicated, guaranteed.",
+			confirmation: "You are about to purchase a level of Bone Void Maps for 50 Bones, causing +1 out of 100 Void Maps you find to be duplicated. Is this what you wanted to do?", 
+			owned: 0,
+			tracker: 0,
+			checkDupe: function(prefix, suffix){
+				this.tracker += this.owned;
+				if (this.tracker >= 100){
+					createVoidMap(prefix, suffix, true, true);
+					var texts = [
+						"Before you even see the original Void Map, the Bone Trader appears in front of you and hands you the Void Map's duplicate. With his mission successful, the Bone Trader then wanders to a nearby bush to check for bones, then vanishes in a disappointed puff of smoke.",
+						"You hear a THWACK like someone smacking two bones together right next to your frickin ear. Rather miffed, you turn around to see nothing but a Void Map on the ground. About 15 trimplengths away you spot the rear end of the Bone Trader sticking out from behind a rock, but you decide not to say anything.",
+						"The Bone Trader pops into existence quite a distance in front of you, clearly wearing a chef's apron and holding a spoon carved from bone. He tosses a Void Map in your general direction, then quickly disappears. You may have just interrupted the cooking of some soup.",
+						"You almost stumble and fall in a hole right in front of you that definitely was not there a minute ago. You look down and see the Bone Trader staring up at you with a warm smile, holding up a Void Map. You take the Void Map, thank the Bone Trader, and the hole fills back in instantly."
+					]
+					var text = texts[Math.floor(Math.random() * texts.length)];
+					message(text, "Loot", "th-large", "voidMessage", 'secondary');
+					this.tracker -= 100;
+				}
+			}
+		},
+		boosts: {
+			name: "Bone Shrine",
+			get text(){
+				return "Gain 1 Bone Charge every " + prettify(this.chargeTime(true)) + " hours, up to a max of 10 Bone Charges that persist through Portals. Consume 1 Bone Charge to gain " + prettify(this.timeGranted()) + " minutes of all primary resources as loot. Gain +10 mins per level, levels 5 and 10 reduce time to gain a charge by 30 minutes each." 
+			},
+			get confirmation(){
+				var text = "You are about to purchase a level of Bone Shrine for 50 Bones, granting +10 minutes of primary resources as loot when worshipping the Shrine"
+				if (this.owned == 4 || this.owned == 9) text += ", and -30 minutes on the cooldown time per charge";
+				text += ". Is this what you wanted to do?";
+				return text;
+			},
+			timeGranted: function(){
+				if (this.owned == 0) return 10;
+				return 10 * this.owned;
+			},
+			chargeTime: function(hoursOnly){
+				var hours = 4;
+				hours -= (Math.floor(this.owned / 5) * 0.5);
+				if (hoursOnly) return hours;
+				return (hours * 3.6e6); // to ms
+			},
+			btnTooltip: function(){
+				var text = "";
+				text += "Click this button or press (O/o) to use a Bone Charge by worshipping at the Bone Shrine. Will grant " + this.timeGranted() + " minutes of gathering for Food, Wood, and Metal as loot, meaning they get bonuses that apply to gathering AND looting. Will automatically build any storage buildings required to hold your spoils, and deduct their prices from the pot.<br/><br/>In total, will grant <b>" + this.consume(true) + "</b><br/><br/>";
+				if (this.charges == 10) text += "Currently at maximum charges!";
+				else text += "Will gain another charge in " + formatMinutesForDescriptions(this.checkCharges(true) / 60000) + ".";
+				return text;
+			},
+			checkCharges: function(getTime){
+				if (this.charges == 10){
+					this.lastChargeAt = -1;
+					return;
+				}
+				if (this.lastChargeAt == -1) this.lastChargeAt = new Date().getTime();
+				var chargeMs = this.chargeTime();
+				var msSinceCharge = new Date().getTime() - this.lastChargeAt;
+				if (getTime){
+					var addPause = 0;
+					if (game.options.menu.pauseGame.enabled){
+						var now = new Date().getTime();
+						addPause = now - game.options.menu.pauseGame.timeAtPause;
+					}
+					return chargeMs - msSinceCharge + addPause;
+				}
+				if (game.options.menu.pauseGame.enabled) return;
+				if (msSinceCharge >= chargeMs){
+					var charges = Math.floor(msSinceCharge / chargeMs);
+					this.charges += charges;
+					this.lastChargeAt += (charges * chargeMs);
+					if (this.charges > 10) this.charges = 10;
+					this.updateBtn();
+				}
+			},
+			onPurchase: function(){
+				this.updateBtn();
+			},
+			updateBtn: function(){
+				var elem = document.getElementById('boneShrineBtn');
+				if (this.owned <= 0) {
+					elem.style.display = 'none'; 
+					return;
+				}
+				elem.style.display = 'block';
+				elem.innerHTML = this.charges + " Bone Charge" + needAnS(this.charges);
+				var className = (this.charges == 0) ? 'isEmpty' : ((this.charges < 10) ? 'isFilling' : 'isFull');
+				swapClass('is', className, elem);
+			},
+			consume: function(previewOnly){
+				if (this.owned <= 0 || (!previewOnly && this.charges <= 0)) return;
+				if (!previewOnly && game.options.menu.pauseGame.enabled) return;
+				if (!previewOnly && game.global.challengeActive == "Pandemonium") return;
+				var eligible = ["food", "wood", "metal"];
+				var storage = ["Barn", "Shed", "Forge"];
+				var purchased = [0, 0, 0];
+				var rewarded = [0, 0, 0];
+				var hasNeg = false;
+				for (var x = 0; x < eligible.length; x++){
+					var resName = eligible[x];
+					var storageBuilding = game.buildings[storage[x]];
+					var resObj = game.resources[resName];
+					var amt = simpleSeconds(resName, (this.timeGranted() * 60));
+					amt = scaleLootBonuses(amt, true);
+					var tempMax = resObj.max;
+					var packMod = getPerkLevel("Packrat") * game.portal.Packrat.modifier;
+					var newTotal = resObj.owned + amt;
+					while (newTotal > calcHeirloomBonus("Shield", "storageSize", tempMax + (tempMax * packMod))){
+						var nextCost = calculatePercentageBuildingCost(storage[x], resName, 0.25, tempMax);
+						if (newTotal < nextCost) break;
+						newTotal -= nextCost;
+						amt -= nextCost;
+						tempMax *= 2;
+						purchased[x]++;
+						if (!previewOnly){
+							resObj.max *= 2;
+							storageBuilding.purchased++;
+							storageBuilding.owned++;
+						}
+					}
+					rewarded[x] = amt;
+					if (amt < 0) hasNeg = true;
+					if (!previewOnly) resObj.owned += amt;
+				}
+				var text = prettify(rewarded[0]) + " Food, " + prettify(rewarded[1]) + " Wood, and " + prettify(rewarded[2]) + " Metal after building " + purchased[0] + " Barn" + needAnS(purchased[0]) + ", " + purchased[1] + " Shed" + needAnS(purchased[1]) + ", and " + purchased[2] + " Forge" + needAnS(purchased[2]) + "."
+				if (hasNeg && previewOnly) text += "<br/><br/>A negative number for a resource means that resources would be wasted if another storage is not purchased, but purchasing that last storage leaves you with fewer of that resource than you have now. This can be resolved by emptying your storage before Worshipping."
+				if (!previewOnly){
+					this.charges--;
+					this.updateBtn();
+				}
+				if (!previewOnly && lastTooltipTitle == "Bone Shrine"){
+					document.getElementById('tipText').innerHTML = this.btnTooltip();
+				}
+				
+				return text;
+			},
+			owned: 0,
+			used: 0,
+			charges: 0,
+			lastChargeAt: -1,
+		},
+		exotic: {
+			name: "More Imports",
+			text: "Use more Bones to lure even more Exotic Imports to your World. Each level increases the chance per cell for each Exotic Import to spawn by +0.05%.",
+			confirmation: "You are about to purchase a level of More Imports, increasing the chance per cell of each Exotic Import to spawn by +0.05%. Is this what you wanted to do?",
+			owned: 0,
+			addChance: function(){
+				return this.owned * 0.05;
+			}
+		},
+		multitasking: {
+			name: "Multitasking",
+			text: "Teach the most gifted of your Trimps to multitask, allowing 5% of your employed Trimps to breed while they work, and allowing 5% of your unemployed Trimps to help gather resources whenever the town is full.",
+			confirmation: "You are about to purchase a level of Multitasking, allowing 5% of your employed Trimps to breed while they work and 5% of your unemployed Trimps to help gather whenever the town is full. Is this what you wanted to do?",
+			owned: 0,
+			mult: function(){
+				return this.owned * 0.05;
+			}
+		}
+	},
 	options: {
 		displayed: false,
 		menu: {
@@ -785,7 +952,23 @@ var toReturn = {
 					if (this.enabled == 1) indicatorElem.className = "icomoon icon-wifi iconStateGood";
 					else indicatorElem.className = "";
 				},
-				//lockUnless: function (){return false}
+				lockUnless: function (){return (typeof nw === 'undefined')}
+			},
+			saveAndExit: {
+				enabled: 0,
+				extraTags: "general",
+				description: "Save the game, then close it! Your Trimps will be here when you get back.",
+				titles: ["Save and Exit"],
+				onToggle: function(){
+					save();
+					try {
+						var win = nw.Window.get();
+						win.close();
+					} catch (error) {
+						
+					}
+				},
+				lockUnless: function() {return (typeof nw !== 'undefined')}
 			},
 			standardNotation: {
 				enabled: 1,
@@ -867,6 +1050,24 @@ var toReturn = {
 				description: "Toggles on or off the confirmation popup on scary purchases like Wormholes.",
 				titles: ["Not Confirming", "Confirming"],
 			},
+			equipHighlight: {
+				enabled: 1,
+				extraTags: 'qol',
+				description: 'Enables/disables blue highlighting of equipment based on resource efficiency. Default is to only show highest available tier, or you can set this to <b>Highlight all Tiers</b> to check old tiers of Equipment too.',
+				titles: ["No Equip Highlight", "Highlight Equipment", "Higlight all Tiers"],
+				onToggle: function(){
+					if (this.enabled == 0){
+						for (var item in game.equipment){
+							if (game.equipment[item].locked) continue;
+							if (item == "Shield") continue;
+							var elem = document.getElementById(item);
+							if (!elem) continue; 
+							swapClass('efficient', 'efficientNo', elem);
+						}
+					}
+					else displayEfficientEquipment();
+				}
+			},
 			lockOnUnlock: {
 				enabled: 0,
 				extraTags: "qol",
@@ -938,7 +1139,7 @@ var toReturn = {
 			darkTheme: {
 				extraTags: "general",
 				enabled: 1,
-				description: "Toggle between the default Trimps theme, a custom dark theme made by u/Grabarz19, a gradient theme by u/5h3i1ah, and the default theme with a black background.",
+				description: "Toggle between the default Trimps theme, a custom dark theme, a gradient theme by u/5h3i1ah, and the default theme with a black background.",
 				titles: ["Black Background", "Default Theme", "Dark Theme", "Gradient Theme"],
 				//styleName index should always be equal to title index minus 2, and should match the css file name
 				styleNames: ["dark", "gradient"],
@@ -1088,7 +1289,7 @@ var toReturn = {
 			mapAtZone: {
 				enabled: 0,
 				extraTags: "other",
-				description: "When enabled, you will automatically abandon your Trimps in the World and enter the Map Chamber as soon as you hit your specified Zone number.<br/><br/><b>Configure with hotkey Z</b>",
+				description: "A powerful tool to customize when where and how your maps should be automatically started.<br/><br/><b>Configure with hotkey Z</b>",
 				get titles(){
 					var nextZone = "";
 					var setZone = this.getSetZone();
@@ -1196,11 +1397,26 @@ var toReturn = {
 					var btnElem = document.getElementById('mazAddRowBtn');
 					btnElem.style.display = 'inline-block';
 				},
-				save: function(){
+				toggleHelp: function(){
+					var mazContainer = document.getElementById('mazContainer');
+					var helpContainer = document.getElementById('mazHelpContainer');
+					if (!mazContainer || !helpContainer) return;
+					if (mazContainer.style.display == 'block'){
+						mazContainer.style.display = 'none';
+						helpContainer.style.display = 'block';
+					}
+					else{
+						mazContainer.style.display = 'block';
+						helpContainer.style.display = 'none';
+					}
+					verticalCenterTooltip();
+				},
+				save: function(reopen){
 					var setting = [];
 					var error = "";
+					var maxSettings = this.getMaxSettings();
 					loop1: 
-					for (var x = 0; x < this.getMaxSettings(); x++){
+					for (var x = 0; x < maxSettings; x++){
 						var world = document.getElementById('mazWorld' + x);
 						if (!world || world.value == "-1") {
 							continue;
@@ -1217,6 +1433,8 @@ var toReturn = {
 						var times = parseInt(document.getElementById('mazTimes' + x).value, 10);
 						var through = parseInt(document.getElementById('mazThrough' + x).value, 10);
 						var rx = parseInt(document.getElementById('mazRx' + x).value, 10);
+						var prio = parseInt(document.getElementById('mazPrio' + x).value, 10);
+						var tx = parseInt(document.getElementById('mazTx' + x).value, 10);
 						if (isNaN(through) || through > 1000) through = 1000;
 						else if (through < 10) through = 10;
 						if (isNaN(world) || world < 10){
@@ -1227,133 +1445,133 @@ var toReturn = {
 							error += " Preset " + (x + 1) + " needs a value for Start Zone that's less than 1000.";
 							continue;
 						}
-						if (times != -1 && times != 1 && times != 2 && times != 3 && times != 5 && times != 10 && times != 30) times = -1;
+						if (times != -1 && times != 1 && times != 2 && times != 3 && times != 5 && times != 10 && times != 30 && times != -2) times = -1;
 						if (cell < 1) cell = 1;
 						if (cell > 100) cell = 100;
-						for (var y = 0; y < setting.length; y++){
-							//No reason to run if one finishes before the other starts
-							if (through < setting[y].start || setting[y].through < world) continue;
-							//Only run conflict detection if both presets match on cell
-							if (setting[y].cell == cell){
-								var errorText = " Preset " + (x + 1) + " and Preset " + (y + 1) + " would conflict with this setup."
-								//If both presets repeat, check for conflicts
-								if (times != -1 && setting[y].times != -1){
-									//Repeat every zone always conflicts
-									if (times == 1 || setting[y].times == 1){
-										error += errorText;
-										continue loop1;
-									}
-									//Repeat every 2 zones always conflicts with 1, 3, and 5. Conflicts with 2 and 10 if both starts are odd or even.
-									else if (times == 2){
-										//If preset y repeats every 2, 10 or 30, check that one world is odd and one is even
-										if (setting[y].times == 10 || setting[y].times == 2 || setting[y].times == 30){
-											if ((world % 2) == (setting[y].world % 2)){
-												error += errorText;
-												continue loop1;
-											}
-										}
-										//If preset y repeats at anything other than 0, 2, 10 or 30, it fails
-										else {
-											error += errorText;
-											continue loop1;
-										}
-									}
-									//Repeat every 3 zones always conflicts with anything that doesn't repeat every 3 or 30 zones
-									else if (times == 3){
-										//If both presets repeat every 3 zones, see if they would intersect
-										if (setting[y].times == 3 || setting[y].times == 30){
-											if (setting[y].world % 3 == world % 3) {
-												error += errorText;
-												continue loop1;
-											}
-										}
-										//If preset y repeats at anything other than 3, it will conflict
-										else{
-											error += errorText;
-											continue loop1;
-										}
-									}
-									//Repeat every 5 zones always conflicts with 1, 2, 3.
-									else if (times == 5){
-										//If preset y doesn't repeat, or repeats at 5 or 10 or 30, check if both worlds % 5 match
-										if (setting[y].times == 5 || setting[y].times == 10 || setting[y].times == 30){
-											var intersect = ((world - setting[y].world) % 5);
-											if (intersect == 0) {
-												error += errorText;
-												continue loop1;
-											}
-										}
-										//Anything else fails
-										else {
-											error += errorText;
-											continue loop1;
-										}
-									}
-									//Repeat every 10 zones conflicts with 2 if both are even or odd, conflicts with 3 always, conflicts with 5 if both % 5 match, conflicts with 10 or 30 if both % 10 match
-									//Repeat every 30 zones conflicts with 2 if both are even or odd, conflicts with 3 if both % 3 match, conflicts with 5 if both % 5 match, conflicts with 10 if both % 10 match, and 30 if both % 30 match
-									else if (times == 10 || times == 30){
-										if (setting[y].times == 2){
-											if ((world % 2) == (setting[y].world % 2)){
-												error += errorText;
-												continue loop1;
-											}
-										}
-										//3 For 10
-										else if (times == 10 && setting[y].times == 3){
-											error += errorText;
-											continue loop1;
-										}
-										//3 For 30
-										else if (setting[y].times == 3){
-											if (setting[y].world % 3 == world % 3){
-												error += errorText;
-												continue loop1;
-											}
-										}
-										else if (setting[y].times == 5){
-											if ((world % 5) == (setting[y].world % 5)){
-												error += errorText;
-												continue loop1;
-											}
-										}
-										//10 for 10 and 30, and 30 for 10
-										else if (setting[y].times == 10 || (setting[y].times == 30 && times == 10)){
-											if ((world % 10) == (setting[y].world % 10)){
-												error += errorText;
-												continue loop1;
-											}
-										}
-										else if (setting[y].times == 30){
-											if ((world % 30) == (setting[y].world % 30)){
-												error += errorText;
-												continue loop1;
-											}
-										}
-									}
-								}
-								else {
-									//Either none repeats or only 1 repeats
-									if (setting[y].world == world) {
-										error += " Preset " + (x + 1) + " and Preset " + (y + 1) + " cannot exit at the same Zone and Cell number.";
-										continue loop1;
-									}
-									//If this preset doesn't repeat and y does, and if y starts on a lower zone than this preset, check for conflict
-									if (setting[y].times != -1 && times == -1 && setting[y].world < world){
-										if ((world - setting[y].world) % setting[y].times == 0){
-											error += errorText;
-											continue loop1;
-										}
-									}
-									//If this preset repeats and y does not, and if this preset starts at a lower zone than y, check for conflict
-									if (setting[y].times == -1 && times != -1 && world < setting[y].world){
-										if ((setting[y].world - world) % times == 0){
-											error += errorText;
-											continue loop1;
-										}
-									}
-								}
-							}
-						}
+						// for (var y = 0; y < setting.length; y++){
+						// 	//No reason to run if one finishes before the other starts
+						// 	if (through < setting[y].start || setting[y].through < world) continue;
+						// 	//Only run conflict detection if both presets match on cell
+						// 	if (setting[y].cell == cell){
+						// 		var errorText = " Preset " + (x + 1) + " and Preset " + (y + 1) + " would conflict with this setup."
+						// 		//If both presets repeat, check for conflicts
+						// 		if (times != -1 && setting[y].times != -1){
+						// 			//Repeat every zone always conflicts
+						// 			if (times == 1 || setting[y].times == 1){
+						// 				error += errorText;
+						// 				continue loop1;
+						// 			}
+						// 			//Repeat every 2 zones always conflicts with 1, 3, and 5. Conflicts with 2 and 10 if both starts are odd or even.
+						// 			else if (times == 2){
+						// 				//If preset y repeats every 2, 10 or 30, check that one world is odd and one is even
+						// 				if (setting[y].times == 10 || setting[y].times == 2 || setting[y].times == 30){
+						// 					if ((world % 2) == (setting[y].world % 2)){
+						// 						error += errorText;
+						// 						continue loop1;
+						// 					}
+						// 				}
+						// 				//If preset y repeats at anything other than 0, 2, 10 or 30, it fails
+						// 				else {
+						// 					error += errorText;
+						// 					continue loop1;
+						// 				}
+						// 			}
+						// 			//Repeat every 3 zones always conflicts with anything that doesn't repeat every 3 or 30 zones
+						// 			else if (times == 3){
+						// 				//If both presets repeat every 3 zones, see if they would intersect
+						// 				if (setting[y].times == 3 || setting[y].times == 30){
+						// 					if (setting[y].world % 3 == world % 3) {
+						// 						error += errorText;
+						// 						continue loop1;
+						// 					}
+						// 				}
+						// 				//If preset y repeats at anything other than 3, it will conflict
+						// 				else{
+						// 					error += errorText;
+						// 					continue loop1;
+						// 				}
+						// 			}
+						// 			//Repeat every 5 zones always conflicts with 1, 2, 3.
+						// 			else if (times == 5){
+						// 				//If preset y doesn't repeat, or repeats at 5 or 10 or 30, check if both worlds % 5 match
+						// 				if (setting[y].times == 5 || setting[y].times == 10 || setting[y].times == 30){
+						// 					var intersect = ((world - setting[y].world) % 5);
+						// 					if (intersect == 0) {
+						// 						error += errorText;
+						// 						continue loop1;
+						// 					}
+						// 				}
+						// 				//Anything else fails
+						// 				else {
+						// 					error += errorText;
+						// 					continue loop1;
+						// 				}
+						// 			}
+						// 			//Repeat every 10 zones conflicts with 2 if both are even or odd, conflicts with 3 always, conflicts with 5 if both % 5 match, conflicts with 10 or 30 if both % 10 match
+						// 			//Repeat every 30 zones conflicts with 2 if both are even or odd, conflicts with 3 if both % 3 match, conflicts with 5 if both % 5 match, conflicts with 10 if both % 10 match, and 30 if both % 30 match
+						// 			else if (times == 10 || times == 30){
+						// 				if (setting[y].times == 2){
+						// 					if ((world % 2) == (setting[y].world % 2)){
+						// 						error += errorText;
+						// 						continue loop1;
+						// 					}
+						// 				}
+						// 				//3 For 10
+						// 				else if (times == 10 && setting[y].times == 3){
+						// 					error += errorText;
+						// 					continue loop1;
+						// 				}
+						// 				//3 For 30
+						// 				else if (setting[y].times == 3){
+						// 					if (setting[y].world % 3 == world % 3){
+						// 						error += errorText;
+						// 						continue loop1;
+						// 					}
+						// 				}
+						// 				else if (setting[y].times == 5){
+						// 					if ((world % 5) == (setting[y].world % 5)){
+						// 						error += errorText;
+						// 						continue loop1;
+						// 					}
+						// 				}
+						// 				//10 for 10 and 30, and 30 for 10
+						// 				else if (setting[y].times == 10 || (setting[y].times == 30 && times == 10)){
+						// 					if ((world % 10) == (setting[y].world % 10)){
+						// 						error += errorText;
+						// 						continue loop1;
+						// 					}
+						// 				}
+						// 				else if (setting[y].times == 30){
+						// 					if ((world % 30) == (setting[y].world % 30)){
+						// 						error += errorText;
+						// 						continue loop1;
+						// 					}
+						// 				}
+						// 			}
+						// 		}
+						// 		else {
+						// 			//Either none repeats or only 1 repeats
+						// 			if (setting[y].world == world) {
+						// 				error += " Preset " + (x + 1) + " and Preset " + (y + 1) + " cannot exit at the same Zone and Cell number.";
+						// 				continue loop1;
+						// 			}
+						// 			//If this preset doesn't repeat and y does, and if y starts on a lower zone than this preset, check for conflict
+						// 			if (setting[y].times != -1 && times == -1 && setting[y].world < world){
+						// 				if ((world - setting[y].world) % setting[y].times == 0){
+						// 					error += errorText;
+						// 					continue loop1;
+						// 				}
+						// 			}
+						// 			//If this preset repeats and y does not, and if this preset starts at a lower zone than y, check for conflict
+						// 			if (setting[y].times == -1 && times != -1 && world < setting[y].world){
+						// 				if ((setting[y].world - world) % times == 0){
+						// 					error += errorText;
+						// 					continue loop1;
+						// 				}
+						// 			}
+						// 		}
+						// 	}
+						// }
 						var presetMax = 9;
 						if (preset == 5 && (game.global.universe != 2 || game.global.highestRadonLevelCleared < 69)) preset = 0;
 						if (preset < 0 || preset > presetMax) preset = 0;
@@ -1361,13 +1579,31 @@ var toReturn = {
 						if (until < 0 || until > 9) until = 0;
 						if (until == 5 && preset != 3) until = 0;
 						if (exit < 0 || exit > 2) exit = 0;
-						if (until == 9 && isNaN(rx) || rx < 1) rx = 10;
-						if (rx > 9999) rx = 9999;
-						if (!bwWorld || preset != 3 || isNaN(bwWorld) || bwWorld < 125 || bwWorld > 1000) bwWorld = 125;
+						if (isNaN(rx) || rx < 1 || rx > 9999) {
+							if (until == 9){
+								error += "Preset " + x + " needs a value for Repeat X Times between 1 and 9999.";
+								continue;
+							}
+							else rx = 1;
+						}
+						if (isNaN(tx) || tx > 1000 || tx < 1){
+							if (times == -2){
+								error += "Preset " + x + " needs a value for Repeat Every X Zones between 1 and 1000.";
+								continue;
+							}
+						}
+						if (!bwWorld || preset != 3 || isNaN(bwWorld) || bwWorld < 125 || bwWorld > 1000) {
+							if (until == 5){
+								error += "Preset " + x + " needs a value for Exit after L between 125 and 1000.";
+								continue;
+							}
+							else bwWorld = 125;
+						}
 						if (bwWorld > 125){
 							var adj = bwWorld - 125;
 							if (bwWorld % 15 != 0) bwWorld = 125 + (Math.floor(adj / 15) * 15);
 						}
+						if (isNumberBad(prio)) prio = x;
 						var thisSetting = {
 							world: world,
 							through: through,
@@ -1379,9 +1615,12 @@ var toReturn = {
 							exit: exit,
 							bwWorld: bwWorld,
 							times: times,
-							on: enableCheck
+							on: enableCheck,
+							prio: prio,
+							done: false
 						};
 						if (rx && until == 9) thisSetting.rx = rx;
+						if (tx && times == -2) thisSetting.tx = tx;
 						setting.push(thisSetting);
 					}
 					if (error){
@@ -1389,11 +1628,13 @@ var toReturn = {
 						if (elem) elem.innerHTML = error;
 						return;
 					}
-					setting.sort(function(a, b){if (a.world == b.world) return (a.cell > b.cell) ? 1 : -1; return (a.world > b.world) ? 1 : -1});
+					setting.sort(function(a, b){if (a.prio == b.prio) return (a.world == b.world) ? ((a.cell > b.cell) ? 1 : -1) : ((a.world > b.world) ? 1 : -1); return (a.prio > b.prio) ? 1 : -1});
+					for (var y = 0; y < setting.length; y++) delete setting[y].prio;
 					this.storeSetting(setting);
 					this.enabled = 1;
 					toggleSetting('mapAtZone', null, false, true);
 					cancelTooltip(true);
+					if (reopen) toggleSetting("mapAtZone", undefined, false, false, false, true);
 				},
 				secondLocation: ["togglemapAtZone2", "togglemapAtZoneCM"],
 				lockUnless: function () {
@@ -1601,6 +1842,7 @@ var toReturn = {
 						game.global.mapStarted += dif;
 						game.global.lastGeneratorTick += dif;
 						game.global.lastSoldierSentAt += dif;
+						game.permaBoneBonuses.boosts.lastChargeAt += dif;
 						if (game.portal.Frenzy.frenzyStarted != -1) game.portal.Frenzy.frenzyStarted += dif;
 						this.timeAtPause = 0;
 						game.global.time = 0;
@@ -1982,12 +2224,18 @@ var toReturn = {
 			purchased: false,
 			icon: "*tree3"
 		},
-		deciBuild: {
-			description: "Buildings in the queue are constructed 10 at a time. In addition, buildings added to the queue via AutoStructure are added 10 at a time if needed.",
-			name: "Deca Build",
+		kerfluffle: {
+			description: "Fluffy grants you 10% more damage when active. Each time Fluffy evolves, gain 10% more damage (compounding)",
+			name: "Kerfluffle",
 			tier: 7,
+			mult: function(){
+				if (game.global.universe == 2) return 1;
+				if (!Fluffy.isActive()) return 1;
+				var prestige = Fluffy.getCurrentPrestige();
+				return Math.pow(1.1, (prestige + 1));
+			},
 			purchased: false,
-			icon: "*hammer"
+			icon: "*bomb"
 		},
 		stillRowing: {
 			description: "Increase the looting bonus for completing a full row in a Spire by 50%, from 2% extra loot to 3%.",
@@ -3914,6 +4162,7 @@ var toReturn = {
 				var stacks = (isTrimp) ? this.trimpStacks : this.enemyStacks;
 				var text = name + " have " + stacks + " Duel Points.";
 				if (stacks > 50) text += " " + name + " have 3x attack for being over 50 points.";
+				else if (stacks < 10 && game.global.runningChallengeSquared && isTrimp) text += " " + name + " have 10x health for being below 10 points.";
 				else if (stacks < 10) text += " " + name + " always attack first and have 10x health for being below 10 points.";
 				else if (stacks < 20) text += " " + name + " have 10x health for being below 20 points.";
 				text += "<br/><br/>" + name + " have " + ((isTrimp) ? this.enemyStacks : this.trimpStacks) + "% Crit Chance based on " + ((isTrimp) ? "enemy" : "your") + " stacks.";
@@ -5165,7 +5414,7 @@ var toReturn = {
 			get description(){
 				var text = "";
 				if (game.global.pandCompletions >= this.maxRuns) text += "<b>NOTICE: You have already completed Pandemonium " + this.maxRuns + " times, and will no longer gain a bonus for future runs.</b><br/>";
-				text += "Travel to a chaotically windy dimension. Map enemies at or below World level will obliterate 75% of your Metal, Wood and Food after each enemy killed. For each map level above world level, 5% (additively) fewer resources will be destroyed, with +10 map enemies destroying only 25%. You start the Challenge with 100 stacks of Order. Each Zone, 10% of your current Order stacks will be converted into Pandemonium stacks on the Enemy. Each Pandemonium stack increases Enemy's attack and health by 100% per stack, and has 10x effect on the final boss of each Zone. The final boss is a Windy enemy who will blow away 1% of your Food, Wood and Metal per stack of Pandemonium per attack. Completing a map grants you 1 Order stack for each level above your World Zone (Max 100), and reduces enemy Pandemonium by the same amount. Completing <b>Z150</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.pandCompletions * 10) + 10) + "%</b> bonus to Helium or Radon, Trimp Attack, Trimp Health, and Resources Gathered in Universe 1 and 2. Each time Pandemonium is completed, the reward for next time increases by an additional 10%, Enemies gain 5x damage and health, and Equipment is 5x more expensive for all future runs of Pandemonium. Starting on your fourth run, the Wind will be too strong for Trimps to hold a Shield. Another piece of equipment will be disabled every 2 completions after Shield is lost.";
+				text += "Travel to a chaotically windy dimension. Map enemies at or below World level will obliterate 75% of your Metal, Wood and Food after each enemy killed. For each map level above world level, 5% (additively) fewer resources will be destroyed, with +10 map enemies destroying only 25%. You start the Challenge with 100 stacks of Order. Each Zone, 10% of your current Order stacks will be converted into Pandemonium stacks on the Enemy. Each Pandemonium stack increases Enemy's attack and health by 100% per stack, and has 10x effect on the final boss of each Zone. The final boss is a Windy enemy who will blow away 1% of your Food, Wood and Metal per stack of Pandemonium per attack. Completing a map grants you 1 Order stack for each level above your World Zone (Max 100), and reduces enemy Pandemonium by the same amount. Completing <b>Z150</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.pandCompletions * 10) + 10) + "%</b> bonus to Helium or Radon, Trimp Attack, Trimp Health, and Resources Gathered in Universe 1 and 2. Each time Pandemonium is completed, the reward for next time increases by an additional 10%, Enemies gain 5x damage and health, and Equipment is 5x more expensive for all future runs of Pandemonium. Starting on your fourth run, the Wind will be too strong for Trimps to hold a Shield. Another piece of equipment will be disabled every 2 completions after Shield is lost. Bone Charges can be gained but not spent during this Challenge.";
 				var scaleMult = this.getEnemyMult();
 				text += " <b>You have completed Pandemonium " + game.global.pandCompletions + " / " + this.maxRuns + " maximum times. Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, Radon or Helium, and gathered resources in U1 and U2, and your next run of Pandemonium will spawn Bad Guys with " + prettify(scaleMult) + "x Attack and Health";
 				var disabledCount = this.disabledEquipCount();
@@ -5361,6 +5610,7 @@ var toReturn = {
 				game.global.challengeActive = "";
 			},
 			start: function(){
+				alchObj.unlock();
 				alchObj.tab.style.display = 'table-cell';
 			}
 		},
@@ -7215,7 +7465,7 @@ var toReturn = {
 				currentBonus: 0,
 				heirloopy: true,
 				specialDescription: function (modifier) {
-					return modifier + "% of all non-lethal damage and nature stacks you afflict on your current enemy are copied onto the next enemy. Plaguebringer damage cannot bring an enemy below 5% health, but nature stacks will continue to accumulate."
+					return prettify(modifier) + "% of all non-lethal damage and nature stacks you afflict on your current enemy are copied onto the next enemy. Plaguebringer damage cannot bring an enemy below 5% health, but nature stacks will continue to accumulate."
 				},
 				steps: [-1, -1, -1, -1, -1, -1, -1, -1, [1, 15, 0.5],[15,30,0.5],[30,45,0.5],[40,50,0.5]],
 				max: [0,0,0,0,0,0,0,0,75,100,125,150]
@@ -7235,7 +7485,8 @@ var toReturn = {
 				currentBonus: 0,
 				stacks: 0,
 				specialDescription: function(modifier){
-					return "Each attack by your Trimps adds 1 stack of Charging. When Charging reaches 5 stacks, your Trimps will release a burst of energy, dealing " + prettify(modifier) + "% of their attack damage. Stacks reset after releasing a Burst or when your Trimps die.";
+					var triggerStacks = (autoBattle.oneTimers.Burstier.owned) ? 4 : 5;
+					return "Each attack by your Trimps adds 1 stack of Charging. When Charging reaches " + triggerStacks + " stacks, your Trimps will release a burst of energy, dealing " + prettify(modifier) + "% of their attack damage. Stacks reset after releasing a Burst or when your Trimps die.";
 				},
 				steps: [-1,-1,-1,-1,-1,-1, -1,-1,-1,[1000,2000,100],-1,-1],
 			},
@@ -7364,7 +7615,7 @@ var toReturn = {
 		},
 		Dagger: {
 			locked: 1,
-			tooltip: "Better than nothing. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "Better than nothing. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7377,7 +7628,7 @@ var toReturn = {
 		},
 		Boots: {
 			locked: 1,
-			tooltip: "At least their feet will be safe. Adds $healthCalculated$ health to each soldier per level",
+			tooltip: "At least their feet will be safe. Adds $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7391,7 +7642,7 @@ var toReturn = {
 		//2
 		Mace: {
 			locked: 1,
-			tooltip: "It's kind of heavy for your Trimps, but they'll manage. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "It's kind of heavy for your Trimps, but they'll manage. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7418,7 +7669,7 @@ var toReturn = {
 		//3
 		Polearm: {
 			locked: 1,
-			tooltip: "This thing is big and pointy. It adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "This thing is big and pointy. It adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7445,7 +7696,7 @@ var toReturn = {
 		//4
 		Battleaxe: {
 			locked: 1,
-			tooltip: "This weapon is pretty intimidating, but your Trimps think they can handle it. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "This weapon is pretty intimidating, but your Trimps think they can handle it. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7458,7 +7709,7 @@ var toReturn = {
 		},
 		Shoulderguards: {
 			locked: 1,
-			tooltip: "These shoulderguards will help keep your Trimps' necks and shoulders safe, and they look cool too. Adds $healthCalculated$ health to each soldier per level",
+			tooltip: "These shoulderguards will help keep your Trimps' necks and shoulders safe, and they look cool too. Adds $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7472,7 +7723,7 @@ var toReturn = {
 		//5
 		Greatsword: {
 			locked: 1,
-			tooltip: "This sword looks sweet. Seriously, if you could see it you'd think it looked sweet. Trust me. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "This sword looks sweet. Seriously, if you could see it you'd think it looked sweet. Trust me. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7485,7 +7736,7 @@ var toReturn = {
 		},
 		Breastplate: {
 			locked: 1,
-			tooltip: "Some real, heavy duty armor. Everyone looks badass in heavy duty armor. Adds $healthCalculated$ health to each soldier per level",
+			tooltip: "Some real, heavy duty armor. Everyone looks badass in heavy duty armor. Adds $healthCalculated$ health to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -7498,7 +7749,7 @@ var toReturn = {
 		},
 		Arbalest: {
 			locked: 1,
-			tooltip: "A powerful ranged weapon. Your Trimps can do some damage with this sucker. Adds $attackCalculated$ attack to each soldier per level",
+			tooltip: "A powerful ranged weapon. Your Trimps can do some damage with this sucker. Adds $attackCalculated$ attack to each soldier per level.",
 			modifier: 1,
 			level: 0,
 			cost: {
@@ -8443,7 +8694,7 @@ var toReturn = {
 			world: 6,
 			attack: 1,
 			health: 1,
-			dropDesc: "Drops 6x Gems",
+			dropDesc: "Drops 6 cells worth of Gems",
 			fast: false,
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Goblimp";
@@ -8458,7 +8709,7 @@ var toReturn = {
 			world: 1,
 			attack: 1,
 			health: 1,
-			dropDesc: "Drops 15x Gems",
+			dropDesc: "Drops 15 cells worth of Gems",
 			fast: false,
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Feyimp";
@@ -8475,7 +8726,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "Drops Fragments",
+			dropDesc: "Drops 1 cell worth of Fragments",
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Flutimp";
 				var amt = rewardResource("fragments", 1, level, true);
@@ -8490,7 +8741,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "Grants an extra 0.3% of current Trimps",
+			dropDesc: "Gain 0.3% of your current Trimps as extra housing",
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Tauntimp";
 				var amt = Math.ceil(game.resources.trimps.max * 0.003);
@@ -8521,7 +8772,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "Grants 0.3% Trimp resource production speed",
+			dropDesc: "Stacking x1.003 to resource gathering speed",
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Whipimp";
 				game.unlocks.impCount.Whipimp++;
@@ -8544,7 +8795,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "Grants 0.3% Trimp breed speed",
+			dropDesc: "Stacking x1.003 to Trimp breed speed",
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Venimp";
 				game.unlocks.impCount.Venimp++;
@@ -8560,7 +8811,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "45 seconds of production for 1 random resource",
+			dropDesc: "45 secs of production for 1 random resource as loot",
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Jestimp";
 				var eligible = ["food", "wood", "metal", "science"];
@@ -8604,7 +8855,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "5 seconds of production for all basic resources",
+			dropDesc: "5 secs of production for all basic resources as loot",
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Chronoimp";
 				var eligible = ["food", "wood", "metal", "science"];
@@ -8631,7 +8882,7 @@ var toReturn = {
 			attack: 1,
 			health: 1,
 			fast: false,
-			dropDesc: "0.3% extra loot from maps and Zones (Not Helium)",
+			dropDesc: "Stacking x1.003 to looted resources (not Helium)",
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Magnimp";
 				game.unlocks.impCount.Magnimp++;
@@ -10120,7 +10371,10 @@ var toReturn = {
 			blockU2: true,
 			fire: function() {
 				if (game.global.challengeActive == "Metal"){
-					message("Your scientists appreciate the fact that you've managed to find another useless book, but they make sure to let you know it's still useless.", "Notices");
+					var s = needAnS(game.jobs.Scientist.owned);
+					var antiS = (s == "s") ? "" : "s";
+					if (game.jobs.Scientist.owned > 0) message("Your scientist" + s + " appreciate" + antiS + " the fact that you've managed to find another useless book, but they make sure to let you know it's still useless.", "Notices");
+					else message ("You don't really know what to do with this book. Not even the Trimps will eat it, so you put it on a shelf for later.", "Notices");
 					game.challenges.Metal.heldMegaBooks++;
 					return;
 				}
@@ -10619,6 +10873,7 @@ var toReturn = {
 				by: 25000
 			},
 			onUnlock: function(){
+				if (this.owned > 0) return;
 				var buildings = game.buildings;
 				var collectors = buildings.Collector.owned;
 				if (autoBattle.oneTimers.Collectology.owned) collectors *= autoBattle.oneTimers.Collectology.getHubs();
@@ -12230,6 +12485,7 @@ var toReturn = {
 				}
 			},
 			fire: function () {
+				if (game.global.totalPortals == 0) tutorial.start();
 				unlockUpgrade('Battle');
 				document.getElementById("upgradesTitleSpan").innerHTML = "Upgrades";
 			}
@@ -12350,6 +12606,10 @@ var toReturn = {
 		DoubleBuild: {
 			requires: 185,
 			description: "Stacked items in the Building Queue will be constructed two at a time.",
+		},
+		DecaBuild: {
+			requires: 305,
+			description: "Stacked items in the Building Queue will be constructed ten at a time."
 		}
 	},
 	get workspaces () {

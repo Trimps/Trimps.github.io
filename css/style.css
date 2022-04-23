@@ -211,6 +211,10 @@ body {
     color: white;
 }
 
+#food {
+	position: relative;
+}
+
 .GACustomInput{
 	width: 33%;
 	margin: 0 0.15%;
@@ -429,6 +433,18 @@ body {
 
 .structConfigCheckbox, .jobConfigCheckbox, .equipConfigCheckbox{
 	transform: scale(2.5);
+}
+
+.efficientYes.thingColorCanAfford{
+	background-color: rgb(15,19,92) !important;
+}
+
+.efficientYes.thingColorCanNotAfford{
+	background-color: rgb(101, 105, 146) !important;
+}
+
+.structSelect{
+	width: 100%;
 }
 
 .autoCheckbox{
@@ -809,7 +825,14 @@ body {
 
 #buyContainer {
 	overflow-y: auto;
+}
+
+.buyContainerSizeSm{
 	height: calc(99vh - 20vw - 195px);
+}
+
+.buyContainerSizeLg{
+	height: calc(99vh - 22.2vw - 175px);
 }
 
 #outerBuyContainer{
@@ -1050,7 +1073,7 @@ body {
 
 .settingsBtn {
     font-size: 1.3vw;
-	border: 1px solid black;
+	border: 1px solid black !important;
 	cursor: pointer;
 	text-align: center;
 
@@ -1062,6 +1085,7 @@ body {
 
 .settingBtntrue:hover, .settingBtn1:hover{
 	background-color: #449d44;
+	border-color: #398439;
 }
 
 .settingBtnfalse, .settingBtn0{
@@ -1070,6 +1094,7 @@ body {
 
 .settingBtnfalse:hover, .settingBtn0:hover{
 	background-color: #d43f3a;
+	border-color: #ac2925;
 }
 
 .settingBtn2, .btn-yellow{
@@ -1080,6 +1105,7 @@ body {
 .settingBtn2:hover, .btn-yellow:hover{
 	background-color: #e6e600;
 	color: black;
+	border-color: #c2c200;
 }
 
 .btn-disabled, .btn-disabled:hover, .colorDisabled, .colorDisabled:hover{
@@ -1094,6 +1120,7 @@ body {
 
 .settingBtn3:hover{
 	background-color: #287280;
+	border-color: #22606d;
 }
 
 .settingBtn4{
@@ -1102,6 +1129,7 @@ body {
 
 .settingBtn4:hover{
 	background-color: #1f003d;
+	border-color: #3b0075;
 }
 
 .settingBtn5{
@@ -1235,7 +1263,7 @@ body {
 }
 
 #rightCol {
-	height: calc(99vh - 20vw - 27px);
+	height: calc(100vh - 18vw - 58px);
 	padding-left: .25vw;
 }
 
@@ -1317,12 +1345,7 @@ body {
 	background-color: initial;
 	border: initial;
 }
-@media only screen and (max-width: 1000px) {
-	#tooltipDiv.tooltipExtraEquality{
-		width: 80%;
-		left: 10% !important;
-	}
-  }
+
 
 
 #tooltipDiv .selectedHeirloomItem{
@@ -1349,13 +1372,6 @@ body {
     color: white;
     display: block;
 }
-
-@media screen and (max-width: 1200px) {
-    #tooltipDiv{
-		font-size: 1.1vw;
-	}
-}
-
 
 #tooltipDiv > hr {
 	margin-top: 1vh;
@@ -1395,12 +1411,6 @@ body {
 .shrinkBtnText div:first-child{
 	margin-top: 0.3em !important;
 	font-size: 0.9vw !important;
-}
-
-@media screen and (max-height: 800px) {
-    .fightBtn{
-		font-size: .95vw !important;
-	}
 }
 
 #lootBdTabs{
@@ -1570,6 +1580,7 @@ body {
 	background-color: rgba(0, 0, 0, 0.5);
 	padding-top: 1.1vw;
 	margin-right: 1px;
+	position: relative;
 }
 
 
@@ -2944,6 +2955,12 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	font-size: 2.5vw;
 }
 
+#steamAchieveSync{
+	position: absolute;
+	left: 35%;
+	top: 15%;
+}
+
 #achievementHeader{
 	font-size: 1.5vw;
 }
@@ -3848,6 +3865,43 @@ background-color: rgba(255,255,255,0.25);
 	background-color: #2b7583 !important;
 	color: white;
 }
+
+#permaBoneBonuses{
+	font-size: 0.57em;
+	width: 100%;
+	line-height: 1.25;
+}
+
+#permaBoneBonuses .singleBonusBox{
+	height: 14.3em;
+	vertical-align: top;
+}
+
+#permaBoneBonuses #exoticpermaBonusBox, #permaBoneBonuses #multitaskingpermaBonusBox{
+	height: 12.5em;
+}
+
+#boneShrineBtn{
+	position: absolute;
+	width: 30%;
+	top: 0;
+	left: 0;
+	font-size: 0.7em;
+	color: black;
+	background-color: white;
+	cursor: pointer;
+}
+
+#boneShrineBtn.isEmpty{
+	background-color: grey;
+	color: black;
+}
+
+#boneShrineBtn.isFull{
+	background-color: #a27d02;
+	color: black;
+}
+
 #boneWrapper{
 	position: absolute;
 	color: black;
@@ -3900,7 +3954,7 @@ background-color: rgba(255,255,255,0.25);
 .importsPreview{
 	text-align: left;
 	margin-bottom: .1vw;
-	width: 90%;
+	width: 95%;
 	display: inline-block;
 }
 
@@ -3966,7 +4020,7 @@ background-color: rgba(255,255,255,0.25);
 }
 
 #boneBuyRow{
-	height: 27vw;
+	height: 29vw;
 }
 
 #getBonesBtn{
@@ -4005,7 +4059,7 @@ background-color: rgba(255,255,255,0.25);
 #boneOwnedContainer{
 	font-size: 2vw;
 }
-#purchaseBonesTitle{
+#purchaseBonesTitle, #purchasingBonesTitle{
 	font-size: 3vw;
 }
 
@@ -4100,6 +4154,11 @@ background-color: rgba(255,255,255,0.25);
 	margin-top: 1vw;
 }
 
+#boneBuyTable.Steam{
+	width: 80%;
+	margin-left: 10%;
+}
+
 
 #boneBuyTable > tbody > tr{
 	border-bottom: 1vw solid white;
@@ -4112,9 +4171,12 @@ background-color: rgba(255,255,255,0.25);
 	padding-right: 0;
 }
 
+#bowBuyRow .boneBuyColumn{
+	height: 29vw;
+}
+
 .boneBuyColumn{
 	background-color: #e1e1e1;
-	height: 100%;
 	border: .5vw solid white;
 }
 
@@ -4154,6 +4216,38 @@ background-color: rgba(255,255,255,0.25);
 
 #damageDiv{
 	width: 55%;
+}
+
+#keybindsTable{
+	width: 95%;
+	margin-left: 2.5%;
+}
+
+#keybindsTable tbody tr td:first-child, #keybindsTable tbody tr td:nth-child(3){
+	font-weight: bold;
+}
+
+.keybindsTitle{
+	text-align: center;
+	font-size: 1.1em;
+}
+
+#heirloomChanceRight, #heirloomChanceLeft{
+	font-size: 3em;
+	cursor: pointer;
+}
+
+#heirloomRarityMain{
+	display: inline-block;
+}
+
+.heirloomChanceBtnContainer{
+	width: 10vw;
+	display: inline-block;
+}
+
+#heirloomRarityMain .rarityBdBox{
+	width: 10vw;
 }
 
 #critSpan, #badCrit, .critSpan{
@@ -4371,7 +4465,7 @@ background-color: rgba(255,255,255,0.25);
 	border: 0.2vw solid white;
 }
 
-#lootBdBtn{
+#lootBdBtn, .tutorialStar{
 	color: #337ab7;
 	text-shadow:
 	-1px -1px 0 white,  
@@ -4388,6 +4482,145 @@ background-color: rgba(255,255,255,0.25);
 		1px -1px 0 white,
 	-1px 1px 0 white,
 		1px 1px 0 white;
+}
+
+.tutorialStar{
+	color: gold;
+}
+
+.tutorialStar:hover{
+	color: #a58d04;
+}
+
+#openTutorialContainer{
+	position: absolute;
+	top: 70%;
+	left: -5%;
+}
+
+#openTutorialContainer2{
+	position: absolute;
+	top: 35%;
+	left: 60.5%;
+	z-index: 1;
+}
+
+.tutorialStar.flashing{
+    animation: flashingStar 1.2s infinite;
+}
+@keyframes flashingStar{
+    0%{color: gold;}
+    49%{color: gold;}
+    60%{color: red;}
+    99%{color: red;}
+    100%{color: gold;}
+}
+
+#tutorialDiv{
+	position: absolute;
+	top: 50%;
+	left: 70%;
+	width: 30vw;
+	height: calc(50vh - 40px);
+	background-color: rgba(0, 0, 0, 0.8);
+	padding: 1vh;
+	color: white;
+	font-size: 1.2vw;
+	z-index: 4;
+}
+
+#tutorialDiv.tutorialWidth{
+	left: 70%;
+	width: 30vw;
+}
+
+#tutorialDiv.tutorialWidthLg{
+	left: 50%;
+	width: 50vw;
+	background-color: rgb(0,0,0);
+}
+
+#tutorialDiv.tutorialDivSm{
+	top: 60%;
+	height: calc(40vh - 40px);
+}
+
+#tutorialText{
+	font-size: 0.9vw;
+	position: relative;
+	height: 65%;
+}
+
+#tutorialTextInner{
+	overflow-y: auto;
+	height: 100%;
+	font-size: 0.9vw;
+	vertical-align: top;
+}
+
+#tutorialBookmarks{
+	width: 20%;
+	display: none;
+	background-color:rgb(53, 52, 52);
+	vertical-align: top;
+	height: 100%;
+	overflow-y: auto;
+}
+
+.tutorialBookmark{
+	padding: 1% 4%;
+	border: 1px solid black;
+	cursor: pointer;
+}
+
+.tutorialBookmark:hover{
+	background-color: #2a2a2a;
+}
+
+.tutorialBookmark.selected{
+	background-color: black;
+	border: 1px solid white;
+}
+
+.tutorialBookmark.selected:hover{
+	background-color: #101010;
+}
+
+#tutorialGoal{
+	font-size: 1vw;
+	font-weight: bold;
+}
+
+#tutorialTitle{
+	text-align: center;
+	font-size: 1.2em;
+}
+
+#tutorialDiv hr{
+	margin: 1vh;
+}
+
+#tutorialSizeBtn{
+	position: absolute;
+	left: 83%;
+	top: 2.1%;
+	font-size: 1.8vw;
+	cursor: pointer;
+}
+
+#tutorialCloseBtn{
+	position: absolute;
+	left: 92%;
+	top: 1.5%;
+	font-size: 2.2vw;
+	cursor: pointer;
+	color: red;
+}
+
+#tutorialInner{
+	height: 100%;
+	width: 100%;
+	display: inline-block;
 }
 
 #lootBdContainer{
@@ -4426,8 +4659,8 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new{
-	background-color: black;
-	color: #ff00ff;
+	background: linear-gradient(90deg, rgba(29,41,58,1) 41%, rgba(30,33,39,1) 100%);
+	color: white;
 	font-weight: bold;
 	width: 100%;
 }
@@ -4438,27 +4671,10 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	animation: btnNewAnimated 15s infinite;
+	background: radial-gradient(circle, rgba(33,108,45,1) 15%, rgba(17,172,49,1) 41%, rgba(13,80,57,1) 58%, rgba(33,110,45,1) 74%, rgba(16,160,107,1) 84%, rgba(33,108,45,1) 92%);
+	color: white;
 }
 
-@keyframes btnNewAnimated{
-	0% {
-		background-color: black;
-		color: #ff00ff;
-		
-	}
-	50% {
-		color: black;
-		background-color: #ff00ff;
-	}
-	100% {
-		background-color: black;
-		color: #ff00ff;
-	}
-}
-
-.btn-new:active,
-.btn-new.active,
 .open > .dropdown-toggle.btn-new {
   background-image: none;
 }
@@ -4926,12 +5142,11 @@ sup{
 }
 
 
-.cBorderOn{
-	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
-    -moz-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
-    box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
-	border: 0;
-	
+.cBorderOn {
+    -webkit-box-shadow: inset 0px 0px 0px calc(0.2vw - 1px) #7d2a2a;
+    -moz-box-shadow: inset 0px 0px 0px calc(0.2vw - 1px) #7d2a2a;
+    box-shadow: inset 0px 0px 0px calc(0.2vw - 1px) #7d2a2a;
+    border: 1px solid #7d2a2a;
 }
 
 .queueItemBack{
@@ -4978,6 +5193,10 @@ sup{
 
 #tooltipDiv.tooltipExtraSuperLg{
 	width: 65%;
+}
+
+#tooltipDiv.tooltipExtraGigantic{
+	width: 80%;
 }
 
 #tooltipDiv.tooltipExtraBiggest{
@@ -6014,7 +6233,7 @@ sup{
 	margin-top: 0.5vw;
 }
 
-.mazDelete, .mazWorld, .mazCheckbox, .mazPreset, .mazRepeat, .mazRepeatUntil, .mazExit, .mazBwWorld, .mazCell, .mazTimes, .mazThrough, .mazRx{
+.mazDelete, .mazWorld, .mazCheckbox, .mazPreset, .mazRepeat, .mazRepeatUntil, .mazExit, .mazBwWorld, .mazCell, .mazTimes, .mazThrough, .mazRx, .mazPrio, .mazTx{
 	display: inline-block;
 }
 
@@ -6037,8 +6256,8 @@ sup{
 	cursor: pointer;
 }
 
-.mazWorld, .mazCell, .mazThrough{
-	width: 7.5%;
+.mazWorld, .mazCell, .mazThrough, .mazPrio{
+	width: 5.625%;
 }
 
 .mazCheckbox{
@@ -6046,42 +6265,26 @@ sup{
 }
 
 .mazPreset{
-	width: 11%;
+	width: 18.5%;
 }
 
 .mazRepeat{
-	width: 13%;
+	width: 8.5%;
 }
 
 .mazRepeatUntil{
-	width: 14.5%;
+	width: 15%;
 }
 
 .mazExit{
-	width: 14.5%;
+	width: 8%;
 }
 
 .mazTimes{
-	width: 13.5%;
-}
-
-.mazBwZoneOff.mazRxOff .mazTimes.select{
-	width: 14.5%;
+	width: 17%;
 }
 
 .mazBwZoneOn .mazRepeatUntil, .mazRxOn .mazRepeatUntil{
-	width: 14%;
-}
-
-.mazBwZoneOn .mazExit, .mazRxOn .mazExit{
-	width: 11.5%;
-}
-
-.mazBwZoneOn .mazRepeat, .mazRxOn .mazRepeat{
-	width: 10%;
-}
-
-.mazBwZoneOn .mazPreset, .mazRxOn .mazPreset{
 	width: 10%;
 }
 
@@ -6090,11 +6293,19 @@ sup{
 }
 
 .mazBwZoneOn .mazBwWorld, .mazRxOn .mazRx{
-	width: 8%;
+	width: 5%;
 }
 
-.mazBwZoneOn .mazTimes, .mazRxOn .mazTimes{
-	width: 14%;
+.mazTxOn .mazTimes{
+	width: 11.5% !important;
+}
+
+.mazTxOff .mazTx{
+	display: none;
+}
+
+.mazTx{
+	width: 5.5%;
 }
 
 .mazBwMainOff .mazRepeatUntil select .mazBwClimbOption{
@@ -6838,3 +7049,95 @@ input[type=range]::-moz-range-thumb {
 }
 
 input[type=range]{background: transparent;}
+
+@media screen and (max-width: 1200px) {
+    #tooltipDiv{
+		font-size: 1.1vw;
+	}
+}
+
+@media screen and (max-height: 800px) {
+    .fightBtn{
+		font-size: .95vw !important;
+	}
+}
+
+@media (max-width: 1000px) {
+	#tooltipDiv.tooltipExtraEquality{
+		width: 80%;
+		left: 10% !important;
+	}
+	#settingsTable > tbody > tr > td {
+        font-size: 1.2vw !important;
+    }   
+    /* SPIRE TD */
+    #floatingCombatText {
+        width: calc(39vw - 4px) !important;
+    }
+    #playerSpireSpirePanel {
+        width: calc(40vw - 4px) !important;
+    }
+    #playerSpireInfoPanel {
+        width: 50vw !important;
+    }
+    .playerSpireEnemy {
+        font-size: 1.1vw;
+    }
+    .floatingCombatText {
+        font-size: 1.1vw;
+    }
+
+    /* LOG */
+    #logBtnGroup div button {
+        font-size: 1.1vw;
+        padding: 0.3vw 12px;
+    }
+    #logBtnGroup {
+        height: 2.6vw;
+    }
+    #logConfigHolder {
+        width: 12% !important;
+    }
+    #log {
+        height: calc(100% - 2.7vw);
+    }
+    .message {
+        font-size: 1.1vw;
+    }
+
+    /* TRAPPING */
+    #trappingProgress {
+        height: 6px;
+    }
+
+    /* BUILD QUEUE */
+    #queueContainer {
+        padding-bottom: 2px;
+        padding-top: 2px;
+        height: 65px;
+    }
+    #queueRow {
+        font-size: .7em; /* 1.2 em */
+    }
+    #noQueue {
+        font-size: 1em;
+    }
+    .queueItem {
+        font-size: .7em;
+    }
+    #queueItemsHere {
+        line-height: 1.2;
+    }
+	#dgChangeBtnContainer {
+		height: auto;
+	}
+	.heirloomEquippedContainer.col-xs-4 {
+		font-size: 1.4vw;
+	}
+	.buyContainerSizeSm{
+		height: calc(99vh - 19vw - 165px);
+	}
+	.buyContainerSizeLg{
+		height: calc(99vh - 22.2vw - 161px);
+	}
+}

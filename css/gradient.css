@@ -513,3 +513,20 @@
 #grid.liquid ul#row0 li.battleCell.cellColorNotBeaten.Living {
 	background: black !important;
 }
+
+#mapGrid.blackMap .battleCell.cellColorNotBeaten {
+  background: black !important;
+}
+
+
+#mapGrid.blackMap .battleCell.cellColorBeaten {
+  background: -webkit-linear-gradient(top, hsl(126deg 34% 16%) 0%, hsl(126deg 34% 8%) 100%) !important;
+}
+
+#mapGrid.blackMap .battleCell.cellColorCurrent {
+  background: -webkit-linear-gradient(top, hsl(68deg 47% 28%) 0%,hsl(68deg 47% 10%) 100%) !important;
+}
+
+#grid.gridOverlayGreenGradient .battleRow, #grid.gridOverlayGreenGradientliquid .battleRow, #grid.gridOverlayGreenGradientliquid .cellColorCurrent {
+  background: none !important;
+}
