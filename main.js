@@ -12190,13 +12190,22 @@ function checkMapAtZoneWorld(runMap){
 
 function runMapAtZone(index){
 	var setting = game.options.menu.mapAtZone.getSetZone()[index];
-	if (setting.preset == 5 && !game.global.challengeActive == "Quagmire" && setting.check) return;
-	if (setting.preset == 4 && !getNextVoidId() && setting.check) return;
+	if (setting.preset == 5 && !game.global.challengeActive == "Quagmire" && setting.check){
+		checkMapAtZoneWorld(true);
+		return;
+	}
+	if (setting.preset == 4 && !getNextVoidId() && setting.check){
+		checkMapAtZoneWorld(true);
+		return;
+	}
 	if (setting.cell == 100 && (game.global.challengeActive == "Mayhem" || game.global.challengeActive == "Pandemonium")) startFight();
 	mapsClicked(true);
 	if (game.global.spireActive && game.global.lastClearedCell != -1) deadInSpire();
 	toggleSetting('mapAtZone', null, false, true);
-	if (!setting || !setting.check) return;
+	if (!setting || !setting.check) {
+		checkMapAtZoneWorld(true);
+		return;
+	}
 	//Don't change repeat if the setting is to run void maps, instead change void repeat
 	if (setting.repeat && setting.preset != 4) {
 		game.global.repeatMap = (setting.repeat == 1);
@@ -12226,8 +12235,9 @@ function runMapAtZone(index){
 				//if repeating on zones
 				if ((setting.times > 0 || setting.times == -2) && game.global.world > setting.world){			
 					//see how many times this has repeated by zone, increase target climb level by appropriate amount for zones skipped
-					var repeats = Math.round((game.global.world - setting.world) / setting.times);
-					if (repeats > 0) game.global.mazBw += (setting.times * repeats);
+					var times = (setting.times == -2) ? setting.tx : setting.times;
+					var repeats = Math.round((game.global.world - setting.world) / times);
+					if (repeats > 0) game.global.mazBw += (times * repeats);
 				}					
 				game.options.menu.repeatUntil.enabled = 2;
 				if (usingRealTimeOffline) offlineProgress.repeatUntil = game.options.menu.repeatUntil.enabled;

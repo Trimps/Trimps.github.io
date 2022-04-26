@@ -7103,6 +7103,8 @@ input[type=range]{background: transparent;}
     }
     .message {
         font-size: 1.1vw;
+		line-height: 1.1vw;
+		margin-top: 2px;
     }
 
     /* TRAPPING */
