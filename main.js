@@ -1072,7 +1072,8 @@ function load(saveString, autoLoad, fromPf) {
 	if (game.buildings.Tribute.locked === 0 || game.options.menu.useAverages.enabled) fadeIn("gemsPs", 10);
     if (game.global.autoCraftModifier > 0)
         document.getElementById("foremenCount").innerHTML = (game.global.autoCraftModifier * 4) + " Foremen";
-    if (game.global.fighting) startFight();
+	if (game.global.fighting && game.global.soldierHealth <= 0) fight();
+    else if (game.global.fighting) startFight();
 	if (game.options.menu.darkTheme.enabled != 1) game.options.menu.darkTheme.onToggle();
 	updateLabels();
 	if (game.global.viewingUpgrades){

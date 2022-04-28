@@ -530,3 +530,7 @@
 #grid.gridOverlayGreenGradient .battleRow, #grid.gridOverlayGreenGradientliquid .battleRow, #grid.gridOverlayGreenGradientliquid .cellColorCurrent {
   background: none !important;
 }
+
+.battleRow{
+  margin: -2px -2px;
+}
