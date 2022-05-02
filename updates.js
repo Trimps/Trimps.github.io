@@ -5264,7 +5264,7 @@ function getUniqueColor(item){
 			return " noRecycle";
 	}
 	if (item.name == "Frozen Castle") return " noRecycle";
-	if (item.name == "Trimple of Doom" && game.portal.Relentlessness.locked) return " noRecycle";
+	if (item.name == "Trimple Of Doom" && game.portal.Relentlessness.locked) return " noRecycle";
 
 	if (item.location && game.mapConfig.locations[item.location].upgrade){
 		var upgrade = game.mapConfig.locations[item.location].upgrade;

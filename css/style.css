@@ -1149,6 +1149,7 @@ body {
 
 .settingBtn5:hover{
 	background-color: #2e2604;
+	border-color: #1c1702;
 }
 
 .settingBtn0, .settingBtn1, .settingBtn3, .settingBtn4 {
@@ -4637,6 +4638,8 @@ background-color: rgba(255,255,255,0.25);
 #lootBdContainer{
 	margin-top: 5%;
 	margin-right: 12.5%;
+	position: absolute;
+	right: 15px;
 }
 
 .btn-warning {
@@ -7000,6 +7003,56 @@ sup{
 	padding: 0.2em;
 }
 
+#saveConflictContainer{
+	display: none;
+	position: absolute;
+	width: 50%;
+	top: 30%;
+	left: 25%;
+	background-color: black;
+	color: white;
+	font-size: 1vw;
+	padding: 2%;
+	z-index: 99999;
+	border: 2px solid white;
+}
+
+#saveConflictKeep{
+	text-align: center;
+	width: 60%;
+	display: inline-block;
+	border: 1px solid white;
+	font-size: 1.1em;
+	border-radius: 25px;
+	padding: 0.3em;
+	margin-left: 20%;
+	margin-top: 2%;
+	margin-bottom: 2%;
+	background-color: #194A19;
+	cursor: pointer;
+}
+
+#saveConflictKeep:hover{
+	background-color: #449d44;
+}
+
+#saveConflictOther{
+	text-align: center;
+	width: 45%;
+	display: inline-block;
+	border: 1px solid white;
+	background-color: #441817;
+	font-size: 0.9em;
+	border-radius: 25px;
+	padding: 0.3em;
+	margin-left: 27.5%;
+	margin-top: 2%;
+	cursor: pointer;
+}
+
+#saveConflictOther:hover{
+	background-color: #c9302c;
+}
 
 
 
@@ -7153,4 +7206,15 @@ input[type=range]{background: transparent;}
 	.buyContainerSizeLg{
 		height: calc(99vh - 22.2vw - 161px);
 	}
+	.infoSpanNature {
+		font-size: 1vw;
+	}
+	.natureTitle {
+	text-align: right;
+	padding-right: 20%;
+	}
+	.battleStatsTitle {
+		height: 3.2em;
+		max-height: unset;
+	 }
 }

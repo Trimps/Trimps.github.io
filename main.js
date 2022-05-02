@@ -33,14 +33,22 @@ if (typeof usingScreenReader === 'undefined'){
 }
 document.getElementById("versionNumber").innerHTML = game.global.stringVersion;
 
+var autoSaveTimeout;
+
+function restartAutoSave(){
+	clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(autoSave, 60000);
+}
+
 function autoSave() {
     if (game.options.menu.autoSave.enabled && !usingRealTimeOffline) save();
-    setTimeout(autoSave, 60000);
+    autoSaveTimeout = setTimeout(autoSave, 60000);
 }
 
 var lastOnlineSave = -1800000;
 var isSaving = false;
 var disableSaving = false;
+var cloudConflictDisableSaving = false;
 function save(exportThis, fromManual) {
 	isSaving = true;
 	autoBattle.save();
@@ -211,6 +219,9 @@ function save(exportThis, fromManual) {
 	if (disableSaving) {
 		message("Due to an error occuring, saving has been disabled to prevent corruption", "Notices");
 		postMessages();
+		return;
+	}
+	if (cloudConflictDisableSaving){
 		return;
 	}
 	try{
@@ -18562,7 +18573,7 @@ if (game.global.isBeta) message("Note: You are playing on the beta/dev version. 
 holidayObj.checkAll();
 displayPerksBtn();
 
-setTimeout(autoSave, 60000);
+autoSaveTimeout = setTimeout(autoSave, 60000);
 costUpdatesTimeout();
 setTimeout(gameTimeout, (1000 / game.settings.speed));
 
