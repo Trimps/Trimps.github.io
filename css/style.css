@@ -2780,9 +2780,13 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 #achievementsHere{
 	overflow-y:  auto;
-	height: calc(98% - 9.5vw);
+	height: calc(98% - 9.5vw - 15px);
 	background: rgba(60, 60, 60, 0.4);
 	text-align: center;
+}
+
+.nwWebLink{
+	cursor: pointer;
 }
 
 #achievementGoldenBonusContainer{
@@ -2968,9 +2972,9 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 #steamAchieveSync{
-	position: absolute;
-	left: 35%;
-	top: 15%;
+	vertical-align: top;
+	margin-right: 4vw;
+	margin-top: 0.4vw;
 }
 
 #achievementHeader{

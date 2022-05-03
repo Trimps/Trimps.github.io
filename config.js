@@ -1844,7 +1844,7 @@ var toReturn = {
 						game.global.mapStarted += dif;
 						game.global.lastGeneratorTick += dif;
 						game.global.lastSoldierSentAt += dif;
-						game.permaBoneBonuses.boosts.lastChargeAt += dif;
+						if (game.permaBoneBonuses.boosts.lastChargeAt != -1) game.permaBoneBonuses.boosts.lastChargeAt += dif;
 						if (game.portal.Frenzy.frenzyStarted != -1) game.portal.Frenzy.frenzyStarted += dif;
 						this.timeAtPause = 0;
 						game.global.time = 0;
