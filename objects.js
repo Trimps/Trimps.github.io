@@ -258,7 +258,7 @@ var tutorial = {
             case 9: //Unlocked megamace and hellishmet
                 text = "You're really getting the hang of this!<br/><br/>Now would be a good time to mention that you can click the grey cogwheel icon next to the maps button to customize some nifty map settings based on what you need. If you like getting 10 stacks of Map Bonus, turn on 'Repeat to 10' and 'Exit to World' and watch your Trimps automatically travel back to your current Zone after their 10th map. If you just want to get your upgrades and get out, 'Repeat for Items' is for you. Check each setting's tooltip for more information!";
                 text += "<br/><br/>Speaking of automation, there's another important book we could use for our automation arsenal hiding in a map up ahead. See if you can claim it for our city!"
-                goal = "Find a new upgrade in a Zone 10 Map";
+                goal = "Find a new upgrade in a Level 10 Map";
                 break;
             case 10: //Unlocked trapstorm
                 text = "Look at that! Gone are the days of adding traps to the building queue yourself, now Trapstorm can handle that for you!<br/><br/>By the way, when in a map you can mouse over the name of the map above the Fight button for some useful information like how long you've been in this map, and how many upgrades remain.<br/><br/>I'm detecting something we haven't seen yet inside a map on the next Zone. Let's go check it out!"
@@ -269,8 +269,8 @@ var tutorial = {
                 goal = "Find a way to clear The Block";
                 break;
             case 12: //Unlocked Shieldblock
-                text = "You've done it! This special new upgrade will convert your Shield from an accessory that provides Health, to a fully fledged Shield that can actually block damage. What crazy technology!<br/><br/>Block should be a major part of your arsenal now. With enough investment you can even get your Trimps' block higher than enemy Attack, causing your Trimps to take no damage!<br/><br/>You've now shown proficiency with most of the basic skills required to lead a Trimp civilization. My sensors are detecting another Unique Map on Zone 15, and I strongly believe you have what it takes to find and complete it.";
-                goal = "Find and complete the Zone 15 Unique Map";
+                text = "You've done it! This special new upgrade will convert your Shield from an accessory that provides Health, to a fully fledged Shield that can actually block damage. What crazy technology!<br/><br/>Block should be a major part of your arsenal now. With enough investment you can even get your Trimps' block higher than enemy Attack, causing your Trimps to take no damage!<br/><br/>You've now shown proficiency with most of the basic skills required to lead a Trimp civilization. My sensors are detecting another Unique Map hiding in a Level 15+ Map, and I strongly believe you have what it takes to find and complete it.";
+                goal = "Find and complete the Level 15 Unique Map";
                 break;
             case 13: //Unlocked Bounty
                 text = "Excellent work! You've found and cleared The Wall, and earned the ultra powerful Bounty upgrade.<br/><br/>You've now amassed a powerful army, built a sprawling city, and culled thousands of enemies. There's something frightening at the end of Zone 20, but there's no doubt in my cold artificial mind that you have what it takes to defeat it.";

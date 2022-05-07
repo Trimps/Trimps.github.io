@@ -2553,6 +2553,7 @@ var offlineProgress = {
 			}
 			offlineProgress.loopTicks = loopTicks;
 			offlineProgress.lastLoop = now;
+			//if (typeof steamCanvas !== 'undefined') steamCanvasContext.clearRect(0, 0, steamCanvas.width, steamCanvas.height);
 			if (x < ticks && usingRealTimeOffline){
 				offlineProgress.loop = setTimeout(loop, 0);
 			}
@@ -18152,6 +18153,7 @@ function gameLoop(makeUp, now) {
 
 	if (mutations.Magma.active()) generatorTick();
 	if (!makeUp) postMessages();
+	//if (!makeUp && !usingRealTimeOffline && typeof steamCanvas !== 'undefined') steamCanvasContext.clearRect(0, 0, steamCanvas.width, steamCanvas.height);
 }
 
 function runEverySecond(makeUp){

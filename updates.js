@@ -926,6 +926,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else tooltipText += "</td><td>"
 		tooltipText += "</td></tr>";
 		tooltipText += "<tr><td>Left/Right</td><td>Usable on windows with <span class='icomoon icon-arrow-left'></span> and <span class='icomoon icon-arrow-right'></span> icons</td><td></td><td></td></tr>";
+		tooltipText += "<tr><td>V</td><td>Open AD(V)ISOR</td><td></td><td></td></tr>";
 		tooltipText += "<tr><td>Esc</td><td>Close popups/menus. Open Settings if nothing else is open</td><td></td><td></td></tr>";
 		if (game.global.highestLevelCleared >= 5){
 			tooltipText += "<tr><td class='keybindsTitle' colspan='4'>Maps</td></tr>";
@@ -1447,7 +1448,12 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else{
 			tooltipText += "<br/><br/>" + prettify(resPerStat) + " metal spent per point of " + ((equip.attack) ? "Attack" : "Health") + ".";
-			if (game.options.menu.equipHighlight.enabled > 0 && !game.equipment.Mace.locked) tooltipText += " The most efficient Attack and Health equipment have blue backgrounds.";
+			if (game.options.menu.equipHighlight.enabled > 0 && !game.equipment.Mace.locked){
+				tooltipText += " The most efficient Attack and Health equipment";
+				if (game.options.menu.equipHighlight.enabled == 1 && equip.prestige >= 2) tooltipText += " of your highest Tier"
+				tooltipText += " have blue backgrounds.";
+				if (equip.prestige >= 2) tooltipText += " (Search Settings for Highlight Equipment to change behavior)";
+			}
 		}
 		if (game.global.buyAmt != 1) {
 			what += " X " + buyAmt;
