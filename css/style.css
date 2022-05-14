@@ -7221,4 +7221,21 @@ input[type=range]{background: transparent;}
 		height: 3.2em;
 		max-height: unset;
 	 }
+	 .talentTierRow {
+		line-height: 0;
+	}
+	.talentItem {
+		padding: 0.5% 0%;
+	}
+	.talentIcon {
+	   font-size: 1.1vw;
+	   line-height: 2vw;
+	}
+	.talentName {
+	   font-size: 1.0vw;
+	   height: 3vw;
+	   line-height: 1vw;
+	   overflow: hidden;
+	   padding: 0.1vw;
+	}
 }

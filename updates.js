@@ -2070,7 +2070,7 @@ function getPsString(what, rawNum) {
 		textString += "<tr><td class='bdTitle'>Speedexplorer</td><td class='bdPercent'>+ " + prettify((bonus - 1) * 100) + "%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	//Add Size (challenge)
-	if (game.global.challengeActive == "Size"){
+	if (game.global.challengeActive == "Size" && (what == "food" || what == "metal" || what == "wood")){
 		currentCalc *= 1.5;
 		textString += "<tr><td class='bdTitle'>Huge (Size)</td><td class='bdPercent'>+ 50%</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}	//Add meditate (challenge)
