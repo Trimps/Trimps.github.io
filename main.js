@@ -12807,7 +12807,7 @@ function rewardSpire1(level){
 
 var goldenUpgradesShown = false;
 function displayGoldenUpgrades(redraw) {
-	if (usingRealTimeOffline) return false;
+	if (usingRealTimeOffline && goldenUpgradesShown) return false;
 	if (goldenUpgradesShown && !redraw) return false;
 	if (getAvailableGoldenUpgrades() <= 0) return false;
 	if (!goldenUpgradesShown) game.global.lastUnlock = new Date().getTime();
