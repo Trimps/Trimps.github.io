@@ -140,6 +140,41 @@
 	</script>
 <div style="font-size: 1.3em; font-weight: bold; display: block; width: 100%; text-align: center;">Trimps Updates!</div>
 <ul class="betterList">
+	<li>5.7.2 - 6/8/22</li>
+	<ul>
+		<li>Content</li>
+		<li>Dark Essence drops now round up to 1 before any bonuses are applied. This means if you're on a 2x Daily Challenge, drops that were previously 1 will now be 2. Previously, drops of 1 might have internally been 0.25, so doubling would go to 0.5 and still round to 1. This change will result in more Dark Essence drops when first unlocking the mechanic but have no effect on late game.</li>
+	</ul>
+	<ul>
+		<li>UI/QOL</li>
+		<li>Added a new setting under General on the Desktop/Steam version to toggle Discord Rich Presence off or set it to update only on Portal</li>
+		<li>Moved Void Map drop messages out of the "Secondary" category and in to their own "Void Maps" category in the message config window.</li>
+		<li>Added a mouseover tooltip to displayed Helium per Hour explaining what it is.</li>
+		<li>Added a line to the Trapper<sup>2</sup> Challenge stating that bonuses that cause housing to come prefilled with Trimps will not work.</li>
+		<li>Added a setting under Performance to disable Dimensional Generator animations</li>
+		<li>Added an alert to the Portal confirmation popup if no Challenge is selected but at least one is available (including repeatable Challenges). This message can also be disabled with a new setting under Pop-ups and Alerts.</li>
+	</ul>
+	<ul>
+		<li>Bug Fixes</li>
+		<li>PlayFab and Steam Cloud Save conflict checking now better supports progress made in U2</li>
+		<li>Updated AutoGolden's tooltip to better match its current unlock requirement</li>
+		<li>Updated the half-full Frenzy star icon to better match the other Frenzy icons in size</li>
+		<li>Fixed a typo in the Relentlessness unlock message</li>
+		<li>Fixed a typo in the Smithy unlock message</li>
+		<li>Importing a save file without Gardens unlocked over a save file with Gardens unlocked no longer leaves Gardens as a selectable Biome.</li>
+		<li>Radonculous from the Bone Trader in U2 now properly states that it's disabled on C<sup>3</sup> rather than C<sup>2</sup></li>
+		<li>Karma (Daily Challenge Modifier that grants increased Loot for the Zone after killing an Enemy) now properly scales production based loot</li>
+		<li>The tooltip for the 'Alerting' option now properly says the alert icons are blue instead of yellow if using Dark Theme</li>
+		<li>Fixed an issue that could cause Time Warp to be extremely slow in some rare cases</li>
+		<li>Finding Bones in a Spire now properly immediately updates the count on the Bone Trader button</li>
+		<li>Shields no longer mention Trainers until they start providing Block</li>
+		<li>Fixed a display bug where displayed damage would not decrease when leaving Scrying formation against a Corrupt enemy with Scryhard I active</li>
+		<li>Updated the Decay Challenge description to properly indicate that stacks reset on each new Zone rather than just when Blimps are killed.</li>
+		<li>Fixed an issue where your Trimps wouldn't automatically start fighting when a map repeats if AutoFight is disabled and you paused the game less than 1 second before finishing your last map</li>
+		<li>Partially fixed a rare and hard-to-reproduce issue where certain U2 conditions could cause enemy health to increase above their max health during Time Warp. This partial fix will check if your current cell's health is greater than its max health when Time Warp ends, and reset the health if so.</li>
+	</ul>
+</ul>
+<ul class="betterList">
 	<li>5.7.1 - 5/7/22</li>
 	<ul>
 		<li>UI/QOL</li>

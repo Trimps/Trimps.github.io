@@ -2680,8 +2680,10 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
     font-size: 1.3vw;
     text-align: center;
     display: block;
-    margin-bottom: -0.5vw;
-    margin-top: -0.5vw;
+    margin-bottom: -0.6vw;
+    margin-top: -0.35vw;
+	height: 2.3vw;
+	padding: 0;
 }
 
 .heirloomMod.innate:hover{
@@ -5451,6 +5453,10 @@ sup{
 	height: 100%;
 	top: 0%;
 	width: 100%;
+	
+}
+
+#fuelBar.animateOn{
 	transition: height 0.5s ease-out;
 }
 
@@ -5460,6 +5466,9 @@ sup{
 	height: 100%;
 	top: 0%;
 	width: 100%;
+}
+
+#fuelStorageBar.animateOn{
 	transition: height 0.5s ease-out;
 }
 

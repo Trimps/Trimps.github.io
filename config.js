@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.7.1',
+		stringVersion: '5.7.2',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -427,6 +427,7 @@ var toReturn = {
 				bone: true,
 				exotic: true,
 				helium: true,
+				voidMaps: true,
 				essence: true,
 				token: true,
 				magma: true,
@@ -785,7 +786,7 @@ var toReturn = {
 						"You almost stumble and fall in a hole right in front of you that definitely was not there a minute ago. You look down and see the Bone Trader staring up at you with a warm smile, holding up a Void Map. You take the Void Map, thank the Bone Trader, and the hole fills back in instantly."
 					]
 					var text = texts[Math.floor(Math.random() * texts.length)];
-					message(text, "Loot", "th-large", "voidMessage", 'secondary');
+					message(text, "Loot", "th-large", "voidMessage", 'voidMaps');
 					this.tracker -= 100;
 				}
 			}
@@ -970,6 +971,13 @@ var toReturn = {
 				},
 				lockUnless: function() {return (typeof nw !== 'undefined')}
 			},
+			richPresence: {
+				enabled: 1,
+				extraTags: "general",
+				description: "This setting controls how often Trimps will send Rich Presence information to Discord. Rich Presence is what allows your friends in Discord to see that you&apos;re playing Trimps, and some information about your progress. Discord&apos;s Rich Presence can also be disabled globally in Discord&apos;s settings if you never want this information shown in any game.<br/><br/><b>Rich Presence Off</b> wont send any information about your save to Discord.<br/><br/><b>Rich Presence On</b> is the default, and will periodically send Discord an update on your progress that your friends can see.<br/><br/><b>DRP Portal Only</b> will only update Discord&apos;s Rich Presence once on game load, and then once per Portal.",
+				titles: ["Rich Presence Off", "Rich Presence On", "DRP Portal Only"],
+				lockUnless: function() {return (typeof nw !== 'undefined')}
+			},
 			standardNotation: {
 				enabled: 1,
 				extraTags: "layout",
@@ -1042,6 +1050,30 @@ var toReturn = {
 							if (this.enabled == 0) bars[x].style.width = "0%";
 						}
 					}
+				}
+			},
+			generatorAnimation: {
+				enabled: 1,
+				extraTags: "performance",
+				description: "Toggle Dimensional Generator animations on or off. This includes both the clock hand and filling tank animations.",
+				titles: ["Generator Animation Off", "Generator Animation On"],
+				onToggle: function(){
+					var radial = document.getElementById('generatorRadial');
+					if (radial != null){
+						radial.style.display = (this.enabled == 1) ? "block" : "none";
+					}
+					var newClass = (this.enabled == 1) ? "animateOn" : "animateOff";
+					var fuel = document.getElementById('fuelBar');
+					if (fuel != null){
+						swapClass('animate', newClass, fuel);
+					}
+					var fuelStorage = document.getElementById('fuelStorageBar');
+					if (fuelStorage != null){
+						swapClass('animate', newClass, fuelStorage);
+					}
+				},
+				lockUnless: function(){
+					return (game.global.highestLevelCleared >= 229);
 				}
 			},
 			confirmhole: {
@@ -1127,7 +1159,9 @@ var toReturn = {
 			showAlerts: {
 				enabled: 1,
 				extraTags: "alerts",
-				description: "Toggle on or off the display of yellow alert icons when unlocking something new.",
+				get description(){
+					return "Toggle on or off the display of " + ((game.options.menu.darkTheme.enabled == 2) ? "blue" : "yellow") + " alert icons when unlocking something new.";
+				},
 				titles: ["Not Alerting", "Alerting"]
 			},
 			showFullBreed: {
@@ -1205,6 +1239,18 @@ var toReturn = {
 				enabled: 1,
 				description: "Decide whether or not you want popups on looting an Heirloom.",
 				titles: ["No Heirloom Pop", "Popping Heirlooms"]
+			},
+			portalChallenge: {
+				extraTags: "alerts",
+				enabled: 1,
+				description: "Decide whether or not an alert should be displayed when attempting to Portal without a Challenge selected.",
+				titles: ["No Portal Challenge Alert", "Portal Challenge Alert"],
+				shouldAlert: function(){
+					if (this.enabled == 0) return false;
+					if (game.portal.Artisanistry.locked || game.portal.Range.locked || (game.global.highestLevelCleared >= 34 && game.portal.Carpentry.locked)) return true;
+					if (game.global.highestLevelCleared < 39) return false;
+					return true;
+				}
 			},
 			detailedPerks: {
 				extraTags: "qol",
@@ -2507,7 +2553,7 @@ var toReturn = {
 			name: "Angelic",
 			tier: 10,
 			purchased: false,
-			icon: "*star-half-empty"
+			icon: "*star-half"
 		}
 		//don't forget to add new talent tier to getHighestTalentTier()
 	},
@@ -3032,7 +3078,7 @@ var toReturn = {
 				else{
 					var icon = "";
 					if (this.canRecharge()) icon = 'icon-star-full';
-					else if (this.deathless) icon = 'icon-star-half-empty';
+					else if (this.deathless) icon = 'icon-star-half';
 					else icon = 'icon-star-empty';
 					manageStacks('Frenzied', this.frenzyLeft(), true, 'frenzyPerkStacks', 'icomoon ' + icon, this.stackTooltip('frenzy'), false);
 				}
@@ -3446,7 +3492,7 @@ var toReturn = {
 			unlockString: "reach Zone 45"
 		},
 		Decay: {
-			description: "Tweak the portal to bring you to an alternate reality, where added chaos will help you learn to create a peaceful place. You will gain 10x loot (excluding helium), 10x gathering, and 5x Trimp attack, but a stack of Decay will accumulate every second. Each stack of Decay reduces loot, gathering, and Trimp attack by 0.5% of the current amount. These stacks reset each time a Blimp is killed and cap at 999. Completing <b>Zone 55</b> with this challenge active will allow you to select the Gardens biome when creating maps, and all future Gardens maps created will gain +25% loot.",
+			description: "Tweak the portal to bring you to an alternate reality, where added chaos will help you learn to create a peaceful place. You will gain 10x loot (excluding helium), 10x gathering, and 5x Trimp attack, but a stack of Decay will accumulate every second. Each stack of Decay reduces loot, gathering, and Trimp attack by 0.5% of the current amount. These stacks reset each time you enter a new World Zone and cap at 999. Completing <b>Zone 55</b> with this challenge active will allow you to select the Gardens biome when creating maps, and all future Gardens maps created will gain +25% loot.",
 			completed: false,
 			decayValue: 0.995,
 			abandon: function () {
@@ -3509,7 +3555,7 @@ var toReturn = {
 			heldBooks: 0,
 			fireAbandon: true,
 			allowSquared: true,
-			squaredDescription: "Travel to a dimension where Trimps refuse to breed in captivity, good luck!",
+			squaredDescription: "Travel to a dimension where Trimps refuse to breed in captivity, and any bonuses that cause housing to be prefilled with Trimps simply won't work. Good luck!",
 			replaceSquareThresh: 50,
 			replaceSquareGrowth: 2,
 			unlocks: "Anticipation",
@@ -9254,7 +9300,7 @@ var toReturn = {
 			},
 			fire: function () {
 				message("You've never been here before. Like, ever. This entire place felt cold and unfamiliar. Where are you? Why have so many Trimps had to fall to get here? You're suddenly angry, it's time to take a stand.", "Story");
-				message("You have permanantly unlocked a new Perk, Relentlessness, which will remain unlocked through portals.", "Notices");
+				message("You have permanently unlocked a new Perk, Relentlessness, which will remain unlocked through portals.", "Notices");
 				game.portal.Relentlessness.locked = false;
 			}
 		},
@@ -10005,7 +10051,7 @@ var toReturn = {
 			}
 		},
 		Smithy: {
-			message: "Your equipment isn't going to cut it in this Universe. Better get someone to ugprade it for you!",
+			message: "Your equipment isn't going to cut it in this Universe. Better get someone to upgrade it for you!",
 			world: 5,
 			level: 9,
 			blockU1: true,

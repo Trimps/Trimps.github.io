@@ -303,7 +303,10 @@ function load(saveString, autoLoad, fromPf) {
 		return false;
 	}
 	if ((oldStringVersion && oldStringVersion.length && (compareVersion(oldStringVersion, game.global.stringVersion.split('.'), true)))) {
-		message("Your save file is from a newer version of Trimps (v" + savegame.global.stringVersion + ") than what your computer is running (v" + game.global.stringVersion + "). Refresh or restart your browser!", "Notices");
+		var compatText = "Your save file is from a newer version of Trimps (v" + savegame.global.stringVersion + ") than what your computer is running (v" + game.global.stringVersion + ").";
+		if (typeof nw === 'undefined') compatText += " Refresh or restart your browser!";
+		else compatText += " You may need to restart Steam and then relaunch Trimps to get the newest update.";
+		message(compatText, "Notices");
 		return false;
 	}
 	resetGame();
@@ -998,6 +1001,9 @@ function load(saveString, autoLoad, fromPf) {
 		addNewSetting('equipHighlight');
 		if (game.global.highestRadonLevelCleared < 154 && typeof game.global.messages.Loot.alchemy !== 'undefined') delete game.global.messages.Loot.alchemy;
 		if (savegame && savegame.talents && savegame.talents.deciBuild && savegame.talents.deciBuild.purchased) game.talents.kerfluffle.purchased = true;
+	}
+	if (compareVersion([5,7,2], oldStringVersion)){
+		game.global.messages.Loot.voidMaps = true;
 	}
 	//End compatibility
 	//Test server only
@@ -2592,6 +2598,8 @@ var offlineProgress = {
 			game.global.zoneStarted -= (secondsRemaining * 1000);
 			trustworthyTrimps(false, secondsRemaining);
 		}
+		var cell = game.global.gridArray[game.global.lastClearedCell + 1];
+		if (cell && cell.health > cell.maxHealth) cell.health = cell.maxHealth;
 	},
 	updateBar: function(current){
 		var width = ((current / this.progressMax) * 100).toFixed(1) + "%";
@@ -2986,6 +2994,7 @@ function activateClicked(){
 		else
 			newText += " <span id='addChallenge'>You are about to run the <b style='font-size: 1.1em'>" + game.global.selectedChallenge + " Challenge</b></span><br/>";
 	}
+	else if (game.options.menu.portalChallenge.shouldAlert()) newText += " <span id='addChallenge'><b style='color: #870c0c'>You don't have a Challenge selected! Challenges add some extra rules to your Portal in exchange for a reward at the end. Click that you're not ready and select one from the right side of this screen!</b><br/><span style='font-weight: initial; font-size: 0.9em'>You can disable this warning under Settings -> Pop-ups and Alerts.</span></span><br/>";
 	else newText += " <span id='addChallenge'></span>";
 	if (game.global.kongBonusMode){
 		newText = "All set?";
@@ -3574,6 +3583,7 @@ function activatePortal(){
 	else{
 		message("A green shimmer erupts then disappears, and you hit the ground. You look pretty hungry...", "Story");
 	}
+	if (game.options.menu.richPresence.enabled == 2 && typeof updateDiscordAndSteamRichPresence !== 'undefined') updateDiscordAndSteamRichPresence({}, true);
 }
 
 function cancelPortal(keep){
@@ -6079,7 +6089,7 @@ function createVoidMap(forcePrefix, forceSuffix, skipMessage, noDupe) {
 	}
 	game.global.totalVoidMaps++;
 	if (!skipMessage){
-		message("A chill runs down your spine, and the Bad Guy quickly frosts over. A purple glow radiates from the ground in front of you, and a Void Map appears.", "Loot", "th-large", "voidMessage", 'secondary');
+		message("A chill runs down your spine, and the Bad Guy quickly frosts over. A purple glow radiates from the ground in front of you, and a Void Map appears.", "Loot", "th-large", "voidMessage", 'voidMaps');
 		addVoidAlert();
 	}
 	if (!stackedMap)
@@ -8805,12 +8815,12 @@ function getGeneratorHtml(getContainer){
 		html += "<div class='thing generatorState' id='generatorWindow'>"
 	html += "<div id='genTitleContainer'><div id='generatorTitle'>Dimensional Generator</div>";
 	html += "<div id='dgChangeBtnContainer'" + ((game.global.challengeActive == "Eradicated") ? " class='eradicatedBtns'" : "") + "><span id='generatorActiveBtn' onclick='changeGeneratorState(1)' class='dgChangeBtn pointer noselect colorDanger hoverColor'>Gain Fuel</span> <span onclick='changeGeneratorState(0)' id='generatorPassiveBtn' class='dgChangeBtn pointer noselect colorPrimary hoverColor'>Gain Mi</span> <span onclick='changeGeneratorState(2)' id='generatorHybridBtn' class='dgChangeBtn pointer noselect colorTeal hoverColor' style='display: none'>Hybrid</span> <span style='display: none' onclick='tooltip(\"Configure Generator State\", null, \"update\")' id='generatorStateConfigBtn' class='pointer noselect hoverColor dgChangeBtn colorDefault'><span class='glyphicon glyphicon-cog'></span></span></div>";
-	html += "<div id='generatorUpgradeBtn' onclick='tooltip(\"Upgrade Generator\", null, \"update\")'class='workBtn pointer noselect colorDark hoverColor'>Upgrade (<span id='upgradeMagmiteTotal'></span>)</div></div><div id='genGaugeContainer'><div class='row'><div class='col-xs-4'><div id='fuelContainer'><div id='fuelBar'></div><div id='fuelStorageBar'></div><div id='fuelGlass'></div><div id='fuelOwnedText'>Fuel<br/><span id='generatorFuelOwned'>0</span> / <span id='generatorFuelMax'>0</span></div></div></div>"
+	html += "<div id='generatorUpgradeBtn' onclick='tooltip(\"Upgrade Generator\", null, \"update\")'class='workBtn pointer noselect colorDark hoverColor'>Upgrade (<span id='upgradeMagmiteTotal'></span>)</div></div><div id='genGaugeContainer'><div class='row'><div class='col-xs-4'><div id='fuelContainer'><div id='fuelBar' class='" + ((game.options.menu.generatorAnimation.enabled == 0) ? "animateOff" : "animateOn") + "'></div><div id='fuelStorageBar' class='" + ((game.options.menu.generatorAnimation.enabled == 0) ? "animateOff" : "animateOn") + "'></div><div id='fuelGlass'></div><div id='fuelOwnedText'>Fuel<br/><span id='generatorFuelOwned'>0</span> / <span id='generatorFuelMax'>0</span></div></div></div>"
 	if (game.permanentGeneratorUpgrades.Supervision.owned)
 		html += "<div class='col-xs-4 hasSlider' id='generatorProducingColumn'><div id='generatorProducingContainer'>Producing<br/><span id='generatorTrimpsPs'>0</span><br/>Housing/Tick</div><div id='generatorSliderBox'><input id='generatorSlider' onchange='saveSupervisionSetting()' type='range' min='1' max='100' value='" + game.global.supervisionSetting + "' /></div></div>";
 	else
 		html += "<div class='col-xs-4' id='generatorProducingColumn'><div id='generatorProducingContainer'>Producing<br/><span id='generatorTrimpsPs'>0</span><br/>Housing/Tick</div></div>";
-	html += "<div class='col-xs-4'><div id='generatorTickContainer' onclick='pauseGenerator()' onmouseover='updatePauseBtn(true)' onmouseout='updatePauseBtn(false)'" + ((game.permanentGeneratorUpgrades.Supervision.owned) ? " style='cursor: pointer'" : "") + "> <div id='generatorRadialContainer' class='radial-progress'> <div class='radial-progress-circle'> <div class='radial-progress-arrow static''></div></div><div id='generatorRadial' class='radial-progress-circle'> <div class='radial-progress-arrow mobile'></div> </div> <div id='clockKnob' class='radial-progress-knob generatorState'></div></div><span id='generatorNextTick' style='pointer-events: none;'>0</span></div></div></div></div>";
+	html += "<div class='col-xs-4'><div id='generatorTickContainer' onclick='pauseGenerator()' onmouseover='updatePauseBtn(true)' onmouseout='updatePauseBtn(false)'" + ((game.permanentGeneratorUpgrades.Supervision.owned) ? " style='cursor: pointer'" : "") + "> <div id='generatorRadialContainer' class='radial-progress'> <div class='radial-progress-circle'> <div class='radial-progress-arrow static''></div></div><div " + ((game.options.menu.generatorAnimation.enabled == 0) ? "style='display: none;' " : "") + "id='generatorRadial' class='radial-progress-circle'> <div class='radial-progress-arrow mobile'></div> </div> <div id='clockKnob' class='radial-progress-knob generatorState'></div></div><span id='generatorNextTick' style='pointer-events: none;'>0</span></div></div></div></div>";
 	if (getContainer) html += "</div>";
 	return html;
 }
@@ -9017,7 +9027,7 @@ function updateNextGeneratorTickTime(){
     	nextTickElem.innerHTML = (mousedOverClock && game.permanentGeneratorUpgrades.Supervision.owned) ? "<span class='icomoon icon-pause3'></span>" : prettify(Math.floor(nextTickIn + 1));
     var countingTick = Math.round((tickTime - nextTickIn) * 10) / 10;
     countingTick = Math.round(countingTick * 10) / 10;
-	if (thisTime >= framesPerVisual - 1) {
+	if (game.options.menu.generatorAnimation.enabled == 1 && thisTime >= framesPerVisual - 1) {
 		thisTime = 0;
 		var timeRemaining = tickTime - countingTick;
 		if(timeRemaining != 0 && timeRemaining <= framesPerVisual / 10) {
@@ -11444,6 +11454,7 @@ function calculateScryingReward(){
 	if (scryableLevels <= 0) return 0;
 	var modAmt = (game.global.canMagma) ? 1.1683885 : 1.11613; //4.0 compatibility
 	var num = (1 * Math.pow(modAmt, scryableLevels)) / 3;
+	if (num < 1) num = 1;
 	if (game.talents.scry.purchased && !game.global.mapsActive){
 		var worldCell = getCurrentWorldCell();
 		if (worldCell.mutation == "Corruption" || worldCell.mutation == "Healthy"){
@@ -12653,6 +12664,7 @@ function giveSpireReward(level){
 			if (game.global.spiresCompleted < spireWorld){
 				game.global.spiresCompleted = spireWorld;
 				game.global.b += 20;
+				updateBones();
 				text += " For your first time killing this Echo in any timeline, you have permanently added another 5% to your Liquification bonus, increased your Dark Essence gains by 4x, and earned <b>20 bones!</b>"
 				switch (spireWorld){
 					case 2: 
@@ -12795,6 +12807,7 @@ function rewardSpire1(level){
 
 var goldenUpgradesShown = false;
 function displayGoldenUpgrades(redraw) {
+	if (usingRealTimeOffline) return false;
 	if (goldenUpgradesShown && !redraw) return false;
 	if (getAvailableGoldenUpgrades() <= 0) return false;
 	if (!goldenUpgradesShown) game.global.lastUnlock = new Date().getTime();
@@ -14178,7 +14191,7 @@ function fight(makeUp) {
 					updateMapCredits();
 					messageMapCredits();
 				}
-				fightManual();
+				battle(true);
 				return;
 			}
 			else{
@@ -15185,6 +15198,7 @@ function setFormation(what) {
 			if (game.global.soldierHealth <= 0) game.global.soldierHealth = 0;
 			game.global.soldierCurrentBlock *= block;
 			game.global.soldierCurrentAttack *= attack;
+			game.global.formation = what;
 			updateAllBattleNumbers(true);
 		}
 		game.global.formation = what;
@@ -15506,6 +15520,9 @@ function scaleLootBonuses(amt, ignoreScry){
 	if (game.global.challengeActive == "Archaeology") amt *= game.challenges.Archaeology.getStatMult("science");
 	if (game.global.challengeActive == "Insanity") amt *= game.challenges.Insanity.getLootMult();
 	if (game.challenges.Nurture.boostsActive()) amt *= game.challenges.Nurture.getResourceBoost();
+	if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.karma !== 'undefined'){
+		amt *= dailyModifiers.karma.getMult(game.global.dailyChallenge.karma.strength, game.global.dailyChallenge.karma.stacks);
+	}
 	return amt;
 }
 
@@ -15701,7 +15718,7 @@ function displaySingleRunBonuses(){
 		else {
 			if (item == "heliumy" && game.global.runningChallengeSquared){
 				btnClass = 'boneBtnStateOff';
-				btnText = "Disabled on C<sup>2</sup>";
+				btnText = "Disabled on C<sup>" + ((game.global.universe == 1) ? 2 : 3) + "</sup>";
 			}
 			else if (item == "quickTrimps" && (game.global.challengeActive == "Trapper" || game.global.challengeActive == "Trappapalooza")){
 				btnClass = 'boneBtnStateOff';
@@ -17981,9 +17998,10 @@ function playFabSaveCheckCallback(data, error){
 		}
 		if (!playFabSave || !playFabSave.global) return;
 		var playFabHelium = (playFabSave.global.totalHeliumEarned) ? playFabSave.global.totalHeliumEarned : 0;
+		var playFabRadon = (playFabSave.global.totalRadonEarned) ? playFabSave.global.totalRadonEarned : 0;
 		var playFabTotalZones = (playFabSave.stats.zonesCleared.value) ? (playFabSave.stats.zonesCleared.value + playFabSave.stats.zonesCleared.valueTotal) : 0;
 		var playFabHighestZone = (playFabSave.global.highestLevelCleared) ? playFabSave.global.highestLevelCleared : 0;
-		if (playFabHelium > parseFloat(game.global.totalHeliumEarned) || playFabHighestZone > parseFloat(game.global.highestLevelCleared) || (playFabTotalZones > (game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal))){
+		if (playFabRadon > parseFloat(game.global.totalRadon) || playFabHelium > parseFloat(game.global.totalHeliumEarned) || playFabHighestZone > parseFloat(game.global.highestLevelCleared) || (playFabTotalZones > (game.stats.zonesCleared.value + game.stats.zonesCleared.valueTotal))){
 			tooltip("PlayFab Conflict", null, "update", playFabHelium, playFabHighestZone, playFabTotalZones);
 			return;
 		}
