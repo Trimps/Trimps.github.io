@@ -13579,7 +13579,7 @@ function getCurrentDailyDescription(){
 		returnText += "<li>" + dailyModifiers[item].description(daily[item].strength) + "</li>";
 	}
 	var portalUni = (game.global.viewingUpgrades) ? game.global.universe : portalUniverse;
-	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(countDailyWeight())) + "%</b></u> of all " + getDailyRewardText(portalUni) + " earned before finishing.";
+	returnText += "</ul>Challenge has no end point, and grants an <u><b>additional "  + prettify(getDailyHeliumValue(countDailyWeight(), portalUni)) + "%</b></u> of all " + getDailyRewardText(portalUni) + " earned before finishing.";
 	return returnText;
 }
 
@@ -13618,6 +13618,41 @@ function getDailyHeliumValue(weight){
 	if (Fluffy.isRewardActive("dailies")) value += 100;
 	return value;
 }
+
+function getDailyHeliumValue(weight, portalUni){
+	//min 2, max 6
+	var value = 75 * weight + 20;
+	if (value < 100) value = 100;
+	else if (value > 500) value = 500;
+
+	//gives checks wrong perk if viewing cross-universe
+	//if (Fluffy.isRewardActive("dailies")) value += 100;
+	//this is what needs to be adressed
+
+    var hasPetBonus = false;
+	if(portalUni == 2){
+	    var scruffXP = game.global.fluffyExp2 / 1000;
+	    var scruffLvl = Math.log(scruffXP) / Math.log(4);
+	    if(game.talents.fluffyAbility.purchased){scruffLvl = scruffLvl+1;}
+	    if(scruffLvl >= 9){hasPetBonus = true;}
+	}
+	else
+	{
+	    var fluffyPrestigeCount = game.global.fluffyPrestige;
+        var fluffXP = game.global.fluffyExp / (1000 * 5^fluffyPrestigeCount);
+        var fluffLvl = Math.log(fluffXP) / Math.log(4);
+        if(game.talents.fluffyAbility.purchased){fluffLvl = fluffLvl+1;}
+        var fluffLvl = fluffLvl + fluffyPrestigeCount;
+        if(fluffLvl >= 11){hasPetBonus = true;}
+	}
+	if(hasPetBonus){value = value + 100;}
+
+
+
+	return value;
+}
+
+
 
 function handleFinishDailyBtn(){
 	var display = (game.global.challengeActive == "Daily" && !game.global.mapsActive && !game.global.preMapsActive) ? "block" : "none";
