@@ -527,6 +527,10 @@
   background-image: -webkit-linear-gradient(top, hsl(68deg 47% 28%) 0%,hsl(68deg 47% 10%) 100%) !important;
 }
 
-#grid.gridOverlayGreenGradient .battleRow, #grid.gridOverlayGreenGradientliquid .battleRow, #grid.gridOverlayGreenGradientliquid .cellColorCurrent {
+#grid.gridOverlayGreenGradient1 .battleRow, #grid.gridOverlayGreenGradient1liquid .battleRow, #grid.gridOverlayGreenGradient1liquid .cellColorCurrent,
+#grid.gridOverlayGreenGradient2 .battleRow, #grid.gridOverlayGreenGradient2liquid .battleRow, #grid.gridOverlayGreenGradient2liquid .cellColorCurrent,
+#grid.gridOverlayGreenGradient3 .battleRow, #grid.gridOverlayGreenGradient3liquid .battleRow, #grid.gridOverlayGreenGradient3liquid .cellColorCurrent,
+#grid.gridOverlayGreenGradient4 .battleRow, #grid.gridOverlayGreenGradient4liquid .battleRow, #grid.gridOverlayGreenGradient4liquid .cellColorCurrent,
+#grid.gridOverlayGreenGradient5 .battleRow, #grid.gridOverlayGreenGradient5liquid .battleRow, #grid.gridOverlayGreenGradient5liquid .cellColorCurrent {
   background: none !important;
 }

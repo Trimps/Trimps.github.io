@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 5.7.2 (Screen Reader version)</title>
+	<title>Trimps 5.8.0 (Screen Reader version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Greensatellite">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?35" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?36" />
 </head>
 <!-- 		Trimps
 		Copyright (C) 2022 Zach Hood
@@ -386,7 +386,7 @@
 						<li role="presentation" id="equipmentTab" style="visibility: hidden" onclick="filterTabs('equipment')" class="tabNotSelected buyTab"><a id="equipmentA"><span id="equipmentAlert" class="alert badge"></span>Equipment</a></li>		
 					</ul>
 					<ul id="buyTabsUl2" class="nav nav-tabs nav-justified buyTabsUl">
-						<li role="presentation" id="talentsTab" style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab" onmouseover="tooltip('Mastery', null, event)" onmouseout="tooltip('hide')"><a id="talentA"><span id="talentsAlert" class="alert badge"></span>Mastery<span id="talentsEssenceTotal"></span></a></li>		
+						<li role="presentation" id="talentsTab" style='display: none' onclick="filterTabs('talents')" class="tabNotSelected buyTab" onmouseover="tooltip('Mastery', null, event)" onmouseout="tooltip('hide')"><a id="talentA"><span id="talentsAlert" class="alert badge"></span><span id="mutatorsAlert" class="alert badge"></span><span id='MasteryTabName'>Mastery</span><span id="talentsEssenceTotal"></span></a></li>		
 						<li role="presentation" id="equalityTab" style='display: none'  onclick="tooltip('Scale Equality Scaling', null, 'update', true)" class="tabNotSelected equalityTabScaling buyTab" onmouseover="tooltip('Equality Scaling', null, event, true)" onmouseout="tooltip('hide')"><a id="equalityA">Equality</a></li>		
 						<li role="presentation" id="natureTab" style='display: none'  onclick="filterTabs('nature')" class="tabNotSelected buyTab empowerTabNone" onmouseover="tooltip('Empowerments of Nature', null, event)" onmouseout="tooltip('hide')"><a id="natureA">Nature</a></li>		
 						<li role="presentation" id="playerSpireTab" style='display: none' onclick="playerSpire.openPopup()" class="tabNotSelected buyTab pausedSpireNo"><a id="spireA">Spire</a></li>
@@ -511,6 +511,7 @@
 								<div class="buyBox" id="equipmentHere"></div>
 							</div>
 							<div id="talentsContainer" style="display: none">
+								<div style="display: none; width: 100%;" id="swapToMutatorsBtn" class="btn btn-primary btn-lg" onclick="u2Mutations.swapTab(true)">Swap to Mutators <span id="mutatorsAlert2" class="alert badge"></span></div>
 								<div class='row noMarg'>
 									<div class='col-xs-3 lowPad'><div id='talentsAffordable'></div></div>
 									<div class='col-xs-6 lowPad'>
@@ -1118,6 +1119,7 @@
 			<div class="btn btn-warning inPortalBtn" style="display: none" id="respecPortalBtn" onclick="respecPerks()" onmouseover="tooltip('Respec', null, event)" onmouseout="tooltip('hide')"></div>
 			<div class="btn btn-success inPortalBtn" style='display: none' id="swapToCurrentChallengeBtn" onclick="swapToCurrentChallenge()" onmouseover="tooltip('View Current Challenge', 'customText', event, 'Swap the Challenge Selection pane to instead display your current challenge, or vice versa')" onmouseout="tooltip('hide')">View Current Challenge</div>
 			<div class="btn btn-warning inPortalBtn" style="display: none" id="clearPerksBtn" onclick="clearPerks()">Clear All Perks</div>
+			<div class="btn inPortalBtn autoColor darkBorder" onmouseover="tooltip('Respec Mutators', null, event)" onmouseout="tooltip('hide')" onclick="u2Mutations.toggleRespec()" style="display: none" id="respecMutatorsBtn"></div>
 		</div>
 	</div>
 	<div id="achievementWrapper" style="display: none">
@@ -1180,12 +1182,15 @@
 		</div>
 		<div class="btn btn-danger inPortalBtn" id="closeStatsBtn" onclick="toggleStats()">Close</div>&nbsp;<div class="btn btn-info inPortalBtn" id="closeStatsBtn" onclick="tooltip('Trimps Info', null, 'update')">Trimps Info</div>
 	</div>
+	<div id="mutTreeWrapper" style="display: none">
+	</div>
 	<div id="heirloomWrapper" style="display: none">
 		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><div class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></div><div class="col-xs-2"><div onclick="lastMainHeirIndex = -1; toggleHeirloomChances()" class="pointer noselect colorInfo heirBtn heirInfo">Chances</div><div onclick="toggleHeirloomHelp()" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()">Close</div></div></div>
 		<div id="heirloomHelp" style="display: none">
-			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. Once you have an Heirloom, you can click the icon below to select it.<br/><br/>
-			Once you've selected an Heirloom, you can see all of its stats on the right side of this screen. <b style='color: red'>You can click a stat to upgrade or replace it.</b> The currency to upgrade and replace stats, <b style='color: red'>Nullifium, or Nu,</b> can only be gathered by recycling an Heirloom. <b style='color: rgb(75, 41, 197)'>You can also click on the Heirloom's name on this menu to rename it, or click on the icon to change it!</b> <b style='color: red'>You can upgrade any Staff and Shield to HALF the value of your total earned Nu. Nu is not spent, but dictates how powerful your Heirlooms can be!</b><br/><br/>
-			You can only carry a few Heirlooms (other than the two you have equipped) back through the Portal with you when you use it. <b style='color: red'>Any Heirlooms in the "Temporary" section will be recycled for Nullifium on portal. You can purchase slots to Carry more Heirlooms with you through the Portal, but this Nullifium spent this way will be permanently consumed.</b>
+			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones.<br/><br/>
+			You can click on the icon of any Heirloom to select it. Once you've selected an Heirloom, you can Equip, Carry, or Recycle it. Only equipped Heirlooms give you stats, and you can only have one of each type of Heirloom equipped at a time. You can click a stat to upgrade or replace it. You can also click on the Heirloom's name on this menu to rename it, or click on the icon to change it.<br/><br/>
+			The currency to upgrade and replace stats, <b style='color: rgb(75, 41, 197)'>Nullifium, or Nu</b>, can only be gathered by recycling an Heirloom. <b style='color: red'>You can upgrade any Staff and Shield to HALF the value of your total earned Nu. Nu is not spent, but dictates how powerful each of your Heirlooms can be!</b><br/><br/>
+			Your Equipped Heirlooms will always stay with you when you Portal, along with any Heirlooms in your "Carried" slots. <b style='color: red'>Any Heirlooms in the "Temporary" section will be recycled for Nullifium on portal.</b> You can purchase slots to Carry more Heirlooms with you through the Portal, but any Nullifium spent this way will be permanently consumed.
 		</div>
 		<div id="heirloomDropChances" style="display: none;" class="noselect">
 			<div class='heirloomChanceBtnContainer'><span id="heirloomChanceLeft" onclick="changeHeirloomRarityRange(-1)" class='icomoon icon-arrow-left'></span></div><div id="heirloomRarityMain"></div><div class='heirloomChanceBtnContainer'><span id="heirloomChanceRight" class='icomoon icon-arrow-right' onclick="changeHeirloomRarityRange(1)"></span></div>
@@ -1486,11 +1491,11 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?55"></script>
-	<script type="text/javascript" src="updates.js?55"></script>
-	<script type="text/javascript" src="playerSpire.js?55"></script>
-	<script type="text/javascript" src="objects.js?55"></script>
-	<script type="text/javascript" src="main.js?55"></script>
+	<script type="text/javascript" src="config.js?56"></script>
+	<script type="text/javascript" src="updates.js?56"></script>
+	<script type="text/javascript" src="playerSpire.js?56"></script>
+	<script type="text/javascript" src="objects.js?56"></script>
+	<script type="text/javascript" src="main.js?56"></script>
 	
 </body>
 

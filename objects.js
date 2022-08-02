@@ -1484,7 +1484,7 @@ var autoBattle = {
         },
         Bilious_Boots: {
             owned: false,
-            euipped: false,
+            equipped: false,
             hidden: false,
             level: 1,
             zone: 122,
@@ -2149,7 +2149,90 @@ var autoBattle = {
             startPrice: 6300,
             priceMod: 15
         },
+        //stormbringer 215
+        Box_of_Spores: {
+            owned: false,
+            equipped: false,
+            hidden: false,
+            level: 1,
+            zone: 220,
+            description: function(){
+            return "If the Enemy dies while Poisoned and not Bleeding, it drops " + this.dustMult() + "x more Dust.";
+            },
+            upgrade: "+1x Dust",
+            dustMult: function(){
+                return 4 + this.level;
+            },
+            dustType: "shards",
+            startPrice: 60000,
+            priceMod: 15
+        },
+        //nullifium armor 225
+        //Myco Mitts 230
+        Haunted_Harpoon: { 
+            owned: false,
+            equipped: false,
+            hidden: false,
+            level: 1,
+            zone: 235,
+            description: function(){
+                return "+" + prettify(this.health()) + " Health. If the Enemy is Bleeding and has been alive for at least 5 seconds, Huffy gains " + prettify(this.attack()) + " Attack, and the Enemy takes an additional " + prettify(this.bleedTickMult() * 100) + "% of its Bleed damage every second."
+            },
+            upgrade: "+10,000 Attack, +5000 Health, +100% of Bleed Damage taken per second",
+            health: function(){
+                return 5000 + (5000 * this.level);
+            },
+            bleedTickMult: function(){
+                return 9 + this.level;
+            },
+            attack: function(){
+                return 15000 + (10000 * this.level);
+            },
+            doStuff: function(){
+                if (autoBattle.enemy.bleed.time > 0 && autoBattle.battleTime > 5000) autoBattle.trimp.attack += this.attack();
+                autoBattle.trimp.maxHealth += this.health();
+            },
+            afterCheck: function(){
+                if (autoBattle.enemy.bleed.time > 0 && autoBattle.battleTime > 5000){
+                    var bdamage = autoBattle.getBleedDamage(autoBattle.enemy, autoBattle.trimp);
+                    var pct = this.bleedTickMult() * (autoBattle.frameTime / 1000);
+                    bdamage *= pct;
+                    autoBattle.damageCreature(autoBattle.enemy, bdamage);
+                    
+                }
+            },
+            dustType: "shards",
+            startPrice: 15e5,
+            priceMod: 20
+        },
         //Final calc items
+        //After all shock resist
+        Stormbringer: {
+            owned: false,
+            equipped: false,
+            hidden: false,
+            level: 1,
+            zone: 215,
+            description: function(){
+                return "The Enemy loses all Shock Resistance, adding it instead to Bleed Resistance. +" + prettify(this.shockMod() * 100) + "% Shock Damage, +" + prettify(this.poisonMod()) + " Poison Damage.";
+            },
+            upgrade: "+500% Shock Damage, +5000 Poison Damage",
+            shockMod: function(){
+                return 10 + (5 * this.level);
+            },
+            poisonMod: function(){
+                return 5000 + (5000 * this.level);
+            },
+            doStuff: function(){
+                autoBattle.enemy.bleedResist += autoBattle.enemy.shockResist;
+                autoBattle.enemy.shockResist = 0;
+                autoBattle.trimp.shockMod += this.shockMod();
+                autoBattle.trimp.poisonMod += this.poisonMod();
+            },
+            dustType: "shards",
+            startPrice: 20000,
+            priceMod: 15
+        },
         Bad_Medkit: {
             owned: false,
             equipped: false,
@@ -2462,6 +2545,32 @@ var autoBattle = {
             startPrice: 10000,
             priceMod: 6,
         },
+        //after all attack and health
+        Nullifium_Armor: {
+            owned: false,
+            equipped: false,
+            hidden: false,
+            level: 1,
+            zone: 225,
+            description: function(){
+            return "Huffy gains +" + prettify((this.statMult() -1) * 100) + "% Health, and +" + prettify((this.statMult() -1) * 100) + "% Attack. If the Enemy is not Poisoned, gain " + prettify(this.lifesteal() * 100) + "% Lifesteal.";
+            },
+            upgrade: "+50% Attack, Health, and Lifesteal",
+            statMult: function(){
+                return 4.5 + (this.level * 0.5);
+            },
+            lifesteal: function(){
+                return 1.5 + (this.level * 0.5);
+            },
+            doStuff: function(){
+                if (autoBattle.enemy.poison.time <= 0) autoBattle.trimp.lifesteal += this.lifesteal();
+                autoBattle.trimp.maxHealth *= this.statMult();
+                autoBattle.trimp.attack *= this.statMult();
+            },
+            dustType: "shards",
+            startPrice: 200000,
+            priceMod: 20
+        },
         Doppelganger_Signet: { //actual final attack item
             owned: false,
             equipped: false,
@@ -2487,6 +2596,27 @@ var autoBattle = {
             },
             noUpgrade: true,
             dustType: "shards"
+        },
+        //Final Poison Damage item
+        Myco_Mitts: {
+            owned: false,
+            equipped: false,
+            hidden: false,
+            level: 1,
+            zone: 230,
+            description: function(){
+                return "Multiplies the damage dealt by Poison ticks by " + this.poisonMult() + "x."
+            },
+            upgrade: "+1x to Poison Damage multiplier",
+            poisonMult: function(){
+                return 2 + this.level;
+            },
+            doStuff: function(){
+                autoBattle.trimp.poisonMod *= this.poisonMult();
+            },
+            startPrice: 5e5,
+            priceMod: 20,
+            dustType: "shards",
         },
 
     },
@@ -2632,6 +2762,22 @@ var autoBattle = {
             owned: false,
             requiredItems: 48,
             useShards: true
+        },
+        Expanding_Tauntimp: {
+            description: "Starting after your next Portal, U2 Tauntimps will increase all Trimps gained by " + prettify(game.badGuys.Tauntimp.expandingBase() * 100) + "% per run instead of adding flat housing.",
+            owned: false,
+            requiredItems: 51,
+            useShards: true
+        },
+        More_Expansion: {
+            description: "Unlock the Expansion Perk, further increasing the power of your Tauntimps",
+            owned: false,
+            requiredItems: 53,
+            owned: false,
+            useShards: true,
+            onPurchase: function(){
+                game.portal.Expansion.radLocked = false;
+            }
         }
     },
     fight: function(){
@@ -2754,8 +2900,9 @@ var autoBattle = {
         }
 
         if (this.items.Sundering_Scythe.equipped && this.trimp.shockTime > 10000) this.trimp.shockTime = 10000;
-        if (this.items.Blessed_Protector.equipped) this.items.Blessed_Protector.afterCheck();
-        if (this.items.Grounded_Crown.equipped) this.items.Grounded_Crown.afterCheck();
+        if (this.items.Blessed_Protector.equipped) this.items.Blessed_Protector.afterCheck(); //after anything that might hurt huffy
+        if (this.items.Grounded_Crown.equipped) this.items.Grounded_Crown.afterCheck(); //just deals damage
+        if (this.items.Haunted_Harpoon.equipped) this.items.Haunted_Harpoon.afterCheck(); //after anything that might increase the damage of huffy's bleeds
         
         this.trimp.attackSpeed *= this.enemy.slowAura;
         if (this.trimp.attackSpeed <= 500){
@@ -2840,12 +2987,7 @@ var autoBattle = {
             if (attacker.health > attacker.maxHealth) attacker.health = attacker.maxHealth;
         }
         if (attacker.bleed.time > 0){
-            var attackerShock = 1;
-            if (attacker.shock.time > 0){
-                attackerShock = (1 + attacker.shock.mod);
-            }
-            var bdamage = this.getAttack(defender) * attacker.bleed.mod * attackerShock;
-            bdamage -= attacker.defense;
+            var bdamage = this.getBleedDamage(attacker, defender);
             bdamage = this.damageCreature(attacker, bdamage);
             var defLifesteal = defender.lifesteal - attacker.lifestealResist;
             if (defLifesteal > 0){
@@ -2901,6 +3043,15 @@ var autoBattle = {
             if (ethRoll < attacker.ethChance) attacker.isEthereal = true;
             else attacker.isEthereal = false;
         }
+    },
+    getBleedDamage: function(attacker, defender){
+        var attackerShock = 1;
+        if (attacker.shock.time > 0){
+            attackerShock = (1 + attacker.shock.mod);
+        }
+        var bdamage = this.getAttack(defender) * attacker.bleed.mod * attackerShock;
+        bdamage -= attacker.defense;
+        return bdamage;
     },
     resetCombat: function(resetStats){
         this.trimp = this.template();
@@ -3134,13 +3285,21 @@ var autoBattle = {
         if (this.items.Lifegiving_Gem.equipped){
             amt *= (1 + this.items.Lifegiving_Gem.dustIncrease());
         }
-        if (this.oneTimers.Dusty_Tome.owned){
-            amt += (0.05 * (this.maxEnemyLevel - 1));
-        }
         amt += this.trimp.dustMult;
-        // if (this.items.Corrupted_Gem.equipped){
-        //     amt *= (1 + this.items.Corrupted_Gem.dustIncrease());
-        // }
+        if (this.oneTimers.Dusty_Tome.owned){
+            amt *= (1 + (0.05 * (this.maxEnemyLevel - 1)));
+        }
+        if (u2Mutations.tree.Dust.purchased){
+            var mutMult = 1.25;
+            if (u2Mutations.tree.Dust2.purchased){
+                mutMult += 0.25;
+            }
+            amt *= mutMult;
+        }
+        if (this.items.Box_of_Spores.equipped && this.enemy.bleed.time <= 0 && this.enemy.poison.time >= 0){
+            amt *= this.items.Box_of_Spores.dustMult();
+        }
+        if (game.global.fluffyExp2 >= 1466015503701000) amt *= 5; //don't even look at this line, just move on
         return amt;
     },
     getEnrageMult: function(){
@@ -3160,6 +3319,7 @@ var autoBattle = {
         game.stats.saKills.value++;
         if (this.sessionEnemiesKilled >= 100 && this.sessionTrimpsKilled == 0 && this.enemyLevel >= 5) giveSingleAchieve("Huffstle");
         if (this.enemyLevel >= 20 && this.trimp.shockTime <= 0 && this.trimp.bleedTime <= 0 && this.trimp.poisonTime <= 0) giveSingleAchieve("Just Smack It");
+        if (this.enemyLevel >= 100) giveSingleAchieve("Heroic Huffy");
         var amt = this.getDustReward();
         if (this.speed == 1) {
             this.dust += amt;
@@ -4124,6 +4284,776 @@ var autoBattle = {
             if (itemsElem){
                 itemsElem.scrollTop = scrollTop;
             }
+        }
+    }
+}  
+
+window.addEventListener('resize', function() {
+if (!u2Mutations.open) return;
+u2Mutations.openTree();
+})
+
+var u2Mutations = {
+    open: false,
+    respecOnPortal: false,
+    purchaseCount: 0,
+    save: function(){
+        var data = {};
+        for (var item in this.tree){
+            if (this.tree[item].purchased){
+                data[item] = true;
+            }
+        }
+        game.global.u2MutationData = data;
+    },
+    load: function(){
+        var count = 0;
+        for (var item in this.tree){
+            if (game.global.u2MutationData[item]){
+                this.tree[item].purchased = true;
+                count++;
+            }
+            else this.tree[item].purchased = false;
+        }
+        this.purchaseCount = count;
+        this.setAlert();
+    },
+    clear: function(){
+        for (var item in this.tree){
+            this.tree[item].purchased = false;
+        }
+        this.purchaseCount = 0;
+    },
+    respec: function(){
+        for (var item in this.tree){
+            if (this.tree[item].purchased){
+                this.tree[item].purchased = false;
+            }
+        }
+        game.global.mutatedSeeds += game.global.mutatedSeedsSpent;
+        this.purchaseCount = 0;
+        game.global.mutatedSeedsSpent = 0;
+        this.openTree();
+    },
+    tree: {
+        Scruffy: {
+            pos: [-3, 2],
+            color: 'orange',
+            description: "Scruffy gains 30% more experience from all sources.",
+            purchased: false
+        },
+        NovaScruff: {
+            pos: [-4, 7],
+            dn: 'Scruffva',
+            color: 'orange',
+            require: ['Scruffy'],
+            description: "Scruffy gains 300% of the Zone's XP when you kill a primary Nova enemy.",
+            purchased: false
+        },
+        Worship: {
+            pos: [-3, 10.5],
+            dn: 'Praise the Light',
+            color: 'orange',
+            require: ['NovaScruff'],
+            description: "One Worshipper per Zone changes their mind about leaving.",
+            purchased: false
+        },
+        Nullifium: {
+            pos: [-7, 3],
+            color: 'orange',
+            require: ['Scruffy'],
+            description: "Gain 10% more Nullifium when recycling Heirlooms",
+            purchased: false
+        },
+        Heirlots: {
+            pos: [-10, 9.5],
+            color: 'orange',
+            require: ['Nullifium'],
+            description: "In U2 above Z201, gain a +5% chance to find your highest available Heirloom tier, and a -5% chance to find the lowest.",
+            purchased: false
+        },
+        Slowva: {
+            pos: [-12, 5],
+            color: 'orange',
+            require: ['Nullifium'],
+            description: "When attacking a Nova enemy, take only one stack of blinded every 2 attacks.",
+            purchased: false
+        },
+        Health: {
+            pos: [1, 2],
+            color: 'purple',
+            description: "Gain +50% Health in U2.",
+        },
+        Attack: {
+            pos: [3, 7],
+            color: 'purple',
+            require: ["Health"],
+            description: "Gain +50% Attack in U2.",
+            purchased: false
+        },
+        Radon: {
+            pos: [7, 8],
+            color: 'purple',
+            dn: 'Mutadon',
+            require: ['Attack'],
+            description: "Gain 50% more Radon from U2 Mutations.",
+            purchased: false
+        },
+        AllRadon: {
+            pos: [12, 10],
+            dn: 'Mass Radon',
+            color: 'purple',
+            require: ['Radon'],
+            description: "Gain +50% Radon in U2 above Z201.",
+            purchased: false
+        },
+        Unrage: {
+            pos: [6, 4],
+            color: 'purple',
+            require: ['Attack'],
+            description: "Raging cells start with 4x attack instead of 5x",
+            purchased: false
+        },
+        CritChance: {
+            pos: [12, 4],
+            dn: 'Mutated Crit',
+            color: 'purple',
+            require: ['Unrage'],
+            description: "Gain +25% Crit Chance in U2.",
+            purchased: false
+        },
+        Overkill1: {
+            pos: [-3, -2],
+            dn: 'Overkill',
+            color: 'green',
+            description: "0.5% of your damage can Overkill 1 cell in U2, up to 30% of your Highest Zone reached. U1 Masteries that increase Overkill do not apply in U2.",
+            purchased: false
+        },
+        Overkill2: {
+            pos: [-5, -7],
+            dn: 'More Overkill',
+            color: 'green',
+            require: ['Overkill1'],
+            description: "You can Overkill in U2 for an additional 10% of your Highest Zone (up to 40%).",
+            purchased: false
+        },
+        Overkill3: {
+            pos: [-8, -12],
+            dn: 'Mass Overkill',
+            color: 'green',
+            require: ['Overkill2'],
+            description: "You can Overkill in U2 for an additional 10% of your Highest Zone (up to 50%).",
+            purchased: false
+        },
+        Decompress: {
+            pos: [-8, -3],
+            color: 'green',
+            require: ['Overkill1'],
+            description: "Compressed enemies gain 20% less attack and health from each cell they contain.",
+            purchased: false
+        },
+        MaxOverkill: {
+            pos: [-12, -7],
+            dn: 'Max Overkill',
+            color: 'green',
+            require: ['Decompress'],
+            description: "When Overkilling in U2, you can Overkill +1 Cell.",
+            purchased: false
+        },
+        MaZ: {
+            pos: [1,-2],
+            dn: 'Mazzy',
+            color: 'blue',
+            description: "Gain an additional Map at Zone row in Universe 2.",
+            purchased: false
+        },
+        Loot: {
+            pos: [3.65, -4.65],
+            color: 'blue',
+            require: ['MaZ'],
+            description: "All non-Radon loot gained in U2 is increased by 50%.",
+            purchased: false
+        },
+        RandLoot: {
+            pos: [1, -10],
+            dn: 'Row Siphon',
+            color: 'blue',
+            require: ['MaZ'],
+            description: "Cells in Randomized Rows drop 0.5 seconds of Food, Wood, and Metal production on death per row number they were swapped with. For example, if you're fighting a cell on row 2 that has stats from row 9, you'll get 4.5 seconds of production per cell. Your Worshippers don't care about this mutated food but your other Trimps don't mind.",
+            purchased: false
+        },
+        Dust: {
+            pos: [10, -2],
+            dn: 'Dusty',
+            color: 'blue',
+            require: ['MaZ'],
+            description: "Huffy earns 25% more Dust from all sources.",
+            purchased: false
+        },
+        RandLoot2: {
+            pos: [6.35, -7.35],
+            dn: 'Siphonier',
+            color: 'blue',
+            require: ['RandLoot', 'Dust'],
+            description: "Gain 50% more seconds of loot from Randomized Rows (0.75 seconds per row).",
+            purchased: false
+        },
+        Dust2: {
+            pos: [9.65, -10.65],
+            dn: 'Dustier',
+            color: 'blue',
+            require: ['RandLoot2'],
+            description: "Huffy earns an additional 25% Dust from all sources.",
+            purchased: false
+        }
+
+    },
+    purchase: function(what){
+        var obj = this.tree[what];
+        if (obj.purchased) return;
+        var cost = this.nextCost();
+        if (game.global.mutatedSeeds < cost) return;
+        if (obj.require){
+            for (var x = 0; x < obj.require.length; x++){
+                if (!this.tree[obj.require[x]].purchased) return;
+            }
+        }
+        obj.purchased = true;
+        game.global.mutatedSeeds -= cost;
+        game.global.mutatedSeedsSpent += cost; 
+        this.purchaseCount++;
+        this.openTree();
+        this.setAlert();
+    },
+    setAlert: function(){
+        var elem = document.getElementById('mutatorsAlert');
+        var elem2 = document.getElementById('mutatorsAlert2');
+        var text = (game.options.menu.masteryTab.enabled != 0 && game.global.mutatedSeeds >= this.nextCost() && this.purchaseCount < Object.keys(this.tree).length) ? "!" : "";
+        elem.innerHTML = text;
+        elem2.innerHTML = text;
+        if (game.global.tabForMastery) updateTalentNumbers();
+        else document.getElementById('talentsEssenceTotal').innerHTML = (game.options.menu.masteryTab.enabled == 2 || (game.options.menu.masteryTab.enabled == 3 && text != "!")) ? " (" + prettify(game.global.mutatedSeeds) + ")" : "";
+    },
+    showNames: function(){
+        game.global.showU2MutNames = !game.global.showU2MutNames;
+        this.openTree();
+    },
+    swapTab: function(toMutators){
+        game.global.tabForMastery = !toMutators;
+        if (toMutators) {
+            this.openTree();
+            filterTabs('all');
+        }
+        else {
+            this.closeTree();
+            filterTabs('talents');
+        }
+        this.setAlert();
+    },
+    getMasteryAlert: function(){
+        //To show the alert on the 'show masteries' button
+        if (!((game.options.menu.masteryTab.enabled == 1 || game.options.menu.masteryTab.enabled == 3))) return "";
+        var cost = getNextTalentCost();
+        if (cost == -1) return "";
+        if (game.global.essence >= cost) return '&nbsp;<span class="alert badge">!</span>&nbsp;&nbsp;';
+    },
+    toggleRespec: function(displayOnly, forceHide){
+        var mutRespecBtn = document.getElementById('respecMutatorsBtn');
+        if (forceHide || game.global.highestRadonLevelCleared < 200 || this.purhcaseCount < 1) {
+            this.respecOnPortal = false;
+            mutRespecBtn.style.display = 'none';
+            return;
+        }
+        if (!displayOnly) this.respecOnPortal = !this.respecOnPortal;
+        mutRespecBtn.style.display = 'inline-block';
+        mutRespecBtn.innerHTML = (this.respecOnPortal) ? 'Cancel Mutator Respec' : 'Respec Mutators On Portal';
+        var newClass = (this.respecOnPortal) ? 'autoColorOrange' : 'autoColorTeal';
+        swapClass('autoColor', newClass, mutRespecBtn);
+
+    },
+    openTree: function(){
+        var scale = Math.min(window.innerWidth, window.innerHeight) / 32;
+        document.getElementById('mutTreeWrapper').style.display = 'block';
+        document.getElementById("wrapper").style.display = "none";
+        document.getElementById('mutTreeWrapper').innerHTML = '';
+        var costText = (Object.keys(this.tree).length > this.purchaseCount) ? "Next Mutator Costs: " + prettify(this.nextCost()) : "All Mutators Purchased!"; 
+        var text = "<div><div style='position: absolute; top: 2%; left: 2%; display: inline-block;'><span style='font-size: 1.1em; margin-left: 0.25em;' class='btn btn-lg btn-info' onclick='u2Mutations.showNames()' id='u2MutShowNameBtn'>" + ((game.global.showU2MutNames) ? "Hide Names" : "Show Names") + "</span><br/><span style='font-size: 1.1em; margin-top: 0.25em;' id='swapToMasteryBtn' class='btn btn-lg btn-success' onclick='u2Mutations.swapTab(false)'>Show Masteries" + this.getMasteryAlert() + "</span></div>Seeds Available: " + prettify(game.global.mutatedSeeds) + "&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;" + costText + "<span id='mutTreeCloseBtn' class='icomoon icon-close' onclick='u2Mutations.closeTree()'></span></div><div id='mutTree'>";
+        for (var item in this.tree){
+            var boxScale = 2 * scale;
+            var coords = this.tree[item].pos;
+            var itemObj = this.tree[item];
+            var bgColor = 'available';
+            if (itemObj.purchased) bgColor = 'purchased';
+            else if (itemObj.require){
+                var meetReq = true;
+                for (var y = 0; y < itemObj.require.length; y++){
+                    if (!this.tree[itemObj.require[y]].purchased){
+                        meetReq = false;
+                        break;
+                    }
+                }
+                if (!meetReq) bgColor = 'requirement';
+            }
+            var dn = (itemObj.dn) ? itemObj.dn : item;
+            text += '<div onclick="u2Mutations.purchase(\'' + item + '\')" onmouseover="tooltip(\'' + item + '\', \'Mutator\', event)" onmouseout="tooltip(\'hide\')" id="' + item + 'MutatorBox" class="mutatorBox mutatorBox' + bgColor + '" style="color: ' + itemObj.color + '; width: ' + (boxScale) + 'px; height: ' + (boxScale) + 'px; left: ' + (coords[0] * scale) + 'px; top: ' + (coords[1] * scale) + 'px; font-size: ' + scale * 1.5 + 'px">';
+            if (game.global.showU2MutNames) text += '<span class="mutTreeName">' + dn + '</span>';
+            text += '<span class="icomoon icon-star"></span></div>';
+            if (!itemObj.require) continue;
+            var connect = itemObj.require;
+            for (var x = 0; x < connect.length; x++){
+                var thisConnect = this.tree[connect[x]].pos;
+                var distanceX = thisConnect[0] - coords[0];
+                var distanceY = thisConnect[1] - coords[1];
+                var length = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+                var angle = Math.atan2(distanceY, distanceX) * 180 / Math.PI;
+                var left = (coords[0] * scale + (boxScale/2) - (length*scale/2) + (distanceX/2*scale));
+                var top = (coords[1] * scale + (boxScale/2) + (distanceY/2*scale));
+                var width = (length * scale);
+                var line = '<div class="mutLine" style="left: ' + left + 'px; top: ' + top + 'px; height: 1px; width: ' + width + 'px; transform: rotate(' + angle + 'deg);">&nbsp;</div>'
+                text += line;
+            }
+        }
+        text += "</div>"
+        document.getElementById('mutTreeWrapper').innerHTML = text;
+        this.open = true;
+    },
+    closeTree: function(){
+        this.open = false;
+        document.getElementById('mutTreeWrapper').style.display = 'none';
+        document.getElementById("wrapper").style.display = "block";
+    },
+    nextCost: function(){
+        return 300 * Math.pow(2, this.purchaseCount);
+    },
+    rewardMutation: function(cell){
+        if (!cell.u2Mutation || !cell.u2Mutation.length) return 0;
+        var reward = game.global.world - 199;
+        var rewardMult = 0;
+        if (cell.u2Mutation.length >= 2) giveSingleAchieve("Double Trouble");
+        for (var x = 0; x < cell.u2Mutation.length; x++){
+            var mut = cell.u2Mutation[x];
+            if (mut == 'RGE') rewardMult += this.types.Rage.rewardMult();
+            else if (mut == 'NVA' || mut == 'NVX'){
+                rewardMult += this.types.Nova.rewardMult();
+                if (this.tree.NovaScruff.purchased && mut == 'NVA') Fluffy.rewardExp(3);
+            }
+            else if (mut == 'CMP' || mut == 'CMX') rewardMult += this.types.Compression.rewardMult();
+            else if (mut == 'CSP' || mut == 'CSX'){
+                rewardMult += this.types.Swapper.rewardMult();
+                if (u2Mutations.tree.RandLoot.purchased){
+                    var seconds = Math.floor(cell.cs / 10);
+                    if (u2Mutations.tree.RandLoot2.purchased) seconds *= 0.75;
+                    else seconds *= 0.5;
+                    var eligible = ["food", "wood", "metal"];
+                    var cMessage = "You earned ";
+                    for (var y = 0; y < eligible.length; y++){
+                        var item = eligible[y];
+                        var amt = simpleSeconds(item, seconds);
+                        amt = scaleLootBonuses(amt, true);
+                        addResCheckMax(item, amt, true, null, true);
+                        cMessage += prettify(amt) + " " + item;
+                        if (y == (eligible.length - 1)) cMessage += "!";
+                        else if (y == (eligible.length - 2)) cMessage += ", and ";
+                        else cMessage += ", ";
+                    }
+                    cMessage += " from that Randomized enemy!"
+                    message(cMessage, "Loot", "*dice", null, "primary");
+                }
+            }
+        }
+        reward *= rewardMult;
+        if (game.global.challengeActive == "Daily"){
+            reward *= (1 + (getDailyHeliumValue(countDailyWeight()) / 100));
+        }
+        if (Fluffy.isRewardActive("bigSeeds")) reward *= 10;
+        game.global.mutatedSeeds += reward;
+        if (typeof game.global.messages.Loot.seeds === 'undefined') game.global.messages.Loot.seeds = true;
+        message("You found " + prettify(reward) + " Mutated Seed" + needAnS(reward) + " on that " + this.getName(cell.u2Mutation) + " enemy!", 'Loot', null, 'seedMessage', 'seeds', null, 'background-color: ' + this.getColor(cell.u2Mutation));
+        game.stats.mutatedSeeds.value += reward;
+        checkAchieve("mutatedSeeds");
+        if (!game.global.runningChallengeSquared){
+            var radonPct = rewardMult * 0.25;
+            if (u2Mutations.tree.Radon.purchased) radonPct *= 1.25;
+            var radonReward = rewardResource("helium", 1, 99, false, radonPct);
+            message("You were able to take " + prettify(radonReward) + " Radon Vials from that Mutated Enemy!", "Loot", heliumIcon(true), 'helium', 'helium');
+        }
+        if (this.open) this.openTree();
+        this.setAlert();
+    },
+    addMutations: function(array){
+        if (game.global.world < 201) return array;
+        var thisTypes = this.getTypes();
+        if (thisTypes.length == 0) return array;
+        for (var item in this.types){
+            if (thisTypes.indexOf(item) != -1) array = this.types[item].pattern(array);
+        }
+        return array;
+    },
+    getAttack: function(cell){
+        var baseAttack;
+        var addAttack = 0;
+        if (cell.cs){
+            baseAttack = game.global.getEnemyAttack(cell.cs, cell.name);
+        }
+        else baseAttack = game.global.getEnemyAttack(cell.level, cell.name);
+        if (cell.cc) addAttack = this.types.Compression.attack(cell, baseAttack);  
+        if (cell.u2Mutation.indexOf('NVA') != -1) baseAttack *= 0.01;
+        else if (cell.u2Mutation.indexOf('NVX') != -1) baseAttack *= 10;
+        baseAttack += addAttack;
+        baseAttack *= Math.pow(1.01, (game.global.world - 201));
+        return baseAttack;
+    },
+    getHealth: function(cell){
+        var baseHealth;
+        var addHealth = 0;
+        if (cell.cs){
+            baseHealth = game.global.getEnemyHealth(cell.cs, cell.name);
+        }
+        else baseHealth = game.global.getEnemyHealth(cell.level, cell.name);
+        if (cell.cc) addHealth = this.types.Compression.health(cell, baseHealth);
+        if (cell.u2Mutation.indexOf('NVA') != -1) baseHealth *= 0.01;
+        else if (cell.u2Mutation.indexOf('NVX') != -1) baseHealth *= 0.1;
+        baseHealth += addHealth;
+        baseHealth *= 2;
+        baseHealth *= Math.pow(1.02, (game.global.world - 201));
+        return baseHealth;
+    },
+    getTypes: function(){
+        if (game.global.universe != 2) return [];
+        if (game.global.world == 201) return ["Rage"];
+        else if (game.global.world == 202) return ["Compression"];
+        else if (game.global.world == 203) return ["Nova"];
+        else if (game.global.world == 204) return ["Swapper"];
+        var thisMutations = [];
+        var options = ["Rage", "Compression", "Nova", "Swapper"];
+        var runTimes = Math.floor((game.global.world - 201) / 50) + 1;
+        if (runTimes > 4) runTimes = 4;
+        for (var x = 0; x < runTimes; x++){
+            var roll = getRandomIntSeeded(game.global.u2MutationSeed++, 0, options.length);
+            var result = options.splice(roll, 1);
+            thisMutations.push(result[0]);
+        }
+        return thisMutations;
+    },
+    getColor: function(thisMutation){
+        var colors = {
+            RGE: {
+                r: 102,
+                g: 0,
+                b: 102
+            },
+            CMP: {
+                r: 0,
+                g: 51,
+                b: 0
+            },
+            CMX: {
+                r: 51,
+                g: 153,
+                b: 102
+            },
+            NVA: {
+                r: 255,
+                g: 153,
+                b: 0
+            },
+            NVX: {
+                r: 204,
+                g: 51,
+                b: 0
+            },
+            CSP: {
+                r: 0,
+                g: 51,
+                b: 153
+            },
+            CSX: {
+                r: 0,
+                g: 51,
+                b: 153
+            }
+    
+        }
+        if (thisMutation.length == 1){
+            var useColor = colors[thisMutation[0]];
+            return "rgb(" + useColor.r + ", " + useColor.g + ", " + useColor.b + ")";
+        }
+        var r = 0;
+        var g = 0; 
+        var b = 0;
+        for (var x = 0; x < thisMutation.length; x++){
+            var useColor = colors[thisMutation[x]];
+            r += useColor.r;
+            g += useColor.g;
+            b += useColor.b;
+        }
+        var length = thisMutation.length;
+        r = Math.floor(r / length);
+        g = Math.floor(g / length);
+        b = Math.floor(b / length);
+        return "rgb(" + r + ", " + g + ", " + b + ")";
+    },
+    getName: function(mutList){
+        var text = "";
+        var nameList = [];
+        for (var y = 0; y < mutList.length; y++){
+            var name = mutList[y];
+            if (name == "RGE") name = "Rage";
+            else if (name == "NVA" || name == "NVX") name = "Nova";
+            else if (name == "CSX" || name == "CSP") name = "Swapper";
+            else if (name == "CMP" || name == "CMX") name = "Compression";
+            if (nameList.indexOf(name) != -1) continue;
+            nameList.push(name);
+        }
+        for (var x = 0; x < nameList.length; x++){
+            var isPre = (x == 0);
+            var isPost = (x == (nameList.length - 1));
+            var isMid = (!isPre && !isPost);
+            var isFull = (nameList.length == 1);
+            var name = nameList[x];
+            var target;
+
+            if (isFull) target = "name";
+            else if (isPre) target = "pre";
+            else if (isPost) target = "post";
+            else if (isMid) target = "mid";
+            
+            text += this.types[name][target];
+        }
+        return text;
+    },
+    types: {
+        Rage: {
+            pattern: function(currentArray){
+                var possible = this.cellCount();
+                var spread = (Math.floor(possible / 6) + 1) * 10;
+                if (spread > 100) spread = 100;
+                var addCorrupteds = getAmountInRange(spread, possible, true);
+                for (var a = 0; a < addCorrupteds.length; a++){
+                 currentArray[addCorrupteds[a]].u2Mutation.push("RGE");
+                }
+                return currentArray;
+            },
+            rewardMult: 1,
+            cellCount: function(){
+                var max = 60;
+                var stacks = 5 + Math.floor((game.global.world - 201) / 5);
+                if (stacks > max) stacks = max;
+                return stacks;
+            },
+            hasRage: function(cell){
+                if (cell.u2Mutation.indexOf('RGE') != -1) return true;
+                if (cell.cc && cell.cc[3] > 0) return true;
+                return false;
+            },
+            attacked: function(){
+                this.drawStacks();
+                updateAllBattleNumbers();
+            },
+            enemyAttackMult: function(){
+                var base = 5;
+                if (u2Mutations.tree.Unrage.purchased) base = 4;
+                var enemyCell = getCurrentWorldCell();
+                var healthPct = enemyCell.health / enemyCell.maxHealth;
+                base *= healthPct;
+                return base;
+            },
+            removeStacks: function(){
+                game.global.novaMutStacks = 0;
+                this.clearStacks();
+            },
+            clearStacks: function(){
+				manageStacks(null, null, false, 'rageMutStacks', null, null, true);
+			},
+			drawStacks: function(){
+                var stacks = this.enemyAttackMult().toFixed(1);
+				manageStacks('Rage', stacks, false, 'rageMutStacks', 'icomoon icon-bullseye', this.stackTooltip());
+			},
+            stackTooltip: function(){
+                var mult = (u2Mutations.tree.Unrage.purchased) ? 4 : 5;
+                return "This enemy is enraged! Damage it to weaken it back down. Deals " + mult + "x attack damage, reduced by its remaining percentage of health."
+            },
+            rewardMult: function(){
+                return 1;
+            },
+            name: "Raging",
+            pre: "Rag"
+        },
+        Nova: {
+            pattern: function(currentArray){
+                var size = this.novaSize();
+                var min = size;
+                var max = 9 - size;
+                var repeats = this.repeats();
+                for (var y = 0; y < repeats; y++){
+                    var startC = getRandomIntSeeded(game.global.u2MutationSeed++, min, max);
+                    var startR = getRandomIntSeeded(game.global.u2MutationSeed++, min, max);
+                    var start = (startR * 10) + startC;
+                    currentArray[start].u2Mutation.push('NVA');
+                    var cells = [];
+                    for (var x = 1; x < size + 1; x++){				
+                        cells.push(start + (1 * x));
+                        cells.push(start - (1 * x));
+                        cells.push(start + (10 * x));
+                        cells.push(start - (10 * x));
+                    }
+                    for (var x = 0; x < cells.length; x++){
+                        var thisCell = currentArray[cells[x]].u2Mutation;
+                        thisCell.push('NVX');
+                    }
+                }
+                return currentArray;
+            },
+            novaSize: function(){
+                var max = 3;
+                var stacks = 1 + Math.floor((game.global.world - 201) / 100);
+                if (stacks > max) stacks = max;
+                return stacks;
+            },
+            repeats: function(){
+                var max = 3;
+                var stacks = 1 + Math.floor((game.global.world - 201) / 75);
+                if (stacks > max) stacks = max;
+                return stacks;
+            },
+            hasNova: function(cell){
+                if (cell.u2Mutation.indexOf('NVA') != -1) return true;
+                if (cell.cc && cell.cc[4] > 0) return true;
+                return false;
+            },
+            attacked: function(){
+                if (game.global.novaMutStacks < 50) {
+                    if (u2Mutations.tree.Slowva.purchased) game.global.novaMutStacks += 0.5;
+                    else game.global.novaMutStacks++;
+                }
+                else game.global.novaMutStacks = 50;
+                this.drawStacks();
+                updateAllBattleNumbers();
+            },
+            trimpAttackMult: function(){
+                return Math.pow(0.99, Math.ceil(game.global.novaMutStacks));
+            },
+            enemyAttackMult: function(){
+                return Math.pow(1.01, Math.ceil(game.global.novaMutStacks));
+            },
+            removeStacks: function(){
+                game.global.novaMutStacks = 0;
+                this.clearStacks();
+            },
+            clearStacks: function(){
+				manageStacks(null, null, true, 'novaMutStacks', null, null, true);
+			},
+			drawStacks: function(){
+				manageStacks('Blinded', Math.ceil(game.global.novaMutStacks), true, 'novaMutStacks', 'icomoon icon-sun', this.stackTooltip());
+			},
+            stackTooltip: function(){
+                return "Your Trimps are blinded by the Nova! Trimps deal " + prettify(this.trimpAttackMult()) + "x damage, and enemies deal " + prettify(this.enemyAttackMult()) + "x damage. Stacks increase when attacking Nova enemies and clear when you complete this Zone. Active in World only, can stack up to 50 times."
+            },
+            rewardMult: function(){
+                var cells = (1 + (this.novaSize() * 4)) * this.repeats();
+                return (u2Mutations.types.Rage.cellCount() / cells);
+            },
+            name: "Novad",
+            pre: "Nov",
+            mid: "ova",
+            post: "vad"
+        },
+        Swapper: {
+            pattern: function(currentArray){
+                var swapFrom = getRandomIntSeeded(game.global.u2MutationSeed++, 0, 5);
+                var swapTo = getRandomIntSeeded(game.global.u2MutationSeed++, 5, 9);
+                for (var x = 0; x < 10; x++){
+                    var cellFrom = (swapFrom * 10) + x;
+                    var cellTo = (swapTo * 10) + x;
+                    currentArray[cellFrom].u2Mutation.push('CSX');
+                    currentArray[cellFrom].cs = cellTo;
+                    currentArray[cellTo].u2Mutation.push('CSP');
+                    currentArray[cellTo].cs = cellFrom;
+                }
+                return currentArray;
+            },
+            rewardMult: function(){
+                return (u2Mutations.types.Rage.cellCount() / 20);
+            },
+            name: "Randomized",
+            pre: "Rand",
+            mid: "dom",
+            post: "ized"
+        },
+        Compression: {
+            pattern: function(currentArray){
+                var repeat = this.repeats();
+                var count = this.cellCount();
+                var allowedCells = 98 - count;
+                var repeatFreq = allowedCells / repeat;
+                var min = 0;
+                var max = repeatFreq;
+                var compMod = 1;
+                if (u2Mutations.tree.Decompress.purchased) compMod = 0.8;
+                for (var z = 0; z < repeat; z++){
+                    var start = getRandomIntSeeded(game.global.u2MutationSeed++, Math.ceil(min), Math.floor(max - count));
+                    min += repeatFreq;
+                    max += repeatFreq;
+                    currentArray[start].u2Mutation.push('CMP');
+                    // [count, attack, health, RGE, NVA]
+                    var contents = [count, 1, 1, 0, 0];
+                    for (var x = start + 1; x < start + count; x++){
+                        var thisHealth = 1;
+                        var thisAttack = 1;
+                        for (var y = 0; y < currentArray[x].u2Mutation.length; y++){
+                            var item = currentArray[x].u2Mutation[y];
+                            if (item == 'RGE') contents[3]++;
+                            else if (item == 'NVA'){
+                                contents[4]++;
+                                thisHealth *= 0.01;
+                                thisAttack *= 0.01;
+                            }
+                            else if (item == 'NVX'){
+                                thisHealth *= 0.1;
+                                thisAttack *= 10;
+                            }
+                            else if (item == 'CSX') {
+                                thisHealth *= 1.2;
+                                thisAttack *= 1.2;
+                            }
+                            else if (item == 'CSP'){
+                                thisHealth *= 0.8;
+                                thisAttack *= 0.8;
+                            }
+                        }
+                        contents[1] += (thisAttack * compMod);
+                        contents[2] += (thisHealth * compMod);
+                        currentArray[x].u2Mutation.push('CMX');
+                        currentArray[x].health = "compressed";
+                    }
+                    currentArray[start].cc = contents;
+                }
+                return currentArray;
+            },
+            cellCount: function(){
+                var max = 7;
+                var stacks = 3 + Math.floor((game.global.world - 201) / 100);
+                if (stacks > max) stacks = max;
+                return stacks;
+            },
+            repeats: function(){
+                var max = 6;
+                var stacks = 1 + Math.floor((game.global.world - 201) / 40);
+                if (stacks > max) stacks = max;
+                return stacks;
+            },
+            rewardMult: function(){
+                return (u2Mutations.types.Rage.cellCount() / (this.cellCount() * this.repeats()));
+            },
+            attack: function(cell, attack){
+                return attack * cell.cc[1];
+            },
+            health: function(cell, health){
+                return health * cell.cc[2];
+            },
+            name: "Compressed",
+            mid: "pressed",
+            post: "pressed"
         }
     }
 }

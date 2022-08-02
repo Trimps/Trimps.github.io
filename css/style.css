@@ -103,6 +103,10 @@ body {
 	text-shadow: 0.05vw 0.05vw 0.05vw #036113, -0.05vw 0.05vw 0.05vw #036113, 0.05vw -0.05vw 0.05vw #036113, -0.05vw -0.05vw 0.05vw #036113, 0.15vw 0.15vw 0.15vw #2608ac, -0.15vw 0.15vw 0.15vw #2608ac, 0.15vw -0.15vw 0.15vw #2608ac, -0.15vw -0.15vw 0.15vw #2608ac,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
 }
 
+.critTier7{
+	color: rgba(0, 241, 253, 0.5);
+	text-shadow: 0.05vw 0.05vw 0.05vw #0889c5, -0.05vw 0.05vw 0.05vw #000000, 0.05vw -0.05vw 0.05vw #04888d, -0.05vw -0.05vw 0.05vw #000000, 0.15vw 0.15vw 0.15vw #124c57, -0.15vw 0.15vw 0.15vw #000000, 0.15vw -0.15vw 0.15vw #0886ac, -0.15vw -0.15vw 0.15vw #000000,5px 5px 1.4vw black, 5px -5px 1.4vw black, -5px 5px 1.4vw black, -5px -5px 1.4vw black;
+}
 
 .talentItem{
 	display: inline-block;
@@ -647,13 +651,17 @@ body {
 	padding-right: .25vw;
 }
 
-.alert {
+.alert, #swapToMasteryBtn .alert, #mutatorsAlert2{
     background-color: yellow;
     color: black;
 	min-width: initial;
-	padding: 2% 5.5%;
+	padding: 1% 4%;
 	font-size: 1em;
 	border-radius: 100%;
+}
+
+#mutatorsAlert2{
+	padding: 0.5% 1.5%;
 }
 
 #settingsAlert.alert{
@@ -1896,7 +1904,7 @@ body {
 	background-color: #809080
 }
 
-#statsWrapper, #achievementWrapper, #heirloomWrapper{
+#statsWrapper, #achievementWrapper, #heirloomWrapper, #mutTreeWrapper{
 	background-color: black;
 	width: 100vw;
 	height: 100vh;
@@ -1906,6 +1914,63 @@ body {
 	padding-right: 5vw;
 	font-size: 1.5vw;
 	color: white;
+}
+
+.mutLine{
+    position: absolute;
+    border: 2px solid white;
+}
+
+#mutTree {
+    left: 50%;
+    top: 50%;
+    position: fixed;
+}
+
+.mutatorBox{
+    position: absolute;
+    border: 1px solid white;
+	z-index: 2;
+}
+
+.mutatorBox span{
+	text-shadow:
+	-1px -1px 0 black,  
+		1px -1px 0 black,
+	-1px 1px 0 black,
+		1px 1px 0 black;
+}
+
+.mutatorBoxavailable{
+	background-color: black;
+}
+
+.mutatorBoxrequirement{
+	background-color: grey;
+}
+
+.mutatorBoxpurchased{
+	background-color: #5cb85c;
+}
+
+#mutTreeCloseBtn{
+	top: 0;
+	left: 95vw;
+	position: absolute;
+	font-size: 2.7em;
+	cursor: pointer;
+	color: #921707;
+}
+
+.mutTreeName{
+	position: absolute;
+	top: -1.5em;
+	left: -3.25em;
+	display: inline-block;
+	width: 8em;
+	font-size: 0.75em;
+	text-align: center;
+	pointer-events: none;
 }
 
 #modReplaceBox, #modUpgradeBox{
@@ -2661,6 +2726,14 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	border-top: 0;
 }
 
+.badNameMutation.u2Mutation{
+	text-shadow:
+	-1px -1px 0 white,  
+		1px -1px 0 white,
+	-1px 1px 0 white,
+		1px 1px 0 white;
+}
+
 
 
 
@@ -3251,6 +3324,14 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	border: 1px solid red;
 	padding: 2%;
 }
+.seedMessage{
+	color: white;
+	text-shadow:
+	-1px -1px 0 black,  
+		1px -1px 0 black,
+	-1px 1px 0 black,
+		1px 1px 0 black;
+}
 #saveGame{
 	color: #7CFC00;
 }
@@ -3383,6 +3464,11 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 }
 
 /* MUTATIONS HERE */
+
+.battleCell.cellColorNotBeaten.Rage{
+	background: #59130a !important;
+	color: white !important;
+}
 
 .battleCell.cellColorNotBeaten.Living, .battleCell.cellColorBeaten.Living, .badge.Living, .badNameMutation.Living{
 	background: black !important;
@@ -3535,6 +3621,13 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .fluffFormBattlescruff{
 	color: #0e198f;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.fluffFormMutators{
+	color: rgb(255, 153, 0);
 	font-weight: bold;
 	text-decoration: underline;
 	cursor: pointer;
@@ -4679,9 +4772,10 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new{
-	background: linear-gradient(90deg, rgba(29,41,58,1) 41%, rgba(30,33,39,1) 100%);
+	background: linear-gradient(90deg, rgba(102,0,102,1) 15%, rgba(0,51,153,1) 85%);
 	color: white;
 	font-weight: bold;
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 	width: 100%;
 }
 
@@ -4691,7 +4785,7 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	background: radial-gradient(circle, rgba(33,108,45,1) 15%, rgba(17,172,49,1) 41%, rgba(13,80,57,1) 58%, rgba(33,110,45,1) 74%, rgba(16,160,107,1) 84%, rgba(33,108,45,1) 92%);
+	background: linear-gradient(90deg, rgba(0,51,0,1) 30%, rgba(51,153,102,1) 43%, rgba(255,153,0,1) 57%, rgba(204,51,0,1) 70%);
 	color: white;
 }
 
@@ -5658,6 +5752,10 @@ sup{
 	position: relative;
 }
 
+.playerSpireEnemy.enemyFade{
+	opacity: 0.2;
+}
+
 .playerSpireEnemyText{
 	height: 100%;
 	width: 100%;
@@ -6466,15 +6564,47 @@ sup{
 	color: #fff !important;
 }
 
-.gridOverlayGreenGradient{
+.gridOverlayGreenGradient1{
 	background:linear-gradient(0deg, rgba(246,255,247,0.1) 0%, rgba(84,246,122,0.4) 68%, rgba(84,246,122,1) 100%) !important;
 }
 
-.gridOverlayGreenGradientliquid{
+.gridOverlayGreenGradient2{
+	background:linear-gradient(0deg, rgba(246,255,247,0.08) 0%, rgba(84,246,122,0.3) 68%, rgba(84,246,122,0.8) 100%) !important;
+}
+
+.gridOverlayGreenGradient3{
+	background:linear-gradient(0deg, rgba(246,255,247,0.06) 0%, rgba(84,246,122,0.2) 68%, rgba(84,246,122,0.6) 100%) !important;
+}
+
+.gridOverlayGreenGradient4{
+	background:linear-gradient(0deg, rgba(246,255,247,0.04) 0%, rgba(84,246,122,0.1) 68%, rgba(84,246,122,0.4) 100%) !important;
+}
+
+.gridOverlayGreenGradient5{
+	background:linear-gradient(0deg, rgba(246,255,247,0.02) 0%, rgba(84,246,122,0.05) 68%, rgba(84,246,122,0.2) 100%) !important;
+}
+
+.gridOverlayGreenGradient1liquid{
 	background:linear-gradient(0deg, rgba(255,255,0,0.5) 0%, rgba(168,250,62,0.9) 68%, rgba(84,246,122,1) 100%) !important;
 }
 
-.gridOverlayGreenGradientliquid ul li{
+.gridOverlayGreenGradient2liquid{
+	background:linear-gradient(0deg, rgba(255,255,0,0.6) 0%, rgba(168,250,62,0.9) 73%, rgba(84,246,122,0.8) 100%) !important;
+}
+
+.gridOverlayGreenGradient3liquid{
+	background:linear-gradient(0deg, rgba(255,255,0,0.7) 0%, rgba(168,250,62,0.9) 80%, rgba(84,246,122,0.6) 100%) !important;
+}
+
+.gridOverlayGreenGradient4liquid{
+	background:linear-gradient(0deg, rgba(255,255,0,0.8) 0%, rgba(168,250,62,0.9) 90%, rgba(84,246,122,0.4) 100%) !important;
+}
+
+.gridOverlayGreenGradient5liquid{
+	background:linear-gradient(0deg, rgba(255,255,0,0.9) 0%, rgba(168,250,62,0.9) 95%, rgba(84,246,122,0.2) 100%) !important;
+}
+
+.gridOverlayGreenGradient1liquid ul li, .gridOverlayGreenGradient2liquid ul li, .gridOverlayGreenGradient3liquid ul li, .gridOverlayGreenGradient4liquid ul li, .gridOverlayGreenGradient5liquid ul li{
 	border: 0;
 }
 
