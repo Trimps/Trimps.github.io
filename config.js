@@ -5963,6 +5963,7 @@ var toReturn = {
 			onComplete: function(){
 				message("You have completed the Smithless Challenge! Your World has been returned to normal and you have unlocked the Smithology Perk!", "Notices");
 				game.global.challengeActive = "";
+				unlockPerk("Smithology");
 				this.abandon();
 			},
 			attackedUber: function(){
