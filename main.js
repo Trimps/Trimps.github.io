@@ -12273,7 +12273,6 @@ function nextWorld() {
 	else if (game.global.world == 200 && game.global.universe == 1) buffVoidMaps200();
 	if (game.global.world == 201 && game.global.universe == 2){
 		tooltip("The Mutated Zones", null, 'update');
-		unlockPerk("Smithology");
 	}
 	if (game.global.challengeActive == "Life"){
 		if (game.global.world >= 100 && game.challenges.Life.lowestStacks == 150) giveSingleAchieve("Very Sneaky");
