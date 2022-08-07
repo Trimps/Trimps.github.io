@@ -6186,6 +6186,7 @@ function buffVoidMaps(){
 function buffVoidMaps200(){
 	for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
 		var map = game.global.mapsOwnedArray[x];
+		if (map.location != "Void") continue;
 		map.loot += 1;
 		map.difficulty += 1;
 	}

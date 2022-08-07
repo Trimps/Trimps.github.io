@@ -33,6 +33,7 @@ var playerSpire = {
     paused: false,
     tooltipUpdate: null,
     sealed: false,
+    lastCommand: '',
     settings: {
         fctTrap: true,
         fctPoison: true,
@@ -497,62 +498,122 @@ var playerSpire = {
         input.focus();
         input.select();
     },
+    getCellNum: function(col, row){
+        var col = parseInt(col);
+        if (isNumberBad(col) || col > 5 || col < 1){
+            return "Column (the first number) must be between 1 and 5";
+            return -1;
+        }
+        var row = parseInt(row);
+        if (isNumberBad(row) || row > this.rowsAllowed){
+            return "Row (the second number) must be between 1 and " + this.rowsAllowed;
+            return -1;
+        }
+        var cell = ((row - 1) * 5) + col - 1;
+        return cell;
+    },
     screenReadCommand: function(){
         var input = document.getElementById('spireScreenReadInput');
         if (!input) return;
         var output = document.getElementById('screenReaderTooltip');
         if (!output) return;
-        var split = input.value.toLowerCase().split(' ');
+        var val = input.value;
+        if (val != 'r') this.lastCommand = val;
+        var split = val.toLowerCase().split(' ');
         input.value = "";
+        this.selectScreenReadInput();
         if (split[0] == "help"){
-            output.innerHTML = "This is a tower defense minigame where the goal is to stop enemies from scaling your spire. You currently have " + this.rowsAllowed + " rows in your Spire, and each row has 5 columns. Your threat increases as you kill enemies, and decreases as enemies reach the top of your Spire. Killing enemies also rewards you with Runestones, which can be used to buy more traps and upgrades. You can also read some additional details about the spire and get your current quest at the heading labeled 'Spire Defense Story/Quest'. Type 'Build X column row' to build a trap. For example, type 'Build Frost 1 1' and then 'Build Fire 2 1' to complete your first quest. Type 'Traps' for a list of all purchaseable traps and their costs. Type 'Info X' where X is the name of a trap to get the price and description of that trap. Type 'Upgrades' for a list of all purchaseable upgrades and their costs. Type 'Upgrade X' to purchase an upgrade for Trap type X. Type 'Read X' to read the traps on row X, or type 'Read Enemies X' to read what enemies are currently on row X and what their health percents are. Type 'Sell Column Row' to sell a trap, for example 'Sell 1 1' will sell the bottom left trap.";
+            output.innerHTML = "This is a tower defense minigame where the goal is to stop enemies from scaling your spire. You currently have " + this.rowsAllowed + " rows in your Spire, and each row has 5 columns. Your threat increases as you kill enemies, and decreases as enemies reach the top of your Spire. Killing enemies also rewards you with Runestones, which can be used to buy more traps and upgrades. You can also read some additional details about the spire and get your current quest at the heading labeled 'Spire Defense Story/Quest'. Type 'Commands' for a list of the different commands you can use to control your spire!";
+            return;
+        }
+        if (split[0] == "commands"){
+            output.innerHTML = "Type 'Build X column row' to build a trap. For example, type 'Build Frost 1 1' and then 'Build Fire 2 1' to complete your first quest. You can also type 'Build Fire 2 1 3 1 4 1' to build traps on the 2nd, 3rd and 4th columns of the first row. Type 'Sell Column Row' to sell a trap, for example 'Sell 1 1' will sell the bottom left trap. You can also type multiple pairs of columns and rows with the sell command to sell multiple traps at once just like with build, or you can type 'Sell all' if you want to sell all of your traps. Type 'Traps' for a list of all purchaseable traps and their costs. Type 'Info X' where X is the name of a trap to get the price and description of that trap. Type 'Upgrades' for a list of all purchaseable upgrades and their costs. Type 'Upgrade X' to purchase an upgrade for Trap type X. Type 'Read X' to read the traps on row X, or type 'Read Enemies X' to read what enemies are currently on row X and what their health percents are. Finally you can type 'Shift Up' or 'Shift Down' followed by a Column and Row number to shift the trap on that cell and any other traps ahead or behind it up or down. For example, if you type 'Shift up 1 1' when you have a Frost trap on 1 1 and a Fire trap on 2 1, your Frost trap will be shifted to 2 1 and your Fire trap will be shifted to 3 1."
             return;
         }
         //traps
         //upgrades
         //upgrade x
-        console.log(split[0])
+        if (split[0] == "r"){
+            if (this.lastCommand) input.value = this.lastCommand;
+            this.screenReadCommand();
+            return;
+        }
         if (split[0] == "build"){
             var trapName = split[1];
+            var outputText = "";
             trapName = trapName[0].toUpperCase() + trapName.substring(1);
             if (!playerSpireTraps[trapName]){
                 output.innerHTML = "Trap " + trapName + " does not exist";
                 return;
             }
             if (playerSpireTraps[trapName].locked) return;
-            var col = parseInt(split[2]);
-            if (isNumberBad(col) || col > 5 || col < 1){
-                output.innerHTML = "Column (the first number) must be between 1 and 5";
+            var loops = Math.floor((split.length - 2) / 2);
+            for (var x = 0; x < loops; x++){
+                var next = 2 + (x * 2);
+                if (split.length < (next + 2)) break;
+                var col = split[next];
+                var row = split[(next + 1)];
+                var cell = this.getCellNum(col, row);
+                if (isNaN(cell)){
+                    outputText += cell + ". ";
+                    continue;
+                }
+                var built = this.buildTrap(cell, trapName);
+                if (built === true) outputText += trapName + " built at " + col + ' ' + row;
+                else if (built === false) outputText += "Cannot afford " + trapName;
+                else if (built === 1) outputText += trapName + " already exists at " + col + ' ' + row;
+                else outputText += "Build failed at " + col + " " + row;
+                outputText += ". ";
+            }
+            output.innerHTML = outputText;
+            this.selectScreenReadInput();
+            return;
+        }
+        if (split[0] == "shift"){
+            var cell = this.getCellNum(split[2], split[3]);
+            if (isNaN(cell)){
+                output.innerHTML = cell;
                 return;
             }
-            var row = parseInt(split[3]);
-            if (isNumberBad(row) || row > this.rowsAllowed){
-                output.innerHTML = "Row (the second number) must be between 1 and " + this.rowsAllowed;
+            var command = "shift";
+            if (split[1] == "up") command += "Up";
+            else if (split[1] == "down") command += "Down";
+            else return;
+            if (!this.layout[cell] || !this.layout[cell].trap){
+                output.innerHTML = "There is no trap at " + split[2] + " " + split[3] + " to shift!";
                 return;
             }
-            var cell = ((row - 1) * 5) + col - 1;
-            var built = this.buildTrap(cell, trapName);
-            if (built === true) output.innerHTML = trapName + " built at " + col + ' ' + row;
-            else if (built === false) output.innerHTML = "Cannot afford " + trapName;
-            else if (built === 1) output.innerHTML = trapName + " already exists at " + col + ' ' + row;
-            else output.innerHTML = "Build failed";
+            this.buildTrap(cell, command);
             this.selectScreenReadInput();
             return;
         }
         if (split[0] == "sell"){
-            var col = parseInt(split[1]);
-            if (isNumberBad(col) || col > 5 || col < 1){
-                output.innerHTML = "Column (the first number) must be between 1 and 5";
+            if (split[1] == "all"){
+                this.resetTraps();
+                output.innerHTML = "All traps sold!";
                 return;
             }
-            var row = parseInt(split[2]);
-            if (isNumberBad(row) || row > this.rowsAllowed){
-                output.innerHTML = "Row (the second number) must be between 1 and " + this.rowsAllowed;
-                return;
+            var outputText = "";
+            var loops = Math.floor((split.length - 1) / 2);
+            for (var x = 0; x < loops; x++){
+                var next = 1 + (x * 2);
+                if (split.length < (next + 2)) break;
+                var col = split[next];
+                var row = split[(next + 1)];
+                var cell = this.getCellNum(col, row);
+                if (isNaN(cell)) {
+                    outputText += cell + ". ";
+                    continue;
+                }
+                if (!this.layout[cell] || !this.layout[cell].trap){
+                    outputText += "There is no trap at " + col + " " + row + ". ";
+                    continue;
+                }
+                outputText += "Sold " + this.layout[cell].trap.name + " at " + col + ' ' + row + ". ";
+                this.sellTrap(cell);
+                
             }
-            var cell = ((row - 1) * 5) + col - 1;
-            this.sellTrap(cell);
-            output.innerHTML = "Sold trap at " + col + ' ' + "row";
+            output.innerHTML = outputText;
             this.selectScreenReadInput();
             return;
         }
@@ -638,7 +699,6 @@ var playerSpire = {
                     cellNo++;
                     var cell = this.layout[x];
                     if (cell.occupiedBy.name){
-                        console.log(cell);
                         text += "Col " + cellNo + " has " + prettify(cell.occupiedBy.health) + " health which is " + Math.floor((cell.occupiedBy.health / cell.occupiedBy.maxHealth) * 100) + "%. ";
                     }
                 }
@@ -665,6 +725,8 @@ var playerSpire = {
             output.innerHTML = text;
             return;
         }
+        output.innerHTML = split[0] + " is an unknown command.";
+        this.selectScreenReadInput();
         
     },
     drawInfo: function(){

@@ -4187,7 +4187,7 @@ var autoBattle = {
                 var itemObj = this.items[item];
                 var accepted = (this.activeContract == item) ? " accepted" : "";
                 var description;
-                if (accepted) description = "You have paid the Dust and accepted this Contract.<br/>Huffy will gain access to this item as soon as you<br/><b style='font-size:1.3em'>Complete a U2 Z" + itemObj.zone + "+ Void Map</b>";
+                if (accepted) description = "You have paid the " + ((itemObj.dustType == "shards") ? "Shards" : "Dust") + " and accepted this Contract.<br/>Huffy will gain access to this item as soon as you<br/><b style='font-size:1.3em'>Complete a U2 Z" + itemObj.zone + "+ Void Map</b>";
                 else description = itemObj.description();
                 var extraClass = "";
                 if (itemObj.longText) extraClass = " descriptionSm";
