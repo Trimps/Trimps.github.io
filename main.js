@@ -13815,7 +13815,7 @@ function getDailyHeliumValue(weight, portalUni){
 	    var scruffXP = game.global.fluffyExp2 / 1000;
 	    var scruffLvl = Math.log(scruffXP) / Math.log(4);
 	    if(game.talents.fluffyAbility.purchased){scruffLvl++}
-	    if(scruffLvl >= 9){hasPetBonus = true;}
+	    if(scruffLvl >= 8){hasPetBonus = true;}
 	}
 	else if (portalUni == 1)
 	{

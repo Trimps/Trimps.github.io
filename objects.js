@@ -678,6 +678,7 @@ var autoBattle = {
             bleedChance: 0,
             bleedMod: 0,
             bleedTime: 0,
+            hadBleed: false,
             poisonChance: 0,
             poisonTime: 0,
             poisonMod: 0,
@@ -2157,7 +2158,7 @@ var autoBattle = {
             level: 1,
             zone: 220,
             description: function(){
-            return "If the Enemy dies while Poisoned and not Bleeding, it drops " + this.dustMult() + "x more Dust.";
+            return "If the Enemy dies while Poisoned after never Bleeding, it drops " + this.dustMult() + "x more Dust.";
             },
             upgrade: "+1x Dust",
             dustMult: function(){
@@ -3009,6 +3010,7 @@ var autoBattle = {
                 if (this.items.Bag_of_Nails.equipped) this.enemy.noSlow = true;
                 if (defender.bleed.mod < attacker.bleedMod) defender.bleed.mod = (1 + attacker.bleedMod);
                 if (defender.bleed.time < attacker.bleedTime) defender.bleed.time = attacker.bleedTime;
+                if (defender.bleed.time > 0) defender.hadBleed = true;
             }
         }
         var poisonChance = attacker.poisonChance - defender.poisonResist;
@@ -3296,7 +3298,8 @@ var autoBattle = {
             }
             amt *= mutMult;
         }
-        if (this.items.Box_of_Spores.equipped && this.enemy.bleed.time <= 0 && this.enemy.poison.time >= 0){
+        if (this.items.Box_of_Spores.equipped && !this.enemy.hadBleed && this.enemy.poison.time > 0){
+            
             amt *= this.items.Box_of_Spores.dustMult();
         }
         if (game.global.fluffyExp2 >= 1466015503701000) amt *= 5; //don't even look at this line, just move on
