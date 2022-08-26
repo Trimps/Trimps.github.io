@@ -3591,6 +3591,17 @@ var autoBattle = {
         this.enemiesKilled = action[4];
         if (action[0] == "upgrade"){
             this.items[action[1]].level -= action[5];
+            var itemObj = this.items[action[1]]
+            for(var i = itemObj.level; i < itemObj.level + action[5]; i++){
+                var priceMod = 3;
+                if (itemObj.priceMod) priceMod = itemObj.priceMod;
+                var startPrice = 5;
+                if (itemObj.startPrice) startPrice = itemObj.startPrice;
+                if(itemObj.dustType === "shards")
+                    this.refundableShards -= startPrice * Math.pow(priceMod, i - 1);
+                else
+                    this.refundableDust -= startPrice * Math.pow(priceMod, i - 1);
+            }
         }
         else if (action[0] == "contract"){
             this.items[action[1]].equipped = false;
@@ -3954,7 +3965,7 @@ var autoBattle = {
     /*!!!
         Function for determining how much dust/shards should be refunded
         Intended to be used when the game is updated with the refund ability.
-        Afterward, this can be depreciated
+        Afterward, this can be deprecated
     */
     calculateRefund: function(){
         var dustAMT = 0;
