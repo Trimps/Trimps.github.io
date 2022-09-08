@@ -6789,6 +6789,30 @@ var lastDisplayedHeirloom = new Date().getTime();
 function displaySelectedHeirloom(modSelected, selectedIndex, fromTooltip, locationOvr, indexOvr, fromPopup, fromSelect){
 	if (fromPopup && !game.options.menu.voidPopups.enabled) return;
 	var heirloom = getSelectedHeirloom(locationOvr, indexOvr);
+
+	if (fromPopup && game.options.menu.voidPopups.enabled > 1) {
+		var currentHeirloom;
+		switch (heirloom.type) {
+			case "Staff":
+				currentHeirloom = game.global.StaffEquipped;
+				break;
+			case "Shield":
+				currentHeirloom = game.global.ShieldEquipped;
+				break;
+			case "Core":
+				currentHeirloom = game.global.CoreEquipped;
+				break;
+		}
+		if (currentHeirloom) {
+			var targetRarity = currentHeirloom.rarity;
+			if (game.options.menu.voidPopups.enabled === 3) {
+				targetRarity++;
+			}
+
+			if (heirloom.rarity < targetRarity) return;
+		}
+	}
+
 	var icon = getHeirloomIcon(heirloom);
 	var animated = (game.options.menu.showHeirloomAnimations.enabled) ? "animated " : "";
 	var html = '<div class="selectedHeirloomItem ' + animated + 'heirloomRare' + heirloom.rarity + '"><div class="row selectedHeirloomRow"><div onclick="tooltip(\'Change Heirloom Icon\', null, \'update\')" class="col-xs-2 selectedHeirloomIcon" id="' + ((fromTooltip) ? 'tooltipHeirloomIcon' : 'selectedHeirloomIcon') + '"><span class="' + icon + '"></span></div><div class="col-xs-10"><h5 aria-label="Rename Heirloom" onclick="renameHeirloom(';
