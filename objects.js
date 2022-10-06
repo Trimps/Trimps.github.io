@@ -3968,6 +3968,7 @@ var autoBattle = {
         Afterward, this can be deprecated
     */
     calculateRefund: function(){
+        this.highestEnemyLevel = this.maxEnemyLevel;
         var dustAMT = 0;
         var shardAMT = 0;
         for(item in autoBattle.items){
