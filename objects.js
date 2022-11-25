@@ -4367,7 +4367,7 @@ var autoBattle = {
             else text += "<b>Are you sure?!</b><br/><span class='btn autoItemUpgrade btn-md' onclick='autoBattle.refundEquipment()'>Yes, Refund</span><span class='btn autoItemHide btn-md' onclick='autoBattle.confirmRefundClicked()'>No, Cancel</span>";            
             text += "<br/>Reset all your equipment to level 1. Your progress will also be reset to level 1."
             text += "You will be refunded " + prettify(this.refundableDust) + " dust";
-            if (this.maxEnemyLevel >= 51) text += " and " + prettify(this.refundableShards) + " shards"
+            if (this.highestEnemyLevel >= 51) text += " and " + prettify(this.refundableShards) + " shards"
             text += "."
             text += "</div>"
             for (var x = 1; x <= 3; x++){
