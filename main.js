@@ -2464,6 +2464,7 @@ var offlineProgress = {
 		text += getEqualitySliders(true);
 		text += "</div>";
 		this.timeOfflineElem.innerHTML = text;
+		updateEqualityScaling();
 		this.equalityBtn.innerHTML = "Hide Equality";
 		this.showingEquality = true;
 	},
@@ -4672,7 +4673,7 @@ function autoBalanceJob(which){
 	//Fired when miners and scientists are unlocked and maybe other places later, requires autoJobs
 	var setting = getAutoJobsSetting();
 	if (!setting || !setting.enabled || !bwRewardUnlocked("AutoJobs")) return;
-	if (!setting[which] || !setting[which].enabled || !setting.Farmer || !setting.Farmer.enabled) return;
+	if (!setting[which] || !setting[which].enabled || !setting.Farmer || !setting.Farmer.enabled || setting.Farmer.ratio == 0) return;
 	var want = game.jobs.Farmer.owned * (setting[which].ratio / setting.Farmer.ratio);
 	want = Math.floor(want);
 	if (setting.buyMax) want = Math.max(want, setting.buyMax);
@@ -9780,7 +9781,11 @@ function drawGrid(maps) { //maps t or f. This function overwrites the current gr
 			var className = "battleCell cellColorNotBeaten"
 			if (maps && game.global.mapGridArray[counter].name == "Pumpkimp") className += " mapPumpkimp";
 			if (maps && map.location == "Void") className += " voidCell";
-			if (!maps && game.global.gridArray[counter].u2Mutation && game.global.gridArray[counter].u2Mutation.length) cell.style.backgroundColor = u2Mutations.getColor(game.global.gridArray[counter].u2Mutation);
+			if (!maps && game.global.gridArray[counter].u2Mutation && game.global.gridArray[counter].u2Mutation.length){
+				cell.style.background = "initial";
+				cell.style.backgroundColor = u2Mutations.getColor(game.global.gridArray[counter].u2Mutation);
+				
+			}
 			else if (!maps && game.global.gridArray[counter].mutation) className += " " + game.global.gridArray[counter].mutation;
 			if (!maps && game.global.gridArray[counter].vm){
 				className += " " + game.global.gridArray[counter].vm;
@@ -16762,7 +16767,7 @@ function buyAutoStructures(){
 		if (building.locked) continue;
 		var purchased = building.purchased;
 		var buyMax = setting[item].buyMax;
-		if (item == "Nursery" && game.global.world >= 230)
+		if (item == "Nursery" && (game.global.world >= 230 || game.global.challengeActive == "Eradicated"))
 			purchased -= game.stats.decayedNurseries.value;
 		if (typeof buyMax !== 'undefined' && buyMax > 0){
 			if (purchased >= buyMax)
