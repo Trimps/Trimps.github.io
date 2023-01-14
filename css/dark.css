@@ -1029,6 +1029,10 @@ color:#8F8F00
 .liquid ul li {
     background: #574800;
 }
+.liquid .TrimpmasSnow {
+  color: black;
+  background: #574800;
+}
 
 .LiquimpMessage {
     background-color: rgba(90, 90, 223, 0.42) !important;
@@ -1153,4 +1157,63 @@ color:#8F8F00
 }
 #boneShrineBtn{
 	background-color: #5D5D5D;
+}
+
+
+
+
+
+.battleCell.CorruptSnow,
+.badNameMutation.CorruptSnow,
+#mapGrid ul li.voidCell.cellColorNotBeaten.CorruptSnow {
+  color: #320054;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.6), rgba(228, 189, 255, 0.6));
+}
+
+.gridOverlayGreenGradient1{
+	background:linear-gradient(0deg, #5D5D5D 0%, rgba(105, 227, 134, 0.5) 68%, rgb(117, 206, 137) 100%) !important
+}
+
+.gridOverlayGreenGradient2{
+	background:linear-gradient(0deg, #5D5D5D 0%, rgba(114, 215, 138, 0.5) 68%, rgb(121, 193, 137) 100%) !important
+}
+
+.gridOverlayGreenGradient3{
+	background:linear-gradient(0deg, #5D5D5D 0%, rgba(126, 198, 143, 0.5) 68%, rgb(127, 183, 139) 100%) !important
+}
+
+.gridOverlayGreenGradient4{
+	background:linear-gradient(0deg, #5D5D5D 0%, rgba(129, 185, 142, 0.5) 68%, rgb(133, 172, 141) 100%) !important
+}
+
+.gridOverlayGreenGradient5{
+	background:linear-gradient(0deg, #5D5D5D 0%, rgba(153, 176, 159, 0.5) 68%, rgb(141, 162, 145) 100%) !important
+}
+
+.gridOverlayGreenGradient1liquid{
+	background:linear-gradient(0deg, #574800 0%, rgba(160, 221, 82, 0.9) 68%, rgb(106, 213, 131) 100%) !important
+}
+
+.gridOverlayGreenGradient2liquid{
+	background:linear-gradient(0deg, #574800 0%, rgba(137, 196, 67, 0.9) 68%, rgb(86, 189, 83) 100%) !important
+}
+
+.gridOverlayGreenGradient3liquid{
+	background:linear-gradient(0deg, #574800 0%, rgba(125, 162, 46, 0.9) 68%, rgb(74, 162, 62) 100%) !important
+}
+
+.gridOverlayGreenGradient4liquid{
+	background:linear-gradient(0deg, #574800 0%, rgba(119, 142, 34, 0.9) 68%, rgb(83, 142, 43) 100%) !important
+}
+
+.gridOverlayGreenGradient5liquid{
+	background:linear-gradient(0deg, #574800 0%, rgba(104, 117, 18, 0.9) 68%, rgb(61, 117, 23) 100%) !important
+}
+
+.gridOverlayGreenGradient1liquid .battleCell.TrimpmasSnow,
+.gridOverlayGreenGradient2liquid .battleCell.TrimpmasSnow,
+.gridOverlayGreenGradient3liquid .battleCell.TrimpmasSnow,
+.gridOverlayGreenGradient4liquid .battleCell.TrimpmasSnow,
+.gridOverlayGreenGradient5liquid .battleCell.TrimpmasSnow {
+	background: none
 }

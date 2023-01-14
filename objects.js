@@ -1998,6 +1998,7 @@ var autoBattle = {
                 return 0.25 + (0.25 * this.level);
             },
             afterCheck: function(){
+                if (autoBattle.trimp.health <= 0) return;
                 var healthPct = autoBattle.trimp.health / autoBattle.trimp.maxHealth;
                 if (healthPct < 0.5){
                     autoBattle.trimp.damageTakenMult *= 0.7;

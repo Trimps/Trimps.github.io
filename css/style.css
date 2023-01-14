@@ -762,6 +762,7 @@ body {
 #viewChallenge{
 	max-height: 60vh;
 	overflow-y: auto;
+	background-color: black;
 }
 
 .nextChallenge {
@@ -3403,7 +3404,7 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
     background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(214, 214, 175, 0.8));
 }
 
-.liquid ul li.TrimpmasSnow{
+.liquid .TrimpmasSnow{
 	color: black;
 	background: yellow;
 }
