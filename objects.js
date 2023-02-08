@@ -5,6 +5,9 @@
 
     Unlocked equipment, ring upgrades, and bonus unlocks and upgrades are not affected.
 
+    There is also a new functionality that let's you buy as many upgrades as you can afford by holding ctrl,
+    but there's no visual indicators made.
+
     All my comments start with !!! if you need information for all my changes
 */
 
@@ -3529,10 +3532,10 @@ var autoBattle = {
     },
     upgrade: function(item){
         var itemObj = this.items[item];
-        if (!itemObj) return; 
+        if (!itemObj) return false; 
         var cost = this.upgradeCost(item);
         var currency = (this.items[item].dustType == "shards") ? this.shards : this.dust;
-        if (currency < cost) return;
+        if (currency < cost) return false;
         this.saveLastAction("upgrade", item);
         /*!!!
             The if-else block now updates refundable amounts
@@ -3547,6 +3550,16 @@ var autoBattle = {
         }
         itemObj.level++;
         this.popup(false, false, true);
+        return true;
+    },
+    /*!!! Allows purchasing as many upgrades as possible when ctrl is held. Otherwise, purchase only one upgrade */
+    upgradeMax: function(item){
+        if(ctrlPressed){
+            while(this.upgrade(item));
+        }
+        else{
+            this.upgrade(item);
+        }
     },
     checkLastActions: function(){
         var somethinGood = false;
@@ -4255,7 +4268,8 @@ var autoBattle = {
                         line2 += "<div class='autoItem autoItemHide' onclick='autoBattle.hide(\"" + item + "\")'>Hide</div>";
                     else if (itemObj.noUpgrade) line2 += "<div class='autoItem autoColorGrey'>Unupgradable</div>"
                     else 
-                        line2 += "<div class='autoItem autoItemUpgrade' onclick='autoBattle.upgrade(\"" + item + "\")' onmouseover='autoBattle.hoverItem(\"" + item + "\", true)'>Upgrade (" + upgradeCost + ")</div>";
+                    /*!!! The upgrade now redirects to upgradeMax which will call upgrade */
+                        line2 += "<div class='autoItem autoItemUpgrade' onclick='autoBattle.upgradeMax(\"" + item + "\")' onmouseover='autoBattle.hoverItem(\"" + item + "\", true)'>Upgrade (" + upgradeCost + ")</div>";
                 }
                 else if (this.popupMode == "hidden")
                     line2 += "<div class='autoItem autoItemRestore' onclick='autoBattle.restore(\"" + item + "\")'>Restore</div>";
