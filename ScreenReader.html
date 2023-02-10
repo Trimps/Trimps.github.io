@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   
-	<title>Trimps 5.8.1 (Screen Reader version)</title>
+	<title>Trimps 5.9.0 (Screen Reader version)</title>
 	<meta name="description" content="Trimps">
 	<meta name="author" content="Greensatellite">
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="fonts/icomoon/style.css">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css/style.css?37" />
+	<link rel="stylesheet" type="text/css" href="css/style.css?38" />
 </head>
 <!-- 		Trimps
-		Copyright (C) 2022 Zach Hood
+		Copyright (C) 2023 Zach Hood
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -73,6 +73,7 @@
 					<div class='btn btn-lg btn-info offlineExtraBtn' onclick="tooltip('Lost Time', null, 'update');">What is This?!</div>
 					<div class='btn btn-lg btn-danger offlineExtraBtn' onclick='offlineProgress.finish()'>Stop Here</div>
 					<div class='btn btn-lg btn-warning offlineExtraBtn' id='offlineEqualityBtn' onclick='offlineProgress.showEquality()'>Show Equality</div>
+					<div class='btn btn-lg btn-primary offlineExtraBtn' id='offlineFightBtn' onclick='offlineProgress.fightClicked()'>Start Fighting</div>
 					<div id='offlineFormations'></div>
 					<div id='offlineSettingContainer'></div>
 					<div id='offlineEffective'></div>
@@ -334,12 +335,12 @@
 							<span id="closeTrackedAchieve" onclick="startTrackAchieve()" class="icomoon icon-close" style='cursor: pointer'></span>
 							<div id="achievementTrackerIconContainer" class="col-xs-2 noPad">
 							</div>
-							<div class="col-xs-4 noPad">
-								<div id="achievementTrackerTitle"></div>
+							<div class="col-xs-5 noPad">
+								<div id="achievementTrackerTitle" style="white-space: nowrap"></div>
 								<div id="achievementTrackerDescription"></div>
 								
 							</div>
-							<div class="col-xs-5 noPad">
+							<div class="col-xs-4 noPad">
 								<div id="achievementTrackerProgress" class="trackerProgress"></div>
 								<div id="achievementTrackerReward"></div>
 							</div>
@@ -1164,11 +1165,14 @@
 		<div class="row" id="statsBtnRow">
 			<div class="col-xs-3">
 			</div>
-			<div class="col-xs-3 btn btn-info statToggleBtn" id='totalSelectBtn' onclick='toggleStats("total")'>
+			<div class="col-xs-2 btn btn-info statToggleBtn" id='totalSelectBtn' onclick='toggleStats("total")'>
 				Total
 			</div>
-			<div class="col-xs-3 btn btn-success statToggleBtn" id="currentSelectBtn" onclick="toggleStats('current')">
+			<div class="col-xs-2 btn btn-success statToggleBtn" id="currentSelectBtn" onclick="toggleStats('current')">
 				Current Run
+			</div>
+			<div class="col-xs-2 btn btn-danger statToggleBtn" id="customSelectBtn" onclick="toggleStats('custom')">
+				Customize
 			</div>
 		</div>
 		<br/>
@@ -1182,14 +1186,14 @@
 		</div>
 		<div class="btn btn-danger inPortalBtn" id="closeStatsBtn" onclick="toggleStats()">Close</div>&nbsp;<div class="btn btn-info inPortalBtn" id="closeStatsBtn" onclick="tooltip('Trimps Info', null, 'update')">Trimps Info</div>
 	</div>
-	<div id="mutTreeWrapper" style="display: none">
+	<div id="mutTreeWrapper" style="display: none" class="noselect">
 	</div>
 	<div id="heirloomWrapper" style="display: none">
 		<div id="heirloomTitleBar" class="row"><div class="col-xs-5">Heirlooms - Gifts to past you from future you</div><div class="col-xs-5" id="nullifiumContainer">You have <span id="nullifiumCount"></span> Nullifium<span id="heirloomSpirestoneCount"></span></div><div class="col-xs-2"><div onclick="lastMainHeirIndex = -1; toggleHeirloomChances()" class="pointer noselect colorInfo heirBtn heirInfo">Chances</div><div onclick="toggleHeirloomHelp()" class="pointer noselect colorPrimary heirBtn heirInfo">Help</div><div class="pointer noselect colorDanger heirBtn heirInfo" onclick="toggleHeirlooms()">Close</div></div></div>
 		<div id="heirloomHelp" style="display: none">
 			Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones.<br/><br/>
 			You can click on the icon of any Heirloom to select it. Once you've selected an Heirloom, you can Equip, Carry, or Recycle it. Only equipped Heirlooms give you stats, and you can only have one of each type of Heirloom equipped at a time. You can click a stat to upgrade or replace it. You can also click on the Heirloom's name on this menu to rename it, or click on the icon to change it.<br/><br/>
-			The currency to upgrade and replace stats, <b style='color: rgb(75, 41, 197)'>Nullifium, or Nu</b>, can only be gathered by recycling an Heirloom. <b style='color: red'>You can upgrade any Staff and Shield to HALF the value of your total earned Nu. Nu is not spent, but dictates how powerful each of your Heirlooms can be!</b><br/><br/>
+			The currency to upgrade and replace stats, <b style='color: rgb(75, 41, 197)'>Nullifium, or Nu</b>, can only be gathered by recycling an Heirloom. <b style='color: red'>You can upgrade any Staff and Shield to the value of your total earned Nu. Nu is not spent, but dictates how powerful each of your Heirlooms can be!</b><br/><br/>
 			Your Equipped Heirlooms will always stay with you when you Portal, along with any Heirlooms in your "Carried" slots. <b style='color: red'>Any Heirlooms in the "Temporary" section will be recycled for Nullifium on portal.</b> You can purchase slots to Carry more Heirlooms with you through the Portal, but any Nullifium spent this way will be permanently consumed.
 		</div>
 		<div id="heirloomDropChances" style="display: none;" class="noselect">
@@ -1217,10 +1221,11 @@
 					</div>
 					<div id="equippedHeirloomsBtnGroup" class="heirloomBtnGroup" style="visibility: hidden">
 						<div id="unequipHeirloomBtn" class="noselect heirloomBtnActive heirBtn"  onclick="unequipHeirloom()">Unequip</div>
+						<div id="heirloomPortalBtn" class="noselect heirloomBtnActive heirBtn" onclick="toggleHeirloomOnPortal()">Equip on Portal</div>
 					</div>
 				</div>
 				<div id="carriedHeirlooms">
-					<h3>Carried <span id="carriedHeirloomsText"></span> <div id="addCarriedBtn" onclick="addCarried()" class="heirloomBtnActive heirBtn noselect"></div></h3>
+					Carried <span id="carriedHeirloomsText"></span>
 					<div id="carriedHeirloomsHere"></div>
 					<div id="carriedHeirloomsBtnGroup" class="heirloomBtnGroup" style="visibility: hidden">
 						<div role="button" id="equipHeirloomBtn" class="noselect heirloomBtnActive heirBtn"  onclick="equipHeirloom()">Equip</div>
@@ -1491,11 +1496,11 @@
 	<script type="text/javascript" src="Playfab/PlayFabSDK/PlayFabClientApi.js"></script>
 	<script type="text/javascript" src="lz-string.js"></script>
 	<script type="text/javascript" src="decimal.min.js"></script>
-	<script type="text/javascript" src="config.js?57"></script>
-	<script type="text/javascript" src="updates.js?57"></script>
-	<script type="text/javascript" src="playerSpire.js?57"></script>
-	<script type="text/javascript" src="objects.js?57"></script>
-	<script type="text/javascript" src="main.js?57"></script>
+	<script type="text/javascript" src="config.js?58"></script>
+	<script type="text/javascript" src="updates.js?58"></script>
+	<script type="text/javascript" src="playerSpire.js?58"></script>
+	<script type="text/javascript" src="objects.js?58"></script>
+	<script type="text/javascript" src="main.js?58"></script>
 	
 </body>
 

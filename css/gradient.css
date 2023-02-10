@@ -534,3 +534,23 @@
 #grid.gridOverlayGreenGradient5 .battleRow, #grid.gridOverlayGreenGradient5liquid .battleRow, #grid.gridOverlayGreenGradient5liquid .cellColorCurrent {
   background: none !important;
 }
+
+/* gives mutated cells a gradient by blending with the battleRow grey gradient */
+.battleCell.mutatedCell {
+  mix-blend-mode: hard-light;
+}
+
+/* removes gradient theme's green beaten/overkill color on mutated cells */
+.battleCell.cellColorBeaten.mutatedCell, .battleCell.cellColorOverkill.mutatedCell {
+  background-image: none !important;    
+}
+
+/* darkens beaten mutated cells */
+.battleCell.cellColorBeaten.mutatedCell {
+  filter: brightness(0.5);
+}
+
+/* brightens overkilled mutated cells */
+.battleCell.cellColorOverkill.mutatedCell {
+  filter: brightness(1.5);
+}

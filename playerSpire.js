@@ -1605,6 +1605,7 @@ var playerSpire = {
                         }
                         if (trap.name == "Fire" && playerSpireTraps.Fire.level >= 7){
                             rsBonus = 20;
+                            if (playerSpireTraps.Fire.level >= 9) rsBonus = 50;
                         }
                     }
                     if (enemy.toxicity && enemy.health > 0){
@@ -1744,27 +1745,39 @@ var playerSpireTraps = {
             },
             {
                 //level 5
-                description: "<b>Double</b> the damage of all Fire Traps.",
+                description: "<b>Double</b> the damage of all Fire Traps.", //10k
                 unlockAt: 425,
                 cost: 7.5e7
             },
             {
                 //level 6
-                description: "<b>Dectuple</b> the damage of all Fire Traps.", //50k
+                description: "<b>Dectuple</b> the damage of all Fire Traps.", //100k
                 unlockAt: 500,
                 cost: 5e9
             },
             {
                 //level 7
-                description: "<b>Dectuple</b> the damage of all Fire Traps once more, and all enemies drop 20% extra Runestones when they die on a Fire Trap.", //500k
+                description: "<b>Dectuple</b> the damage of all Fire Traps once more, and all enemies drop 20% extra Runestones when they die on a Fire Trap.", //1m
                 unlockAt: 590,
                 cost: 5e11
             },
             {
                 //level 8
-                description: "All Fire Traps gain <b>100x</b> damage.", //5m
+                description: "All Fire Traps gain <b>100x</b> damage.", //100m
                 unlockAt: 650,
                 cost: 1e14
+            },
+            {
+                //level 9
+                description: "All Fire Traps gain <b>100x</b> damage, and all enemies drop 50% extra Runestones (+30%) when they die on a Fire Trap.", //10b
+                unlockAt: 700,
+                cost: 1e16
+            },
+            {
+                //level 10
+                description: "All Fire Traps gain <b>100x</b> damage.", //10b
+                unlockAt: 750,
+                cost: 1e19
             }
 
         ],
@@ -1775,14 +1788,17 @@ var playerSpireTraps = {
         get description(){
             var desc = "Deals " + prettify(this.totalDamage()) + " damage when stepped on.";
             if (this.level >= 4) desc += "<br/><br/>If an enemy with 20% health or less steps on a Fire Trap, it dies instantly.";
-            if (this.level >= 7) desc += "<br/><br/>All Fire Traps grant 20% extra Runestones when they get the killing blow on an enemy.";
+            if (this.level >= 7){
+                var val = (this.level >= 9) ? "50%" : "20%";
+                desc += "<br/><br/>All Fire Traps grant " + val + " extra Runestones when they get the killing blow on an enemy.";
+            } 
             desc += "<br/><br/>(Hotkey 1)";
             return desc;
         },
         totalDamage: function (enemy, cell){
             var effect = (enemy && enemy.shockTurns && enemy.shockTurns > 0) ? playerSpireTraps.Lightning.shockedDamage() : 0;
             var level = this.level;
-            var dmgs = [50, 500, 2500, 5e3, 10e3, 10e4, 10e5, 10e7];
+            var dmgs = [50, 500, 2500, 5e3, 10e3, 10e4, 10e5, 10e7, 10e9, 10e11];
             var dmg;
             if (level > dmgs.length)
                 dmg = dmgs[dmgs.length - 1];
@@ -1939,14 +1955,14 @@ var playerSpireTraps = {
             {
                 //Level 8
                 description: "<b>Triple</b> the amount of Toxicity added when an enemy steps on any Poison Trap.",
-                unlockAt: 700,
-                cost: 1e16
+                unlockAt: 650,
+                cost: 5e14
             },
             {
                 //Level 9
                 description: "<b>Quadruple</b> the amount of Toxicity added when an enemy steps on any Poison Trap.",
-                unlockAt: 750,
-                cost: 5e19
+                unlockAt: 700,
+                cost: 1e16
             }
         ],
         damage: 5,
@@ -2010,7 +2026,11 @@ var playerSpireTraps = {
             if (this.level < 4) return 1;
             var col = playerSpire.getColFromCell(cell);
             var traps = playerSpire.lightColumns[col];
-            return 1 + calcHeirloomBonus("Core", "lightningTrap", (traps * 0.1));
+            return 1 + calcHeirloomBonus("Core", "lightningTrap", (traps * this.getColBonusPercent()));
+        },
+        getColBonusPercent: function(){
+            if (this.level >= 7) return 0.2;
+            if (this.level >= 4) return 0.1;
         },
         upgrades: [
             {
@@ -2027,7 +2047,7 @@ var playerSpireTraps = {
             },
             {
                 //Level 4
-                description: "Lightning Trap increases the damage and effect of Fire and Poison Traps in its column by 10%, stacking additively with other Lightning Traps in the column.",
+                description: "Lightning Trap increases the damage and effect of Fire and Poison Traps in its column by <b>10%</b>, stacking additively with other Lightning Traps in the column.",
                 unlockAt: 575,
                 cost: 2.5e11
             },
@@ -2042,6 +2062,12 @@ var playerSpireTraps = {
                 description: "Lightning Trap gains <b>10x</b> damage, and Shocked now causes the target to take 8x damage and Toxicity from Traps. Towers and slows are not boosted by this extra damage.",
                 unlockAt: 675,
                 cost: 1e15
+            },
+            {
+                //Level 7
+                description: "Lightning Trap now increases the damage and effect of Fire and Poison Traps in its column by <b>20%</b>, stacking additively with other Lightning Traps in the column..",
+                unlockAt: 725,
+                cost: 5e16
             }
         ],
         damage: 50,
@@ -2053,7 +2079,7 @@ var playerSpireTraps = {
         get description(){
             var shockTurns = this.shockTurns();
             var text = "Deals " + prettify(this.totalDamage()) + " damage when stepped on, and afflicts the target with " + shockTurns + " stack" + needAnS(shockTurns) + " of Shocked. 1 stack of Shocked is consumed each time an enemy steps on a Trap or Tower, causing that Bad Guy to take " + prettify(this.shockedDamage()) + "x damage and " + prettify(this.shockedEffect()) + "x effect from the Trap or Tower that consumed the stack of Shocked. Shocked can boost the damage but not the effect of other Lightning Traps."
-            if (this.level >= 4) text += "<br/><br/>Each Lightning Trap increases the damage and effect of Fire and Poison Traps in its column by " + prettify(calcHeirloomBonus("Core", "lightningTrap", 10)) + "%, stacking additively.";
+            if (this.level >= 4) text += "<br/><br/>Each Lightning Trap increases the damage and effect of Fire and Poison Traps in its column by " + prettify(calcHeirloomBonus("Core", "lightningTrap", (this.getColBonusPercent() * 100))) + "%, stacking additively.";
             text += "<br/><br/>(Hotkey 4)";
             return text;
         },
@@ -2076,7 +2102,7 @@ var playerSpireTraps = {
         totalDamage: function (enemy){
             var effect = (enemy && enemy.shockTurns && enemy.shockTurns > 0) ? playerSpireTraps.Lightning.shockedDamage() : 0;
             var level = this.level;
-            var dmgs = [50, 500, 5000, 5000, 5e4, 5e5];
+            var dmgs = [50, 500, 5000, 5000, 5e4, 5e5, 5e5];
             var dmg;
             if (level > dmgs.length)
                 dmg = dmgs[dmgs.length - 1];

@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.8.1',
+		stringVersion: '5.9.0',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -100,6 +100,7 @@ var toReturn = {
 		b: 0,
 		challengeActive: "",
 		selectedChallenge: "",
+		multiChallenge: {},
 		lastOfflineProgress: "",
 		sLevel: 0,
 		portalColor: 0,
@@ -220,6 +221,8 @@ var toReturn = {
 		trackedAchieve: null,
 		mayhemCompletions: 0,
 		pandCompletions: 0,
+		desoCompletions: 0,
+		frigidCompletions: 0,
 		rageMutStacks: 0,
 		novaMutStacks: 0,
 		tabForMastery: true,
@@ -275,7 +278,7 @@ var toReturn = {
 		//For the log notation base 
 		logNotBase: 10,
 		lowestShield: 100,
-		hemmTimer: 150,
+		hemmTimer: 300,
 		armyAttackCount: 0,
 		fightAttackCount: 0,
 		mapHealthActive: false,
@@ -283,6 +286,8 @@ var toReturn = {
 		stormDone: false,
 		exterminateDone: false,
 		parityBonus: 1,
+		parityMult: 0,
+		gammaMult: 0,
 		hazShieldCredit: 0,
 		zoneRes: [0],
 		alchemyUnlocked: false,
@@ -502,11 +507,14 @@ var toReturn = {
 				var part1 = (world > 40) ? 40 : world;
 				var part2 = (world > 60) ? 20 : world - 40;
 				var part3 = (world - 60);
+				var part4 = (world - 300);
 				if (part2 < 0) part2 = 0;
 				if (part3 < 0) part3 = 0;
+				if (part4 < 0) part4 = 0;
 				amt *= Math.pow(1.5, part1);
 				amt *= Math.pow(1.4, part2);
 				amt *= Math.pow(1.32, part3);
+				amt *= Math.pow(1.15, part4);
 			}
 			return Math.floor(amt);
 		},
@@ -534,9 +542,12 @@ var toReturn = {
 			if (game.global.universe == 2){
 				var part1 = (world > 60) ? 60 : world;
 				var part2 = (world - 60);
+				var part3 = (world - 300);
 				if (part2 < 0) part2 = 0;
+				if (part3 < 0) part3 = 0;
 				amt *= Math.pow(1.4, part1);
 				amt *= Math.pow(1.32, part2);
+				amt *= Math.pow(1.15, part3);
 			}
 			return Math.floor(amt);
 		}
@@ -720,6 +731,9 @@ var toReturn = {
 			owned: false,
 			fire: function () {
 				game.unlocks.goldMaps = true;
+				for (var x = 0; x < game.global.mapsOwnedArray.length; x++){
+					game.global.mapsOwnedArray[x].loot += 1;
+				}
 				refreshMaps();
 			}
 		},
@@ -947,7 +961,7 @@ var toReturn = {
 			autoSave: {
 				enabled: 1,
 				extraTags: "popular general",
-				description: "Automatically save the game once per minute",
+				description: "Automatically save the game once per minute.",
 				titles: ["Not Saving", "Auto Saving"],
 				onToggle: function () {
 					var elem = document.getElementById("saveIndicator");
@@ -1097,8 +1111,8 @@ var toReturn = {
 			equipHighlight: {
 				enabled: 1,
 				extraTags: 'qol',
-				description: 'Enables/disables blue highlighting of equipment based on resource efficiency. Default is to only show highest available tier, or you can set this to <b>Highlight all Tiers</b> to check old tiers of Equipment too.',
-				titles: ["No Equip Highlight", "Highlight Equipment", "Highlight all Tiers"],
+				description: 'Enables/disables blue highlighting of equipment based on resource efficiency. Default is to only show highest available tier, or you can set this to <b>Highlight All Tiers</b> to check old tiers of Equipment too.',
+				titles: ["No Equip Highlight", "Highlight Equipment", "Highlight All Tiers"],
 				onToggle: function(){
 					if (this.enabled == 0){
 						for (var item in game.equipment){
@@ -1127,7 +1141,10 @@ var toReturn = {
 			mapLoot: {
 				enabled: 0,
 				extraTags: "qol",
-				description: "<p>Choose which upgrades you want first if it has been a while since you last ran maps.</p><p><b>Tier first</b> will cause maps to drop all items for the lowest tier before moving to the next. (Greatsword II -> Breastplate II -> Shield III)</p><p><b>Equip first</b> will start from Shield and drop all available Shield prestiges before continuing to Dagger and so on. (Shield III -> Shield IV -> Dagger III)</p>",
+				get description(){
+					var equips = (game.global.slowDone) ? "Arbalest II -> Gambeson II -> Shield III" : "Greatsword II -> Breastplate II -> Shield III";
+					return "<p>Choose which upgrades you want first if it has been a while since you last ran maps.</p><p><b>Tier First</b> will cause maps to drop all items for the lowest tier before moving to the next. (" + equips + ")</p><p><b>Equip First</b> will start from Shield and drop all available Shield prestiges before continuing to Dagger and so on. (Shield III -> Shield IV -> Dagger III)</p>";
+				},
 				titles: ["Tier First", "Equip First"],
 				secondLocation: ["togglemapLoot2", "togglemapLootCM"]
 			},
@@ -1188,7 +1205,7 @@ var toReturn = {
 				description: "Toggle between the default Trimps theme, a custom dark theme, a gradient theme by u/5h3i1ah, and the default theme with a black background.",
 				titles: ["Black Background", "Default Theme", "Dark Theme", "Gradient Theme"],
 				//styleName index should always be equal to title index minus 2, and should match the css file name
-				styleNames: ["dark", "gradient"],
+				styleNames: ["dark", "gradient", "default"],
 				removeStyles: function () {
 					for (var x = 0; x < this.styleNames.length; x++){
 						var link = document.getElementById(this.styleNames[x] + "Theme");
@@ -1198,7 +1215,7 @@ var toReturn = {
 					document.getElementById("innerWrapper").style.backgroundColor = "initial";
 				},
 				applyStyle: function (titleIndex){
-					var styleName = this.styleNames[titleIndex - 2];
+					var styleName = (titleIndex <= 1) ? "default" : this.styleNames[titleIndex - 2];
 					var link = document.createElement('link');
 					link.type = 'text/css';
 					link.rel = 'stylesheet';
@@ -1208,10 +1225,8 @@ var toReturn = {
 				},
 				onToggle: function () {
 					this.removeStyles();
-					if (this.enabled == 1) return;
 					if (this.enabled == 0){
 						document.getElementById("innerWrapper").style.backgroundColor = "black";
-						return;
 					}
 					this.applyStyle(this.enabled);
 				}
@@ -1225,7 +1240,7 @@ var toReturn = {
 			romanNumerals: {
 				enabled: 1,
 				extraTags: "layout",
-				description: "Show either Roman Numerals or Arabic Numerals for Equipment Prestiges",
+				description: "Show either Roman Numerals or Arabic Numerals for Equipment Prestiges.",
 				titles: ["Arabic Numerals", "Roman Numerals"],
 				onToggle: function(){
 					drawAllUpgrades();
@@ -1259,8 +1274,8 @@ var toReturn = {
 			voidPopups: {
 				extraTags: "alerts",
 				enabled: 1,
-				description: "Decide whether or not you want popups on looting an Heirloom.",
-				titles: ["No Heirloom Pop", "Popping Heirlooms"]
+				description: "Decide whether or not you want popups on looting an Heirloom.<br/><br/><b>Pop Highest Heirloom</b> will only show a popup if you find the highest available tier Heirloom for your current level.",
+				titles: ["No Heirloom Pop", "Popping Heirlooms", "Pop Highest Heirloom"]
 			},
 			portalChallenge: {
 				extraTags: "alerts",
@@ -1277,7 +1292,7 @@ var toReturn = {
 			detailedPerks: {
 				extraTags: "qol",
 				enabled: 0,
-				description: "Decide whether or not to show extra information on Perk buttons",
+				description: "Decide whether or not to show extra information on Perk buttons.",
 				titles: ["Minimal Perk Info", "Extra Perk Info"]
 			},
 			alwaysAbandon: {
@@ -1289,7 +1304,7 @@ var toReturn = {
 			extraMapBtns: {
 				extraTags: "layout",
 				enabled: 0,
-				description: "Toggle the button menu to the right of the map grid",
+				description: "Toggle the button menu to the right of the map grid.",
 				titles: ["Less Map Buttons", "Extra Map Buttons"],
 				onToggle: function () {
 					if (!game.global.mapsActive) return;
@@ -1357,7 +1372,7 @@ var toReturn = {
 			mapAtZone: {
 				enabled: 0,
 				extraTags: "other",
-				description: "A powerful tool to customize when where and how your maps should be automatically started.<br/><br/><b>Configure with hotkey Z</b>",
+				description: "A powerful tool to customize when where and how your maps should be automatically started.<br/><br/><b>Configure with hotkey Z.</b>",
 				get titles(){
 					var nextZone = "";
 					var setZone = this.getSetZone();
@@ -1766,7 +1781,7 @@ var toReturn = {
 					if (game.global.highestLevelCleared >= 199) text += ", the popup at Corruption";
 					if (game.global.highestLevelCleared >= 219) text += ", the popup at The Spire";
 					if (game.global.highestLevelCleared >= 249) text += ", and the popup on reaching Magma.";
-					text += "</p><p>Note that this setting only blocks large popups once your Highest Zone Reached is 20 Zones past the location of the popup</p>";
+					text += "</p><p>Note that this setting only blocks large popups once your Highest Zone Reached is 20 Zones past the location of the popup.</p>";
 					return text;
 				},
 				extraTags: "alerts popups",
@@ -1777,8 +1792,8 @@ var toReturn = {
 				enabled: 0,
 				extraTags: "general",
 				get description(){
-					var text = "<p>Choose what mode the Dimensional Generator should start each run on. <b>Default Generator</b> will continue with whatever setting you were using at the end of your last run. <b>The Rest of The Settings<b> are named by what mode will be set to active at the start of each run.</p>";
-					if (game.permanentGeneratorUpgrades.Supervision.owned) text += "<p><b>Hold Ctrl while clicking to open the Generator State Configuration menu</b></p>";
+					var text = "<p>Choose what mode the Dimensional Generator should start each run on. <b>Default Generator</b> will continue with whatever setting you were using at the end of your last run. <b>The rest of the settings<b> are named by what mode will be set to active at the start of each run.</p>";
+					if (game.permanentGeneratorUpgrades.Supervision.owned) text += "<p><b>Hold Ctrl while clicking to open the Generator State Configuration menu.</b></p>";
 					return text;
 				},
 				get titles () {
@@ -1859,7 +1874,7 @@ var toReturn = {
 			offlineProgress: {
 				enabled: 1,
 				extraTags: "other",
-				description: "<p><b>No Offline Progress</b> will cause no extra resources to be earned and no time to be warped when you return to the game. The Portal and Zone timers will not advance while offline, and the game will be in the same state you left it when you come back. This can be useful for speedrun achievements or if you just really really don&apos;t trust your Trimps when you&apos;re gone.</p><p><b>Hybrid Offline</b> combines Time Warp and Trustworthy Trimps into the best offline experience that Science can buy. Time Warp caps at 24 hours, so using Hybrid Offline will grant Trustworthy Trimps at the beginning of your Time Warp for all offline time over 24 hours, and will also grant Trustworthy Trimps for any extra time should you choose to end Time Warp early. Note that the Portal Time and Time in Zone clocks will advance for all time granted by Trustworthy Trimps and by Time Warp.</p><p><b>Time Warp Only</b> will grant up to 24 hours of your offline progress as Time Warp without granting any extra resources from Trustworthy Trimps at the beginning (for time over 24 hours), or at the end (for canceled Time Warp time). This can also be useful for timed runs or tracking stats, as the time added will be capped to however much time you spend in Time Warp.</p><p><b>Trustworthy Trimps Only</b> will skip Time Warp when you come back and grant resources for all time offline from Trustworthy Trimps. For when you want to get back in the game as soon as possible!</p><p style=&apos;text-align: center&apos;><b>This setting can be changed from the Time Warp screen<br/>or in Settings -> Other</b></p>",
+				description: "<p><b>No Offline Progress</b> will cause no extra resources to be earned and no time to be warped when you return to the game. The Portal and Zone timers will not advance while offline, and the game will be in the same state you left it when you come back. This can be useful for speedrun achievements or if you just really really don&apos;t trust your Trimps when you&apos;re gone.</p><p><b>Hybrid Offline</b> combines Time Warp and Trustworthy Trimps into the best offline experience that Science can buy. Time Warp caps at 24 hours, so using Hybrid Offline will grant Trustworthy Trimps at the beginning of your Time Warp for all offline time over 24 hours, and will also grant Trustworthy Trimps for any extra time should you choose to end Time Warp early. Note that the Portal Time and Time in Zone clocks will advance for all time granted by Trustworthy Trimps and by Time Warp.</p><p><b>Time Warp Only</b> will grant up to 24 hours of your offline progress as Time Warp without granting any extra resources from Trustworthy Trimps at the beginning (for time over 24 hours), or at the end (for canceled Time Warp time). This can also be useful for timed runs or tracking stats, as the time added will be capped to however much time you spend in Time Warp.</p><p><b>Trustworthy Trimps Only</b> will skip Time Warp when you come back and grant resources for all time offline from Trustworthy Trimps. For when you want to get back in the game as soon as possible!</p><p style=&apos;text-align: center&apos;><b>This setting can be changed from the Time Warp screen<br/>or in Settings -> Other.</b></p>",
 				//description: "Disables or enables earning resources while offline. <b>Warning: If this is toggled off, no resources will be earned from Trustworthy Trimps when coming back to the game after being offline.</b> This also stops the current run timer when offline and can be helpful if you are analysing stats and do not want resources counted when there is no timer running",
 				titles: ["No Offline Progress", "Hybrid Offline", "Time Warp Only", "Trustworthy Trimps Only"],
 				secondLocation: ["toggleofflineProgresstimewarp"]
@@ -1870,7 +1885,7 @@ var toReturn = {
 				description: "Customize the Archaeology Automator. Has no effect unless running the Archaeology Challenge.",
 				titles: ["Archaeology Automator"],
 				lockUnless: function(){
-					return (game.global.highestRadonLevelCleared >= 94);
+					return (game.global.highestRadonLevelCleared >= 89);
 				}
 			},
 			hideCompleteAchieves: {
@@ -1987,7 +2002,7 @@ var toReturn = {
 			icon: "*spoon-knife"
 		},
 		housing: {
-			description: "Unlock Mansion, Hotel, Nursery, Resort, Gateway, Wormhole, and Collector automatically when passing the Zone they drop at.",
+			description: "Unlock Mansion, Hotel, Nursery, Resort, Gateway, Wormhole, Collector, and all Uberhousing upgrades automatically when passing the Zone they drop at.",
 			name: "Home Detector",
 			tier: 1,
 			purchased: false,
@@ -2025,7 +2040,7 @@ var toReturn = {
 			icon: "tint"
 		},
 		heirloom: {
-			description: "You can spend an extra 10% of your Nu on your Heirlooms, bringing the total to 60%.",
+			description: "You can spend an extra 10% of your Nu on your Heirlooms, bringing the total to 110%.",
 			name: "Heirnuum I",
 			tier: 2,
 			purchased: false,
@@ -2240,7 +2255,7 @@ var toReturn = {
 			icon: "*hammer2"
 		},
 		heirloom2: {
-			description: "You can spend another extra 10% of your Nu on your Heirlooms, bringing the total to 70%.",
+			description: "You can spend another extra 10% of your Nu on your Heirlooms, bringing the total to 120%.",
 			name: "Heirnuum II",
 			tier: 6,
 			purchased: false,
@@ -2336,7 +2351,7 @@ var toReturn = {
 		},
 		voidSpecial: {
 			get description() {
-				var text = "<p>Receive 1 free Void Map after using your Portal for each 100 Zones cleared last run. " + heliumOrRadon() + " from Void Maps is also increased by 0.25% for each Zone cleared last run.</p>";
+				var text = "<p>Receive 1 free Void Map after using your Portal for each 100 Zones reached last run. " + heliumOrRadon() + " from Void Maps is also increased by 0.25% for each Zone reached last run.</p>";
 				var amt = (getLastPortal() * 0.0025);
 				text += "<p>You reached <b>Z" + getLastPortal() + "</b> last Portal, ";
 				if (this.purchased) text += " earning you a bonus of ";
@@ -2412,7 +2427,7 @@ var toReturn = {
 					stackLevel = 6;
 					resName = "Helium";
 				}
-				 var text = "<p>Gain a second Void Map per 100 Zones cleared last run, but the first one is earned at Z50 (then 150, 250 etc). In addition, if " + petName + "'s level " + stackLevel + " bonus is active, this allows " + petName + " to stack 1 additional Void Map, adding another 50% " + resName + " bonus to the stack.</p>";
+				 var text = "<p>Gain a second Void Map per 100 Zones reached last run, but the first one is earned at Z50 (then 150, 250 etc). In addition, if " + petName + "'s level " + stackLevel + " bonus is active, this allows " + petName + " to stack 1 additional Void Map, adding another 50% " + resName + " bonus to the stack.</p>";
 				 text += "<p>You reached <b>Z" + getLastPortal() + "</b> last Portal,";
 				 if (this.purchased) text += " earning you a bonus of ";
 				 else text += " which would earn you a bonus of ";
@@ -2512,7 +2527,7 @@ var toReturn = {
 		},
 		healthStrength2: {
 			get description(){
-				var text = "<p>Adds 1 extra Healthy cell for every Spire completed this run. Healthy cells will also drop an additional 20% of the Zone's value in Helium, bringing the total up to 65%. Spire I will count for 1 Healthy cell once Healthy cells begin to appear in the World, but does not cause them to start spawning earlier.</p>";
+				var text = "<p>Adds 1 extra Healthy cell for every Spire completed this run. Healthy cells will also drop an additional 20% of the Zone's value in Helium, bringing the total up to 65%. Spire " + romanNumeral(1) + " will count for 1 Healthy cell once Healthy cells begin to appear in the World, but does not cause them to start spawning earlier.</p>";
 				text += "<p>On your current run, you have cleared " + ((game.global.lastSpireCleared == 0) ? "no Spires" : "through Spire " + romanNumeral(game.global.lastSpireCleared)) + ", so this Mastery is granting " + game.global.lastSpireCleared + " extra Healthy cell" + needAnS(game.global.lastSpireCleared) + ". On your current Zone, you're finding " + mutations.Healthy.cellCount() + " Healthy cells.</p>";
 				return text;
 			},
@@ -2521,36 +2536,6 @@ var toReturn = {
 			purchased: false,
 			requires: "healthStrength",
 			icon: "*aid-kit"
-		},
-		stillMagmamancer: {
-			description: "Start every post-magma Zone with an additional 60 seconds of credit already applied to your Magmamancers per Spire row completed this run. In addition, every 2 Spires you complete this run increases the maximum time that Magmamancers can stack by 10 minutes!",
-			name: "Still Magmamancing",
-			tier: 10,
-			purchased: false,
-			requires: ["stillRowing2", "magmamancer"],
-			icon: "*equalizer"
-		},
-		liquification3: {
-			get description () {
-				if (game.global.universe == 2) return "Liquification is disabled in Universe 2, but <b>Hyperspeed II's bonus will now function up to 75% of your Highest Zone Reached (through Z" + Math.floor(game.global.highestRadonLevelCleared * 0.75) + ") rather than a measly 50%</b>";
-				var text = (this.purchased) ? "This mastery is increasing " : "This mastery would increase ";
-				var totalSpires = game.global.spiresCompleted;
-				if (game.talents.liquification.purchased) totalSpires++;
-				if (game.talents.liquification2.purchased) totalSpires++;
-				var fluffyCount = Fluffy.isRewardActive("liquid");
-				var fluffyText = "";
-				if (fluffyCount > 0){
-					if (fluffyCount == 1) fluffyText = " and your Fluffy bonus as half of a Spire";
-					else fluffyText += " and your two Fluffy bonuses as another"
-					totalSpires += (fluffyCount * 0.5);
-				}
-				return "Increase your Liquification bonus by <b>10%</b>, as if you had completed <b>2 extra Spires</b>. In addition, <b>Hyperspeed II's bonus will also now function up to 75% of your Highest Zone Reached (through Z" + Math.floor(game.global.highestLevelCleared * 0.75) + ") rather than a measly 50%</b>.<br/><br/>Counting Liquification I and II as two Spires" + fluffyText + ", you have completed the equivalent of " + totalSpires + " unique Spire" + ((totalSpires == 1) ? "" : "s") + ", giving you " + (totalSpires * 5) + "% of your highest Zone reached (through Z" + Math.floor((totalSpires / 20) * (getHighestLevelCleared(false, true) + 1)) + "). " + text + " your bonus to " + ((totalSpires + 2) * 5) + "% of your highest Zone reached (through Z" + Math.floor(((totalSpires + 2) / 20) * (getHighestLevelCleared(false, true) + 1)) + ").";
-			},
-			name: "Liquification III",
-			tier: 10,
-			purchased: false,
-			requires: "liquification2",
-			icon: "*water"
 		},
 		mesmer: {
 			get description(){
@@ -2582,6 +2567,36 @@ var toReturn = {
 			afterRespec: function(){
 				countChallengeSquaredReward();
 			}
+		},
+		liquification3: {
+			get description () {
+				if (game.global.universe == 2) return "Liquification is disabled in Universe 2, but <b>Hyperspeed II's bonus will now function up to 75% of your Highest Zone Reached (through Z" + Math.floor(game.global.highestRadonLevelCleared * 0.75) + ") rather than a measly 50%</b>";
+				var text = (this.purchased) ? "This mastery is increasing " : "This mastery would increase ";
+				var totalSpires = game.global.spiresCompleted;
+				if (game.talents.liquification.purchased) totalSpires++;
+				if (game.talents.liquification2.purchased) totalSpires++;
+				var fluffyCount = Fluffy.isRewardActive("liquid");
+				var fluffyText = "";
+				if (fluffyCount > 0){
+					if (fluffyCount == 1) fluffyText = " and your Fluffy bonus as half of a Spire";
+					else fluffyText += " and your two Fluffy bonuses as another"
+					totalSpires += (fluffyCount * 0.5);
+				}
+				return "Increase your Liquification bonus by <b>10%</b>, as if you had completed <b>2 extra Spires</b>. In addition, <b>Hyperspeed II's bonus will also now function up to 75% of your Highest Zone Reached (through Z" + Math.floor(game.global.highestLevelCleared * 0.75) + ") rather than a measly 50%</b>.<br/><br/>Counting Liquification I and II as two Spires" + fluffyText + ", you have completed the equivalent of " + totalSpires + " unique Spire" + ((totalSpires == 1) ? "" : "s") + ", giving you " + (totalSpires * 5) + "% of your highest Zone reached (through Z" + Math.floor((totalSpires / 20) * (getHighestLevelCleared(false, true) + 1)) + "). " + text + " your bonus to " + ((totalSpires + 2) * 5) + "% of your highest Zone reached (through Z" + Math.floor(((totalSpires + 2) / 20) * (getHighestLevelCleared(false, true) + 1)) + ").";
+			},
+			name: "Liquification III",
+			tier: 10,
+			purchased: false,
+			requires: "liquification2",
+			icon: "*water"
+		},
+		stillMagmamancer: {
+			description: "Start every post-magma Zone with an additional 60 seconds of credit already applied to your Magmamancers per Spire row completed this run. In addition, every 2 Spires you complete this run increases the maximum time that Magmamancers can stack by 10 minutes!",
+			name: "Still Magmamancing",
+			tier: 10,
+			purchased: false,
+			requires: ["stillRowing2", "magmamancer"],
+			icon: "*equalizer"
 		},
 		angelic: {
 			description: "Your Trimps heal for 50% of their remaining health immediately before each attack. Due to the intense amount of evil present, Trimps cannot heal in never-before-cleared Spires.",
@@ -2818,7 +2833,7 @@ var toReturn = {
 				mod += (Math.floor(tribs / 25) * 0.0035); //+0.35% per 25 tributes above 600
 				return mod;
 			},
-			tooltip: "Feeling poor? Just get more resources! Each level increases all loot gained by 2.5% (compounding). Starting once you have 600 Tributes, every Tribute you purchase (up to 1250) will <b>add</b> 0.015% to the compounding bonus. Every 25th Tribute you purchase will also add an additional 0.35% to the compounding bonus. For example: If you have 750 Tributes, you'll earn a 6.8% compounding Loot bonus for each level of Greed. <b>Maximum of 40 levels.</b>",
+			tooltip: "Feeling poor? Just get more resources! Each level increases all loot gained (including Radon) by 2.5% (compounding). Starting once you have 600 Tributes, every Tribute you purchase (up to 1250) will <b>add</b> 0.015% to the compounding bonus. Every 25th Tribute you purchase will also add an additional 0.35% to the compounding bonus. For example: If you have 750 Tributes, you'll earn a 6.8% compounding Loot bonus for each level of Greed. <b>Maximum of 40 levels.</b>",
 			max: 40
 		},
 		Tenacity: {
@@ -3186,9 +3201,9 @@ var toReturn = {
 				if (game.global.viewingUpgrades || portalWindowOpen) useTemp = true;
 				var perkLevel = this.radLevel + 1;
 				if (useTemp) perkLevel += this.levelTemp;
-				var text = "Grants your Trimps the ability to locate small Runetrinkets around the World. For each level of this perk, your Trimps will gain a chance per Zone cleared above Z100 to find a Runetrinket. Each Runetrinket increases your Trimps' attack, health, and gathered primary resources by 1% (additive) per perk level. You can store a maximum of " + this.trinketsPerLevel + " Runetrinkets per perk level, reducing levels in this perk will deactivate any trinkets above cap but not lose them. Runetrinkets persist through Portal and never reset. The chance to find a Runetrinket increases by about 50% per level of this Perk, and scales as the Zone number increases (up to Z200). You'll also find 1 guaranteed Runetrinket every 25 Zones above Z100 for every 2 levels of this perk.";
+				var text = "Grants your Trimps the ability to locate small Runetrinkets around the World. Purchasing this Perk will grant your Trimps a chance per Zone cleared above Z100 to find a Runetrinket. Each Runetrinket increases your Trimps' attack, health, and gathered primary resources by 1% (additive) per perk level. You can store a maximum of " + this.trinketsPerLevel + " Runetrinkets per perk level, reducing levels in this perk will deactivate any trinkets above cap but not lose them. Runetrinkets persist through Portal and never reset. The chance to find a Runetrinket increases by about 50% per level of this Perk, and scales as the Zone number increases (up to Z200). You'll also find 1 guaranteed Runetrinket every 25 Zones above Z100 for every 2 levels of this perk.";
 				text += "<br/><br/>You have " + prettify(this.trinkets) + " Runetrinket" + needAnS(this.trinkets) + ".";
-				text += " You are currently gaining " + formatMultAsPercent(this.getMult(useTemp), true) + " attack, health, and gathered resources and you can store a total of " + prettify(perkLevel * 1000) + " Runetrinkets.<br/><br/>" + this.getChanceText(useTemp);
+				text += " You are currently gaining " + formatMultAsPercent(this.getMult(useTemp), true) + " attack, health, and gathered resources and you can store a total of " + prettify(this.getTrinketCap()) + " Runetrinkets.<br/><br/>" + this.getChanceText(useTemp);
 				return text;
 			},
 			specialGrowth: 2,
@@ -3200,13 +3215,17 @@ var toReturn = {
 				if (chance <= 0){
 					return "You will have a <b>" + prettify(this.getDropChance(101, false, useTemp)) + "%</b> chance to find a Runetrinket at Z100.";
 				}
-				return "You have a <b>" + prettify(chance) + "%</b> chance to find a Runetrinket at the end of this Zone.";
+				if (chance <= 100){
+					return "You have a <b>" + prettify(chance) + "%</b> chance to find a Runetrinket at the end of this Zone.";
+				}
+				var guaranteed = Math.floor(chance / 100);
+				return "You will find " + guaranteed + " guaranteed Runetrinket" + needAnS(guaranteed) + " at the end of this Zone, and have a " + prettify(chance % 100) + "% chance to find 1 extra.";
 			},
 			getMult: function(useTemp){
 				var perkLevel = this.radLevel + 1;
 				if (useTemp) perkLevel += this.levelTemp;
 				var trinkets = this.trinkets;
-				var cap = perkLevel * this.trinketsPerLevel;
+				var cap = this.getTrinketCap();
 				if (trinkets > cap) trinkets = cap;
 				return 1 + ((trinkets * perkLevel) / 100);
 			},
@@ -3221,9 +3240,14 @@ var toReturn = {
 				if (game.global.challengeActive == "Alchemy" && !ignoreAlch) chance = alchObj.getRunetrinketMult(chance);
 				return chance;
 			},
+			getTrinketCap: function(){
+				var cap = (this.trinketsPerLevel * (this.radLevel + 1));
+				if (u2Mutations.tree.Runed.purchased) cap *= 1.5;
+				return cap;
+			},
 			giveTrinket: function(amt){
 				if (!amt) amt = 1;
-				var cap = (this.trinketsPerLevel * (this.radLevel + 1));
+				var cap = this.getTrinketCap();
 				if (this.trinkets >= cap) return;
 				if (this.trinkets + amt > cap) amt = cap - this.trinkets;
 				this.trinkets += amt;
@@ -3234,8 +3258,11 @@ var toReturn = {
 			onNextWorld: function(){
 				var seed = this.seed++;
 				var roll = getRandomIntSeeded(seed, 0, 10000);
-				var chance = this.getDropChance() * 100;
-				if (roll < chance) this.giveTrinket();
+				var chance = this.getDropChance();
+				var toGive = Math.floor(chance / 100);
+				chance = (chance % 100);
+				if (roll < (chance * 100)) toGive++;
+				if (toGive > 0) this.giveTrinket(toGive);
 				if (game.global.world > 100 && game.global.world % 25 == 0){
 					var free = Math.floor(this.radLevel / 2);
 					if (free > 0) this.giveTrinket(free);
@@ -3413,7 +3440,7 @@ var toReturn = {
 			unlockString: "reach Zone 35"
 		},
 		Balance: {
-			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 100% more health, enemies in world deal 17% more damage, and enemies in maps deal 135% more damage. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant an additional 100% of all helium earned up to that point. This challenge is repeatable!",
+			description: "Your scientists have discovered a chaotic dimension filled with helium. All enemies have 100% more health, enemies in world deal 17% more damage, and enemies in maps deal 135% more damage. Starting at Zone 6, every time an enemy in the world is slain you will gain a stack of 'Unbalance'. Every time an enemy in a map is slain, you will lose a stack of Unbalance. Each stack of Unbalance reduces your health by 1%, but increases your Trimps' gathering speed by 1%. Unbalance can only stack to 250. Completing <b>Zone 40</b> with this challenge active will grant an additional 100% of all helium earned during this portal up to that point. This challenge is repeatable!",
 			completed: false,
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 39);
@@ -3636,7 +3663,7 @@ var toReturn = {
 			unlockString: "reach Zone 70"
 		},
 		Electricity: {
-			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with an additional 200% of all helium earned up to but not including Zone 80. This is repeatable!",
+			description: "Use the keys you found in the Prison to bring your portal to an extremely dangerous dimension. In this dimension enemies will electrocute your Trimps, stacking a debuff with each attack that damages Trimps for 10% of total health per turn per stack, and reduces Trimp attack by 10% per stack. Clearing <b>'The Prison' (80)</b> will reward you with an additional 200% of all helium earned during this portal up to but not including Zone 80. This is repeatable!",
 			completed: false,
 			hasKey: false,
 			filter: function () {
@@ -3694,7 +3721,7 @@ var toReturn = {
 			unlockString: "reach Zone 100"
 		},
 		Life: {
-			description: "Explore a dimension that is normally populated by the Undead, but is currently plagued by a quickly moving virus that can bring things back to life. All enemies in this dimension have 500% extra attack and 1000% extra health. Attacking a normal undead enemy gives your Trimps 1 stack of Unliving, which increases Trimp attack and health by 10% (additive) per stack. Trimps can have a maximum of 150 stacks of Unliving, and attacking a Living enemy will remove 5 stacks of Unliving. Completing <b>Zone 110</b> will reward you with an additional 400% of all helium earned up to that point. This is repeatable!",
+			description: "Explore a dimension that is normally populated by the Undead, but is currently plagued by a quickly moving virus that can bring things back to life. All enemies in this dimension have 500% extra attack and 1000% extra health. Attacking a normal undead enemy gives your Trimps 1 stack of Unliving, which increases Trimp attack and health by 10% (additive) per stack. Trimps can have a maximum of 150 stacks of Unliving, and attacking a Living enemy will remove 5 stacks of Unliving. Completing <b>Zone 110</b> will reward you with an additional 400% of all helium earned during this portal up to that point. This is repeatable!",
 			completed: false,
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 109)
@@ -3767,7 +3794,7 @@ var toReturn = {
 			unlockString: "reach Zone 120"
 		},
 		Crushed: {
-			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with an additional 400% of all helium earned up to but not including Z125. This challenge is repeatable.",
+			description: "Journey to a dimension where the atmosphere is rich in helium, but Bad Guys have a 50% chance to Critical Strike for +400% damage unless your Block is as high as your current Health. Clearing <b>Bionic Wonderland (Z125)</b> will reward you with an additional 400% of all helium earned during this portal up to but not including Z125. This challenge is repeatable.",
 			completed: false,
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 124);
@@ -3811,7 +3838,7 @@ var toReturn = {
 			unlockString: "reach Zone 130"
 		},
 		Nom: {
-			description: "Travel to a dimension where Bad Guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the Bad Guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the Bad Guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with an additional 450% of all helium earned up to that point. This is repeatable!",
+			description: "Travel to a dimension where Bad Guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the Bad Guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the Bad Guys are too big and slow to attack first. Clearing <b>Zone 145</b> will reward you with an additional 450% of all helium earned during this portal up to that point. This is repeatable!",
 			completed: false,
 			allowSquared: true,
 			squaredDescription: "Travel to a dimension where Bad Guys enjoy the taste of Trimp. Whenever a group of Trimps dies, the Bad Guy will eat them, gaining 25% (compounding) more attack damage and healing for 5% of their maximum health. The methane-rich atmosphere causes your Trimps to lose 5% of their total health after each attack, but the Bad Guys are too big and slow to attack first.",
@@ -3849,7 +3876,7 @@ var toReturn = {
 			unlockString: "reach Zone 150"
 		},
 		Toxicity: {
-			description: "Travel to a dimension rich in helium, but also rich in toxic Bad Guys. All Bad Guys have 5x attack and 2x health. Each time you attack a Bad Guy, your Trimps lose 5% of their health, and toxins are released into the air which reduce the breeding speed of your Trimps by 0.3% (of the current amount), but also increase all resources obtained by 0.15% (including Helium), stacking up to 1500 times. These stacks will reset when you clear a Zone. Completing <b>Zone 165</b> with this challenge active will reward you with an additional 400% of all helium earned up to that point. This is repeatable!",
+			description: "Travel to a dimension rich in helium, but also rich in toxic Bad Guys. All Bad Guys have 5x attack and 2x health. Each time you attack a Bad Guy, your Trimps lose 5% of their health, and toxins are released into the air which reduce the breeding speed of your Trimps by 0.3% (of the current amount), but also increase all resources obtained by 0.15% (including Helium), stacking up to 1500 times. These stacks will reset when you clear a Zone. Completing <b>Zone 165</b> with this challenge active will reward you with an additional 400% of all helium earned during this portal up to that point. This is repeatable!",
 			completed: false,
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 164);
@@ -3884,7 +3911,7 @@ var toReturn = {
 			unlockString: "reach Zone 170"
 		},
 		Watch: {
-			description: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 200% of all helium earned up to that point.",
+			description: "Travel to a strange dimension where life is easier but harder at the same time. At the end of each World Zone any available equipment upgrades will drop, and any unassigned Trimps will be split evenly amongst Farmer, Lumberjack, and Miner. However, resource production and drops from all sources will be halved, and all enemies will deal 25% more damage. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 200% of all helium earned during this portal up to that point.",
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 179);
 			},
@@ -3897,7 +3924,7 @@ var toReturn = {
 			enteredMap: false
 		},
 		Lead: {
-			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered Zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered Zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 300% of all helium earned up to that point.",
+			description: "Travel to a dimension where life is easier or harder depending on the time. Odd numbered Zones will cause double resources to be earned from all sources, and will give your Trimps 50% extra attack. Starting an even numbered Zone will cause all enemies to gain 200 stacks of <b>Momentum</b>. Clearing a World cell will cause 1 stack to be lost, and each stack will increase the enemy's damage and health by 4%, and block pierce by 0.1%. If your Trimps attack without killing their target, they will lose 0.03% of their health per enemy stack. Completing <b>Zone 180</b> with this challenge active will reward you with an additional 300% of all helium earned during this portal up to that point.",
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 179);
 			},
@@ -3914,7 +3941,7 @@ var toReturn = {
 			}
 		},
 		Corrupted: {
-			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 200% helium earned from any source up to that point, and will instantly transport you back to your normal dimension."},
+			get description(){ return "Travel to a dimension where enemies have 3X attack and Corruption runs rampant, beginning at Z60. The Corruption in this dimension grants helium, but 50% less than normal. Improbabilities and Void Maps will still not gain strength or double reward until Z" + mutations.Corruption.start(true) + ". Completing <b>Zone 190</b> with this challenge active will reward you with an extra 200% helium earned from any source during this portal up to that point, and will instantly transport you back to your normal dimension."},
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 189);
 			},
@@ -3925,7 +3952,7 @@ var toReturn = {
 			unlockString: "reach Zone 190"
 		},
 		Domination: {
-			description: "Travel to a dimension where the strongest Bad Guys gain strength from those weaker than them. Most Bad Guys have 90% less health and attack, but the final Bad Guy in every World Zone and Map has 2.5x more damage, 7.5x more health, and heals for 5% every time they attack your Trimps. But they also drop three times as much Helium! Clearing <b>Zone 215</b> will also reward you with an extra 100% of helium earned from any source up to that point, and will instantly teleport you back to your normal dimension!",
+			description: "Travel to a dimension where the strongest Bad Guys gain strength from those weaker than them. Most Bad Guys have 90% less health and attack, but the final Bad Guy in every World Zone and Map has 2.5x more damage, 7.5x more health, and heals for 5% every time they attack your Trimps. But they also drop three times as much Helium! Clearing <b>Zone 215</b> will also reward you with an extra 100% of helium earned from any source during this portal up to that point, and will instantly teleport you back to your normal dimension!",
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 214);
 			},
@@ -3960,7 +3987,7 @@ var toReturn = {
 		Eradicated: {
 			get squaredDescription() {
 				var num = prettify(game.challenges.Eradicated.scaleModifier);
-				return "If you thought Obliterated was not very friendly, wait until you see this dimension! Liquimps are unable to liquify, enemies have " + num + "x attack and health, and equipment is " + num + "x more expensive. Every 2 Zones, enemy attack and health will increase by another " + game.challenges.Eradicated.zoneScaling + "x. <b>However, you'll earn 1 extra Coordination per Zone you clear! Oh and Magma, Corruption, and Nature start at Z1.</b>"
+				return "If you thought Obliterated was not very friendly, wait until you see this dimension! Liquimps are unable to liquify, enemies have " + num + "x attack and health, and equipment is " + num + "x more expensive. Every 2 Zones, enemy attack and health will increase by another " + game.challenges.Eradicated.zoneScaling + "x. <b>However, you'll earn 1 extra Coordination per Zone you clear for the first 100 Zones! Oh and Magma, Corruption, and Nature start at Z1.</b>"
 			},
 			filter: function () {
 				return (game.global.totalSquaredReward >= 4500);
@@ -3981,8 +4008,105 @@ var toReturn = {
 				startTheMagma();
 			}
 		},
+		Frigid: {
+			get description(){
+				var text = "Travel to a frighteningly cold dimension where Trimps usually cannot crit. If a World enemy deals 20% damage to your Trimps in one hit, your Trimps will shatter and instantly die, and shards of ice will lower gathering speed by 1% (compounding). Completing a Void Map will grant your Trimps 1 stack of Warmth per map for each 10 levels of Void Map completed (50 stacks for a Z500 Void Map), which will clear all stacks of Shattering, protect your Trimps from Shattering stacks and allow them to Crit for that many World or Map cells (stacks do not decrease in Void Maps). "
+				text += " Completing <b>Z" + this.completeAfterZone + "</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify(2.5 + (2.5 * game.global.frigidCompletions)) + "%</b> bonus to Helium, Trimp Attack, Trimp Health, and Fluffy Experience. Each time Frigid is completed, the reward for next time increases by an additional 2.5%, Frigid enemies will gain 10x Attack and Health, and Trimps gain 5% fewer stacks of Warmth for completing Void Maps."
+				var scaleMult = this.getEnemyMult();
+				text += " <b>You have completed Frigid " + game.global.frigidCompletions + " / " + this.maxRuns + " maximum times. Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, Helium, and Fluffy Experience, and your next run of Frigid will spawn Bad Guys with " + prettify(scaleMult) + "x Attack and Health.";
+				return text;
+			},
+			shattered: 0,
+			warmth: 0,
+			maxRuns: 15,
+			completeAfterZone: 460,
+			getShatteredMult: function(){
+				return Math.pow(0.99, this.shattered);
+			},
+			getEnemyMult: function(){
+				return Math.pow(10, game.global.frigidCompletions);
+			},
+			getTrimpMult: function(){
+				var comps = game.global.frigidCompletions;
+				return 1 + (((comps / 2) * (comps + 1)) / 40);
+			},
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 459)
+			},
+			clearStacks: function(){
+				manageStacks(null, null, true, 'frigidShatterStacks', null, null, true);
+				manageStacks(null, null, true, 'frigidWarmthStacks', null, null, true);
+			},
+			drawStacks: function(){
+				if (this.shattered > 0){
+					manageStacks('Shattered', this.shattered, true, 'frigidShatterStacks', 'icomoon icon-feed', this.shatteredTooltip(), false, false);
+				}
+				else {
+					manageStacks(null, null, true, 'frigidShatterStacks', null, null, true);
+				}
+				if (this.warmth > 0) {
+					manageStacks('Warmth', this.warmth, true, 'frigidWarmthStacks', 'icomoon icon-fire', this.warmthTooltip(), false, false);
+				}
+				else{
+					manageStacks(null, null, true, 'frigidWarmthStacks', null, null, true);
+				}
+				
+			},
+			shatteredTooltip: function(){
+				return "Icy Shards from Shattered Trimps are slowing your gather rate! Trimp gather speed reduced by " + prettify((1 - this.getShatteredMult()) * 100) + "%.";
+			},
+			warmthTooltip: function(){
+				return "Your Trimps are nice and warm from completing Void Maps, protecting them from Shatter and allowing them to crit.";
+			},
+			completedVoid: function(count){
+				var perMap = game.global.world / 10;
+				perMap *= count;
+				perMap *= Math.pow(0.95, game.global.frigidCompletions);
+				perMap = Math.floor(perMap);
+				this.warmth += perMap;
+				this.shattered = 0;
+				this.drawStacks();
+			},
+			onEnemyKilled: function(){
+				if (game.global.mapsActive){
+					var map = getCurrentMapObject();
+					if (map.location == "Void") return;
+				}
+				if (this.warmth <= 0) return;
+				this.warmth--;
+				this.drawStacks();
+			},
+			shatterTrimp: function(){
+				this.shattered++;
+				this.drawStacks();
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			unlockString: "reach Zone 460",
+			abandon: function(){
+				this.shattered = 0;
+				this.warmth = 0;
+				this.clearStacks();
+			},
+			onComplete: function(){
+				game.challenges.Frigid.abandon();
+				var oldAmt = this.getTrimpMult();
+				if (game.global.frigidCompletions < this.maxRuns) {
+					game.global.frigidCompletions++;
+					var newAmt = this.getTrimpMult();
+					if (game.global.frigidCompletions == this.maxRuns){
+						message("You have completed all " + this.maxRuns + " Frigid Challenges! You are now gaining a total of +" + prettify((newAmt - 1) * 100) + "% to Helium, Damage, Health and Fluffy Experience for your accomplishments.", "Notices");
+					}
+					else message("You have completed the Frigid Challenge! Your Trimps have gained +" + prettify((newAmt - oldAmt) * 100) + "% Helium, Damage, Health, and Fluffy Experience, and future runs of this Challenge will be 10x more difficult. You have now completed Frigid " + game.global.frigidCompletions + " time" + needAnS(game.global.frigidCompletions) + ". Your new total Frigid bonus is +" + prettify((newAmt - 1) * 100) + "%.", "Notices");
+				}
+				else message("You completed Frigid again, just for fun!", "Notices");
+				game.global.challengeActive = "";
+				
+			}
+		},
 		Experience: {
-			description: "Fluffy tells you about a special dimension with some interesting sights he'd like to see. Starting at Z300, any Map at World level or higher has a 20% chance to contain a Wonder. Clearing that cell will grant Fluffy 3 Zones worth of Exp, but will also increase Enemy Attack and Health by 15% (compounding) for the rest of the Challenge. Once a Wonder is found, another cannot be found for 5 more World Zones. Completing Bionic Wonderland XXXIII (L605) or higher while at or above Z601 in the World will complete the Challenge. When the Challenge ends, Fluffy gains an extra 5% of all Experience earned during the Challenge for every Wonder he saw, plus another 50% for every BW tier above XXXIII this Challenge was completed on (up to +350% for XL). Experience can also be completed by clearing Z700, and will grant the same +50% per tier bonus based on your highest BW completed during the Challenge. This Challenge can be repeated!",
+			description: "Fluffy tells you about a special dimension with some interesting sights he'd like to see. Starting at Z300, any Map at World level or higher has a 20% chance to contain a Wonder. Clearing that cell will grant Fluffy 3 Zones worth of Exp, but will also increase Enemy Attack and Health by 15% (compounding) for the rest of the Challenge. Once a Wonder is found, another cannot be found for 5 more World Zones. Completing Bionic Wonderland XXXIII (L605) or higher while at or above Z601 in the World, or clearing Z700 will complete the Challenge. When the Challenge ends, Fluffy gains an extra 5% of all Experience earned during the Challenge for every Wonder he saw, plus another 50% for every BW tier above XXXIII completed during this Challenge (up to +350% for XL). This Challenge can be repeated!",
 			wonders: 0,
 			nextWonder: 300,
 			completeAfterZone: 700,
@@ -4066,6 +4190,64 @@ var toReturn = {
 				}
 				return text;
 			}
+		},
+		Enlightened: {
+			squaredDescription: "Conditions are just right between the Meditate and Discipline dimensions, and the Portal can be configured in a way where you can visit both at the same time! Rules from both Challenges are active, and running this Challenge<sup>2</sup> will set your highest Zone and C<sup>2</sup> bonuses for both Discipline<sup>2</sup> and Meditate<sup>2</sup>. Kill two Squimps with one stone!",
+			completed: false,
+			filter: function(){return true},
+			allowSquared: true,
+			onlySquared: true,
+			multiChallenge: ["Discipline", "Meditate"]
+		},
+		Paralysis: {
+			squaredDescription: "Another set of compatible dimensions has been identified! This time, the Portal can be configured to visit Electricity<sup>2</sup> and Slow<sup>2</sup> at the same time. Rules from both Challenges are active, and running this Challenge<sup>2</sup> will set your highest Zone and C<sup>2</sup> bonuses for both Challenges. Shockingly efficient!",
+			completed: false,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 129);
+			},
+			allowSquared: true,
+			onlySquared: true,
+			multiChallenge: ["Electricity", "Slow"]
+		},
+		Nometal: {
+			squaredDescription: "Yet another combo dimension has been identified! Brave the Nom<sup>2</sup> dimension while subjecting yourself to the <strike>pain</strike> fun of Metal<sup>2</sup> at the same time! Rules from both Challenges are active, and running this Challenge<sup>2</sup> will set your highest Zone and C<sup>2</sup> bonuses for both Challenges. Tastes like efficiency!",
+			completed: false,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 144);
+			},
+			allowSquared: true,
+			onlySquared: true,
+			multiChallenge: ["Nom", "Metal"]
+		},
+		Topology: {
+			squaredDescription: "Your Scientists have found another set of combinable dimensions! Demonstrate your mastery of maps by going on an adventure to the Balance<sup>2</sup> and Mapology<sup>2</sup> dimensions at the same time! Rules from both Challenges are active, and running this Challenge<sup>2</sup> will set your highest Zone and C<sup>2</sup> bonuses for both Challenges. Mapsimum efficiency!",
+			completed: false,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 149);
+			},
+			allowSquared: true,
+			onlySquared: true,
+			multiChallenge: ["Balance", "Mapology"]
+		},
+		Waze: {
+			squaredDescription: "Believe it or not, your Scientists have located another suitable pairing of dimensions! Watch in amazement as your giant Trimps navigate their way through the Watch<sup>2</sup> and Size<sup>2</sup> dimensions at the same time! Rules from both Challenges are active, and running this Challenge<sup>2</sup> will set your highest Zone and C<sup>2</sup> bonuses for both Challenges. It's a huge time saver you'll want to see for yourself!",
+			completed: false,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 179);
+			},
+			allowSquared: true,
+			onlySquared: true,
+			multiChallenge: ["Size", "Watch"]
+		},
+		Toxad: {
+			squaredDescription: "Your Scientists have discovered a 6th suitable pairing of dimensions! Lead your Trimps through the toxic terrain and show the Universe who's boss by subjecting yourself to both the Toxicity<sup>2</sup> and Lead<sup>2</sup> dimensions at the same time! Rules from both Challenges are active, and running this Challenge<sup>2</sup> will set your highest Zone and C<sup>2</sup> bonuses for both Challenges. It's a dangerously good time.",
+			completed: false,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 179);
+			},
+			allowSquared: true,
+			onlySquared: true,
+			multiChallenge: ["Toxicity", "Lead"]
 		},
 		//U2 Challenges
 		Unlucky: {
@@ -4207,7 +4389,7 @@ var toReturn = {
 			unlocks: "Equality"
 		},
 		Bublé: {
-			description: "Tweak the portal to bring you to an alternate reality where Trimps really really don't like taking damage. Your Trimps start in this reality with an extra 250% Prismatic Shield, but as soon as they take any damage to health at all, they will refuse to fight again and the challenge will end. Clearing <b>Zone 40</b> without failing will complete this Challenge - granting an additional 500% of all Radon earned up to that point. Failing this Challenge will grant an additional 200% of all Radon earned up to the spot where you failed.",
+			description: "Tweak the portal to bring you to an alternate reality where Trimps really really don't like taking damage. Your Trimps start in this reality with an extra 250% Prismatic Shield, but as soon as they take any damage to health at all, they will refuse to fight again and the challenge will end. Clearing <b>Zone 40</b> without failing will complete this Challenge - granting an additional 500% of all Radon earned during this portal up to that point. Failing this Challenge will grant an additional 200% of all Radon earned during this portal up to the spot where you failed.",
 			completed: false,
 			allowU2: true,
 			blockU1: true,
@@ -4445,7 +4627,13 @@ var toReturn = {
 		},
 		Wither: {
 			description: "Travel to an ultra scary alternate reality with horrific Bad Guys. Enemies heal for 25% of their maximum health before each attack. If an enemy ever heals itself back to 100% health, your army will fall to despair and instantly wither away. Every enemy slain by your Trimps in the World or World-level Maps grants 1 stack of Hardness to your Trimps (stacking up to 10,000 and increasing Health by 0.1% per stack) and 1 stack of Horror to all enemies (increasing Attack by 0.05% per stack). Whenever a group of Trimps is killed by Wither, Trimps lose half of their stacks of Hardness and block the enemy's ability to heal and Wither for an amount of cells equal to 10% of the Hardness stacks lost. Clearing <b>Zone 70</b> will complete this Challenge.",
-			squaredDescription: "Travel to an ultra scary alternate reality with horrific Bad Guys. Enemies heal for 25% of their maximum health before each attack. If an enemy ever heals itself back to 100% health, your army will fall to despair and instantly wither away. Every enemy slain by your Trimps in the World or World-level Maps grants 1 stack of Hardness to your Trimps (stacking up to 10,000 and increasing Health by 0.1% per stack) and 1 stack of Horror to all enemies (increasing Attack by 0.05% per stack). Whenever a group of Trimps is killed by Wither, Trimps lose half of their stacks of Hardness and block the enemy's ability to heal and Wither for an amount of cells equal to 10% of the Hardness stacks lost. Plaguebringer is disabled during Wither<sup>3</sup>",
+			get squaredDescription(){
+				var desc = "Travel to an ultra scary alternate reality with horrific Bad Guys. Enemies heal for 25% of their maximum health before each attack. If an enemy ever heals itself back to 100% health, your army will fall to despair and instantly wither away. Every enemy slain by your Trimps in the World or World-level Maps grants 1 stack of Hardness to your Trimps (stacking up to 10,000 and increasing Health by 0.1% per stack) and 1 stack of Horror to all enemies (increasing Attack by 0.05% per stack). Whenever a group of Trimps is killed by Wither, Trimps lose half of their stacks of Hardness and block the enemy's ability to heal and Wither for an amount of cells equal to 10% of the Hardness stacks lost. Plaguebringer";
+				if (game.global.highestRadonLevelCleared >= 200) desc += " and Overkill are";
+				else desc += " is";
+				desc += " disabled during Wither<sup>3</sup>";
+				return desc;
+			},
 			completed: false,
 			blockU1: true,
 			allowU2: true,
@@ -4929,7 +5117,7 @@ var toReturn = {
 			get description(){
 				var text = "";
 				if (game.global.mayhemCompletions >= this.maxRuns) text += "<b>NOTICE: You have already completed Mayhem " + this.maxRuns + " times, and will no longer gain a bonus for future runs.</b><br/>";
-				text += "Travel to a very hectic dimension. The final Cell of each Zone is a Poisonous boss enemy, and all Map enemies are also Poisonous. Poisonous Enemies stack 20% of their damage on your Trimps as poison, which is taken as damage after each attack until your Trimps die. Each Zone starts with " + this.getStartStacks() + " stacks of Mayhem, and each stack increases the damage and health of the final Cell Boss Enemy for that Zone by 10%. Completing a map reduces the Mayhem stacks for that Zone by 1 and an additional 1 for each level of the Map above the Zone's level (For example, a level 15 map will remove 3 stacks per completion when at Z13). Completing <b>Z100</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.mayhemCompletions * 10) + 10) + "%</b> bonus to Radon or Helium, and Trimp Attack and Health in Universes 1 and 2. Each time Mayhem is completed, the reward for next time increases by an additional 10% and Enemies gain 3x damage and health for all future runs of Mayhem. The amount of Mayhem stacks that each Zone starts with is always equal to 1000 minus 5 for each highest Zone cleared above Z100 in this Universe (You have cleared Z" + game.global.highestRadonLevelCleared + " and start each Zone with " + this.getStartStacks() + " stacks)";
+				text += "Travel to a very hectic dimension. The final Cell of each Zone is a Poisonous boss enemy, and all Map enemies are also Poisonous. Poisonous Enemies stack 20% of their damage on your Trimps as poison, which is taken as damage after each attack until your Trimps die. Each Zone starts with " + this.getStartStacks() + " stacks of Mayhem, and each stack increases the damage and health of the final Cell Boss Enemy for that Zone by 10%. Completing a map at world level or above reduces the Mayhem stacks for that Zone by 1 and an additional 1 for each level of the Map above the Zone's level (For example, a level 15 map will remove 3 stacks per completion when at Z13). Completing <b>Z100</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify((game.global.mayhemCompletions * 10) + 10) + "%</b> bonus to Radon or Helium, and Trimp Attack and Health in Universes 1 and 2. Each time Mayhem is completed, the reward for next time increases by an additional 10% and Enemies gain 3x damage and health for all future runs of Mayhem. The amount of Mayhem stacks that each Zone starts with is always equal to 1000 minus 5 for each highest Zone cleared above Z100 in this Universe (You have cleared Z" + game.global.highestRadonLevelCleared + " and start each Zone with " + this.getStartStacks() + " stacks)";
 				text += " <b>You have completed Mayhem " + game.global.mayhemCompletions + " / " + this.maxRuns + " maximum times. Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, and Helium or Radon, and your next run of Mayhem will spawn Bad Guys with " + prettify(Math.pow(3, game.global.mayhemCompletions)) + "x Attack and Health.</b>";
 				return text;
 			},
@@ -5138,7 +5326,7 @@ var toReturn = {
 		},
 		Insanity: {
 			get description(){
-				return "Travel to a dimension where instability takes over the mind. Maps above your World level have a chance to spawn a Horrimp in each cell, with the chance based on both actual map level and its level relative to your current World Zone. Horrimps are stronger than regular imps and when killed, give you a stack of Insanity. Maximum stacks is 500. Insanity decreases your health by 1% (compounding) but increases all resources gained (including radon) by 13.133% (additive). Every map (n below map level) ran reduces your current insanity by 2n and your maximum insanity by n. Challenge ends after clearing Z110. Completing this challenge will reward you with an additional 500% of all Radon earned and a feeling of deep satisfaction.";
+				return "Travel to a dimension where instability takes over the mind. Maps above your World level have a chance to spawn a Horrimp in each cell, with the chance based on both actual map level and its level relative to your current World Zone. Horrimps are stronger than regular imps and when killed, give you a stack of Insanity. Maximum stacks is 500. Insanity decreases your health by 1% (compounding) but increases all resources gained (including radon) by 13.133% (additive). Every map (n below world level) ran reduces your current insanity by 2n and your maximum insanity by n. Challenge ends after clearing Z110. Completing this challenge will reward you with an additional 500% of all Radon earned and a feeling of deep satisfaction.";
 			},
 			completed: false,
 			blockU1: true,
@@ -5225,13 +5413,13 @@ var toReturn = {
 		},
 		Berserk: {
 			get description(){
-				return "Travel to a dimension filled with lots of mild annoyances, sure to drive your Trimps berserk. All enemies in this dimension have 50% more attack and health. Every time your Trimps attack they have a 5% chance to become Frenzied, causing all kills to heal for 1% of max health, and also stack +50% attack and -2% max health, up to 25 times. If a frenzied group dies or is abandoned, your Trimps gain a permanent Weakened stack, reducing health by 4.99% per stack when outside of frenzy. If weakened stacks reach 20, Trimps can no longer become frenzied. Due to this dimension's annoying nature, the Angelic Mastery does not work. Completing Z115 will return your world to normal.";
+				return "Travel to a dimension filled with lots of mild annoyances, sure to drive your Trimps berserk. All enemies in this dimension have 50% more attack and health. Every time your Trimps attack they have a 5% chance to become Frenzied, and each kill while frenzied will increase your frenzy, up to 25 stacks. While frenzied, kills heal your Trimps for 1% of their max health, and each stack adds +50% attack and -2% max health. If a frenzied group dies or is abandoned, your Trimps gain a permanent Weakened stack, reducing health by 4.99% per stack when outside of frenzy. If weakened stacks reach 20, Trimps can no longer become frenzied. Due to this dimension's annoying nature, the Angelic Mastery does not work. Completing Z115 will return your world to normal.";
 			},
 			completed: false,
 			blockU1: true,
 			allowU2: true,
 			allowSquared: true,
-			squaredDescription: "Travel to a dimension filled with lots of mild annoyances, sure to drive your Trimps berserk. All enemies in this dimension have 50% more attack and health. Every time your Trimps attack they have a 5% chance to become Frenzied, causing all kills to heal for 1% of max health, and also stack +50% attack and -2% max health, up to 25 times. If a frenzied group dies or is abandoned, your Trimps gain a permanent Weakened stack, reducing health by 4.99% per stack when outside of frenzy. If weakened stacks reach 20, Trimps can no longer become frenzied. Due to this dimension's annoying nature, the Angelic Mastery and Frenzy Perk do not work.",
+			squaredDescription: "Travel to a dimension filled with lots of mild annoyances, sure to drive your Trimps berserk. All enemies in this dimension have 50% more attack and health. Every time your Trimps attack they have a 5% chance to become Frenzied, and each kill while frenzied will increase your frenzy, up to 25 stacks. While frenzied, kills heal your Trimps for 1% of their max health, and each stack adds +50% attack and -2% max health. If a frenzied group dies or is abandoned, your Trimps gain a permanent Weakened stack, reducing health by 4.99% per stack when outside of frenzy. If weakened stacks reach 20, Trimps can no longer become frenzied. Due to this dimension's annoying nature, the Angelic Mastery and Frenzy Perk do not work.",
 			completeAfterZone: 115,
 			unlockString: " reach Zone 115",
 			fireAbandon: true,
@@ -5386,7 +5574,7 @@ var toReturn = {
 		},
 		Nurture: {
 			get description(){
-				return "Travel to a dimension filled with gigantic monsters. All enemies have 2x attack, World enemies have 2x health and map enemies have 10x health. Luckily, Scruffy has a brother in this dimension who will help you out if you level him up! You'll gain access to the special Laboratory building while on this challenge, which will give bonus Exp to Scruffy's brother, Cruffys. Check the Scruffy and Laboratory tooltips while on this Challenge for more info. Clearing <b>Z135</b> with this Challenge active will grant an additional 400% of all Radon earned up until that point, and will (mostly) return the world to normal." + ((game.portal.Observation.radLocked) ? " <b>Complete this Challenge with Cruffys at Level 10 or higher to earn a new Perk!</b>" : "");
+				return "Travel to a dimension filled with gigantic monsters. All enemies have 2x attack, World enemies have 2x health and map enemies have 10x health. Luckily, Scruffy has a brother in this dimension who will help you out if you level him up! You'll gain access to the special Laboratory building while on this challenge, which will give bonus Exp to Scruffy's brother, Cruffys. Check the Scruffy and Laboratory tooltips while on this Challenge for more info. Clearing <b>Z135</b> with this Challenge active will grant an additional 400% of all Radon earned during this portal up until that point, and will (mostly) return the world to normal." + ((game.portal.Observation.radLocked) ? " <b>Complete this Challenge with Cruffys at Level 10 or higher to earn a new Perk!</b>" : "");
 			},
 			completed: false,
 			blockU1: true,
@@ -5679,7 +5867,7 @@ var toReturn = {
 		Alchemy: {
 			get description(){
 				// + ((!game.global.alchemyUnlocked) ? " <b>Complete a Z155 Void Map with 15 or more Gaseous Brews and no Potions of the Void while on this Challenge to unlock the permanent skill of Alchemy.</b>" : "")
-				return "Travel to a dimension where maps are filled with useful herbs. Collect different herbs from different types of maps, and use Alchemy to create powerful potions to strengthen your Trimps. Clearing <b>Z155</b> with this Challenge active will grant an additional 400% of all Radon earned up until that point, and will return the world to normal. You can repeat this challenge!" + ((!game.global.farmlandsUnlocked) ? " <b>Complete this Challenge once to unlock the ability to create a brand new type of map that should greatly aid your Alchemy.</b>" : "");
+				return "Travel to a dimension where maps are filled with useful herbs. Collect different herbs from different types of maps, and use Alchemy to create powerful potions to strengthen your Trimps. Clearing <b>Z155</b> with this Challenge active will grant an additional 400% of all Radon earned during this portal up until that point, and will return the world to normal. You can repeat this challenge!" + ((!game.global.farmlandsUnlocked) ? " <b>Complete this Challenge once to unlock the ability to create a brand new type of map that should greatly aid your Alchemy.</b>" : "");
 			},
 			completed: false,
 			blockU1: true,
@@ -5717,7 +5905,7 @@ var toReturn = {
 			}
 		},
 		Hypothermia: {
-			description: "Travel to a dimension where heat is hard to come by. Every time you start a new Zone with enough Wood your Trimps will automatically construct a Bonfire, which will generate 1 Ember Stack per Zone per active Bonfire. Ember stacks increase Radon earned by +300% (additive) and Enemy Stats by 3% (compounding). Ember stacks reduce gathered and looted Wood by 5% (compounding) in the World, and reduce wood in Maps only when a Bonfire is currently burning. Bonfires burn for 5 Zones each before they burn out, but only 1 will burn out every 5 Zones. The amount of Wood required to build a Bonfire increases every time one is built. In addition, the air is so cold that the door to your ship has frozen shut, and Perks cannot be modified while this Challenge is active. Completing <b>Frozen Castle</b> with this Challenge active will grant you an additional 400% of all Radon earned up to that point and return the world to normal. Completing Z200 without clearing Frozen Castle will fail the Challenge. The first time you complete this Challenge unlocks a new Perk!",
+			description: "Travel to a dimension where heat is hard to come by. Every time you start a new Zone with enough Wood your Trimps will automatically construct a Bonfire, which will generate 1 Ember Stack per Zone per active Bonfire. Ember stacks increase Radon earned by +300% (additive) and Enemy Stats by 3% (compounding). Ember stacks reduce gathered and looted Wood by 5% (compounding) in the World, and reduce wood in Maps only when a Bonfire is currently burning. Bonfires burn for 5 Zones each before they burn out, but only 1 will burn out every 5 Zones. The amount of Wood required to build a Bonfire increases every time one is built. In addition, the air is so cold that the door to your ship has frozen shut, and Perks cannot be modified while this Challenge is active. Completing <b>Frozen Castle</b> with this Challenge active will grant you an additional 400% of all Radon earned during this portal up to that point and return the world to normal. Completing Z200 without clearing Frozen Castle will fail the Challenge. The first time you complete this Challenge unlocks a new Perk!",
 			completed: false,
 			blockU1: true,
 			allowU2: true,
@@ -5817,10 +6005,10 @@ var toReturn = {
 		},
 		Glass: {
 			get description() {
-				return "Travel to a dimension with fragile but dangerous Enemies. All Bad Guys are Fast and have x100 Attack. Hitting a Bad Guy without killing it creates a stack of Glass. Each Glass stack increases the base Enemy Attack multiplier by +1x. Every 100 Glass, Enemy Attack doubles. Every 1000 Glass, Enemy Health doubles. Every " + prettify(10000) + " Glass, Enemies gain a Crystallized stack and Glass stacks reset to 0. Each Crystallized stack reduces Enemy Health by 20% (compounding) but also gives them a 10% chance to reflect an attack, and reaching 10 Crystallized stacks fails this Challenge. Killing an Enemy at or above World level removes two stacks of Glass plus one for every Crystallized stack on the Enemy, but Crystallized can never be removed. Completing <b>Z175</b> with this Challenge active will permanently cause all Radon earned to be increased by 10% (compounding) per Zone above Z175.";
+				return "Travel to a dimension with fragile but dangerous Enemies. All Bad Guys are Fast and have x100 Attack. Hitting a Bad Guy without killing it creates a stack of Glass. Each Glass stack increases the base Enemy Attack multiplier by +1x. Every 100 Glass, Enemy Attack and Health doubles. Every " + prettify(1000) + " Glass, Enemies gain a Crystallized stack and Glass stacks reset to 0. Each Crystallized stack reduces Enemy Health by 20% (compounding) but also gives them a 10% chance to reflect an attack, and reaching 10 Crystallized stacks fails this Challenge. Killing an Enemy at or above World level removes two stacks of Glass plus one for every Crystallized stack on the Enemy, but Crystallized can never be removed. Completing <b>Z175</b> with this Challenge active will permanently cause all Radon earned to be increased by 10% (compounding) per Zone above Z175.";
 			},
 			get squaredDescription() {
-				return "Travel to a dimension with fragile but dangerous Enemies. All Bad Guys are Fast and have x100 Attack. Hitting a Bad Guy without killing it creates a stack of Glass. Each Glass stack increases the base Enemy Attack multiplier by +1x. Every 100 Glass, Enemy Attack doubles. Every 1000 Glass, Enemy Health doubles. Every " + prettify(10000) + " Glass, Enemies gain a Crystallized stack and Glass stacks reset to 0. Each Crystallized stack reduces Enemy Health by 20% (compounding) but also gives them a 10% chance to reflect an attack, and reaching 10 Crystallized stacks fails this Challenge. Killing an Enemy at or above World level removes two stacks of Glass plus one for every Crystallized stack on the Enemy, but Crystallized can never be removed.";
+				return "Travel to a dimension with fragile but dangerous Enemies. All Bad Guys are Fast and have x100 Attack. Hitting a Bad Guy without killing it creates a stack of Glass. Each Glass stack increases the base Enemy Attack multiplier by +1x. Every 100 Glass, Enemy Attack and Health doubles. Every " + prettify(1000) + " Glass, Enemies gain a Crystallized stack and Glass stacks reset to 0. Each Crystallized stack reduces Enemy Health by 20% (compounding) but also gives them a 10% chance to reflect an attack, and reaching 10 Crystallized stacks fails this Challenge. Killing an Enemy at or above World level removes two stacks of Glass plus one for every Crystallized stack on the Enemy, but Crystallized can never be removed.";
 			},
 			filter: function () {
 				return (getHighestLevelCleared(true) >= 174);
@@ -5845,7 +6033,7 @@ var toReturn = {
 			},
 			notOneShot: function(){		
 				this.shards++;
-				if (this.shards >= 10000){
+				if (this.shards >= 1000){
 					this.shards = 0;
 					this.crystals++;
 					this.updateCellHealth();
@@ -5856,7 +6044,7 @@ var toReturn = {
 					}
 				}
 				if (this.shards > this.highestGlass) this.highestGlass = this.shards;
-				if (this.shards % 1000 == 0) this.updateCellHealth();
+				if (this.shards % 100 == 0) this.updateCellHealth();
 				this.drawStacks();
 			},
 			abandon: function(){
@@ -5920,7 +6108,7 @@ var toReturn = {
 				return 0.1 * this.crystals;
 			},
 			crystalTooltip: function(){
-				return "Enemies gain a stack of Crystalized on reaching 10,000 Glass. " + prettify(this.reflectChance() * 100) + "% chance of reflecting an attack, and Health reduced by " + prettify((1 - this.healthMult()) * 100) + "%. Challenge will fail on reaching 10 Crystallized stacks. Enemies killed at or above World Level cause " + (2 + this.crystals) + " stacks of Glass to be removed.";
+				return "Enemies gain a stack of Crystalized on reaching 1,000 Glass. " + prettify(this.reflectChance() * 100) + "% chance of reflecting an attack, and Health reduced by " + prettify((1 - this.healthMult()) * 100) + "%. Challenge will fail on reaching 10 Crystallized stacks. Enemies killed at or above World Level cause " + (2 + this.crystals) + " stacks of Glass to be removed.";
 			}
 		},
 		Smithless: {
@@ -6010,23 +6198,147 @@ var toReturn = {
 				this.drawStacks(true);
 			},
 			unlocks: "Smithology"
-		}
+		},
+		Desolation: {
+			get description(){
+				var text = "";
+				if (game.global.desoCompletions >= this.maxRuns) text += "<b>NOTICE: You have already completed Desolation " + this.maxRuns + " times, and will no longer gain a bonus for future runs.</b><br/>";
+				text += "Travel to a bitterly cold dimension. Every completed Zone reduces the temperature of the world, lowering your Trimps' attack, health, and resources (gathered and looted) by <b>" + prettify(this.getReducePercent() * 100) + "%</b>. The enemies in this dimension are even colder and will apply a stack of Chilled with every attack they land. Upon death Bad Guys explode, dealing 5x their attack in damage and applying another 20 stacks of Chilled to your Trimps. Each stack of Chilled reduces your Trimps' attack by 0.2% and their health by 0.1%. Fortunately maps are still nice and warm in this dimension, and attacking map enemies at world level or above will cause 1 stack of Chilled to be lost, plus another stack for each map level above world level. Additionally, if a map above world level is cleared, 1% of all Chilled stacks will be cleared for each level. All enemies within maps are fast.";
+				text += " Completing <b>Z" + this.completeAfterZone + "</b> with this Challenge active will grant your Trimps a permanent, stacking, additive <b>" + prettify(10 + (10 * game.global.desoCompletions)) + "%</b> bonus to Helium or Radon, Trimp Attack, Trimp Health, Resources Gathered, <b>and Mutated Seeds earned</b> in Universe 1 and 2. Each time Desolation is completed, the reward for next time increases by an additional 10%, 2 more Zones will need to be completed for all future runs of Desolation, and Desolation enemies will gain 10x Attack and Health, and the Trimp stat reduction for each completed Zone increases by 0.2%."
+				var scaleMult = this.getEnemyMult();
+				text += " <b>You have completed Desolation " + game.global.desoCompletions + " / " + this.maxRuns + " maximum times. Your Trimps have +" + prettify((this.getTrimpMult() - 1) * 100) + "% Attack, Health, Radon or Helium, gathered resources, and Mutated Seeds in U1 and U2, and your next run of Desolation will spawn Bad Guys with " + prettify(scaleMult) + "x Attack and Health";
+				return text;
+			},
+			get completeAfterZone(){
+				return (200 + (game.global.desoCompletions * 2))
+			},
+			chilled: 0,
+			blockedEquips: [],
+			fireAbandon: true,
+			filter: function(){
+				return (getHighestLevelCleared(true) >= 199);
+			},
+			addChilledStacks: function(count){
+				var oldBonus = this.trimpHealthMult(true);
+				this.chilled += count;
+				if (this.chilled <= 0) this.chilled = 0;
+				this.updateHealth(oldBonus, this.trimpHealthMult(true));
+				this.drawStacks();
+			},
+			updateHealth: function(oldBonus, newBonus){		
+				if (game.global.soldierHealth <= 0) return;
+				game.global.soldierHealthMax *= (newBonus / oldBonus);
+				if (game.global.soldierHealth > game.global.soldierHealthMax) game.global.soldierHealth = game.global.soldierHealthMax;
+				updateAllBattleNumbers();
+			},
+			getEnemyMult: function(){
+				return Math.pow(10, game.global.desoCompletions);
+			},
+			getTrimpMult: function(){
+				var comps = game.global.desoCompletions;
+				return 1 + (((comps / 2) * (comps + 1)) / 10);
+			},
+			desolationMult: function(forceWorld){
+				var world = (forceWorld) ? forceWorld : game.global.world
+				return Math.pow((1 - this.getReducePercent()), (world - 1));
+			},
+			getReducePercent: function(){
+				return ((1 + (0.2 * game.global.desoCompletions)) * 0.01);
+			},
+			trimpHealthMult: function(ignoreDeso){
+				var mult = Math.pow(0.999, this.chilled);
+				if (!ignoreDeso) mult *= this.desolationMult();
+				return mult;
+			},
+			trimpAttackMult: function(ignoreDeso){
+				var mult = Math.pow(0.998, this.chilled);
+				if (!ignoreDeso) mult *= this.desolationMult();
+				return mult;
+			},
+			trimpResourceMult: function(){
+				return this.desolationMult();
+			},
+			onNextWorld: function(){
+				this.updateHealth(this.desolationMult(game.global.world - 1), this.desolationMult(game.global.world));
+				this.drawStacks();
+				
+			},
+			clearedMap: function(level){
+				var above = (level - game.global.world);
+				if (above <= 0) return;
+				var remove = Math.ceil(this.chilled * (above / 100));
+				this.addChilledStacks(remove * -1);
+			},
+			onEnemyKilled: function(){
+				if (game.global.mapsActive) return;
+				var cell = getCurrentWorldCell();
+				var cellAttack = calculateDamage(cell.attack, false, false, false, cell);
+				reduceSoldierHealth(cellAttack * 5);
+				this.addChilledStacks(20);
+			},
+			mapAttacked: function(level){
+				var bonus = (level - game.global.world) + 1;
+				if (bonus <= 0) return;
+				this.addChilledStacks(bonus * -1);
+			},
+			abandon: function(){
+				manageStacks(null, null, true, 'desoChilledStacks', null, null, true);
+			},
+			drawStacks: function(){
+				if (this.chilled > 0){
+					manageStacks('Chilled', prettify(this.chilled), true, 'desoChilledStacks', 'icomoon icon-snow', this.chilledTooltip(), false);
+				}
+				else {
+					manageStacks(null, null, true, 'desoChilledStacks', null, null, true);
+				}
+			},
+			onLoad: function(){
+				this.drawStacks();
+			},
+			start: function(){
+				this.drawStacks();
+			},
+			chilledTooltip: function(){
+				return "The enemies are chilling your Trimps to the bone! Attack multiplied by <b>" + prettify(this.trimpAttackMult(true)) + "</b> and health multiplied by <b>" + prettify(this.trimpHealthMult(true)) + "</b>. Run maps to warm up!";
+			},
+			onComplete: function(){
+				game.challenges.Desolation.abandon();
+				var oldAmt = this.getTrimpMult();
+				if (game.global.desoCompletions < this.maxRuns) {
+					game.global.desoCompletions++;
+					var newAmt = this.getTrimpMult();
+					message("You have completed the Desolation Challenge! Your Trimps have gained +" + prettify((newAmt - oldAmt) * 100) + "% Radon or Helium, Damage, Health, Gathered Resources, and Mutated Seeds in Universe 1 and 2, and future runs of this Challenge will be 10x more difficult, require 2 more completed Zones to finish, and reduce stats by an extra 0.2% per Zone cleared. You have now completed Desolation " + game.global.desoCompletions + " time" + needAnS(game.global.desoCompletions) + ". Your new total Desolation bonus is +" + prettify((newAmt - 1) * 100) + "%", "Notices");
+				}
+				else message("You completed Desolation again, just for fun!", "Notices");
+				game.global.challengeActive = "";
+				
+			},
+			completed: false,
+			maxRuns: 25,
+			blockU1: true,
+			allowU2: true,
+			allowSquared: false,
+			unlockString: " reach Zone 200",
+		},
 	},
 	stats:{
 		trimpsKilled: {
 			title: "Dead Trimps",
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		battlesWon: {
 			title: "Battles Won",
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		battlesLost: {
 			title: "Battles Lost",
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		gemsCollected: {
 			title: "Gems Collected",
@@ -6034,17 +6346,20 @@ var toReturn = {
 			valueTotal: 0,
 			display: function () {
 				return ((this.value + this.valueTotal) > 0)
-			}
+			},
+			hidden: false
 		},
 		mapsCleared: {
 			title: "Maps Cleared",
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		zonesCleared: {
 			title: "Zones Cleared",
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		trimpsFired: {
 			title: "Trimps Fired",
@@ -6052,7 +6367,8 @@ var toReturn = {
 			valueTotal: 0,
 			//This stat was added in 3.6 and the numbers will look bad for a few months.
 			//Open maybe 10/21/16ish
-			display: function () {return false;}
+			display: function () {return false;},
+			hidden: false
 		},
 		spentOnWorms: {
 			title: "Wormholed Helium",
@@ -6063,7 +6379,8 @@ var toReturn = {
 				return (game.global.universe == 1);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		goldenUpgrades: {
 			title: "Golden Upgrades",
@@ -6071,7 +6388,8 @@ var toReturn = {
 				return (this.value > 0 || this.valueTotal > 0);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		heliumHour: {
 			get title(){ 
@@ -6094,7 +6412,8 @@ var toReturn = {
 					resToUse = (useTemp) ? game.global.tempHighHelium : game.resources.helium.owned;
 				}
 				return Math.floor(resToUse / timeThisPortal);
-			}
+			},
+			hidden: false
 		},
 		bestHeliumHourThisRun: {
 			get title(){ 
@@ -6120,7 +6439,8 @@ var toReturn = {
 				this.storedValue = 0;
 				this.atZone = 0;
 			},
-			noFormat: true
+			noFormat: true,
+			hidden: false
 		},
 		totalHelium: {
 			title: "Total Helium Earned",
@@ -6129,14 +6449,16 @@ var toReturn = {
 			},
 			valueTotal: function () {
 				return game.global.totalHeliumEarned;
-			}
+			},
+			hidden: false
 		},
 		bestHeliumHour: {
 			title: "Best He/Hour all Runs",
 			display: function () {
 				return (this.valueTotal > 0);
 			},
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		dailyBonusHelium: {
 			title: "Daily Challenge Helium",
@@ -6147,7 +6469,8 @@ var toReturn = {
 				return (game.global.universe == 1);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		totalRadon: {
 			title: "Total Radon Earned",
@@ -6156,14 +6479,16 @@ var toReturn = {
 			},
 			valueTotal: function () {
 				return game.global.totalRadonEarned;
-			}
+			},
+			hidden: false
 		},
 		bestRadonHour: {
 			title: "Best Rn/Hour all Runs",
 			display: function () {
 				return (this.valueTotal > 0);
 			},
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		dailyBonusRadon: {
 			title: "Daily Challenge Radon",
@@ -6174,7 +6499,8 @@ var toReturn = {
 				return (game.global.universe == 2);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		zonesLiquified: {
 			title: "Zones Liquified",
@@ -6182,7 +6508,8 @@ var toReturn = {
 				return (this.value > 0 || this.valueTotal > 0)
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		highestVoidMap: {
 			title: "Highest Void Map Clear",
@@ -6202,7 +6529,8 @@ var toReturn = {
 				}
 				if (game.global.world > this.value) this.value = game.global.world;
 				if (game.global.world > this.valueTotal) this.valueTotal = game.global.world;
-			}
+			},
+			hidden: false
 		},
 		highestVoidMap2: {
 			title: "Highest U2 Void Map",
@@ -6218,7 +6546,8 @@ var toReturn = {
 			evaluate: function() { //called on completion of void map
 				if (game.global.world > this.value) this.value = game.global.world;
 				if (game.global.world > this.valueTotal) this.valueTotal = game.global.world;
-			}
+			},
+			hidden: false
 		},
 		totalVoidMaps: {
 			title: "Total Void Maps Cleared",
@@ -6227,6 +6556,7 @@ var toReturn = {
 			},
 			value: 0,
 			valueTotal: 0,
+			hidden: false
 		},
 		totalHeirlooms: { //added from createHeirloom to value
 			title: "Heirlooms Found",
@@ -6234,7 +6564,8 @@ var toReturn = {
 				return (this.value > 0 || this.valueTotal > 0);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		coresFound: {
 			title: "Cores Found",
@@ -6245,7 +6576,8 @@ var toReturn = {
 				return (game.global.universe == 1);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		cellsOverkilled: {
 			title: "World Cells Overkilled",
@@ -6256,7 +6588,8 @@ var toReturn = {
 				return (game.global.universe == 1);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		highestBw: {
 			title: "Highest BW Clear",
@@ -6272,7 +6605,8 @@ var toReturn = {
 			evaluate: function(bwLevel){
 				if (bwLevel > this.value) this.value = bwLevel;
 				if (bwLevel > this.valueTotal) this.valueTotal = bwLevel;
-			}
+			},
+			hidden: false
 		},
 		trimpsGenerated: {
 			title: "Trimps from Generator",
@@ -6283,7 +6617,8 @@ var toReturn = {
 				return (game.global.universe == 1);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		decayedNurseries: {
 			title: "Burned Nurseries",
@@ -6294,7 +6629,8 @@ var toReturn = {
 				return (game.global.universe == 1);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		bestTokens: {
 			get title () {
@@ -6310,7 +6646,8 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0,
 			noAdd: true,
-			keepHighest: true
+			keepHighest: true,
+			hidden: false
 		},
 		amalgamators: {
 			title: "Amalgamators Befriended",
@@ -6321,7 +6658,8 @@ var toReturn = {
 				return (game.global.universe == 1);
 			},
 			value: 0,
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		bestFluffyExp: {
 			get title () {
@@ -6337,7 +6675,8 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0,
 			noAdd: true,
-			keepHighest: true
+			keepHighest: true,
+			hidden: false
 		},
 		bestFluffyExp2: {
 			get title () {
@@ -6353,7 +6692,8 @@ var toReturn = {
 			value: 0,
 			valueTotal: 0,
 			noAdd: true,
-			keepHighest: true
+			keepHighest: true,
+			hidden: false
 		},
 		fluffyExpHour: {
 			get title() { 
@@ -6367,7 +6707,8 @@ var toReturn = {
 				if (timeThisPortal < 1) return 0;
 				timeThisPortal /= 3600000;
 				return Math.floor(Fluffy.getBestExpStat().value / timeThisPortal);
-			}
+			},
+			hidden: false
 		},
 		bestFluffyExpHourThisRun: {
 			get title(){
@@ -6392,35 +6733,40 @@ var toReturn = {
 				this.storedValue = 0;
 				this.atZone = 0;
 			},
-			noFormat: true
+			noFormat: true,
+			hidden: false
 		},
 		bestFluffyExpHour: {
 			title: "Best Fluffy Exp/Hr",
 			display: function () {
 				return (this.valueTotal > 0);
 			},
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		bestFluffyExpHour2: {
 			title: "Best Scruffy Exp/Hr",
 			display: function () {
 				return (this.valueTotal > 0);
 			},
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		fluffyPats: {
 			title: "Fluffy Pats",
 			display: function(){
 				return (this.valueTotal > 0);
 			},
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		scruffyPats: {
 			title: "Scruffy Pats",
 			display: function(){
 				return (this.valueTotal > 0);
 			},
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		totalPortals: {
 			title: "Total Portals Used",
@@ -6432,7 +6778,8 @@ var toReturn = {
 			},
 			valueTotal: function () {
 				return game.global.totalPortals;
-			}
+			},
+			hidden: false
 		},
 		totalRadPortals: {
 			title: "Total Radon Portals",
@@ -6444,20 +6791,23 @@ var toReturn = {
 			},
 			valueTotal: function () {
 				return game.global.totalRadPortals;
-			}
+			},
+			hidden: false
 		},
 		planetsBroken: {
 			title: "Planets Broken",
 			display: function () {
 				return (this.valueTotal > 0);
 			},
-			valueTotal: 0
+			valueTotal: 0,
+			hidden: false
 		},
 		highestLevel: {
 			title: "Highest Zone",
 			valueTotal: function () {
 				return game.global.highestLevelCleared + 1;
-			}
+			},
+			hidden: false
 		},
 		highestRadLevel: {
 			title: "Highest Zone U2",
@@ -6466,7 +6816,8 @@ var toReturn = {
 			},
 			display: function(){
 				return (game.global.highestRadonLevelCleared > 0);
-			}
+			},
+			hidden: false
 		},
 		tdKills: {
 			title: "Trap/Tower Kills",
@@ -6474,7 +6825,8 @@ var toReturn = {
 			valueTotal: 0,
 			display: function(){
 				return (playerSpire.initialized);
-			}
+			},
+			hidden: false
 		},
 		saDust: {
 			title: "SA Dust Earned",
@@ -6482,7 +6834,8 @@ var toReturn = {
 			valueTotal: 0,
 			display: function(){
 				return (game.global.highestRadonLevelCleared >= 74);
-			}
+			},
+			hidden: false
 		},
 		saShards: {
 			title: "SA Shards Earned",
@@ -6490,7 +6843,8 @@ var toReturn = {
 			valueTotal: 0,
 			display: function(){
 				return (this.value + this.valueTotal > 0);
-			}
+			},
+			hidden: false
 		},
 		saKills: {
 			title: "SA Enemies Killed",
@@ -6498,14 +6852,16 @@ var toReturn = {
 			valueTotal: 0,
 			display: function(){
 				return (game.global.highestRadonLevelCleared >= 74);
-			}
+			},
+			hidden: false
 		},
 		saHighestLevel: {
 			title: "SA Highest Level",
 			valueTotal: 0,
 			display: function(){
 				return (game.global.highestRadonLevelCleared >= 74);
-			}
+			},
+			hidden: false
 		},
 		runetrinkets: {
 			title: "Runetrinkets Collected",
@@ -6513,7 +6869,8 @@ var toReturn = {
 			valueTotal: 0,
 			display: function(){
 				return (game.portal.Observation.radLocked == false);
-			}
+			},
+			hidden: false
 		},
 		mutatedSeeds: {
 			title: "Mutated Seeds Collected",
@@ -6521,7 +6878,8 @@ var toReturn = {
 			valueTotal: 0,
 			display: function(){
 				return (game.global.highestRadonLevelCleared >= 200);
-			}
+			},
+			hidden: false
 		}
 	},
 	generatorUpgrades: {
@@ -6671,9 +7029,9 @@ var toReturn = {
 				return "Highest is " + game.global.highestRadonLevelCleared;
 			},
 			evaluate: function() {return game.global.highestRadonLevelCleared;},
-			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250],
-			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14],
-			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones", "Bringer of Progress", "Major Zonage", "Master of Alchemy", "Ballistic", "Neverending Journey", "Zone Eater", "Zone Feaster"],
+			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 325, 350, 375, 400],
+			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14],
+			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones", "Bringer of Progress", "Major Zonage", "Master of Alchemy", "Ballistic", "Neverending Journey", "Zone Eater", "Zone Feaster", "Mutated Master", "Progression Professional", "Zonepocalypse", "Universal Specialist", "Zoning Committee", "Quadcentennial"],
 			icon: "icomoon icon-navigation",
 			newStuff: [],
 			size: 1.4
@@ -6869,7 +7227,7 @@ var toReturn = {
 				return game.stats.totalHeirlooms.value + game.stats.totalHeirlooms.valueTotal;
 			},
 			display: function () {
-				return (game.global.totalPortals >= 5);
+				return (this.evaluate() > 0);
 			},
 			breakpoints: [1, 10, 40, 100, 500, 1111, 2000, 5000, 10000],
 			tiers: [2, 2, 3, 3, 4, 5, 6, 7, 8],
@@ -7020,12 +7378,12 @@ var toReturn = {
 				if (this.breakpoints.length > this.finished) return prettify(this.evaluate()) + " / " + prettify(this.breakpoints[this.finished]);
 				return prettify(this.evaluate()) + " total";
 			},
-			breakpoints: [5000, 1e5, 1e6, 5e7, 2.5e9],
+			breakpoints: [5000, 1e5, 1e6, 5e7, 2.5e9, 1e11, 5e12],
 			display: function () {
 				return (game.global.highestRadonLevelCleared >= 200);
 			},
-			tiers: [13, 13, 14, 14, 14],
-			names: ["Seed Securer", "Seed Sower", "Seed Studier", "Seed Specialist", "Seed Savior"],
+			tiers: [13, 13, 14, 14, 14, 14, 14],
+			names: ["Seed Scavenger", "Seed Surveyor", "Seed Securer", "Seed Sower", "Seed Studier", "Seed Specialist", "Seed Savior"],
 			icon: "icomoon icon-grid2",
 			newStuff: []
 		},
@@ -7247,10 +7605,12 @@ var toReturn = {
 		},
 		spire2Timed: {
 			finished: 0,
-			title: "Speed: Spire II",
+			get title(){
+				return "Speed: Spire " + romanNumeral(2)
+			},
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Spire II in less than " + number + " from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Spire " + romanNumeral(2) + " in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 269);
@@ -7274,10 +7634,12 @@ var toReturn = {
 		},
 		spire3Timed: {
 			finished: 0,
-			title: "Speed: Spire III",
+			get title(){
+				return "Speed: Spire " + romanNumeral(3);
+			},
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Spire III in less than " + number + " from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Spire " + romanNumeral(3) + " in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 369);
@@ -7301,10 +7663,12 @@ var toReturn = {
 		},
 		spire4Timed: {
 			finished: 0,
-			title: "Speed: Spire IV",
+			get title(){
+				return "Speed: Spire " + romanNumeral(4);
+			},
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Spire IV in less than " + number + " from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Spire " + romanNumeral(4) + " in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 469);
@@ -7328,10 +7692,12 @@ var toReturn = {
 		},
 		spire5Timed: {
 			finished: 0,
-			title: "Speed: Spire V",
+			get title(){
+				return "Speed: Spire " + romanNumeral(5);
+			},
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Spire V in less than " + number + " from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Spire " + romanNumeral(5) + " in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 569);
@@ -7355,10 +7721,12 @@ var toReturn = {
 		},
 		spire6Timed: {
 			finished: 0,
-			title: "Speed: Spire VI",
+			get title(){
+				return "Speed: Spire " + romanNumeral(6)
+			},
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Spire VI in less than " + number + " from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Spire " + romanNumeral(6) + " in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 669);
@@ -7382,10 +7750,12 @@ var toReturn = {
 		},
 		spire7Timed: {
 			finished: 0,
-			title: "Speed: Spire VII",
+			get title(){
+				return "Speed: Spire " + romanNumeral(7);
+			},
 			description: function (number) {
 				number = formatMinutesForDescriptions(this.breakpoints[number]);
-				return "<span style='font-size: .8em'>Clear Spire VII in less than " + number + " from start of run</span>";
+				return "<span style='font-size: .8em'>Clear Spire " + romanNumeral(7) + " in less than " + number + " from start of run</span>";
 			},
 			display: function () {
 				return (game.global.highestLevelCleared >= 769);
@@ -7520,7 +7890,7 @@ var toReturn = {
 			finished: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			title: "Feats",
 			get descriptions () {
-				return ["Complete the Dimension of Anger before buying Bounty", "Reach Z30 with no respec and 60 or less He spent", "Have over " + prettify(1e6) + " traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 He/Hr", "Attack 20 times without dying in Electricity", "Create a perfect Map", "Use up all 7 Daily Challenges", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find a Common heirloom at Z146 or higher", "Spend over " + prettify(250e3) + " total He on Wormholes", "Reach Z60 with rank III or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Break the Planet with 5 or fewer lost battles", "Reach Z60 without hiring a single Trimp", "Complete a Zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Complete Lead with 100 or fewer lost battles", "Build your 10th Spire Floor", "Kill " + prettify(500e3) + " enemies in your Spire", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete a Void Map at Z215 on Domination", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Build up a Poison debuff that's 1000x higher than your attack", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your Zone number", "Beat the Spire with no respec and " + prettify(100e6) + " or less He Spent", "Defeat an enemy on Obliterated", "Find an Amalgamator on Z1", "Get 10 Red Crits in a row", "Beat Z75 on the Scientist V challenge", "Gain at least 01189998819991197253 He from one Bone Portal", "Kill an Enemy on Eradicated", "Complete Spire V with no deaths", "Build your 20th Spire Floor", "Complete a Bionic Wonderland map 200 levels higher than your Zone number", "Complete Spire II on the Coordinate challenge", "Beat Spire II with no respec and " + prettify(1e9) + " or less He spent", "Beat Imploding Star on Obliterated", "Close 750 Nurseries at the same time", "Earn Dark Essence with no respec and 0 He spent", "Reach Magma on Obliterated", "Break the Planet on Eradicated"];
+				return ["Complete the Dimension of Anger before buying Bounty", "Reach Z30 with no respec and 60 or less He spent", "Have over " + prettify(1e6) + " traps at once", "Die 50 times to a single Voidsnimp", "Beat Balance, never having more than 100 stacks", "Reach Zone 10 with 5 or fewer dead Trimps", "Reach exactly 1337 He/Hr", "Attack 20 times without dying in Electricity", "Create a perfect Map", "Use up all 7 Daily Challenges", "Equip a magnificent or better Staff and Shield", "Reach Z60 with 1000 or fewer dead Trimps", "Reach Z120 without using manual research", "Reach Z75 without buying any housing", "Find a Common heirloom at Z146 or higher", "Spend over " + prettify(250e3) + " total He on Wormholes", "Reach Z60 with rank " + romanNumeral(3) + " or lower equipment", "Kill an Improbability in one hit", "Beat a Lv 60+ Destructive Void Map with no deaths", "Beat Crushed without being crit past Z5", "Kill an enemy with 100 stacks of Nom", "Break the Planet with 5 or fewer lost battles", "Reach Z60 without hiring a single Trimp", "Complete a Zone above 99 without falling below 150 stacks on Life", "Spend at least 10 minutes breeding an army with Geneticists", "Beat Toxicity, never having more than 400 stacks", "Own 100 of all housing buildings", "Overkill every possible world cell before Z60", "Complete Watch without entering maps or buying Nurseries", "Complete Lead with 100 or fewer lost battles", "Build your 10th Spire Floor", "Kill " + prettify(500e3) + " enemies in your Spire", "Equip a Magmatic Staff and Shield", "Bring a world enemy's attack below 1", "Complete Lead with 1 or fewer Gigastations", "Complete Corrupted without Geneticists", "Complete a Void Map at Z215 on Domination", "Complete The Spire with 0 deaths", "Overkill an Omnipotrimp", "Defeat a Healthy enemy with 200 stacks of wind", "Build up a Poison debuff that's 1000x higher than your attack", "Earn a Challenge<sup>2</sup> bonus of 2000%", "Complete a Bionic Wonderland map 45 levels higher than your Zone number", "Beat the Spire with no respec and " + prettify(100e6) + " or less He Spent", "Defeat an enemy on Obliterated", "Find an Amalgamator on Z1", "Get 10 Red Crits in a row", "Beat Z75 on the Scientist V challenge", "Gain at least 01189998819991197253 He from one Bone Portal", "Kill an Enemy on Eradicated", "Complete Spire " + romanNumeral(5) + " with no deaths", "Build your 20th Spire Floor", "Complete a Bionic Wonderland map 200 levels higher than your Zone number", "Complete Spire " + romanNumeral(2) + " on the Coordinate challenge", "Beat Spire " + romanNumeral(2) + " with no respec and " + prettify(1e9) + " or less He spent", "Beat Imploding Star on Obliterated", "Close 750 Nurseries at the same time", "Earn Dark Essence with no respec and 0 He spent", "Reach Magma on Obliterated", "Break the Planet on Eradicated"];
 			},
 			tiers: [2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9],
 			description: function (number) {
@@ -7548,7 +7918,7 @@ var toReturn = {
 			description: function (number) {
 				return this.descriptions[number];
 			},
-			filters: [-1,14,19,24,34,39,44,49,59,69,75,75,79,84,89,104,109,114,119,135,135,100,150,175,175,225,245],
+			filters: [-1,14,19,24,34,39,44,49,59,69,75,75,79,84,89,104,109,114,119,135,135,100,154,174,174,224,244],
 			filterLevel: function(){
 				return game.global.highestRadonLevelCleared;
 			},
@@ -7568,9 +7938,9 @@ var toReturn = {
 		slots: [1,2,3,3,3,4,4,5,5,6,6,7],
 		defaultSteps: [[3, 6, 1], [3, 6, 1], [3, 6, 1], [6, 12, 1], [16, 40, 2], [32, 80, 4], [64, 160, 8], [128, 320, 16], [256, 640, 32], [512, 1280, 64], [1024, 2560, 128], [2048, 5120, 256]],
 		rarityNames: ['Basic', 'Common', 'Rare', 'Epic', 'Legendary', 'Magnificent', 'Ethereal', 'Magmatic', 'Plagued', 'Radiating', 'Hazardous', 'Enigmatic'],
-		rarities:[[-1,6000,4000],[-1,5000,5000],[-1,2500,5500,2000],[-1,2000,4000,4000],[-1,1500,3000,5000,500],[-1,800,2000,6000,1000,200],[-1,400,1000,7000,1000,500,100],[-1,200,500,6000,2200,800,300],[-1,-1,-1,5000,3000,1700,300],[-1,-1,-1,2500,5000,2000,500],[-1,-1,-1,-1,7000,2400,500,100],[-1,-1,-1,-1,6000,3170,680,150],[-1,-1,-1,-1,3000,5000,1650,350],[-1,-1,-1,-1,-1,4500,3000,2000,500],[-1,-1,-1,-1,-1,1500,2000,5000,1500],[-1,-1,-1,-1,-1,-1,1000,6000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,7500,2500],[-1,-1,-1,-1,-1,-1,-1,-1,5000,5000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,10000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,8500,1500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,7000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,3000,7000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,1000,8500,500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,9000,1000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,7000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5000,5000]],
-		rarityBreakpoints:[41,60,80,100,125,146,166,181,201,230,300,400,500,600,700,1,40,80,100,135,175,200,225,250,275],
-		universeBreakpoints: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2],
+		rarities:[[-1,6000,4000],[-1,5000,5000],[-1,2500,5500,2000],[-1,2000,4000,4000],[-1,1500,3000,5000,500],[-1,800,2000,6000,1000,200],[-1,400,1000,7000,1000,500,100],[-1,200,500,6000,2200,800,300],[-1,-1,-1,5000,3000,1700,300],[-1,-1,-1,2500,5000,2000,500],[-1,-1,-1,-1,7000,2400,500,100],[-1,-1,-1,-1,6000,3170,680,150],[-1,-1,-1,-1,3000,5000,1650,350],[-1,-1,-1,-1,-1,4500,3000,2000,500],[-1,-1,-1,-1,-1,1500,2000,5000,1500],[-1,-1,-1,-1,-1,-1,1000,6000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,7500,2500],[-1,-1,-1,-1,-1,-1,-1,-1,5000,5000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,10000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,8500,1500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,7000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,3000,7000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,1000,8500,500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,9000,1000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,7000,3000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5000,5000],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,2500,7500],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,10000]],
+		rarityBreakpoints:[41,60,80,100,125,146,166,181,201,230,300,400,500,600,700,1,40,80,100,135,175,200,225,250,275,300,999], //don't forget to update the 999 bracket when adding a new rarity!
+		universeBreakpoints: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2],
 		priceIncrease: [1.5, 1.5, 1.25, 1.19, 1.15, 1.12, 1.1, 1.06, 1.04, 1.03, 1.02, 1.015],
 		canReplaceMods: [true, true, true, true, true, true, true, true, false, false, false, false],
 		Core: {
@@ -8499,12 +8869,13 @@ var toReturn = {
 					amt = 0;
 				else
 					amt = rewardResource("helium", amt, level, false, rewardPercent);
-				
+				var totalCleared = (fromFluffy && fluffyCount) ? fluffyCount : 1;
 				game.stats.highestVoidMap.evaluate();
-				game.stats.totalVoidMaps.value += (fromFluffy && fluffyCount) ? fluffyCount : 1;
+				game.stats.totalVoidMaps.value += totalCleared;
+				if (game.global.challengeActive == "Frigid") game.challenges.Frigid.completedVoid(totalCleared);
 				var msg = "Cthulimp and the map it came from crumble into the darkness. You find yourself instantly teleported to ";				
 				if (fromFluffy && fluffyCount == 1){
-					msg = "Before you even realized you were in a new Void Map, Fluffy snuck to the end and quickly stole all the loot.";
+					msg = "Before you even realized you were in a new Void Map, " + Fluffy.getName() + " snuck to the end and quickly stole all the loot.";
 					if (!game.global.runningChallengeSquared) msg += " You gained another " + prettify(amt) + " " + heliumOrRadon() + "!";
 					message(msg, "Loot", heliumIcon(true), "helium", "helium");
 					return;
@@ -8519,7 +8890,7 @@ var toReturn = {
 					msg += "the next Void map";
 				}
 				else {
-					msg += ((game.options.menu.exitTo.enabled) ? "the world " : "your map chamber");
+					msg += ((game.options.menu.exitTo.enabled) ? "the world" : "your map chamber");
 				}
 				if (game.global.runningChallengeSquared) msg += ".";
 				else msg += " with an extra " + prettify(amt) + " " + heliumOrRadon() + "!";
@@ -8853,7 +9224,7 @@ var toReturn = {
 					amt = rewardResource("helium", amt, level);
 					message("You managed to steal " + prettify(amt) + " " + heliumOrRadon(true) + "s from that Improbability. That'll teach it.", "Loot", heliumIcon(true), 'helium', 'helium');
 				}
-				if (game.global.challengeActive == "Slow" && game.global.world == 120){
+				if (challengeActive("Slow") && game.global.world == 120){
 					game.challenges.Slow.onComplete();
 				}
 				else if ((game.global.challengeActive == "Life" && game.global.world == 110) || (game.global.challengeActive == "Nom" && game.global.world == 145) || (game.global.challengeActive == "Toxicity" && game.global.world == 165) || ((game.global.challengeActive == "Watch" || game.global.challengeActive == "Lead") && game.global.world >= 180) || (game.global.challengeActive == "Corrupted" && game.global.world >= 190) || (game.global.challengeActive == "Domination" && game.global.world >= 215)){
@@ -9030,8 +9401,19 @@ var toReturn = {
 			},
 			loot: function (level, fromMagimp) {
 				var name = (fromMagimp) ? "Randimp" : "Tauntimp";
+				var oldMax = game.resources.trimps.realMax();
 				game.unlocks.impCount.Tauntimp++;
 				if (game.global.expandingTauntimp){
+					var newMax = game.resources.trimps.realMax();
+					var added = newMax - oldMax;
+					if (game.global.challengeActive != "Trapper" && game.global.challengeActive != "Trappapalooza") {
+						if (game.resources.trimps.owned == oldMax){
+							game.resources.trimps.owned = newMax;
+						}
+						else{
+							game.resources.trimps.owned += added;
+						}
+					}
 					message("You found an Expanding Tauntimp! The extra room is increasing your housing by " + prettify((this.expandingMult() - 1) * 100) + "%.", "Loot", "gift", "exotic", "exotic");
 				}
 				else{
@@ -9359,7 +9741,7 @@ var toReturn = {
 						var text = "There seems to be a small RoboTrimp that you appear to have orphaned. You decide to take him with you, since you're pretty good at training stuff. He deals <b>20%</b> extra damage for you, and has a special ability. You can learn more about the special ability by hovering over the new <span class='icomoon icon-chain'></span> icon by your soldiers.<br/><br/>You also found a map to a more powerful version of the Bionic Wonderland. You would bet there's another RoboTrimp who needs 'rescuing' in there.";
 						if (game.options.menu.tooltips.enabled == 0) text += '<br/><br/><b>Just a heads up</b>: You have tooltips disabled, so you will need to hold shift when you mouse over the <span class="icomoon icon-chain"></span> to read about it.';
 						text += "<br/><br/><b>Special Bionic Wonderland QOL Bonuses</b><br/>You will also find some special new Quality of Life bonuses in Bionic Wonderland maps! If you see a Bionic Wonderland map with a yellow background, that means there's a permanent QOL unlock inside. For your first map, you've unlocked Foremany!<br/><br/><b>Foremany</b><br/>" + game.bwRewards.Foremany.description;
-						tooltip('confirm', null, 'update', text, null, 'RoboTrimp');
+						tooltip('confirm', null, 'update', text, null, 'RoboTrimp', null, null, true);
 						game.global.roboTrimpLevel = 1;
 						document.getElementById("chainHolder").style.visibility = 'visible';
 					}
@@ -9511,7 +9893,7 @@ var toReturn = {
 				
 				game.buildings.Smithy.owned += toAdd;
 				game.buildings.Smithy.purchased += toAdd;
-				if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId == 6) game.challenges.Quest.checkQuest();
+				for (var x = 0; x < toAdd; x++) game.buildings.Smithy.fire();
 				var a = (toAdd == 2) ? "two" : "a";
 				var it = (toAdd == 2) ? "them" : "it";
 				var appear = (toAdd == 2) ? "appear" : "appears";
@@ -10434,7 +10816,7 @@ var toReturn = {
 			icon: "book",
 			title: "Miner",
 			fire: function () {
-				if (game.global.challengeActive == "Metal" || game.global.challengeActive == "Transmute"){
+				if (challengeActive("Metal") || game.global.challengeActive == "Transmute"){
 					var challenge = game.challenges[game.global.challengeActive];
 					message("Your Trimps simply do not understand what this book is talking about. It's blowing their minds. What is a 'Miner'?!", "Notices");
 					challenge.fireAbandon = true;
@@ -10590,7 +10972,7 @@ var toReturn = {
 			blockU2: true,
 			title: "Magmamancers",
 			fire: function () {
-				if (game.global.challengeActive == "Metal" || game.global.challengeActive == "Transmute"){
+				if (challengeActive("Metal") || game.global.challengeActive == "Transmute"){
 					var challenge = game.challenges[game.global.challengeActive];
 					challenge.holdMagma = true;
 					message("This book really doesn't help too much while you're dealing with the minerlessness of this dimension. Better let your scientists hold this one for you for a bit.", "Notices");
@@ -10657,7 +11039,7 @@ var toReturn = {
 			icon: "book",
 			title: "Speedminer",
 			fire: function() {
-				if (game.global.challengeActive == "Metal" || game.global.challengeActive == "Transmute"){
+				if (challengeActive("Metal") || game.global.challengeActive == "Transmute"){
 					var challenge = game.challenges[game.global.challengeActive];
 					if (game.jobs.Scientist.owned > 0){
 						var notS = (game.jobs.Scientist.owned == 1) ? "s" : "";
@@ -10682,7 +11064,7 @@ var toReturn = {
 			title: "Megaminer",
 			blockU2: true,
 			fire: function() {
-				if (game.global.challengeActive == "Metal"){
+				if (challengeActive("Metal")){
 					var s = needAnS(game.jobs.Scientist.owned);
 					var antiS = (s == "s") ? "" : "s";
 					if (game.jobs.Scientist.owned > 0) message("Your scientist" + s + " appreciate" + antiS + " the fact that you've managed to find another useless book, but they make sure to let you know it's still useless.", "Notices");
@@ -11242,7 +11624,7 @@ var toReturn = {
 				return Math.pow(this.getBaseMult(), this.owned);
 			},
 			fire: function(){
-				addSoldierHealth(0.25);
+				addSoldierHealth((this.getBaseMult() - 1));
 				if (game.global.challengeActive == "Quest" && game.challenges.Quest.questId == 6) game.challenges.Quest.checkQuest();
 			}
 		},
@@ -11311,7 +11693,7 @@ var toReturn = {
 			blockU1: true,
 			tooltip: function(){
 				var text = "<p>Build an antenna for your Meteorologists to use in their meteorological duties. Each Antenna increases the bonus granted per Meteorologist by a flat 0.05% (20 Antennas would double their bonus), but only 1 Antenna can be built for every 5 Zones completed above Z100 in Universe 2 on your highest run ever. Thanks to the extra-dimensional origin of the Antenna design, these Antennas persist in the world when you use your Time Portal!</p>";
-				text += "<p>Once 5 antennas have been built, your Trimps can use the new advanced weather data to increase the yield of crops, granting 50% of the Meteorologist's bonus percentage to Food income as well.</p>"
+				text += "<p>Once 5 antennas have been built, your Trimps can use the new advanced weather data to increase the yield of crops and trees, granting 50% of the Meteorologist's bonus percentage to Food and Wood income as well.</p>"
 				text += "<p>Once 10 Antennas have been built, your Soldiers can use the data to always properly dress for the weather, granting 50% of the Meteorologist's bonus percentage to Soldier Health.</p>";
 				text += "<p>Once 15 Antennas have been built, the network will be strong enough to locate rich mineral deposits all over the planet, granting 50% of the Meteorologist's bonus percentage to Mining income!</p>";
 				text += "<p>Once 20 Antennas have been built, the network becomes so strong that all non-Radon Meteorologist bonuses are increased to 75% of the Meteorologist's bonus! For each 5 Antennas built after 20, the Meteorologists' non-Radon bonuses are increased by another 25%.</p>"
@@ -11522,7 +11904,7 @@ var toReturn = {
 			get tooltip(){
 				var ratio = this.getTriggerThresh();
 				var currentRatio = (game.resources.trimps.realMax() / game.resources.trimps.getCurrentSend());
-				var text = "<p>Amalgamators cannot be hired or fired manually. They are magical beings that could barely be considered Trimps anymore, and they will automatically show up to your town whenever your total population to army size ratio rises above <b>" + prettify(ratio) + ":1</b>. Completing Spires II through V will each divide this ratio by 10. If your ratio ever falls below " + prettify(1e3) + ":1, an Amalgamator will leave. Your current ratio is <b>" + prettify(currentRatio) + ":1</b>. At your current army size, you need <b>" + prettify(ratio * game.resources.trimps.getCurrentSend()) + "</b> total Trimps to trigger the next Amalgamator.</p></p><p>Amalgamators fuse some of your spare Trimps to other soldiers, greatly strengthening them. Each Amalgamator increases the amount of Trimps that must be sent into each battle by 1000x (compounding), increases health by 40x (compounding), and increases damage by 50% " + ((game.talents.amalg.purchased) ? "(compounding)" : "(additive)") + ".</p><p>In addition, having at least one Amalgamator will cause Anticipation stacks to increase based on when the last soldiers were sent, rather than being based on time spent actually breeding.</p>";
+				var text = "<p>Amalgamators cannot be hired or fired manually. They are magical beings that could barely be considered Trimps anymore, and they will automatically show up to your town whenever your total population to army size ratio rises above <b>" + prettify(ratio) + ":1</b>. Completing Spires II through V will each divide this ratio by 10. If your ratio ever falls below " + prettify(1e3) + ":1, an Amalgamator will leave. Note however that Amalgamators won't ever show up or leave while you are in an active Spire. Your current ratio is <b>" + prettify(currentRatio) + ":1</b>. At your current army size, you need <b>" + prettify(ratio * game.resources.trimps.getCurrentSend()) + "</b> total Trimps to trigger the next Amalgamator.</p></p><p>Amalgamators fuse some of your spare Trimps to other soldiers, greatly strengthening them. Each Amalgamator increases the amount of Trimps that must be sent into each battle by 1000x (compounding), increases health by 40x (compounding), and increases damage by 50% " + ((game.talents.amalg.purchased) ? "(compounding)" : "(additive)") + ".</p><p>In addition, having at least one Amalgamator will cause Anticipation stacks to increase based on when the last soldiers were sent, rather than being based on time spent actually breeding.</p>";
 				if (game.global.challengeActive == "Trimp"){
 					text += "<p><i>" + toZalgo("This particular Universe seems to directly conflict with the Amalgamators, yet they're here and the Trimps they Amalgamate seem immune to the dimensional restrictions. Things are getting weird though.", 1, Math.ceil(game.global.world / 100)) + "</i></p>";
 				}
@@ -11574,7 +11956,7 @@ var toReturn = {
 				}
 				text += "<p>" + this.vestedHires + " Meteorologist" + needAnS(this.vestedHires) + " " + ((this.vestedHires == 1) ? "is" : "are") + " currently collecting, granting " + prettify(this.vestedHires * pct) + "% extra Radon.</p>";
 				if (game.buildings.Antenna.owned >= 5 && this.vestedHires > 0){
-					text += "<p>Thanks to your super cool Antenna array, you're also gaining +" + prettify((this.getExtraMult() - 1) * 100) + "% extra Food from gathering";
+					text += "<p>Thanks to your super cool Antenna array, you're also gaining +" + prettify((this.getExtraMult() - 1) * 100) + "% extra Food from gathering" + ((game.buildings.Antenna.owned < 10) ? " and " : ", ") + "Wood from chopping";
 					if (game.buildings.Antenna.owned >= 10){
 						text += ((game.buildings.Antenna.owned >= 15) ? ", " : " and ") + " Health for your Soldiers";
 						if (game.buildings.Antenna.owned >= 15) text += ", and Metal from mining";
@@ -11628,6 +12010,7 @@ var toReturn = {
 			reduceCount: function(){
 				var reduce = 2;
 				if (u2Mutations.tree.Worship.purchased) reduce--;
+				if (u2Mutations.tree.Worship2.purchased) reduce--;
 				return reduce;
 			},
 			onNextWorld: function(){
@@ -11860,6 +12243,10 @@ var toReturn = {
 				game.global.autoBattle = true;
 				pauseFight(true);
 				fadeIn("pauseFight", 1);
+				if (usingRealTimeOffline){
+					if (game.global.pauseFight) offlineProgress.fightBtn.innerHTML = "Enable AutoFight";
+					else offlineProgress.fightBtn.style.display = 'none';
+				}
 			}
 		},
 		Prismatic: { //U2 W2
@@ -12895,7 +13282,7 @@ var toReturn = {
 	bwRewards:{
 		Foremany: {
 			requires: 125,
-			description: "Repurpose some of those RoboTrimps you found into an army of Robotic Foremen. Permanently adds 50000 Foreman to your town to aid in construction.",
+			description: "Repurpose some of those RoboTrimps you found into an army of Robotic Foremen. Permanently adds 50000 Foremen to your town to aid in construction.",
 			fire: function(){
 				game.global.autoCraftModifier += 12500;
 				updateForemenCount();

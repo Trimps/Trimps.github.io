@@ -651,6 +651,12 @@ body {
 	padding-right: .25vw;
 }
 
+#mutRing1{
+    border-radius: 50%;
+    border: 2px solid white;
+    position: absolute;
+}
+
 .alert, #swapToMasteryBtn .alert, #mutatorsAlert2{
     background-color: yellow;
     color: black;
@@ -1919,7 +1925,31 @@ body {
 
 .mutLine{
     position: absolute;
-    border: 2px solid white;
+}
+
+.mutLine.mutLinegrey{
+    background-color: black;
+    box-shadow: 0 0 0px 1.5px #888 inset;
+}
+
+.mutLine.mutLinewhite{
+    background-color: #BBB;
+    box-shadow: 0 0 0px 1.5px white inset;
+}
+.mutArrow {
+    position: absolute;
+}
+.mutArrow.mutArrowwhite {
+    border-left-color: white;
+    border-left-style: solid;
+    border-top-color: white;
+    border-top-style: solid;
+}
+.mutArrow.mutArrowgrey {
+    border-left-color: #888;
+    border-left-style: solid;
+    border-top-color: #888;
+    border-top-style: solid;
 }
 
 #mutTree {
@@ -1956,14 +1986,33 @@ body {
 
 #mutTreeCloseBtn{
 	top: 0;
-	left: 95vw;
+	left: 90vw;
 	position: absolute;
 	font-size: 2.7em;
 	cursor: pointer;
 	color: #921707;
 }
 
-.mutTreeName{
+#mutZoomButtons{
+	position: absolute;
+	top: 94vh;
+	left: 92vw;
+	display: inline-block;
+}
+
+#mutZoomButtons div{
+	width: 2.5vw;
+	border: 1px solid white;
+	display: inline-block;
+	padding-top: 0.55vh;
+	font-size: 2.5vh;
+}
+
+#mutZoomOut{
+	margin-left: 1vw;
+}
+
+/* .mutTreeName{
 	position: absolute;
 	top: -1.5em;
 	left: -3.25em;
@@ -1972,6 +2021,17 @@ body {
 	font-size: 0.75em;
 	text-align: center;
 	pointer-events: none;
+} */
+
+.mutTreeName{
+    position: absolute;
+    top: -1.5em;
+    left: -2.6em;
+    display: inline-block;
+    width: 8em;
+    font-size: 0.45em;
+    text-align: center;
+    pointer-events: none;
 }
 
 #modReplaceBox, #modUpgradeBox{
@@ -2095,6 +2155,15 @@ body {
 	text-align: center;
 	width: 2vw;
 	display: inline-block;
+	position: relative;
+}
+
+.portalHeirloom{
+	position: absolute;
+	font-size: 0.2em;
+	color: yellow;
+	top: 0%;
+	left: 90%;
 }
 
 .heirloomChangeIcon{
@@ -3606,6 +3675,13 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 	cursor: pointer;	
 }
 
+.fluffFormFrigid{
+	color: #03b5fc;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;	
+}
+
 .fluffFormIce{
 	color: #3232c8;
 	font-weight: bold;
@@ -4773,7 +4849,7 @@ background-color: rgba(255,255,255,0.25);
 }
 
 .btn-new{
-	background: linear-gradient(90deg, rgba(102,0,102,1) 15%, rgba(0,51,153,1) 85%);
+	background: linear-gradient(90deg, rgba(27,11,171,1) 10%, rgba(5,5,5,1) 35%, rgba(194,16,187,1) 65%, rgba(171,172,12,1) 85%);
 	color: white;
 	font-weight: bold;
 	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
@@ -4786,7 +4862,7 @@ background-color: rgba(255,255,255,0.25);
 .btn-new:active,
 .btn-new.active,
 .open > .dropdown-toggle.btn-new {
-	background: linear-gradient(90deg, rgba(0,51,0,1) 30%, rgba(51,153,102,1) 43%, rgba(255,153,0,1) 57%, rgba(204,51,0,1) 70%);
+	background: linear-gradient(90deg, rgba(127,127,128,1) 10%, rgba(23,105,37,1) 26%, rgba(108,9,157,1) 41%, rgba(122,23,23,1) 57%, rgba(107,74,19,1) 75%, rgba(161,110,8,1) 92%);
 	color: white;
 }
 
@@ -5193,19 +5269,12 @@ input::-webkit-inner-spin-button {
     background-color: #141452;
 }
 
-
-.cellColorBeaten{
-	background: green !important;
+.cellColorBeaten, .cellColorOverkill{
 	color: black !important;
 }
 
 .cellColorCurrent {
 	background: yellow !important;
-	color: black !important;
-}
-
-.cellColorOverkill {
-	background: #67cf00 !important;
 	color: black !important;
 }
 
@@ -5255,7 +5324,6 @@ sup{
 	background-color: #59328f;
 	color: white;
 }
-
 
 .cBorderOn {
     -webkit-box-shadow: inset 0px 0px 0px calc(0.2vw - 1px) #7d2a2a;
@@ -6182,6 +6250,10 @@ sup{
 	background-color: #d43f3a;
 }
 
+#equalityA {
+    white-space: nowrap;
+}
+
 .toggleAllBtn{
 	padding: 2%;
 	font-weight: bold;
@@ -6551,7 +6623,7 @@ sup{
 	display: none;
 }
 
-#challengeMayhem:not(.finishedChallenge), #challengePandemonium:not(.finishedChallenge){
+#challengeMayhem:not(.finishedChallenge), #challengePandemonium:not(.finishedChallenge), #challengeDesolation:not(.finishedChallenge), #challengeFrigid:not(.finishedChallenge){
 	background-color: #0d9208;
 }
 
