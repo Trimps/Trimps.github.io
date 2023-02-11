@@ -554,3 +554,43 @@
 .battleCell.cellColorOverkill.mutatedCell {
   filter: brightness(1.5);
 }
+
+#grid.liquid #row9.battleRow {
+    background-image: -webkit-linear-gradient(top, #999999 0%,#949494 90%) !important;
+}
+
+#grid.liquid #row8.battleRow {
+    background-image: -webkit-linear-gradient(top, #949494 0%,#8f8f8f 90%) !important;
+}
+
+#grid.liquid #row7.battleRow {
+    background-image: -webkit-linear-gradient(top, #8f8f8f 0%,#898989 90%) !important;
+}
+
+#grid.liquid #row6.battleRow {
+    background-image: -webkit-linear-gradient(top, #898989 0%,#848484 90%) !important;
+}
+
+#grid.liquid #row5.battleRow {
+    background-image: -webkit-linear-gradient(top, #848484 0%,#7e7e7e 90%) !important;
+}
+
+#grid.liquid #row4.battleRow {
+    background-image: -webkit-linear-gradient(top, #7e7e7e 0%,#797979 90%) !important;
+}
+
+#grid.liquid #row3.battleRow {
+    background-image: -webkit-linear-gradient(top, #797979 0%,#737373 90%) !important;
+}
+
+#grid.liquid #row2.battleRow {
+    background-image: -webkit-linear-gradient(top, #737373 0%,#6e6e6e 90%) !important;
+}
+
+#grid.liquid #row1.battleRow {
+    background-image: -webkit-linear-gradient(top, #6e6e6e 0%,#686868 90%) !important;
+}
+
+#grid.liquid #row0.battleRow {
+    background-image: -webkit-linear-gradient(top, #686868 0%,#686868 90%) !important;
+}

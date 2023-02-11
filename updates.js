@@ -3699,38 +3699,6 @@ function getLootBd(what) {
 		currentCalc *= 10;
 		textString += "<tr><td class='bdTitle'>Enlightened Wind</td><td></td><td></td><td>x 10</td><td>" + prettify(currentCalc) + "</td></tr>";
 	}
-	var heirloomBonus = 0;
-	if (what == "Food/Wood/Metal"){
-		heirloomBonus = calcHeirloomBonus("Staff", "foodDrop", 0, true);
-		if (heirloomBonus > 0){
-			textString += "<tr><td class='bdTitle'>Heirloom - Food (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
-			heirloomBonus = 0;
-		}
-		heirloomBonus = calcHeirloomBonus("Staff", "woodDrop", 0, true);
-		if (heirloomBonus > 0){
-			textString += "<tr><td class='bdTitle'>Heirloom - Wood (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
-			heirloomBonus = 0;
-		}
-		heirloomBonus = calcHeirloomBonus("Staff", "metalDrop", 0, true);
-		if (heirloomBonus > 0){
-			textString += "<tr><td class='bdTitle'>Heirloom - Metal (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
-			heirloomBonus = 0;
-		}
-	}
-	else if (what == "Fragments"){
-		heirloomBonus = calcHeirloomBonus("Staff", "fragmentsDrop", 0, true);
-		if (heirloomBonus > 0){
-			textString += "<tr><td class='bdTitle'>Heirloom (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
-			heirloomBonus = 0;
-		}
-	}
-	else if (what == "Gems"){
-		heirloomBonus = calcHeirloomBonus("Staff", "gemsDrop", 0, true);
-		if (heirloomBonus > 0){
-			textString += "<tr><td class='bdTitle'>Heirloom (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
-			heirloomBonus = 0;
-		}
-	}
 	if (game.global.totalSquaredReward > 0 && what == "Helium"){
 		amt = game.global.totalSquaredReward / 1000;
 		currentCalc *= (amt + 1);
@@ -3780,7 +3748,8 @@ function getLootBd(what) {
 	}
 	if (game.global.challengeActive == "Desolation" && what != "Fragments" && what != "Helium"){
 		mult = game.challenges.Desolation.trimpResourceMult();
-		textString += "<tr style='color: red'><td class='bdTitle'>Desolation</td><td>-5%</td><td>" + (game.global.world - 1) + "</td><td class='bdPercent'>x " + prettify(mult) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
+		currentCalc *= mult;
+		textString += "<tr style='color: red'><td class='bdTitle'>Desolation</td><td>-" + (game.challenges.Desolation.getReducePercent() * 100) + "%</td><td>" + (game.global.world - 1) + "</td><td class='bdPercent'>x " + prettify(mult) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (game.global.universe == 2 && u2Mutations.tree.Loot.purchased && what != "Helium"){
 		currentCalc *= 1.5;
@@ -3861,6 +3830,39 @@ function getLootBd(what) {
 		currentCalc = 0;
 		var cMode = (game.global.universe == 1) ? 2 : 3;
 		textString += "<tr class='colorSquared'><td class='bdTitle'>Challenge<sup>" + cMode + "</sup></td><td></td><td></td><td>0%</td><td>" + prettify(currentCalc) + "</td></tr>";
+	}
+	//Heirloom bonuses last, since food/wood/metal mults can be different
+	var heirloomBonus = 0;
+	if (what == "Food/Wood/Metal"){
+		heirloomBonus = calcHeirloomBonus("Staff", "foodDrop", 0, true);
+		if (heirloomBonus > 0){
+			textString += "<tr><td class='bdTitle'>Heirloom - Food (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
+			heirloomBonus = 0;
+		}
+		heirloomBonus = calcHeirloomBonus("Staff", "woodDrop", 0, true);
+		if (heirloomBonus > 0){
+			textString += "<tr><td class='bdTitle'>Heirloom - Wood (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
+			heirloomBonus = 0;
+		}
+		heirloomBonus = calcHeirloomBonus("Staff", "metalDrop", 0, true);
+		if (heirloomBonus > 0){
+			textString += "<tr><td class='bdTitle'>Heirloom - Metal (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
+			heirloomBonus = 0;
+		}
+	}
+	else if (what == "Fragments"){
+		heirloomBonus = calcHeirloomBonus("Staff", "fragmentsDrop", 0, true);
+		if (heirloomBonus > 0){
+			textString += "<tr><td class='bdTitle'>Heirloom (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
+			heirloomBonus = 0;
+		}
+	}
+	else if (what == "Gems"){
+		heirloomBonus = calcHeirloomBonus("Staff", "gemsDrop", 0, true);
+		if (heirloomBonus > 0){
+			textString += "<tr><td class='bdTitle'>Heirloom (Staff)</td><td></td><td></td><td>+ " + prettify(heirloomBonus) + "%</td><td>" + prettify(currentCalc * ((heirloomBonus / 100) + 1)) + "</td></tr>";
+			heirloomBonus = 0;
+		}
 	}
 	textString += "</tbody></table>";
 	game.global.lockTooltip = false;
