@@ -2202,7 +2202,7 @@ function getPsString(what, rawNum) {
 		textString += "<tr><td class='bdTitle'>Tweaky (Toxicity)</td><td class='bdPercent'>+ " + toxMult + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	if (challengeActive("Balance") || game.global.challengeActive == "Unbalance"){
-		var chal = game.challenges[game.global.challengeActive];
+		var chal = (challengeActive("Balance")) ? game.challenges.Balance : game.challenges[game.global.challengeActive];
 		currentCalc *= chal.getGatherMult();
 		textString += "<tr><td class='bdTitle'>Strength (" + game.global.challengeActive + ")</td><td class='bdPercent'>+ " + chal.getGatherMult(true) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}

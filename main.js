@@ -1940,6 +1940,8 @@ function abandonChallenge(restart){
 		var challengeList;
 		if (challenge.multiChallenge) challengeList = challenge.multiChallenge;
 		else challengeList = [challengeName];
+		game.global.challengeActive = "";
+		game.global.multiChallenge = {};
 		for (var x = 0; x < challengeList.length; x++){
 			if (game.global.world > game.c2[challengeList[x]])
 			game.c2[challengeList[x]] = game.global.world;
@@ -1951,7 +1953,6 @@ function abandonChallenge(restart){
 			fadeIn("helium", 10);
 			game.global.runningChallengeSquared = false;
 			if (game.global.universe == 2 && (game.global.world > 30 || (game.global.world == 30 && game.global.lastClearedCell >= 29))) unlockJob("Meteorologist");
-			game.global.multiChallenge = {};
 		}	
 	}
 	else if (challenge.fireAbandon && typeof challenge.abandon !== 'undefined') challenge.abandon();
@@ -9953,7 +9954,7 @@ function dropPrestiges(){
 	for (var x = 0; x < toDrop.length; x++){
 		unlockUpgrade(toDrop[x]);
 		var prestigeUnlock = game.mapUnlocks[toDrop[x]];
-		if (getSLevel() >= 4 && game.global.challengeActive != "Mapology" && (Math.ceil(prestigeUnlock.last / 5) % 2 == 0)) {
+		if (getSLevel() >= 4 && !challengeActive("Mapology") && (Math.ceil(prestigeUnlock.last / 5) % 2 == 0)) {
 			unlockUpgrade(toDrop[x]);
 			prestigeUnlock.last += 10;
 		}
@@ -12504,7 +12505,7 @@ function nextWorld() {
 			dailyModifiers.pressure.resetTimer();
 		}
 	}
-	if (game.talents.blacksmith.purchased && (game.global.challengeActive != "Mapology" || !game.global.runningChallengeSquared)){
+	if (game.talents.blacksmith.purchased && (!challengeActive("Mapology") || !game.global.runningChallengeSquared)){
 		var smithWorld = .5;
 		if (game.talents.blacksmith3.purchased) smithWorld = .9;
 		else if (game.talents.blacksmith2.purchased) smithWorld = 0.75;
@@ -14651,7 +14652,7 @@ function fight(makeUp) {
             if (game.global.mapsActive) {
                 if (typeof game.mapUnlocks[cell.special].last !== 'undefined') {
 					game.mapUnlocks[cell.special].last += 5;
-					if (typeof game.upgrades[cell.special].prestige && getSLevel() >= 4 && game.global.challengeActive != "Mapology" && (Math.ceil(game.mapUnlocks[cell.special].last / 5) % 2 == 1)){
+					if (typeof game.upgrades[cell.special].prestige && getSLevel() >= 4 && !challengeActive("Mapology") && (Math.ceil(game.mapUnlocks[cell.special].last / 5) % 2 == 1)){
 						unlock.fire(cell.level);
 						game.mapUnlocks[cell.special].last += 5;
 						message(unlock.message.replace("a book", "two books"), "Unlocks", null, null, 'repeated', cell.text);
@@ -14751,7 +14752,7 @@ function fight(makeUp) {
 			if (game.global.challengeActive == "Insanity"){
 				game.challenges.Insanity.completeMap(mapObj.level);
 			}
-			if (currentMapObj.location != "Frozen" && !nextBw && shouldRepeat && !game.global.switchToMaps && (game.global.challengeActive != "Mapology" || game.challenges.Mapology.credits >= 1) && !skip){
+			if (currentMapObj.location != "Frozen" && !nextBw && shouldRepeat && !game.global.switchToMaps && (!challengeActive("Mapology") || game.challenges.Mapology.credits >= 1) && !skip){
 				if (game.global.mapBonus > 0){
 					var innerText = game.global.mapBonus;
 					if (game.talents.mapBattery.purchased && game.global.mapBonus == 10) innerText = "<span class='mapBonus10'>" + innerText + "</span>";

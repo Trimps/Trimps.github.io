@@ -22,7 +22,7 @@ function newGame () {
 var toReturn = {
 	global: {
 		//New and accurate version
-		stringVersion: '5.9.0',
+		stringVersion: '5.9.1',
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: false,
@@ -10817,7 +10817,7 @@ var toReturn = {
 			title: "Miner",
 			fire: function () {
 				if (challengeActive("Metal") || game.global.challengeActive == "Transmute"){
-					var challenge = game.challenges[game.global.challengeActive];
+					var challenge = (challengeActive("Metal")) ? game.challenges.Metal : game.challenges[game.global.challengeActive];
 					message("Your Trimps simply do not understand what this book is talking about. It's blowing their minds. What is a 'Miner'?!", "Notices");
 					challenge.fireAbandon = true;
 					return;
@@ -11040,7 +11040,7 @@ var toReturn = {
 			title: "Speedminer",
 			fire: function() {
 				if (challengeActive("Metal") || game.global.challengeActive == "Transmute"){
-					var challenge = game.challenges[game.global.challengeActive];
+					var challenge = (challengeActive("Metal")) ? game.challenges.Metal : game.challenges[game.global.challengeActive];
 					if (game.jobs.Scientist.owned > 0){
 						var notS = (game.jobs.Scientist.owned == 1) ? "s" : "";
 						message("Your Scientist" + needAnS(game.jobs.Scientist.owned) + " stare" + notS + " blankly at you for a moment, then slowly and quietly place" + notS + " the new book on the shelves.", "Notices");
