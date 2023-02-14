@@ -3706,7 +3706,7 @@ function activatePortal(){
 			}
 	}
 	if (game.global.challengeActive == "Daily"){
-		confirmAbandonChallenge();
+		abandonDaily();
 	}
 	if (game.global.challengeActive == "Bublé"){
 		game.challenges.Bublé.abandon();
