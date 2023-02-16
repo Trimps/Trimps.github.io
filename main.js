@@ -1955,7 +1955,10 @@ function abandonChallenge(restart){
 			if (game.global.universe == 2 && (game.global.world > 30 || (game.global.world == 30 && game.global.lastClearedCell >= 29))) unlockJob("Meteorologist");
 		}	
 	}
-	else if (challenge.fireAbandon && typeof challenge.abandon !== 'undefined') challenge.abandon();
+	else if (challenge.fireAbandon && typeof challenge.abandon !== 'undefined') {
+		game.global.challengeActive = "";
+		challenge.abandon();
+	}
 	game.global.challengeActive = "";
 	
 	cancelPortal();
