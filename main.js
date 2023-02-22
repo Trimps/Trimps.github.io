@@ -2622,7 +2622,7 @@ var offlineProgress = {
 	getHelpText: function(){
 		var text = "<p>While you were out, your Trimps didn't get much done - unless you count destruction of property. Luckily you have a Time Portal! While you can't go forward in time, you can go back to keep the Trimps in line and I'll wait here for you.</p>";
 		text += "<p>While you're in the past, everything will progress like normal, just much faster. The temporal displacement effects give you blurry vision and a headache (making fine control impossible), but you can force your Trimps to stop and run 1 map whenever you want for each 8 hours spent offline! Maps created this way will use your first preset settings at your selected level with Repeat for Items and Exit to World.</p>";
-		text += "<p>If your Trimps look stuck, you can always <b>Stop Here</b> to regain full control of your Trimps, and you'll still receieve resources from Trustworthy Trimps for any unused Time Warp time!</p>"
+		text += "<p>If your Trimps look stuck, you can always <b>Stop Here</b> to regain full control of your Trimps, and you'll still received resources from Trustworthy Trimps for any unused Time Warp time!</p>"
 		text += "<p><b>You can Time Warp for 100% of the time you spent offline, up to a maximum of 24 hours.</b></p>"
 		text += "<div style='text-align: center; border: 1px solid black;'><b>You can change your Offline Progress setting to suit your needs!</b><br/><br/>" + getSettingHtml(game.options.menu.offlineProgress, "offlineProgress", null, "timewarp") + "</div>";
 		return text;
