@@ -413,6 +413,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var count = 0;
 		var setting, selectedPerc, checkbox, options, type;
 		var settingGroup = getAutoEquipSetting();
+		var allChecked = {"Armor": true, "Wep": true};
 		for (var item in game.equipment){
 			var equipment = game.equipment[item];
 			if (count != 0 && count % 2 == 0) tooltipText += "</tr><tr>";
@@ -420,6 +421,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			selectedPerc = (setting) ? setting.value : 0.1;
 			type = ((equipment.health) ? "Armor" : "Wep");
 			checkbox = buildNiceCheckbox('equipConfig' + item, 'autoCheckbox checkbox' + type, (setting && setting.enabled));
+			if(!(setting && setting.enabled)) allChecked[type] = false;
 			options = "<option value='0.1'" + ((selectedPerc == 0.1) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == 1) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == 5) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == 10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == 25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == 50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == 99) ? " selected" : "") + ">99%</option>";
 			tooltipText += "<td><div class='row'><div class='col-xs-6' style='padding-right: 5px'>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select class='equipSelect" + type + "' id='equipSelect" + item + "'>" + options + "</select></div><div class='col-xs-4 lowPad' style='text-align: right'>Up To: <input class='equipConfigQuantity' id='equipQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></div></div></td>";
 			count++;
@@ -428,11 +430,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 
 		options = "<option value='0'>Apply Percent to All</option><option value='0.1'>0.1%</option><option value='1'>1%</option><option value='5'>5%</option><option value='10'>10%</option><option value='25'>25%</option><option value='50'>50%</option><option value='99'>99%</option>";
 		tooltipText += "<table id='autoEquipMiscTable'><tbody><tr>";
-		tooltipText += "<td><span data-nexton='true' onclick='uncheckAutoEquip(\"Armor\", this)' class='toggleAllBtn btn colorPrimary btn-md'>Toggle All Armor On</span></td>";
+		tooltipText += "<td><span data-nexton='"+ (!allChecked['Armor']).toString() +"' onclick='uncheckAutoEquip(\"Armor\", this)' class='toggleAllBtn btn " + (allChecked['Armor'] ? 'colorDanger' : 'colorPrimary') + " btn-md'>Toggle All Armor " + (allChecked['Armor'] ? 'Off' : 'On') + "</span></td>";
 		tooltipText += "<td><select class='toggleAllBtn' onchange='setAllAutoEquipPercent(\"Armor\", this)'>" + options + "</select></td>";
 		var highestTierOn = (settingGroup.highestTier === true);
 		tooltipText += "<td><span data-on='" + (highestTierOn) + "' onclick='toggleAutoEquipHighestTier(this)' id='highestTierOnlyBtn' class='toggleAllBtn btn color" + ((highestTierOn) ? "Success" : "Danger") + " btn-md'>Only Buy From Highest Tier" + ((highestTierOn) ? " On" : " Off") + "</span></td>";
-		tooltipText += "<td><span data-nexton='true' onclick='uncheckAutoEquip(\"Wep\", this)' class='toggleAllBtn btn colorPrimary btn-md'>Toggle All Weapons On</span></td>";
+		tooltipText += "<td><span data-nexton='"+ (!allChecked['Wep']).toString() +"' onclick='uncheckAutoEquip(\"Wep\", this)' class='toggleAllBtn btn " + (allChecked['Wep'] ? 'colorDanger' : 'colorPrimary') + " btn-md'>Toggle All Weapons " + (allChecked['Wep'] ? 'Off' : 'On') + "</span></td>";
 		tooltipText += "<td><select class='toggleAllBtn' onchange='setAllAutoEquipPercent(\"Wep\", this)'>" + options + "</select></td>";
 		tooltipText += "</tr></tbody></table>";
 
