@@ -1,3 +1,16 @@
+/*!!!
+    Updated with new feature to autoBattle.
+    Players can now have all resources spent to upgrade equipment to level 1.
+    Their SA progress is also reset to level 1.
+
+    Unlocked equipment, ring upgrades, and bonus unlocks and upgrades are not affected.
+
+    There is also a new functionality that let's you buy as many upgrades as you can afford by holding ctrl,
+    but there's no visual indicators made.
+
+    All my comments start with !!! if you need information for all my changes
+*/
+
 var holidayObj = {
     holiday: "",
     lastCheck: null,
@@ -630,9 +643,16 @@ var autoBattle = {
     speed: 1,
     enemyLevel: 1,
     maxEnemyLevel: 1,
+    /*!!! 
+        Needed to ensure shards/upgrade/etc that would have been unlocked stay unlocked after refund
+    */
+    highestEnemyLevel: 1,
     autoLevel: true,
     dust: 0,
     shards: 0,
+    /*!!! Adding values for how much dust and shards can be refunded*/
+    refundableDust: 0,
+    refundableShards: 0,
     shardDust: 0,
     trimp: null,
     enemy: null,
@@ -734,9 +754,13 @@ var autoBattle = {
     resetAll: function(){
         this.enemyLevel = 1;
         this.maxEnemyLevel = 1;
+        /*!!! */
+        this.highestEnemyLevel = 1;
         this.autoLevel = true;
         this.dust = 0;
         this.shards = 0;
+        this.refundableDust = 0;
+        this.refundableShards = 0;
         this.trimp = null;
         this.enemy = null;
         this.enemiesKilled = 0;
@@ -772,8 +796,12 @@ var autoBattle = {
         data.enemyLevel = this.enemyLevel;
         data.dust = this.dust;
         data.shards = this.shards;
+        /*!!! */
+        data.refundableDust = this.refundableDust;
+        data.refundableShards = this.refundableShards;
         data.enemiesKilled = this.enemiesKilled;
         data.maxEnemyLevel = this.maxEnemyLevel;
+        data.highestEnemyLevel = this.highestEnemyLevel;
         data.autoLevel = this.autoLevel;
         data.lastActions = this.lastActions;
         data.presets = this.presets;
@@ -825,8 +853,12 @@ var autoBattle = {
         this.enemyLevel = data.enemyLevel;
         this.dust = data.dust;
         this.shards = data.shards ? data.shards : 0;
+        /*!!! */
+        this.refundableDust = data.refundableDust;
+        this.refundableShards = data.refundableShards;
         this.enemiesKilled = data.enemiesKilled;
         this.maxEnemyLevel = data.maxEnemyLevel;
+        this.highestEnemyLevel = data.highestEnemyLevel;
         this.autoLevel = data.autoLevel;
         if (data.rings && data.rings.level) this.rings = data.rings;
         else this.rings = this.getFreshRings();
@@ -880,7 +912,14 @@ var autoBattle = {
             this.settings[setting].enabled = data.settings[setting];
         }
         if (!this.presets.names) this.presets.names = ["Preset 1", "Preset 2", "Preset 3"];
-        game.stats.saHighestLevel.valueTotal = this.maxEnemyLevel;
+        /*!!! It would probably make more sense to show the highest level reached rather than the current max level*/
+        game.stats.saHighestLevel.valueTotal = this.highestEnemyLevel;
+        /*!!! 
+            This is here for lack of a better place to put it.
+            It might be a good idea to include it into an update block so it's only called when
+            players update the game to a version with this feature
+        */
+        this.calculateRefund()
         this.resetCombat(true);
     },
     firstUnlock: function(){
@@ -3352,7 +3391,13 @@ var autoBattle = {
             this.enemiesKilled++;
             if (this.enemiesKilled >= this.nextLevelCount()) {
                 this.maxEnemyLevel++;
-                game.stats.saHighestLevel.valueTotal = this.maxEnemyLevel;
+                /*!!!
+                    Update highestEnemyLevel when applicable
+                */
+                if(this.maxEnemyLevel > this.highestEnemyLevel){
+                    this.highestEnemyLevel = this.maxEnemyLevel;
+                    game.stats.saHighestLevel.valueTotal = this.highestEnemyLevel;
+                }
                 if (this.autoLevel) this.enemyLevel++;
                 this.enemiesKilled = 0;
                 this.resetStats();
@@ -3494,16 +3539,34 @@ var autoBattle = {
     },
     upgrade: function(item){
         var itemObj = this.items[item];
-        if (!itemObj) return; 
+        if (!itemObj) return false; 
         var cost = this.upgradeCost(item);
         var currency = (this.items[item].dustType == "shards") ? this.shards : this.dust;
-        if (currency < cost) return;
+        if (currency < cost) return false;
         this.saveLastAction("upgrade", item);
-        if (this.items[item].dustType == "shards") this.shards -= cost;
-        else this.dust -= cost;
-        
+        /*!!!
+            The if-else block now updates refundable amounts
+        */
+        if (this.items[item].dustType == "shards") {
+            this.shards -= cost;
+            this.refundableShards += cost;
+        }
+        else {
+            this.dust -= cost;
+            this.refundableDust += cost;
+        }
         itemObj.level++;
         this.popup(false, false, true);
+        return true;
+    },
+    /*!!! Allows purchasing as many upgrades as possible when ctrl is held. Otherwise, purchase only one upgrade */
+    upgradeMax: function(item){
+        if(ctrlPressed){
+            while(this.upgrade(item));
+        }
+        else{
+            this.upgrade(item);
+        }
     },
     checkLastActions: function(){
         var somethinGood = false;
@@ -3549,6 +3612,17 @@ var autoBattle = {
         this.enemiesKilled = action[4];
         if (action[0] == "upgrade"){
             this.items[action[1]].level -= action[5];
+            var itemObj = this.items[action[1]]
+            for(var i = itemObj.level; i < itemObj.level + action[5]; i++){
+                var priceMod = 3;
+                if (itemObj.priceMod) priceMod = itemObj.priceMod;
+                var startPrice = 5;
+                if (itemObj.startPrice) startPrice = itemObj.startPrice;
+                if(itemObj.dustType === "shards")
+                    this.refundableShards -= startPrice * Math.pow(priceMod, i - 1);
+                else
+                    this.refundableDust -= startPrice * Math.pow(priceMod, i - 1);
+            }
         }
         else if (action[0] == "contract"){
             this.items[action[1]].equipped = false;
@@ -3571,6 +3645,14 @@ var autoBattle = {
     confirmUndo: false,
     confirmUndoClicked: function(){
         this.confirmUndo = !this.confirmUndo;
+        this.popup(false, false, true);
+    },
+    /*!!! 
+        Similar to confirmUndo.
+    */
+    confirmRefund: false,
+    confirmRefundClicked: function(){
+        this.confirmRefund = !this.confirmRefund;
         this.popup(false, false, true);
     },
     levelDown: function(){
@@ -3869,7 +3951,10 @@ var autoBattle = {
     updateBonusPrices: function(){
         for (var bonus in this.bonuses){
             var bonusObj = this.bonuses[bonus];
-            if (bonusObj.useShards && this.maxEnemyLevel < 51) continue;
+            /*!!!
+                Uses highestenemyLevel so it stays unlocked after resetting
+            */
+            if (bonusObj.useShards && this.highestEnemyLevel < 51) continue;
             var cost = this.getBonusCost(bonus);
             var costColor = ((!bonusObj.useShards && cost <= this.dust) || (bonusObj.useShards && cost <= this.shards)) ? "green" : "red";
             var elem = document.getElementById(bonus + "BonusPrice");
@@ -3882,7 +3967,10 @@ var autoBattle = {
             var oneObj = this.oneTimers[oneTime];
             if (oneObj.owned) continue;
             oneCount++;
-            if (this.maxEnemyLevel >= 51 && oneCount >= 3) break;
+            /*!!!
+                Uses highestenemyLevel so it stays unlocked after resetting
+            */
+            if (this.highestEnemyLevel >= 51 && oneCount >= 3) break;
             if (oneCount >= 4) break;
             var cost = this.oneTimerPrice(oneTime);
             var costColor = ((!oneObj.useShards && cost <= this.dust) || (oneObj.useShards && cost <= this.shards)) ? "green" : "red";
@@ -3894,6 +3982,51 @@ var autoBattle = {
             elem.className = costColor;
         }
         return true;
+    },
+    /*!!!
+        Function for determining how much dust/shards should be refunded
+        Intended to be used when the game is updated with the refund ability.
+        Afterward, this can be deprecated
+    */
+    calculateRefund: function(){
+        this.highestEnemyLevel = this.maxEnemyLevel;
+        var dustAMT = 0;
+        var shardAMT = 0;
+        for(item in autoBattle.items){
+            var itemObj = this.items[item];
+            if (!itemObj) break;
+            if (!itemObj.owned) continue
+            for(var i = 1; i < itemObj.level; i++){
+                var priceMod = 3;
+                if (itemObj.priceMod) priceMod = itemObj.priceMod;
+                var startPrice = 5;
+                if (itemObj.startPrice) startPrice = itemObj.startPrice;
+                if(itemObj.dustType === "shards")
+                    shardAMT += startPrice * Math.pow(priceMod, i - 1);
+                else
+                    dustAMT += startPrice * Math.pow(priceMod, i - 1);
+            }
+        }
+        this.refundableDust = dustAMT;
+        this.refundableShards = shardAMT;
+    },
+    refundEquipment: function(){
+        for(item in autoBattle.items){
+            var itemObj = autoBattle.items[item];
+            itemObj.level = 1;
+        }
+        this.dust += this.refundableDust;
+        this.shards += this.refundableShards;
+        this.refundableDust = 0;
+        this.refundableShards = 0;
+        this.maxEnemyLevel = 1;
+        this.enemyLevel = 1;
+        this.enemiesKilled = 0;
+        this.confirmRefund = false;
+        this.resetStats();
+        this.resetCombat();
+        this.checkLastActions();
+        this.popup(false, false, true);
     },
     hideMode: false,
     popup: function(updateOnly, statsOnly, itemsOnly, leaveMode, fromBattle){
@@ -3922,7 +4055,7 @@ var autoBattle = {
         var pctWon = (totalFights > 0) ? "(" + Math.round((this.sessionEnemiesKilled / totalFights) * 100) + "%)" : "&nbsp;";
         var dustPs = this.getDustPs();
         var shardText = "";
-        if (this.maxEnemyLevel > 50){
+        if (this.highestEnemyLevel > 50){
             shardText = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + prettify(this.shards) + " Shards";
             if (this.enemyLevel > 50){
                 shardText += " (";
@@ -4142,7 +4275,8 @@ var autoBattle = {
                         line2 += "<div class='autoItem autoItemHide' onclick='autoBattle.hide(\"" + item + "\")'>Hide</div>";
                     else if (itemObj.noUpgrade) line2 += "<div class='autoItem autoColorGrey'>Unupgradable</div>"
                     else 
-                        line2 += "<div class='autoItem autoItemUpgrade' onclick='autoBattle.upgrade(\"" + item + "\")' onmouseover='autoBattle.hoverItem(\"" + item + "\", true)'>Upgrade (" + upgradeCost + ")</div>";
+                    /*!!! The upgrade now redirects to upgradeMax which will call upgrade */
+                        line2 += "<div class='autoItem autoItemUpgrade' onclick='autoBattle.upgradeMax(\"" + item + "\")' onmouseover='autoBattle.hoverItem(\"" + item + "\", true)'>Upgrade (" + upgradeCost + ")</div>";
                 }
                 else if (this.popupMode == "hidden")
                     line2 += "<div class='autoItem autoItemRestore' onclick='autoBattle.restore(\"" + item + "\")'>Restore</div>";
@@ -4159,7 +4293,10 @@ var autoBattle = {
         else if (this.popupMode == "bonuses"){
             for (var bonus in this.bonuses){
                 var bonusObj = this.bonuses[bonus];
-                if (bonusObj.useShards && this.maxEnemyLevel < 51) continue;
+                /*!!!
+                    Uses highestenemyLevel so it stays unlocked after resetting
+                */
+                if (bonusObj.useShards && this.highestEnemyLevel < 51) continue;
                 var cost = this.getBonusCost(bonus);
                 var costText = ((!bonusObj.useShards && cost <= this.dust) || (bonusObj.useShards && cost <= this.shards)) ? "green" : "red";
                 costText = "<span id='" + bonus + "BonusPrice' class='" + costText + "'>" + prettify(cost) + " " + ((bonusObj.useShards) ? "Shards" : "Dust") + "</span>";
@@ -4171,7 +4308,7 @@ var autoBattle = {
                 var oneObj = this.oneTimers[oneTime];
                 if (oneObj.owned) continue;
                 oneCount++;
-                if (this.maxEnemyLevel >= 51 && oneCount >= 3) break;
+                if (this.highestEnemyLevel >= 51 && oneCount >= 3) break;
                 if (oneCount >= 4) break;
                 var cost = this.oneTimerPrice(oneTime);
                 var costText = ((!oneObj.useShards && cost <= this.dust) || (oneObj.useShards && cost <= this.shards)) ? "green" : "red";
@@ -4243,6 +4380,17 @@ var autoBattle = {
                 text += "<br/>";
             }
             else text += "Undoing your last 3 actions would still leave you with less currency than you have now."
+            /*!!! 
+                Add the text for the refund option. It works similar to the undo action
+                where you click the refund button and then have to click a confirm button
+            */
+            text +="<br/><b style='font-size: 1.1em;'>Refund Equipmemnt Upgrades</b><br/>"
+            if (!this.confirmRefund) text += "<span class='btn autoItemUpgrade btn-md' onclick='autoBattle.confirmRefundClicked()'>Refund</span>";
+            else text += "<b>Are you sure?!</b><br/><span class='btn autoItemUpgrade btn-md' onclick='autoBattle.refundEquipment()'>Yes, Refund</span><span class='btn autoItemHide btn-md' onclick='autoBattle.confirmRefundClicked()'>No, Cancel</span>";            
+            text += "<br/>Reset all your equipment to level 1. Your progress will also be reset to level 1."
+            text += "You will be refunded " + prettify(this.refundableDust) + " dust";
+            if (this.highestEnemyLevel >= 51) text += " and " + prettify(this.refundableShards) + " shards"
+            text += "."
             text += "</div>"
             for (var x = 1; x <= 3; x++){
                 var pname = 'p' + x;
