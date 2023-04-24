@@ -2843,7 +2843,7 @@ function getBattleStatBd(what) {
 		textString += "<tr><td class='bdTitle'>Sanity (Melt)</td><td></td><td></td><td class='bdPercent'>x 5</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 		var stackStr = Math.pow(game.challenges.Melt.decayValue, game.challenges.Melt.stacks);
 		currentCalc *= stackStr;
-		textString += "<tr style='color: red'><td class='bdTitle'>Melt</td><td>x 0.995</td><td>" + game.challenges.Melt.stacks + "</td><td class='bdPercent'>x " + stackStr.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
+		textString += "<tr style='color: red'><td class='bdTitle'>Melt</td><td>x 0.99</td><td>" + game.challenges.Melt.stacks + "</td><td class='bdPercent'>x " + stackStr.toFixed(3) + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>";
 	}
 	if (game.global.challengeActive == "Quest" && game.challenges.Quest.finishedQuests > 0 && what == "attack"){
 		amt = game.challenges.Quest.getAttackMult();
