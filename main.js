@@ -17140,6 +17140,7 @@ function buyAutoStructures(){
 		if (!setting[item]) continue;
 		if (typeof setting.NurseryZones !== 'undefined' && game.global.world < setting.NurseryZones && item == "Nursery")
 			continue;
+                if (item == "Warpstation" && game.global.sLevel >= 4 ) maxBuild = 1000;
 		var building = game.buildings[item];
 		if (building.locked) continue;
 		var purchased = building.purchased;
