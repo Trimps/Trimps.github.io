@@ -6888,7 +6888,7 @@ function equipHeirloom(noScreenUpdate){
 	for (var item in heirloom.mods){
 		var bonus = heirloom.mods[item][1];
 		var name = heirloom.mods[item][0];
-		game.heirlooms[heirloom.type][heirloom.mods[item][0]].currentBonus = bonus;
+		game.heirlooms[heirloom.type][name].currentBonus = bonus;
 		if (name == 'trimpHealth'){
 			if (game.global.universe == 2) addSoldierHealth(bonus / 1000);
 			else addSoldierHealth(bonus / 100);
