@@ -3418,12 +3418,14 @@ var toReturn = {
 				game.jobs.Farmer.modifier *= (2/3);
 				game.jobs.Lumberjack.modifier *= (2/3);
 				game.jobs.Miner.modifier *= (2/3);
+				game.jobs.Scientist.modifier *= (2/3);
 				game.resources.trimps.maxMod = 1;
 			},
 			start: function () {
 				game.jobs.Farmer.modifier *= 1.5;
 				game.jobs.Lumberjack.modifier *= 1.5;
 				game.jobs.Miner.modifier *= 1.5;
+				game.jobs.Scientist.modifier *= 1.5;
 				game.resources.trimps.maxMod = 0.5;
 			},
 			onComplete: function (){
