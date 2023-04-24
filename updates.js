@@ -7068,19 +7068,20 @@ if (elem == null) {
   elem.className = className;
 }
 
-function goRadial(elem, currentSeconds, totalSeconds, frameTime){
+function goRadial(elem, currentSeconds, totalSeconds, frameTime) {
 		if (!elem) return;
-        if (currentSeconds <= 0) currentSeconds = 0;
-        elem.style.transition = "";
-        elem.style.transform = "rotate(" + timeToDegrees(currentSeconds, totalSeconds) + "deg)";
-        setTimeout(
-            (function(ft, cs, ts) {
-                return function() {
-                    elem.style.transform = "rotate(" + timeToDegrees(cs + ft / 1000, ts) + "deg)";
-                    elem.style.transition = cs < 0.1 ? "" : "transform " + ft + "ms linear";
-                }
-            })(frameTime, currentSeconds, totalSeconds).bind(this)
-        , 0);
+		if (currentSeconds <= 0) currentSeconds = 0;
+		elem.style.transition = "";
+		elem.style.transform = cssRotationMatrixFromTime(currentSeconds, totalSeconds);
+		setTimeout(
+			(function(ft, cs, ts) {
+				return function() {
+					var timeNextFrame = cs + (ft / 1000);
+					elem.style.transform = cssRotationMatrixFromTime(timeNextFrame, ts);
+					elem.style.transition = "transform " + ft + "ms linear";
+				}
+			})(frameTime, currentSeconds, totalSeconds).bind(this)
+		, 0);
 }
 
 function isObjectEmpty(obj){
@@ -7090,9 +7091,12 @@ function isObjectEmpty(obj){
 	return true;
 }
 
-function timeToDegrees(currentSeconds, totalSeconds){
-	var degrees = (360 * (currentSeconds / totalSeconds * 100) / 100);
-	return degrees % 360;
+function cssRotationMatrixFromTime(currentSeconds, totalSeconds) {
+	var rotation = currentSeconds / totalSeconds;
+	var angle = rotation * (2 * Math.PI);
+	return `matrix(${Math.cos(angle)},${Math.sin(angle)},
+	               ${-Math.sin(angle)},${Math.cos(angle)},
+	                 0,0)`;
 }
 
 // 431741580's code
