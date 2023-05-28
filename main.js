@@ -10778,7 +10778,7 @@ function startFight() {
 	if (game.global.brokenPlanet && !game.global.mapsActive){
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Pierce\', \'customText\', event, \'' + prettify(getPierceAmt() * 100) + '% of the damage from this Bad Guy pierces through block\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-tint"></span></span>';
 	}
-	if (game.global.challengeActive == "Glass" || challengeActive("Slow") || (game.global.challengeActive == "Desolation" && game.global.mapsActive) || (cell.u2Mutation && cell.u2Mutation.length) || ((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Coordinate" && game.global.challengeActive != "Nom"))
+	if (game.global.challengeActive == "Glass" || challengeActive("Slow") || (game.global.challengeActive == "Desolation" && game.global.mapsActive) || (cell.u2Mutation && cell.u2Mutation.length) || ((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Coordinate" && !challengeActive("Nom")))
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Fast\', \'customText\', event, \'This Bad Guy is fast and attacks first\')" onmouseout="tooltip(\'hide\')"><span class="glyphicon glyphicon-forward"></span></span>';
 	if ((challengeActive("Electricity") || game.global.challengeActive == "Mapocalypse")){
 		badName += ' <span class="badge badBadge" onmouseover="tooltip(\'Electric\', \'customText\', event, \'This Bad Guy is electric and stacks a debuff on your Trimps\')" onmouseout="tooltip(\'hide\')"><span class="icomoon icon-power-cord"></span></span>';
@@ -14940,7 +14940,7 @@ function fight(makeUp) {
 	if (game.global.world >= getObsidianStart() && !game.global.mapsActive){
 		game.global.soldierHealth = 0;
 	}
-	var checkFast = (game.global.challengeActive == "Glass" || challengeActive("Slow") || ((((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && game.global.challengeActive != "Nom") || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate"));
+	var checkFast = (game.global.challengeActive == "Glass" || challengeActive("Slow") || ((((game.badGuys[cell.name].fast || cell.mutation == "Corruption") && !challengeActive("Nom")) || game.global.voidBuff == "doubleAttack") && game.global.challengeActive != "Coordinate"));
 	if (game.global.soldierHealth <= 0) checkFast = false;
 	if (checkFast && game.global.challengeActive == "Exterminate" && game.challenges.Exterminate.experienced) checkFast = false;
 	var forceSlow = false;
