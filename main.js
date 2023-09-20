@@ -18999,6 +18999,7 @@ document.addEventListener('keydown', function (e) {
 			else if (portalWindowOpen || game.global.viewingUpgrades) cancelPortal();
 			else if (bonesShown) hideBones();
 			else if (u2Mutations.open) u2Mutations.closeTree();
+			else if (document.getElementById("heirloomsPopup").style.display !== "none") closeHeirPopup();
 			//last
 			else if (!game.global.usingRealTimeOffline) toggleSettingsMenu();
 			break;
