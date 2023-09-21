@@ -11876,7 +11876,7 @@ function tryScry(){
 		message("You have no more use for Dark Essence!", "Loot", "*cloud3", "essenceMessage", "essence");
 	}
 	else {
-		var essenceRemaining = countRemainingEssenceDrops();
+		var essenceRemaining = countRemainingEssenceDrops(1);
 		message("You found " + prettify(reward) + " Dark Essence! There " + ((essenceRemaining == 1) ? "is " : "are ") + essenceRemaining + " Essence drop" + needAnS(essenceRemaining) + " left in the current Zone.", "Loot", "*cloud3", "essenceMessage", "essence");
 	}
 	updateTalentNumbers();
@@ -11896,8 +11896,8 @@ function tryWorship(){
 	message("Your Worshippers successfully inspire Scruffy, granting " + prettify(reward) + " Exp!", "Loot", "*library", "expMessage", "exp");
 }
 
-function countRemainingEssenceDrops(){
-	var cellsRemaining = 100 - game.global.lastClearedCell - 1;
+function countRemainingEssenceDrops(just_killed = 0){
+	var cellsRemaining = 100 - game.global.lastClearedCell - 1 - just_killed;
 	var count = 0;
 	for (var x = 1; x <= cellsRemaining; x++){
 		var roll = getRandomIntSeeded(game.global.scrySeed + x, 0, 100);
