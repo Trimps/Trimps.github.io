@@ -1805,7 +1805,9 @@ var playerSpireTraps = {
             else
                 dmg = dmgs[this.level - 1];
             var row = playerSpire.getRowFromCell(cell);
-            if (playerSpire.strengthLocations.indexOf(row) != -1) dmg = calcHeirloomBonus("Core", "strengthEffect", (dmg * 2));
+            if (playerSpire.strengthLocations.indexOf(row) != -1) {
+                dmg += calcHeirloomBonus("Core", "strengthEffect", dmg);
+            }
             if (playerSpireTraps.Frost.level >= 3 && enemy && enemy.slowedFor && enemy.slowMod == 1){
                 dmg *= 1.25;
             }
