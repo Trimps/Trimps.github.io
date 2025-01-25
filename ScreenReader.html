@@ -1427,33 +1427,33 @@
 	</table>
 	<div style='position: absolute; display: block; width: 15vw; left: 85%; top: 90%; background-color: grey; z-index: 99' id="screenReaderTooltip" aria-live="assertive"></div>
 	<div id="settingsRow">
-		<table id="settingsTable" role="list" aria-label="Game Menu">
+		<table id="settingsTable" aria-label="Game Menu">
 			<tr>
-				<td role="listitem" class="btn btn-info" onclick="save(false, true)">
+				<td class="btn btn-info" onclick="save(false, true)">
 					Save <span id="saveIndicator"></span><span id="playFabIndicator"></span>
 				</td>
-				<td role="listitem" class="btn btn-info" onclick="tooltip('Export', null, 'update')">
+				<td class="btn btn-info" onclick="tooltip('Export', null, 'update')">
 					<div>Export</div>
 				</td>
-				<td role="listitem" class="btn btn-info" onclick="tooltip('Import', null, 'update')">
+				<td class="btn btn-info" onclick="tooltip('Import', null, 'update')">
 					<div>Import</div>
 				</td>
-				<td role="listitem" class="btn btn-success" onclick="toggleStats()">
+				<td class="btn btn-success" onclick="toggleStats()">
 					<div>Stats</div>
 				</td>
-				<td role="listitem" class="btn tealColor" onclick="toggleAchievementWindow()">
+				<td class="btn tealColor" onclick="toggleAchievementWindow()">
 					<div>Achieves</div>
 				</td>
-				<td role="listitem" class="btn btn-default" onclick="toggleSettingsMenu()">
+				<td class="btn btn-default" onclick="toggleSettingsMenu()">
 					<div id='settingsText'>Settings</div>
 				</td>
-				<td role="listitem" class="btn" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">
+				<td class="btn" id="pastUpgradesBtn" onclick="viewPortalUpgrades()">
 					
 				</td>
-				<td role="listitem" class="btn btn-new" onclick="window.open('updates.html', '_blank')">
+				<td class="btn btn-new" onclick="window.open('updates.html', '_blank')">
 						V <span id="versionNumber"></span> | What's New 
 				</td>
-				<td role="listitem" id="portalTimer" class="timerNotPaused" onclick="toggleSetting('pauseGame')" >
+				<td  id="portalTimer" class="timerNotPaused" onclick="toggleSetting('pauseGame')" >
 					<span id="portalTime">&nbsp;</span>&nbsp;&nbsp;<span style='font-size: 0.85em; line-height: 0.85em;' class='icomoon icon-pause3'></span>&nbsp;
 				</td>
 			</tr>
