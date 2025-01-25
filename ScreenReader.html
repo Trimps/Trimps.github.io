@@ -1326,7 +1326,7 @@
 			<div id="tutorialGoal"></div>
 		</div>
 	</div>
-	<table style='position: absolute; display: block; width: 20vw; left: 80%; top: 50%; background-color: grey; z-index: 99' id="screenReaderSummary">
+	<table role="presentation" style='position: absolute; display: block; width: 20vw; left: 80%; top: 50%; background-color: grey; z-index: 99' id="screenReaderSummary" >
 		<tbody>
 			<tr>
 				<td>
@@ -1343,12 +1343,7 @@
 					World Cell: <span id='srSumWorldCell'></span>
 				</td>
 			</tr>
-			<tr>
-				<td>
-					World Time: <span id='srSumWorldTime'></span>
-				</td>
-			</tr>
-			<tr>
+			
 			<tr>
 				<td id='srSumMapNameContainer'>
 					Current Map: <span id='srSumMapName'></span>
@@ -1357,11 +1352,6 @@
 			<tr id='srSumMapCellContainer'>
 				<td>
 					Current Map Cell: <span id='srSumMapCell'></span>
-				</td>
-			</tr>
-			<tr id='srSumMapTimeContainer'>
-				<td>
-					Current Map Time: <span id='srSumMapTime'></span>
 				</td>
 			</tr>
 			<tr id='srSumVoidMapContainer'>
@@ -1439,11 +1429,21 @@
 					Last story: <span id='srSumLastStory'></span>
 				</td>
 			</tr>
+			<tr>
+				<td>
+					World Time: <span id='srSumWorldTime'></span>
+				</td>
+			</tr>
+			<tr id='srSumMapTimeContainer'>
+				<td>
+					Current Map Time: <span id='srSumMapTime'></span>
+				</td>
+			</tr>
 		</tbody>
 	</table>
 	<div style='position: absolute; display: block; width: 15vw; left: 85%; top: 90%; background-color: grey; z-index: 99' id="screenReaderTooltip" aria-live="assertive"></div>
 	<div id="settingsRow">
-		<table id="settingsTable" aria-label="Game Menu">
+		<table id="settingsTable">
 			<tr>
 				<td class="btn btn-info" onclick="save(false, true)">
 					Save <span id="saveIndicator"></span><span id="playFabIndicator"></span>
