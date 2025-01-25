@@ -12604,51 +12604,65 @@ function getHighestIdealRow(){
 }
 
 function displayTalents(){
-	var html = "<div class='talentTierRow talentRowUnlocked'>";
+	var btnTag = (usingScreenReader ? "button" : "div")
+	var tableTag = (usingScreenReader ? "table" : "table")
+	var rowTag = (usingScreenReader ? "tr" : "tr")
+	var cellTag = (usingScreenReader ? "td" : "td")
 	var currentTier = 1;
 	var tiers = getAllowedTalentTiers();
+	var html = `<${tableTag} role="grid" class="talentTable"><${rowTag} class='talentTierRow talentRowUnlocked'><th class='visually-hidden'scope='row'>${(tiers[currentTier-1] == 0 ? "Row Locked" : (tiers[currentTier-1] == -1 ? "Row Locked" : ""))}</th> `;
 	var purchasePower = getHighestUnlockedTalentTier();
 	var highestBuyoutRow = getHighestPurchaseableRow();
 	var highestIdealRow = getHighestIdealRow();
+	var rowUnlocked = true;
+	var makeTooltips = []
 	for (var item in game.talents){
 		var talent = game.talents[item];
 		if (talent.tier > currentTier) {
 			currentTier = talent.tier;
-			html += "</div><div class='talentTierRow talentRow" + ((tiers[currentTier - 1] > 0) ? 'Unlocked' : 'Locked') + "'>";
+			rowUnlocked = (tiers[currentTier - 1] > 0);
+			html += `</${rowTag}><${rowTag} class='talentTierRow talentRow${(rowUnlocked ? 'Unlocked' : 'Locked')}'><th class='visually-hidden' scope='row'>${(tiers[currentTier-1] == 0 ? "Row Locked" : (tiers[currentTier-1] == -1 ? "Row Locked" : ""))}</th>`;
 		}
 		var talentClass = ((ctrlPressed && talent.tier <= highestBuyoutRow) ? ((talent.tier <= highestIdealRow) ? "talentIdealRow " : "talentCanBuyRow ") : "") + "talentItem noselect talent" + ((talent.purchased) ? "Purchased" : "NotPurchased");
 		if (typeof talent.requires !== 'undefined'){
-			var requires;
-			if (Array.isArray(talent.requires)) requires = talent.requires;
-			else requires = [talent.requires];
-			for (var x = 0; x < requires.length; x++){
+			var requires = ( Array.isArray(talent.requires) ? talent.requires : [talent.requires] )
+			for (var x = 0; x < requires.length; x++) {
 				if (!game.talents[requires[x]].purchased){ 
 					talentClass += " talentReqNeeded";
 					break;
 				}
 			}
 		}
+		var statusText = ""
+		var tooltip = ""
+		var talentString = talent.name
 		var icon = (talent.icon.charAt(0) == "*") ? "icomoon icon-" + talent.icon.substr(1) : "glyphicon glyphicon-" + talent.icon;
-		if (currentTier > purchasePower){
-			html += "<div";
-			if (usingScreenReader) html += " role='button' title='Locked'";
-			html += " class='talentItem noselect talentNotPurchased talentLocked'><span class='talentIcon'><span class='icomoon icon-locked'></span></span></div>";
-		}
-		else if (usingScreenReader){
-			var statusText = "";
+		if (usingScreenReader) {
+			statusText = ((talentClass.search('ReqNeeded') >= 0) ? "Requirement Not Met" : (talentClass.search('NotPurchased') >= 0) ? "Not Purchased" : "Purchased")+", "
 			talentClass += " screenReadTalent";
-			if (talentClass.search('ReqNeeded') >= 0) statusText = "Requirement Not Met";
-			else if (talentClass.search('NotPurchased') >= 0) statusText = "Not Purchased";
-			else statusText = "Purchased"
-			html += "<div role='button' class='" + talentClass + "' onclick='tooltip(\"" + item + "\", \"talents\", \"screenRead\")'>" + talent.name + " Info</div>";
-			html += "<div role='button' class='" + talentClass + "' onclick='purchaseTalent(\"" + item + "\")'><span class='talentIcon'><span class='" + icon + "'></span></span><br/><div class='talentName'>Tier " + talent.tier + " " + statusText + " " + talent.name + "</div></div>";			
+			talentString = `Tier ${talent.tier} ${statusText} ${talent.name}`
 		}
 		else {
-			html += "<div class='" + talentClass + "' onmouseover='tooltip(\"" + item + "\", \"talents\", event)' onmouseout='tooltip(\"hide\")' onclick='purchaseTalent(\"" + item + "\")'><span class='talentIcon'><span class='" + icon + "'></span></span><br/><div class='talentName'>" + talent.name + "</div></div>";
+			tooltip = `onmouseover='tooltip("${item}", "talents", event)' onmouseout='tooltip("hide")'`
+		}
+		
+		html += `<${cellTag} class="talentContainer">`;
+		if (currentTier > purchasePower){
+			html += `<${btnTag} aria-label='Locked' aria-disabled=true class='talentItem noselect talentNotPurchased talentLocked'><span class='talentIcon'><span class='icomoon icon-locked'></span></span></${btnTag}>`;
+		}
+		else {
+			html += `<${btnTag} id='mastery${item}' class='${talentClass}' ${tooltip} onclick='purchaseTalent("${item}")'><span class='talentIcon'><span class='${icon}'></span></span><br/><div class='talentName'>${talentString}</div></${btnTag}>`;	
+			makeTooltips.push(item);
+		}
+		html += `</${cellTag}>`
+	}
+	html += `</${rowTag}></${tableTag}>`;
+	document.getElementById('talentsHere').innerHTML = html;
+	if (usingScreenReader) {
+		for (let item of makeTooltips) {
+			makeAccessibleTooltip(`mastery${item}`, [item, "talents"])
 		}
 	}
-	html += "</div>";
-	document.getElementById('talentsHere').innerHTML = html;
 	var respecBtn = document.getElementById('talentRespecBtn');
 	var respecAvailable = (game.global.b >= 20 || game.global.freeTalentRespecs) ? 'colorDanger' : 'colorBuyOff';
 	swapClass('color', respecAvailable, respecBtn)
