@@ -18455,7 +18455,7 @@ function autoUpgrades() {
 		}
 		if (!autoUpgradeSetting) continue;
 		if ((!boughtUpgrade || game.global.gridArray[0].name == "Liquimp") && autoBuyUpgrade(item)){
-			if (autoPrestigeSetting != 0 && timerCheck)
+			if (autoUpgradeSetting != 0 && timerCheck)
 				boughtUpgrade = true;
 			else
 				return;
