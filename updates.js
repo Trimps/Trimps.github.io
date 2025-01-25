@@ -5742,23 +5742,7 @@ function drawAllBuildings(force) {
 }
 
 function drawBuilding(what) {
-	const alertMessage = game.buildings[what].alert && game.options.menu.showAlerts.enabled ? '!' : '';
-	if (usingScreenReader) {
-		return `
-			<button class="thingColorCanNotAfford thing noselect pointer buildingThing" id="${what}" onclick="buyBuilding('${what}')">
-				<span class="thingName">
-				<span id="${what}Alert" class="alert badge">${alertMessage}</span>${what}</span>, 
-				<span class="thingOwned" id="${what}Owned">${game.buildings[what].owned}</span>
-				<span class="cantAffordSR">, Not Affordable</span>
-				<span class="affordSR">, <span id="${what}BuyAmount"></span>Affordable</span>
-			</button>`;
-	}
-
-	return `<div onmouseover="tooltip('${what}','buildings',event)" onmouseout="tooltip('hide')" class="thingColorCanNotAfford thing noselect pointer buildingThing" id="${what}" onclick="buyBuilding('${what}')">
-			<span class="thingName">
-			<span id="${what}Alert" class="alert badge">${alertMessage}</span>${what}</span><br/>
-			<span class="thingOwned" id="${what}Owned">${game.buildings[what].owned}</span>
-		</div>`;
+	return makeBuildJobUpgEquipButtonHTML("buildings", what)
 }
 
 function unlockJob(what) {
@@ -5808,32 +5792,53 @@ function drawAllJobs(force) {
 }
 
 function drawJob(what) {
-	const alertMessage = game.jobs[what].alert && game.options.menu.showAlerts.enabled ? '!' : '';
+	return makeBuildJobUpgEquipButtonHTML("jobs", what)
+}
 
-	if (usingScreenReader) {
-		return `
-			<button class="thingColorCanNotAfford thing noselect pointer jobThing" id="${what}" onclick="buyJob('${what}')">
-				<span class="thingName"><span id="${what}Alert" class="alert badge">${alertMessage}</span>${what}</span>, 
-				<span class="thingOwned" id="${what}Owned">0</span>
-				<span class="firingSR">, Firing</span>
-				<span class="cantAffordSR">, Not Affordable</span>
-				<span class="affordSR">, <span id="${what}BuyAmount"></span>Affordable</span>
-			</button>`;
+function makeBuildJobUpgEquipButtonHTML(type, what, owned) {
+	// Draw ALL the buttons!  
+	const buttonType = {jobs: "Job", equipment: "Equipment", buildings: "Building", upgrades: "Upgrade"}
+	const alertMessage = game[type][what].alert && game.options.menu.showAlerts.enabled ? '!' : '';
+	const tooltips = (usingScreenReader ? "" : `onmouseover="tooltip('${what}','${type}', event)" onmouseout="tooltip('hide')"`)
+	const sep = (usingScreenReader ? "," : "<br>")
+	const tagName = (usingScreenReader ? "button" : "div")
+	if (!owned) owned = game[type][what].owned;
+	if (owned == undefined) owned = 0;
+
+	if (type == 'equipment') {
+		var numeral = '';
+		let equipment = game.equipment[what];
+		if (equipment.prestige > 1) numeral = usingScreenReader ? prettify(equipment.prestige) : romanNumeral(equipment.prestige);
 	}
-	return `<div onmouseover="tooltip('${what}','jobs',event)" onmouseout="tooltip('hide')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="${what}" onclick="buyJob('${what}')">
-				<span class="thingName"><span id="${what}Alert" class="alert badge">${alertMessage}</span>${what}</span><br/>
-				<span class="thingOwned" id="${what}Owned">0</span>
-			</div>`;
+	const numeralSpan = (type == 'equipment' ? `<span id="${what}Numeral">${numeral}</span>` : "")
+
+	let html = `<${tagName} class="thingColorCanNotAfford thing noselect pointer ${buttonType[type].toLowerCase()}Thing" id="${what}" onclick="buy${buttonType[type]}('${what}')" ${tooltips}>
+			<span class="thingName"><span id="${what}Alert" class="alert badge">${alertMessage}</span>${what} ${numeralSpan}</span>${sep} 
+			<span class="thingOwned">${(type == 'equipment' ? "Level:" : "")} <span id="${what}Owned">${owned}</span></span>`
+	if (usingScreenReader) {
+		if (type == "jobs") html += `<span class="firingSR">, Firing</span>`
+		if (type == "equipment") html += `<span class="efficientSR">, Most Efficient</span>`
+		html += `<span class="cantAffordSR">, Not Affordable</span>
+		<span class="affordSR">, <span id="${what}BuyAmount"></span>Affordable</span>`
+	}
+	html += `</${tagName}>`;
+	return html
 }
 
 function drawGeneticistassist(what) {
 	const alertMessage = game.jobs.Geneticist.alert && game.options.menu.showAlerts.enabled ? '!' : '';
 	if (usingScreenReader) {
-		return `<button class="thingColorCanNotAfford thing noselect pointer jobThing" id="Geneticist" onclick="buyJob('Geneticist')"><span class="thingName"><span id="GeneticistAlert" class="alert badge">${alertMessage}</span>Geneticist</span><br/><span class="thingOwned" id="GeneticistOwned">0</span></button><button class="thing thingColorNone noselect stateHappy pointer jobThing" id="Geneticistassist" onclick="toggleGeneticistassist()">Geneticistassist<span id="GAIndicator"></span><br/><span id="GeneticistassistSetting">&nbsp;</span></button>`;
+		return `${makeBuildJobUpgEquipButtonHTML("jobs", what)}<button class="thing thingColorNone noselect stateHappy pointer jobThing" id="Geneticistassist" onclick="toggleGeneticistassist()">Geneticistassist
+			<span id="GAIndicator"></span><br/>
+			<span id="GeneticistassistSetting">&nbsp;</span>
+		</button>`;
 	}
 
-	return `<div id="GeneticistassistContainer" class="thing"><div onmouseover="tooltip('Geneticist','jobs',event)" onmouseout="tooltip('hide')" class="thingColorCanNotAfford thing noselect pointer jobThing" id="Geneticist" onclick="buyJob('Geneticist')"><span class="thingName"><span id="GeneticistAlert" class="alert badge">${alertMessage}</span>Geneticist</span><br/>
-	<span class="thingOwned" id="GeneticistOwned">0</span></div><div onmouseover="tooltip('Geneticistassist',null,event)" onmouseout="tooltip('hide')" class="thing thingColorNone noselect stateHappy pointer jobThing" id="Geneticistassist" onclick="toggleGeneticistassist()">Geneticistassist<span id="GAIndicator"></span><br/><span id="GeneticistassistSetting">&nbsp;</span></div></div>`;
+	return `<div id="GeneticistassistContainer" class="thing">
+		${makeBuildJobUpgEquipButtonHTML("jobs", what)}<div onmouseover="tooltip('Geneticistassist',null,event)" onmouseout="tooltip('hide')" class="thing thingColorNone noselect stateHappy pointer jobThing" id="Geneticistassist" onclick="toggleGeneticistassist()">Geneticistassist
+			<span id="GAIndicator"></span><br/>
+			<span id="GeneticistassistSetting">&nbsp;</span>
+	</div></div>`;
 }
 
 function refreshMaps(){
@@ -6005,23 +6010,7 @@ function drawUpgrade(what) {
 	if (upgrade.isRelic) done = game.challenges.Archaeology.getPoints(upgrade.relic);
 	else if (dif >= 1) done += `(+${dif})`;
 
-	if (usingScreenReader) {
-		html = `<button class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="${what}" onclick="buyUpgrade('${what}')">
-				<span id="${what}Alert" class="alert badge">${alertMessage}</span>
-				<span class="thingName">${name}</span>, 
-				<span class="thingOwned" id="${what}Owned">${done}</span>
-				<span class="cantAffordSR">, Not Affordable</span>
-				<span class="affordSR">, Affordable</span>
-			</button>`;
-	} else {
-		html = `<div onmouseover="tooltip('${what}','upgrades',event)" onmouseout="tooltip('hide')" class="thingColorCanNotAfford thing noselect pointer upgradeThing" id="${what}" onclick="buyUpgrade('${what}')">
-			<span id="${what}Alert" class="alert badge">${alertMessage}</span>
-			<span class="thingName">${name}</span><br/>
-			<span class="thingOwned" id="${what}Owned">${done}</span>
-		</div>`;
-	}
-
-	return html;
+	return makeBuildJobUpgEquipButtonHTML('upgrades', what, done)
 }
 
 function updateSRBuyAmt(what, item) {
@@ -6029,7 +6018,10 @@ function updateSRBuyAmt(what, item) {
 		let amtElem = document.getElementById(`${item}BuyAmount`);
 		if (amtElem) {
 			let amt = prettify(((game.global.buyAmt == "Max") ? calculateMaxAfford(game[what][item], what=="buildings", what=="equipment", what=="jobs") : game.global.buyAmt));
-			if (what == "jobs" && game.workspaces < amt) amt = prettify(game.workspaces);
+			if (what == "jobs") {
+				let ignoreWorkspaces = (game.jobs[item].allowAutoFire && game.options.menu.fireForJobs.enabled);
+				if (!ignoreWorkspaces && game.workspaces < amt) amt = prettify(game.workspaces)
+			}
 			if (game[what][item].percent || what == "Antenna") { amt = 1 }
 			if (amt == 1) amt = ""
 			amtElem.innerHTML = amt;
@@ -6199,25 +6191,7 @@ function drawAllEquipment(force) {
 }
 
 function drawEquipment(what) {
-	let numeral = '';
-	let equipment = game.equipment[what];
-	if (equipment.prestige > 1) numeral = usingScreenReader ? prettify(equipment.prestige) : romanNumeral(equipment.prestige);
-
-	if (usingScreenReader) {
-		return `
-			<button class="noselect pointer thingColorCanNotAfford thing" id="${what}" onclick="buyEquipment('${what}')">
-				<span class="thingName">${what} <span id="${what}Numeral">${numeral}</span></span>, 
-				<span class="thingOwned">Level: <span id="${what}Owned">${equipment.level}</span></span>
-				<span class="efficientSR">, Most Efficient</span>
-				<span class="cantAffordSR">, Not Affordable</span>
-				<span class="affordSR">, <span id="${what}BuyAmount"></span>Affordable</span>
-			</button>`;
-	}
-	return `<div 
-				onmouseover="tooltip('${what}','equipment',event)" onmouseout="tooltip('hide')" class="efficientNo noselect pointer thingColorCanNotAfford thing" id="${what}" onclick="buyEquipment('${what}')">
-				<span class="thingName">${what} <span id="${what}Numeral">${numeral}</span></span><br/>
-				<span class="thingOwned">Level: <span id="${what}Owned">${equipment.level}</span></span>
-			</div>`;
+	return makeBuildJobUpgEquipButtonHTML("equipment", what)
 }
 
 //isPrevious returns the previous color, used for swapping with str.replace to know which one was before
