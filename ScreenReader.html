@@ -760,7 +760,7 @@
 					</div>
 					<div class="row" id="gridRow">
 						<div class="col-xs-2" id="battleBtnsColumn">
-							<div id="battleSideTitle" onmouseover="getZoneStats(event)" onmouseout="tooltip('hide')">
+							<div id="battleSideTitle">
 									<h3><span id="worldName">Zone</span> <span id="worldNumber">1</span><br/><span id="mapBonus"></span></h3>
 							</div>
 							<div class="battleSideBtnContainer">
@@ -1344,6 +1344,12 @@
 				</td>
 			</tr>
 			<tr>
+				<td>
+					World Time: <span id='srSumWorldTime'></span>
+				</td>
+			</tr>
+			<tr>
+			<tr>
 				<td id='srSumMapNameContainer'>
 					Current Map: <span id='srSumMapName'></span>
 				</td>
@@ -1351,6 +1357,16 @@
 			<tr id='srSumMapCellContainer'>
 				<td>
 					Current Map Cell: <span id='srSumMapCell'></span>
+				</td>
+			</tr>
+			<tr id='srSumMapTimeContainer'>
+				<td>
+					Current Map Time: <span id='srSumMapTime'></span>
+				</td>
+			</tr>
+			<tr id='srSumVoidMapContainer'>
+				<td>
+					Void Maps: <span id='srSumVoidMap'></span>
 				</td>
 			</tr>
 			<tr>
@@ -1373,7 +1389,7 @@
 					Health: <span id='srSumHealthScore'></span>
 				</td>
 			</tr>
-			<tr>
+			<tr id="srSumBlockContainer">
 				<td>
 					Block: <span id='srSumBlock'></span>
 				</td>

@@ -7511,53 +7511,87 @@ tooltips.showError = function (textString) {
 
 function screenReaderSummary(){
 	if (!usingScreenReader) return;
-	var srSumWorldZone = document.getElementById('srSumWorldZone');
-	var srSumWorldCell = document.getElementById('srSumWorldCell');
-	var srSumMapName = document.getElementById('srSumMapName');
-	var srSumMapCell = document.getElementById('srSumMapCell');
-	var srSumMapNameContainer = document.getElementById('srSumMapNameContainer');
-	var srSumMapCellContainer = document.getElementById('srSumMapCellContainer');
-	var srSumTrimps = document.getElementById('srSumTrimps');
-	var srSumBreed = document.getElementById('srSumBreed');
-	var srSumAttackScore = document.getElementById('srSumAttackScore');
-	var srSumHealthScore = document.getElementById('srSumHealthScore');
-	var srSumBlock = document.getElementById('srSumBlock');
-	var srSumChallengeContainer = document.getElementById('srSumChallengeContainer');
-	var srSumChallenge = document.getElementById('srSumChallenge');
+	const elems = {}
+	var srSumids =
+	['srSumWorldZone', 
+	'srSumWorldCell', 
+	'srSumWorldTime', 
+	'srSumMapName', 
+	'srSumMapCell', 
+	'srSumMapTime',
+	'srSumMapNameContainer', 
+	'srSumMapCellContainer', 
+	'srSumMapTimeContainer', 
+	'srSumVoidMap', 
+	'srSumTrimps', 
+	'srSumBreed', 
+	'srSumAttackScore', 
+	'srSumHealthScore', 
+	'srSumBlock', 
+	'srSumBlockContainer',
+	'srSumChallengeContainer', 
+	'srSumChallenge'];
+	srSumids.forEach(function(id) { elems[id] = document.getElementById(id)  } );
 
-	srSumWorldZone.innerHTML = game.global.world;
-	srSumWorldCell.innerHTML = game.global.lastClearedCell + 2;
+	var stackedMaps = 0;
+	if (Fluffy.isRewardActive('void')) stackedMaps = countStackedVoidMaps();
+
+	elems.srSumWorldZone.innerHTML = game.global.world;
+	elems.srSumWorldCell.innerHTML = game.global.lastClearedCell + 2;
+	elems.srSumWorldTime.innerHTML = formatSecondsForZoneTime(getZoneSeconds())
+	elems.srSumVoidMap.innerHTML = game.global.totalVoidMaps + ((stackedMaps) ? " in " + stackedMaps + " stacks" : "")
 
 	var cell = null;
 
 	if (game.global.mapsActive){
 		var map = getCurrentMapObject();
-		srSumMapNameContainer.style.display = "table-row";
-		srSumMapCellContainer.style.display = "table-row";
-		srSumMapName.innerHTML = map.name;
-		srSumMapCell.innerHTML = (game.global.lastClearedMapCell + 2) + " of " + map.size;
+		elems.srSumMapNameContainer.style.display = "table-row";
+		elems.srSumMapCellContainer.style.display = "table-row";
+		elems.srSumMapTimeContainer.style.display = "table-row";
+		elems.srSumMapName.innerHTML = map.name;
+		elems.srSumMapCell.innerHTML = (game.global.lastClearedMapCell + 2) + " of " + map.size;
+		elems.srSumMapTime.innerHTML = formatSecondsForZoneTime((getGameTime() - game.global.mapStarted) / 1000)
 		cell = getCurrentMapCell();
 	}
 	else{
-		srSumMapNameContainer.style.display = "none";
-		srSumMapCellContainer.style.display = "none";
-		srSumMapName.innerHTML = "None";
-		srSumMapCell.innerHTML = "0";
+		elems.srSumMapNameContainer.style.display = "none";
+		elems.srSumMapCellContainer.style.display = "none";
+		elems.srSumMapTimeContainer.style.display = "none";
+		elems.srSumMapName.innerHTML = "None";
+		elems.srSumMapCell.innerHTML = "0";
 		cell = getCurrentWorldCell();
 	}
 
-	srSumTrimps.innerHTML = prettify(game.resources.trimps.soldiers) + " Fighting, " + prettify(game.resources.trimps.owned) + " owned, " + prettify((game.resources.trimps.owned / game.resources.trimps.realMax()) * 100) + "% full";
-	srSumBreed.innerHTML = srLastBreedTime;
+	elems.srSumTrimps.innerHTML = prettify(game.resources.trimps.soldiers) + " Fighting, " + prettify(game.resources.trimps.owned) + " owned, " + prettify((game.resources.trimps.owned / game.resources.trimps.realMax()) * 100) + "% full";
+	elems.srSumBreed.innerHTML = srLastBreedTime;
 	if (cell){
-		var trimpAttack = calculateDamage(game.global.soldierCurrentAttack, false, true, false, false, true);
+		var trimpAttackStr = calculateDamage(game.global.soldierCurrentAttack, true, true)
+		var trimpAttack = trimpAttack = trimpAttackStr.split('-'), trimpAttack = (Number(trimpAttack[0]) + Number(trimpAttack[1]))/2 // Cursed, but if we don't build string we don't calc crit.
+		trimpAttackStr = trimpAttackStr.replace("-", " to ")
 		var trimpHealth = game.global.soldierHealthMax;
-		var cellAttack = calculateDamage(cell.attack, false, false, false, cell, true);
+		var cellAttack = calculateDamage(cell.attack, false, false, false, cell, true); // Minimum damage
 		cellAttack -= game.global.soldierCurrentBlock;
 		var cellHealth = cell.maxHealth;
-		srSumAttackScore.innerHTML = prettify(trimpAttack) + " ATK, " + prettify((trimpAttack / cellHealth) * 100) + "% of Enemy Health";
-		srSumHealthScore.innerHTML = prettify(trimpHealth) + " HP, " + prettify((cellAttack / trimpHealth) * 100) + "% lost per Enemy Attack";
+		elems.srSumAttackScore.innerHTML = trimpAttackStr + " ATK, " + prettify((trimpAttack / cellHealth) * 100) + "% of Enemy Health";
+		elems.srSumHealthScore.innerHTML = prettify(trimpHealth) + " HP, " + prettify((cellAttack / trimpHealth) * 100) + "% lost per Enemy Attack";
 	}
-	srSumBlock.innerHTML = prettify(game.global.soldierCurrentBlock);
+
+	// Block and Prismatic
+	let blockDisplay = '';
+	if (game.global.universe === 2) {
+		const layers = Fluffy.isRewardActive('shieldlayer');
+		let shieldMax = game.global.soldierEnergyShieldMax;
+		let shieldMult = getEnergyShieldMult();
+		if (layers > 0) {
+			shieldMax *= layers + 1;
+			shieldMult *= layers + 1;
+		}
+		blockDisplay = `${prettify(shieldMax)} (${Math.round(shieldMult * 100)}%)`;
+	} else {
+		blockDisplay = prettify(game.global.soldierCurrentBlock);
+	}
+	elems.srSumBlockContainer.innerHTML = `<td>${(game.global.universe == 1 ? "Block" : "Prismatic Shield")}: <span id='srSumBlock'>${blockDisplay}</span></td>` 
+	
 	var resources = ["food", "wood", "metal", "science", "fragments", "gems"];
 	for (var x = 0; x < resources.length; x++){
 		var res = game.resources[resources[x]];
@@ -7589,8 +7623,8 @@ function screenReaderSummary(){
 				break;
 		}
 
-		srSumChallengeContainer.style.display = (hasChallengeText) ? "table-row" : "none";
-		srSumChallenge.innerHTML = challengeText;
+		elems.srSumChallengeContainer.style.display = (hasChallengeText) ? "table-row" : "none";
+		elems.srSumChallenge.innerHTML = challengeText;
 	}
 
 }
