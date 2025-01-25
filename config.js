@@ -4969,8 +4969,8 @@ var toReturn = {
 				if (this.points[increase] >= 1) this.overZero = true;
 				this.purchases++;
 				this.updateButton(increase);
-				if (!noTip)
-				tooltip(what, "upgrades", "update");
+				if (!noTip && !usingScreenReader)
+					tooltip(what, "upgrades", "update");
 			},
 			updateButton: function(what){
 				var ownedElem = document.getElementById(what + "RelicOwned");

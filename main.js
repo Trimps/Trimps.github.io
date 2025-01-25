@@ -4898,7 +4898,7 @@ function buyBuilding(what, confirmed, fromAuto, forceAmt) {
 	if (getCraftTime(game.buildings[what]) === 0) buildBuilding(what, purchaseAmt);
 	else startQueue(what, purchaseAmt);
 
-	if (!fromAuto) tooltip(what, 'buildings', 'update');
+	if (!fromAuto && !usingScreenReader) tooltip(what, 'buildings', 'update');
 	return true;
 }
 
@@ -5283,7 +5283,7 @@ function buyJob(what, confirmed, noTip) {
 	game.jobs[what].owned += added;
 
 
-	if (!noTip) tooltip(what, "jobs", "update");
+	if (!noTip && !usingScreenReader) tooltip(what, "jobs", "update");
 	if (checkAndFix){
 		workspaces = game.workspaces;
 		if (workspaces < 0)
@@ -5542,10 +5542,10 @@ function buyUpgrade(what, confirmed, noTip, heldCtrl) {
 		dif -= 1;
 		if (ownedElem)
         	ownedElem.innerHTML = upgrade.done + "(+" + dif + ")";
-		if (!noTip) tooltip(what, "upgrades", "update");
+		if (!noTip && !usingScreenReader) tooltip(what, "upgrades", "update");
         return true;
     } else if (dif == 1) {
-		if (!noTip) tooltip(what, "upgrades", "update");
+		if (!noTip && !usingScreenReader) tooltip(what, "upgrades", "update");
 		if (ownedElem)
         	ownedElem.innerHTML = upgrade.done;
         return true;
@@ -16740,7 +16740,7 @@ function buyEquipment(what, confirmed, noTip, forceAmt) {
 		canAffordBuilding(what, true, false, true, false, purchaseAmt);
 		levelEquipment(what, purchaseAmt);
 	}
-	if (!noTip) tooltip(what, "equipment", "update");
+	if (!noTip && !usingScreenReader) tooltip(what, "equipment", "update");
 	displayEfficientEquipment();
 }
 
