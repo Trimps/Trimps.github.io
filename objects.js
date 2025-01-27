@@ -5090,7 +5090,7 @@ var u2Mutations = {
         text += "<div id='mutZoomButtons'><button aria-label='Mastery Information' id='masteryInfo' onmouseover='tooltip(\"Mastery Info\", null, event);' onmouseout='tooltip(\"hide\")'>M</button><div id='mutZoomIn' aria-hidden=true onclick='u2Mutations.zoomClicked(-1);' onmouseover='tooltip(\"Zoom In\", \"customText\", event, \"Click this to Zoom In to the Mutators tree. You can also use mouse wheel to zoom, or click and drag the tree to move it around.\");' onmouseout='tooltip(\"hide\")'><span class='icomoon icon-zoom-in'></span></div><div id='mutZoomOut' aria-hidden=true onclick='u2Mutations.zoomClicked(1);' onmouseover='tooltip(\"Zoom Out\", \"customText\", event, \"Click this to Zoom Out of the Mutators tree. You can also use mouse wheel to zoom, or click and drag the tree to move it around.\");' onmouseout='tooltip(\"hide\")'><span class='icomoon icon-zoom-out'></span></div></div>";
         text += "<hr class='visually-hidden' title='bottom of tooltip'/>"
 		document.getElementById('mutTreeWrapper').innerHTML = text;
-		for (let item in this.tree){ // because of the global keydown event, these have to be added with an event listener rather than using inline onkeydown=""
+		for (let item in this.tree){
 			makeAccessibleTooltip(`${item}MutatorBox`, [item, "Mutator"])
 		}
 		makeAccessibleTooltip("masteryInfo", ["Mastery Info", null])

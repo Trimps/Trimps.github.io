@@ -27,7 +27,8 @@ var openTooltip = null;
 
 //"onmouseover="tooltip('*TOOLTIP_TITLE*', 'customText', event, '*TOOLTIP_TEXT*');" onmouseout="tooltip('hide')""
 //tooltip('confirm', null, 'update', '*TEXT STRING*', '*FUNCTION()*', '*TIP TITLE*', '*BUTTON TEXT*')
-function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide, hideCancel, ignoreShift) { //Now 20% less menacing. Work in progress.
+function tooltip(what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide, hideCancel, ignoreShift) { //Now 20% less menacing. Work in progress.  (if this is 20% less menacing I'm terrified of what it looked like before -Q)
+	var accessibleTooltips = {} // elemID: [args]
 	if (!game.options.menu.bigPopups.enabled && (
 		what == "The Improbability" ||
 		(what == "Corruption" && getHighestLevelCleared() >= 199) ||
@@ -147,7 +148,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else
 		tooltipText = textString;
-		costText += '<div class="maxCenter"><div id="confirmTooltipBtn" class="btn btn-info" onclick="' + attachFunction + '; cancelTooltip()">' + btnText + '</div><div class="btn btn-info" onclick="cancelTooltip()">Cancel</div></div>';
+		costText += '<div class="maxCenter"><div id="confirmTooltipBtn" class="btn btn-info" onclick="' + attachFunction + '; cancelTooltip()">' + btnText + '</div><div class="btn btn-info" role=button tabindex=0 onclick="cancelTooltip()">Cancel</div></div>';
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -163,7 +164,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (!kongMode) text += "If you would like to make a donation to help support the development of Trimps, you can now do so with PayPal! If you want to contribute but can't afford a donation, you can still give back by joining the community and sharing your feedback or helping others. Thank you either way, you're awesome! <form id='donateForm' style='text-align: center' action='https://www.paypal.com/cgi-bin/webscr' method='post' target='_blank'><input type='hidden' name='cmd' value='_s-xclick'><input type='hidden' name='hosted_button_id' value='MGFEJS3VVJG6U'><input type='image' src='https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif' border='0' name='submit' alt='PayPal - The safer, easier way to pay online!'><img alt='' border='0' src='https://www.paypalobjects.com/en_US/i/scr/pixel.gif' width='1' height='1'></form>";
 		text += '</div>';
 		tooltipText = text;
-		costText = '<div class="btn btn-info" onclick="cancelTooltip()">Close</div>';
+		costText = '<div class="btn btn-info" role=button tabindex=0 onclick="cancelTooltip()">Close</div>';
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -177,7 +178,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		text += ' If you need to contact the developer for any reason, <a class="nwWebLink" onclick="nwWebLink(\'https://www.reddit.com/message/compose/?to=Greensatellite\')">click here to send a message on Reddit</a> or find Greensatellite#7771 in the Trimps Discord.';
 		text += '</div>';
 		tooltipText = text;
-		costText = '<div class="btn btn-info" onclick="cancelTooltip()">Close</div>';
+		costText = '<div class="btn btn-info" role=button tabindex=0 onclick="cancelTooltip()">Close</div>';
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -219,7 +220,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var fluffyTip = Fluffy.tooltip(true);
 			tooltipText = "<div id='fluffyTooltipTopContainer'>" + fluffyTip[0] + "</div>";
 			tooltipText += "<div id='fluffyLevelBreakdownContainer' class='niceScroll'>" + fluffyTip[1] + "</div>";
-			costText = '<div class="btn btn-danger btn-lg" onclick="cancelTooltip()">Close</div>';
+			costText = '<div class="btn btn-danger btn-lg" role=button tabindex=0 onclick="cancelTooltip()">Close</div>';
 			if (game.challenges.Nurture.boostsActive()){
 				costText += "<span id='toggleCruffyTipBtn' class='btn btn-lg btn-primary' onclick='Fluffy.toggleCruffys()'>Show ";
 				costText += (Fluffy.cruffysTipActive()) ? "Scruffy" : "Cruffys";
@@ -252,7 +253,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "First Amalgamator"){
 		tooltipText = "<p><b>You found your first Amalgamator! You can view this tooltip again and track how many Amalgamators you currently have under 'Jobs'.</b></p>";
 		tooltipText += game.jobs.Amalgamator.tooltip;
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Thanks for the help, tooltip, but you can go now.</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Thanks for the help, tooltip, but you can go now.</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -284,7 +285,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "Finish Daily"){
 		var reward = game.challenges.Daily.getCurrentReward();
 		tooltipText = "Clicking <b>Finish</b> below will end your daily challenge and you will be unable to attempt it again. You will earn <b>" + prettify(reward) + " extra " + heliumOrRadon() + "!</b>";
-		costText = '<div class="maxCenter"><div id="confirmTooltipBtn" class="btn btn-info" onclick="abandonChallenge(); cancelTooltip()">Finish</div><div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div></div>';
+		costText = '<div class="maxCenter"><div id="confirmTooltipBtn" class="btn btn-info" onclick="abandonChallenge(); cancelTooltip()">Finish</div><div class="btn btn-danger" role=button tabindex=0 onclick="cancelTooltip()">Cancel</div></div>';
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -350,7 +351,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		tooltipText += "<b>Would you like to enable online saving before you start?</b>";
 		game.global.lockTooltip = true;
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip(); toggleSetting(\"usePlayFab\");'>Enable Online Saving</div><div class='btn btn-danger' onclick='cancelTooltip()'>Don't Enable</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip(); toggleSetting(\"usePlayFab\");'>Enable Online Saving</div><div class='btn btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Don't Enable</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
@@ -362,7 +363,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		tooltipText = textString;
 		game.global.lockTooltip = true;
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Sweet, thanks.</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Sweet, thanks.</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
@@ -383,7 +384,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			costText += "<div class='btn btn-success' onclick='cancelTooltip(); addCarried(true); unequipHeirloom();'>Buy a Slot (" + getNextCarriedCost() + " Nu)</div>";
 		}
 		tooltipText += "or put it in Temporary Storage? <b>If you use your Portal while this Heirloom is in Temporary Storage, it will be recycled!</b></p>";
-		costText += "<div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Leave it equipped</div><div class='btn btn-danger' onclick='cancelTooltip(); unequipHeirloom(null, \"heirloomsExtra\");'>Place in Temporary</div></div>";
+		costText += "<div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Leave it equipped</div><div class='btn btn-danger' onclick='cancelTooltip(); unequipHeirloom(null, \"heirloomsExtra\");'>Place in Temporary</div></div>";
 	}
 	if (what == "Configure AutoStructure"){
 		tooltipText = "<p>Here you can choose which structures will be automatically purchased when AutoStructure is toggled on. Check a box to enable the automatic purchasing of that structure, set the dropdown to specify the cost-to-resource % that the structure should be purchased below, and set the 'Up To:' box to the maximum number of that structure you'd like purchased <b>(0&nbsp;for&nbsp;no&nbsp;limit)</b>. For example, setting the dropdown to 10% and the 'Up To:' box to 50 for 'House' will cause a House to be automatically purchased whenever the costs of the next house are less than 10% of your Food, Metal, and Wood, as long as you have less than 50 houses. \'W\' for Gigastation is the required minimum amount of Warpstations before a Gigastation is purchased.</p><table id='autoPurchaseConfigTable'><tbody><tr>";
@@ -426,7 +427,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText += "<td><select class='toggleAllBtn' id='autoStructureAllPctSelect' onchange='setAllAutoStructurePercent(this)'>" + options + "</select></td>";
 
 		tooltipText += "</tr></tbody></table>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info btn-lg' onclick='saveAutoStructureConfig()'>Apply</div><div class='btn-lg btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info btn-lg' onclick='saveAutoStructureConfig()'>Apply</div><div class='btn-lg btn btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		ondisplay = function(){
 			verticalCenterTooltip(false, true);
@@ -465,7 +466,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText += "<td><select class='toggleAllBtn' onchange='setAllAutoEquipPercent(\"Wep\", this)'>" + options + "</select></td>";
 		tooltipText += "</tr></tbody></table>";
 
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-lg btn-info' onclick='saveAutoEquipConfig()'>Apply</div><div class='btn btn-lg btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-lg btn-info' onclick='saveAutoEquipConfig()'>Apply</div><div class='btn btn-lg btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "25%";
 		elem.style.top = "25%";
@@ -478,6 +479,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Configure Generator State"){
+		game.global.lockTooltip = true
 		geneMenuOpen = true;
 		elem = document.getElementById('tooltipDiv2');
 		tip2 = true;
@@ -485,7 +487,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 		tooltipText = "<div style='padding: 1.5vw;'><div style='color: red; font-size: 1.1em; text-align: center;' id='genStateConfigError' aria-live='polite'></div>"
 		tooltipText += "<div id='genStateConfigTooltip'>" + getGenStateConfigTooltip() + "</div>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn-lg btn btn-info' onclick='saveGenStateConfig()'>Apply</div><div class='btn btn-lg btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn-lg btn btn-info' onclick='saveGenStateConfig()'>Apply</div><div class='btn btn-lg btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 	}
 	if (what == "Rename SA Preset"){
 		what += " " + textString;
@@ -541,7 +543,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		tooltipText += "</select></div></td></tr>";
 		tooltipText += "</tbody></table>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn-lg btn btn-info' onclick='saveAutoJobsConfig()'>Apply</div><div class='btn btn-lg btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn-lg btn btn-info' onclick='saveAutoJobsConfig()'>Apply</div><div class='btn btn-lg btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -551,7 +553,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Archaeology Automator" && !isItIn){
 		tooltipText = game.challenges.Archaeology.automatorTooltip();
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn-lg btn btn-info' onclick='game.challenges.Archaeology.saveAutomator()'>Apply</div><div class='btn btn-lg btn-danger' onclick='cancelTooltip()'>Cancel</div><div class='btn btn-lg btn-" + ((game.challenges.Archaeology.pauseAuto) ? 'primary' : 'warning') + "' onclick='game.challenges.Archaeology.pauseAuto = !game.challenges.Archaeology.pauseAuto; this.className = \"btn btn-lg btn-\" + ((game.challenges.Archaeology.pauseAuto) ? \"primary\" : \"warning\"); this.innerHTML = ((game.challenges.Archaeology.pauseAuto) ? \"Unpause Automator\" : \"Pause Automator\");'>" + ((game.challenges.Archaeology.pauseAuto) ? "Unpause" : "Pause") + " Automator</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn-lg btn btn-info' onclick='game.challenges.Archaeology.saveAutomator()'>Apply</div><div class='btn btn-lg btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div><div class='btn btn-lg btn-" + ((game.challenges.Archaeology.pauseAuto) ? 'primary' : 'warning') + "' onclick='game.challenges.Archaeology.pauseAuto = !game.challenges.Archaeology.pauseAuto; this.className = \"btn btn-lg btn-\" + ((game.challenges.Archaeology.pauseAuto) ? \"primary\" : \"warning\"); this.innerHTML = ((game.challenges.Archaeology.pauseAuto) ? \"Unpause Automator\" : \"Pause Automator\");'>" + ((game.challenges.Archaeology.pauseAuto) ? "Unpause" : "Pause") + " Automator</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -586,7 +588,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "AutoGolden Unlocked"){
 		tooltipText = "<p>Your Trimps have extracted and processed many Golden Upgrades by now, and though you're still nervous to leave things completely to them, you figure they can probably handle doing this on their own as well. You find the nearest Trimp and ask if he could handle buying Golden Upgrades on his own, as long as you told him which ones to buy. You can tell by the puddle of drool rapidly gaining mass at his feet that this is going to take either magic or a lot of hard work.</p><p>You can't find any magic anywhere, so you decide to found Trimp University, a school dedicated to teaching Trimps how to extract the might of Golden Upgrades without any assistance. Weeks go by while you and your Trimps work tirelessly to set up the University, choosing only the finest building materials and hiring only the most renowned Foremen to draw the plans. Just as you're finishing up, a Scientist stops by, sees what you're doing, and offers to just handle the Golden Upgrades instead. Probably should have just asked one of them first.</p><p><b>You have unlocked AutoGolden!</b></p>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Close</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Close</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -655,7 +657,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		var preset = presetGroup["perkPreset" + selectedPreset];
 		var oldName = (preset && preset.Name) ? preset.Name : "";
 		tooltipText += "<br/><br/><input id='renamePresetBox' maxlength='25' style='width: 50%' value='" + oldName + "' />";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='renamePerkPreset()'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='renamePerkPreset()'>Apply</div><div class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -673,7 +675,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		what = "Unlocked Challenge<sup>2</sup>";
 		tooltipText = "You hear some strange noises behind you and turn around to see three excited scientists. They inform you that they've figured out a way to modify The Portal to take you to a new type of challenging dimension, a system they proudly call 'Challenge<sup>2</sup>'. You will be able to activate and check out their new technology by clicking the 'Challenge<sup>2</sup>' button next time you go to use The Portal.";
 		game.global.lockTooltip = true;
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Thanks, Scientists</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Thanks, Scientists</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
@@ -681,14 +683,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		what = "Unlocked Challenge<sup>3</sup>";
 		tooltipText = "You hear some strange noises behind you and turn around to see nine excited scientists. They inform you that they've figured out a way to modify The Portal to take you to a new type of challenging dimension, a system they proudly call 'Challenge<sup>3</sup>'. It seems as if the difference between Challenge<sup>2</sup> and Challenge<sup>3</sup> allows them to combine multiplicatively into your Challenge<sup><span class='icomoon icon-infinity'></span></sup> bonus.";
 		game.global.lockTooltip = true;
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Thanks, Scientists</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Thanks, Scientists</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
 	if (what == "Eggs"){
 		tooltipText = '<span class="eggMessage">It seems as if some sort of animal has placed a bunch of brightly colored eggs in the world. If you happen to see one, you can click on it to send a Trimp to pick it up! According to your scientists, they have a rare chance to contain some neat stuff, but they will not last forever...</span>';
 		game.global.lockTooltip = true;
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>I'll keep an eye out.</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>I'll keep an eye out.</div></div>";
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
@@ -734,14 +736,17 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Geneticistassist Settings"){
 		if (isItIn == null){
+			game.global.lockTooltip = true;
 			geneMenuOpen = true;
 			elem = document.getElementById('tooltipDiv2');
 			tip2 = true;
 			var steps = game.global.GeneticistassistSteps;
 			tooltipText = "<div id='GATargetError'></div><div>Customize the target thresholds for your Geneticistassist! Use a number between 0.5 and 5000 seconds for all 3 boxes. Each box corresponds to a Geneticistassist toggle threshold.</div><div style='width: 100%'><input class='GACustomInput' id='target1' value='" + steps[1] + "'/><input class='GACustomInput' id='target2' value='" + steps[2] + "'/><input class='GACustomInput' id='target3' value='" + steps[3] + "'/><hr class='noBotMarg'/><div class='maxCenter'>" + getSettingHtml(game.options.menu.gaFire, 'gaFire') + getSettingHtml(game.options.menu.geneSend, 'geneSend') + "</div><hr class='noTopMarg'/><div id='GADisableCheck'>" + buildNiceCheckbox('disableOnUnlockCheck', null, game.options.menu.GeneticistassistTarget.disableOnUnlock, false, "Start disabled?") + "&nbsp;Start disabled when unlocked each run</div></div>";
-			costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='customizeGATargets();'>Confirm</div> <div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>"
+			costText = "<div class='maxCenter'><button class='btn btn-info' id='confirmTooltipBtn' onclick='customizeGATargets();'>Confirm</button> <button class='btn btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</button></div>"
 			elem.style.left = "33.75%";
 			elem.style.top = "25%";
+			accessibleTooltips['togglegaFire'] = getSettingsHTMLTooltipArgs('gaFire')
+			accessibleTooltips['togglegeneSend'] = getSettingsHTMLTooltipArgs('geneSend')
 		}
 	}
 	if (what == "Configure Maps"){
@@ -755,43 +760,52 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var settingCount = 0;
 			if (game.global.totalPortals >= 1) {
 				tooltipText += getSettingHtml(game.options.menu.mapLoot, 'mapLoot', null, "CM");
+				accessibleTooltips['togglemapLootCM'] = getSettingsHTMLTooltipArgs('mapLoot')
 				settingCount++;
 			}
 			if (game.global.totalPortals >= 1){
 				tooltipText += getSettingHtml(game.options.menu.repeatVoids, 'repeatVoids', null, "CM");
+				accessibleTooltips['togglerepeatVoidsCM'] = getSettingsHTMLTooltipArgs('repeatVoids')
 				settingCount++;
 			}
 			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
-			tooltipText += '<div class="optionContainer"><div class="noselect settingsBtn ' + ((game.global.repeatMap) ? "settingBtn1" : "settingBtn0") + '" id="repeatBtn2" onmouseover="tooltip(\'Repeat Map\', null, event)" onmouseout="tooltip(\'hide\')" onclick="repeatClicked()">' + ((game.global.repeatMap) ? "Repeat On" : "Repeat Off") + '</div></div>';
+			tooltipText += '<div class="optionContainer"><button class="noselect settingsBtn ' + ((game.global.repeatMap) ? "settingBtn1" : "settingBtn0") + '" id="repeatBtn2" onmouseover="tooltip(\'Repeat Map\', null, event)" onmouseout="tooltip(\'hide\')" onclick="repeatClicked()">' + ((game.global.repeatMap) ? "Repeat On" : "Repeat Off") + '</button></div>'; //TODO why is this weird? skip it from accessible tooltips for now
 			settingCount++;
 			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
 			tooltipText += getSettingHtml(game.options.menu.repeatUntil, 'repeatUntil', null, "CM");
+			accessibleTooltips['togglerepeatUntilCM'] = getSettingsHTMLTooltipArgs('repeatUntil')
 			settingCount++;
 			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
 			tooltipText += getSettingHtml(game.options.menu.exitTo, 'exitTo', null, "CM")
+			accessibleTooltips['toggleexitToCM'] = getSettingsHTMLTooltipArgs('exitTo')
 			settingCount++;
 			if (game.options.menu.mapsOnSpire.lockUnless() && game.global.universe == 1){
 				if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
 				tooltipText +=  getSettingHtml(game.options.menu.mapsOnSpire, 'mapsOnSpire', null, "CM");
+				accessibleTooltips['togglemapsOnSpireCM'] = getSettingsHTMLTooltipArgs('mapsOnSpire')
 				settingCount++;
 			}
 			if (game.global.canMapAtZone){
 				if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
 				tooltipText +=  getSettingHtml(game.options.menu.mapAtZone, 'mapAtZone', null, "CM");
+				accessibleTooltips['togglemapsOnSpireCM'] = getSettingsHTMLTooltipArgs('mapsOnSpire')
 				settingCount++;
 			}
 			if (game.global.highestLevelCleared >= 124){
 				if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
 				tooltipText +=  getSettingHtml(game.options.menu.climbBw, 'climbBw', null, "CM");
+				accessibleTooltips['toggleclimbBwCM'] = getSettingsHTMLTooltipArgs('climbBw')
 				settingCount++;
 			}
 			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
 			tooltipText += getSettingHtml(game.options.menu.extraMapBtns, 'extraMapBtns', null, "CM")
+			accessibleTooltips['toggleextraMapBtnsCM'] = getSettingsHTMLTooltipArgs('extraMapBtns')
 			settingCount++;
 			tooltipText += "</div>";
 			costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip();'>Close</div></div>"
 			elem.style.left = "33.75%";
 			elem.style.top = "25%";
+			screenReaderAssert("Confirmation Popup is active. Press S to view the popup.")
 		}
 	}
 	if (what == "Set Map At Zone"){
@@ -944,7 +958,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 		elem.style.left = "25%";
 		swapClass('tooltipExtra', 'tooltipExtraLg', elem);
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip();configMessages();'>Confirm</div> <div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>"
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip();configMessages();'>Confirm</div> <div class='btn btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>"
 	}
 	if (what == "Hotkeys"){
 		tooltipText = "<table id='keybindsTable' class='table table-striped'><tbody>";
@@ -1012,7 +1026,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 		elem.style.left = "17.5%";
 		swapClass('tooltipExtra', 'tooltipExtraSuperLg', elem);
-		costText = "<div class='maxCenter'><div class='btn btn-danger' onclick='cancelTooltip()'>Close</div></div>"
+		costText = "<div class='maxCenter'><div class='btn btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Close</div></div>"
 	}
 	if (isItIn == "goldenUpgrades"){
 		var upgrade = game.goldenUpgrades[what];
@@ -1141,7 +1155,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (!game.global.autoUpgradesAvailable) tooltipText += "<br/><br/><span class='planetBreakMessage'><b>Your Trimps seem to understand that they'll need to help out more, and you realize how to permanently use them to automate upgrades!<b></span><br/>";
 		costText = "<span class='planetBreakDescription'><span class='bad'>Trimp breed speed reduced by a factor of 10. 20% of enemy damage can now penetrate your block.</span><span class='good'> You have unlocked a new upgrade to learn a Formation. Helium harvested per Zone is increased by a factor of 5. Equipment cost is dramatically cheaper. Creating modified maps is now cheaper, and your scientists have found new ways to improve maps! You have access to the 'Trimp' challenge!<span></span>";
 		if (game.global.challengeActive == "Corrupted") costText += "<br/><br/><span class='corruptedBadGuyName'>Looks like the Corruption is starting early...</span>";
-		costText += "<hr/><div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>I'll be fine</div><div class='btn btn-danger' onclick='cancelTooltip(); message(\"Sorry\", \"Notices\")'>I'm Scared</div></div>"
+		costText += "<hr/><div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>I'll be fine</div><div class='btn btn-danger' onclick='cancelTooltip(); message(\"Sorry\", \"Notices\")'>I'm Scared</div></div>"
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1156,14 +1170,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			tooltipText = "<span class='planetBreakMessage'>" + tooltipText + " Menacing plumes of some sort of goopy gas boil out of the spire and appear to be tainting the land even further. It looks to you like the Zones are permanently damaged, poor planet. You know that if you want to reach the spire, you'll have to deal with the goo.</span><br/>";
 			costText = "<span class='planetBreakDescription'><span class='bad'>From now on as you press further through Zones, more and more corrupted cells of higher and higher difficulty will begin to spawn. Improbabilities and Void Maps are now more difficult.</span> <span class='good'>Improbabilities and Void Maps now drop 2x helium. Each corrupted cell will drop 15% of that Zone's helium reward.</span></span> ";
 		}
-		costText += "<hr/><div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Bring it on</div></div>";
+		costText += "<hr/><div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Bring it on</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
 	if (what == "A Whole New World"){
 		tooltipText = "<p>Fluffy has reached Evolution 8 Level 10! He levitates above the ground, then realizes he seems a bit like a showoff so he floats back down. He strikes a good balance between power and humility by just having his eyes glow a little bit; you have to admit it's a good look on him.</p><p>Anyways, Fluffy walks over to your Portal Device and gives it a good smack. He uses some nifty telepathic powers to inform you that you can now use your Portal Device to travel to a different Universe, one that he himself handpicked for its usefulness.</p><p>He continues to inform you that the Magma on this planet is beginning to harden, blocking later Spires behind impenetrable walls of Obsidian. If we want to have any hope of reaching them, we'll need a tremendous amount of energy from this new Universe!</p><p><b>You can now travel back and forth between Universe 1 - \"The Helium Universe\", and Universe 2 - \"The Radon Universe\". See the top left of your Portal for more information.</b></p>";
-		costText += "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Bring it on</div></div>";
+		costText += "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Bring it on</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1209,7 +1223,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "The Magma"){
 		tooltipText = "<p>You stumble across a large locked chest, unlike anything you've ever seen. The lock looks rusty, you smack it with a rock, and it falls right off. Immediately the ground shakes and cracks beneath your feet, intense heat hits your face, and Magma boils up from the core.</p><p>Where one minute ago there was dirt, grass, and noxious fog, there are now rivers of molten rock (and noxious fog). You'd really like to try and repair the planet somehow, so you decide to keep pushing on. It's been working out well so far, there was some useful stuff in that chest!</p><hr/>";
 		tooltipText += "<span class='planetBreakDescription'><span class='bad'>The heat is tough on your Trimps, causing each Zone to reduce their attack and health by 20% more than the last. 10% of your Nurseries will permanently close after each Zone to avoid Magma flows, and Corruption has seeped into both Void and regular Maps, further increasing their difficulty. </span><span class='good'> However, the chest contained plans and materials for the <b>Dimensional Generator</b> building, <b>" + prettify(textString) + " Helium</b>, and <b>100 copies of Coordination</b>! In addition, all Zones are now worth <b>3x Helium</b>!<span></span>";
-		costText += "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>K</div></div>";
+		costText += "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>K</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1217,14 +1231,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "The Mutated Zones"){
 		tooltipText = "<p>Hello again! In case you don't remember me, I'm your ship's Automated Defensive Voice and Idea Synthesizing On-board Robot, also known as ADVISOR. I was relaxing in the ship when I noticed that you seemed to be approaching these Mutated Zones, and felt I should come give you a warning!<br/><br/>The Zones ahead are harder than you are used to and the patterns of the Mutations are constantly changing. However, if you manage to push through and clear them, you'll find all sorts of new rewards! If anyone can do it, it's you. I trust that Scruffy will give you a more detailed run-down of each Mutation type in the Story section of your message log.<hr/>";
 		tooltipText += "<span class='planetBreakDescription'><span class='bad'>Mutations will now spawn with increasing frequency at Z201 and above. Mutations are extremely unstable, and using your Portal will cause them to move around to different Zones. </span><span class='good'> However, all Radon gains above Z201 are increased by <b>400x</b>, these Mutated enemies themselves drop Radon, and you'll find a brand new type of currency that you can use to Mutate your own Trimps (also note that this new currency is multiplied by your Daily Challenge Rn modifier)!<span></span>";
-		costText += "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Easy</div></div>";
+		costText += "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Easy</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
 	if (what == "Exit Spire"){
 		tooltipText = "This will exit the spire, and you will be unable to re-enter until your next portal. Are you sure?";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); endSpire()'>Exit Spire</div><div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); endSpire()'>Exit Spire</div><div class='btn btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1234,7 +1248,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			tooltipText = "This will return all Dark Essence that was spent on Masteries at the cost of 20 bones. Are you sure?";
 		else 
 			tooltipText = "This will return all Dark Essence that was spent on Masteries, and will use " + ((game.global.freeTalentRespecs > 1) ? "one of " : "") + "your remaining " + game.global.freeTalentRespecs + " free Mastery Respec" + needAnS(game.global.freeTalentRespecs) + ".";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); respecTalents(true)'>Respec</div><div class='btn btn-danger' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); respecTalents(true)'>Respec</div><div class='btn btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1246,7 +1260,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "The Geneticistassist"){
 		tooltipText = "Greetings, friend! I'm your new robotic pal <b>The Geneticistassist</b> and I am here to assist you with your Geneticists. I will hang out in your Jobs tab, and will appear every run after Geneticists are unlocked. You can customize me in Settings under 'General'!";
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Thanks, Geneticistassist!</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Thanks, Geneticistassist!</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1282,7 +1296,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Reset"){
 		tooltipText = "Are you sure you want to reset? This will really actually reset your game. You won't get anything cool. It will be gone. <b style='color: red'>This is not the soft-reset you're looking for. This will delete your save.</b>";
-		costText="<div class='maxCenter'><div class='btn btn-danger' onclick='resetGame(false, true);unlockTooltip();tooltip(\"hide\")'>Delete Save</div> <div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText="<div class='maxCenter'><div class='btn btn-danger' onclick='resetGame(false, true);unlockTooltip();tooltip(\"hide\")'>Delete Save</div> <div class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1299,14 +1313,14 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "New Achievements"){
 		tooltipText = "The universe has taken an interest in your achievements, and has begun tracking them. You already have some completed thanks to your previous adventures, would you like to see them?";
-		costText = "<div class='maxCenter'><div class='btn btn-success' onclick='toggleAchievementWindow(); cancelTooltip()'>Check Achievements</div> <div class='btn btn-danger' onclick='cancelTooltip()'>No, That Sounds Dumb</div></div>";
+		costText = "<div class='maxCenter'><div class='btn btn-success' onclick='toggleAchievementWindow(); cancelTooltip()'>Check Achievements</div> <div class='btn btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>No, That Sounds Dumb</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
 	}
 	if (what == "Upgrade Generator"){
 		tooltipText = getGeneratorUpgradeHtml();
-		costText = "<b style='color: red'>These upgrades persist through portal and cannot be refunded. Choose wisely! " + getMagmiteDecayAmt() + "% of your unspent Magmite will decay on portal.</b><br/><br/><div class='maxCenter'><span class='btn btn-info' onclick='cancelTooltip()'>Close</span></div>";
+		costText = "<b style='color: red'>These upgrades persist through portal and cannot be refunded. Choose wisely! " + getMagmiteDecayAmt() + "% of your unspent Magmite will decay on portal.</b><br/><br/><div class='maxCenter'><span class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Close</span></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1334,7 +1348,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "Type a number below to purchase a specific amount. You can also use shorthand such as 2e5 and 200k to select that large number, or fractions such as 1/2 and 50% to select that fraction of your available workspaces."
 		if (textString) tooltipText += " <b>Max of 1,000 for most perks</b>";
 		tooltipText += "<br/><br/><input id='customNumberBox' style='width: 50%' value='" + ((!isNumberBad(game.global.lastCustomExact)) ? prettify(game.global.lastCustomExact) : game.global.lastCustomExact) + "' />";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='numTab(5, " + textString + ")'>Apply</div><div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='numTab(5, " + textString + ")'>Apply</div><div class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1363,7 +1377,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		}
 		else
 		tooltipText = "This is your save string. There are many like it but this one is yours. Save this save somewhere safe so you can save time next time. <br/><br/><textarea readonly spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + saveText + "</textarea>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Got it</div>";
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 		}
@@ -1394,11 +1408,11 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tip2 = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info btn-lg' onclick='cancelTooltip()'>Neat</div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info btn-lg' role=button tabindex=0 onclick='cancelTooltip()'>Neat</div>";
 	}
 	if (what == "Export Perks"){
 		tooltipText = "It may not look like much, but all of your perks are in here! You can share this string with friends, or save it to your computer to import later!<br/><br/><textarea spellcheck='false' id='exportArea' style='width: 100%' rows='5'>" + exportPerks() + "</textarea>";
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Got it</div>";
 		if (document.queryCommandSupported('copy')){
 			costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 		}
@@ -1412,7 +1426,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "Import your save string! It'll be fun, I promise.<br/><br/><textarea spellcheck='false' id='importBox' style='width: 100%' rows='5'></textarea>";
 		costText="<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip(); load(true);'>Import</div>"
 		if (playFabId != -1) costText += "<div class='btn btn-primary' onclick='loadFromPlayFab()'>Import From PlayFab</div>";
-		costText += "<div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText += "<div class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1429,7 +1443,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		tooltipText = "Import your perks from a text string!<br/><br/><textarea spellcheck='false' id='perkImportBox' style='width: 100%' rows='5'></textarea>";
 		costText = "<p class='red'></p>";
 		costText += "<div id='confirmTooltipBtn' class='btn btn-info' onclick='this.previousSibling.innerText = importPerks()'>Import</div>";
-		costText += "<div class='btn btn-info' onclick='cancelTooltip()'>Cancel</div></div>";
+		costText += "<div class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";
 		elem.style.top = "25%";
@@ -1542,7 +1556,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		else val = Math.round(val / 200);
 		tooltipText = "Time Warp too fast? Limit its speed here! Drag the slider all the way to the right for unlimited speed.";
 		tooltipText += "<br/><div style='text-align: center; font-size: 1.5em'>" + offlineProgress.getLimitBar() + "</div>";
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Done</div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Done</div>";
 	}
 	if (what == "Scale Equality Scaling"){
 		var state = game.portal.Equality.getSetting('scalingActive', equalitySlidersTip) ? "On" : "Off";
@@ -1560,7 +1574,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			spireBtn = "<span id='spireEqualityToggle' onclick='toggleSpireEquality(" + textString + ")' class='btn btn-primary'>" + ((equalitySlidersTip == 'reg') ? "Show Spire Settings" : "Show Regular Settings") + "</span>";
 			what += (equalitySlidersTip == 'reg') ? " (Regular Settings)" : " (Spire Settings)";
 		}
-		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' onclick='cancelTooltip()'>Done</div>" + spireBtn + "</div>";
+		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Done</div>" + spireBtn + "</div>";
 		ondisplay = function(){
 			verticalCenterTooltip();
 		}
@@ -1655,7 +1669,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		if (!noHide) attachFunction = attachFunction + "; cancelTooltip()";
 		attachFunction = (attachFunction) ? ' onclick="' + attachFunction + '"' : "";
 		if (what != 'Spire Assault') costText = ' <div class="maxCenter" id="confirmTipCost"><div id="confirmTooltipBtn" class="btn btn-info"' + attachFunction + '>' + renameBtn + '</div>';
-		if (!hideCancel) costText += '<div class="btn btn-danger" onclick="cancelTooltip()">Cancel</div>';
+		if (!hideCancel) costText += '<div class="btn btn-danger" role=button tabindex=0 onclick="cancelTooltip()">Cancel</div>';
 		costText += '</div>';
 		game.global.lockTooltip = true;
 		if (numCheck == "Alchemy" || numCheck == "Spire Assault"){
@@ -1692,7 +1706,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			}
 			elem.style.top = "25%";
 			game.global.lockTooltip = true;
-			if (!attachFunction) costText = '<div class="btn btn-danger" onclick="cancelTooltip()">Close</div>';
+			if (!attachFunction) costText = '<div class="btn btn-danger" role=button tabindex=0 onclick="cancelTooltip()">Close</div>';
 			event = 'update';
 		}
 		if (numCheck == "center"){
@@ -1779,6 +1793,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (confirmBtn) { 
 		confirmBtn.setAttribute("role", "button")
 		confirmBtn.setAttribute("tabindex", "0")
+	}
+	for (const [id, args] of Object.entries(accessibleTooltips)) {
+		makeAccessibleTooltip(id, args);
 	}
 	if (ondisplay !== null)
 		ondisplay();
@@ -6259,13 +6276,18 @@ function toggleSettingAlert(){
 function displayAllSettings() {
 	var settingsHere = document.getElementById("allSettingsHere");
 	var html = "";
+	var accessibleTooltips = {}
 	for (var item in game.options.menu){
 		var optionItem = game.options.menu[item];
 		if (optionItem.locked) continue;
 		if (typeof optionItem.lockUnless === 'function' && !optionItem.lockUnless()) continue;
 		html += getSettingHtml(optionItem, item);
+		accessibleTooltips[`toggle${item}`] = getSettingsHTMLTooltipArgs(item)
 	}
 	settingsHere.innerHTML = html;
+	for (const [id, args] of Object.entries(accessibleTooltips)) {
+		makeAccessibleTooltip(id, args);
+	}
 }
 
 function toggleSettingSection(toSearch){
@@ -6332,17 +6354,33 @@ function searchSettings(elem){
 
 	}
 	clearSettingTabs();
+	var accessibleTooltips = {}
 	for (var x = 0; x < results.length; x++){
-		text += getSettingHtml(game.options.menu[results[x]], results[x], forceClass);
+		let item = results[x]
+		text += getSettingHtml(game.options.menu[item], item, forceClass);
+		accessibleTooltips[`toggle${item}`] = getSettingsHTMLTooltipArgs(item)
 	}
 	resultsElem.innerHTML = text;
+	for (const [id, args] of Object.entries(accessibleTooltips)) {
+		makeAccessibleTooltip(id, args);
+	}
+}
+
+function getSettingsHTMLTooltipArgs(id) {
+	let optionItem = game.options.menu[id]
+	return [optionItem.titles[optionItem.enabled], "customText", game.options.menu[id].description]
 }
 
 function getSettingHtml(optionItem, item, forceClass, appendId){
 	if (!appendId) appendId = "";
 	if (!forceClass) forceClass = "";
 	var text = optionItem.titles[optionItem.enabled];
-	return "<div class='optionContainer" + forceClass + "'><div id='toggle" + item + appendId + "' class='noselect settingsBtn settingBtn" + optionItem.enabled + "' onclick='toggleSetting(\"" + item + "\"" + ((appendId) ? "" : ", this") + ")' onmouseover='tooltip(\"" + text + "\", \"customText\", event, \"" + optionItem.description + "\")' onmouseout='tooltip(\"hide\")'>" + text + "</div></div>";
+	var tooltip = ``
+	if (usingScreenReader) {}
+	else {
+		tooltip = `onmouseover='tooltip("${text}", "customText", event, "${optionItem.description}")' onmouseout='tooltip("hide")'`
+	}
+	return `<div class='optionContainer ${forceClass}'><button id='toggle${item + appendId}' class='noselect settingsBtn settingBtn${optionItem.enabled}' onclick='toggleSetting("${item}"${((appendId) ? "" : ", this")})' ${tooltip}>${text}</button></div>`;
 }
 
 function saveLogarithmicSetting(){
@@ -6393,6 +6431,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 	if (setting == "usePlayFab" && !updateOnly){
 		if (menuOption.enabled == 0){
 			authenticated = enablePlayFab();
+			screenReaderAssert("Press S to view the popup.")
 			if (!authenticated) return;
 		}
 		else {
@@ -6422,7 +6461,7 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 		return;
 	}
 	var menuElem = [];
-	menuElem[0] = (elem) ? elem : document.getElementById("toggle" + setting);
+	menuElem[0] = (elem && elem + "" != '[object Window]') ? elem : document.getElementById("toggle" + setting); // SR shenanigans, if we've lost scope grab the elem again.
 	if (typeof menuOption.secondLocation !== 'undefined'){
 		for (var z = 0; z < menuOption.secondLocation.length; z++){
 			menuElem.push(document.getElementById(menuOption.secondLocation[z]));
@@ -6434,9 +6473,11 @@ function toggleSetting(setting, elem, fromPortal, updateOnly, backwards, fromHot
 		swapClass("settingBtn", "settingBtn" + menuOption.enabled, menuElem[x]);
 		if (setting == "deleteSave") return;
 		if (!updateOnly && elem) cancelTooltip(true);
-		menuElem[x].onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)};
+		if (!usingScreenReader) { menuElem[x].onmouseover = function(event) {tooltip(menuOption.titles[menuOption.enabled], "customText", event, menuOption.description)}; }
+		else { makeAccessibleTooltip(menuElem[x].id, [menuOption.titles[menuOption.enabled], "customText", menuOption.description]) }
 	}
-	if (!updateOnly && elem) tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
+	if (!updateOnly && elem && !usingScreenReader) tooltip(menuOption.titles[menuOption.enabled], "customText", 'update', menuOption.description)
+	screenReaderAssert(menuOption.titles[menuOption.enabled])
 }
 
 	function achievementCompatibilityUnlock() {
@@ -7494,7 +7535,7 @@ tooltips.showError = function (textString) {
 	bugReport += "--END SAVE FILE--";
 	tooltip += bugReport;
 	tooltip += "</textarea>";
-	var costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' onclick='cancelTooltip()'>Got it</div>";
+	var costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Got it</div>";
 	if (document.queryCommandSupported('copy')){
 		costText += "<div id='clipBoardBtn' class='btn btn-success'>Copy to Clipboard</div>";
 	}

@@ -9624,7 +9624,7 @@ function getGenStateConfigTooltip(){
 		else thisSetting = savedSettings[x];
 		tooltipText += "<div>";
 		tooltipText += '<div style="text-align: right; width: 40%; margin-right: 10%; display: inline-block; font-size: 1.2vw;">At Zone <input class="genStateConfigInput" type="number" style="width: 50%; padding-left: 0.6vw;" id="genStateConfigInput' + x + '" value="' + thisSetting[1] + '">: </div>'
-		tooltipText += '<div data-value="' + thisSetting[0] + '" style="display: inline-block; width: 50%;" id="genStateConfigScroll' + x + '" class="genStateConfigScroll noselect settingsBtn settingBtn' + (thisSetting[0] + 1) + '" onclick="toggleGenStateConfig(this, ' + x + ')">' + getGenStateConfigBtnText(thisSetting[0]) + '</div>';
+		tooltipText += '<button data-value="' + thisSetting[0] + '" style="display: inline-block; width: 50%;" id="genStateConfigScroll' + x + '" class="genStateConfigScroll noselect settingsBtn settingBtn' + (thisSetting[0] + 1) + '" onclick="toggleGenStateConfig(this, ' + x + ')">' + getGenStateConfigBtnText(thisSetting[0]) + '</button>';
 		tooltipText += "</div>";
 	}
 	tooltipText += "</div>";
@@ -9642,7 +9642,9 @@ function toggleGenStateConfig(elem, num){
 	if (currentSetting == 3) currentSetting = -1;
 	elem.dataset.value = currentSetting;
 	swapClass('settingBtn', 'settingBtn' + (currentSetting + 1), elem);
-	elem.innerHTML = getGenStateConfigBtnText(currentSetting);
+	let text = getGenStateConfigBtnText(currentSetting)
+	elem.innerHTML = text;
+	screenReaderAssert(text)
 }
 
 function getGenStateConfigBtnText(num){
@@ -20567,6 +20569,7 @@ function makeAccessibleTooltip(elemID, args, mode="click") {
 		// This contains no less than three different options for how to show tooltips. I may have gone mad.
 		// Pick one. Or two.  Or tie it to a setting. 
 		let elem = document.getElementById(elemID);
+		if (!elem) { console.warn(`Attempted to add an event listener to ${elem} but it doesn't exist`); return; }
 		if (mode == "click") {
 			// ? tooltip
 			elem.addEventListener("keydown", function (event) {keyTooltip(event, ...args)});
@@ -20577,7 +20580,7 @@ function makeAccessibleTooltip(elemID, args, mode="click") {
 			// Because of Javascript scope issues, the wrapper breaks `this` scope. So, future self, if you find yourself tearing your hair out because you have a button with a tooltip that uses `this` in the onclick callback, this is why. Good luck to you.
 			if (elem.tagName === "BUTTON") {
 				let callback = elem.onclick;
-				elem.onclick = function() {
+				elem.onclick = () => {
 					if(shiftPressed) {
 						keyTooltip({key: "?"}, ...args)
 						return;

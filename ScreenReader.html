@@ -728,7 +728,7 @@
 								<div class="row">
 									<h4 style='font-size: 0px'>Enemy Battle Stats</h4>
 									<div class="col-xs-11">
-									<span class="battleStatsTitle"><span id="badGuyName"></span> <span id="corruptionBuff"></span><span id="voidBuff"></span><span id="badCanCrit" style="display: none" class="badge" onmouseover="tooltip('Crushing Blows', 'customText', event, 'Your current health is higher than your block, making you vulnerable to critical strikes from your enemies. Better fix that...')" onmouseout="tooltip('hide')"><span class="icomoon icon-hair-cross"></span></span><span id='badDebuffSpan'></span></span><br/>
+									<span class="battleStatsTitle"><span id="badGuyName"></span> <span id="corruptionBuff"></span><span id="voidBuff"></span><span id="badCanCrit" style="display: none" class="badge" onmouseover="tooltip('Crushing Blows', 'customText', event, 'Your current health is higher than your block, making you vulnerable to critical strikes from your enemies. Better fix that...')" ><span class="icomoon icon-hair-cross"></span></span><span id='badDebuffSpan'></span></span><br/>
 									<div class="guyRow" id="badGuyRow">
 									<div>
 										<span id="badGuyAttack" class="dmgColorWhite"></span> DMG <span id="badCrit"></span>
@@ -776,7 +776,7 @@
 							<div class="battleSideBtnContainer">
 								<button id="mapsBtn" class="btn btn-warning fightBtn" style="display: none">
 									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div>
-									<button aria-label='Configure Map Settings. Press S after clicking.' onclick="tooltip('Configure Maps', null, 'update')">
+									<button aria-label='Configure Map Settings. Press S to view the popup.' onclick="tooltip('Configure Maps', null, 'update')">
 										<span class='glyphicon glyphicon-cog'>Configure Maps</span></button>
 									</button>
 							</div>
@@ -981,27 +981,27 @@
 						</div>
 						<div id="extraMapBtns" class="col-xs-off">
 							<div class="battleSideBtnContainer">
-								<span class="btn settingBtn1 fightBtn" id="togglemapLoot2" onmouseout="tooltip('hide')" onclick="toggleSetting('mapLoot')">
+								<span class="btn settingBtn1 fightBtn" id="togglemapLoot2"  onclick="toggleSetting('mapLoot')">
 								</span>
 							</div>									
 							<div class="battleSideBtnContainer">
-								<span class="btn settingBtn1 fightBtn" id="togglerepeatUntil" onmouseout="tooltip('hide')" onclick="toggleSetting('repeatUntil')">
+								<span class="btn settingBtn1 fightBtn" id="togglerepeatUntil" onclick="toggleSetting('repeatUntil')">
 								</span>
 							</div>								
 							<div class="battleSideBtnContainer">
-								<span class="btn settingBtn1 fightBtn" id="toggleexitTo" onmouseout="tooltip('hide')" onclick="toggleSetting('exitTo')">
+								<span class="btn settingBtn1 fightBtn" id="toggleexitTo" onclick="toggleSetting('exitTo')">
 								</span>
 							</div>
 							<div class="battleSideBtnContainer">
-								<span class="btn settingBtn1 fightBtn" id="togglemapAtZone2" onmouseout="tooltip('hide')" onclick="toggleSetting('mapAtZone')">
+								<span class="btn settingBtn1 fightBtn" id="togglemapAtZone2" onclick="toggleSetting('mapAtZone')">
 								</span>
 							</div>							
 							<div class="battleSideBtnContainer" style="display: none" id="repeatVoidsContainer">
-								<span class="btn settingBtn1 fightBtn" id="togglerepeatVoids" onmouseout="tooltip('hide')" onclick="toggleSetting('repeatVoids')">
+								<span class="btn settingBtn1 fightBtn" id="togglerepeatVoids" onclick="toggleSetting('repeatVoids')">
 								</span>
 							</div>
 							<div class="battleSideBtnContainer" style="display: none" id="climbBwContainer">
-								<span class="btn settingBtn1 fightBtn" id="toggleclimbBw2" onmouseout="tooltip('hide')" onclick="toggleSetting('climbBw')">
+								<span class="btn settingBtn1 fightBtn" id="toggleclimbBw2" onclick="toggleSetting('climbBw')">
 								</span>
 							</div>					
 						</div>
@@ -1477,7 +1477,7 @@
 		<div id="settingsHere" style="display: none">
 			<div id='searchSettingsWindow'>
 				<div id='settingTitleBar'>
-					<div class='noselect optionContainer settingsBtn tealColor settingTypeBtn' onclick='toggleSettingSection(false)'>Browse All</div>
+					<button class='noselect optionContainer settingsBtn tealColor settingTypeBtn' onclick='toggleSettingSection(false)'>Browse All</button>
 					<span id='searchSettingsTitle'>Choose a Category Below, or Search for a Setting/Keyword:</span>&nbsp;
 					<input id='searchSettings' onkeyup='searchSettings(this)' /><br/>
 					<div id='settingsTabs'>
