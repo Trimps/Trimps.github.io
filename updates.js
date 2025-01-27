@@ -1786,8 +1786,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 }
 
 function screenReaderAssert(text){
-	var elem = document.getElementById('screenReaderTooltip');
-	if (elem) elem.innerHTML = text;
+	if (usingScreenReader) {
+		var elem = document.getElementById('screenReaderTooltip');
+		if (elem) elem.innerHTML = text;
+	}
 }
 
 function updateMazPreset(index){

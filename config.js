@@ -1814,7 +1814,7 @@ var toReturn = {
 						this.timeAtPause = new Date().getTime();
 						if (game.options.menu.autoSave.enabled == 1 && game.options.menu.saveOnPause.enabled == 1) save(false, true);
 						swapClass("timer", "timerPaused", document.getElementById("portalTimer"));
-						if (usingScreenReader) screenReaderAssert("Game is now paused!")
+						screenReaderAssert("Game is now paused!")
 						handlePauseMessage(true);
 					}
 					else if (this.timeAtPause) {
@@ -1833,7 +1833,7 @@ var toReturn = {
 						game.global.lastOnline = now;
 						game.global.start = now;
 						swapClass("timer", "timerNotPaused", document.getElementById("portalTimer"));
-						if (usingScreenReader) screenReaderAssert("Game is now unpaused!")
+						screenReaderAssert("Game is now unpaused!")
 						handlePauseMessage(false);
 					}
 				},

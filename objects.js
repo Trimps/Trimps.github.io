@@ -5036,7 +5036,7 @@ var u2Mutations = {
         var arrowLength = 0.5;
         var arrowSize = 0.1;
         var boxScale = 2 * scale;
-		if (usingScreenReader) screenReaderAssert("Press Shift S to return to the top of the Mutator screen");
+		screenReaderAssert("Press Shift S to return to the top of the Mutator screen");
 
         document.getElementById('mutTreeWrapper').style.display = 'block';
         document.getElementById("wrapper").style.display = "none";
