@@ -362,7 +362,7 @@ var playerSpire = {
 			}
 			else {
 				accessibleTooltips[id] = [trapItem, "upgradeTooltip"]
-				text += (style == "grey" ? ", Not Affordable" : ", Affordable")
+				text = "Upgrade " + text + (style == "grey" ? ", Not Affordable" : ", Affordable")
 			}
             html += "<button id='" + id + "' " + tooltip + " onclick='playerSpire.buyUpgrade(\"" + trapItem + "\")' style='background-color: " + style + "' class='" + upgradeClass + "'>" + text + "</button>";
             if (this.runestones < nextUpgrade.cost && (cheapestTrap == -1 || nextUpgrade.cost < cheapestTrap)) cheapestTrap = nextUpgrade.cost;
@@ -1009,6 +1009,7 @@ var playerSpire = {
     drawSpire: function(){
         if (!this.popupOpen) return;
         if (this.dontDraw) return;
+		if (usingScreenReader) return;
         var layout = this.layout;
         var layoutHtml = "";
         var rowHtml = "";
