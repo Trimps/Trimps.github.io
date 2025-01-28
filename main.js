@@ -20253,7 +20253,7 @@ document.addEventListener('keydown', function (e) {
 				playerSpire.selectTrap("Knowledge");
 			break;
 		case 13: //enter
-			if (usingScreenReader && playerSpire.popupOpen){
+			if (usingScreenReader && document.activeElement.id == "spireScreenReadInput"){
 				playerSpire.screenReadCommand();
 				return;
 			}
@@ -20612,6 +20612,10 @@ function keyTooltip(keyEvent, what, isItIn, event, textString, attachFunction, n
 	if (usingScreenReader && keyEvent && keyEvent.key == "?") {
 		const natureTooltips = ["Poison", "Wind", "Ice"]
 		if (natureTooltips.includes(isItIn)) natureTooltip(...Object.values(arguments))
+		else if (isItIn == "trapTooltip") { playerSpire.trapTooltip(what, "screenRead") }
+		else if (isItIn == "upgradeTooltip") { playerSpire.upgradeTooltip(what, "screenRead") }
+		else if (isItIn == "infoTooltip") { playerSpire.infoTooltip(what, "screenRead") }
+		
 		else tooltip(what, isItIn, "screenRead", ...Object.values(arguments).slice(3,))
 	}
 }

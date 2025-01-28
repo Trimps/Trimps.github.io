@@ -332,7 +332,8 @@ var playerSpire = {
         this.drawSpire();
         this.drawInfo();
     },
-    getUpgradesHtml: function(){
+    getUpgradesHtml: function(forSmall){
+		var accessibleTooltips = {};
         var html = "";
         var cheapestTrap = -1;
         if (this.tutorialStep < 4) return "";
@@ -354,12 +355,35 @@ var playerSpire = {
                 upgradeClass = 'playerSpireUpgrade spireTrapBox';
                 text = trapItem + trapText + romanNumeral(trap.level + 1)
             }
-            html += "<div onmouseover='playerSpire.upgradeTooltip(\"" + trapItem + "\", event)' onmouseout='tooltip(\"hide\")' onclick='playerSpire.buyUpgrade(\"" + trapItem + "\")' style='background-color: " + style + "' class='" + upgradeClass + "'>" + text + "</div>";
+			let tooltip = ""
+			let id = trapItem + "UpgradeBox"
+			if (!usingScreenReader) {
+				tooltip = "onmouseover='playerSpire.upgradeTooltip(\"" + trapItem + "\", event)' onmouseout='tooltip(\"hide\")'"
+			}
+			else {
+				accessibleTooltips[id] = [trapItem, "upgradeTooltip"]
+				text += (style == "grey" ? ", Not Affordable" : ", Affordable")
+			}
+            html += "<button id='" + id + "' " + tooltip + " onclick='playerSpire.buyUpgrade(\"" + trapItem + "\")' style='background-color: " + style + "' class='" + upgradeClass + "'>" + text + "</button>";
             if (this.runestones < nextUpgrade.cost && (cheapestTrap == -1 || nextUpgrade.cost < cheapestTrap)) cheapestTrap = nextUpgrade.cost;
         }
         if (this.smallMode && html.length) html = "<hr/>" + html;
         this.nextUpgrade = cheapestTrap;
-        return html;
+		if (this.canSeal() && !forSmall){
+            html += "<div id='spireSealInfo' style='font-weight: bold; text-align: center;'>You now have 10 of each Tower and have successfully reinforced every floor of this Spire. Your Trimps would be incredibly proud of you if they could process such strong emotions, for this was no small feat! Your Scientists can now construct one more of each Tower for free, but doing so will seal the Spire. If you choose to Seal the Spire, you'll earn World bonuses as if you had 11 of each Tower, but enemies will no longer spawn in the Spire.<br/>NOTE: Sealing the Spire will remove the tab used to access this window, but a Setting will be added under Other should you want to unseal it for any reason.<br/><button onclick='playerSpire.seal()' id='sealSpireBtn' class='spireControlBox'>Seal Spire</button></div>"
+        }
+		var elem = document.getElementById('playerSpireUpgradesArea');
+        if (elem == null){
+            this.drawInfo();
+			return
+        }
+		if (forSmall) return html;
+		else { 
+			elem.innerHTML = html
+			for (const [elemId, args] of Object.entries(accessibleTooltips)) {
+				makeAccessibleTooltip(elemId, args)
+			}
+		}
     },
     resetUpgrades: function(){
         for (var trap in playerSpireTraps){
@@ -371,12 +395,7 @@ var playerSpire = {
         this.drawInfo();
     },
     redrawUpgrades: function(){
-        var elem = document.getElementById('playerSpireUpgradesArea');
-        if (elem == null){
-            this.drawInfo();
-            return;
-        }
-        elem.innerHTML = this.getUpgradesHtml();
+        this.getUpgradesHtml();
     },
     checkRedrawUpgrades: function(){
         //only needed if drawInfo isn't being called, basically just for killedEnemy()
@@ -527,7 +546,9 @@ var playerSpire = {
             return;
         }
         if (split[0] == "commands"){
-            output.innerHTML = "Type 'Build X column row' to build a trap. For example, type 'Build Frost 1 1' and then 'Build Fire 2 1' to complete your first quest. You can also type 'Build Fire 2 1 3 1 4 1' to build traps on the 2nd, 3rd and 4th columns of the first row. Type 'Sell Column Row' to sell a trap, for example 'Sell 1 1' will sell the bottom left trap. You can also type multiple pairs of columns and rows with the sell command to sell multiple traps at once just like with build, or you can type 'Sell all' if you want to sell all of your traps. Type 'Traps' for a list of all purchaseable traps and their costs. Type 'Info X' where X is the name of a trap to get the price and description of that trap. Type 'Upgrades' for a list of all purchaseable upgrades and their costs. Type 'Upgrade X' to purchase an upgrade for Trap type X. Type 'Read X' to read the traps on row X, or type 'Read Enemies X' to read what enemies are currently on row X and what their health percents are. Finally you can type 'Shift Up' or 'Shift Down' followed by a Column and Row number to shift the trap on that cell and any other traps ahead or behind it up or down. For example, if you type 'Shift up 1 1' when you have a Frost trap on 1 1 and a Fire trap on 2 1, your Frost trap will be shifted to 2 1 and your Fire trap will be shifted to 3 1."
+            output.innerHTML = `Type 'Build X column row' to build a trap. For example, type 'Build Frost 1 1' and then 'Build Fire 2 1' to complete your first quest. You can also type 'Build Fire 2 1 3 1 4 1' to build traps on the 2nd, 3rd and 4th columns of the first row. Type 'Sell Column Row' to sell a trap, for example 'Sell 1 1' will sell the bottom left trap. You can also type multiple pairs of columns and rows with the sell command to sell multiple traps at once just like with build, or you can type 'Sell all' if you want to sell all of your traps. 
+			Type 'Read X' to read the traps on row X, or type 'Read Enemies X' to read what enemies are currently on row X and what their health percents are. Type 'Shift Up' or 'Shift Down' followed by a Column and Row number to shift the trap on that cell and any other traps ahead or behind it up or down. For example, if you type 'Shift up 1 1' when you have a Frost trap on 1 1 and a Fire trap on 2 1, your Frost trap will be shifted to 2 1 and your Fire trap will be shifted to 3 1.
+			Finally, you can either use this interface, or the buttons below, to get information on Traps and Upgrades. Type 'Traps' for a list of all purchaseable traps and their costs. Type 'Info X' where X is the name of a trap to get the price and description of that trap. Type 'Upgrades' for a list of all purchaseable upgrades and their costs. Type 'Upgrade X' to purchase an upgrade for Trap type X.`
             return;
         }
         //traps
@@ -732,36 +753,56 @@ var playerSpire = {
     drawInfo: function(){
         if (!this.popupOpen) return;
         if (this.sealed){
-            document.getElementById('playerSpireInfoPanel').innerHTML = "<div style='text-align: center; font-weight: bold'>The Spire is Sealed, but you are still earning bonuses from having 11 of each Tower.<br/><br/>You can unseal the Spire if you want to, but will lose your 11th towers.<br/><br/><div onclick='playerSpire.unseal()' id='unsealSpireBtn' class='spireControlBox'>Unseal Spire</div></div><span id='playerSpireCloseBtn' class='icomoon icon-close' onclick='playerSpire.closePopup()'></span>"
+            document.getElementById('playerSpireInfoTop').innerHTML = "<div style='text-align: center; font-weight: bold'>The Spire is Sealed, but you are still earning bonuses from having 11 of each Tower.<br/><br/>You can unseal the Spire if you want to, but will lose your 11th towers.<br/><br/><div onclick='playerSpire.unseal()' id='unsealSpireBtn' class='spireControlBox'>Unseal Spire</div></div><span id='playerSpireCloseBtn' class='icomoon icon-close' onclick='playerSpire.closePopup()'></span>"
+			document.getElementById('spireTrapsWindow').innerHTML = ""
+			document.getElementById('playerSpireUpgradesArea').innerHTML = ""
             return;
         }
         if (this.smallMode){
             this.drawSmallInfo();
             return;
         }
-        var elem = document.getElementById('playerSpireInfoPanel');
+		var accessibleTooltips = {}
+        var elem = document.getElementById('playerSpireInfoTop');
         var infoHtml = "";
-        infoHtml += "<div id='playerSpireInfoTop'>";
-        if (usingScreenReader) infoHtml += "<h1>Spire Defense - Type Help in the input below, then press enter</h1><br/><input id='spireScreenReadInput'/><br/>"
-        infoHtml += "<span onmouseover='playerSpire.infoTooltip(\"Runestones\", event)' onmouseout='tooltip(\"hide\")'>Runestones: <span id='playerSpireRunestones'>" + prettify(this.runestones) + "</span><br/>Runestones per Second: <span id='RsPs'>" + prettify(this.getRsPs()) + "</span></span>";
-        infoHtml += "<br/><span onmouseover='playerSpire.infoTooltip(\"Enemies\", event)' onmouseout='tooltip(\"hide\")'>Enemies: <span id='playerSpireCurrentEnemies'>" + this.currentEnemies + "</span> / <span id='playerSpireMaxEnemies'>" + this.maxEnemies + "</span></span>";
-        infoHtml += "<br/><span onmouseover='playerSpire.infoTooltip(\"Spirestones\", event)' onmouseout='tooltip(\"hide\")' id='spirestoneBox'>" + this.getSpirestoneHtml() + "</span><br/><span onmouseover='playerSpire.infoTooltip(\"Threat\", event)' onmouseout='tooltip(\"hide\")' id='playerSpireDifficulty'>" + this.getDifficultyHtml() + "</span></div>";
-        infoHtml += "<div id='spireTrapsWindow'>";
-        infoHtml += "<div onclick='playerSpire.shrink()' id='shrinkSpireBox' class='spireControlBox'>Shrink Window</div>";
-        infoHtml += "<div onclick='playerSpire.settingsTooltip()' id='spireSettingsBox' class='spireControlBox'>Settings</div>"
-        infoHtml += "<div onclick='tooltip(\"confirm\", null, \"update\", \"Are you sure you want to sell all Traps and Towers? You will get back 100% of Runestones spent on them.<br/><br/>" + ((this.paused) ? "" : "<b>Protip:</b> Pause your Spire before selling your defenses if you want to avoid leaking!") + "\", \"playerSpire.resetTraps()\", \"Sell All?\")' class='spireControlBox'>Sell All</div>";
-        infoHtml += "<div onclick='playerSpire.togglePause()' id='pauseSpireBtn' class='spireControlBox spirePaused" + ((this.paused) ? "Yes'>Unpause" : "'>Pause Spire") + "</div>";      
-        infoHtml += "<div class='spireControlBoxDbl'><div onclick='playerSpire.presetTooltip(1)'>Layout 1</div><div onclick='playerSpire.presetTooltip(2)'>Layout 2</div></div>"
-        infoHtml += "<div onclick='playerSpire.selectTrap(\"shiftUp\")' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"shiftUp\", event)' id='sellTrapBox' class='spireControlBox" + ((this.selectedTrap == "shiftUp") ? " selected" : "") + "'>Shift Up</div>";
-        infoHtml += "<div onclick='playerSpire.selectTrap(\"shiftDown\")' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"shiftDown\", event)' id='sellTrapBox' class='spireControlBox" + ((this.selectedTrap == "shiftDown") ? " selected" : "") + "'>Shift Down</div>";
+		let infoTag = (usingScreenReader ? "button" : "span")
+		let tooltip = ""
+		let srArrtibutes = ""
+        if (usingScreenReader) {
+			infoHtml += "<h1>Spire Defense - Type Help in the input below, then press enter</h1><br/><input id='spireScreenReadInput'/><br/>"
+			srArrtibutes = "class='spireControlBox' tabindex=0"
+		}
+		if (!usingScreenReader) tooltip = `onmouseover='playerSpire.infoTooltip("Runestones", event)' onmouseout='tooltip("hide")'`
+        infoHtml += `<${infoTag} id='psRunestonesBox' ${srArrtibutes} ${tooltip} >Runestones: <span id='playerSpireRunestones'>${prettify(this.runestones)}</span><br/>Runestones per Second: <span id='RsPs'>${prettify(this.getRsPs())}</span></${infoTag}>`
+    	if (!usingScreenReader) tooltip = `onmouseover='playerSpire.infoTooltip("Enemies", event)' onmouseout='tooltip("hide")'`
+		infoHtml += `<br/><${infoTag} id='psCurrentEnemiesBox' ${srArrtibutes} ${tooltip}>Enemies: <span id='playerSpireCurrentEnemies'>${this.currentEnemies}</span> / <span id='playerSpireMaxEnemies'>${this.maxEnemies}</span></${infoTag}>`
+        if (!usingScreenReader) tooltip = `onmouseover='playerSpire.infoTooltip("Spirestones", event)' onmouseout='tooltip("hide")'`
+		infoHtml += `<br/><${infoTag} ${srArrtibutes} ${tooltip} id='spirestoneBox'>${this.getSpirestoneHtml()}</${infoTag}>`
+		if (!usingScreenReader) tooltip = `onmouseover='playerSpire.infoTooltip("Threat", event)' onmouseout='tooltip("hide")'`
+		infoHtml +=`<br/><${infoTag} ${srArrtibutes} ${tooltip} id='playerSpireDifficulty'>${this.getDifficultyHtml()}</${infoTag}>`;
+		elem.innerHTML = infoHtml
 
-        
-        // infoHtml += "<div onclick='playerSpire.resetUpgrades()' class='spireControlBox'>Reset Upgrades</div>";
-        // infoHtml += "<div onclick='tooltip(\"confirm\", null, \"update\", \"Are you sure you want to reset EVERYTHING? This includes Floors, upgrades, and runestones!\", \"playerSpire.init()\", \"Reset Spire?\")' class='spireControlBox'>Reset EVERYTHING</div>";
-        // infoHtml += "<div onclick='playerSpire.clearEnemies()' class='spireControlBox'>Clear Enemies</div>";
+		accessibleTooltips['psRunestonesBox'] = ['Runestones', 'infoTooltip']
+		accessibleTooltips['psCurrentEnemiesBox'] = ['Enemies', 'infoTooltip']
+		accessibleTooltips['spirestoneBox'] = ['Spirestones', 'infoTooltip']
+		accessibleTooltips['playerSpireDifficulty'] = ['Threat', 'infoTooltip']
 
-        infoHtml += "<br/><hr/>"
-        infoHtml += "<div onclick='playerSpire.selectTrap(\"sell\")' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"sell\", event)' style='padding-top: 1.35vw' id='sellTrapBox' class='spireTrapBox" + ((this.selectedTrap == "sell") ? " selected" : "") + "'>Sell a Trap/Tower</div>";
+		elem = document.getElementById('spireTrapsWindow');
+		infoHtml = "";
+		if (!usingScreenReader) {
+			infoHtml += "<div onclick='playerSpire.shrink()' id='shrinkSpireBox' class='spireControlBox'>Shrink Window</div>";
+			infoHtml += "<button onclick='playerSpire.settingsTooltip()' id='spireSettingsBox' class='spireControlBox'>Settings</button>"
+			infoHtml += "<div onclick='tooltip(\"confirm\", null, \"update\", \"Are you sure you want to sell all Traps and Towers? You will get back 100% of Runestones spent on them.<br/><br/>" + ((this.paused) ? "" : "<b>Protip:</b> Pause your Spire before selling your defenses if you want to avoid leaking!") + "\", \"playerSpire.resetTraps()\", \"Sell All?\")' class='spireControlBox'>Sell All</div>";
+		}
+		infoHtml += "<button onclick='playerSpire.togglePause()' id='pauseSpireBtn' class='spireControlBox spirePaused" + ((this.paused) ? "Yes'>Unpause" : "'>Pause Spire") + "</button>";      
+		infoHtml += "<div class='spireControlBoxDbl'><button onclick='playerSpire.presetTooltip(1)'>Layout 1</button><button onclick='playerSpire.presetTooltip(2)'>Layout 2</button></div>"
+        if (!usingScreenReader) {
+			infoHtml += "<div onclick='playerSpire.selectTrap(\"shiftUp\")' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"shiftUp\", event)' id='sellTrapBox' class='spireControlBox" + ((this.selectedTrap == "shiftUp") ? " selected" : "") + "'>Shift Up</div>";
+			infoHtml += "<div onclick='playerSpire.selectTrap(\"shiftDown\")' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"shiftDown\", event)' id='sellTrapBox' class='spireControlBox" + ((this.selectedTrap == "shiftDown") ? " selected" : "") + "'>Shift Down</div>";
+			infoHtml += "<br/><hr/>"
+			infoHtml += "<div onclick='playerSpire.selectTrap(\"sell\")' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"sell\", event)' style='padding-top: 1.35vw' id='sellTrapBox' class='spireTrapBox" + ((this.selectedTrap == "sell") ? " selected" : "") + "'>Sell a Trap/Tower</div>";
+		}
+		else infoHtml += "<br/><hr/>"
         var cheapestTrap = -1;
         for (var item in playerSpireTraps){
             var trap = playerSpireTraps[item];
@@ -777,19 +818,26 @@ var playerSpire = {
                 costText = "Max Level"
                 color = "grey";
             }
-            infoHtml += "<div style='background-color: " + color + "' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"" + item + "\", event)' onclick='playerSpire.selectTrap(\"" + item + "\")' id='" + item + "TrapBox' class='spireTrapBox" + ((item == this.selectedTrap) ? " selected" : "") + "'>" + trapIcon + item + " " + trapText + "<br/>" + costText + "</div>"
+			let textStr = trapIcon + item + " " + trapText + "<br/>" + costText
+			if (!usingScreenReader) {
+				tooltip = "onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"" + item + "\", event)'"
+			}
+			else {
+				accessibleTooltips[`${item}TrapBox`] = [item, "trapTooltip"]
+				textStr += (color == "grey" ? ", Not Affordable" : ", Affordable")
+			}
+            infoHtml += "<button style='background-color: " + color + "'" + tooltip +  "onclick='playerSpire.selectTrap(\"" + item + "\")' id='" + item + "TrapBox' class='spireTrapBox" + ((item == this.selectedTrap) ? " selected" : "") + "'>" + textStr + "</button>"
             if (this.runestones < cost && (cheapestTrap == -1 || cost < cheapestTrap)) cheapestTrap = cost;
         }
         this.nextTrap = cheapestTrap;
-        infoHtml += "</div><hr/>"; //spireTrapsWindow
-        infoHtml += "<span id='playerSpireCloseBtn' class='icomoon icon-close' onclick='playerSpire.closePopup()'></span>";
-        infoHtml += "<div id='playerSpireUpgradesArea'>";
-        infoHtml += this.getUpgradesHtml();
-        if (this.canSeal()){
-            infoHtml += "<div id='spireSealInfo' style='font-weight: bold; text-align: center;'>You now have 10 of each Tower and have successfully reinforced every floor of this Spire. Your Trimps would be incredibly proud of you if they could process such strong emotions, for this was no small feat! Your Scientists can now construct one more of each Tower for free, but doing so will seal the Spire. If you choose to Seal the Spire, you'll earn World bonuses as if you had 11 of each Tower, but enemies will no longer spawn in the Spire.<br/>NOTE: Sealing the Spire will remove the tab used to access this window, but a Setting will be added under Other should you want to unseal it for any reason.<br/><div onclick='playerSpire.seal()' id='sealSpireBtn' class='spireControlBox'>Seal Spire</div></div>"
-        }
-        infoHtml += "</div>"; //playerSpireUpgradesArea
-        elem.innerHTML = infoHtml;
+		infoHtml += "<span id='playerSpireCloseBtn' class='icomoon icon-close' onclick='playerSpire.closePopup()'></span>";
+		infoHtml += "<hr>"
+		elem.innerHTML = infoHtml
+        //spireTrapsWindow
+		this.redrawUpgrades()
+		for (const [elemId, args] of Object.entries(accessibleTooltips)) {
+			makeAccessibleTooltip(elemId, args)
+		}
         if (usingScreenReader) this.selectScreenReadInput();
     },
     drawSmallInfo: function(){
@@ -815,7 +863,7 @@ var playerSpire = {
             html += "<div style='background-color: " + color + "' onmouseout='tooltip(\"hide\")' onmouseover='playerSpire.trapTooltip(\"" + item + "\", event)' onclick='playerSpire.selectTrap(\"" + item + "\")' id='" + item + "TrapBox' class='spireTrapBoxSmall" + ((item == this.selectedTrap) ? " selected" : "") + "'>" + trapIcon + item + "</div>";
             if (this.runestones < cost && (cheapestTrap == -1 || cost < cheapestTrap)) cheapestTrap = cost;
         }
-        html += "<div id='playerSpireUpgradesArea'>" + this.getUpgradesHtml() + "</div>";
+        html += "<div id='playerSpireUpgradesArea'>" + this.getUpgradesHtml(true) + "</div>";
         this.nextTrap = cheapestTrap;
         html += "<span id='playerSpireCloseBtnSm' class='icomoon icon-close' onclick='playerSpire.closePopup()'></span>";
         elem.innerHTML = html;
@@ -890,7 +938,18 @@ var playerSpire = {
     },
     openPopup: function(){
         this.popupOpen = true;
-        document.getElementById('playerSpirePopout').style.display = 'block';
+		let popup = document.getElementById('playerSpirePopout')
+		popup.style.display = 'block';
+		popup.innerHTML = `
+			<div id='playerSpireSpirePanel'><div id='playerSpireSpireSpirePanel' class='noselect'>
+				</div><div id='floatingCombatText'></div>
+			</div><div id='playerSpireSmallPanel' class='niceScroll'>
+			</div><div id='playerSpireInfoPanel' class='niceScroll'>
+				<div id='playerSpireInfoTop'></div>
+				<div id='spireTrapsWindow'></div>
+				<div id='playerSpireUpgradesArea'></div>
+			</div>`
+
         this.drawSpire();
         this.drawInfo();
     },
@@ -919,7 +978,7 @@ var playerSpire = {
         } 
         costText += "</span>";
         tooltip(which + trapText, 'customText', event, playerSpireTraps[which].description, costText);
-        tooltipUpdateFunction = function(){playerSpire.trapTooltip(which, event)};
+		if (!usingScreenReader) tooltipUpdateFunction = function(){playerSpire.trapTooltip(which, event)};
     },
     upgradeTooltip: function(which, event){
         var trap = playerSpireTraps[which];

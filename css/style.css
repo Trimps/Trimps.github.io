@@ -1110,7 +1110,7 @@ body {
 
 
 .settingsBtn {
-    font-size: 1.3vw;
+    font-size: 1.25vw;
 	border: 1px solid black !important;
 	cursor: pointer;
 	text-align: center;
@@ -5969,6 +5969,7 @@ sup{
 
 .spireControlBox{
 	width: 19%;
+	background: inherit;
 }
 
 .spireTrapBox{
@@ -5992,13 +5993,14 @@ sup{
 	text-align: center;
 }
 
-.spireControlBoxDbl div{
+.spireControlBoxDbl button{
 	display: inline-block;
 	width: 45%;
 	margin: 2.5%;
 	padding: 0.25vw;
 	cursor: pointer;
 	border: 1px solid #dadada;
+	background: inherit;
 }
 
 .spireTrapBoxSmall, .spireControlBoxSmall{
