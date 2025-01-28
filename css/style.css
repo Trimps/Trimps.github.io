@@ -5868,7 +5868,6 @@ sup{
 	position: absolute;
 	top: 0;
 	left: 0.5vw;
-	border: 1px solid black;
 	height: 90vh;
 	width: calc(25vw - 4px);
 	pointer-events: none;
