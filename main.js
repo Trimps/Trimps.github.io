@@ -1542,17 +1542,20 @@ function displayRoboTrimp() {
 	if (game.global.roboTrimpLevel <= 0) return;
 	var elem = document.getElementById("chainHolder");
 	elem.style.visibility = "visible";
+	var statusElem = document.getElementById('roboTrimpTurnsLeft')
 	if (game.global.roboTrimpCooldown > 0){
 		swapClass("shriekState", "shriekStateCooldown", elem);
-		document.getElementById('roboTrimpTurnsLeft').innerHTML = game.global.roboTrimpCooldown;
+		let text = game.global.roboTrimpCooldown
+		if (usingScreenReader) text = "MagnetoShriek Cooldown: " + text
+		statusElem.innerHTML = text
 	}
 	else {
 		document.getElementById('roboTrimpTurnsLeft').innerHTML = "";
 		var swapIn = (game.global.useShriek) ? 'shriekStateEnabled' : 'shriekStateDisabled';
 		swapClass("shriekState", swapIn, elem);
-	}
-	if (usingScreenReader){
-		elem.title = (game.global.useShriek) ? "Deactivate MagnetoShriek" : "Activate MagnetoShriek";
+		if (usingScreenReader){
+			statusElem.innerHTML = (game.global.useShriek) ? "Deactivate MagnetoShriek" : "Activate MagnetoShriek";
+		}
 	}
 }
 
