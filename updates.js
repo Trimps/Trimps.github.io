@@ -357,8 +357,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Trustworthy Trimps"){	
 		if (usingScreenReader){
-			setTimeout(function(){document.getElementById('screenReaderTooltip').innerHTML = textString;}, 2000);
-			
+			setTimeout(function(){ screenReaderAssert(textString) }, 2000);	
 			return;
 		}
 		tooltipText = textString;
@@ -1775,16 +1774,16 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var readText = "<p>" + titleText + ": ";
 			if (costText) readText += "Costs " + costText;
 			readText += "</p><p>" + tooltipText + "</p>";
-			document.getElementById('screenReaderTooltip').innerHTML = readText;
+			screenReaderAssert(readText);
 			game.global.lockTooltip = false;
 			return;
 		}
 		else{
 			if (game.global.lockTooltip){
-				document.getElementById('screenReaderTooltip').innerHTML = "Confirmation Popup is active. Press S to view the popup."
+				screenReaderAssert("Confirmation Popup is active. Press S to view the popup.")
 			}
 			else{
-				document.getElementById('screenReaderTooltip').innerHTML = "";
+				screenReaderAssert("");
 			}
 			game.global.lockTooltip = false;
 		}

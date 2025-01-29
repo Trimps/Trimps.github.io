@@ -6081,9 +6081,7 @@ function incrementMapLevel(amt){
 	else elem.value = newNum;
 	updateMapCost();
 	hideAdvMaps(true);
-	if (usingScreenReader) {
-		document.getElementById('screenReaderTooltip').innerHTML = "Map level set to " + newNum;
-	}
+	screenReaderAssert("Map level set to " + newNum)
 }
 
 function saveAdvMaps(){
@@ -6186,7 +6184,7 @@ function updateMapNumbers(readChange){
 		var text = document.getElementById(readChange + 'AdvMapsText');
 		if (text != null){
 			let canAfford = game.resources.fragments.owned >= updateMapCost(true)
-			document.getElementById('screenReaderTooltip').innerHTML = (canAfford ? "Affordable " : "Can't Afford ") + readChange + " set to " + text.innerHTML;
+			screenReaderAssert((canAfford ? "Affordable " : "Can't Afford ") + readChange + " set to " + text.innerHTML);
 		}
 	}
 }
@@ -7093,7 +7091,7 @@ function toggleHeirloomHelp(){
 		var text = "Heirlooms are powerful items that can drop with a variety of bonuses and a variety of rarities. You will earn one Heirloom every time a Void Map is completed, and you have a better chance to get higher rarities if you complete the Void Map at higher zones. You can recycle extra Heirlooms to earn a special new resource called Nullifium, and you can use this Nullifium to upgrade the Heirlooms you want to keep! ";
 		text += "To interract with Heirlooms while using a Screen Reader, there are a few keyboard shortcuts. Your Nullifium count is displayed in an H1, so you can always check with 1 or shift 1 while on this screen. Press 2 or shift 2 to move to your equipped Heirlooms, 3 or shift 3 to move to your carried Heirlooms, and 4 or shift 4 to move to your extra Heirlooms. Press B to find selectable Heirlooms."
 		text += "Your Extra Heirlooms will be automatically recycled whenever you use your portal. You can carry a limited amount of Heirlooms back through the portal with you, but they must be in your Carried inventory. "
-		document.getElementById('screenReaderTooltip').innerHTML = text;
+		screenReaderAssert(text);
 		return;
 	}
 	var elem = document.getElementById("heirloomHelp");
@@ -7536,9 +7534,7 @@ function displaySelectedHeirloom(modSelected, selectedIndex, fromTooltip, locati
 		html += innerHtml + '</span><span class="heirloomMod innate" style="font-size: 1vw">Gain a gathering bonus based on worker distribution equality</span>'
 	}
 	if (fromTooltip) return html;
-	if (usingScreenReader){
-		document.getElementById('screenReaderTooltip').innerHTML = srText + "<br/><br/>Press 5 or shift 5 then B to view this Heirloom and its mods.";
-	}
+	screenReaderAssert(srText + "<br/><br/>Press 5 or shift 5 then B to view this Heirloom and its mods.");
 	if (fromPopup){
 		document.getElementById("heirloomsPopupHere").innerHTML = html;
 		document.getElementById("heirloomsPopup").style.display = "inline-block";
