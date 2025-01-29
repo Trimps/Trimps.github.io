@@ -20423,6 +20423,10 @@ game.options.menu.darkTheme.onToggle();
 
 var srTooltipMode = "click"
 if (usingScreenReader) {
+	// disable perf settings for SR. No eye candy here.
+	let perfSettings = ['queueAnimation', 'progressBars', 'generatorAnimation', 'fadeIns', 'showHeirloomAnimations']
+	perfSettings.forEach((setting) => { game.options.menu[setting].enabled = 0; })
+	
 	screenReaderSummary();
 	makeScreenreaderTooltips();
 	let infoElem = document.getElementById("screenReaderInfo")
