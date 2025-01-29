@@ -20421,7 +20421,15 @@ costUpdatesTimeout();
 setTimeout(gameTimeout, (1000 / game.settings.speed));
 game.options.menu.darkTheme.onToggle();
 
-if (usingScreenReader) screenReaderSummary();
+var srTooltipMode = "click"
+if (usingScreenReader) {
+	screenReaderSummary();
+	makeScreenreaderTooltips();
+	let infoElem = document.getElementById("screenReaderInfo")
+	let text = `<span>${buildNiceCheckbox("srTooltipMode", false, srTooltipMode == "button",
+			'srTooltipMode = (srTooltipMode == "click" ? "button" : "click"); makeScreenreaderTooltips();', "Enable Info Buttons")}</span>`
+	infoElem.insertAdjacentHTML("beforeend", text) 
+}
 
 preventZoom(document.getElementById('talentsContainer'));
 document.getElementById('mapLevelInput').addEventListener('keydown', function(e) {
@@ -20455,8 +20463,7 @@ document.getElementById('mapLevelInput').addEventListener('keydown', function(e)
     })
 })()
 
-function makeScreenreaderTooltips(mode="click") {
-	// mode is "click" or "button"
+function makeScreenreaderTooltips() {
 	// Screen Reader Tooltips
 	// This could be used to make mouseover events too, to get them out of the html files
 	const tooltips = {
@@ -20553,24 +20560,22 @@ function makeScreenreaderTooltips(mode="click") {
 	}; 
 	if (usingScreenReader) {
 		for (const [elemID, args] of Object.entries(tooltips)) {
-			makeAccessibleTooltip(elemID, args, mode)
+			makeAccessibleTooltip(elemID, args)
 		}
-		if (mode == "click") { // remove all added info buttons (if they exist) when using click mode
+		if (srTooltipMode == "click") { // remove all added info buttons (if they exist) when using click mode
 			document.querySelectorAll(".SRinfoButton").forEach((elem) => {elem.remove()})
 		}
 	}
 }
 
-makeScreenreaderTooltips("click");
-
-function makeAccessibleTooltip(elemID, args, mode="click") {
+function makeAccessibleTooltip(elemID, args) {
 	// args is an array of [what, isItIn, textString, attachFunction, numCheck, renameBtn, noHide, hideCancel, ignoreShift]
 	if (usingScreenReader) {
 		// This contains no less than three different options for how to show tooltips. I may have gone mad.
 		// Pick one. Or two.  Or tie it to a setting. 
 		let elem = document.getElementById(elemID);
 		if (!elem) { console.warn(`Attempted to add an event listener to ${elem} but it doesn't exist`); return; }
-		if (mode == "click") {
+		if (srTooltipMode == "click") {
 			// ? tooltip
 			elem.addEventListener("keydown", function (event) {keyTooltip(event, ...args)});
 			elem.setAttribute("tabindex", 0);
@@ -20591,7 +20596,7 @@ function makeAccessibleTooltip(elemID, args, mode="click") {
 		}
 
 		// Separate info buttons
-		if (mode == "button") {
+		if (srTooltipMode == "button" && elem.style.visibility !== "hidden" && elem.style.display !== "none") {
 			let infoElem = document.createElement("div");
 			infoElem.innerText = "Info";
 			infoElem.className = "visually-hidden SRinfoButton"
@@ -20600,7 +20605,7 @@ function makeAccessibleTooltip(elemID, args, mode="click") {
 		}
 	}
 	else {
-		if (true === false && !elem.onmouseover) { // TODO very cheeky way of saying this should work but I'm not doing it yet. (also needs the nature tooltip handling from keytooltip before it will all actually work)
+		if (true === false && !elem.onmouseover) { // TODO very cheeky way of saying this should work but I'm not doing it. (also needs the nature tooltip handling from keytooltip before it will all actually work)
 			elem.addEventListener("onmouseover", function (event) { tooltip(...Object.values(arguments).slice(0,2), event, ...Object.values(arguments).slice(2,) ); });
 			elem.addEventListener("onmouseout", function (event)  { tooltip("hide"); });
 		}
