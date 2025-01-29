@@ -739,7 +739,10 @@ var playerSpire = {
                 cellNo++;
                 var cell = this.layout[x];
                 if (cell.trap.name){
-                    text += "Col " + cellNo + " has " + cell.trap.name + ". ";
+                    text += "Col " + cellNo + " has " + cell.trap.name;
+					let detail = this.getSetTrapBgColor(x, false, true);
+					if (detail) text += ", " + detail.join(", ");
+					text += ". "
                 }
                 else text += "Col " + cellNo + " is empty. "
             }
@@ -1120,12 +1123,13 @@ var playerSpire = {
         if (textOnly) return text;
         elem.innerHTML = text;
     },
-    getSetTrapBgColor: function(cellNumber, elem){
+    getSetTrapBgColor: function(cellNumber, elem, forSR){
         //Elem is optional, will set on the element instead of getting html
         var trap = this.layout[cellNumber].trap;
         var bgColor = trap.name ? playerSpireTraps[trap.name].color : "#000";
         var layout = this.layout;
         var dblPoisonColor = "";
+		var cellDesc = []
         if (playerSpireTraps.Poison.level >= 3 && trap.name == "Poison"){
             var dblPoisonCount = 0;
             if (cellNumber > 0 && this.layout[cellNumber - 1].trap.name == "Poison") dblPoisonCount++;
@@ -1135,6 +1139,7 @@ var playerSpire = {
                 dblPoisonColor = "linear-gradient(" + barColor + " 20%, " + bgColor + " 20%";
                 if (dblPoisonCount == 2) dblPoisonColor += ", " + bgColor + " 30%, " + barColor + " 30%, " + barColor + " 50%, " + bgColor + " 50%";
                 dblPoisonColor += ")";
+				cellDesc.push(`${dblPoisonCount} Poison Adjacent`)
             }
         }
         var secondGradient = "";
@@ -1142,10 +1147,13 @@ var playerSpire = {
         if (lightStacks && (trap.name == "Poison" || trap.name == "Fire")){
             var pct = (100 - (lightStacks * 2)) + "%";
             secondGradient = "linear-gradient(to right, rgba(0,0,0,0) " + pct + ", " + playerSpireTraps.Lightning.color + " " + pct + ")";
+			cellDesc.push(`${lightStacks} Lightning Column`)
         }
         if ((!trap.name || trap.name == "Fire") && this.strengthLocations.indexOf(this.getRowFromCell(cellNumber)) != -1){
             var setting = (trap.name) ? "linear-gradient(#7F0505, #630202 75%, #684112 75%)" : "linear-gradient(#000 75%, #684112 75%)";
             if (secondGradient) setting = secondGradient + ", " + setting;
+			cellDesc.push("Strength Buff")
+			if (forSR) return cellDesc
             if (elem) elem.style.backgroundImage = setting;
             else return "background-image: " + setting;
         }
@@ -1154,19 +1162,24 @@ var playerSpire = {
             if (dblPoisonColor) setting = dblPoisonColor.substring(0, dblPoisonColor.length - 1) + ", ";
             setting += bgColor + " 73%, " + playerSpireTraps.Frost.color + " 73%)";
             if (secondGradient) setting = secondGradient + ", " + setting;
+			cellDesc.push("Frost After")
+			if (forSR) return cellDesc
             if (elem) elem.style.backgroundImage = setting;
             else return "background-image: " + setting;
         }
         else if (dblPoisonColor){
             if (secondGradient) dblPoisonColor = secondGradient + ", " + dblPoisonColor;
+			if (forSR) return cellDesc
             if (elem) elem.style.backgroundImage = dblPoisonColor;
             else return "background-image: " + dblPoisonColor;
         }
         else if (secondGradient){
             secondGradient = secondGradient.replace("rgba(0,0,0,0)", bgColor);
+			if (forSR) return cellDesc
             if (elem) elem.style.backgroundImage = secondGradient;
             else return "background-image: " + secondGradient;
         }
+		if (forSR) return false
         else if (elem){
             elem.style.backgroundColor = bgColor;
             elem.style.backgroundImage = "none";
