@@ -5056,7 +5056,8 @@ var u2Mutations = {
 			var SRBuyText = `${(bgColor == 'requirement') ? "requirement not met" : bgColor }`
             var dn = (itemObj.dn) ? itemObj.dn : item;
 			if (usingScreenReader && item in headers) text += `<h1 class='visually-hidden'>${headers[item]}</h1>`
-            text += '<button aria-labelledby="' + item + 'Name" onclick="u2Mutations.purchase(\'' + item + '\')" onmouseover="tooltip(\'' + item + '\', \'Mutator\', event)" onmouseout="tooltip(\'hide\')" id="' + item + 'MutatorBox" class="mutatorBox mutatorBox' + bgColor + '" style="color: ' + itemObj.color + '; width: ' + (boxScale) + 'px; height: ' + (boxScale) + 'px; left: ' + (coords[0] * scale) + 'px; top: ' + (coords[1] * scale) + 'px; font-size: ' + scale * 1.5 + 'px">';
+			let tooltip = (usingScreenReader ? '' : 'onmouseover="tooltip(\'' + item + '\', \'Mutator\', event)" onmouseout="tooltip(\'hide\')"')
+            text += '<button aria-labelledby="' + item + 'Name" onclick="u2Mutations.purchase(\'' + item + '\')" ' + tooltip + ' id="' + item + 'MutatorBox" class="mutatorBox mutatorBox' + bgColor + '" style="color: ' + itemObj.color + '; width: ' + (boxScale) + 'px; height: ' + (boxScale) + 'px; left: ' + (coords[0] * scale) + 'px; top: ' + (coords[1] * scale) + 'px; font-size: ' + scale * 1.5 + 'px">';
             if (usingScreenReader ) {
 				text += '<span class="mutTreeName" id="' + item + 'Name">' + dn + ' ' + SRBuyText + '</span>';
 			}

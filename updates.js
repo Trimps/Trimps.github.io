@@ -769,7 +769,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				settingCount++;
 			}
 			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
-			tooltipText += '<div class="optionContainer"><button class="noselect settingsBtn ' + ((game.global.repeatMap) ? "settingBtn1" : "settingBtn0") + '" id="repeatBtn2" onmouseover="tooltip(\'Repeat Map\', null, event)" onmouseout="tooltip(\'hide\')" onclick="repeatClicked()">' + ((game.global.repeatMap) ? "Repeat On" : "Repeat Off") + '</button></div>'; //TODO why is this weird? skip it from accessible tooltips for now
+			let repeatMapTooltip = (usingScreenReader? "" : 'onmouseover="tooltip(\'Repeat Map\', null, event)" onmouseout="tooltip(\'hide\')"') 
+			tooltipText += '<div class="optionContainer"><button class="noselect settingsBtn ' + ((game.global.repeatMap) ? "settingBtn1" : "settingBtn0") + '" id="repeatBtn2" '+ repeatMapTooltip + ' onclick="repeatClicked()">' + ((game.global.repeatMap) ? "Repeat On" : "Repeat Off") + '</button></div>';
+			accessibleTooltips['repeatBtn2'] = ['Repeat Map', null]
 			settingCount++;
 			if (settingCount % 2 == 0) tooltipText += "<br/><br/>";
 			tooltipText += getSettingHtml(game.options.menu.repeatUntil, 'repeatUntil', null, "CM");
@@ -928,7 +930,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "<div class='maxCenter'><span class='btn btn-success btn-md' id='confirmTooltipBtn' onclick='cancelTooltip(true)'>Close</span></div>"
 	}
 	if (what == "Message Config"){
-		tooltipText = "<div id='messageConfigMessage'>Here you can finely tune your message settings, to see only what you want from each category. Mouse over the name of a filter for more info.</div>";
+		tooltipText = "<div id='messageConfigMessage' aria-live='polite'>Here you can finely tune your message settings, to see only what you want from each category. Mouse over the name of a filter for more info.</div>";
 		var msgs = game.global.messages;
 		var toCheck = ["Loot", "Unlocks", "Combat"];
 		tooltipText += "<div class='row'>";
@@ -948,7 +950,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 					if (game.global.totalPortals < 1) continue;
 					realName = "Void Maps";
 				}
-				tooltipText += "<span class='messageConfigContainer'><span class='messageCheckboxHolder'>" + buildNiceCheckbox(name + item, 'messageConfigCheckbox', (msgs[name][item]), false, "Enable Message") + "</span><span onmouseover='messageConfigHover(\"" + name + item + "\", event)' onmouseout='tooltip(\"hide\")' class='messageNameHolder'> - " + realName.charAt(0).toUpperCase() + realName.substr(1) + "</span></span><br/>";
+				let id = "messageConfig" + name + item
+				accessibleTooltips[id] = [`${name + item}`, "messageConfigHover"]
+				let configMsgTooltip = (usingScreenReader ? "" : "onmouseover='messageConfigHover(\"" + name + item + "\", event)'")
+				tooltipText += "<span id='" + id +"' class='messageConfigContainer'><span class='messageCheckboxHolder'>" + buildNiceCheckbox(name + item, 'messageConfigCheckbox', (msgs[name][item]), false, "Enable Message") + "</span><span " + configMsgTooltip + " class='messageNameHolder'> - " + realName.charAt(0).toUpperCase() + realName.substr(1) + "</span></span><br/>";
 			}
 			tooltipText += "</div>";
 		}
@@ -2161,7 +2166,7 @@ function messageConfigHover(what, event){
 		default: return;
 	}
 	document.getElementById('messageConfigMessage').innerHTML = "<b>" + title + "</b> - " + text;
-	tooltip(title, 'customText', event, text);
+	//tooltip(title, 'customText', event, text);
 }
 
 var geneMenuOpen = false;

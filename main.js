@@ -6185,7 +6185,8 @@ function updateMapNumbers(readChange){
 	if (usingScreenReader && readChange){
 		var text = document.getElementById(readChange + 'AdvMapsText');
 		if (text != null){
-			document.getElementById('screenReaderTooltip').innerHTML = readChange + " set to " + text.innerHTML;
+			let canAfford = game.resources.fragments.owned >= updateMapCost(true)
+			document.getElementById('screenReaderTooltip').innerHTML = (canAfford ? "Affordable " : "Can't Afford ") + readChange + " set to " + text.innerHTML;
 		}
 	}
 }
@@ -20618,6 +20619,7 @@ function keyTooltip(keyEvent, what, isItIn, event, textString, attachFunction, n
 		else if (isItIn == "trapTooltip") { playerSpire.trapTooltip(what, "screenRead") }
 		else if (isItIn == "upgradeTooltip") { playerSpire.upgradeTooltip(what, "screenRead") }
 		else if (isItIn == "infoTooltip") { playerSpire.infoTooltip(what, "screenRead") }
+		else if (isItIn == "messageConfigHover") { messageConfigHover(what) }
 		
 		else tooltip(what, isItIn, "screenRead", ...Object.values(arguments).slice(3,))
 	}
