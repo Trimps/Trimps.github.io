@@ -1155,6 +1155,10 @@ function load(saveString, autoLoad, fromPf) {
 	if (betaV < 5){
 		autoBattle.checkAddRingSlot();
 	}
+	//Add to permanent after test server
+	if (betaV < 6){
+		game.global.autoUpgrades = (game.global.autoUpgrades) ? 1 : 0;
+	}
 	//End test server only
 	//Temporary until next patch
 
@@ -11172,9 +11176,7 @@ function battle(force) {
 	else {
 		game.global.justAmalged = false;
 	}
-	if (checkAmalgamate() && !force){
-		return;
-	}
+	while(checkAmalgamate()){}
 	if (breeding < currentSend) return;
 	var gensUp = (game.global.GeneticistassistSetting > 0 && game.jobs.Geneticist.owned > 0);
 	if (game.options.menu.geneSend.enabled && gensUp){
@@ -13068,7 +13070,7 @@ function rewardLiquidZone() {
 	for (let item in trackedImps) {
 		if (trackedImps[item] > 0) {
 			if (item === 'Skeletimp' || item === 'Megaskeletimp') {
-				bones = true;
+				bones = item;
 				continue;
 			}
 			trackedList.push(` ${item} - ${trackedImps[item]}`);
@@ -13169,6 +13171,7 @@ function liquifyZone(){
 function nextU2SpireFloor(){
 	game.global.spireLevel++;
 	if (game.global.spireLevel > 10) {
+		checkAchieve("stuffySpireTimed");
 		finishU2Spire();
 		return;
 	}
@@ -18432,19 +18435,17 @@ function autoStorage(){
 
 function toggleAutoUpgrades(noChange){
 	if (!game.global.autoUpgradesAvailable) {
-		game.global.autoUpgrades = false;
+		game.global.autoUpgrades = 0;
 		noChange = true;
 	}
+	var autoUpgradeToggles = ["AutoUpgrade Off", "AutoUpgrade On"];
+	var autoUpgradeColors = [ "colorDanger", "colorSuccess", "colorYellow"];
+	if (game.stats.highestVoidMap.valueTotal >= 250) autoUpgradeToggles.push("Auto No Coords")
 	var elem = document.getElementById("autoUpgradeBtn");
-	if (!noChange) game.global.autoUpgrades = !game.global.autoUpgrades;
-	if (game.global.autoUpgrades){
-		swapClass("color", "colorSuccess", elem);
-		elem.innerHTML = "AutoUpgrade On";
-	}
-	else {
-		swapClass("color", "colorDanger", elem);
-		elem.innerHTML = "AutoUpgrade Off";
-	}
+	if (!noChange) game.global.autoUpgrades++;
+	if (game.global.autoUpgrades >= autoUpgradeToggles.length) game.global.autoUpgrades = 0;
+	swapClass("color", autoUpgradeColors[game.global.autoUpgrades], elem);
+	elem.innerHTML = autoUpgradeToggles[game.global.autoUpgrades];
 }
 
 var lastAutoPrestigeToggle = -1;
@@ -18474,6 +18475,7 @@ function autoUpgrades() {
 	var boughtUpgrade = false;
 	for (var item in game.upgrades){
 		var upgradeObj = game.upgrades[item];
+		if (autoUpgradeSetting == 2 && item == "Coordination") continue;
 		if (upgradeObj.locked || item == "Shieldblock" || item == "Gigastation" || upgradeObj.isRelic) continue;
 		if (upgradeObj.prestiges){
 			if (autoPrestigeSetting == 0) continue;

@@ -26,7 +26,7 @@ var toReturn = {
 		//Leave 'version' at 4.914 forever, for compatability with old saves
 		version: 4.914,
 		isBeta: true,
-		betaV: 5,
+		betaV: 6,
 		killSavesBelow: 0.13,
 		uniqueId: new Date().getTime() + "" + Math.floor(Math.random() * 1e10),
 		playerGathering: "",
@@ -143,7 +143,7 @@ var toReturn = {
 		roboTrimpCooldown: 0,
 		useShriek: false,
 		usingShriek: false,
-		autoUpgrades: false,
+		autoUpgrades: 0,
 		autoUpgradesAvailable: false,
 		autoPrestiges: 0,
 		autoStorage: false,
@@ -1662,7 +1662,9 @@ var toReturn = {
 					var text = "<p>This setting applies to big popups that occur after hitting certain milestones each portal. This setting will currently block: the Improbability popup";
 					if (game.global.highestLevelCleared >= 199) text += ", the popup at Corruption";
 					if (game.global.highestLevelCleared >= 219) text += ", the popup at The Spire";
-					if (game.global.highestLevelCleared >= 249) text += ", and the popup on reaching Magma.";
+					if (game.global.highestLevelCleared >= 249) text += ", the popup on reaching Magma";
+					if (game.global.highestRadonLevelCleared >= 219) text += ", the popup on reaching Mutation";
+					if (game.global.highestRadonLevelCleared >= 319) text += ", and the popup on reaching Stuffy&#39;s Spire.";
 					text += "</p><p>Note that this setting only blocks large popups once your Highest Zone Reached is 20 Zones past the location of the popup.</p>";
 					return text;
 				},
@@ -6935,7 +6937,7 @@ var toReturn = {
 		}
 	},
 	//Total 4448% after 4.6
-	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80, 160, 250, 400, 750, 1200, 2000],
+	tierValues: [0, 0.3, 1, 2.5, 5, 10, 20, 40, 80, 160, 250, 400, 750, 1200, 2000, 3000],
 	//rip colorsList, 11/28/15 - 11/28/17. He served us well until it became obvious that CSS was better.
 	//colorsList: ["white", "#155515", "#151565", "#551555", "#954515", "#651515", "#951545", "#35a5a5", "#d58565", "#d53535"],
 	achievements: {
@@ -6970,9 +6972,9 @@ var toReturn = {
 				return "Highest is " + game.global.highestRadonLevelCleared;
 			},
 			evaluate: function() {return game.global.highestRadonLevelCleared;},
-			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 325, 350, 375, 400],
-			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14],
-			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones", "Bringer of Progress", "Major Zonage", "Master of Alchemy", "Ballistic", "Neverending Journey", "Zone Eater", "Zone Feaster", "Mutated Master", "Progression Professional", "Zonepocalypse", "Universal Specialist", "Zoning Committee", "Quadcentennial"],
+			breakpoints: [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500],
+			tiers: [9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15],
+			names: ["This is Harder", "Second Coming", "Blimp Destroyer", "Improbable Again", "Unstoppable", "Progresser", "Fifty Fifty", "Actually Unbroken", "Lucky 7D", "Apt", "The Unshocked", "Universalist", "Through the Unknown", "Swarming", "Steamroller", "Universal Destroyer", "Eater of Zones", "Bringer of Progress", "Major Zonage", "Master of Alchemy", "Ballistic", "Neverending Journey", "Zone Eater", "Zone Feaster", "Mutated Master", "Progression Professional", "Zonepocalypse", "Universal Specialist", "Zoning Committee", "Quadcentennial", "Terrific Traveler", "Progression Professor", "World Wanderer", "Indefatigable"],
 			icon: "icomoon icon-navigation",
 			newStuff: [],
 			size: 1.4
@@ -7823,6 +7825,33 @@ var toReturn = {
 			breakpoints: [360, 100, 45, 30],//In minutes
 			tiers: [11, 12, 12, 12],
 			names: ["Thawed", "Tempered", "Melty", "Molten"],
+			icon: "icomoon icon-clock2",
+			newStuff: []
+		},
+		stuffySpireTimed: {
+			finished: 0,
+			title: "U2 Speed: Stuffy",
+			description: function (number) {
+				number = formatMinutesForDescriptions(this.breakpoints[number]);
+				return "<span style='font-size: .8em'>Defeat Stuffy in less than " + number + " from start of run</span>";
+			},
+			display: function () {
+				return (game.global.highestRadonLevelCleared >= 299);
+			},
+			evaluate: function () {
+				return getMinutesThisPortal();
+			},
+			progress: function () {
+				return "Best run is " + formatMinutesForDescriptions(this.highest);
+			},
+			u: 2,
+			highest: 0,
+			reverse: true,
+			timed: true,
+			showAll: true,
+			breakpoints: [1200, 600, 140, 70],//In minutes
+			tiers: [14, 14, 15, 15],
+			names: ["Swiftly Stuffed", "Denature Dash", "Lightning Lumberjack", "Supersonic Spire"],
 			icon: "icomoon icon-clock2",
 			newStuff: []
 		},
@@ -9689,7 +9718,7 @@ var toReturn = {
 			},
 			Void: {
 				resourceType: "Any",
-				upgrade: ["AutoStorage", "Heirloom", "ImprovedAutoStorage", "MapAtZone", "AutoEquip"]
+				upgrade: ["AutoStorage", "Heirloom", "ImprovedAutoStorage", "MapAtZone", "NoCoords", "AutoEquip"]
 			},
 			Frozen: {
 				resourceType: "Any"
@@ -9844,6 +9873,23 @@ var toReturn = {
 				tooltip('confirm', null, 'update', text, null, 'Auspicious Presence Part III', null, null, true);
 				game.global.canMapAtZone = true;
 				addNewSetting("mapAtZone");
+				createHeirloom();
+				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
+			}
+		},
+		NoCoords: {
+			world: 250,
+			level: "last",
+			icon: "*eye4",
+			title: "Suspicious Presence",
+			canRunOnce: true,
+			filterUpgrade: true,
+			specialFilter: function(){
+				return game.stats.highestVoidMap.valueTotal < 250;
+			},
+			fire: function(){
+				var text = "<p>From the void, a suspicious presence reaches out and fills some of your mind. Before it even says anything, you immediately ask for peace on the planet and for you to be sent home. Unfortunately for you, the Suspicious Presence lets you know that you must have it confused with its sibling, and that it doesn't actually take requests. It blows a strange bubble thing at one of your Trimps and takes off. Dang! </p><p style='font-weight: bold'>From now on, your AutoUpgrade button can now cycle to a mode where no Coordinations are bought.</p>";
+				tooltip('confirm', null, 'update', text, null, 'Supsicious Presence?', null, null, true);
 				createHeirloom();
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary");
 			}

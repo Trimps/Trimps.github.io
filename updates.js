@@ -34,7 +34,8 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		(what == "Corruption" && getHighestLevelCleared() >= 199) ||
 		(what == "The Spire" && getHighestLevelCleared() >= 219) ||
 		(what == "The Magma" && getHighestLevelCleared() >= 249) || 
-		(what == "The Mutated Zones" && game.global.highestRadonLevelCleared >= 220)
+		(what == "The Mutated Zones" && game.global.highestRadonLevelCleared >= 219) ||
+		(what == "Stuffy's Spire" && game.global.highestRadonLevelCleared >= 319)
 	)){
 		return;
 	} 
@@ -1460,6 +1461,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "AutoUpgrade"){
 		tooltipText = "Your scientists can finally handle some upgrades on their own! Toggling this on will cause most upgrades to be purchased automatically. Does not include equipment prestiges or upgrades that would trigger a confirmation popup.";
+		if (game.stats.highestVoidMap.valueTotal >= 249) tooltipText += "<br/><br/><b>Auto No Coords</b> will purchase all the same upgrades as normal Auto Upgrade with the exception of Coordinations."
 	}
 	if (what == "Recycle All"){
 		tooltipText = "Recycle all maps below the selected level.";
@@ -5834,8 +5836,8 @@ function makeBuildJobUpgEquipButtonHTML(type, what, owned) {
 		if (equipment.prestige > 1) numeral = usingScreenReader ? prettify(equipment.prestige) : romanNumeral(equipment.prestige);
 	}
 	const numeralSpan = (type == 'equipment' ? `<span id="${what}Numeral">${numeral}</span>` : "")
-
-	let html = `<${tagName} class="thingColorCanNotAfford thing noselect pointer ${buttonType[type].toLowerCase()}Thing" id="${what}" onclick="buy${buttonType[type]}('${what}')" ${tooltips}>
+	const efficientArmor = (type == "equipment") ? "efficientNo " : "";
+	let html = `<${tagName} class="${efficientArmor}thingColorCanNotAfford thing noselect pointer ${buttonType[type].toLowerCase()}Thing" id="${what}" onclick="buy${buttonType[type]}('${what}')" ${tooltips}>
 			<span class="thingName"><span id="${what}Alert" class="alert badge">${alertMessage}</span>${what} ${numeralSpan}</span>${sep} 
 			<span class="thingOwned">${(type == 'equipment' ? "Level:" : "")} <span id="${what}Owned">${owned}</span></span>`
 	if (usingScreenReader) {

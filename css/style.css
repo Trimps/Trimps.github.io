@@ -1108,6 +1108,9 @@ body {
 	display: none;
 }
 
+#goldConfig{
+	color: white;
+}
 
 .settingsBtn {
     font-size: 1.25vw;
@@ -1147,7 +1150,7 @@ body {
 	border-color: #ac2925;
 }
 
-.settingBtn2, .btn-yellow{
+.settingBtn2, .btn-yellow, .colorYellow{
 	background-color: yellow;
 	color: black;
 }
@@ -3415,6 +3418,20 @@ background: linear-gradient(135deg,  #000000 0%, #400000 50%, #100000 100%);
 
 .achievementPopupIcon.achieveTier14, #achievementHoverTitle.achieveTier14, #achievementPopupTitle.achieveTier14, #achievementTrackerTitle.achieveTier14 {
 	background-image: radial-gradient(ellipse at center, #000000 0%,#ff00ff 13%,#000000 33%, #ff00ff 46%,#000000 66%,#ff00ff 80%,#000000 100%);
+	color: black;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	border-radius: 25px;
+}
+
+.achieveTier15 {
+	border-image: linear-gradient(to top, rgba(11,65,3,1) 10%, rgba(9,9,87,1) 40%, rgba(181,179,26,1) 50%, rgba(30,23,135,1) 60%, rgba(11,65,3,1) 90%);
+	border-image-slice: 3;
+}
+
+.achievementPopupIcon.achieveTier15, #achievementHoverTitle.achieveTier14, #achievementPopupTitle.achieveTier14, #achievementTrackerTitle.achieveTier14 {
+	background-image: radial-gradient(ellipse at center, rgba(11,65,3,1) 10%, rgba(9,9,87,1) 40%, rgba(181,179,26,1) 50%, rgba(30,23,135,1) 60%, rgba(11,65,3,1) 90%);
 	color: black;
 	-webkit-background-clip: text;
 	background-clip: text;
