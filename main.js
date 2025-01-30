@@ -31,6 +31,7 @@ if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== 
 if (typeof usingScreenReader === 'undefined'){
 	var usingScreenReader = false;
 }
+var srTooltipMode = "click"
 document.getElementById("versionNumber").innerHTML = game.global.stringVersion;
 
 var autoSaveTimeout;
@@ -20424,7 +20425,6 @@ costUpdatesTimeout();
 setTimeout(gameTimeout, (1000 / game.settings.speed));
 game.options.menu.darkTheme.onToggle();
 
-var srTooltipMode = "click"
 if (usingScreenReader) {
 	// disable perf settings for SR. No eye candy here.
 	let perfSettings = ['queueAnimation', 'progressBars', 'generatorAnimation', 'fadeIns', 'showHeirloomAnimations']
@@ -20569,9 +20569,6 @@ function makeScreenreaderTooltips() {
 		for (const [elemID, args] of Object.entries(tooltips)) {
 			makeAccessibleTooltip(elemID, args)
 		}
-		if (srTooltipMode == "click") { // remove all added info buttons (if they exist) when using click mode
-			document.querySelectorAll(".SRinfoButton").forEach((elem) => {elem.remove()})
-		}
 	}
 }
 
@@ -20582,26 +20579,24 @@ function makeAccessibleTooltip(elemID, args) {
 		// Pick one. Or two.  Or tie it to a setting. 
 		let elem = document.getElementById(elemID);
 		if (!elem) { console.warn(`Attempted to add an event listener to ${elem} but it doesn't exist`); return; }
-		if (srTooltipMode == "click") {
-			// ? tooltip
-			elem.addEventListener("keydown", function (event) {keyTooltip(event, ...args)});
-			elem.setAttribute("tabindex", 0);
+		
+		// ? tooltip
+		elem.addEventListener("keydown", function (event) {keyTooltip(event, ...args)});
+		elem.setAttribute("tabindex", 0);
 
-			// Shift-Enter(aka shift-click) 
-			// Because of NVDA strangeness, this only works on true <button>s, so limit it to those, not just role=button 
-			// Because of Javascript scope issues, the wrapper breaks `this` scope. So, future self, if you find yourself tearing your hair out because you have a button with a tooltip that uses `this` in the onclick callback, this is why. Good luck to you.
-			if (elem.tagName === "BUTTON") {
-				let callback = elem.onclick;
-				elem.onclick = () => {
-					if(shiftPressed) {
-						keyTooltip({key: "?"}, ...args)
-						return;
-					}
-					if (callback) { callback() }
+		// Shift-Enter(aka shift-click) 
+		// Because of NVDA strangeness, this only works on true <button>s, so limit it to those, not just role=button 
+		// Because of Javascript scope issues, the wrapper breaks `this` scope. So, future self, if you find yourself tearing your hair out because you have a button with a tooltip that uses `this` in the onclick callback, this is why. Good luck to you.
+		if (elem.tagName === "BUTTON") {
+			let callback = elem.onclick;
+			elem.onclick = () => {
+				if(shiftPressed) {
+					keyTooltip({key: "?"}, ...args)
+					return;
 				}
+				if (callback) { callback() }
 			}
 		}
-
 		// Separate info buttons
 		if (srTooltipMode == "button" && elem.style.visibility !== "hidden" && elem.style.display !== "none") {
 			let infoElem = document.createElement("div");
@@ -20609,6 +20604,9 @@ function makeAccessibleTooltip(elemID, args) {
 			infoElem.className = "visually-hidden SRinfoButton"
 			infoElem.addEventListener("click", function (event) { keyTooltip({key: "?"}, ...args) } );
 			elem.insertAdjacentElement("afterend", infoElem);
+		}
+		else if (srTooltipMode == "click") { // remove all added info buttons (if they exist) when using click mode
+			document.querySelectorAll(".SRinfoButton").forEach((elem) => {elem.remove()})
 		}
 	}
 	else {

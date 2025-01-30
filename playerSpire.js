@@ -1012,29 +1012,30 @@ var playerSpire = {
     drawSpire: function(){
         if (!this.popupOpen) return;
         if (this.dontDraw) return;
-		if (usingScreenReader) return;
         var layout = this.layout;
         var layoutHtml = "";
-        var rowHtml = "";
-        for (var x = layout.length - 1; x >= 0; x--){
-            var cellWrapper = "<div onmouseover='playerSpire.checkDragTraps(" + x + ", event)' onmousedown='playerSpire.buildTrap(\"" + x + "\")' id='playerSpireCell" + x + "' class='noselect playerSpireCell'";
-            cellWrapper += " style='";
-            cellWrapper += this.getSetTrapBgColor(x);
-            cellWrapper += "'><span id='playerSpireCell" + x + "enemy'>"
-            var iconText = "";
-            if (this.settings.trapIcons){
-                iconText = "<span id='spireTrapIcon" + x + "' class='spireTrapIcon'>"
-                if (layout[x].trap.name)
-                    iconText += this.getTrapIcon(x);
-                iconText += "</span>"
-            }
-            rowHtml = cellWrapper + this.getEnemyHtml(x) + "</span>" + iconText + "</div>" + rowHtml;
-            if (x % 5 == 0){
-            layoutHtml += rowHtml;
-            rowHtml = "";
-            }
-        }
-        var tutorialHeight = 84 - (playerSpire.rowsAllowed * 4.5);
+		if (!usingScreenReader) {
+			var rowHtml = "";
+			for (var x = layout.length - 1; x >= 0; x--){
+				var cellWrapper = "<div onmouseover='playerSpire.checkDragTraps(" + x + ", event)' onmousedown='playerSpire.buildTrap(\"" + x + "\")' id='playerSpireCell" + x + "' class='noselect playerSpireCell'";
+				cellWrapper += " style='";
+				cellWrapper += this.getSetTrapBgColor(x);
+				cellWrapper += "'><span id='playerSpireCell" + x + "enemy'>"
+				var iconText = "";
+				if (this.settings.trapIcons){
+					iconText = "<span id='spireTrapIcon" + x + "' class='spireTrapIcon'>"
+					if (layout[x].trap.name)
+						iconText += this.getTrapIcon(x);
+					iconText += "</span>"
+				}
+				rowHtml = cellWrapper + this.getEnemyHtml(x) + "</span>" + iconText + "</div>" + rowHtml;
+				if (x % 5 == 0){
+				layoutHtml += rowHtml;
+				rowHtml = "";
+				}
+			}
+			var tutorialHeight = 84 - (playerSpire.rowsAllowed * 4.5);
+		}
         if (usingScreenReader) layoutHtml += "<h1>Spire Defense Story/Quest</h1>"
         layoutHtml += "<div id='playerSpireTutorial' style='height: " + tutorialHeight + "vh' class='niceScroll'>" + this.updateTutorial(true) + "</div>"
         document.getElementById("playerSpireSpireSpirePanel").innerHTML = layoutHtml;
