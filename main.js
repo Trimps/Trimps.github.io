@@ -2758,8 +2758,8 @@ var offlineProgress = {
 		var val = game.global.timeWarpLimit;
 		if (val == -1) val = 21;
 		else val = Math.round(val / 50);
-		var text = "<input oninput='offlineProgress.setLimit(this)' onchange='offlineProgress.setLimit(this)' type='range' id='limitTimewarpSlider' min='1' max='21' value='" + val + "' />";
-		text += "<span class='twLimitSpeed'>" + this.getLimitText() + "</span>";
+		var text = "<input aria-label='Speed Limiter' oninput='offlineProgress.setLimit(this)' onchange='offlineProgress.setLimit(this)' type='range' id='limitTimewarpSlider' min='1' max='21' value='" + val + "' />";
+		text += "<span class='twLimitSpeed' aria-live='polite'>" + this.getLimitText() + "</span>";
 		return text;
 	},
 	getTimeOfflineText: function(){
@@ -2823,14 +2823,13 @@ var offlineProgress = {
 			}
 			return;
 		}
-	
-		let text = `<div class='formationBtn offlineForm pointer ${game.global.formation === 0 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("0")'>X</div>`;
-		text += `<div class='formationBtn offlineForm pointer ${game.global.formation === 1 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("1")'>H</div>`;
-		if (game.upgrades.Dominance.done) text += `<div class='formationBtn offlineForm pointer ${game.global.formation === 2 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("2")'>D</div>`;
-		if (game.upgrades.Barrier.done) text += `<div class='formationBtn offlineForm pointer ${game.global.formation === 3 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("3")'>B</div>`;
-		if (getHighestLevelCleared() >= 180) text += `<div class='formationBtn offlineForm pointer ${game.global.formation === 4 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("4")'>S</div>`;
-		if (game.global.uberNature === 'Wind') text += `<div class='formationBtn offlineForm pointer ${game.global.formation === 5 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("5")'>W</div>`;
-	
+		let text = `<div role='button' tabindex='0' aria-label='No Formation ${game.global.formation === 0 ? ', Active' :''}'  class='formationBtn offlineForm pointer ${game.global.formation === 0 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("0")'>X</div>`;
+		text += `<div role='button' tabindex='0' aria-label='Heap ${game.global.formation === 1 ? ', Active' :''}' class='formationBtn offlineForm pointer ${game.global.formation === 1 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("1")'>H</div>`;
+		if (game.upgrades.Dominance.done) text += `<div role='button' tabindex='0' aria-label='Dominance ${game.global.formation === 2 ? ', Active' :''}' class='formationBtn offlineForm pointer ${game.global.formation === 2 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("2")'>D</div>`;
+		if (game.upgrades.Barrier.done) text += `<div role='button' tabindex='0' aria-label='Barrier ${game.global.formation === 3 ? ', Active' :''}' class='formationBtn offlineForm pointer ${game.global.formation === 3 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("3")'>B</div>`;
+		if (getHighestLevelCleared() >= 180) text += `<div role='button' tabindex='0' aria-label='Scryer ${game.global.formation === 4 ? ', Active' :''}' class='formationBtn offlineForm pointer ${game.global.formation === 4 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("4")'>S</div>`;
+		if (game.global.uberNature === 'Wind') text += `<div role='button' tabindex='0' aria-label='Wind ${game.global.formation === 5 ? ', Active' :''}' class='formationBtn offlineForm pointer ${game.global.formation === 5 ? 'formationStateEnabled' : 'formationStateDisabled'}' onclick='setFormation("5")'>W</div>`;
+
 		if (this.formationsElem.innerHTML !== text) {
 			this.formationsElem.innerHTML = text;
 		}
@@ -2853,7 +2852,7 @@ var offlineProgress = {
 		}
 	
 		if (this.mapsAllowed < 1) {
-			if (this.mapBtnsInnerElem.style.display !== 'block') {
+			if (this.mapBtnsInnerElem.style.display !== 'none') {
 				this.mapBtnsInnerElem.style.display = 'none';
 				const elemText = 'No maps available<br>Gain 1 map for each 8 hours away';
 				if (this.mapTextElem.innerHTML !== elemText) {
@@ -10263,7 +10262,7 @@ function getExoticChance(){
 
 function convertUnlockIconToSpan(special){
 	var title = "";
-	if (special.title) title = "title='" + special.title + "' ";
+	if (special.title) title = `title='${special.title}' aria-label='${special.title}'`;
 	var prefix = "";
 	var icon = special.icon;
 		if (icon && icon.charAt(0) == "*") {
@@ -10508,7 +10507,8 @@ function findHomeForSpecial(special, item, array, max){
 				prefix = "glyphicon glyphicon-";
 			}
 			if (typeof special.title !== 'undefined') {
-				array[level].text = `<span aria-label='${special.title}' title="${special.title}"  class='${prefix + icon + ' ' + addClass}'></span>`;
+				let label = (special.title == "Food/Wood/Metal" ? "Any" : special.title);
+				array[level].text = `<span aria-label='${label}' title="${special.title}"  class='${prefix + icon + ' ' + addClass}'></span>`;
 			}
 			else {
 				array[level].text = '<span class="' + prefix + icon + ' ' + addClass +  '"></span>';

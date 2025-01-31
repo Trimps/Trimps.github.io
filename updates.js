@@ -1408,6 +1408,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Lost Time"){
 		cancelTooltip();
+		game.global.lockTooltip = true;
 		tooltipText = offlineProgress.getHelpText();
 		elem = document.getElementById('tooltipDiv2');
 		tip2 = true;

@@ -66,22 +66,22 @@
 				<div id='offlineMapBtns' class='col-xs-6'>
 					<div id='offlineMapText' style='text-align: center;'>Wanna run a map?</div>
 					<div id='offlineMapBtnsInner'>
-						<span id="offlineMapBtn0" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(0);">World Level Map</span>
-						<span id="offlineMapBtn1" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-1);">-1 Level map</span>
-						<span id="offlineMapBtn2" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-2);">-2 Level map</span>
-						<span id="offlineMapBtn3" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-3);">-3 Level map</span>
+						<button id="offlineMapBtn0" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(0);">World Level Map</button>
+						<button id="offlineMapBtn1" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-1);">-1 Level map</button>
+						<button id="offlineMapBtn2" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-2);">-2 Level map</button>
+						<button id="offlineMapBtn3" class="offlineMapBtn btn btn-md btn-success" onclick="offlineProgress.runFirstMap(-3);">-3 Level map</button>
 					</div>
 				</div>
 				<div id='offlineZoneBtns' class='col-xs-6'>
 					<div id='offlineInMapDescription' style='text-align: center;'></div>
-					<span id='offlineZoneBtn' onclick="offlineProgress.leaveMap();" class="offlineExtraBtn btn btn-md btn-primary">Back to World</span>
+					<button id='offlineZoneBtn' onclick="offlineProgress.leaveMap();" class="offlineExtraBtn btn btn-md btn-primary">Back to World</button>
 				</div>
 				<div id='offlineExtraBtnsContainer' class='col-xs-6' style='position: absolute; left: 50%; width: 25%;'>
 					<div id='offlineTimeOffline'></div>
-					<div class='btn btn-lg btn-info offlineExtraBtn' onclick="tooltip('Lost Time', null, 'update');">What is This?!</div>
-					<div class='btn btn-lg btn-danger offlineExtraBtn' onclick='offlineProgress.finish()'>Stop Here</div>
-					<div class='btn btn-lg btn-warning offlineExtraBtn' id='offlineEqualityBtn' onclick='offlineProgress.showEquality()'>Show Equality</div>
-					<div class='btn btn-lg btn-primary offlineExtraBtn' id='offlineFightBtn' onclick='offlineProgress.fightClicked()'>Start Fighting</div>
+					<button class='btn btn-lg btn-info offlineExtraBtn' onclick="tooltip('Lost Time', null, 'update');">What is This?!</button>
+					<button class='btn btn-lg btn-danger offlineExtraBtn' onclick='offlineProgress.finish()'>Stop Here</button>
+					<button class='btn btn-lg btn-warning offlineExtraBtn' id='offlineEqualityBtn' onclick='offlineProgress.showEquality()'>Show Equality</button>
+					<button class='btn btn-lg btn-primary offlineExtraBtn' id='offlineFightBtn' onclick='offlineProgress.fightClicked()'>Start Fighting</button>
 					<div id='offlineFormations'></div>
 					<div id='offlineSettingContainer'></div>
 					<div id='offlineEffective'></div>
