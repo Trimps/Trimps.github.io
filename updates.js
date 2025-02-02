@@ -387,7 +387,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText += "<div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Leave it equipped</div><div class='btn btn-danger' onclick='cancelTooltip(); unequipHeirloom(null, \"heirloomsExtra\");'>Place in Temporary</div></div>";
 	}
 	if (what == "Configure AutoStructure"){
-		tooltipText = "<p>Here you can choose which structures will be automatically purchased when AutoStructure is toggled on. Check a box to enable the automatic purchasing of that structure, set the dropdown to specify the cost-to-resource % that the structure should be purchased below, and set the 'Up To:' box to the maximum number of that structure you'd like purchased <b>(0&nbsp;for&nbsp;no&nbsp;limit)</b>. For example, setting the dropdown to 10% and the 'Up To:' box to 50 for 'House' will cause a House to be automatically purchased whenever the costs of the next house are less than 10% of your Food, Metal, and Wood, as long as you have less than 50 houses. \'W\' for Gigastation is the required minimum amount of Warpstations before a Gigastation is purchased.</p><table id='autoPurchaseConfigTable'><tbody><tr>";
+		tooltipText = "<p>Here you can choose which structures will be automatically purchased when AutoStructure is toggled on. Check a box to enable the automatic purchasing of that structure, set the dropdown to specify the cost-to-resource % that the structure should be purchased below, and set the 'Up To:' box to the maximum number of that structure you'd like purchased <b>(0&nbsp;for&nbsp;no&nbsp;limit)</b>. For example, setting the dropdown to 10% and the 'Up To:' box to 50 for 'House' will cause a House to be automatically purchased whenever the costs of the next house are less than 10% of your Food, Metal, and Wood, as long as you have less than 50 houses. \'W\' for Gigastation is the required minimum amount of Warpstations before a Gigastation is purchased.</p><table role='presentation' id='autoPurchaseConfigTable'><tbody><tr>";
 		var count = 0;
 		var setting, selectedPerc, checkbox, options;
 		var settingGroup = getAutoStructureSetting();
@@ -400,10 +400,10 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			if (count != 0 && count % 2 == 0) tooltipText += "</tr><tr>";
 			setting = settingGroup[item];
 			selectedPerc = (setting) ? setting.value : 0.1;		
-			checkbox = buildNiceCheckbox('structConfig' + item, 'autoCheckbox', (setting && setting.enabled), false, "Enable Building");
+			checkbox = buildNiceCheckbox('structConfig' + item, 'autoCheckbox', (setting && setting.enabled));
 			options = "<option value='0.1'" + ((selectedPerc == 0.1) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == 1) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == 5) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == 10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == 25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == 50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == 99) ? " selected" : "") + ">99%</option>";
 			var id = "structSelect" + item;
-			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select class='structSelect' id='" + id + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'>Up To: <input class='structConfigQuantity' id='structQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></div></div></td>";
+			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='structSelect' id='" + id + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>Up To: <input class='structConfigQuantity' id='structQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
 			count++;
 		}
 		tooltipText += "</tr><tr>";
@@ -412,18 +412,18 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			//stupid gigas making this all spaghetti
 			setting = settingGroup.Gigastation;
 			selectedPerc = (setting) ? setting.value : 0.1;		
-			checkbox = buildNiceCheckbox('structConfigGigastation', 'autoCheckbox', (setting && setting.enabled), false, "Enable Building");
+			checkbox = buildNiceCheckbox('structConfigGigastation', 'autoCheckbox', (setting && setting.enabled));
 			options = "<option value='0.1'" + ((selectedPerc == 0.1) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == 1) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == 5) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == 10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == 25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == 50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == 99) ? " selected" : "") + ">99%</option>";
-			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'>" + checkbox + "&nbsp;&nbsp;<span>Gigastation</span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select class='structSelect' id='structSelectGigastation'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'>At W: <input class='structConfigQuantity' id='structQuantGigastation' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></div></div></td>";
+			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>Gigastation</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='structSelect' id='structSelectGigastation'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>At W: <input class='structConfigQuantity' id='structQuantGigastation' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
 			if (getHighestLevelCleared() >= 229){
 				var nurserySetting = (typeof settingGroup.NurseryZones !== 'undefined') ? settingGroup.NurseryZones : 1;
-				tooltipText += "<td><div class='row'><div class='col-xs-12' style='text-align: right; padding-right: 5px;'>Don't buy Nurseries Until Z: <input style='width: 20.8%; margin-right: 4%;' class='structConfigQuantity' id='structZoneNursery' type='number' value='" + nurserySetting + "'></div></div></td>";
+				tooltipText += "<td><div class='row'><div class='col-xs-12' style='text-align: right; padding-right: 5px;'><label>Don't buy Nurseries Until Z: <input style='width: 20.8%; margin-right: 4%;' class='structConfigQuantity' id='structZoneNursery' type='number' value='" + nurserySetting + "'></label></div></div></td>";
 			}
 			tooltipText += "</tr>";
 		}
 		options = "<option value='0'>Apply Percent to All</option><option value='0.1'>0.1%</option><option value='1'>1%</option><option value='5'>5%</option><option value='10'>10%</option><option value='25'>25%</option><option value='50'>50%</option><option value='99'>99%</option>";
 		tooltipText += "<tr style='text-align: center'>";
-		tooltipText += "<td><span data-nexton='true' onclick='toggleAllAutoStructures(this)' class='btn colorPrimary btn-md toggleAllBtn'>Toggle All Structures On</span></td>";
+		tooltipText += "<td><span role='button' tabindex='0' data-nexton='true' onclick='toggleAllAutoStructures(this)' class='btn colorPrimary btn-md toggleAllBtn'>Toggle All Structures On</span></td>";
 		tooltipText += "<td><select class='toggleAllBtn' id='autoStructureAllPctSelect' onchange='setAllAutoStructurePercent(this)'>" + options + "</select></td>";
 
 		tooltipText += "</tr></tbody></table>";
@@ -438,7 +438,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "";
 	}
 	if (what == "Configure AutoEquip"){
-		tooltipText = "<p>Welcome to AutoEquip! <span id='autoTooltipHelpBtn' style='font-size: 0.6vw;' class='btn btn-md btn-info' onclick='toggleAutoTooltipHelp()'>Help</span></p><div id='autoTooltipHelpDiv' style='display: none'><p>Here you can choose which equipment will be automatically purchased when AutoEquip is toggled on. Check a box to enable the automatic purchasing of that equipment type, set the dropdown to specify the cost-to-resource % that the equipment should be purchased below, and set the 'Up To:' box to the maximum number of that equipment you'd like purchased (0 for no limit).</p><p>For example, setting the dropdown to 10% and the 'Up To:' box to 50 for 'Shield' will cause a Shield to be automatically purchased whenever the cost of the next Shield is less than 10% of your Wood, as long as you have less than 50 Shields.</p></div>";
+		tooltipText = "<p>Welcome to AutoEquip! <span id='autoTooltipHelpBtn' role='button' tabindex='0' style='font-size: 0.6vw;' class='btn btn-md btn-info' onclick='toggleAutoTooltipHelp()'>Help</span></p><div id='autoTooltipHelpDiv' style='display: none'><p>Here you can choose which equipment will be automatically purchased when AutoEquip is toggled on. Check a box to enable the automatic purchasing of that equipment type, set the dropdown to specify the cost-to-resource % that the equipment should be purchased below, and set the 'Up To:' box to the maximum number of that equipment you'd like purchased (0 for no limit).</p><p>For example, setting the dropdown to 10% and the 'Up To:' box to 50 for 'Shield' will cause a Shield to be automatically purchased whenever the cost of the next Shield is less than 10% of your Wood, as long as you have less than 50 Shields.</p></div>";
 		tooltipText += "<table id='autoPurchaseConfigTable'><tbody><tr>";
 		var count = 0;
 		var setting, selectedPerc, checkbox, options, type;
@@ -449,24 +449,24 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			setting = settingGroup[item];
 			selectedPerc = (setting) ? setting.value : 0.1;
 			type = ((equipment.health) ? "Armor" : "Wep");
-			checkbox = buildNiceCheckbox('equipConfig' + item, 'autoCheckbox checkbox' + type, (setting && setting.enabled), false, "Enable Equipment");
+			checkbox = buildNiceCheckbox('equipConfig' + item, 'autoCheckbox checkbox' + type, (setting && setting.enabled));
 			options = "<option value='0.1'" + ((selectedPerc == 0.1) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == 1) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == 5) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == 10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == 25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == 50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == 99) ? " selected" : "") + ">99%</option>";
-			tooltipText += "<td><div class='row'><div class='col-xs-6' style='padding-right: 5px'>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select class='equipSelect" + type + "' id='equipSelect" + item + "'>" + options + "</select></div><div class='col-xs-4 lowPad' style='text-align: right'>Up To: <input class='equipConfigQuantity' id='equipQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></div></div></td>";
+			tooltipText += "<td><div class='row'><div class='col-xs-6' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</label></span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='equipSelect" + type + "' id='equipSelect" + item + "'>" + options + "</select></div><div class='col-xs-4 lowPad' style='text-align: right'><label>Up To: <input class='equipConfigQuantity' id='equipQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
 			count++;
 		}
 		tooltipText += "</tr><tr><td></td></tr></tbody></table>";
 
 		options = "<option value='0'>Apply Percent to All</option><option value='0.1'>0.1%</option><option value='1'>1%</option><option value='5'>5%</option><option value='10'>10%</option><option value='25'>25%</option><option value='50'>50%</option><option value='99'>99%</option>";
 		tooltipText += "<table id='autoEquipMiscTable'><tbody><tr>";
-		tooltipText += "<td><span data-nexton='true' onclick='uncheckAutoEquip(\"Armor\", this)' class='toggleAllBtn btn colorPrimary btn-md'>Toggle All Armor On</span></td>";
+		tooltipText += "<td><span role='button' tabindex='0' data-nexton='true' onclick='uncheckAutoEquip(\"Armor\", this)' class='toggleAllBtn btn colorPrimary btn-md'>Toggle All Armor On</span></td>";
 		tooltipText += "<td><select class='toggleAllBtn' onchange='setAllAutoEquipPercent(\"Armor\", this)'>" + options + "</select></td>";
 		var highestTierOn = (settingGroup.highestTier === true);
-		tooltipText += "<td><span data-on='" + (highestTierOn) + "' onclick='toggleAutoEquipHighestTier(this)' id='highestTierOnlyBtn' class='toggleAllBtn btn color" + ((highestTierOn) ? "Success" : "Danger") + " btn-md'>Only Buy From Highest Tier" + ((highestTierOn) ? " On" : " Off") + "</span></td>";
-		tooltipText += "<td><span data-nexton='true' onclick='uncheckAutoEquip(\"Wep\", this)' class='toggleAllBtn btn colorPrimary btn-md'>Toggle All Weapons On</span></td>";
+		tooltipText += "<td><span role='button' tabindex='0' data-on='" + (highestTierOn) + "' onclick='toggleAutoEquipHighestTier(this)' id='highestTierOnlyBtn' class='toggleAllBtn btn color" + ((highestTierOn) ? "Success" : "Danger") + " btn-md'>Only Buy From Highest Tier" + ((highestTierOn) ? " On" : " Off") + "</span></td>";
+		tooltipText += "<td><span role='button' tabindex='0' data-nexton='true' onclick='uncheckAutoEquip(\"Wep\", this)' class='toggleAllBtn btn colorPrimary btn-md'>Toggle All Weapons On</span></td>";
 		tooltipText += "<td><select class='toggleAllBtn' onchange='setAllAutoEquipPercent(\"Wep\", this)'>" + options + "</select></td>";
 		tooltipText += "</tr></tbody></table>";
 
-		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-lg btn-info' onclick='saveAutoEquipConfig()'>Apply</div><div class='btn btn-lg btn-danger' role=button tabindex=0 onclick='cancelTooltip()'>Cancel</div></div>";
+		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' class='btn btn-lg btn-info' onclick='saveAutoEquipConfig()'>Apply</div><div class='btn btn-lg btn-danger' role='button' tabindex='0' onclick='cancelTooltip()'>Cancel</div></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "25%";
 		elem.style.top = "25%";
@@ -497,7 +497,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		costText = "<div class='maxCenter'><div id='confirmTooltipBtn' onclick='autoBattle.savePresetName(" + textString + ")' class='btn-lg btn autoItemEquipped'>Save</div><div class='btn btn-lg autoItemHide' onclick='autoBattle.popup(false,false,false,true);'>Cancel</div>";
 	}
 	if (what == "Configure AutoJobs"){
-		tooltipText = "<div style='color: red; font-size: 1.1em; text-align: center;' id='autoJobsError'></div><p>Welcome to AutoJobs! <span id='autoTooltipHelpBtn' role='button' style='font-size: 0.6vw;' class='btn btn-md btn-info' onclick='toggleAutoTooltipHelp()'>Help</span></p><div id='autoTooltipHelpDiv' style='display: none'><p>The left side of this window is dedicated to jobs that are limited more by workspaces than resources. 1:1:1:1 will purchase all 4 of these ratio-based jobs evenly, and the ratio refers to the amount of workspaces you wish to dedicate to each job. You can use any number larger than 0. Ratio-based jobs will be purchased once at the end of every Zone AND once every 30 seconds, but not more often than once every 2 seconds.</p><p>The right side of this window is dedicated to jobs limited more by resources than workspaces. Set the dropdown to the percentage of resources that you'd like to be spent on each job, and add a max amount if you wish (0 for unlimited). Percentage-based jobs are purchased once every 2 seconds.</p></div><table id='autoStructureConfigTable' style='font-size: 1.1vw;'><tbody>";
+		tooltipText = "<div style='color: red; font-size: 1.1em; text-align: center;' id='autoJobsError' aria-live='polite'></div><p>Welcome to AutoJobs! <span id='autoTooltipHelpBtn' role='button' tabindex='0' style='font-size: 0.6vw;' class='btn btn-md btn-info' onclick='toggleAutoTooltipHelp()'>Help</span></p><div id='autoTooltipHelpDiv' style='display: none'><p>The left side of this window is dedicated to jobs that are limited more by workspaces than resources. 1:1:1:1 will purchase all 4 of these ratio-based jobs evenly, and the ratio refers to the amount of workspaces you wish to dedicate to each job. You can use any number larger than 0. Ratio-based jobs will be purchased once at the end of every Zone AND once every 30 seconds, but not more often than once every 2 seconds.</p><p>The right side of this window is dedicated to jobs limited more by resources than workspaces. Set the dropdown to the percentage of resources that you'd like to be spent on each job, and add a max amount if you wish (0 for unlimited). Percentage-based jobs are purchased once every 2 seconds.</p></div><table id='autoStructureConfigTable' style='font-size: 1.1vw;'><tbody>";
 		var percentJobs = ["Explorer"];
 		if (game.global.universe == 1){
 			if (game.global.highestLevelCleared >= 229)	percentJobs.push("Magmamancer");
@@ -515,13 +515,13 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var setting = settingGroup[item];
 			var selectedPerc = (setting) ? setting.value : 0.1;
 			var max;	
-			var checkbox = buildNiceCheckbox('autoJobCheckbox' + item, 'autoCheckbox', (setting && setting.enabled), false, "Enable Job");
-			tooltipText += "<td style='width: 40%'><div class='row'><div class='col-xs-6' style='padding-right: 5px'>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></div><div class='col-xs-6 lowPad' style='text-align: right'>Ratio: <input class='jobConfigQuantity' id='autoJobQuant" + item + "' type='number'  value='" + ((setting && setting.ratio) ? setting.ratio : 1 ) + "'/></div></div>"
+			var checkbox = buildNiceCheckbox('autoJobCheckbox' + item, 'autoCheckbox', (setting && setting.enabled));
+			tooltipText += "<td style='width: 40%'><div class='row'><div class='col-xs-6' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</label></span></div><div class='col-xs-6 lowPad' style='text-align: right'><label>Ratio: <input class='jobConfigQuantity' id='autoJobQuant" + item + "' type='number'  value='" + ((setting && setting.ratio) ? setting.ratio : 1 ) + "'/></label></div></div>"
 			if (ratioJobs[x] == "Scientist"){
 				max = ((setting && setting.buyMax) ? setting.buyMax : 0 );
 				if (max > 1e4) max = max.toExponential().replace('+', '');
 				sciMax = max;
-				if (percentJobs.length < 4) tooltipText += "</td><td style='width: 60%'><div class='row' style='width: 50%; border: 0; text-align: left;'><span style='padding-left: 0.4vw'>&nbsp;</span>Up To: <input class='jobConfigQuantity' id='autoJobQuant" + item + "' value='" + prettify(max) + "'/></div></td>"
+				if (percentJobs.length < 4) tooltipText += "</td><td style='width: 60%'><div class='row' style='width: 50%; border: 0; text-align: left;'><span style='padding-left: 0.4vw'>&nbsp;</span><label>Up To: <input class='jobConfigQuantity' id='autoJobQuant" + item + "' value='" + prettify(max) + "'/></label></div></td>"
 			}
 			else tooltipText += "</td>";
 			if (percentJobs.length > x){
@@ -530,9 +530,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				selectedPerc = (setting) ? setting.value : 0.1;
 				max = ((setting && setting.buyMax) ? setting.buyMax : 0 );
 				if (max > 1e4) max = max.toExponential().replace('+', '');	
-				checkbox = buildNiceCheckbox('autoJobCheckbox' + item, 'autoCheckbox', (setting && setting.enabled), false, "Enable Job");	
+				checkbox = buildNiceCheckbox('autoJobCheckbox' + item, 'autoCheckbox', (setting && setting.enabled));	
 				var options = "<option value='0.1'" + ((selectedPerc == 0.001) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == .01) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == .05) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == .10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == .25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == .50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == .99) ? " selected" : "") + ">99%</option>";
-				tooltipText += "<td style='width: 60%'><div class='row'><div class='col-xs-5' style='padding-right: 5px'>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select  id='autoJobSelect" + item + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'>Up To: <input class='jobConfigQuantity' id='autoJobQuant" + item + "'  value='" + prettify(max) + "'/></div></div></td></tr>";	
+				tooltipText += "<td style='width: 60%'><div class='row'><div class='col-xs-5' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' id='autoJobSelect" + item + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>Up To: <input class='jobConfigQuantity' id='autoJobQuant" + item + "'  value='" + prettify(max) + "'/></label></div></div></td></tr>";	
 			}
 		}
 		if (percentJobs.length >= 4) tooltipText += "<tr><td style='width: 40%'><div class='row'><div class='col-xs-6' style='padding-right: 5px'>&nbsp;</div><div class='col-xs-6 lowPad' style='text-align: right'>Up To: <input class='jobConfigQuantity' id='autoJobQuantScientist2' value='" + prettify(sciMax) + "'></div></div></td><td style='width: 60%'>&nbsp;</td></tr>";
@@ -953,7 +953,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				let id = "messageConfig" + name + item
 				accessibleTooltips[id] = [`${name + item}`, "messageConfigHover"]
 				let configMsgTooltip = (usingScreenReader ? "" : "onmouseover='messageConfigHover(\"" + name + item + "\", event)'")
-				tooltipText += "<span id='" + id +"' class='messageConfigContainer'><span class='messageCheckboxHolder'>" + buildNiceCheckbox(name + item, 'messageConfigCheckbox', (msgs[name][item]), false, "Enable Message") + "</span><span " + configMsgTooltip + " class='messageNameHolder'> - " + realName.charAt(0).toUpperCase() + realName.substr(1) + "</span></span><br/>";
+				tooltipText += "<span id='" + id +"' class='messageConfigContainer'><label><span class='messageCheckboxHolder'>" + buildNiceCheckbox(name + item, 'messageConfigCheckbox', (msgs[name][item])) + "</span><span " + configMsgTooltip + " class='messageNameHolder'> - " + realName.charAt(0).toUpperCase() + realName.substr(1) + "</span></label></span><br/>";
 			}
 			tooltipText += "</div>";
 		}
@@ -1896,6 +1896,7 @@ function swapNiceCheckbox(elem, forceSetting){
 	swapClass("icon-", newClass, elem);
 	elem.setAttribute('data-checked', checked);
 	elem.setAttribute('aria-checked', checked);
+	(checked ? elem.setAttribute('checked', true) : elem.removeAttribute('checked'));
 }
 
 function formatListCommasAndStuff(list){
@@ -1916,11 +1917,14 @@ function readNiceCheckbox(elem){
 }
 
 function buildNiceCheckbox(id, extraClass, enabled, extraFunction, label){
-	var classes = `icomoon niceCheckbox noselect ${(extraClass) ? extraClass : ""} icon-checkbox-${(enabled) ? "checked" : "unchecked"}`
+	var classes = `icomoon niceCheckbox noselect ${(extraClass) ? extraClass : ""} icon-checkbox-${(enabled) ? "checked" : "unchecked"}`;
 	extraFunction = (extraFunction) ? " " + extraFunction + ";" : "";
-	var html = `<span role='checkbox' tabindex=0 id='${id}' class='${classes}' data-checked='${enabled}' aria-checked='${enabled}' aria-label='${label}' 
+	label = (label) ? `aria-label='${label}'` : "";
+	var checked = (enabled ? `checked='${enabled}'` : "")
+	var tagName = usingScreenReader ? "input" : "span";
+	var html = `<${tagName} type='checkbox' tabindex=0 id='${id}' class='${classes}' data-checked='${enabled}' ${checked} aria-checked='${enabled}' ${label} 
 		onclick='swapNiceCheckbox(this); ${extraFunction};'>
-		</span>`;
+		</${tagName}>`;
 	return html;
 }
 
@@ -7615,7 +7619,7 @@ function screenReaderSummary(){
 	elems.srSumBreed.innerHTML = srLastBreedTime;
 	if (cell){
 		var trimpAttackStr = calculateDamage(game.global.soldierCurrentAttack, true, true)
-		var trimpAttack = trimpAttack = trimpAttackStr.split('-'), trimpAttack = (Number(trimpAttack[0]) + Number(trimpAttack[1]))/2 // Cursed, but if we don't build string we don't calc crit.
+		var trimpAttack = trimpAttack = trimpAttackStr.split('-'), trimpAttack = (convertNotationsToNumber(trimpAttack[0]) + convertNotationsToNumber(trimpAttack[1]))/2 // Cursed, but if we don't build string we don't calc crit.
 		trimpAttackStr = trimpAttackStr.replace("-", " to ")
 		var trimpHealth = game.global.soldierHealthMax;
 		var cellAttack = calculateDamage(cell.attack, false, false, false, cell, true); // Minimum damage

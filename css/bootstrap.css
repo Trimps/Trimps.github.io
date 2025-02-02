@@ -2500,12 +2500,6 @@ legend {
   border: 0;
   border-bottom: 1px solid #e5e5e5;
 }
-label {
-  display: inline-block;
-  max-width: 100%;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
 input[type="search"] {
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;

@@ -7625,3 +7625,9 @@ input[type=range]{background: transparent;}
 	height: 1px;
 	overflow: hidden;
   }
+
+input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+	appearance: none;
+}
