@@ -8288,7 +8288,7 @@ function handlePoisonDebuff() {
 
 	const poisonEmpowermentText = document.getElementById('poisonEmpowermentText');
 	const poisonDamage = prettify(game.empowerments.Poison.getDamage());
-	if (poisonEmpowermentText && poisonEmpowermentText.innerHTML !== poisonDamage) {
+	if (poisonEmpowermentText && poisonEmpowermentText.innerHTML != poisonDamage) {
 		poisonEmpowermentText.innerHTML = poisonDamage;
 	}
 }
@@ -8317,7 +8317,7 @@ function handleIceDebuff() {
 
 	const iceEmpowermentText = document.getElementById('iceEmpowermentText');
 	const newIceEmpowermentText = prettify(game.empowerments.Ice.currentDebuffPower);
-	if (iceEmpowermentText && iceEmpowermentText.innerHTML !== newIceEmpowermentText) {
+	if (iceEmpowermentText && iceEmpowermentText.innerHTML != newIceEmpowermentText) {
 		iceEmpowermentText.innerHTML = newIceEmpowermentText;
 	}
 }
@@ -8350,7 +8350,7 @@ function handleWindDebuff() {
 
 	const windEmpowermentText = document.getElementById('windEmpowermentText');
 	const newWindEmpowermentText = prettify(game.empowerments.Wind.currentDebuffPower);
-	if (windEmpowermentText && windEmpowermentText.innerHTML !== newWindEmpowermentText) {
+	if (windEmpowermentText && windEmpowermentText.innerHTML != newWindEmpowermentText) {
 		windEmpowermentText.innerHTML = newWindEmpowermentText;
 	}
 }
@@ -11274,19 +11274,19 @@ function makeIconEffectHTML(title, text, icon, spanClasses, ids=[], iconText="",
 	else if (icon.includes("icon")) icon += " icomoon"
 	let tooltip = ``
 	let display = ``
-	let containerID = (ids[0] ? `id="${ids[0]}"`: "")
-	let textID = (ids[1] ? `id="${ids[1]}"`: "")
-	let iconID = (ids[2] ? `id="${ids[2]}"`: "")
+	let containerID = (ids[0] ? `id="${ids[0]}" `: "")
+	let textID = (ids[1] ? ` id="${ids[1]}"`: "")
+	let iconID = (ids[2] ? `id="${ids[2]} "`: "")
 	let tooltipType = ((text) ? "'customText'" :  tooltipOverride ? `'${tooltipOverride}'` : 'null')
 	if (usingScreenReader) {
-		tooltip = `tabindex=0 onkeydown="keyTooltip(event, '${title}', ${tooltipType}, '${text}')"`
-		display = `<span class='visually-hidden'> ${title}. Has tooltip.</span>`
+		tooltip = `tabindex="0" onkeydown="keyTooltip(event, '${title}', ${tooltipType}, '${text}')"`
+		display = `<span class="visually-hidden"> ${title}. Has tooltip.</span>`
 	}
 	else {
 		tooltip = `onmouseover="tooltip('${title}', ${tooltipType}, event, '${text}')" onmouseout="tooltip('hide')"`
 	}
-	let html = `<div ${containerID} class="badge ${spanClasses ? spanClasses : ""}" ${tooltip}>
-				<span ${textID}>${iconText}</span><span ${iconID} class="${icon}"></span>${display}</div>`
+	let html = `<div ${containerID}class="badge ${spanClasses ? spanClasses : ""}" ${tooltip}>
+				<span${textID}>${iconText}</span><span ${iconID}class="${icon}"></span>${display}</div>`
 	return html
 }
 
@@ -15214,7 +15214,10 @@ function updateDailyStacks(what){
 		target.insertAdjacentHTML("beforeend", html)
 		return;
 	}
-	else document.getElementById(what + "DailyStacksCount").innerHTML = game.global.dailyChallenge[what].stacks;
+	else {
+		let stackElem = document.getElementById(what + "DailyStacksCount")
+		if (stackElem.innerHTML != game.global.dailyChallenge[what].stacks) stackElem.innerHTML = game.global.dailyChallenge[what].stacks;
+	}
 	elem.style.display = "inline-block";
 }
 
@@ -16284,7 +16287,7 @@ function fight(makeUp) {
 
 	const critSpanElem = document.getElementById('critSpan');
 	const critSpanText = getCritText(critTier);
-	if (critSpanElem.innerHTML !== critSpanText && !usingRealTimeOffline) critSpan.innerHTML = critSpanText;
+	if (critSpanElem.innerHTML !== critSpanText && !usingRealTimeOffline) critSpanElem.innerHTML = critSpanText;
 
 	if (critTier >= 3) redCritCounter++;
 	else redCritCounter = 0;
@@ -16584,10 +16587,10 @@ function updateToxicityStacks() {
 	if (!elem) {
 		const badGuyElem = document.getElementById('badGuyName');
 		const htmlMessage = "&nbsp" + makeIconEffectHTML("Toxic", false, "icon-radioactive", "badBadge", ["toxicityBuff", "toxicityStacksText"], stackCount)
-		if (badGuyElem.innerHTML !== htmlMessage) badGuyElem.insertAdjacentHTML('beforeend', htmlMessage);
+		if (badGuyElem.innerHTML != htmlMessage) badGuyElem.insertAdjacentHTML('beforeend', htmlMessage);
 	} else {
 		const stacksElem = document.getElementById('toxicityStacksText');
-		if (stacksElem.innerHTML !== stackCount) stacksElem.innerHTML = stackCount;
+		if (stacksElem.innerHTML != stackCount) stacksElem.innerHTML = stackCount;
 	}
 }
 
@@ -16630,17 +16633,17 @@ function updateElectricityStacks(tipOnly) {
 		const number = game.challenges.Electricity.stacks * 10;
 		const addText = 'Your Trimps are dealing ' + number + '% less damage and taking ' + number + '% of their total health as damage per attack.';
 		const htmlMessage = makeIconEffectHTML("Electrified", addText, "icon-power", "trimpBadge", false, game.challenges.Electricity.stacks)
-		if (elem && elem.innerHTML !== htmlMessage) elem.innerHTML = htmlMessage;
+		if (elem && elem.innerHTML != htmlMessage) elem.innerHTML = htmlMessage;
 
 		if (tipOnly) {
 			const tooltip = document.getElementById('tipText');
-			if (tooltip.innerHTML !== addText) tooltip.innerHTML = addText;
+			if (tooltip.innerHTML != addText) tooltip.innerHTML = addText;
 			return;
 		}
 
 		const goodGuyAttack = calculateDamage(game.global.soldierCurrentAttack, true, true);
 		const goodGuyElem = document.getElementById('goodGuyAttack');
-		if (goodGuyElem.innerHTML !== goodGuyAttack) goodGuyElem.innerHTML = goodGuyAttack;
+		if (goodGuyElem.innerHTML != goodGuyAttack) goodGuyElem.innerHTML = goodGuyAttack;
 	} else if (elem && elem.innerHTML !== '') elem.innerHTML = '';
 }
 
@@ -16663,7 +16666,7 @@ function updateAntiStacks() {
 		const s = game.global.antiStacks === 1 ? '' : 's';
 		elemText = makeIconEffectHTML("Anticipation", `Your Trimps are dealing ${number}% extra damage for taking ${game.global.antiStacks} second${s} to ${verb}.`, "icon-target2", "antiBadge", false, game.global.antiStacks)
 	}
-	if (elem && elem.innerHTML !== elemText) elem.innerHTML = elemText;
+	if (elem && elem.innerHTML != elemText) elem.innerHTML = elemText;
 }
 
 function updateTitimp() {
@@ -16678,7 +16681,7 @@ function updateTitimp() {
 	}
 
 	const elem = document.getElementById('titimpBuff');
-	if (elem && elem.innerHTML !== message) elem.innerHTML = message;
+	if (elem && elem.innerHTML != message) elem.innerHTML = message;
 }
 
 function updateNomStacks(number) {
@@ -16710,7 +16713,7 @@ function updateBalanceStacks() {
 	if (challenge.balanceStacks > 0) {
 		const text = `Your Trimps have ${statFunction(true)} ${statMessage}, but all Trimps can gather ${challenge.getGatherMult(true)} faster. You will gain one stack from killing Bad Guys in the world, and lose one stack for killing Bad Guys in maps.`
 		const htmlMessage = makeIconEffectHTML("Unbalance", text, "icon-balance-scale", "antiBadge", false, challenge.balanceStacks) 
-		if (elem.innerHTML !== htmlMessage) {
+		if (elem.innerHTML != htmlMessage) {
 			elem.style.display = 'inline-block';
 			elem.innerHTML = htmlMessage;
 		}
@@ -16756,8 +16759,7 @@ function manageStacks(stackName, stackCount, isTrimps, elemName, icon, tooltipTe
 	if (stackCount === -1) stackCount = '';
 	const space = addSpace ? '&nbsp;' : '';
 	const elemText = makeIconEffectHTML(stackName, tooltipText, icon, "antiBadge", false, stackCount + space)
-	//const elemText = ` <span class="badge antiBadge" onmouseover="tooltip('${stackName}', 'customText', event, '${tooltipText}')" onmouseout="tooltip('hide')"><span>${stackCount}</span>${space}<span class="${icon}"></span></span>`;
-	if (elem.innerHTML !== elemText) elem.innerHTML = elemText;
+	if (elem.innerHTML != elemText) elem.innerHTML = elemText;
 }
 
 function buyEquipment(what, confirmed, noTip, forceAmt) {

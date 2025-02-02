@@ -5491,7 +5491,7 @@ function checkAndDisplayResources() {
 
 		elem = document.getElementById(`${item}Max`);
 		elemText = prettify(newMax);
-		if (elem.innerHTML !== elemText) elem.innerHTML = elemText;
+		if (elem.innerHTML != elemText) elem.innerHTML = elemText;
 
 		const bar = document.getElementById(`${item}Bar`);
 		if (game.options.menu.progressBars.enabled) {
@@ -5513,12 +5513,12 @@ function checkAndDisplayBuildings() {
 		}
 		if (!elem) continue;
 		let elemText = game.options.menu.menuFormatting.enabled ? prettify(toUpdate.owned) : toUpdate.owned;
-		if (elem.innerHTML !== elemText) elem.innerHTML = elemText;
+		if (elem.innerHTML != elemText) elem.innerHTML = elemText;
 		if (item === 'Trap') {
 			const trap1 = document.getElementById('trimpTrapText');
-			if (trap1 && trap1.innerHTML !== elemText) trap1.innerHTML = elemText;
+			if (trap1 && trap1.innerHTML != elemText) trap1.innerHTML = elemText;
 			const trap2 = document.getElementById('trimpTrapText2');
-			if (trap2 && trap2.innerHTML !== elemText) trap2.innerHTML = elemText;
+			if (trap2 && trap2.innerHTML != elemText) trap2.innerHTML = elemText;
 		}
 	}
 }
@@ -5540,7 +5540,7 @@ function checkAndDisplayJobs() {
 
 		let elem = document.getElementById(`${item}Owned`);
 		let elemText = game.options.menu.menuFormatting.enabled ? prettify(toUpdate.owned) : toUpdate.owned;
-		if (elem.innerHTML !== elemText) elem.innerHTML = elemText;
+		if (elem.innerHTML != elemText) elem.innerHTML = elemText;
 		updatePs(toUpdate, false, item);
 	}
 }
@@ -5563,7 +5563,7 @@ function checkAndDisplayEquipment() {
 		if (!document.getElementById(item)) drawAllEquipment();
 		const elem = document.getElementById(`${item}Owned`);
 		const elemText = toUpdate.level;
-		if (elem.innerHTML !== elemText) elem.innerHTML = elemText;
+		if (elem.innerHTML != elemText) elem.innerHTML = elemText;
 	}
 }
 
@@ -6053,7 +6053,7 @@ function updateSRBuyAmt(what, item) {
 			}
 			if (game[what][item].percent || what == "Antenna") { amt = 1 }
 			if (amt == 1) amt = ""
-			amtElem.innerHTML = amt;
+			if (amtElem.innerHTML != amt) amtElem.innerHTML = amt;
 		}
 	}
 }
@@ -6095,8 +6095,6 @@ function checkButtons(what) {
  */			
 			updateSRBuyAmt(what, itemBuild)
 			updateButtonColor(itemBuild, canAfford);
- 			
-
 		}
 		return;
 	}
