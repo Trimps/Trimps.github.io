@@ -1324,7 +1324,33 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		elem.style.top = "25%";
 	}
 	if (what == "Upgrade Generator"){
-		tooltipText = getGeneratorUpgradeHtml();
+		tooltipText = "<div id='generatorUpgradeTooltip'>";
+		tooltipText += "<div class='generatorUpgradeTitle'>Multi Upgrades</div>";
+		let tagName = (usingScreenReader ? "button" : "div")
+		for (var item in game.generatorUpgrades){
+			let events = ``
+			if (usingScreenReader) { 
+				events = `onclick='buyGeneratorUpgrade("${item}")'` 
+				accessibleTooltips[`generatorUpgrade${item}`] = [[item], "showGeneratorUpgradeInfo"]
+			} 
+			else { 
+				events = `onclick='showGeneratorUpgradeInfo("${item}")'` 
+			}
+			tooltipText += `<${tagName} class='thing pointer noselect thingColor' ${events} id='generatorUpgrade${item}'></${tagName}>`;
+			
+		}
+		tooltipText += "<div class='generatorUpgradeTitle'>One and Done Upgrades</div>";
+		for (var item in game.permanentGeneratorUpgrades){
+			let events = ``
+			if (usingScreenReader) { 
+				events = `onclick='buyGeneratorUpgrade("${item}")'` 
+				accessibleTooltips[`generatorUpgrade${item}`] = [[item, true], "showGeneratorUpgradeInfo"]
+			} 
+			else { events = `onclick='showGeneratorUpgradeInfo("${item}", true)'`}
+			tooltipText += `<${tagName} class='thing pointer noselect thingColor permGenUpgrade' ${events} id='generatorUpgrade${item}'></${tagName}>`;
+		}
+		tooltipText += `<br/><div id='generatorUpgradeDescription' class='noselect' aria-live='polite'>${usingScreenReader ? "": "<b>Click an upgrade to learn more about it!</b><br/>"}</div>`;
+		tooltipText += "</div>";
 		costText = "<b style='color: red'>These upgrades persist through portal and cannot be refunded. Choose wisely! " + getMagmiteDecayAmt() + "% of your unspent Magmite will decay on portal.</b><br/><br/><div class='maxCenter'><span class='btn btn-info' role=button tabindex=0 onclick='cancelTooltip()'>Close</span></div>";
 		game.global.lockTooltip = true;
 		elem.style.left = "33.75%";

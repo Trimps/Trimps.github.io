@@ -1754,9 +1754,10 @@ function challengeActive(what){
 function displayChallenges() {
 	var challengeCount = 0;
 	game.global.selectedChallenge = "";
+	const tagName = (usingScreenReader ? "li" : "div");
 	var challengesHere = document.getElementById("challengesHere");
 	document.getElementById("specificChallengeDescription").innerHTML = "<br/><br/><br/>Click a challenge below to learn more about and/or run it!";
-	var challengeHTML = '<div class="noselect pointer challengeThing thing" id="challenge0" onclick="selectChallenge(0)"><span class="thingName">None</span></div>';
+	var challengeHTML = `<${tagName} class="noselect pointer challengeThing thing" id="challenge0" onclick="selectChallenge(0)"><span class="thingName">None</span></${tagName}>`;
 	var firstFail = false;
 	var extraClass = "";
 	for (var what in game.challenges){
@@ -1773,7 +1774,10 @@ function displayChallenges() {
 			if (what != "Scientist") firstFail = true;
 			thisFail = true;
 		}
-		if (challengeSquaredMode && what == "Enlightened") challengeHTML += "<div style='clear: both; height: 5px;'></div>";
+		if (challengeSquaredMode && what == "Enlightened") {
+			if (usingScreenReader) challengeHTML += `<ul aria-label="Doubled C2s">`
+			else challengeHTML += "<div style='clear: both; height: 5px;'></div>";
+		}
 		challengeCount++;
 		var done = false;
 		if (game.portal[game.challenges[what].unlocks]) done = isPerkUnlocked(game.challenges[what].unlocks, true);
@@ -1822,14 +1826,19 @@ function displayChallenges() {
 		if (challengeSquaredMode) done = '" style="background-color: ' + getChallengeSquaredButtonColor(what);
 		if (thisFail) done = "nextChallenge";
 		if (!name) name = what;
+		let srText = (done == "finishedChallenge" ? ", Complete" : 
+				done == "challengeRepeatable" ? ", Repeatable" : 
+				(challengeSquaredMode && getChallengeSquaredButtonColor(what) == "rgb(0,0,0)") ? ", Complete" :
+				challengeSquaredMode ? `, Z${getC2HighestReached(what)}` :
+				(["Frigid", "Desolation", "Pandemonium", "Mayhem"].includes(what) && done != "finishedChallenge") ?  ", Limited Repeatable" :
+				""); // this sure got out of hand
 		//make sure the challengeSquaredMode color still works after messing with line below
-		challengeHTML += '<div class="noselect pointer challengeThing thing ' + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + name + '</span></div>';
+		challengeHTML += `<${tagName} class="noselect pointer challengeThing thing ` + done + '" id="challenge' + what + '" onclick="selectChallenge(\'' + what + '\')"><span class="thingName">' + name + (usingScreenReader ? srText : "") + `</span></${tagName}>`;
 	}
 	challengesHere.innerHTML = challengeHTML;
 	if (challengeCount > 0) document.getElementById("challenges").style.display = "block";
 	document.getElementById("flagMustRestart").style.display = "none";
 	swapClass('challengeDescription', 'challengeDescriptionLg', document.getElementById('specificChallengeDescription'));
-
 }
 
 function getChallengeSquaredButtonColor(challengeName){
@@ -1851,6 +1860,18 @@ function getChallengeSquaredButtonColor(challengeName){
 	var rgb = "rgb(" + r + "," + g + "," + b + ")";
 	if (percent < .5) rgb += "; color: black; border-color: black";
 	return rgb;
+}
+
+function getC2HighestReached(what) {
+	var challengeList;
+	if (game.challenges[what].multiChallenge) challengeList = game.challenges[what].multiChallenge;
+	else challengeList = [what];
+	var highestZone = 0
+	for (var x = 0; x < challengeList.length; x++){
+		var challengeName = challengeList[x];
+		highestZone = Math.max(highestZone, game.c2[challengeName]);
+	}
+	return highestZone
 }
 
 function selectChallenge(what) {
@@ -3424,10 +3445,11 @@ function activateClicked(){
 		newText += "<div class='heirloomRecycleWarning portalError'>You have " + game.global.heirloomsExtra.length + " extra Heirloom" + s + " (highest rarity is " + highestTier + "), which will be recycled for " + prettify(recycleAllExtraHeirlooms(true)) + " Nullifium " + ((spirestones > 0) ? " and " + prettify(spirestones) + " Spirestones " : "") + "if you portal now. Make sure you carry any that you want to save!</div>";
 	}
 	if (game.global.world >= 230 && canAffordGeneratorUpgrade()){
-		newText += "<div class='magmiteError portalError'>You have " + prettify(game.global.magmite) + " Magmite, which is enough purchase an upgrade for your Dimensional Generator! If you portal now, " + ((game.permanentGeneratorUpgrades.Shielding.owned) ? "20" : "30") + "% of your Magmite will decay.<div style='text-align: center'><span onclick='cancelTooltip(); tooltip(\"Upgrade Generator\", null, \"update\")' class='btn btn-lg btn-success'>Spend Magmite</span></div></div><br/>";
+		newText += "<div class='magmiteError portalError'>You have " + prettify(game.global.magmite) + " Magmite, which is enough purchase an upgrade for your Dimensional Generator! If you portal now, " + ((game.permanentGeneratorUpgrades.Shielding.owned) ? "20" : "30") + "% of your Magmite will decay.<div style='text-align: center'><span role='button' tabindex='0' onclick='cancelTooltip(); tooltip(\"Upgrade Generator\", null, \"update\")' class='btn btn-lg btn-success'>Spend Magmite</span></div></div><br/>";
 	}
-	var btnText = "<div class='btn btn-info btn-lg' onclick='activatePortal()'>Let's do it.</div>&nbsp;<div class='btn btn-lg btn-warning' onclick='cancelTooltip()'>Wait, I'm not ready!</div>";
+	var btnText = "<div role='button' tabindex='0' class='btn btn-info btn-lg' onclick='activatePortal()'>Let's do it.</div>&nbsp;<div role='button' tabindex='0' class='btn btn-lg btn-warning' onclick='cancelTooltip()'>Wait, I'm not ready!</div>";
 	tooltip('Activate Portal', 'customText', 'update', newText, btnText);
+	screenReaderAssert("Confirmation Popup is active. Press S to view the popup.")
 	game.global.lockTooltip = true;
 	var tooltipElem = document.getElementById('tooltipDiv');
 	tooltipElem.style.left = "33.75%";
@@ -9699,7 +9721,8 @@ function buyGeneratorUpgrade(item){
 	upgrade.upgrades++;
 	updateGeneratorUpgradeHtml();
 	updateGeneratorInfo();
-	showGeneratorUpgradeInfo(item);
+	if (!usingScreenReader) showGeneratorUpgradeInfo(item);
+	else screenReaderAssert(`${item} ${game.generatorUpgrades[item].upgrades} Purchased`)
 }
 
 function buyPermanentGeneratorUpgrade(item){
@@ -9713,24 +9736,11 @@ function buyPermanentGeneratorUpgrade(item){
 	upgrade.owned = true;
 	updateGeneratorUpgradeHtml();
 	updateGeneratorInfo();
-	showGeneratorUpgradeInfo(item, true);
+	if (!usingScreenReader) showGeneratorUpgradeInfo(item, true);
+	else screenReaderAssert(`${item} Purchased`) 
 	if (typeof upgrade.onPurchase !== 'undefined') upgrade.onPurchase();
 }
 
-function getGeneratorUpgradeHtml(){
-		var tooltipText = "<div id='generatorUpgradeTooltip'>";
-		tooltipText += "<div class='generatorUpgradeTitle'>Multi Upgrades</div>";
-		for (var item in game.generatorUpgrades){
-			tooltipText += "<div class='thing pointer noselect thingColor' onclick='showGeneratorUpgradeInfo(\"" + item + "\")' id='generatorUpgrade" + item + "'></div>";
-		}
-		tooltipText += "<div class='generatorUpgradeTitle'>One and Done Upgrades</div>";
-		for (var item in game.permanentGeneratorUpgrades){
-			tooltipText += "<div class='thing pointer noselect thingColor permGenUpgrade' onclick='showGeneratorUpgradeInfo(\"" + item + "\", true)' id='generatorUpgrade" + item + "'></div>";
-		}
-		tooltipText += "<br/><div id='generatorUpgradeDescription' class='noselect'><b>Click an upgrade to learn more about it!</b><br/></div>";
-		tooltipText += "</div>";
-		return tooltipText;
-}
 
 function updateGeneratorUpgradeHtml(){
 	if (document.getElementById('generatorUpgradeTooltip') == null) return;
@@ -9739,7 +9749,10 @@ function updateGeneratorUpgradeHtml(){
 		if (elem == null) continue;
 		var upgrade = game.generatorUpgrades[item];
 		var cost = upgrade.cost();
-		var text = item + "<br/>" + upgrade.upgrades;
+		var text = (usingScreenReader ? 
+			`${item}, Level ${upgrade.upgrades}, ${game.global.magmite >= cost ? "Affordable" : "Not Affordable"}, Cost ${prettify(cost)}Mi` :
+			`${item}<br/>${upgrade.upgrades}`
+		);
 		elem.innerHTML = text;
 		var state = (game.global.magmite >= cost) ? "CanAfford" : "CanNotAfford";
 		if (item == "Overclocker" && (!game.permanentGeneratorUpgrades.Hybridization.owned || !game.permanentGeneratorUpgrades.Storage.owned))
@@ -9751,8 +9764,9 @@ function updateGeneratorUpgradeHtml(){
 		if (elem == null) continue;
 		var upgrade = game.permanentGeneratorUpgrades[item];
 		var cost = upgrade.cost;
-		var text = item + "<br/>";
-		text += (upgrade.owned) ? "Done" : prettify(cost) + " Mi";
+		var text = item
+		if (usingScreenReader) text += `, ${(upgrade.owned) ? "Done" : (game.global.magmite >= cost ? "Affordable" : "Not Affordable") + `, Cost, ${prettify(cost)} Mi` }`
+		else text += `</br> ${(upgrade.owned) ? "Done" : `${prettify(cost)} Mi`}`
 		elem.innerHTML = text;
 		var state;
 		if (upgrade.owned)
@@ -9805,7 +9819,7 @@ function showGeneratorUpgradeInfo(item, permanent) {
 		text = 'Buy: ' + prettify(cost) + ' Magmite';
 	}
 
-	const elemText = `<div id='generatorUpgradeName'>${item}</div><div onclick='buyGeneratorUpgrade("${item}")' id='magmiteCost' class='pointer noSelect hoverColor color${color}'>${text}</div>${description}<br/>`;
+	const elemText = `<div id='generatorUpgradeName'>${item}</div>${(usingScreenReader ? " " : `<div onclick='buyGeneratorUpgrade("${item}")' id='magmiteCost' class='pointer noSelect hoverColor color${color}'>${text}</div>`)}${description}<br/>`;
 	if (elem.innerHTML !== elemText) elem.innerHTML = elemText;
 	lastViewedDGUpgrade = [item, permanent];
 	verticalCenterTooltip();
@@ -20558,6 +20572,7 @@ function keyTooltip(keyEvent, what, isItIn, event, textString, attachFunction, n
 		else if (isItIn == "upgradeTooltip") { playerSpire.upgradeTooltip(what, "screenRead") }
 		else if (isItIn == "infoTooltip") { playerSpire.infoTooltip(what, "screenRead") }
 		else if (isItIn == "messageConfigHover") { messageConfigHover(what) }
+		else if (isItIn == "showGeneratorUpgradeInfo") { showGeneratorUpgradeInfo(...what) }
 		
 		else tooltip(what, isItIn, "screenRead", ...Object.values(arguments).slice(3,))
 	}
