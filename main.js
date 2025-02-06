@@ -6789,7 +6789,7 @@ function setVoidBuffTooltip(){
 	var buff = voidBuffConfig[game.global.voidBuff];
 	var stackCount = "";
 	var elem = document.getElementById('voidBuff');
-	elem.innerHTML = '<span class="badge badBadge voidBadge" onmouseover="tooltip(\'' + buff.title + '\', \'customText\', event, \'' + buff.text + '\')" onmouseout="tooltip(\'hide\')"><span class="' + buff.icon + '"></span></span>&nbsp;';
+	elem.innerHTML = makeIconEffectHTML(buff.title, buff.text, buff.icon, "badBadge voidBadge")
 }
 
 var heirloomsShown = false;
