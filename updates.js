@@ -227,9 +227,9 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				costText += (Fluffy.cruffysTipActive()) ? "Scruffy" : "Cruffys";
 				costText += " Info</span>"
 			}
-			costText += "<span onclick='Fluffy.pat()' id='fluffyPatBtn' style='display: " + ((Fluffy.cruffysTipActive()) ? "none" : "inline-block") + "' class='btn btn-lg btn-warning'>Pat</span>";
+			costText += "<span tabindex='0' role='button' onclick='Fluffy.pat()' id='fluffyPatBtn' style='display: " + ((Fluffy.cruffysTipActive()) ? "none" : "inline-block") + "' class='btn btn-lg btn-warning'>Pat</span>";
 			if (game.global.universe == 2 && game.global.u2SpireCellsBest > 0){
-				costText += "<span onclick='scruffySpireStory()' class='btn btn-lg btn-info'>Ask About Stuffy's Spire</span>"
+				costText += "<span tabindex='0' role='button' onclick='scruffySpireStory()' class='btn btn-lg btn-info'>Ask About Stuffy's Spire</span>"
 			}
 			openTooltip = "Fluffy";
 			setTimeout(Fluffy.refreshTooltip, 1000);
@@ -1594,7 +1594,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	if (what == "Scale Equality Scaling"){
 		var state = game.portal.Equality.getSetting('scalingActive', equalitySlidersTip) ? "On" : "Off";
 
-		if (textString) tooltipText = '<div style="font-size: 1.7vh"><div class="maxCenter"><div style="width: 50%; margin-left: 25%" role="button" class="noselect pointer portalThing thing perkColorOff changingOff equalityColor' + state + '" id="equalityScaling2" onclick="toggleEqualityScale(true)"><span class="thingName">Scale Equality</span><br><span class="thingOwned"><span id="equalityScalingState2">' + state + '</span></span></div></div><br/>';
+		if (textString) tooltipText = '<div style="font-size: 1.7vh"><div class="maxCenter"><div style="width: 50%; margin-left: 25%" role="button" tabindex="0" class="noselect pointer portalThing thing perkColorOff changingOff equalityColor' + state + '" id="equalityScaling2" onclick="toggleEqualityScale(true)"><span class="thingName">Scale Equality</span><br><span class="thingOwned"><span id="equalityScalingState2">' + state + '</span></span></div></div><br/>';
 		else tooltipText = "";
 		tooltipText += getEqualitySliders();
 		if (textString) tooltipText += "</div>";
@@ -1604,7 +1604,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 		swapClass('tooltipExtra', 'tooltipExtraEquality', elem);
 		var spireBtn = "";
 		if (game.global.highestRadonLevelCleared >= 299) {
-			spireBtn = "<span id='spireEqualityToggle' onclick='toggleSpireEquality(" + textString + ")' class='btn btn-primary'>" + ((equalitySlidersTip == 'reg') ? "Show Spire Settings" : "Show Regular Settings") + "</span>";
+			spireBtn = "<span role='button' tabindex='0' id='spireEqualityToggle' onclick='toggleSpireEquality(" + textString + ")' class='btn btn-primary'>" + ((equalitySlidersTip == 'reg') ? "Show Spire Settings" : "Show Regular Settings") + "</span>";
 			what += (equalitySlidersTip == 'reg') ? " (Regular Settings)" : " (Spire Settings)";
 		}
 		costText = "<div class='maxCenter'><div class='btn btn-info' id='confirmTooltipBtn' role=button tabindex=0 onclick='cancelTooltip()'>Done</div>" + spireBtn + "</div>";
@@ -1871,9 +1871,9 @@ function getEqualitySliders(short){
 	var text = "";
 	if (!short) text += "Change this Slider to change the maximum amount of attacks Trimps need to make in order to not trigger Equality Scaling. Setting this slider to 0 will increase scaling whenever a group of Trimps is one-shot, 1 will increase if Trimps attack one or fewer times, 5 will only increase if they attack 5 or fewer times, etc.<br/><br/>";
 	text += "<b>Your current setting is <span id='equalityCurrentScale'>" + game.portal.Equality.getSetting('scalingSetting', equalitySlidersTip) + "</span>.</b>";
-	text += "<br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySlider' min='0' max='10' value='" + game.portal.Equality.getSetting('scalingSetting', equalitySlidersTip) + "' />";
+	text += "<br/><input oninput='scaleEqualityScale(this)' aria-label='Equality Scaling' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySlider' min='0' max='10' value='" + game.portal.Equality.getSetting('scalingSetting', equalitySlidersTip) + "' />";
 	if (!short) text += "<br/>If Reversing is allowed, Equality stacks will also decrease after the set amount of attacks against the same bad guy.<br/><br/>";
-	text += buildNiceCheckbox("equalityReversing", null, game.portal.Equality.getSetting('scalingReverse', equalitySlidersTip), "scaleEqualityScale(this, \"reverse\")", "Equality Reversing") + " Allow Reversing<br/><b>Your current reversing setting is <span id='equalityCurrentScaleReverse'>" + game.portal.Equality.getSetting('reversingSetting', equalitySlidersTip) + "</span>.</b><br/><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySliderReverse' min='1' max='10' value='" + game.portal.Equality.getSetting('reversingSetting', equalitySlidersTip) + "' />"
+	text += buildNiceCheckbox("equalityReversing", null, game.portal.Equality.getSetting('scalingReverse', equalitySlidersTip), "scaleEqualityScale(this, \"reverse\")", "Equality Reversing") + " Allow Reversing<br/><b>Your current reversing setting is <span id='equalityCurrentScaleReverse'>" + game.portal.Equality.getSetting('reversingSetting', equalitySlidersTip) + "</span>.</b><br/><input aria-label='Equality Reversing' oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='scaleEqualitySliderReverse' min='1' max='10' value='" + game.portal.Equality.getSetting('reversingSetting', equalitySlidersTip) + "' />"
 	var disabledStackCount = game.portal.Equality.getSetting('disabledStackCount', equalitySlidersTip);
 	var max = (game.portal.Equality.radLevel + 1);
 	var stackText = disabledStackCount;
@@ -1884,7 +1884,7 @@ function getEqualitySliders(short){
 	var spireNote = "";
 	if (equalitySlidersTip == "spire") spireNote = "<span style='color: #AD2A2A; font-weight: bold'> If Scale Equality is on, this setting will determine how many stacks to start the Spire with.</span>"
 	if (!short) text += "<br/>You can also manually set how many stacks of Equality should be used if Scaling is disabled by changing the slider below. This allows you to customize exactly how many stacks of Equality to use without having to respec your Perks." + spireNote + "<br/><br/>";
-	text += "<b>Your Equality stacks when Scaling is disabled will be <span id='equalityDisabledStackCount'>" + stackText + "</span>.</b><input oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='equalityDisabledSlider' min='0' max='" + max + "' value='" + disabledStackCount + "' />";
+	text += "<b>Your Equality stacks when Scaling is disabled will be <span id='equalityDisabledStackCount'>" + stackText + "</span>.</b><input aria-label='Stacks when Equality Scaling Disabled' oninput='scaleEqualityScale(this)' onchange='scaleEqualityScale(this)' type='range' id='equalityDisabledSlider' min='0' max='" + max + "' value='" + disabledStackCount + "' />";
 	return text;
 }
 

@@ -13963,7 +13963,8 @@ function scruffySpireStory(){
 		if (cell > max) break;
 		var thisFloor = Math.ceil(cell / 100);
 		if (thisFloor > lastFloor){
-			text += "<hr/><b style='font-size: 1.2em'>Floor " + thisFloor + "</b><br/>";
+			let tagName = (usingScreenReader ? "h1" : "b")
+			text += `<hr/><${tagName} style='font-size: 1.2em'>Floor ${thisFloor}</${tagName}><br/>`;
 			lastFloor++;
 		}
 		text += "<b>Cell " + cell + "</b>: " + stories[item] + "<br/>";
@@ -15205,7 +15206,7 @@ function dayOfWeek(number){
 function getDailyTopText(add){
 	readingDaily = add;
 	var returnText = "";
-	returnText += "<div class='row dailyTopRow'>";
+	returnText += "<ul class='row dailyTopRow' aria-label='Available Dailies' aria-live='off'>";
 	var checkedDayDone = false;
 	var todayOfWeek = getDailyTimeString(0, false, true);
 	for (var x = 0; x < 7; x++){
@@ -15214,14 +15215,16 @@ function getDailyTopText(add){
 			dayIndex = (x - todayOfWeek) - 7;
 		var dayDone = (game.global.recentDailies.indexOf(getDailyTimeString(dayIndex)) != -1);
 		if (add == dayIndex) checkedDayDone = dayDone;
-		returnText += "<div onmouseover='tooltip(\"Switch Daily\", null, event, " + dayIndex + ")' onmouseout='cancelTooltip()' onclick='getDailyChallenge(" + dayIndex + ")' class='col-xs-1 seventhColumn noselect lowPad pointer dailyTop ";
+		returnText += "<div role='listitem' onmouseover='tooltip(\"Switch Daily\", null, event, " + dayIndex + ")' onmouseout='cancelTooltip()' onclick='getDailyChallenge(" + dayIndex + ")' class='col-xs-1 seventhColumn noselect lowPad pointer dailyTop ";
 		if (add == dayIndex)
 			returnText += 'colorInfo';
 		else if (dayDone)
 			returnText += 'colorGrey';
 		else
 			returnText += 'colorSuccess';
-		returnText += "'>" + dayOfWeek(getDailyTimeString(dayIndex, false, true)).charAt(0);
+		let dayText = dayOfWeek(getDailyTimeString(dayIndex, false, true))
+		dayText = (usingScreenReader ? dayText : dayText.charAt(0))
+		returnText += "'>" + dayText;
 		if (!dayDone){
 			var heliumValue = getDailyHeliumValue(countDailyWeight(getDailyChallenge(dayIndex, true)));
 			returnText += "<br/>" + prettify(heliumValue) + "%";
@@ -15229,9 +15232,9 @@ function getDailyTopText(add){
 		else returnText += "<br/>Done";
 		returnText += "</div>";
 	}
-	returnText += "</div>";
+	returnText += "</ul>";
 	//returnText += "<div style='text-align: left; padding: 10px;'><span class='btn btn-md btn-primary' onclick='lastAdd += 7; selectChallenge(\"Daily\");'>Test Server Only - Travel To Next Week</span></div>"
-	returnText += "<div class='row' style='margin: 0'><div class='col-xs-6 lowPad dailyTop' style='font-weight: bold'>" + dayOfWeek(getDailyTimeString(add, false, true)) + " " + getDailyTimeString(add, true) + "</div><div class='col-xs-6 dailyTop lowPad'>" + dayOfWeek(getDailyTimeString(1, false, true)) + " resets in <span id='dailyResetTimer'>00:00:00</span></div></div>";
+	returnText += "<div class='row' style='margin: 0'><div class='col-xs-6 lowPad dailyTop' style='font-weight: bold'>" + dayOfWeek(getDailyTimeString(add, false, true)) + " " + getDailyTimeString(add, true) + "</div><div class='col-xs-6 dailyTop lowPad' aria-live='off'>" + dayOfWeek(getDailyTimeString(1, false, true)) + " resets in <span id='dailyResetTimer'>00:00:00</span></div></div>";
 
 	if (checkedDayDone)
 		returnText += "<b class='redText'>You have already attempted this Daily Challenge!</b><br/><br/>";
@@ -18772,6 +18775,7 @@ var Fluffy = {
 		this.lastPat = new Date().getTime();
 		this.patSeed++;
 		this.refreshTooltip();
+		if (usingScreenReader) screenReaderAssert(this.getFluff()); // by far the silliest SR addition, but c'mon, everyone deserves to know Fluffy enjoys pats -Q 
 	},
 	getFluff: function () {
 		var possibilities = [];
