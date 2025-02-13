@@ -403,7 +403,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			checkbox = buildNiceCheckbox('structConfig' + item, 'autoCheckbox', (setting && setting.enabled));
 			options = "<option value='0.1'" + ((selectedPerc == 0.1) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == 1) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == 5) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == 10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == 25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == 50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == 99) ? " selected" : "") + ">99%</option>";
 			var id = "structSelect" + item;
-			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='structSelect' id='" + id + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>Up To: <input class='structConfigQuantity' id='structQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
+			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'><label>" + checkbox + "<span>" + item + "</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='structSelect' id='" + id + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>Up To: <input class='structConfigQuantity' id='structQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
 			count++;
 		}
 		tooltipText += "</tr><tr>";
@@ -414,7 +414,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			selectedPerc = (setting) ? setting.value : 0.1;		
 			checkbox = buildNiceCheckbox('structConfigGigastation', 'autoCheckbox', (setting && setting.enabled));
 			options = "<option value='0.1'" + ((selectedPerc == 0.1) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == 1) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == 5) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == 10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == 25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == 50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == 99) ? " selected" : "") + ">99%</option>";
-			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>Gigastation</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='structSelect' id='structSelectGigastation'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>At W: <input class='structConfigQuantity' id='structQuantGigastation' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
+			tooltipText += "<td><div class='row'><div class='col-xs-5' style='padding-right: 5px'><label>" + checkbox + "<span>Gigastation</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='structSelect' id='structSelectGigastation'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>At W: <input class='structConfigQuantity' id='structQuantGigastation' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
 			if (getHighestLevelCleared() >= 229){
 				var nurserySetting = (typeof settingGroup.NurseryZones !== 'undefined') ? settingGroup.NurseryZones : 1;
 				tooltipText += "<td><div class='row'><div class='col-xs-12' style='text-align: right; padding-right: 5px;'><label>Don't buy Nurseries Until Z: <input style='width: 20.8%; margin-right: 4%;' class='structConfigQuantity' id='structZoneNursery' type='number' value='" + nurserySetting + "'></label></div></div></td>";
@@ -451,7 +451,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			type = ((equipment.health) ? "Armor" : "Wep");
 			checkbox = buildNiceCheckbox('equipConfig' + item, 'autoCheckbox checkbox' + type, (setting && setting.enabled));
 			options = "<option value='0.1'" + ((selectedPerc == 0.1) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == 1) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == 5) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == 10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == 25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == 50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == 99) ? " selected" : "") + ">99%</option>";
-			tooltipText += "<td><div class='row'><div class='col-xs-6' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</label></span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='equipSelect" + type + "' id='equipSelect" + item + "'>" + options + "</select></div><div class='col-xs-4 lowPad' style='text-align: right'><label>Up To: <input class='equipConfigQuantity' id='equipQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
+			tooltipText += "<td><div class='row'><div class='col-xs-6' style='padding-right: 5px'><label>" + checkbox + "<span>" + item + "</label></span></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' class='equipSelect" + type + "' id='equipSelect" + item + "'>" + options + "</select></div><div class='col-xs-4 lowPad' style='text-align: right'><label>Up To: <input class='equipConfigQuantity' id='equipQuant" + item + "' type='number'  value='" + ((setting && setting.buyMax) ? setting.buyMax : 0 ) + "'/></label></div></div></td>";
 			count++;
 		}
 		tooltipText += "</tr><tr><td></td></tr></tbody></table>";
@@ -516,7 +516,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 			var selectedPerc = (setting) ? setting.value : 0.1;
 			var max;	
 			var checkbox = buildNiceCheckbox('autoJobCheckbox' + item, 'autoCheckbox', (setting && setting.enabled));
-			tooltipText += "<td style='width: 40%'><div class='row'><div class='col-xs-6' style='padding-right: 5px'><label>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</label></span></div><div class='col-xs-6 lowPad' style='text-align: right'><label>Ratio: <input class='jobConfigQuantity' id='autoJobQuant" + item + "' type='number'  value='" + ((setting && setting.ratio) ? setting.ratio : 1 ) + "'/></label></div></div>"
+			tooltipText += "<td style='width: 40%'><div class='row'><div class='col-xs-6' style='padding-right: 5px'><label>" + checkbox + "<span>" + item + "</label></span></div><div class='col-xs-6 lowPad' style='text-align: right'><label>Ratio: <input class='jobConfigQuantity' id='autoJobQuant" + item + "' type='number'  value='" + ((setting && setting.ratio) ? setting.ratio : 1 ) + "'/></label></div></div>"
 			if (ratioJobs[x] == "Scientist"){
 				max = ((setting && setting.buyMax) ? setting.buyMax : 0 );
 				if (max > 1e4) max = max.toExponential().replace('+', '');
@@ -532,7 +532,7 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 				if (max > 1e4) max = max.toExponential().replace('+', '');	
 				checkbox = buildNiceCheckbox('autoJobCheckbox' + item, 'autoCheckbox', (setting && setting.enabled));	
 				var options = "<option value='0.1'" + ((selectedPerc == 0.001) ? " selected" : "") + ">0.1%</option><option value='1'" + ((selectedPerc == .01) ? " selected" : "") + ">1%</option><option value='5'" + ((selectedPerc == .05) ? " selected" : "") + ">5%</option><option value='10'" + ((selectedPerc == .10) ? " selected" : "") + ">10%</option><option value='25'" + ((selectedPerc == .25) ? " selected" : "") + ">25%</option><option value='50'" + ((selectedPerc == .50) ? " selected" : "") + ">50%</option><option value='99'" + ((selectedPerc == .99) ? " selected" : "") + ">99%</option>";
-				tooltipText += "<td style='width: 60%'><div class='row'><div class='col-xs-5' style='padding-right: 5px;'><label>" + checkbox + "&nbsp;&nbsp;<span>" + item + "</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' id='autoJobSelect" + item + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>Up To: <input class='jobConfigQuantity' id='autoJobQuant" + item + "'  value='" + prettify(max) + "'/></label></div></div></td></tr>";	
+				tooltipText += "<td style='width: 60%'><div class='row'><div class='col-xs-5' style='padding-right: 5px;'><label>" + checkbox + "<span>" + item + "</span></label></div><div style='text-align: center; padding-left: 0px;' class='col-xs-2'><select aria-label='Spend' id='autoJobSelect" + item + "'>" + options + "</select></div><div class='col-xs-5 lowPad' style='text-align: right'><label>Up To: <input class='jobConfigQuantity' id='autoJobQuant" + item + "'  value='" + prettify(max) + "'/></label></div></div></td></tr>";	
 			}
 		}
 		if (percentJobs.length >= 4) tooltipText += "<tr><td style='width: 40%'><div class='row'><div class='col-xs-6' style='padding-right: 5px'>&nbsp;</div><div class='col-xs-6 lowPad' style='text-align: right'>Up To: <input class='jobConfigQuantity' id='autoJobQuantScientist2' value='" + prettify(sciMax) + "'></div></div></td><td style='width: 60%'>&nbsp;</td></tr>";
@@ -3679,8 +3679,9 @@ function getLootBd(what) {
 			}
 			if (Fluffy.isRewardActive("radortle")){
 				amt = Fluffy.getRadortleMult();
+				let useLevel = Fluffy.isRewardActive('radortle2') ? (game.global.highestRadonLevelCleared + 1) : game.global.lastRadonPortal;
 				currentCalc *= amt;
-				textString += "<tr><td class='bdTitle'>" + Fluffy.getName() + " " + heliumOrRadon() + "</td><td>x 1.03</td><td>" + game.global.lastRadonPortal + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
+				textString += "<tr><td class='bdTitle'>" + Fluffy.getName() + " " + heliumOrRadon() + "</td><td>x 1.03</td><td>" + useLevel + "</td><td>+ " + prettify((amt - 1) * 100) + "%</td><td>" + prettify(currentCalc) + "</td></tr>";
 			}
 			if (game.jobs.Meteorologist.vestedHires > 0){
 				amt = game.jobs.Meteorologist.getMult();

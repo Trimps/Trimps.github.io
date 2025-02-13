@@ -5022,6 +5022,7 @@ var toReturn = {
 				addHelium(reward);
 				if (game.global.ArchaeologyDone && !game.global.canGuString){
 					game.global.canGuString = true;
+					document.getElementById("goldConfig").style.display = "block";
 					message("Now that you've mastered the skill of Archaeology, you've gained the ability to use a more powerful Custom Golden Upgrade automator! See the AutoGold tooltip or Ctrl Click AutoGold for more info.", "Notices");
 				}
 				if (!game.global.ArchaeologyDone){

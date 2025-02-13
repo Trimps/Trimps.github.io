@@ -4448,11 +4448,14 @@ var autoBattle = {
                     if (Array.isArray(preset[y])){
                         if (preset[y][0] == "level" && this.settings.loadLevel.enabled) text += ". Level " + preset[y][1];
                         if (preset[y][0] == "ring" && this.settings.loadRing.enabled){
-                            text += ". Ring: ";
-                            for (var z = 1; z < preset[y].length; z++){
-                                if (z != 1) text += ", ";
-                                text += autoBattle.ringStats[preset[y][z]].name
-                            }
+                            text += ". Ring";
+							if (autoBattle.rings.level >= 5) { 
+								text += ": "
+								for (var z = 1; z < preset[y].length; z++){
+									if (z != 1) text += ", ";
+									text += this.ringStats[preset[y][z]].name
+								}
+							}
                         }
                         continue;
                     }
