@@ -419,16 +419,16 @@ body {
 }
 
 .toggleConfigBtn div:first-child{
-	width: 80%; 
+	width: 83%; 
 }
 
 .toggleConfigBtn div:nth-child(2){
-	width: 20%; 
+	width: 17%; 
 	background-color: grey;
 	float: right;
 }
 
-.toggleConfigBtn div:nth-child(2):hover{
+.toggleConfigBtn div:nth-child(2):hover, .settingsBtnConfig + button:hover {
 	background-color: #666666;
 }
 
@@ -1118,7 +1118,24 @@ body {
 	cursor: pointer;
 	text-align: center;
 	width: 100%;
+}
 
+.settingsBtnConfig {
+	width: 83%;
+	border-right: none !important;
+}
+
+.settingsBtnConfig + button { 
+	width: 17%;
+	background: gray;
+	font-size: 1.25vw;
+	border: 1px solid black ;
+	border-left: none;
+	cursor: pointer;
+}
+
+.settingsBtnConfig + button > span {
+	top: .2vw !important;
 }
 
 #togglesaveAndExit.settingBtn0{

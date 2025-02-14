@@ -16507,7 +16507,7 @@ function manageLeadStacks(remove) {
 	if (game.global.world % 2 === 1) {
 		if (determinedBuff === null) {
 			const goodGuyElem = document.getElementById('goodGuyName');
-			const htmlMessage = '&nbsp' + makeIconEffectHTML("Determined", "'Your Trimps are determined to succeed. They gain 50% attack and earn double resources from all sources.", "icon-sun2", "antiBadge", ["determinedBuff"])
+			const htmlMessage = '&nbsp' + makeIconEffectHTML("Determined", "Your Trimps are determined to succeed. They gain 50% attack and earn double resources from all sources.", "icon-sun2", "antiBadge", ["determinedBuff"])
 			if (!goodGuyElem.innerHTML.includes(htmlMessage)) goodGuyElem.insertAdjacentHTML('beforeend', htmlMessage);
 			determinedBuff = document.getElementById('determinedBuff');
 		}

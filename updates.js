@@ -6409,15 +6409,43 @@ function getSettingsHTMLTooltipArgs(id) {
 }
 
 function getSettingHtml(optionItem, item, forceClass, appendId){
+	// handle ctr click functions with config buttons
+	let configBtn = "";
+	let configBtnClick;
+	let configClass = "";
+	let name = "";
+	if (!appendId) { // Don't add config buttons to all the secondary locations
+		if (item == "generatorStart" && game.permanentGeneratorUpgrades.Supervision.owned) {
+			configBtnClick = `onclick='tooltip("Configure Generator State", null, "update")'`;
+			name = "Supervision";
+		}
+		if (item == "offlineProgress" && !usingRealTimeOffline) {
+			configBtnClick = `onclick='tooltip("Time Warp Limiter", null, "update")'`;
+			name = "Timewarp Speed Limit";
+		}
+		if (item == "mapAtZone") {
+			configBtnClick = `onclick='tooltip("Set Map At Zone", null, "update")'`;
+			name = "Map At Zone";
+		}
+		if (item == "standardNotation") {
+			configBtnClick = `onclick='tooltip("confirm", null, "update", "Enter a number here to use as the base for your logarithmic numbers! (Default is 10)<br/><br/><input id=logBaseInput value=${game.global.logNotBase} type=number/>", "saveLogarithmicSetting()", "Configure Log", "Confirm")'`;
+			name = "Log base";
+		}
+	}
+
 	if (!appendId) appendId = "";
 	if (!forceClass) forceClass = "";
+	if (configBtnClick) {
+		configBtn = `<button aria-label='Configure ${name}' ${configBtnClick}><span class='glyphicon glyphicon-cog'></span></button>`
+		configClass = "settingsBtnConfig"
+	}
 	var text = optionItem.titles[optionItem.enabled];
 	var tooltip = ``
 	if (usingScreenReader) {}
 	else {
 		tooltip = `onmouseover='tooltip("${text}", "customText", event, "${optionItem.description}")' onmouseout='tooltip("hide")'`
 	}
-	return `<div class='optionContainer ${forceClass}'><button id='toggle${item + appendId}' class='noselect settingsBtn settingBtn${optionItem.enabled}' onclick='toggleSetting("${item}"${((appendId) ? "" : ", this")})' ${tooltip}>${text}</button></div>`;
+	return `<div class='optionContainer ${forceClass}'><button id='toggle${item + appendId}' class='noselect settingsBtn settingBtn${optionItem.enabled} ${configClass}' onclick='toggleSetting("${item}"${((appendId) ? "" : ", this")})' ${tooltip}>${text}</button>${configBtn}</div>`;
 }
 
 function saveLogarithmicSetting(){
