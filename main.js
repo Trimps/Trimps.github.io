@@ -6620,10 +6620,10 @@ function checkVoidMap() {
 	if (game.global.universe == 2 && game.global.totalRadPortals < 1) return;
 	var max = getVoidMaxLevel();
 	if (getLastPortal() != -1){
-			if (max < game.global.world){
+			if (max < game.global.world){ // this check will always return false; upon reaching new HZE, the game calls setVoidMaxLevel with game.global.world, so max **has** to be greater or equal to game.global.world.
 				setVoidMaxLevel(game.global.world);
 				if ((getLastPortal() + 25) < game.global.world)
-					setVoidMaxLevel(getHighestLevelCleared(false, true));
+					setVoidMaxLevel(getHighestLevelCleared(true, true));
 			}
 		if ((max - getLastPortal()) < 25) {
 			max = getLastPortal();
