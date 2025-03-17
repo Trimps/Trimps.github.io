@@ -6623,7 +6623,7 @@ function checkVoidMap() {
 			if (max < game.global.world){
 				setVoidMaxLevel(game.global.world);
 				if ((getLastPortal() + 25) < game.global.world)
-					setVoidMaxLevel(getHighestLevelCleared(false, true));
+					setVoidMaxLevel(getHighestLevelCleared(true, true));
 			}
 		if ((max - getLastPortal()) < 25) {
 			max = getLastPortal();
