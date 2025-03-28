@@ -5136,6 +5136,7 @@ var u2Mutations = {
         var rewardMult = 0;
         if (cell.u2Mutation.length >= 2) giveSingleAchieve("Double Trouble");
         var nullText = "";
+        var expText = "";
         for (var x = 0; x < cell.u2Mutation.length; x++){
             var mut = cell.u2Mutation[x];
             if (mut == 'RGE'){
@@ -5148,7 +5149,10 @@ var u2Mutations = {
             }
             else if (mut == 'NVA' || mut == 'NVX'){
                 rewardMult += this.types.Nova.rewardMult();
-                if (this.tree.NovaScruff.purchased && mut == 'NVA') Fluffy.rewardExp(3);
+                if (this.tree.NovaScruff.purchased && mut == 'NVA') {
+					var novaExpRewardValue = Fluffy.rewardExp(3);
+                    expText = " and " + prettify(novaExpRewardValue) + " Exp";
+                }
             }
             else if (mut == 'CMP' || mut == 'CMX') rewardMult += this.types.Compression.rewardMult();
             else if (mut == 'CSP' || mut == 'CSX'){
@@ -5185,7 +5189,7 @@ var u2Mutations = {
         reward = calcHeirloomBonus("Staff", "SeedDrop", reward);
         game.global.mutatedSeeds += reward;
         if (typeof game.global.messages.Loot.seeds === 'undefined') game.global.messages.Loot.seeds = true;
-        message("You found " + prettify(reward) + " Mutated Seed" + needAnS(reward) + nullText + " on that " + this.getName(cell.u2Mutation) + " enemy!", 'Loot', null, 'seedMessage', 'seeds', null, 'background-color: ' + this.getColor(cell.u2Mutation));
+        message("You found " + prettify(reward) + " Mutated Seed" + needAnS(reward) + nullText + expText + " on that " + this.getName(cell.u2Mutation) + " enemy!", 'Loot', null, 'seedMessage', 'seeds', null, 'background-color: ' + this.getColor(cell.u2Mutation));
         game.stats.mutatedSeeds.value += reward;
         checkAchieve("mutatedSeeds");
         if (!game.global.runningChallengeSquared){
