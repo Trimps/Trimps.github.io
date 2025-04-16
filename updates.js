@@ -2797,7 +2797,7 @@ function getBattleStatBd(what) {
 		if (autoBattle.oneTimers.Suprism.owned){
 			var bonus = autoBattle.oneTimers.Suprism.getMult();
 			currentCalc += bonus;
-			textString += "<tr><td class='bdTitle'>Suprism</td><td>3%</td><td>" + (autoBattle.maxEnemyLevel - 1) + "</td><td>" + prettify(bonus * 100) + "%</td><td>" + Math.round(currentCalc * 100) + "%</td></tr>";
+			textString += "<tr><td class='bdTitle'>Suprism</td><td>3%</td><td>" + (autoBattle.levelsCleared()) + "</td><td>" + prettify(bonus * 100) + "%</td><td>" + Math.round(currentCalc * 100) + "%</td></tr>";
 		}
 		if (Fluffy.isRewardActive('shieldlayer')){
 			var layers = (Fluffy.isRewardActive('shieldlayer') + 1);
@@ -3083,12 +3083,12 @@ function getBattleStatBd(what) {
 	if ((what == "attack" || what == "health") && getPerkLevel("Championism")){
 		var mult = game.portal.Championism.getMult();
 		currentCalc  *= mult;
-		textString += "<tr><td class='bdTitle'>Championism</td><td>" + (1 + (0.5 * (autoBattle.maxEnemyLevel - 1))) + "%</td><td>" + getPerkLevel("Championism") + "</td><td>" + formatMultAsPercent(mult) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
+		textString += "<tr><td class='bdTitle'>Championism</td><td>" + (1 + (0.5 * (autoBattle.levelsCleared()))) + "%</td><td>" + getPerkLevel("Championism") + "</td><td>" + formatMultAsPercent(mult) + "</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + ((what == "attack") ? getFluctuation(currentCalc, minFluct, maxFluct) : "") + "</tr>";
 	}
 	if (what == "attack" && Fluffy.isRewardActive('SADailies') && game.global.challengeActive == "Daily"){
 		var mult = Fluffy.rewardConfig.SADailies.attackMod();
 		currentCalc *= mult;
-		textString += "<tr><td class='bdTitle'>Scruffy Dailies</td><td>+ 4%</td><td>" + (autoBattle.maxEnemyLevel - 1) + "</td><td>+ " + prettify((mult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
+		textString += "<tr><td class='bdTitle'>Scruffy Dailies</td><td>+ 4%</td><td>" + (autoBattle.levelsCleared()) + "</td><td>+ " + prettify((mult - 1) * 100) + "%</td><td class='bdNumberSm'>" + prettify(currentCalc) + "</td>" + getFluctuation(currentCalc, minFluct, maxFluct) + "</tr>"
 	}
 	if ((what == "attack" || what == "health") && game.global.challengeActive == "Alchemy" && game.global.universe == 2){
 		var mult = alchObj.getPotionEffect("Potion of Strength");

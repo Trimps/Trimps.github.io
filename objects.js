@@ -1014,6 +1014,10 @@ var autoBattle = {
         if (setting.onToggle) setting.onToggle();
         this.popup(true, false, true);
     },
+    levelsCleared: function(){
+        if (this.canSeal) return 160;
+        return this.maxEnemyLevel - 1;
+    },
     settings: {
         loadHide: {
             enabled: 1,
@@ -2809,7 +2813,7 @@ var autoBattle = {
             },
             owned: false,
             getMult: function(){
-                return 1 + (0.05 * (autoBattle.maxEnemyLevel - 1));
+                return 1 + (0.05 * (autoBattle.levelsCleared()));
             },
             requiredItems: 7
         },
@@ -2837,7 +2841,7 @@ var autoBattle = {
             },
             owned: false,
             getMult: function(){
-                return Math.pow(0.99, autoBattle.maxEnemyLevel - 1);
+                return Math.pow(0.99, autoBattle.levelsCleared());
             },
             requiredItems: 21
         },
@@ -2851,7 +2855,7 @@ var autoBattle = {
             owned: false,
             requiredItems: 28,
             getHubs: function(){
-                return 2 + Math.floor((autoBattle.maxEnemyLevel - 1) / 30);
+                return 2 + Math.floor(autoBattle.levelsCleared() / 30);
             }
         },
         Dusty_Tome: {
@@ -2869,13 +2873,13 @@ var autoBattle = {
             owned: false,
             requiredItems: 36,
             getMult: function(){
-                return 1 + ((autoBattle.maxEnemyLevel - 1) * 0.005);
+                return 1 + (autoBattle.levelsCleared() * 0.005);
             }
         },
         Suprism: {
             description: "Increases Prismatic Shield by 3% per Spire Assault level cleared.",
             getMult: function(){
-                return ((autoBattle.maxEnemyLevel -1) * 0.03);
+                return (autoBattle.levelsCleared() * 0.03);
             },
             owned: false,
             requiredItems: 39,
@@ -3450,7 +3454,7 @@ var autoBattle = {
         }
         amt += this.trimp.dustMult;
         if (this.oneTimers.Dusty_Tome.owned){
-            amt *= (1 + (0.05 * (this.maxEnemyLevel - 1)));
+            amt *= (1 + (0.05 * (this.levelsCleared())));
         }
         if (u2Mutations.tree.Dust.purchased){
             var mutMult = 1.25;

@@ -3029,12 +3029,16 @@ var toReturn = {
 			get tooltip(){
 				var extra = (this.levelTemp) ? this.levelTemp : 0;
 				var text = "Huffy has learned much from Assaulting his Spire, now store some of that knowledge in your Portal! Gain " + (this.baseStats * 100) + "% attack and health plus another " + (this.statsPerLevel * 100) + "% per Spire Assault level cleared, compounding per perk level. "
-				if (this.radLevel + extra > 0) text += "<br/><br/>You are currently gaining " + formatMultAsPercent(this.getMult(0, extra), true) + " attack and health. Your next Spire Assault level will increase this bonus to " + formatMultAsPercent(this.getMult(1, extra), true) + ", or your next perk level will increase this bonus to " + formatMultAsPercent(this.getMult(0, 1 + extra), true) + ".";
+				if (this.radLevel + extra > 0){
+					text += "<br/><br/>You are currently gaining " + formatMultAsPercent(this.getMult(0, extra), true) + " attack and health."
+					if (autoBattle.levelsCleared() == 160) text += " Your next perk level will increase this bonus to " + formatMultAsPercent(this.getMult(0, 1 + extra), true) + ".";
+					else text += " Your next Spire Assault level will increase this bonus to " + formatMultAsPercent(this.getMult(1, extra), true) + ", or your next perk level will increase this bonus to " + formatMultAsPercent(this.getMult(0, 1 + extra), true) + ".";
+				}
 				return text;
 			},
 			getMult: function(addAb, addLev){
 				var level = this.radLevel;
-				var abLevel = autoBattle.maxEnemyLevel - 1;
+				var abLevel = autoBattle.levelsCleared();
 				if (addAb) abLevel += addAb;
 				if (addLev) level += addLev;
 				var base = this.baseStats + (this.statsPerLevel * abLevel);

@@ -18888,7 +18888,7 @@ var Fluffy = {
 			reward *= (1 + (knowBonus / 100));
 		}
 		if (autoBattle.oneTimers.Battlescruff.owned && game.global.universe == 2){
-			reward *= (1 + ((autoBattle.maxEnemyLevel - 1) / 50));
+			reward *= (1 + ((autoBattle.levelsCleared()) / 50));
 		}
 		if (game.global.universe == 2 && u2Mutations.tree.Scruffy.purchased){
 			reward *= 1.3;
@@ -19055,7 +19055,7 @@ var Fluffy = {
 				elem.innerHTML = 'From Nurture. Increases Exp gain by 10% (compounding) per constructed Laboratory. Currently granting ' + prettify(game.buildings.Laboratory.getExpMult()) + 'x.';
 				return;
 			case "battlescruff":
-				elem.innerHTML = 'From the Battlescruff Spire Assault reward. Increases Scruffy XP gained by 2% per level cleared, currently granting ' + prettify(1 + ((autoBattle.maxEnemyLevel - 1) / 50)) + 'x.';
+				elem.innerHTML = 'From the Battlescruff Spire Assault reward. Increases Scruffy XP gained by 2% per level cleared, currently granting ' + prettify(1 + ((autoBattle.levelsCleared()) / 50)) + 'x.';
 				return;
 			case "mutators":
 				elem.innerHTML = 'From Mutators. Currently granting 1.3x.';
@@ -19364,14 +19364,14 @@ var Fluffy = {
 		},
 		SADailies: {
 			get description(){
-				var cleared = autoBattle.maxEnemyLevel - 1;
+				var cleared = autoBattle.levelsCleared();
 				return "Your Trimps gain +4% Attack and +0.25% Crit Chance per Spire Assault level cleared while on a Daily Challenge. You have cleared " + cleared + " SA levels, granting +" + prettify((this.attackMod() - 1) * 100) + "% Attack and +" + prettify(this.critChance() * 100) + "% Crit Chance on Daily Challenges." 
 			},
 			critChance: function(){
-				return (0.0025 * (autoBattle.maxEnemyLevel - 1));
+				return (0.0025 * (autoBattle.levelsCleared()));
 			},
 			attackMod: function(){
-				return 1 + (0.04 * (autoBattle.maxEnemyLevel - 1));
+				return 1 + (0.04 * (autoBattle.levelsCleared()));
 			}
 		},
 		bigSeeds: {
