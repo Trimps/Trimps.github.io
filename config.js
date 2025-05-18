@@ -9517,13 +9517,14 @@ var toReturn = {
 					}
 				}
 			},
-			expandingBase: function(){
+			expandingBase: function(useLevelTemp = false){
 				var mult = 0.003;
-				if (game.portal.Expansion.radLevel > 0) mult += (0.0001 * game.portal.Expansion.radLevel);
+				var level = game.portal.Expansion.radLevel + (useLevelTemp ? game.portal.Expansion.levelTemp : 0);
+				if (game.portal.Expansion.radLevel > 0) mult += (0.0001 * level);
 				return mult;
 			},
-			expandingMult: function(){			
-				return Math.pow((this.expandingBase() + 1), game.unlocks.impCount.Tauntimp)
+			expandingMult: function(useLevelTemp = false){			
+				return Math.pow((this.expandingBase(useLevelTemp) + 1), game.unlocks.impCount.Tauntimp)
 			}
 		},
 		Whipimp: {

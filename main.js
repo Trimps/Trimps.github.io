@@ -3937,7 +3937,7 @@ function canCommitCarpentry(noInfinity){ //Uh, and Coordinated. This checks coor
 	newMax *= game.resources.trimps.maxMod;
 	newMax = Math.floor(newMax * (Math.pow(1 + game.portal.Carpentry.modifier, getPerkLevel("Carpentry") + game.portal.Carpentry.levelTemp)));
 	if (typeof game.portal.Carpentry_II.levelTemp !== 'undefined') newMax = Math.floor(newMax * (1 + (game.portal.Carpentry_II.modifier * (getPerkLevel("Carpentry_II") + game.portal.Carpentry_II.levelTemp))));
-	if (game.global.expandingTauntimp) newMax = Math.floor(newMax * game.badGuys.Tauntimp.expandingMult());
+	if (game.global.expandingTauntimp) newMax = Math.floor(newMax * game.badGuys.Tauntimp.expandingMult(true));
 	newMax = Math.floor(newMax * (alchObj.getPotionEffect("Elixir of Crafting")));
 	if (autoBattle.bonuses.Scaffolding.level > 0) newMax = Math.floor(newMax * autoBattle.bonuses.Scaffolding.getMult());
 	if (game.global.universe == 2 && u2Mutations.tree.Trimps.purchased) newMax *= 1.5;
