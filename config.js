@@ -968,7 +968,7 @@ var toReturn = {
 		displayed: false,
 		menu: {
 			showSRInfo: {
-				enabled: 1,
+				enabled: 0,
 				extraTags: "other",
 				description: "Hides or displays the ScreenReaderInfo box.",
 				titles: ["Hide Screen Read Info", "Show Screen Read Info"],
@@ -9877,6 +9877,7 @@ var toReturn = {
 				tooltip('confirm', null, 'update', text, null, 'Auspicious Presence');
 				game.global.autoStorageAvailable = true;
 				document.getElementById("autoStorageBtn").style.display = "block";
+				ensureSRInfoButton("autoStorageBtn");
 				createHeirloom();
 				message("You found an Heirloom!", "Loot", "*archive", null, "secondary", null, null, true);
 			}

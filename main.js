@@ -31,7 +31,7 @@ if (typeof kongregate === 'undefined' && document.getElementById("boneBtn") !== 
 if (typeof usingScreenReader === 'undefined'){
 	var usingScreenReader = false;
 }
-var srTooltipMode = "click"
+var srTooltipMode = "button"
 document.getElementById("versionNumber").innerHTML = game.global.stringVersion;
 
 var autoSaveTimeout;
@@ -1228,6 +1228,7 @@ function load(saveString, autoLoad, fromPf) {
 	}
 	if (game.global.autoStorageAvailable){
 		document.getElementById("autoStorageBtn").style.display = "block";
+		ensureSRInfoButton("autoStorageBtn");
 		toggleAutoStorage(true);
 	}
 	unlockFormation("all");
@@ -3553,6 +3554,9 @@ function presetTab(tabNum){
 	swapClass('tab', 'tabSelected', document.getElementById('presetTab' + tabNum));
 	if (selectedPreset > 0) swapClass('tab', 'tabNotSelected', document.getElementById('presetTab' + selectedPreset));
 	selectedPreset = tabNum;
+	// Sync radio button for screen reader layout
+	var radio = document.querySelector('input[name="perkPreset"][value="' + tabNum + '"]');
+	if (radio) radio.checked = true;
 }
 
 function resetPresets(){
@@ -3565,6 +3569,9 @@ function resetPresets(){
 		var preset = presetGroup["perkPreset" + x];
 		swapClass('tab', 'tabNotSelected', document.getElementById('presetTab' + x));
 		document.getElementById('presetTab' + x + 'Text').innerHTML = (preset.Name) ? preset.Name : "Preset " + x;
+		// Clear radio button for screen reader layout
+		var radio = document.querySelector('input[name="perkPreset"][value="' + x + '"]');
+		if (radio) radio.checked = false;
 	}
 }
 
@@ -4613,6 +4620,17 @@ function gather() {
 			const timeToFillElem = document.getElementById(increase + 'TimeToFill');
 			const timeToMax = calculateTimeToMax(game.resources[increase], perSec, null, true);
 			if (timeToFillElem && timeToFillElem.innerHTML !== timeToMax) timeToFillElem.textContent = timeToMax;
+			if (increase === 'food' || increase === 'wood' || increase === 'metal') {
+				var collectBtn = document.getElementById(increase + 'CollectBtn');
+				if (collectBtn) {
+					var btnName = setGatherTextAs(increase, game.global.playerGathering === increase);
+					var resource = game.resources[increase];
+					var effectiveMax = calcHeirloomBonus("Shield", "storageSize", resource.max * (1 + game.portal.Packrat.modifier * getPerkLevel("Packrat")));
+					var isFull = resource.owned >= effectiveMax;
+					var ariaLabel = btnName + (isFull ? ', Full' : (timeToMax ? ', ' + timeToMax : ''));
+					collectBtn.setAttribute('aria-label', ariaLabel);
+				}
+			}
 		}
 	}
 
@@ -4949,6 +4967,10 @@ function buildBuilding(what, amt = 1) {
 	const building = game.buildings[what];
 	if (building.owned === 0 && typeof building.first !== 'undefined') building.first();
 	building.owned += amt;
+	if (usingScreenReader && game.global.playerGathering === 'buildings') {
+		if (!(what === 'Trap' && game.global.trapBuildToggled && building.owned % 100 !== 0))
+			screenReaderAssert("Built " + (amt > 1 ? amt + " " : "") + what + ", " + building.owned + " owned");
+	}
 	let toIncrease;
 	checkAchieve('housing', what);
 
@@ -5515,10 +5537,22 @@ function buyUpgrade(what, confirmed, noTip, heldCtrl) {
 	}
 	var upgradesHereElem = document.getElementById("upgradesHere")
 	var removeElem = document.getElementById(what);
-	if (removeElem) upgradesHereElem.removeChild(removeElem);
+	if (removeElem) {
+		if (usingScreenReader && removeElem.parentElement && removeElem.parentElement.tagName === 'H1') {
+			removeElem.parentElement.remove();
+		} else {
+			upgradesHereElem.removeChild(removeElem);
+		}
+	}
 	if (usingScreenReader){
 		var tooltipElem = document.getElementById('srTooltip' + what);
-		if (tooltipElem) upgradesHereElem.removeChild(tooltipElem);
+		if (tooltipElem) {
+			if (tooltipElem.parentElement && tooltipElem.parentElement.tagName === 'H1') {
+				tooltipElem.parentElement.remove();
+			} else {
+				upgradesHereElem.removeChild(tooltipElem);
+			}
+		}
 	}
     if (!noTip) tooltip("hide");
 	return true;
@@ -6601,6 +6635,7 @@ function buyMap() {
 		game.resources.fragments.owned -= cost;
 		createMap(newLevel);
 		if (!game.global.currentMapId) selectMap(game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1].id);
+		document.getElementById("selectMapBtn").focus();
 		return 1;
 	}
 	else message("You can't afford this map! You need " + prettify(cost) + " fragments but only have " + prettify(game.resources.fragments.owned) + ".", "Notices");
@@ -6796,6 +6831,7 @@ function setVoidBuffTooltip(){
 	var stackCount = "";
 	var elem = document.getElementById('voidBuff');
 	elem.innerHTML = makeIconEffectHTML(buff.title, buff.text, buff.icon, "badBadge voidBadge")
+	screenReaderAssert(buff.title + " activated");
 }
 
 var heirloomsShown = false;
@@ -10534,6 +10570,90 @@ function drawGrid(maps) {
 	else if (!maps && game.global.spireActive) className = 'spire';
 	else if (maps && map.location === 'Darkness') className = 'blackMap';
 
+	// Screenreader: render world grid as an accessible table
+	if (usingScreenReader && !maps) {
+		let tableHTML = `<table role="grid" aria-label="World Zone ${game.global.world}">`;
+		let counter = 0;
+		for (let i = 0; i < rows; i++) {
+			const start = i * cols + 1;
+			const end = start + cols - 1;
+			tableHTML += `<tr><th scope="row">${start}\u2013${end}</th>`;
+			for (let x = 0; x < cols; x++) {
+				const cell = game.global.gridArray[counter];
+				const id = `cell${counter}`;
+				let cellClasses = ['battleCell', 'cellColorNotBeaten'];
+				let srExtra = '';
+
+				if (cell.u2Mutation && cell.u2Mutation.length) {
+					for (let y = 0; y < cell.u2Mutation.length; y++) cellClasses.push(cell.u2Mutation[y]);
+					cellClasses.push('mutatedCell');
+				} else if (cell.mutation) cellClasses.push(cell.mutation);
+				if (cell.vm) cellClasses.push(cell.vm);
+				if (cell.empowerment) {
+					cellClasses.push(`empoweredCell${cell.empowerment}`);
+					srExtra += ` Token of ${cell.empowerment}`;
+				} else if (checkIfSpireWorld() && game.global.spireActive) cellClasses.push('spireCell');
+				if (cell.special === 'easterEgg') {
+					game.global.eggLoc = counter;
+					cellClasses.push('eggCell');
+					srExtra += ' Egg';
+				}
+				// Extract loot/item label from cell.text HTML (e.g. title='Metal')
+				if (cell.text) {
+					let labelMatch = cell.text.match(/title=["']([^"']+)["']/);
+					if (labelMatch) srExtra += ' ' + labelMatch[1];
+				}
+
+				tableHTML += `<td id="${id}" class="${cellClasses.join(' ')}">${cell.level}${srExtra}</td>`;
+				counter++;
+			}
+			tableHTML += '</tr>';
+		}
+		tableHTML += '</table>';
+		grid.className = '';
+		grid.innerHTML = tableHTML;
+		const eggCell = document.querySelector('.eggCell');
+		if (eggCell) eggCell.addEventListener('click', easterEggClicked);
+		return;
+	}
+
+	// Screenreader: render map grid as an accessible table
+	if (usingScreenReader && maps) {
+		const size = game.global.mapGridArray.length;
+		let tableHTML = `<table role="grid" aria-label="Map: ${map.name}, Level ${map.level}">`;
+		let counter = 0;
+		for (let i = 0; i < rows; i++) {
+			if (counter >= size) break;
+			const start = i * cols + 1;
+			const end = Math.min(start + cols - 1, size);
+			tableHTML += `<tr><th scope="row">${start}\u2013${end}</th>`;
+			for (let x = 0; x < cols; x++) {
+				if (counter >= size) break;
+				const cell = game.global.mapGridArray[counter];
+				const id = `mapCell${counter}`;
+				let cellClasses = ['battleCell', 'cellColorNotBeaten'];
+				let srExtra = '';
+
+				if (cell.name === 'Pumpkimp') { cellClasses.push('mapPumpkimp'); srExtra += ' Pumpkimp'; }
+				if (map.location === 'Void') cellClasses.push('voidCell');
+				if (cell.vm) cellClasses.push(cell.vm);
+				// Extract loot/item label from cell.text HTML (e.g. title='Metal')
+				if (cell.text) {
+					let labelMatch = cell.text.match(/title=["']([^"']+)["']/);
+					if (labelMatch) srExtra += ' ' + labelMatch[1];
+				}
+
+				tableHTML += `<td id="${id}" class="${cellClasses.join(' ')}">${cell.level}${srExtra}</td>`;
+				counter++;
+			}
+			tableHTML += '</tr>';
+		}
+		tableHTML += '</table>';
+		grid.className = '';
+		grid.innerHTML = tableHTML;
+		return;
+	}
+
 	const idText = maps ? 'mapCell' : 'cell';
 	let size = maps ? game.global.mapGridArray.length : 0;
 	let counter = 0;
@@ -10583,10 +10703,10 @@ function drawGrid(maps) {
 				}
 			}
 
-			html += `<li id="${id}" 
-						style="width:${width};padding-top:${paddingTop};padding-bottom:${paddingBottom};font-size:${fontSize};background:${background};background-color:${backgroundColor};" 
-						class="${className.join(' ')}" 
-						title="${title}" 
+			html += `<li id="${id}"
+						style="width:${width};padding-top:${paddingTop};padding-bottom:${paddingBottom};font-size:${fontSize};background:${background};background-color:${backgroundColor};"
+						class="${className.join(' ')}"
+						title="${title}"
 						aria-label="${title}"
 						role="${role}">
 						${innerHTML}
@@ -10703,6 +10823,7 @@ function recycleMap(map, fromMass, killVoid, noRefund) {
 	}
 	var loc = "mapsHere";
 	if (killVoid){
+		if (game.global.voidBuff) screenReaderAssert(voidBuffConfig[game.global.voidBuff].title + " ended");
 		game.global.voidBuff = "";
 		document.getElementById("voidBuff").innerHTML = "";
 	}
@@ -10834,6 +10955,7 @@ function mapsSwitch(updateOnly, fromRecycle) {
 		game.global.fighting = false;
         game.global.switchToMaps = false;
         game.global.switchToWorld = false;
+		if (game.global.voidBuff) screenReaderAssert(voidBuffConfig[game.global.voidBuff].title + " ended");
 		game.global.voidBuff = "";
         if (game.global.preMapsActive) {
             game.global.mapsActive = false;
@@ -10884,6 +11006,10 @@ function mapsSwitch(updateOnly, fromRecycle) {
             document.getElementById("selectMapBtn").style.visibility = "visible";
             recycleBtn.style.visibility = "visible";
 			if (currentMapObj.noRecycle) recycleBtn.innerHTML = "Abandon Map";
+		}
+		if (usingScreenReader){
+			var focusTarget = document.getElementById("advMapsPreset1");
+			if (focusTarget) setTimeout(function(){ focusTarget.focus(); }, 100);
 		}
 	}
 	else if (game.global.mapsActive) {
@@ -11006,17 +11132,29 @@ function selectMap(mapId, force) {
     map = game.global.mapsOwnedArray[map];
 	if (!map) return;
     document.getElementById("selectedMapName").innerHTML = map.name;
-	document.getElementById("mapStatsSize").innerHTML = (Math.floor(map.size));
-	document.getElementById("mapStatsDifficulty").innerHTML = Math.floor(map.difficulty * 100) + "%";
-	document.getElementById("mapStatsLoot").innerHTML = Math.floor(map.loot * 100) + "%";
-	document.getElementById("mapStatsItems").innerHTML = (map.location == "Void") ? "&nbsp;" : addSpecials(true, true, map);
-	document.getElementById("mapStatsResource").innerHTML = game.mapConfig.locations[map.location].resourceType;
+	var sizeElem = document.getElementById("mapStatsSize");
+	sizeElem.innerHTML = (Math.floor(map.size));
+	sizeElem.setAttribute("aria-label", "Size " + Math.floor(map.size));
+	var diffElem = document.getElementById("mapStatsDifficulty");
+	diffElem.innerHTML = Math.floor(map.difficulty * 100) + "%";
+	diffElem.setAttribute("aria-label", "Difficulty " + Math.floor(map.difficulty * 100) + "%");
+	var lootElem = document.getElementById("mapStatsLoot");
+	lootElem.innerHTML = Math.floor(map.loot * 100) + "%";
+	lootElem.setAttribute("aria-label", "Loot " + Math.floor(map.loot * 100) + "%");
+	var itemsElem = document.getElementById("mapStatsItems");
+	itemsElem.innerHTML = (map.location == "Void") ? "&nbsp;" : addSpecials(true, true, map);
+	itemsElem.setAttribute("aria-label", "Items " + ((map.location == "Void") ? "none" : addSpecials(true, true, map)));
+	var resourceElem = document.getElementById("mapStatsResource");
+	resourceElem.innerHTML = game.mapConfig.locations[map.location].resourceType;
+	resourceElem.setAttribute("aria-label", "Resource " + game.mapConfig.locations[map.location].resourceType);
 	if (typeof game.global.mapsOwnedArray[getMapIndex(game.global.lookingAtMap)] !== 'undefined') {
 		var prevSelected = document.getElementById(game.global.lookingAtMap);
 		prevSelected.className = prevSelected.className.replace("mapElementSelected","mapElementNotSelected");
+		prevSelected.setAttribute("aria-checked", "false");
 	}
 	var currentSelected = document.getElementById(mapId);
 	currentSelected.className = currentSelected.className.replace("mapElementNotSelected", "mapElementSelected");
+	currentSelected.setAttribute("aria-checked", "true");
     game.global.lookingAtMap = mapId;
     document.getElementById("selectMapBtn").innerHTML = "Run Map";
     document.getElementById("selectMapBtn").style.visibility = "visible";
@@ -13176,6 +13314,10 @@ function nextWorld() {
 	Fluffy.rewardExp();
 	game.global.world++;
 	document.getElementById('worldNumber').innerHTML = game.global.world;
+	if (usingScreenReader) {
+		var zoneAnnounce = document.getElementById('srZoneAnnounce');
+		if (zoneAnnounce) zoneAnnounce.textContent = 'Zone ' + game.global.world;
+	}
 	game.global.mapBonus = 0;
 	const mapBonusElem = document.getElementById('mapBonus');
 	if (mapBonusElem.innerHTML !== '') document.getElementById('mapBonus').innerHTML = '';
@@ -16631,7 +16773,11 @@ function updateAntiStacks() {
 		const s = game.global.antiStacks === 1 ? '' : 's';
 		elemText = makeIconEffectHTML("Anticipation", `Your Trimps are dealing ${number}% extra damage for taking ${game.global.antiStacks} second${s} to ${verb}.`, "icon-target2", "antiBadge", false, game.global.antiStacks)
 	}
-	if (elem && elem.innerHTML != elemText) elem.innerHTML = elemText;
+	if (elem && elem.innerHTML != elemText) {
+		if (elemText && !elem.innerHTML) screenReaderAssert("Anticipation building");
+		else if (!elemText && elem.innerHTML) screenReaderAssert("Anticipation consumed");
+		elem.innerHTML = elemText;
+	}
 }
 
 function updateTitimp() {
@@ -16646,7 +16792,11 @@ function updateTitimp() {
 	}
 
 	const elem = document.getElementById('titimpBuff');
-	if (elem && elem.innerHTML != message) elem.innerHTML = message;
+	if (elem && elem.innerHTML != message) {
+		if (message && !elem.innerHTML) screenReaderAssert("Titimp activated, double damage");
+		else if (!message && elem.innerHTML) screenReaderAssert("Titimp expired");
+		elem.innerHTML = message;
+	}
 }
 
 function updateNomStacks(number) {
@@ -17064,21 +17214,33 @@ function updateImports(which) {
 		var badGuy = game.badGuys[item];
 		var elem = (badGuy.location == "World") ? world : maps;
 		count++;
-		var row = elem.insertRow();
-		var toRun = (which == 1) ? 'addToBundle' : 'selectImp';
-		toRun += '("' + item + '")';
-		if (game.unlocks.imps[item]){
-			row.className = 'importOwned';
+		if (usingScreenReader && which == 0) {
+			var row = elem.insertRow();
+			row.id = item;
+			var cell = row.insertCell();
+			if (game.unlocks.imps[item]) {
+				cell.innerHTML = item + " - " + badGuy.dropDesc + " (Owned)";
+			} else {
+				var radioId = "importRadio_" + item;
+				cell.innerHTML = "<label><input type='radio' name='importSelect' id='" + radioId + "' value='" + item + "' onchange='selectImp(\"" + item + "\")'> " + item + " - " + badGuy.dropDesc + "</label>";
+			}
+		} else {
+			var row = elem.insertRow();
+			var toRun = (which == 1) ? 'addToBundle' : 'selectImp';
+			toRun += '("' + item + '")';
+			if (game.unlocks.imps[item]){
+				row.className = 'importOwned';
+			}
+			else
+			row.setAttribute('onclick', toRun);
+			row.id = (which == 1) ? item + "1" : item;
+			var name = row.insertCell();
+			name.className = "importPreviewName";
+			name.innerHTML = item;
+			var loot = row.insertCell();
+			loot.className = "importPreviewLoot";
+			loot.innerHTML = badGuy.dropDesc;
 		}
-		else
-		row.setAttribute('onclick', toRun);
-		row.id = (which == 1) ? item + "1" : item;
-		var name = row.insertCell();
-		name.className = "importPreviewName";
-		name.innerHTML = item;
-		var loot = row.insertCell();
-		loot.className = "importPreviewLoot";
-		loot.innerHTML = badGuy.dropDesc;
 	}
 }
 
@@ -17424,35 +17586,46 @@ function displaySingleRunBonuses(){
 		document.getElementById('singleRunBonuses').style.marginTop = (anyPortals) ? "0" : "-2.5%";
 		var btnClass;
 		var btnText;
+		var disabled = false;
 		if (bonus.owned){
 			 btnClass = 'boneBtnStateOff';
 			 btnText = 'Active!';
+			 disabled = true;
 		}
 		else {
 			if (item == "heliumy" && game.global.runningChallengeSquared){
 				btnClass = 'boneBtnStateOff';
-				btnText = "Disabled on C<sup>" + ((game.global.universe == 1) ? 2 : 3) + "</sup>";
+				btnText = "Disabled on C" + ((game.global.universe == 1) ? 2 : 3);
+				disabled = true;
 			}
 			else if (item == "quickTrimps" && (game.global.challengeActive == "Trapper" || game.global.challengeActive == "Trappapalooza")){
 				btnClass = 'boneBtnStateOff';
 				btnText = "Disabled on " + game.global.challengeActive;
+				disabled = true;
 			}
 			else{
-				if (game.global.b < bonus.cost)
-					btnClass = 'boneBtnStateOff'
-				else 
+				if (game.global.b < bonus.cost){
+					btnClass = 'boneBtnStateOff';
+					disabled = true;
+				}
+				else
 					btnClass = 'boneBtnStateOn';
 				btnText = bonus.name + " (" + bonus.cost + " bones)";
 			}
 		}
-		html += "<div class='boneBtn " + btnClass + " pointer noselect' id='" + item + "PurchaseBtn'";
+		var tag = usingScreenReader ? 'button' : 'div';
+		html += "<" + tag + " class='boneBtn " + btnClass + " pointer noselect' id='" + item + "PurchaseBtn'";
+		if (usingScreenReader && disabled) html += " disabled";
 		if (btnClass == 'boneBtnStateOn'){
 			var confText = bonus.confirmation;
-			html += " onclick='tooltip(\"Confirm Purchase\", null, \"update\", \"" + confText + "\", \"purchaseSingleRunBonus(&#39;" + item + "&#39;)\", 20)'>" + btnText + "</div>";
+			if (usingScreenReader)
+				html += " onclick='purchaseSingleRunBonus(\"" + item + "\")'>" + btnText + ", " + bonus.text + "</" + tag + ">";
+			else
+				html += " onclick='tooltip(\"Confirm Purchase\", null, \"update\", \"" + confText + "\", \"purchaseSingleRunBonus(&#39;" + item + "&#39;)\", 20)'>" + btnText + "</div>";
 		}
 		else
-			html += ">" + btnText + "</div>";
-		html += bonus.text;
+			html += ">" + btnText + (usingScreenReader ? ", " + bonus.text : "") + "</" + tag + ">";
+		if (!usingScreenReader) html += bonus.text;
 		html += "</div>";
 	}
 	document.getElementById("singleRunBonuses").innerHTML = html;
@@ -17466,34 +17639,44 @@ function displayPermaBoneBonuses(){
 		var btnClass;
 		var btnText;
 		var desc;
+		var disabled = false;
 		if (item == "voidMaps" && game.global.totalPortals < 1){
 			btnClass = 'boneBtnStateOff';
-			btnText = '<span class="icomoon icon-lock"></span>';
-			desc = "Locked until your first Portal!"
+			btnText = usingScreenReader ? 'Locked' : '<span class="icomoon icon-lock"></span>';
+			desc = "Locked until your first Portal!";
+			disabled = true;
 		}
 		else if (bonus.owned == 10){
 			 btnClass = 'boneBtnStateOff';
 			 btnText = bonus.name + ' (10/10)';
 			 desc = bonus.text;
+			 disabled = true;
 		}
 		else {
 			var cost = getNextPermaBonePrice(item);
 			desc = bonus.text;
-			if (game.global.b < cost)
-				btnClass = 'boneBtnStateOff'
-			else 
+			if (game.global.b < cost){
+				btnClass = 'boneBtnStateOff';
+				disabled = true;
+			}
+			else
 				btnClass = 'boneBtnStateOn';
-				btnText = bonus.name + " (" + bonus.owned +  "/10, " + cost + " Bones)";
+			btnText = bonus.name + " (" + bonus.owned +  "/10, " + cost + " Bones)";
 		}
-		html += "<div class='boneBtn " + btnClass + " pointer noselect' id='" + item + "PurchaseBtn'";
+		var tag = usingScreenReader ? 'button' : 'div';
+		html += "<" + tag + " class='boneBtn " + btnClass + " pointer noselect' id='" + item + "PurchaseBtn'";
+		if (usingScreenReader && disabled) html += " disabled";
 		if (btnClass == 'boneBtnStateOn'){
 			var confText = bonus.confirmation;
 			var cost = getNextPermaBonePrice(item);
-			html += " onclick='tooltip(\"Confirm Purchase\", null, \"update\", \"" + confText + "\", \"purchasePermaBoneBonus(&#39;" + item + "&#39;)\"," + cost + ")'>" + btnText + "</div>";
+			if (usingScreenReader)
+				html += " onclick='purchasePermaBoneBonus(\"" + item + "\")'>" + btnText + ", " + desc + "</" + tag + ">";
+			else
+				html += " onclick='tooltip(\"Confirm Purchase\", null, \"update\", \"" + confText + "\", \"purchasePermaBoneBonus(&#39;" + item + "&#39;)\"," + cost + ")'>" + btnText + "</div>";
 		}
 		else
-			html += ">" + btnText + "</div>";
-		html += desc;
+			html += ">" + btnText + (usingScreenReader ? ", " + desc : "") + "</" + tag + ">";
+		if (!usingScreenReader) html += desc;
 		html += "</div>";
 	}
 	document.getElementById("permaBoneBonuses").innerHTML = html;
@@ -17689,9 +17872,11 @@ var sugarRush = {
 	enableIcon: function () {
 		var elem = this.getIconElement();
 		if (!elem){
-			document.getElementById('goodGuyName').innerHTML += ' <span class="badge antiBadge sugarRushBadge" id="sugarRushBuff" onmouseover="tooltip(\'Sugar Rush\', \'customText\', event, sugarRush.tooltipText())" onmouseout="tooltip(\'hide\')"><span class="' + this.icon + '"></span></span>';			
+			document.getElementById('goodGuyName').innerHTML += ' <span class="badge antiBadge sugarRushBadge" id="sugarRushBuff" onmouseover="tooltip(\'Sugar Rush\', \'customText\', event, sugarRush.tooltipText())" onmouseout="tooltip(\'hide\')"><span class="' + this.icon + '"></span></span>';
+			screenReaderAssert("Sugar Rush activated, " + this.getAttackStrength() + "X attack");
 			return;
 		}
+		if (!this.iconEnabled) screenReaderAssert("Sugar Rush activated, " + this.getAttackStrength() + "X attack");
 		elem.style.display = 'inline-block';
 		this.iconEnabled = true;
 	},
@@ -17700,6 +17885,7 @@ var sugarRush = {
 		if (!elem)
 			return;
 		elem.style.display = 'none';
+		if (this.iconEnabled) screenReaderAssert("Sugar Rush expired");
 		this.iconEnabled = false;
 	},
 	tick: function () {
@@ -17804,6 +17990,7 @@ function activateTurkimpPowers() {
 	game.global.turkimpTimer = timeToExpire;
 	if (game.talents.turkimp2.purchased) return;
 	document.getElementById("turkimpBuff").style.display = "block";
+	screenReaderAssert("Well Fed activated");
 	if (game.global.playerGathering) setGather(game.global.playerGathering);
 	var possibilities = [
 	"Yum, Turkimp! You eat some and put some in your pockets for later.",
@@ -17883,6 +18070,7 @@ function updateTurkimpTime(drawIcon = false) {
 	if (timeRemaining <= 0) {
 		game.global.turkimpTimer = 0;
 		document.getElementById('turkimpBuff').style.display = 'none';
+		screenReaderAssert("Well Fed expired");
 		if (game.global.playerGathering) setGather(game.global.playerGathering);
 		elem.innerHTML = '00:00';
 		return;
@@ -18031,8 +18219,10 @@ function toggleAutoStructure(noChange, forceOff){
 	var setting = getAutoStructureSetting();
 	if (!noChange) setting.enabled = !setting.enabled;
 	var btnElem = document.getElementById('autoStructureBtn');
-	if (bwRewardUnlocked("AutoStructure") && !forceOff)
+	if (bwRewardUnlocked("AutoStructure") && !forceOff){
 		btnElem.style.display = 'block';
+		ensureSRInfoButton("autoStructureBtn");
+	}
 	else{
 		btnElem.style.display = 'none';
 		return;
@@ -20565,13 +20755,11 @@ function makeAccessibleTooltip(elemID, args) {
 				if (callback) { callback() }
 			}
 		}
+		// Store args on element so info button can be created later if element is initially hidden
+		elem._srTooltipArgs = args;
 		// Separate info buttons
-		if (srTooltipMode == "button" && elem.style.visibility !== "hidden" && elem.style.display !== "none") {
-			let infoElem = document.createElement("div");
-			infoElem.innerText = "Info";
-			infoElem.className = "visually-hidden SRinfoButton"
-			infoElem.addEventListener("click", function (event) { keyTooltip({key: "?"}, ...args) } );
-			elem.insertAdjacentElement("afterend", infoElem);
+		if (srTooltipMode == "button") {
+			createSRInfoButton(elem, args);
 		}
 		else if (srTooltipMode == "click") { // remove all added info buttons (if they exist) when using click mode
 			document.querySelectorAll(".SRinfoButton").forEach((elem) => {elem.remove()})
@@ -20583,6 +20771,35 @@ function makeAccessibleTooltip(elemID, args) {
 			elem.addEventListener("onmouseout", function (event)  { tooltip("hide"); });
 		}
 	}
+}
+
+function createSRInfoButton(elem, args) {
+	if (!usingScreenReader || srTooltipMode !== "button") return;
+	if (elem.style.visibility === "hidden" || elem.style.display === "none") return;
+	// Don't create duplicate info buttons
+	if (elem.nextElementSibling && elem.nextElementSibling.classList.contains("SRinfoButton")) return;
+	let infoElem = document.createElement("span");
+	let label = args[0] + " info";
+	infoElem.innerText = label;
+	infoElem.setAttribute("role", "button");
+	infoElem.setAttribute("tabindex", "0");
+	infoElem.setAttribute("aria-label", label);
+	infoElem.className = "visually-hidden SRinfoButton";
+	infoElem.addEventListener("click", function (event) { keyTooltip({key: "?"}, ...args) });
+	infoElem.addEventListener("keydown", function (event) {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault();
+			keyTooltip({key: "?"}, ...args);
+		}
+	});
+	elem.insertAdjacentElement("afterend", infoElem);
+}
+
+function ensureSRInfoButton(elemID) {
+	if (!usingScreenReader || srTooltipMode !== "button") return;
+	var elem = document.getElementById(elemID);
+	if (!elem || !elem._srTooltipArgs) return;
+	createSRInfoButton(elem, elem._srTooltipArgs);
 }
 
 function keyTooltip(keyEvent, what, isItIn, event, textString, attachFunction, numCheck, renameBtn, noHide, hideCancel, ignoreShift){

@@ -1402,6 +1402,30 @@ function tooltip(what, isItIn, event, textString, attachFunction, numCheck, rena
 	}
 	if (what == "Export"){
 		var saveText = save(true);
+		// Screenreader: auto-download file, skip the modal
+		if (usingScreenReader) {
+			var saveName = 'Trimps Save P' + game.global.totalPortals;
+			if (game.global.universe == 2 || game.global.totalRadPortals > 0){
+				saveName += " " + game.global.totalRadPortals + " U" + game.global.universe;
+			}
+			saveName += " Z" + game.global.world;
+			var a = document.createElement('a');
+			a.download = saveName + '.txt';
+			if (typeof Blob !== 'undefined' && typeof URL !== 'undefined' && URL.createObjectURL) {
+				var blob = new Blob([saveText], {type: 'text/plain'});
+				a.href = URL.createObjectURL(blob);
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(a.href);
+			} else {
+				a.href = 'data:text/plain,' + encodeURIComponent(saveText);
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+			}
+			return;
+		}
 		if (textString){
 			tooltipText = textString + "<br/><br/><textarea id='exportArea' spellcheck='false' style='width: 100%' rows='5'>" + saveText + "</textarea>";
 			what = "Thanks!";
@@ -2504,6 +2528,12 @@ function getPsString(what, rawNum) {
 	}
 	if (rawNum) return currentCalc;
 	textString += "</tbody></table>";
+	if (usingScreenReader) {
+		var resName = what.charAt(0).toUpperCase() + what.slice(1);
+		screenReaderAssert(resName + " per second: " + prettify(currentCalc));
+		game.global.lockTooltip = false;
+		return;
+	}
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getPsString('" + what + "')", what.charAt(0).toUpperCase() + what.substr(1, what.length) + " Per Second", "Refresh", true);
 }
@@ -3559,6 +3589,11 @@ function getMaxResources(what) {
 		textString += "<tr><td class='bdTitle'>Heirloom (Shield)</td><td class='bdPercent'>+ " + hatAmt + "</td><td class='bdNumber'>" + prettify(currentCalc) + "</td></tr>";
 	}
 	textString += "</tbody></table>";
+	if (usingScreenReader) {
+		screenReaderAssert("Max " + what + ": " + prettify(currentCalc) + ". " + structure + ": " + structureObj.owned);
+		game.global.lockTooltip = false;
+		return;
+	}
 	game.global.lockTooltip = false;
 	tooltip('confirm', null, 'update', textString, "getMaxResources('" + what + "')", "Max " + what, "Refresh", true);
 }
@@ -4806,6 +4841,7 @@ function resetGame(keepPortal, resetting) {
 		if (game.global.autoUpgradesAvailable) document.getElementById("autoUpgradeBtn").style.display = "block";
 		if (game.global.autoStorageAvailable) {
 			document.getElementById("autoStorageBtn").style.display = "block";
+			ensureSRInfoButton("autoStorageBtn");
 			toggleAutoStorage(true);
 		}
 		game.portal.Coordinated.currentSend = 1;
@@ -5099,8 +5135,8 @@ function message(messageString, type, lootIcon, extraClass, extraTag, htmlPrefix
 	if (!extraStyle) extraStyle = "";
 	else extraStyle = "; " + extraStyle;
 	if (usingScreenReader){
-		if (type == "Story") document.getElementById('srSumLastStory').innerHTML = "Z " + game.global.world + ": " + messageString;
-		if (type == "Combat") document.getElementById('srSumLastCombat').innerHTML = messageString;
+		if (type == "Story" && game.global.messages.Story.enabled) document.getElementById('srSumLastStory').innerHTML = "Z " + game.global.world + ": " + messageString;
+		if (type == "Combat" && game.global.messages.Combat.enabled) document.getElementById('srSumLastCombat').innerHTML = messageString;
 	}
 	if (messageLock && type !== "Notices"){
 		return;
@@ -5180,7 +5216,22 @@ function postMessages(){
         var log = document.getElementById("log");
         var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
         var pendingMessages = pendingLogs.all.join('');
-        log.innerHTML += pendingMessages;
+        // Announce new messages via a separate live region so log DOM changes never trigger SR
+        if (usingScreenReader) {
+            var announceDiv = document.getElementById('srLogAnnounce');
+            if (announceDiv) {
+                var temp = document.createElement('div');
+                temp.innerHTML = pendingMessages;
+                var visibleText = '';
+                for (var i = 0; i < temp.children.length; i++) {
+                    if (temp.children[i].style.display !== 'none') {
+                        visibleText += temp.children[i].textContent + ' ';
+                    }
+                }
+                announceDiv.textContent = visibleText.trim();
+            }
+        }
+        log.insertAdjacentHTML('beforeend', pendingMessages);
         pendingLogs.all = [];
         for (var item in pendingLogs){
             if (item == "all" || item == "RAF") continue;
@@ -5223,17 +5274,25 @@ function trimMessages(what){
 function filterMessage(what, updateOnly){ //send true for updateOnly
 	var log = document.getElementById("log");
 	var displayed = game.global.messages[what].enabled;
+	var btnElem = document.getElementById(what + "Filter");
+	if (btnElem == null) return;
+	var isCheckbox = (btnElem.type === 'checkbox');
 	if (!updateOnly){
-		displayed = (displayed) ? false : true;
+		if (isCheckbox) {
+			displayed = btnElem.checked;
+		} else {
+			displayed = !displayed;
+		}
 		game.global.messages[what].enabled = displayed;
 	}
 	var toChange = document.getElementsByClassName(what + "Message");
-	var btnText = (displayed) ? what : what + " off";
-	var btnElem = document.getElementById(what + "Filter");
-	if (btnElem == null) return;
-	btnElem.innerHTML = btnText;
-	btnElem.className = "";
-	btnElem.className = getTabClass(displayed);
+	if (isCheckbox) {
+		btnElem.checked = displayed;
+	} else {
+		btnElem.innerHTML = (displayed) ? what : what + " off";
+		btnElem.className = "";
+		btnElem.className = getTabClass(displayed);
+	}
 	displayed = (displayed) ? "block" : "none";
 	for (var x = 0; x < toChange.length; x++){
 		toChange[x].style.display = displayed;
@@ -5358,6 +5417,9 @@ function numTab(what, p) {
 		const thisTab = document.getElementById(tabType + x);
 		if (what === x) thisTab.className = thisTab.className.replace('tabNotSelected', 'tabSelected');
 		else thisTab.className = thisTab.className.replace('tabSelected', 'tabNotSelected');
+		// Sync radio button checked state for screen reader layout
+		var radio = thisTab.querySelector('input[type="radio"]');
+		if (radio) radio.checked = (what === x);
 		if (x === 5) continue;
 		switch (x) {
 			case 1:
@@ -6017,9 +6079,16 @@ function unlockMap(what) { //what here is the array index
 		}
 	}
 	else abbrev = ((abbrev) ? getMapSpecTag(abbrev) : "");
-	let tagName = (usingScreenReader) ? 'li' : 'div'
-	if (game.options.menu.extraStats.enabled) elem.innerHTML = '<' + tagName + tooltip + ' class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><div class="onMapIcon"><span class="' + getMapIcon(item) + '"></span></div><div class="thingName onMapName">' + item.name + '</div><br/><span class="thingOwned mapLevel"><span class="stackedVoids">' + ((item.stacked) ? "(x" + (item.stacked + 1) + ") " : "") + '</span>Level ' + level + abbrev + '</span><br/><span class="onMapStats"><span class="icomoon icon-gift2"></span>' + Math.floor(item.loot * 100) + '% </span><span class="icomoon icon-cube2"></span>' + item.size + ' <span class="icon icon-warning"></span>' + Math.floor(item.difficulty * 100) + '%</' +tagName +'>' + elem.innerHTML;
-	else elem.innerHTML = '<' + tagName + tooltip + ' class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel"><span class="stackedVoids">' + ((item.stacked) ? "(x" + (item.stacked + 1) + ") " : "") + '</span>Level ' + level + abbrev + '</span></'+ tagName + '>' + elem.innerHTML;
+	let tagName = 'div'
+	var isSelected = (item.id == game.global.lookingAtMap || item.id == game.global.currentMapId);
+	var radioAttrs = ' role="radio" aria-checked="' + isSelected + '" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectMap(\'' + item.id + '\')}"';
+	if (game.options.menu.extraStats.enabled){
+		var lootLabel = (usingScreenReader) ? 'Loot ' : '<span class="icomoon icon-gift2"></span>';
+		var sizeLabel = (usingScreenReader) ? ' Size ' : '<span class="icomoon icon-cube2"></span>';
+		var diffLabel = (usingScreenReader) ? ' Difficulty ' : '<span class="icon icon-warning"></span>';
+		elem.innerHTML = '<' + tagName + tooltip + radioAttrs + ' class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><div class="onMapIcon"><span class="' + getMapIcon(item) + '"></span></div><div class="thingName onMapName">' + item.name + '</div><br/><span class="thingOwned mapLevel"><span class="stackedVoids">' + ((item.stacked) ? "(x" + (item.stacked + 1) + ") " : "") + '</span>Level ' + level + abbrev + '</span><br/><span class="onMapStats">' + lootLabel + Math.floor(item.loot * 100) + '% ' + sizeLabel + item.size + ' ' + diffLabel + Math.floor(item.difficulty * 100) + '%</span></' +tagName +'>' + elem.innerHTML;
+	}
+	else elem.innerHTML = '<' + tagName + tooltip + radioAttrs + ' class="' + btnClass + '" id="' + item.id + '" onclick="selectMap(\'' + item.id + '\')"><span class="thingName">' + item.name + '</span><br/><span class="thingOwned mapLevel"><span class="stackedVoids">' + ((item.stacked) ? "(x" + (item.stacked + 1) + ") " : "") + '</span>Level ' + level + abbrev + '</span></'+ tagName + '>' + elem.innerHTML;
 	if (item.id == game.global.currentMapId) swapClass("mapElement", "mapElementSelected", document.getElementById(item.id));
 }
 
@@ -6231,6 +6300,20 @@ function updateButtonColor(what, canAfford, isJob) {
 	}
 	else
 		swapClass("thingColor", "thingColorCanNotAfford", elem);
+	// Screenreader: wrap affordable items in h1 for heading navigation
+	if (usingScreenReader) {
+		if (canAfford && elem.parentElement && elem.parentElement.tagName !== 'H1') {
+			var h1 = document.createElement('h1');
+			h1.style.margin = '0';
+			h1.style.fontSize = 'inherit';
+			elem.parentElement.insertBefore(h1, elem);
+			h1.appendChild(elem);
+		} else if (!canAfford && elem.parentElement && elem.parentElement.tagName === 'H1') {
+			var h1 = elem.parentElement;
+			h1.parentElement.insertBefore(elem, h1);
+			h1.remove();
+		}
+	}
 }
 
 function getWarpstationColor() {
@@ -7578,6 +7661,22 @@ if (elem == null) {
   else
   	className = className[0] + newClass;
   elem.className = className;
+  // Screenreader: mark/unmark the active cell with * and aria-current live region
+  if (usingScreenReader && prefix === 'cellColor') {
+	if (newClass === 'cellColorCurrent') {
+		elem.setAttribute('aria-current', 'true');
+		if (!elem.querySelector('.srCurrentMarker')) {
+			var marker = document.createElement('span');
+			marker.className = 'srCurrentMarker';
+			marker.textContent = '* ';
+			elem.prepend(marker);
+		}
+	} else {
+		elem.removeAttribute('aria-current');
+		var marker = elem.querySelector('.srCurrentMarker');
+		if (marker) marker.remove();
+	}
+  }
 }
 
 function goRadial(elem, currentSeconds, totalSeconds, frameTime) {

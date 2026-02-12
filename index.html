@@ -766,7 +766,7 @@
 							</div>
 							<div class="battleSideBtnContainer">
 								<div id="mapsBtn" class="btn btn-warning fightBtn" onmouseover="tooltip('Maps', null, event)" onmouseout="tooltip('hide')" style="display: none">
-									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div><div onclick="tooltip('Configure Maps', null, 'update')">
+									<div id='mapsBtnText' onclick="mapsClicked()">Maps</div><div onclick="tooltip('Configure Maps', null, 'update')" role="button" aria-label="Configure Maps">
 										<span class='glyphicon glyphicon-cog'></span></div>
 								</div>
 							</div>
@@ -807,7 +807,7 @@
 						</div>
 						<div class="col-xs-10" id="gridContainer">
 							<div id="grid"></div>
-							<div id="preMaps" style="display: none">
+							<div id="preMaps" style="display: none" role="region" aria-label="Map Chamber" aria-live="polite">
 							<div style="display: none" id="mapsCreateRow" class="row">
 								<div id="openTutorialContainer2" style="display: none;">
 									<span id="openTutorialBtn2" class="flashNo icomoon icon-star pointer tutorialStar" onclick="tutorial.popup()" style="color: gold;"></span>
@@ -839,7 +839,7 @@
 										Loot
 									</div>
 									<br/>
-									<input value="0" id="lootAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
+									<input value="0" id="lootAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()" aria-label="Loot">
 									<div id="lootAdvMapsText"></div>
 								</div>
 								<div id="advSizeContainer" class="col-xs-3 mapConfigContainer lowPad">
@@ -847,7 +847,7 @@
 										Size
 									</div>
 									<br/>
-									<input value="0" id="sizeAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
+									<input value="0" id="sizeAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()" aria-label="Size">
 									<div id="sizeAdvMapsText"></div>
 								</div>
 								<div id="advDifficultyContainer" class="col-xs-3 mapConfigContainer lowPad">
@@ -855,7 +855,7 @@
 										Difficulty
 									</div>
 									<br/>
-									<input value="0" id="difficultyAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()">
+									<input value="0" id="difficultyAdvMapsRange" class="mapSelector mapInput" type="range" min="0" max="9" oninput="updateMapNumbers()" onchange="updateMapNumbers()" aria-label="Difficulty">
 									<div id="difficultyAdvMapsText"></div>
 								</div>
 								<div id="advBiomeContainer" class="col-xs-3 mapConfigContainer lowPad" onmouseover="tooltip('Biome', 'advMaps', event)" onmouseout="tooltip('hide')">
@@ -863,7 +863,7 @@
 										Biome
 									</div>
 									<br/>
-									<select id="biomeAdvMapsSelect" class="advSelect" onchange="updateMapCost()">
+									<select id="biomeAdvMapsSelect" class="advSelect" onchange="updateMapCost()" aria-label="Biome">
 										<option value="Random">Random</option>
 										<option value="Mountain">Mountain</option>
 										<option value="Forest">Forest</option>
@@ -935,10 +935,10 @@
 									</div>
 								</div>
 								<div id="selectMapBtns">
-									<span id="selectMapBtn" class="workBtn pointer noselect infoColor selectMapBtn" style="visibility: hidden" onclick="runMap()">
+									<span id="selectMapBtn" role="button" tabindex="0" class="workBtn pointer noselect infoColor selectMapBtn" style="visibility: hidden" onclick="runMap()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();runMap()}">
 										Run Map
 									</span>
-									<span id="recycleMapBtn" class="workBtn pointer noselect dangerColor selectMapBtn" style="visibility: hidden" onclick="recycleMap()">
+									<span id="recycleMapBtn" role="button" tabindex="0" class="workBtn pointer noselect dangerColor selectMapBtn" style="visibility: hidden" onclick="recycleMap()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();recycleMap()}">
 										Recycle Map
 									</span>
 								</div>
@@ -954,9 +954,9 @@
 									<div class="mapStatsValue" id="mapStatsLoot"></div>
 								</div>	
 							</div>
-							<div id="mapsHere" class="mapSize1 niceScroll">
+							<div id="mapsHere" class="mapSize1 niceScroll" role="radiogroup" aria-label="Map Inventory">
 							</div>
-							<div id="voidMapsHere" class="niceScroll">
+							<div id="voidMapsHere" class="niceScroll" role="radiogroup" aria-label="Void Map Inventory">
 							</div>
 							</div>
 							<div id="mapGrid" class="gridShrunk" style="display: none;"></div>
