@@ -5058,10 +5058,10 @@ input::-webkit-inner-spin-button {
 }
 
 .mapElementSelected {
-	-webkit-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
-    -moz-box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
-    box-shadow:inset 0px 0px 0px 0.2vw #7D2A2A;
-	border: 0;
+	-webkit-box-shadow:inset 0px 0px 0px calc(0.2vw - 1px) #7D2A2A;
+    -moz-box-shadow:inset 0px 0px 0px calc(0.2vw - 1px) #7D2A2A;
+    box-shadow:inset 0px 0px 0px calc(0.2vw - 1px) #7D2A2A;
+	border: 1px solid #7D2A2A;
 }
 
 .mapElementNotSelected {
