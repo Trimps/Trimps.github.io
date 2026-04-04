@@ -10189,7 +10189,7 @@ function getRandomBadGuy(mapSuffix, level, totalCells, world, imports, mutation,
 	if (game.global.challengeActive == "Daily"  && typeof game.global.dailyChallenge.mutimps !== 'undefined' && !mapSuffix && !force){
 		var mutStr = game.global.dailyChallenge.mutimps.strength;
 		if (level <= dailyModifiers.mutimps.getMaxCellNum(mutStr)){
-			var mobName = mutStr < 6 ? "Mutimp" : "Hulking_Mutimp";
+			var mobName = mutStr < 6 ? "Mutimp" : "Hulking Mutimp";
 			if (getRandomIntSeeded(enemySeed++, 0, 10) < 4){
 				game.global.enemySeed = enemySeed;
 				return mobName;
